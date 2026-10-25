@@ -52,4 +52,3 @@ test("category, filter, rank and sort controls preserve semantics", async ({ pag
  await page.setViewportSize({ width: 390, height: 844 });
  await expect(page.getByRole("region", { name: "PL model results" })).toBeVisible();
 });
-

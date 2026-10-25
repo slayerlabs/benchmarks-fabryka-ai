@@ -54,5 +54,3 @@ export type SortKey =
   | "date";
 export type Direction = "asc" | "desc";
 export type SizeKey = "all" | "16" | "32" | "64" | "150" | "350" | "350+";
-
-

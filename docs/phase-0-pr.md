@@ -13,4 +13,3 @@ TypeScript, ESLint, 12 local unit tests, 2 Chromium interaction tests and produc
 ## Repository initialization
 
 The supplied repository was empty and had no main branch. The feature history begins with an empty initialization commit, followed by Phase 0 implementation. A maintainer can establish main at that empty commit, then review the feature branch against it. No application implementation has been merged to main.
-

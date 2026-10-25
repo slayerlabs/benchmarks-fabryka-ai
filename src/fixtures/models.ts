@@ -17,4 +17,3 @@ export const fixtureModels: BoardRow[] = [
  { ...base, run_id: "fixture-e", name: "TEST DATA · EN only 350M", n_params: 350_000_000, trust: "measured", categories: ["en"], pl: { eff: null, multiblimp: null, arc_easy: null, byte_ppl: null }, combined: null, checkpoint_sha256: "e".repeat(64), en: { ...base.en, eff: 30 } },
  { ...base, run_id: "fixture-f", name: "TEST DATA · Partial PL >350M", n_params: 350_000_001, trust: "reported", categories: ["pl"], en: { eff: null, arc_easy: null, blimp: null, wiki_byte_ppl: null }, pl: { eff: null, multiblimp: 60, arc_easy: null, byte_ppl: null }, combined: null, checkpoint_sha256: "f".repeat(64) },
 ];
-

@@ -30,4 +30,3 @@ Unit tests use Node's built-in runner. Playwright exercises the actual UI and bl
 Keep `main` stable. Create `feature/*`, `fix/*` or `experiment/*` branches and open a PR. Describe behavior, test results, screenshots for UI changes and any scoring/provenance impact. Request team review before merging. Never modify `slayerlabs/fabryka-track` or production infrastructure. Never configure production API access, credentials, SSH or autodeploy here.
 
 See [architecture and source attribution](docs/architecture.md) for responsibilities, exact calculation semantics and the future read-only adapter boundary. See [AGENTS.md](AGENTS.md) for agent instructions.
-

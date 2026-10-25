@@ -458,4 +458,3 @@ export function ModelBoardPage({ source = fixtureSource }: { source?: Leaderboar
     </>
   );
 }
-

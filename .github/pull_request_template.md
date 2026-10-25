@@ -13,4 +13,3 @@ Describe the concrete change and any scoring, missing-value or provenance impact
 - [ ] Only local fixtures; no production API, credentials, jobs or deployment
 
 Request team review before merging to main.
-

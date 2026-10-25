@@ -199,4 +199,3 @@ test("only external rows with a Hugging Face tree URL get an outbound link", () 
   );
   assert.equal(hfLink(row("track", { hf_url: url })), null);
 });
-

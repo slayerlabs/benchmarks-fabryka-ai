@@ -174,4 +174,3 @@ export function checkpointDetails(row: BoardRow) {
     .filter(Boolean)
     .join(" · ");
 }
-

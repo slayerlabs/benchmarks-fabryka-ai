@@ -20,4 +20,3 @@ test("fixture adapter returns isolated snapshots without external services", asy
  assert.equal((await fixtureSource.load()).models[0].en.eff, 55);
  assert.equal(fixtureModels[0].en.eff, 55);
 });
-
