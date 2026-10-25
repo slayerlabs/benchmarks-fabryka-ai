@@ -19,6 +19,7 @@ test("fixture labels, trust presentation and provenance", async ({ page }) => {
  await page.getByText("Details", { exact: true }).first().click();
  await expect(page.getByText(/ckpt aaaaaaaa/)).toBeVisible();
  await page.getByRole("group", { name: "Language" }).getByRole("button", { name: "PL", exact: true }).click();
+ await page.getByLabel("Show secondary metrics").check();
  await expect(page.getByText("measured by track", { exact: true })).toBeVisible();
  const external = page.getByRole("row").filter({ hasText: "External tie" });
  await expect(external).toContainText("65.00†");

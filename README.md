@@ -1,6 +1,8 @@
 # Fabryka Benchmarks
 
-Phase 0: an isolated React 19 / TypeScript / Vite / React Router Model Leaderboard playground. All displayed models and measurements are explicitly labeled **synthetic test data**. No backend, credentials, production API, database, training jobs or deployment.
+An isolated React 19 / TypeScript / Vite / React Router frontend for Fabryka Benchmarks. Phase 1 adds Leaderboard, AutoEval, Benchmarks and About / Methodology views. All displayed models and measurements are explicitly labeled **synthetic test data**. AutoEval is a disconnected prototype; no backend, credentials, production API, database, training jobs or deployment.
+
+See [Phase 1 UI architecture, verification and screenshots](docs/phase1-product-ui.md) for the display registry, version-aware provenance contract, limitations and stacked-PR dependency.
 
 ## Local development
 

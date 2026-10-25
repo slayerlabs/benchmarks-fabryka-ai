@@ -35,3 +35,18 @@
 .mb-badge-reported { color:var(--lb-muted); }
 .lb-empty { padding:55px 20px; text-align:center; border:1px dashed var(--lb-line); color:var(--lb-muted); }
 .mb-caveat { margin-top:24px; }
+.compatibility-note { background: #f3f1ec; border-left: 3px solid #b78630; padding: 12px 16px; font-size: 12px; line-height: 1.6; color: #5c584f; }
+.lb-table { min-width: 780px; }
+.lb-table td { padding: 20px 16px; }
+.lb-table th { padding: 14px 16px; }
+.lb-table td.primary-metric { background: #fff8f1; font-size: 18px; color: #8b351d; }
+.lb-run-name .scale-label { font-size: 10px; color: #615d55; margin-top: 8px; }
+.provenance { min-width: 240px; max-width: 440px; margin: 12px 0; padding: 14px; background: #faf9f6; border: 1px solid #dedbd3; font-size: 12px; }
+.provenance h2 { font-size: 16px; }
+.provenance p { line-height: 1.6; }
+.provenance dl { margin: 12px 0; }
+.provenance dl div { margin-bottom: 10px; }
+.provenance dt { font-weight: 600; color: #615d55; }
+.provenance dd { margin: 4px 0 0; overflow-wrap: anywhere; line-height: 1.5; }
+.lb-table-scroll { border: 1px solid #dedbd3; border-radius: 4px; }
+@media(max-width: 600px) { .mb-controls { align-items: flex-start; flex-direction: column; } .lb-table-scroll { max-width: 100%; } .lb-table td { padding: 16px 12px; } }
