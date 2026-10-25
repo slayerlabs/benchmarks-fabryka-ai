@@ -7,6 +7,7 @@ export function EvaluationDetails({ row, suiteId }: { row: BoardRow; suiteId: st
   const p = fixtureProvenance(row, suiteId);
   const facts = [
     ["Contract", p.schemaVersion], ["Evaluation ID", p.evaluationId],
+    ["Submission source", p.submissionSource], ["Leaderboard category", p.leaderboardCategory],
     ["Benchmark suite", p.suite.id], ["Evaluation suite version", p.suite.version],
     ["Scorer version", p.scorer.version], ["Scorer Git SHA (fixture harness)", p.scorer.gitSha],
     ["Dataset ID / revision / SHA-256", p.datasets?.map(d => [d.id, d.revision, d.sha256].map(unavailable).join(" / ")).join("; ")],

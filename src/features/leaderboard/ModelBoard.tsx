@@ -185,7 +185,7 @@ export function ModelBoardPage({ source = fixtureSource }: { source?: Leaderboar
   const [suiteId, setSuiteId] = useState(benchmarkSuites[0].id);
   const suite = benchmarkSuites.find(s => s.id === suiteId)!;
   const category = suite.category;
-  const [showSecondary, setShowSecondary] = useState(false);
+  const [showSecondary, setShowSecondary] = useState(true);
   const [size, setSize] = useState<SizeKey>("all");
   const [hideReported, setHideReported] = useState(false);
   const [axis, setAxis] = useState<RankAxis>("eff");

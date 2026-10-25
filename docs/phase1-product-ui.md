@@ -21,13 +21,13 @@ A local installed browser can be reused with `CHROMIUM_PATH=/usr/bin/chromium np
 
 ## Routes and responsibilities
 
-- `/models`: legacy fixture leaderboard, primary metric immediately after identity; secondary metrics are opt-in. EN Overall remains an alternate ranking axis. Filters, stable sorts, missing values and competition ranks are unchanged.
-- `/autoeval`: editable planning form and explicitly synthetic execution-state examples. Run is disabled. No repository inspection, validation, submission, downloads, jobs or result publication occurs.
-- `/benchmarks`: typed suite catalog with metric units/directions and methodology links.
+- `/models`: legacy fixture leaderboard, primary metric immediately after identity; individual benchmark metrics are visible by default and can be collapsed. EN Overall remains an alternate ranking axis. Filters, stable sorts, missing values and competition ranks are unchanged.
+- `/autoeval`: one HF model input with local-only syntax parsing and normalization. Remote inspection/evaluation is explicitly unavailable. No live validation, submission, downloads, jobs or result publication occurs; the UI resolves no revision or checkpoint.
+- `/benchmarks`: individual source-backed tests, inspected suites/bundles, leaderboard categories, protocol descriptions and dataset revision metadata. Unknown licenses/revisions/hashes remain unknown.
 - `/methodology`: established historical formulas, limitations, trust, identity, reproducibility and future plans. The draft fabryka.scoring/1.0 proposal is not presented as approved.
 - `components/AppLayout.tsx`: responsive navigation, shared fixture notice, route focus and footer.
 - `features/leaderboard/suites.ts`: display configuration for existing EN/PL/PL+EN views. Its legacy-display-v1 version is not an evaluation protocol or proof of compatibility. New views over the supported row metrics can reuse this page; new metric fields require explicit contract/helper/test extensions.
-- `contracts/evaluation.ts`: versioned provenance UI contract, distinct execution and verification status fields.
+- `contracts/evaluation.ts`: provenance UI v2 separates submission source, execution and verification; it also distinguishes the leaderboard category from the unknown evaluation suite. v1 is retained as a historical type. This is not a canonical scoring schema.
 - `fixtures/provenance.ts`: maps existing synthetic facts only; missing evidence stays null and is shown as Unavailable. Run ID is not repurposed as an invented evaluation ID. No trust-to-verification inference.
 - `EvaluationDetails.tsx`: keyboard-operable row details with model/checkpoint, dataset, tokenizer, runtime, timestamp, status and logs/reproduction fields.
 
@@ -35,7 +35,7 @@ Scoring/ranking helpers, original BoardRow contract and fixture scores remain by
 
 ## Review evidence
 
-14 unit assertions/tests cover the existing scoring/display behavior plus registry/provenance configuration. Six Playwright tests cover actual fixture rendering, unchanged sorting/ranking, primary metric order, optional secondary metrics, navigation/direct routing, missing provenance and disconnected AutoEval states. Browser tests reject nonlocal HTTP requests.
+16 unit tests cover existing scoring/display behavior, registry/provenance configuration, repository-input syntax and catalog separation. Six Playwright tests cover actual fixture rendering, unchanged sorting/ranking, visible default metrics and column expansion, navigation/direct routing, unknown provenance and the honest one-input AutoEval boundary. Browser tests reject nonlocal HTTP requests.
 
 Screenshots captured from the built application:
 
@@ -44,10 +44,10 @@ Screenshots captured from the built application:
 - [Desktop AutoEval](screenshots/phase1-autoeval-desktop.png)
 - [Mobile AutoEval](screenshots/phase1-autoeval-mobile.png)
 
-Horizontal table scrolling stays inside a labeled, keyboard-focusable results region; navigation and forms fit narrow screens. No avatar, automatic submission countdown or decorative debug panel is included.
+Horizontal table scrolling stays inside a labeled, keyboard-focusable results region; navigation and the single-input interaction fit narrow screens. The prominent navigation uses the inspected Track wordmark conventions, local factory mark and warm paper/rust colors. No unrelated Training Studio navigation, avatar, countdown or decorative debug panel is included.
 
 ## Not implemented
 
-Canonical evaluation package, live data, protocol compatibility enforcement, authentication, worker isolation, job orchestration, GPU access and official verification are future work. Unknown provenance cannot be “filled in” to make the panel appear complete. Prototype status selection never creates a measured result.
+Canonical evaluation package, live inspection/data, protocol compatibility enforcement, authentication, worker isolation, job orchestration, GPU access and official verification are future work. Unknown provenance cannot be “filled in” to make the panel appear complete. Preparing an input does not create a submission or evaluation. See the [missing inspection/backend contract](autoeval-inspection-contract.md) for the source inventory, boundaries and future workflow.
 
 Architecture RFCs and scoring compatibility work already present in this workspace are separate review artifacts, not prerequisites implemented by this UI PR. Production Track remains untouched.

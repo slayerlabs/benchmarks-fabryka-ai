@@ -1,25 +1,37 @@
 import { useState } from "react";
+import { Link } from "react-router";
 import { PageTop } from "../components/PageTop";
-import { benchmarkSuites } from "../features/leaderboard/suites";
-const phases = ["Pending", "Validating", "Loading model", "Evaluating", "Completed", "Failed"] as const;
+import { parseModelInput } from "../features/autoeval/model-input";
+
 export function AutoEvalPage() {
-  const [example, setExample] = useState<typeof phases[number]>("Pending");
-  return <><PageTop title="AutoEval" description={<p>Explore the intended submission workflow. AutoEval execution is not yet connected.</p>} />
-    <div className="autoeval-grid"><section className="panel"><h2>1–4 · Describe a checkpoint</h2><p>Editable planning inputs only. Nothing is validated, uploaded or submitted.</p>
-      <form onSubmit={e => e.preventDefault()}>
-        <label>Hugging Face repository<input placeholder="owner/model" autoComplete="off" /></label>
-        <label>Pinned model revision<input placeholder="Full immutable commit SHA" autoComplete="off" /></label>
-        <label>Checkpoint selection<input placeholder="Exact checkpoint filename or artifact set" autoComplete="off" /></label>
-        <label>Benchmark suite<select>{benchmarkSuites.map(s => <option key={s.id} value={s.id}>{s.label} · {s.version} (display fixture)</option>)}</select></label>
-        <p id="execution-unavailable">Execution unavailable: no model inspection, validation, downloads or evaluation service is connected.</p>
-        <button type="submit" disabled aria-describedby="execution-unavailable">Run evaluation — not connected</button>
+  const [input, setInput] = useState("");
+  const [repository, setRepository] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  return <><PageTop title="AutoEval" description={<p>Start with a Hugging Face model. AutoEval is intended to inspect the repository and resolve the technical details for you.</p>} />
+    <section className="panel model-entry">
+      <span className="eyebrow">ONE MODEL INPUT · FRONTEND PREVIEW</span>
+      <h2>Which model would you like to evaluate?</h2>
+      <form onSubmit={e => {
+        e.preventDefault();
+        const result = parseModelInput(input);
+        setError(result.ok ? null : result.error);
+        setRepository(result.ok ? result.repository : null);
+      }}>
+        <label htmlFor="model-input">Hugging Face model URL or repository ID</label>
+        <div className="inspection-input"><input id="model-input" value={input} onChange={e => { setInput(e.target.value); setRepository(null); setError(null); }} placeholder="SlayerLab/GoLLeM-v6-250M" autoComplete="off" aria-describedby="inspection-boundary" aria-invalid={!!error} />
+          <button className="primary-action" type="submit">Prepare inspection</button></div>
+        <p id="inspection-boundary">Inspection is not connected. This action checks the input format locally only; it does not contact Hugging Face or start a job.</p>
+        {error && <p role="alert">{error}</p>}
       </form>
-    </section><section className="panel"><span className="eyebrow">SYNTHETIC STATUS EXAMPLES</span><h2>5–7 · Validation, execution, results</h2>
-      <label>Inspect an example state<select value={example} onChange={e => setExample(e.target.value as typeof example)}>{phases.map(p => <option key={p}>{p}</option>)}</select></label>
-      <p role="status">Illustrative execution status: <strong>{example}</strong>. No job is running.</p>
-      <p>Validation: unavailable · no repository has been inspected.</p><p>Progress: unavailable · no samples have been evaluated.</p>
-      <p>Verification status: <strong>Unreviewed</strong> (illustrative). Awaiting review and Officially verified require a future authenticated review workflow.</p>
-      <p>Results and provenance: unavailable. Completed in this example does not create a result or grant verification.</p>
-      <details><summary>Logs and reproducibility</summary><p>Unavailable: this is a disconnected UI prototype. No execution logs or reproduction command exist.</p></details>
+      <p className="input-example">Accepts owner/model or https://huggingface.co/owner/model. No manual revision, checkpoint or runtime configuration is needed at this stage.</p>
+      {repository && <div className="inspection-blocked" role="status"><strong>Repository format checked: {repository}</strong><p>Remote inspection unavailable. No revision has been resolved, no model has been validated, and no request was sent.</p><button disabled>Inspect model — service not connected</button></div>}
+    </section>
+    <div className="autoeval-grid"><section className="panel"><h2>Automatic inspection · intended workflow</h2>
+      <ol className="workflow-list"><li>Resolve and pin a repository revision.</li><li>Inspect architecture, checkpoints and tokenizer artifacts.</li><li>Determine compatible benchmarks and resource requirements.</li><li>Select a supported checkpoint when unambiguous; ask only if a necessary choice remains.</li><li>Run through an isolated official runner and retain the result manifest.</li><li>Publish to the leaderboard only after eligibility and review gates pass.</li></ol>
+      <p>These steps require a backend. None runs in this frontend.</p><Link to="/benchmarks">Explore individual benchmarks →</Link>
+    </section><section className="panel"><h2>Inspection and evaluation evidence</h2>
+      <dl className="inspection-facts"><div><dt>Requested repository</dt><dd>{repository ?? "Not provided"}</dd></div><div><dt>Pinned revision / checkpoint / tokenizer</dt><dd>Unavailable — remote inspection not connected</dd></div><div><dt>Compatible suites / resource validation</dt><dd>Unavailable — not inferred from the repository name</dd></div><div><dt>Submission source</dt><dd>AutoEval intent only — nothing submitted</dd></div><div><dt>Execution status</dt><dd>Unavailable — no evaluation exists</dd></div><div><dt>Verification status</dt><dd>Unavailable — no review exists</dd></div><div><dt>Results / manifest</dt><dd>Unavailable</dd></div></dl>
+      <details><summary>Logs and reproducibility</summary><p>Unavailable: no execution occurred. Successful execution would not, by itself, establish official verification.</p></details>
+      <Link to="/methodology#autoeval">How inspection and official scoring are intended to work →</Link>
     </section></div></>;
 }

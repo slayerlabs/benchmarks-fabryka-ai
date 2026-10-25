@@ -1,11 +1,18 @@
 import { Link } from "react-router";
 import { PageTop } from "../components/PageTop";
-import { benchmarkSuites } from "../features/leaderboard/suites";
+import { benchmarkSuites as leaderboardViews } from "../features/leaderboard/suites";
+import { benchmarkCatalog, evaluationSuiteCatalog, benchmarkMapReference } from "../features/benchmarks/catalog";
 export function BenchmarksPage() {
-  return <><PageTop title="Benchmarks" description={<p>Initial legacy leaderboard views. Registry versions describe this UI, not an approved evaluation protocol.</p>} />
-    <div className="suite-grid">{benchmarkSuites.map(s => <article className="panel" key={s.id}><span className="eyebrow">{s.id} · {s.version}</span><h2>{s.label}</h2><p>{s.summary}</p>
-      <p>Primary: <strong>{s.primary.label}</strong> · {s.primary.unit} · {s.primary.direction === "desc" ? "higher" : "lower"} is better</p>
-      <p>Secondary: {s.secondary.map(m => `${m.label} (${m.unit})`).join(", ")}</p><Link to={s.documentation}>Metric definitions and limitations →</Link>
+  return <><PageTop title="Benchmarks" description={<p>Tests, suites and scoring instruments behind the leaderboard. Catalog facts come from inspected source and pinned documentation; no benchmark can run in this frontend.</p>} />
+    <div className="catalog-intro panel"><h2>Five different kinds of information</h2><dl className="concept-grid">
+      <div><dt>Benchmark</dt><dd>A specific test of a capability.</dd></div><div><dt>Suite</dt><dd>A versioned selection of tests and eligibility rules.</dd></div><div><dt>Category</dt><dd>A leaderboard view such as EN, PL or PL+EN.</dd></div><div><dt>Protocol</dt><dd>Tokenization, prompts, windows, scoring and numerical rules.</dd></div><div><dt>Dataset revision</dt><dd>The immutable input identity; not the protocol or result itself.</dd></div>
+    </dl></div>
+    <h2 className="section-heading">Individual benchmarks</h2><p className="catalog-note">These are source-backed definitions, not newly measured results. Unknown hashes, licenses and runtime details are not inferred.</p>
+    <div className="suite-grid">{benchmarkCatalog.map(b => <article className="panel benchmark-card" id={b.id} key={b.id}><span className="eyebrow">{b.id}</span><h2>{b.name}</h2><p>{b.purpose}</p><p><strong>Task:</strong> {b.task}</p><p><strong>Metrics:</strong> {b.metrics}</p>
+      <details><summary>Protocol, dataset and reproducibility</summary><dl><div><dt>Scoring protocol / revision</dt><dd>{b.protocol}</dd></div><div><dt>Dataset / source</dt><dd>{b.dataset.id}</dd></div><div><dt>Dataset revision</dt><dd>{b.dataset.revision ?? "Unknown — resolve from the actual evaluation manifest"}</dd></div><div><dt>Dataset SHA-256</dt><dd>{b.dataset.sha256 ?? "Unknown — no frozen file checksum established here"}</dd></div><div><dt>Data availability</dt><dd>{b.dataset.access}</dd></div><div><dt>License</dt><dd>{b.dataset.license ?? "Unknown in the reviewed snapshot — verify terms before use or redistribution"}</dd></div><div><dt>Reproduction</dt><dd>{b.reproduction}</dd></div><div><dt>Evidence boundary</dt><dd>{b.evidence}</dd></div></dl><a href={b.code}>Scorer source / pinned reference ↗</a></details>
     </article>)}</div>
-    <aside className="panel"><h2>Protocol compatibility comes first</h2><p>Same metric names do not make measurements comparable. Inspect harness, dataset, checkpoint and scale revisions. More suites need reviewed definitions and contract changes, not another leaderboard page.</p></aside></>;
+    <section className="panel"><h2>Benchmark suites</h2>{evaluationSuiteCatalog.map(s => <article className="suite-definition" key={s.id}><h3>{s.name}</h3><p className="mono">{s.id}</p><p>{s.components.map(id => <a key={id} href={`#${id}`}>{benchmarkCatalog.find(b => b.id === id)!.name} · </a>)}</p><p>{s.note}</p><a href={s.reference}>Inspected source or methodology reference ↗</a></article>)}</section>
+    <section className="panel"><h2>Leaderboard categories</h2><p>EN, PL and PL+EN are ranking views, not three individual tests or a complete benchmark inventory.</p>{leaderboardViews.map(v => <p key={v.id}><strong>{v.label}</strong> — {v.summary} <Link to={v.documentation}>Metric guide →</Link></p>)}</section>
+    <section className="panel"><h2>Scoring protocols and dataset revisions</h2><p>Each entry above records its known instrument separately from its dataset identity. Native byte/sliding, historical token/reset and prototype cropped-text likelihood are not interchangeable. Same-named metrics must not silently cross those boundaries.</p><Link to="/methodology">Comparability, formulas and reproducibility →</Link><p><a href={benchmarkMapReference}>Pinned benchmark map and calibration documentation ↗</a></p></section>
+  </>;
 }

@@ -16,3 +16,12 @@ export interface EvaluationProvenanceV1 {
   logs: string | null;
   reproduction: string | null;
 }
+
+/** v2 separates submission attribution and leaderboard categories from measured suites. */
+export interface EvaluationProvenanceV2 extends Omit<EvaluationProvenanceV1, "schemaVersion" | "suite" | "verificationStatus"> {
+  schemaVersion: "fabryka.provenance-ui/2";
+  submissionSource: "autoeval" | "imported" | "manually_reported" | null;
+  leaderboardCategory: string;
+  suite: { id: string | null; version: string | null };
+  verificationStatus: "unreviewed" | "reviewed" | "awaiting_review" | "officially_verified" | null;
+}

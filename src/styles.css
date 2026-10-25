@@ -29,3 +29,29 @@ main:focus { outline: none; }
 input:focus-visible, select:focus-visible { outline: 2px solid #d64726; outline-offset: 3px; }
 .app-footer { border-top: 1px solid #dedbd3; margin-top: 40px; padding: 20px 0; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: #726f67; font-size: 12px; }
 @media(max-width: 700px) { .app-header nav { margin-left: 0; width: 100%; gap: 2px; } .app-header nav a { padding: 10px 8px; } .autoeval-grid { grid-template-columns: 1fr; } h1 { font-size: 28px; } .panel { padding: 18px; } }
+.app-header { display: block; background: #fffdf9; border: 1px solid #e2dcd5; border-top: 3px solid #92391c; padding: 20px 24px 0; }
+.app-brand-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.brand-lockup { display: inline-flex; align-items: center; gap: 9px; font: 700 23px/1.1 var(--sans); letter-spacing: -1px; }
+.brand-lockup img { flex: none; }
+.brand-product { color: #92391c; font-weight: 600; }
+.app-header nav { margin: 18px 0 0; border-top: 1px solid #e2dcd5; gap: 24px; }
+.app-header nav a { padding: 17px 4px; border-radius: 0; font-size: 15px; font-weight: 600; color: #675f59; }
+.app-header nav a[aria-current="page"] { color: #92391c; background: transparent; box-shadow: inset 0 -3px #92391c; }
+.model-entry { max-width: 1000px; }
+.inspection-input { display: flex; align-items: stretch; gap: 10px; }
+.inspection-input input { min-width: 0; flex: 1; }
+.primary-action { color: #fffdf9; background: #92391c; border: 1px solid #92391c; border-radius: 3px; padding: 12px 20px; font-weight: 600; white-space: nowrap; }
+.primary-action:hover { background: #722913; }
+.input-example, .catalog-note { font-size: 12px; line-height: 1.6; color: #675f59; }
+.inspection-blocked { border-left: 3px solid #bd842c; background: #fff6e4; padding: 16px; margin-top: 20px; line-height: 1.6; }
+.workflow-list { padding-left: 20px; }
+.workflow-list li { padding-bottom: 10px; }
+.inspection-facts div, .benchmark-card dl div { margin-bottom: 14px; }
+.inspection-facts dt, .benchmark-card dt, .concept-grid dt { font-size: 12px; font-weight: 700; }
+.inspection-facts dd, .benchmark-card dd, .concept-grid dd { margin: 5px 0 0; line-height: 1.6; font-size: 13px; overflow-wrap: anywhere; }
+.benchmark-card p { font-size: 13px; }
+.concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 20px; }
+.section-heading { font-size: 24px; font-weight: 500; margin: 32px 0 12px; }
+.suite-definition { border-top: 1px solid #e2dcd5; margin-top: 20px; padding-top: 12px; }
+.mono { font: 12px var(--mono); overflow-wrap: anywhere; }
+@media(max-width: 600px) { .app-header { padding: 16px 12px 0; } .app-brand-row { flex-wrap: wrap; } .brand-lockup { font-size: 21px; } .app-header nav { gap: 6px 16px; } .app-header nav a { padding: 13px 0; font-size: 14px; } .inspection-input { flex-direction: column; } .primary-action { width: 100%; } }
