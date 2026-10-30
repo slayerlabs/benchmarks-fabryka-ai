@@ -1,11 +1,7 @@
-# EWoK-PL: Slayer 1B 1.00–1.06, Bielik 1.5B, LFM3 1.7B (30.10.2026)
-
-Na polskim EWoK-PL (625 rekordów) Slayer 1.06 ma 55,4% przy losowym 50% i nie rośnie od 1.00
-(+1,0 pkt, p = 0,55). Na pełnym angielskim EWoK (4374) ten sam model rośnie z 53,1 do 58,9%
-(+5,7 pkt, p < 0,001). Bielik-1.5B-v3 ma po polsku 66,0%, czyli 10,6 pkt więcej niż Slayer 1.06 (p < 0,001).
-LFM3-1.7B-Base ma po polsku 57,4% (różnica ze Slayerem w granicach szumu), ale po angielsku 66,6%.
-Dzisiejszy EWoK-PL obejmuje tylko domenę `agent-properties`, więc nie mówi jeszcze nic
-o fizyce, przestrzeni ani relacjach społecznych.
+Na angielskim EWoK (4374 rekordy) Slayer rośnie z 53,1 do 58,9% (1.00 → 1.06, p < 0,001), a na tych samych
+625 rekordach co EWoK-PL o +5,0 pkt. Po polsku przyrost wynosi 1,0 pkt i mieści się w szumie. Bielik-1.5B-v3 ma
+po polsku 66,0% (+10,6 pkt nad Slayerem 1.06), LFM3-1.7B-Base 57,4% (różnica ze Slayerem nieistotna).
+EWoK-PL obejmuje na razie tylko domenę `agent-properties`.
 
 **Podsumowanie wyników i wnioski: [`WYNIKI.md`](WYNIKI.md).** Pełne liczby: [`../wyniki_ewok/raport_ewok.md`](../wyniki_ewok/raport_ewok.md) (CI95, kontrasty, rozbicia), dane: `raport_ewok.json`.
 
@@ -24,9 +20,15 @@ Jest zgodny z paperem EWoK (Ivanova i in. 2024, [arXiv:2405.09605](https://arxiv
   Modele HF ładujemy przez `AutoModelForCausalLM` (LFM3 z `trust_remote_code`). Sprawdziliśmy, że
   `glowa(ukryte) == logits` (max |Δ| = 0).
 - **Niepewność:** CI95 z bootstrapu (10 000 powtórzeń, seed 20261028). Kontrasty liczymy sparowanym testem
-  permutacyjnym (zmiana znaku per rekord) z poprawką Holma w każdej rodzinie, jak w Space.
+  permutacyjnym z poprawką Holma w każdej rodzinie, jak w Space. Każdą wielkość podajemy na dwa sposoby:
+  po rekordach i **po szablonach**. Miarodajna jest ta druga. EWoK wypełnia szablon kilkoma zestawami
+  imion i obiektów, więc rekordy jednego szablonu nie są niezależne. Szablon odtwarzamy z EN (`szablony()`):
+  w obrębie (para pojęć, domena) słowa obecne w mniej niż 30% rekordów maskujemy jako wypełnienia.
+  Daje to 130 szablonów na 625 rekordów PL, zwykle po 5 rekordów. Bootstrap losuje wtedy całe
+  szablony, a test permutacyjny zmienia znak różnicy dla całego szablonu naraz.
+- **Różnica różnic:** (PL 1.06 − PL 1.00) − (EN 1.06 − EN 1.00) per rekord na tych samych `source_id`.
 - **Diagnostyki:**
-  - `oba`: obie pary trafione (losowo 25%);
+  - `oba`: obie pary trafione (25% tylko przy niezależnych porównaniach; prior zdania spycha ją niżej);
   - `kontekst_staly`: T1 vs T2 przy tym samym C, wrażliwe na prior zdania;
   - `kontekst_staly_pmi`: to samo po odjęciu `log P(T)`;
   - `staly_target`: udział rekordów, w których model przy obu kontekstach woli to samo zdanie
@@ -39,45 +41,10 @@ Jest zgodny z paperem EWoK (Ivanova i in. 2024, [arXiv:2405.09605](https://arxiv
 | LiquidAI/LFM3-1.7B-Base | 545fc8f4 (wersja Base, bo loglik liczymy bez szablonu czatu) |
 | ewok-core/ewok-core-1.0 (EN) | 34d912a6 |
 
-## Wyniki
+## Wyniki i ograniczenia
 
-| model | PL (625) | EN, te same 625 | EN pełny (4374) | PL `stały target` |
-|---|---|---|---|---|
-| Bielik-1.5B-v3 | **66,0** [63,4; 68,5] | 62,8 | 69,5 | 75% |
-| LFM3-1.7B-Base | 57,4 [55,0; 59,8] | 66,6 | **69,7** | 74% |
-| Slayer1B-1.00 | 54,4 [52,0; 56,8] | 51,3 | 53,1 | 81% |
-| Slayer1B-1.03 | 54,6 [52,3; 56,9] | 52,0 | 55,8 | 81% |
-| Slayer1B-1.06 | 55,4 [53,0; 57,8] | 56,2 | 58,9 | 84% |
-
-Wnioski:
-
-1. **Slayer uczy się wiedzy o świecie, ale na PL-625 tego nie widać.** Na EN 1.06 jest lepszy od 1.00
-   o 5,7 pkt (CI95 +4,7…+6,8). Rosną głównie `material-dynamics` (53 → 67), `social-properties`
-   (58 → 68) i `social-relations` (51 → 57). Na PL-625 różnice między kolejnymi wersjami mają wszystkie
-   p_holm > 0,8. Te same 625 rekordów po angielsku (EN625) też dają u Slayera tylko 51–57%, więc wąską
-   próbkę wyjaśnia sam wybór domeny, a nie tłumaczenie.
-2. **Para „make more / less effort” (220 z 625 rekordów) jest na poziomie losowym dla wszystkich modeli**
-   (Bielik 57, LFM3 55, Slayer 48–52). To 35% PL-625 i właśnie ten kawałek spłaszcza wynik. Flagi
-   przeglądu (`review_flags`) nie przewidują porażki modeli: 45 rekordów bez flagi wypada nie lepiej niż reszta.
-3. **Polski Slayer nie ma przewagi nad LFM3 po polsku** (−2,0 pkt, p = 0,20), choć LFM3 nie deklaruje
-   polskiego. Bielik wygrywa wyraźnie (+10,6 pkt). Wniosek jest zawężony do `agent-properties`.
-4. **Ślad prioru zdania:** przy porównaniu T1 vs T2 w tym samym kontekście Slayer w 81–85% rekordów
-   wybiera to samo zdanie niezależnie od kontekstu (Bielik i LFM3 74–75%). Reguła z paperu jest na to
-   odporna, dlatego jest metryką główną.
-5. **Gdzie Slayer 1.06 nie ma wiedzy (EN, ≤ 55%):** `physical-relations` 51, `physical-interactions` 54,
-   `spatial-relations` 55, `agent-properties` 55. U Bielika i LFM3 te domeny, razem z
-   `material-properties`, też wypadają najsłabiej (55–62%).
-6. **Do przeglądu tłumaczenia:** tylko 3 rekordy mają średnio po modelach EN − PL ≥ 0,5
-   (ewok-pl-0141, 0149, 0171). Lista jest w `raport_ewok.json` → `do_przegladu`.
-
-## Ograniczenia
-
-- EWoK-PL to wersja **robocza** (`draft_review_required`): 580/625 rekordów ma flagę przeglądu.
-  Wynik dotyczy jednej domeny i 9 par pojęć.
-- Zgodności scorera z liczbami z paperu EWoK nie sprawdzaliśmy (brak opublikowanych liczb dla tych
-  modeli). Scorer przeszedł test 0 w `slayer_eval` (Pythia/Qwen vs lm-eval).
-- Nie ma skanu kontaminacji. EWoK jest szyfrowany właśnie po to, żeby nie trafiał do korpusów, a EWoK-PL
-  nie był publikowany.
+Są w [`WYNIKI.md`](WYNIKI.md): tabela główna z CI po szablonach, wnioski, domeny EN, PL vs EN według par,
+stan tłumaczenia, ograniczenia i kolejne kroki. Tutaj ich nie powtarzamy, żeby liczby żyły w jednym miejscu.
 
 ## Uruchomienie
 

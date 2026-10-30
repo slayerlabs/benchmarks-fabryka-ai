@@ -151,7 +151,8 @@ def ocen(w):
     p1, p2 = ll[0][0] - b[0] > ll[0][1] - b[1], ll[1][1] - b[1] > ll[1][0] - b[0]
     return {"ewok": (s1 + s2) / 2, "oba": float(s1 and s2),
             "kontekst_staly": (k1 + k2) / 2, "kontekst_staly_pmi": (p1 + p2) / 2,
-            "staly_target": float(k1 != k2),  # przy C1 i C2 wygrywa to samo zdanie
+            # przy C1 i C2 wygrywa to samo zdanie; remis T1 = T2 to brak wyboru, nie wybór T2
+            "staly_target": float(ll[0][0] != ll[0][1] and ll[1][0] != ll[1][1] and k1 != k2),
             # o ile nat T1 jest bardziej prawdopodobne po C1 niż po C2 (i symetrycznie dla T2): siła sygnału
             "margines": ((ll[0][0] - ll[1][0]) + (ll[1][1] - ll[0][1])) / 2}
 
@@ -160,9 +161,50 @@ def wczytaj(plik):
     return {w["id"]: w for w in map(json.loads, plik.read_text().splitlines()) if w}
 
 
-def test_permutacyjny(roznice, seed=SEED, powtorzenia=POWTORZENIA):
-    """Sparowany test permutacyjny (losowe zmiany znaku różnic per rekord), dwustronny, jak kontrasty Space."""
+def szablony(recs_en, prog=0.3):
+    """source_id -> id szablonu. EWoK wypełnia szablon kilkoma zestawami imion/obiektów (zwykle 5), a te
+    rekordy nie są niezależne. Szablon odtwarzamy z EN: w obrębie (para pojęć, domena) słowa obecne w mniej
+    niż `prog` rekordów to wypełnienia i maskujemy je (prog 0,3 daje 130 szablonów na 625 rekordów PL)."""
+    import re
+    tok = lambda s: re.findall(r"[A-Za-z']+", s)
+    pola = ("Context1", "Context2", "Target1", "Target2")
+    grupy = defaultdict(list)
+    for r in recs_en:
+        grupy[(r["ConceptA"], r["ConceptB"], r["Domain"])].append(r)
+    klucze = {}
+    for g, xs in grupy.items():
+        df = Counter(w for x in xs for w in set(tok(" ".join(x[p] for p in pola))))
+        for x in xs:
+            klucze[x["source_id"]] = (g,) + tuple(" ".join(w if df[w] >= prog * len(xs) else "_" for w in tok(x[p])) for p in pola)
+    numer = {k: i for i, k in enumerate(sorted(set(klucze.values())))}
+    return {s: numer[k] for s, k in klucze.items()}
+
+
+def _sumy_klastrow(wartosci, klastry):
+    sumy, liczby = defaultdict(float), Counter()
+    for v, k in zip(wartosci, klastry):
+        sumy[k] += v
+        liczby[k] += 1
+    ks = sorted(sumy)
+    return np.array([sumy[k] for k in ks]), np.array([liczby[k] for k in ks], dtype=float)
+
+
+def srednia_klastrowa(wartosci, klastry, seed=SEED, powtorzenia=POWTORZENIA):
+    """Średnia po rekordach z CI95 z bootstrapu po szablonach (losujemy całe szablony, nie rekordy)."""
+    s, n = _sumy_klastrow(wartosci, klastry)
+    rng = np.random.default_rng(seed)
+    idx = rng.integers(0, len(s), size=(powtorzenia, len(s)))
+    sr = s[idx].sum(1) / n[idx].sum(1)
+    lo, hi = np.percentile(sr, [2.5, 97.5])
+    return {"value": float(s.sum() / n.sum()), "n": int(n.sum()), "n_szablonow": len(s), "ci95": [float(lo), float(hi)]}
+
+
+def test_permutacyjny(roznice, seed=SEED, powtorzenia=POWTORZENIA, klastry=None):
+    """Sparowany test permutacyjny (losowe zmiany znaku różnic), dwustronny, jak kontrasty Space.
+    Z `klastry` znak zmienia się dla całego szablonu naraz (rekordy jednego szablonu nie są niezależne)."""
     d = np.asarray(roznice, dtype=float)
+    if klastry is not None:
+        d, _ = _sumy_klastrow(d, klastry)
     obs = abs(d.mean())
     rng = np.random.default_rng(seed)
     znaki = rng.choice([-1.0, 1.0], size=(powtorzenia, len(d)))
@@ -178,9 +220,11 @@ def holm(pv):
     return out
 
 
-def podsumuj(oceny, meta, grupy=("Domain", "ConceptA", "ContextType", "ContextDiff", "TargetDiff")):
+def podsumuj(oceny, meta, grupy=("Domain", "ConceptA", "ContextType", "ContextDiff", "TargetDiff"), szabl=None):
     wynik = {m: srednia_z_niepewnoscia([o[m] for o in oceny.values()])
              for m in ("ewok", "oba", "kontekst_staly", "kontekst_staly_pmi", "staly_target", "margines")}
+    if szabl:
+        wynik["ewok_po_szablonach"] = srednia_klastrowa([o["ewok"] for o in oceny.values()], [szabl[w_id_src(i)] for i in oceny])
     for g in grupy:
         kosze = defaultdict(list)
         for i, o in oceny.items():
@@ -190,12 +234,21 @@ def podsumuj(oceny, meta, grupy=("Domain", "ConceptA", "ContextType", "ContextDi
     return wynik
 
 
-def kontrast(a, b, nazwa_a, nazwa_b, po="id"):
-    """Różnica średnich `ewok` na wspólnych rekordach (klucz `po`), CI z bootstrapu, p z testu permutacyjnego."""
-    wspolne = sorted(set(a) & set(b))
-    d = [a[k]["ewok"] - b[k]["ewok"] for k in wspolne]
-    return {"a": nazwa_a, "b": nazwa_b, "n": len(d), "roznica": srednia_z_niepewnoscia(d), "p": test_permutacyjny(d),
-            "a_lepszy": sum(x > 0 for x in d), "b_lepszy": sum(x < 0 for x in d)}
+def kontrast(a, b, nazwa_a, nazwa_b, szabl=None, a2=None, b2=None):
+    """Różnica średnich `ewok` na wspólnych rekordach, CI z bootstrapu, p z testu permutacyjnego.
+
+    Z `szabl` także CI i p po szablonach (`roznica_po_szablonach`, `p_po_szablonach`). Z `a2`, `b2`
+    różnica różnic per rekord: (a − b) − (a2 − b2), np. (PL 1.06 − PL 1.00) − (EN 1.06 − EN 1.00)."""
+    klucz = lambda k: w_id_src(k) if isinstance(k, str) else k
+    wspolne = sorted(set(a) & set(b) & (set(a2) & set(b2) if a2 else set(a)))
+    d = [a[k]["ewok"] - b[k]["ewok"] - ((a2[k]["ewok"] - b2[k]["ewok"]) if a2 else 0) for k in wspolne]
+    out = {"a": nazwa_a, "b": nazwa_b, "n": len(d), "roznica": srednia_z_niepewnoscia(d), "p": test_permutacyjny(d),
+           "a_lepszy": sum(x > 0 for x in d), "b_lepszy": sum(x < 0 for x in d)}
+    if szabl:
+        kl = [szabl[klucz(k)] for k in wspolne]
+        out["roznica_po_szablonach"] = srednia_klastrowa(d, kl)
+        out["p_po_szablonach"] = test_permutacyjny(d, klastry=kl)
+    return out
 
 
 def cmd_analiza(a):
@@ -204,8 +257,10 @@ def cmd_analiza(a):
     pl = dane_pl(a.zip) if a.zip else []
     for r in pl:
         meta[r["id"]] = {**{k: r[k] for k in META}, "flaga": r["review_flags"][0] if r["review_flags"] else "brak"}
-    for r in dane_en():
+    en_recs = dane_en()
+    for r in en_recs:
         meta[r["id"]] = {k: r[k] for k in META}
+    szabl = szablony(en_recs)
     modele = sorted(p.name for p in korzen.iterdir() if p.is_dir())
     oceny = {m: {d: {i: ocen(w) for i, w in wczytaj(korzen / m / f"{d}.jsonl").items()}
                  for d in ("pl", "en625", "en") if (korzen / m / f"{d}.jsonl").exists()} for m in modele}
@@ -214,42 +269,52 @@ def cmd_analiza(a):
             o["en625"] = {i: v for i, v in o["en"].items() if w_id_src(i) < 625}
     raport = {"protokol": {"regula": "EWoK LOGPROBS, target stały: (s1+s2)/2, losowo 0,5", "separator": "C + ' ' + T",
                            "bos": "jeden BOS (Slayer <|endoftext|>, HF bos_token)", "dtype": "float32",
-                           "ewok_en_rewizja": EWOK_REW, "bootstrap": {"powtorzenia": POWTORZENIA, "seed": SEED}},
-              "modele": {}, "kontrasty": [], "do_przegladu": []}
+                           "ewok_en_rewizja": EWOK_REW, "bootstrap": {"powtorzenia": POWTORZENIA, "seed": SEED},
+                           "szablony": {"pl_n_szablonow": len({szabl[s] for s in range(625)}),
+                                        "en_n_szablonow": len(set(szabl.values())), "prog_wypelnien": 0.3}},
+              "modele": {}, "kontrasty": [], "do_przegladu": {}}
     for m in modele:
         raport["modele"][m] = {}
         for d, o in oceny[m].items():
             grupy = ("Domain", "ConceptA", "ContextType", "ContextDiff", "TargetDiff") + (("flaga",) if d == "pl" else ())
-            raport["modele"][m][d] = podsumuj(o, meta, grupy)
+            raport["modele"][m][d] = podsumuj(o, meta, grupy, szabl)
     # kontrasty: PL vs EN na tych samych source_id, kolejne wersje Slayera, Slayer 1.06 vs pozostałe
     po_zrodle = {m: {d: {w_id_src(i): v for i, v in o.items()} for d, o in oceny[m].items()} for m in modele}
+    K = lambda rodzina, *args, **kw: raport["kontrasty"].append({"rodzina": rodzina, **kontrast(*args, szabl=szabl, **kw)})
     for m in modele:
         if {"pl", "en625"} <= set(po_zrodle[m]):
-            raport["kontrasty"].append({"rodzina": "PL vs EN", **kontrast(po_zrodle[m]["pl"], po_zrodle[m]["en625"], f"{m} PL", f"{m} EN")})
+            K("PL vs EN", po_zrodle[m]["pl"], po_zrodle[m]["en625"], f"{m} PL", f"{m} EN")
     slayery = [m for m in modele if m.startswith("Slayer1B-")]
     for x, y in zip(slayery, slayery[1:]):
-        raport["kontrasty"].append({"rodzina": "Slayer kolejne", **kontrast(oceny[y]["pl"], oceny[x]["pl"], y, x)})
+        K("Slayer kolejne", oceny[y]["pl"], oceny[x]["pl"], y, x)
     if len(slayery) > 1:
-        for d in ("pl", "en"):
-            raport["kontrasty"].append({"rodzina": f"Slayer 1.06 vs 1.00 ({d})",
-                                        **kontrast(oceny[slayery[-1]][d], oceny[slayery[0]][d], slayery[-1], slayery[0])})
+        s1, s0 = slayery[-1], slayery[0]
+        for d in ("pl", "en625", "en"):
+            K(f"Slayer 1.06 vs 1.00 ({d})", oceny[s1][d], oceny[s0][d], s1, s0)
+        # czy przyrost po polsku jest mniejszy niż po angielsku na tych samych rekordach
+        K("Slayer 1.06 vs 1.00: PL − EN625 (różnica różnic)", po_zrodle[s1]["pl"], po_zrodle[s0]["pl"], s1, s0,
+          a2=po_zrodle[s1]["en625"], b2=po_zrodle[s0]["en625"])
     for m in modele:
         if m not in slayery and slayery:
-            raport["kontrasty"].append({"rodzina": "Slayer vs inne", **kontrast(oceny[slayery[-1]]["pl"], oceny[m]["pl"], slayery[-1], m)})
+            K("Inne vs Slayer 1.06 (pl)", oceny[m]["pl"], oceny[slayery[-1]]["pl"], m, slayery[-1])
     for rodzina in {k["rodzina"] for k in raport["kontrasty"]}:
         ks = [k for k in raport["kontrasty"] if k["rodzina"] == rodzina]
-        for k, p in zip(ks, holm([k["p"] for k in ks])):
-            k["p_holm"] = p
-    # kandydaci do przeglądu tłumaczenia: rekord dobry po angielsku u większości modeli, zły po polsku
+        for k, p, ps in zip(ks, holm([k["p"] for k in ks]), holm([k["p_po_szablonach"] for k in ks])):
+            k["p_holm"], k["p_holm_po_szablonach"] = p, ps
+    # kandydaci do przeglądu tłumaczenia, w obie strony. Odniesieniem są tylko modele spoza rodziny Slayera
+    # (Slayer jest po angielsku blisko losowego, więc średnia po wszystkich modelach tłumiłaby sygnał).
     if pl:
-        z_en = [m for m in modele if "en625" in po_zrodle[m]]
+        ref = [m for m in modele if m not in slayery and "en625" in po_zrodle[m]]
+        raport["protokol"]["do_przegladu"] = {"modele": ref, "prog": 0.5}
+        for kier in ("trudniejsze_po_pl", "latwiejsze_po_pl"):
+            raport["do_przegladu"][kier] = []
         for r in pl:
             s = r["source_id"]
-            en = np.mean([po_zrodle[m]["en625"][s]["ewok"] for m in z_en])
-            plw = np.mean([po_zrodle[m]["pl"][s]["ewok"] for m in z_en])
-            if en - plw >= 0.5:
-                raport["do_przegladu"].append({"id": r["id"], "source_id": s, "en": float(en), "pl": float(plw),
-                                               "flaga": meta[r["id"]]["flaga"]})
+            en = float(np.mean([po_zrodle[m]["en625"][s]["ewok"] for m in ref]))
+            plw = float(np.mean([po_zrodle[m]["pl"][s]["ewok"] for m in ref]))
+            if abs(en - plw) >= 0.5:
+                raport["do_przegladu"]["trudniejsze_po_pl" if en > plw else "latwiejsze_po_pl"].append(
+                    {"id": r["id"], "source_id": s, "szablon": szabl[s], "en": en, "pl": plw, "flaga": meta[r["id"]]["flaga"]})
     korzen.joinpath("raport_ewok.json").write_text(json.dumps(raport, indent=1, ensure_ascii=False), encoding="utf-8")
     korzen.joinpath("raport_ewok.md").write_text(tabela_md(raport), encoding="utf-8")
     print(tabela_md(raport))
@@ -259,45 +324,59 @@ def w_id_src(i):
     return int(i.rsplit("-", 1)[1]) - 1 if i.startswith("ewok-pl-") else int(i.rsplit("-", 1)[1])
 
 
-def _f(m, proc=True):
+def zaokr(x, miejsca=1, znak=False):
+    """Zaokrąglenie połówek w górę na wartości dziesiętnej (0,575·100 to w float 57,4999…, a ma wyjść 58)."""
+    from decimal import ROUND_HALF_UP, Decimal
+    d = Decimal(repr(round(x, 10))).quantize(Decimal(1).scaleb(-miejsca), rounding=ROUND_HALF_UP)
+    return f"{d:+}" if znak else f"{d}"
+
+
+def _f(m):
     if m is None or m.get("value") is None:
         return "—"
-    k = 100 if proc else 1
     lo, hi = m["ci95"]
-    return f"{m['value'] * k:.1f} [{lo * k:.1f}, {hi * k:.1f}]" if proc else f"{m['value']:.3f} [{lo:.3f}, {hi:.3f}]"
+    return f"{zaokr(m['value'] * 100)} [{zaokr(lo * 100)}, {zaokr(hi * 100)}]"
+
+
+def _tab_grup(r, modele, zbior, grupa, tytul):
+    out = ["", tytul, "", "| grupa | n | " + " | ".join(modele) + " |", "|---|---|" + "---|" * len(modele)]
+    for gr, v in r["modele"][modele[0]][zbior][grupa].items():
+        out.append(f"| {gr} | {v['n']} | " + " | ".join(zaokr(r["modele"][m][zbior][grupa][gr]["value"] * 100, 0) for m in modele) + " |")
+    return out
 
 
 def tabela_md(r):
-    out = ["# EWoK-PL: wyniki", "", "Wynik EWoK w % (losowo 50), CI95 bootstrap. `oba` = obie pary trafione (losowo 25).", "",
-           "| model | PL ewok (n=625) | PL oba | EN te same 625 | EN pełny (4374) | PL kontekst stały | PL stały target |",
-           "|---|---|---|---|---|---|---|"]
+    out = ["# EWoK-PL: wyniki", "",
+           "Wynik EWoK w % (losowo 50). CI95: bootstrap po rekordach oraz po szablonach (rekordy jednego szablonu nie są "
+           "niezależne, ten przedział jest właściwy). `oba` = obie pary trafione (25 tylko przy niezależnych porównaniach).", "",
+           "| model | PL ewok (n=625) | PL CI po szablonach | PL oba | EN te same 625 | EN pełny (4374) | PL stały target | EN stały target |",
+           "|---|---|---|---|---|---|---|---|"]
     for m, d in r["modele"].items():
-        g = lambda z, k: _f(d[z][k]) if z in d else "—"
-        out.append(f"| {m} | {g('pl', 'ewok')} | {g('pl', 'oba')} | {g('en625', 'ewok')} | {g('en', 'ewok')} | "
-                   f"{g('pl', 'kontekst_staly')} | {g('pl', 'staly_target')} |")
-    out += ["", "## PL wg pary pojęć", ""]
+        g = lambda z, k: _f(d[z].get(k)) if z in d else "—"
+        ci = d["pl"]["ewok_po_szablonach"]["ci95"] if "pl" in d else None
+        out.append(f"| {m} | {g('pl', 'ewok')} | {f'[{zaokr(ci[0] * 100)}, {zaokr(ci[1] * 100)}]' if ci else '—'} | "
+                   f"{g('pl', 'oba')} | {g('en625', 'ewok')} | {g('en', 'ewok')} | {g('pl', 'staly_target')} | {g('en', 'staly_target')} |")
     modele = [m for m in r["modele"] if "pl" in r["modele"][m]]
     if modele:
-        grupy = list(r["modele"][modele[0]]["pl"]["wg_ConceptA"])
-        out += ["| para | n | " + " | ".join(modele) + " |", "|---|---|" + "---|" * len(modele)]
-        for gr in grupy:
-            n = r["modele"][modele[0]]["pl"]["wg_ConceptA"][gr]["n"]
-            out.append(f"| {gr} | {n} | " + " | ".join(f"{r['modele'][m]['pl']['wg_ConceptA'][gr]['value'] * 100:.0f}" for m in modele) + " |")
+        out += _tab_grup(r, modele, "pl", "wg_ConceptA", "## PL wg pary pojęć")
+        out += _tab_grup(r, modele, "en625", "wg_ConceptA", "## EN, te same 625 rekordów, wg pary pojęć")
     z_en = [m for m in r["modele"] if "en" in r["modele"][m]]
     if z_en:
-        out += ["", "## EN pełny wg domeny (tło: gdzie model nie ma wiedzy)", "",
-                "| domena | n | " + " | ".join(z_en) + " |", "|---|---|" + "---|" * len(z_en)]
-        for gr, v in r["modele"][z_en[0]]["en"]["wg_Domain"].items():
-            out.append(f"| {gr} | {v['n']} | " + " | ".join(f"{r['modele'][m]['en']['wg_Domain'][gr]['value'] * 100:.0f}" for m in z_en) + " |")
+        out += _tab_grup(r, z_en, "en", "wg_Domain", "## EN pełny wg domeny")
     out += ["", "## Kontrasty (różnica punktów ewok ×100, sparowany test permutacyjny, Holm w rodzinie)", "",
-            "| rodzina | A | B | n | A−B | CI95 | p | p_holm |", "|---|---|---|---|---|---|---|---|"]
+            "| rodzina | A | B | n | A−B | CI95 po rekordach | CI95 po szablonach | p | p po szablonach | p_holm po szablonach |",
+            "|---|---|---|---|---|---|---|---|---|---|"]
     for k in r["kontrasty"]:
-        d = k["roznica"]
-        out.append(f"| {k['rodzina']} | {k['a']} | {k['b']} | {k['n']} | {d['value'] * 100:+.1f} | "
-                   f"[{d['ci95'][0] * 100:+.1f}, {d['ci95'][1] * 100:+.1f}] | {k['p']:.4f} | {k['p_holm']:.4f} |")
-    out += ["", f"## Do przeglądu tłumaczenia: {len(r['do_przegladu'])} rekordów (EN − PL ≥ 0,5 średnio po modelach)", "",
-            ", ".join(x["id"] for x in r["do_przegladu"]), ""]
-    return "\n".join(out)
+        d, ds = k["roznica"], k["roznica_po_szablonach"]
+        ci = lambda c: f"[{zaokr(c[0] * 100, znak=True)}, {zaokr(c[1] * 100, znak=True)}]"
+        out.append(f"| {k['rodzina']} | {k['a']} | {k['b']} | {k['n']} | {zaokr(d['value'] * 100, znak=True)} | {ci(d['ci95'])} | "
+                   f"{ci(ds['ci95'])} | {k['p']:.4f} | {k['p_po_szablonach']:.4f} | {k['p_holm_po_szablonach']:.4f} |")
+    pr = r["protokol"].get("do_przegladu", {})
+    for kier, lista in r["do_przegladu"].items():
+        out += ["", f"## Do przeglądu tłumaczenia, {kier.replace('_', ' ')}: {len(lista)} rekordów "
+                f"(|EN − PL| ≥ {pr.get('prog')} średnio po {', '.join(pr.get('modele', []))})", "",
+                ", ".join(x["id"] for x in lista) or "—"]
+    return "\n".join(out) + "\n"
 
 
 def main():
