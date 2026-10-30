@@ -21,7 +21,7 @@ licencje per komponent nie były sprawdzane u źródła.
 | `SlayerLab/slayer-pl-8x3b` → `web` (HPLT v3 PL, top WDS, pakiety `pack-NN`) | wg karty zbioru; HPLT publikuje jako CC0 z procedurą usuwania (niesprawdzone) | użyty | 63% tokenów Slayera 1.06; nakłada się z FineWeb2/FineWeb2-HQ pol, więc każdy kandydat z Common Crawl wymaga dedupu wobec HPLT | 2026-10-30 |
 | `SlayerLab/slayer-pl-8x3b` → `core` / `core_sa` (wikipedia, wikibooks, wikivoyage, wikisource, polqa, govpl, wolne_lektury) | CC-BY / CC-BY-SA (per źródło) | użyty | 19%; polqa w rdzeniu kontaminuje test PolQA (7/200 pytań bez trafień) | 2026-10-30 |
 | `SlayerLab/slayer-pl-8x3b` → `legal` / `legal_sa` (eurlex, parliamentary, dziennik_ustaw, govpl) | CC-BY-4.0 / PD / CC-BY-SA (govpl), wg `dataset.json` | użyty | 8% | 2026-10-30 |
-| `SlayerLab/slayer-pl-8x3b` → `en` | ODC-BY (wg karty) | użyty | 10%; wg `dataset.json` zbioru to fineweb-edu + finemath (ODC-BY), 2,40 mld tok.; dekontaminacja opisana tylko dla web i tylko wobec 8tags/polemo2, nie wobec ARC/MMLU | 2026-10-30 |
+| `SlayerLab/slayer-pl-8x3b` → `en` | ODC-BY (wg karty) | użyty | 10%; wg `dataset.json` zbioru to fineweb-edu + finemath (ODC-BY), 2,40 mld tok.; dekontaminacja opisana tylko dla web i tylko wobec 8tags/polemo2; wg Arka (30.10) wobec ARC była na pewno, wobec MMLU nie jest pewien, do sprawdzenia (zadanie A2) | 2026-10-30 |
 
 ## 2. Kandydaci i odrzucone
 
@@ -51,7 +51,7 @@ licencje per komponent nie były sprawdzane u źródła.
 | `SKocur/polish-pre1918-corpus` | CC0 | kandydat | OCR; różnorodność polszczyzny | 2026-10-30 |
 | `demelin/moral_stories` | MIT | kandydat | mały, pokrewny SIQA: ostrożnie (kontaminacja, format) | 2026-10-30 |
 | `openbmb/Ultra-FineWeb` (EN) | Apache-2.0 | kandydat | filtrowany web EN; bez wariantu L3 | 2026-10-30 |
-| `SlayerLab/polish-dynaword-mix-extended-500M` | CC-BY-SA-4.0 | kandydat | zapytać Arka o źródła składowe | 2026-10-30 |
+| `SlayerLab/polish-dynaword-mix-extended-500M` | niepewna wg Arka | odrzucony | wg Arka (30.10): generowane dane SFT, licencja niepewna, zbiór tylko u niego lokalnie, sam go nie używa | 2026-10-30 |
 | Multi_Legal_Pile | — | odrzucony | licencja | 2026-10-30 |
 | `MegaScience/TextbookReasoning` | — | odrzucony | licencja | 2026-10-30 |
 | Lots-of-LoRAs task579-581, task384, task385 | — | odrzucony | pochodne SIQA (test) | 2026-10-30 |

@@ -12,8 +12,8 @@ Arek, sprawdziliśmy, skąd Slayer 1.06 siedzi na poziomie losowym na większoś
 | 4 | Literatura (OLMES, arXiv 2406.08446) | Modele 1B: ARC-C z literami 24–26, po treści 31–39 | publikacja | To samo u Pythii, OLMo, TinyLlamy |
 | 5 | ARC-C liczone po treści (PMI) | 0,298 przy bazie 0,25 | SE 0,013 (autorzy ARC podają ±2,5 pkt na 95%, zgodne) | Wiedza jest, litery jej nie pokazują. ARC-C to z definicji pytania, których nie rozwiązały proste statystyki słów (arXiv 1803.05457), więc dla 1B lepszym sygnałem postępu jest ARC-E |
 | 6 | Postęp 1.00 → 1.06 po treści | acc_norm 0,218 → 0,258 (+0,040); BPB poprawnej odp. −0,114 | SE 0,011 / 0,007 | Trening działa, Space tego nie widzi |
-| 7 | Polski vs Pythia-1B | Belebele (po treści, acc) 0,330 vs 0,297; MultiBLiMP-PL 0,986 vs 0,774 | — | Slayer lepszy po polsku |
-| 8 | Angielski vs Pythia-1B | 1–4 pkt gorzej (ARC-E, MMLU, SIQA po treści) | — | Prawdziwa luka |
+| 7 | Polski vs Pythia-1B | Belebele (po treści, acc) 0,330 vs 0,297; MultiBLiMP-PL 0,986 vs 0,774 | Belebele 1,5 SE, MultiBLiMP 28 SE | MultiBLiMP pewny, ale oczekiwany (Pythia uczona na angielskim); Belebele w granicach szumu |
+| 8 | Angielski vs Pythia-1B | ARC-E −4,4 pkt, MMLU −2,2 pkt, SIQA −0,9 pkt (po treści, acc) | 3,0 / 4,2 / 0,6 SE | ARC-E i MMLU prawdopodobna luka; SIQA bez różnicy |
 | 9 | WikiText-2 byte_ppl | Nasz 1,893, Space 1,846 (+2,5%) | — | Do wyjaśnienia (zadanie A5) |
 | 10 | Wygaszanie LR (150 kroków z ckpt_13848, 157 mln tokenów) | Loss na odłożonych danych: wygaszanie 2,2807, stały LR 2,3276 (Δ −0,047 nat), spadek we wszystkich częściach danych (web, core, legal, en); trafność ARC-C, MedMCQA, SIQA, MultiBLiMP bez zmian | SE różnicy 0,0006; szum między checkpointami 0,0011 | Wygaszenie obniża perplexity, testów nie podnosi; warto zrobić przed wydaniem |
 | 11 | Testy danych na Slayerze (EN 10% vs 25%, lepszy polski web) | Plan i progi gotowe, nie uruchomione | — | Czekamy na Twoje zdanie, czy warto |
@@ -26,7 +26,10 @@ Krótko:
 
 **3. Liczone po treści, Slayer się uczy.** ARC-C (PMI) 0,298 przy bazie 0,25 (SE 0,013). Między 1.00 a 1.06: acc_norm 0,218 → 0,258 (+0,040, SE 0,011), BPB poprawnej odpowiedzi −0,114 (SE 0,007).
 
-**4. Po polsku Slayer jest lepszy od Pythii** (Belebele po treści, acc: 0,330 vs 0,297; MultiBLiMP-PL 0,986 vs 0,774), **po angielsku 1–4 pkt gorszy** (ARC-E, MMLU, SIQA po treści). To są prawdziwe luki.
+**4. Porównanie z Pythią-1B: pewna jest tylko część różnic** (różnica w jednostkach SE, SE różnicy liczone jak dla niezależnych prób, czyli ostrożnie; po jednym modelu na stronę, bez powtórzeń treningu):
+- Po polsku: MultiBLiMP-PL 0,986 vs 0,774 (28 SE) to pewna różnica, ale oczekiwana, bo Pythia uczyła się na angielskim. Belebele po treści 0,330 vs 0,297 to 1,5 SE, czyli w granicach szumu.
+- Po angielsku: ARC-E −4,4 pkt (3,0 SE) i MMLU −2,2 pkt (4,2 SE) to prawdopodobna luka. SIQA −0,9 pkt (0,6 SE) to brak wykrywalnej różnicy.
+- Luka EN może wynikać po prostu z udziału angielskiego (10% danych Slayera wobec 100% u Pythii), więc nie jest jeszcze wnioskiem o jakości danych (zob. B2).
 
 **Propozycja do Space:** obok surowego wyniku z liter dodać miarę po treści (prawdopodobieństwo / BPB poprawnej odpowiedzi, 5-shot, kilka szablonów pytania — tak zaleca praca na 26 modelach 2B, arXiv 2610.19185). Wtedy tabela pokaże postęp, który dziś jest niewidoczny.
 
@@ -34,6 +37,11 @@ Krótko:
 1. Czy angielska część danych (fineweb-edu + finemath wg `dataset.json`) była czyszczona z pytań ARC/MMLU? W `dataset.json` dekontaminacja jest opisana tylko dla web i tylko wobec 8tags/polemo2.
 2. Czy planujesz wygaszanie LR na końcu treningu? Nasz krótki test (150 kroków z ckpt_13848) dał −0,047 nat lossu wobec stałego LR, bez zmiany trafności (wiersz 10). Kod i wyniki: katalog `wygaszanie/`, opis w `wygaszanie/README.md`.
 3. Skąd są dodatki w `polish-dynaword-mix-extended-500M` ponad dynaword?
+
+**Odpowiedzi Arka (30.10):**
+1. Dekontaminacja wobec ARC była na pewno, wobec MMLU nie jest pewien. Trzeba sprawdzić jeszcze raz (A2).
+2. Wygaszanie LR planuje, ale dopiero przy ok. 100 mld tokenów; dziś trening jest w 1/8.
+3. Zbiór 500M to generowane dane SFT, licencja niepewna, został tylko u niego i go nie używa. Pomijamy.
 
 Wszystko jest do sprawdzenia: surowe wyniki per pytanie, kod i komendy. Dla chętnych do niezależnego powtórzenia jest „ślepa” paczka (surowe dane i instrukcja, bez naszych liczb), suma kontrolna zipa `da0edbd792d2c8074bda39d7232c628fcfbf60933278728afd6db9220c225303`.
 
@@ -51,7 +59,7 @@ Każde zadanie ma: po co, jaką decyzję zmienia, czy się skaluje na większe m
 Po co: potwierdzić albo obalić punkty 1–3 bez naszej sugestii. Zmienia: czy Space przechodzi na miarę po treści. Skaluje się: tak (metoda oceny). Gotowe: Twoje liczby + kod, porównane z naszymi dopiero po oddaniu.
 
 **A2. Audyt przecieku testów w angielskiej części danych.**
-Po co: jeśli fineweb-edu/finemath zawiera pytania ARC/MMLU, wyniki EN są zawyżone. Zmienia: czy wyniki EN w Space są wiarygodne i czy przed większym modelem trzeba dodać dekontaminację. Skaluje się: tak, problem rośnie z ilością danych. Jak: 13-gramy słów pytań i odpowiedzi ARC-C/E, MMLU, BoolQ, SIQA wobec `shared/en.parquet`. Gotowe: liczba trafień per test + lista przykładów.
+Po co: jeśli fineweb-edu/finemath zawiera pytania ARC/MMLU, wyniki EN są zawyżone. Zmienia: czy wyniki EN w Space są wiarygodne i czy przed większym modelem trzeba dodać dekontaminację. Skaluje się: tak, problem rośnie z ilością danych. Jak: 13-gramy słów pytań i odpowiedzi ARC-C/E, MMLU, BoolQ, SIQA wobec `shared/en.parquet`; najpierw MMLU (Arek nie jest pewien dekontaminacji), ARC jako kontrola (wg Arka czyszczony). Gotowe: liczba trafień per test + lista przykładów.
 
 **A3. PolQA w danych treningowych.**
 Po co: `polqa` jest w rdzeniu danych Slayera, więc wynik na PolQA może być zawyżony. Zmienia: czy PolQA zostaje w porównaniu z Bielikiem. Skaluje się: tak. Gotowe: odsetek pytań testowych PolQA obecnych w danych.
