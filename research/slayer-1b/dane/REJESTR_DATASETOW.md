@@ -5,7 +5,7 @@ Jedno miejsce na pytanie „czy ten zbiór już był?” przy pracy nad danymi S
 Zasady wpisu:
 
 - **status**: `użyty` (jest w treningu któregoś modelu), `kandydat` (czeka na test), `wstrzymany`
-  (czeka na wyjaśnienie). Zbiór odrzucony wypada z rejestru.
+  (czeka na wyjaśnienie). Odrzucone: [`ODRZUCONE.md`](ODRZUCONE.md).
 - **licencja**: tak, jak podaje karta zbioru; „niesprawdzone” znaczy, że nikt jej nie potwierdził u
   źródła.
 - **data**: dzień decyzji (dla `użyty`: dzień zapisu w manifeście).
