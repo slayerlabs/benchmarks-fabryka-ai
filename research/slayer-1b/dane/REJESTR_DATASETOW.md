@@ -11,7 +11,7 @@ Zasady wpisu:
 - **data**: dzień decyzji (dla `użyty`: dzień zapisu w manifeście).
 - Kandydat przechodzi na `użyty` dopiero po teście z progiem z góry (protokół: `wygaszanie/PROGI.md`).
 
-## 1. Slayer 1B — `SlayerLab/slayer-pl-8x3b` (użyte przez Arka)
+## 1. Slayer 1B — `SlayerLab/slayer-pl-8x3b`
 
 Proporcje scenariusza B z karty zbioru (tak samo w `wygaszanie/dane.py`). Skład komponentów z karty;
 licencje per komponent nie były sprawdzane u źródła.
@@ -21,7 +21,7 @@ licencje per komponent nie były sprawdzane u źródła.
 | `SlayerLab/slayer-pl-8x3b` → `web` (HPLT v3 PL, top WDS, pakiety `pack-NN`) | wg karty zbioru; HPLT publikuje jako CC0 z procedurą usuwania (niesprawdzone) | użyty | 63% tokenów Slayera 1.06; nakłada się z FineWeb2/FineWeb2-HQ pol, więc każdy kandydat z Common Crawl wymaga dedupu wobec HPLT | 2026-10-30 |
 | `SlayerLab/slayer-pl-8x3b` → `core` / `core_sa` (wikipedia, wikibooks, wikivoyage, wikisource, polqa, govpl, wolne_lektury) | CC-BY / CC-BY-SA (per źródło) | użyty | 19%; polqa w rdzeniu kontaminuje test PolQA (7/200 pytań bez trafień); govpl może zawierać dane wrażliwe: karta [polish-dynaword](https://huggingface.co/datasets/SlayerLab/polish-dynaword) mówi, że filtry nie usuwają w pełni danych osobowych, a przebieg PII (NERGAL) dopiero w v0.2.7; do tego czasu obowiązują datasheety poszczególnych źródeł (do przeczytania) | 2026-10-30 |
 | `SlayerLab/slayer-pl-8x3b` → `legal` / `legal_sa` (eurlex, parliamentary, dziennik_ustaw, govpl) | CC-BY-4.0 / PD / CC-BY-SA (govpl), wg `dataset.json` | użyty | 8%; dane wrażliwe jak przy `core` (brak przebiegu PII przed v0.2.7 polish-dynaword); wg karty eurlex ma licencję `LicenseRef-EU-Reuse-Policy` (nie CC-BY-4.0), a parliamentary zostawia tylko oficjalnych mówców, interpelacje wstrzymane do v0.2.7 | 2026-10-30 |
-| `SlayerLab/slayer-pl-8x3b` → `en` | ODC-BY (wg karty) | użyty | 10%; wg `dataset.json` zbioru to fineweb-edu + finemath (ODC-BY), 2,40 mld tok.; dekontaminacja opisana tylko dla web i tylko wobec 8tags/polemo2; wg Arka (30.10) wobec ARC była na pewno, wobec MMLU nie jest pewien, do sprawdzenia (zadanie A2) | 2026-10-30 |
+| `SlayerLab/slayer-pl-8x3b` → `en` | ODC-BY (wg karty) | użyty | 10%; wg `dataset.json` zbioru to fineweb-edu + finemath (ODC-BY), 2,40 mld tok.; dekontaminacja opisana tylko dla web i tylko wobec 8tags/polemo2; wobec ARC była, wobec MMLU niepewne, do sprawdzenia (zadanie A2) | 2026-10-30 |
 
 ## 2. Kandydaci
 
@@ -50,10 +50,7 @@ licencje per komponent nie były sprawdzane u źródła.
 
 ## 4. Odrzucone
 
-Te zbiory zostały już sprawdzone i **odpadają z treningu**; lista jest po to, żeby nikt nie sprawdzał
-ich drugi raz. Wracają tylko z nowym faktem (np. zgodą licencjodawcy). Kolumna **do testów**: „tak”
-znaczy, że można na nim oceniać model (to pytania z benchmarku albo zbudowane z nich, więc trening
-na nich zawyżałby wynik).
+Sprawdzone i wykluczone z treningu; „do testów: tak” znaczy, że można na nich oceniać model.
 
 | zbiór | powód odrzucenia z treningu | do testów | data |
 |---|---|---|---|
