@@ -301,6 +301,9 @@ def cmd_analiza(a):
         ks = [k for k in raport["kontrasty"] if k["rodzina"] == rodzina]
         for k, p, ps in zip(ks, holm([k["p"] for k in ks]), holm([k["p_po_szablonach"] for k in ks])):
             k["p_holm"], k["p_holm_po_szablonach"] = p, ps
+    # ostrożniej: Holm na wszystkich kontrastach naraz (bez podziału na rodziny)
+    for k, p in zip(raport["kontrasty"], holm([k["p_po_szablonach"] for k in raport["kontrasty"]])):
+        k["p_holm_wszystkie_po_szablonach"] = p
     # kandydaci do przeglądu tłumaczenia, w obie strony. Odniesieniem są tylko modele spoza rodziny Slayera
     # (Slayer jest po angielsku blisko losowego, więc średnia po wszystkich modelach tłumiłaby sygnał).
     if pl:
@@ -363,14 +366,15 @@ def tabela_md(r):
     z_en = [m for m in r["modele"] if "en" in r["modele"][m]]
     if z_en:
         out += _tab_grup(r, z_en, "en", "wg_Domain", "## EN pełny wg domeny")
-    out += ["", "## Kontrasty (różnica punktów ewok ×100, sparowany test permutacyjny, Holm w rodzinie)", "",
-            "| rodzina | A | B | n | A−B | CI95 po rekordach | CI95 po szablonach | p | p po szablonach | p_holm po szablonach |",
-            "|---|---|---|---|---|---|---|---|---|---|"]
+    out += ["", "## Kontrasty (różnica punktów ewok ×100, sparowany test permutacyjny; Holm w rodzinie i na wszystkich naraz)", "",
+            "| rodzina | A | B | n | A−B | CI95 po rekordach | CI95 po szablonach | p | p po szablonach | p_holm po szablonach | p_holm wszystkie |",
+            "|---|---|---|---|---|---|---|---|---|---|---|"]
     for k in r["kontrasty"]:
         d, ds = k["roznica"], k["roznica_po_szablonach"]
         ci = lambda c: f"[{zaokr(c[0] * 100, znak=True)}, {zaokr(c[1] * 100, znak=True)}]"
         out.append(f"| {k['rodzina']} | {k['a']} | {k['b']} | {k['n']} | {zaokr(d['value'] * 100, znak=True)} | {ci(d['ci95'])} | "
-                   f"{ci(ds['ci95'])} | {k['p']:.4f} | {k['p_po_szablonach']:.4f} | {k['p_holm_po_szablonach']:.4f} |")
+                   f"{ci(ds['ci95'])} | {k['p']:.4f} | {k['p_po_szablonach']:.4f} | {k['p_holm_po_szablonach']:.4f} | "
+                   f"{k['p_holm_wszystkie_po_szablonach']:.4f} |")
     pr = r["protokol"].get("do_przegladu", {})
     for kier, lista in r["do_przegladu"].items():
         out += ["", f"## Do przeglądu tłumaczenia, {kier.replace('_', ' ')}: {len(lista)} rekordów "

@@ -1,10 +1,14 @@
-# EWoK-PL: wyniki Slayera 1B (30.10.2026, wersja 2 po recenzji)
+# EWoK-PL: wyniki Slayera 1B (30.10.2026, wersja 3 po recenzji)
 
-> **W skrócie.** Na angielskim EWoK wynik Slayera rośnie z **53,1 do 58,9%** (1.00 → 1.06, p < 0,001).
-> Na polskim EWoK-PL przyrost wynosi **1,0 pkt** (54,4 → 55,4) i mieści się w szumie. Na tych samych
-> 625 rekordach po angielsku Slayer zyskuje **+5,0 pkt** (p = 0,02 po szablonach), więc wybór domeny
-> tłumaczy niski poziom wyniku, ale **nie wyjaśnia braku postępu po polsku**. Bielik-1.5B-v3 ma po polsku
-> **66,0%**, a LFM3-1.7B-Base **57,4%**. EWoK-PL obejmuje na razie tylko domenę `agent-properties`.
+> **W skrócie.** Na angielskim EWoK wynik Slayera rośnie z **53,1 do 58,9%** (1.00 → 1.06, p < 0,001,
+> także po korekcie na wszystkie testy). Na polskim EWoK-PL przyrost wynosi **1,0 pkt** (54,4 → 55,4)
+> i mieści się w szumie. Na tych samych 625 rekordach po angielsku Slayer zyskuje **+5,0 pkt** (p = 0,02
+> po szablonach, ale 0,36 po korekcie Holma na wszystkich 22 kontrastach). Wybór domeny tłumaczy więc
+> niski poziom wyniku, a **brak postępu po polsku jest sygnałem, ale nie rozstrzygniętym**. Bielik-1.5B-v3
+> ma po polsku **66,0%**, a LFM3-1.7B-Base **57,4%**. EWoK-PL obejmuje na razie tylko domenę `agent-properties`.
+>
+> Po korekcie na wszystkie testy istotne zostają **trzy wyniki**: wzrost Slayera na pełnym EN,
+> przewaga Bielika nad Slayerem po polsku (+10,6 pkt) i spadek LFM3 z EN na PL (−9,3 pkt).
 
 Metoda, rewizje modeli i polecenia: [`README.md`](README.md). Wszystkie tabele: [`../wyniki_ewok/raport_ewok.md`](../wyniki_ewok/raport_ewok.md).
 
@@ -12,7 +16,10 @@ Metoda, rewizje modeli i polecenia: [`README.md`](README.md). Wszystkie tabele: 
 LFM3 − Slayer, „wszystkie modele losowe” na parze effort, zakres „stałego targetu”). Doszły CI i p
 **po szablonach**: rekordy EWoK to około 5 wypełnień jednego szablonu, więc nie są niezależne. Doszły
 też różnica różnic PL − EN, tabela PL vs EN według par i lista przeglądu w obie strony, liczona bez
-Slayera. Zaokrąglenia połówek idą teraz w górę (57,5 → 58).
+Slayera. Zaokrąglenia połówek idą teraz w górę (57,5 → 58). W wersji 3 doszły: Holm na wszystkich
+kontrastach naraz (`p_holm_wszystkie_po_szablonach`), poprawka o flagach (nie pokrywają się z parami
+1:1), odwrotny kierunek LFM3 na „make an effort”, „stały target” na EN625 i dokładne szerokości CI
+dla małych grup.
 
 ---
 
@@ -58,7 +65,7 @@ Wynik EWoK w %, losowo 50. Kolumna „CI95” to przedział po szablonach.
 ```
 Slayer 1B, 1.00 → 1.06       (1 blok = 1 pkt ponad losowe 50)
 EN pełny (4374)   53,1 ███▏        →  58,9 ████████▉     +5,7 pkt, p < 0,001
-EN, te same 625   51,3 █▎          →  56,2 ██████▏       +5,0 pkt, p = 0,02
+EN, te same 625   51,3 █▎          →  56,2 ██████▏       +5,0 pkt, p = 0,02 (0,36 po Holmie na wszystkich)
 PL (625)          54,4 ████▍       →  55,4 █████▍        +1,0 pkt, p = 0,71
 Bielik PL 66,0 · LFM3 PL 57,4
 ```
@@ -69,8 +76,8 @@ i szablonów, nie zmienność samego treningu.
 ## 3. Najważniejsze wnioski
 
 1. **Po angielsku Slayer rośnie, po polsku przyrost mieści się w szumie.** Na pełnym EN jest
-   +5,7 pkt (CI95 po szablonach +4,2…+7,3), na EN625 +5,0 pkt (+0,9…+9,0, p = 0,02), a na PL +1,0 pkt
-   (−3,6…+5,5, p = 0,71). Różnica różnic (przyrost PL − przyrost EN na tych samych rekordach) wynosi
+   +5,7 pkt (CI95 po szablonach +4,2…+7,3), na EN625 +5,0 pkt (+0,9…+9,0, p = 0,02, ale po Holmie na
+   wszystkich 22 kontrastach p = 0,36), a na PL +1,0 pkt (−3,6…+5,5, p = 0,71). Różnica różnic (przyrost PL − przyrost EN na tych samych rekordach) wynosi
    −4,0 pkt. Po rekordach jest istotna (p = 0,02), ale **po szablonach już nie** (CI −8,9…+0,9, p = 0,13).
    Brak postępu po polsku może więc wynikać z tłumaczenia, z wolniejszej nauki polskiego albo
    z szumu. Ten zestaw tego nie rozstrzyga. Ciągła miara idzie w tę samą stronę: margines logprob
@@ -82,20 +89,23 @@ i szablonów, nie zmienność samego treningu.
 3. **LFM3 nie jest po polsku istotnie lepszy od Slayera**: +2,0 pkt (CI −2,8…+6,6, p = 0,44), choć po
    angielsku ma 69,7%. Na tych samych rekordach traci po polsku 9,3 pkt względem angielskiego
    (p < 0,001, jedyna istotna różnica PL − EN po szablonach), co jest śladem słabego polskiego.
-   U Bielika i Slayera różnica PL − EN po szablonach jest nieistotna (wartości punktowe od −1,4 do +3,2).
+   U Bielika i Slayera różnica PL − EN po szablonach jest nieistotna. Wartości punktowe leżą od −1,4 do
+   +3,2 pkt (to rozrzut wartości, a nie CI), a dolne granice CI po szablonach schodzą do −5,1.
 4. **Slayera ciągną w dół dwie pary pojęć**: „make more / less effort” (220 rekordów) i „choose” (165).
    Na obu jest losowy we wszystkich wersjach (48–54). Bez nich Slayer 1.06 ma 64,4%. Na parze effort
    Bielik (58) i LFM3 (55) są tylko trochę powyżej losowego, ale po angielsku na tych samych rekordach
    mają 63 i 67. Oprócz trudności pary może tu działać tłumaczenie.
-5. **Tłumaczenie zmienia trudność w obie strony.** „Make an effort / make no effort” (45 rekordów) jest
-   po polsku wyraźnie łatwiejsza: Bielik 90 wobec 68 po angielsku, Slayer 1.00 87 wobec 59. Stąd bierze
-   się u Slayera 1.00 PL > EN o +3,1 pkt. Z kolei „believe / doubt” jest losowa u wszystkich modeli
-   w obu językach (Bielik 48 tu i tu), więc problem leży w samej parze, a nie w tłumaczeniu. LFM3 ma
-   na niej po polsku 41,8 [34,5; 49,1], czyli poniżej losowego w przedziale po rekordach. Na 11 szablonach
-   to słaby dowód.
+5. **Tłumaczenie zmienia trudność w obie strony, i to różnie dla różnych modeli.** „Make an effort /
+   make no effort” (45 rekordów) jest po polsku wyraźnie łatwiejsza dla Bielika (90 wobec 68 po
+   angielsku) i Slayera 1.00 (87 wobec 59), a trudniejsza dla LFM3 (54 wobec 79). Ta para daje około
+   2,0 z 3,1 pkt przewagi PL nad EN u Slayera 1.00. „Believe / doubt” jest losowa u Bielika (48 w obu
+   językach) i większości wersji Slayera, z wyjątkiem Slayera 1.01 po angielsku (59,1 [53,6; 64,5]).
+   Problem leży więc głównie w samej parze, nie w tłumaczeniu. LFM3 ma na niej po polsku 41,8
+   [34,5; 49,1], czyli poniżej losowego w przedziale po rekordach. Na 11 szablonach to słaby dowód.
 6. **Slayer mocno trzyma się prioru zdania.** Gdy porównać dwa zdania w tym samym kontekście, Slayer
    po polsku w 80–85% rekordów wybiera to samo zdanie, cokolwiek mówi kontekst. Bielik robi tak w 75%,
-   LFM3 w 74%, a losowo wychodzi 50%. Po angielsku Slayer ma 70–77%. To odpowiednik „zawsze A” z testów
+   LFM3 w 74%, a losowo wychodzi 50%. Po angielsku Slayer ma 75–82% na tych samych 625 rekordach
+   i 70–77% na pełnym EN. To odpowiednik „zawsze A” z testów
    z literami. Reguła EWoK jest na to odporna. Prior spycha jednak w dół metrykę „oba”: Slayer 1.01,
    1.03 i 1.04 mają ją istotnie poniżej 25%, więc 25% nie jest dla niej prawdziwym poziomem losowym.
 
@@ -136,16 +146,19 @@ Największy postęp Slayer zrobił w `material-dynamics` (53 → 67) i `social-p
 | believe / imagine | 10 | 70 / 70 | 50 / 50 | 50 / 40 | 75 / 75 |
 | have no preference / prefer | 10 | 50 / 70 | 65 / 80 | 50 / 50 | 40 / 85 |
 
-Przedziały dla grup od 10 do 220 rekordów mają szerokość od ±4 pkt (220) do ±15 pkt (10), liczone po
-rekordach. Po szablonach są szersze: obie grupy po 10 rekordów to tylko 2 i 6 szablonów, a „make more /
+Połowa szerokości CI95 po rekordach wynosi ±4 pkt przy 220 rekordach i ±5–9 pkt przy 45. Przy
+10 rekordach waha się od ±0 do ±20 pkt. ±0 to przedział zdegenerowany, gdy wszystkie rekordy grupy
+mają ten sam wynik, a nie pewność. Po szablonach są szersze: obie grupy po 10 rekordów to tylko 2 i 6 szablonów, a „make more /
 less effort” to 51 szablonów. Wartości dla
 10–30 rekordów to sygnał do sprawdzenia, a nie wynik.
 
 ## 6. Tłumaczenie: co wiemy, a czego nie
 
 - EWoK-PL to **wersja robocza** (`draft_review_required`). 580 z 625 rekordów ma flagę przeglądu.
-  Flagi oznaczają **typ wnioskowania** i pokrywają się z parami pojęć (np. `intent_from_action_review`
-  to dokładnie para „intend”, 70 rekordów), więc nie mówią, czy tłumaczenie jest dobre. 45 rekordów
+  Flagi oznaczają **typ wnioskowania** i są skorelowane z parami pojęć, ale nie pokrywają się z nimi 1:1.
+  Na przykład `intent_from_action_review` (70 rekordów) to 55 rekordów „intend” i 15 „make an effort”
+  (Bielik 75,0 na fladze wobec 79,3 na parze), a `effort_preference_inference_review` (250) to 220
+  „make more effort” i 30 „make an effort”. Flagi nie mówią więc, czy tłumaczenie jest dobre. 45 rekordów
   bez flagi nie wypada lepiej (Bielik 53,3 [44,4; 62,2]). Jakość sprawdzi dopiero przegląd przez człowieka.
 - **Kandydaci do przeglądu.** To rekordy, w których Bielik i LFM3 średnio różnią się między PL a EN
   o co najmniej 0,5. Slayera nie bierzemy, bo po angielsku jest blisko losowego. Lista idzie w obie strony:

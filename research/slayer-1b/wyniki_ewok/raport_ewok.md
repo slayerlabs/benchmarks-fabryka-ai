@@ -58,31 +58,31 @@ Wynik EWoK w % (losowo 50). CI95: bootstrap po rekordach oraz po szablonach (rek
 | social-relations | 785 | 68 | 67 | 51 | 52 | 51 | 53 | 56 | 57 | 57 |
 | spatial-relations | 245 | 61 | 61 | 54 | 59 | 58 | 56 | 57 | 57 | 55 |
 
-## Kontrasty (różnica punktów ewok ×100, sparowany test permutacyjny, Holm w rodzinie)
+## Kontrasty (różnica punktów ewok ×100, sparowany test permutacyjny; Holm w rodzinie i na wszystkich naraz)
 
-| rodzina | A | B | n | A−B | CI95 po rekordach | CI95 po szablonach | p | p po szablonach | p_holm po szablonach |
-|---|---|---|---|---|---|---|---|---|---|
-| PL vs EN | Bielik-1.5B-v3 PL | Bielik-1.5B-v3 EN | 625 | +3.2 | [+0.6, +5.8] | [-0.2, +6.7] | 0.0171 | 0.0890 | 0.6229 |
-| PL vs EN | LFM3-1.7B-Base PL | LFM3-1.7B-Base EN | 625 | -9.3 | [-11.8, -6.6] | [-13.4, -5.2] | 0.0001 | 0.0001 | 0.0009 |
-| PL vs EN | Slayer1B-1.00 PL | Slayer1B-1.00 EN | 625 | +3.1 | [+1.0, +5.3] | [+0.2, +6.2] | 0.0055 | 0.0536 | 0.4288 |
-| PL vs EN | Slayer1B-1.01 PL | Slayer1B-1.01 EN | 625 | -0.6 | [-3.1, +1.9] | [-4.3, +3.0] | 0.7124 | 0.7923 | 1.0000 |
-| PL vs EN | Slayer1B-1.02 PL | Slayer1B-1.02 EN | 625 | +1.6 | [-1.1, +4.2] | [-2.6, +5.7] | 0.2715 | 0.4714 | 1.0000 |
-| PL vs EN | Slayer1B-1.03 PL | Slayer1B-1.03 EN | 625 | +2.6 | [-0.2, +5.3] | [-1.5, +6.5] | 0.0698 | 0.2349 | 1.0000 |
-| PL vs EN | Slayer1B-1.04 PL | Slayer1B-1.04 EN | 625 | +0.4 | [-2.3, +3.2] | [-3.6, +4.1] | 0.8264 | 0.8754 | 1.0000 |
-| PL vs EN | Slayer1B-1.05 PL | Slayer1B-1.05 EN | 625 | -1.4 | [-4.0, +1.3] | [-5.1, +2.4] | 0.3427 | 0.5089 | 1.0000 |
-| PL vs EN | Slayer1B-1.06 PL | Slayer1B-1.06 EN | 625 | -0.9 | [-3.8, +1.9] | [-5.1, +3.3] | 0.5780 | 0.7125 | 1.0000 |
-| Slayer kolejne | Slayer1B-1.01 | Slayer1B-1.00 | 625 | -1.4 | [-3.4, +0.6] | [-3.9, +1.0] | 0.1899 | 0.2896 | 1.0000 |
-| Slayer kolejne | Slayer1B-1.02 | Slayer1B-1.01 | 625 | +1.4 | [-0.8, +3.7] | [-1.6, +4.6] | 0.2368 | 0.3984 | 1.0000 |
-| Slayer kolejne | Slayer1B-1.03 | Slayer1B-1.02 | 625 | +0.2 | [-2.1, +2.4] | [-2.5, +2.8] | 0.9433 | 0.9510 | 1.0000 |
-| Slayer kolejne | Slayer1B-1.04 | Slayer1B-1.03 | 625 | +1.8 | [-0.6, +4.2] | [-1.3, +5.0] | 0.1443 | 0.2772 | 1.0000 |
-| Slayer kolejne | Slayer1B-1.05 | Slayer1B-1.04 | 625 | -0.8 | [-2.9, +1.2] | [-2.9, +1.4] | 0.4925 | 0.5098 | 1.0000 |
-| Slayer kolejne | Slayer1B-1.06 | Slayer1B-1.05 | 625 | -0.2 | [-2.3, +1.8] | [-2.5, +2.1] | 0.8758 | 0.8920 | 1.0000 |
-| Slayer 1.06 vs 1.00 (pl) | Slayer1B-1.06 | Slayer1B-1.00 | 625 | +1.0 | [-1.9, +3.8] | [-3.6, +5.5] | 0.5480 | 0.7074 | 0.7074 |
-| Slayer 1.06 vs 1.00 (en625) | Slayer1B-1.06 | Slayer1B-1.00 | 625 | +5.0 | [+2.2, +7.6] | [+0.9, +9.0] | 0.0006 | 0.0201 | 0.0201 |
-| Slayer 1.06 vs 1.00 (en) | Slayer1B-1.06 | Slayer1B-1.00 | 4374 | +5.7 | [+4.7, +6.8] | [+4.2, +7.3] | 0.0001 | 0.0001 | 0.0001 |
-| Slayer 1.06 vs 1.00: PL − EN625 (różnica różnic) | Slayer1B-1.06 | Slayer1B-1.00 | 625 | -4.0 | [-7.4, -0.6] | [-8.9, +0.9] | 0.0226 | 0.1284 | 0.1284 |
-| Inne vs Slayer 1.06 (pl) | Bielik-1.5B-v3 | Slayer1B-1.06 | 625 | +10.6 | [+7.8, +13.4] | [+6.4, +14.8] | 0.0001 | 0.0001 | 0.0002 |
-| Inne vs Slayer 1.06 (pl) | LFM3-1.7B-Base | Slayer1B-1.06 | 625 | +2.0 | [-0.9, +5.0] | [-2.8, +6.6] | 0.2018 | 0.4361 | 0.4361 |
+| rodzina | A | B | n | A−B | CI95 po rekordach | CI95 po szablonach | p | p po szablonach | p_holm po szablonach | p_holm wszystkie |
+|---|---|---|---|---|---|---|---|---|---|---|
+| PL vs EN | Bielik-1.5B-v3 PL | Bielik-1.5B-v3 EN | 625 | +3.2 | [+0.6, +5.8] | [-0.2, +6.7] | 0.0171 | 0.0890 | 0.6229 | 1.0000 |
+| PL vs EN | LFM3-1.7B-Base PL | LFM3-1.7B-Base EN | 625 | -9.3 | [-11.8, -6.6] | [-13.4, -5.2] | 0.0001 | 0.0001 | 0.0009 | 0.0021 |
+| PL vs EN | Slayer1B-1.00 PL | Slayer1B-1.00 EN | 625 | +3.1 | [+1.0, +5.3] | [+0.2, +6.2] | 0.0055 | 0.0536 | 0.4288 | 0.9111 |
+| PL vs EN | Slayer1B-1.01 PL | Slayer1B-1.01 EN | 625 | -0.6 | [-3.1, +1.9] | [-4.3, +3.0] | 0.7124 | 0.7923 | 1.0000 | 1.0000 |
+| PL vs EN | Slayer1B-1.02 PL | Slayer1B-1.02 EN | 625 | +1.6 | [-1.1, +4.2] | [-2.6, +5.7] | 0.2715 | 0.4714 | 1.0000 | 1.0000 |
+| PL vs EN | Slayer1B-1.03 PL | Slayer1B-1.03 EN | 625 | +2.6 | [-0.2, +5.3] | [-1.5, +6.5] | 0.0698 | 0.2349 | 1.0000 | 1.0000 |
+| PL vs EN | Slayer1B-1.04 PL | Slayer1B-1.04 EN | 625 | +0.4 | [-2.3, +3.2] | [-3.6, +4.1] | 0.8264 | 0.8754 | 1.0000 | 1.0000 |
+| PL vs EN | Slayer1B-1.05 PL | Slayer1B-1.05 EN | 625 | -1.4 | [-4.0, +1.3] | [-5.1, +2.4] | 0.3427 | 0.5089 | 1.0000 | 1.0000 |
+| PL vs EN | Slayer1B-1.06 PL | Slayer1B-1.06 EN | 625 | -0.9 | [-3.8, +1.9] | [-5.1, +3.3] | 0.5780 | 0.7125 | 1.0000 | 1.0000 |
+| Slayer kolejne | Slayer1B-1.01 | Slayer1B-1.00 | 625 | -1.4 | [-3.4, +0.6] | [-3.9, +1.0] | 0.1899 | 0.2896 | 1.0000 | 1.0000 |
+| Slayer kolejne | Slayer1B-1.02 | Slayer1B-1.01 | 625 | +1.4 | [-0.8, +3.7] | [-1.6, +4.6] | 0.2368 | 0.3984 | 1.0000 | 1.0000 |
+| Slayer kolejne | Slayer1B-1.03 | Slayer1B-1.02 | 625 | +0.2 | [-2.1, +2.4] | [-2.5, +2.8] | 0.9433 | 0.9510 | 1.0000 | 1.0000 |
+| Slayer kolejne | Slayer1B-1.04 | Slayer1B-1.03 | 625 | +1.8 | [-0.6, +4.2] | [-1.3, +5.0] | 0.1443 | 0.2772 | 1.0000 | 1.0000 |
+| Slayer kolejne | Slayer1B-1.05 | Slayer1B-1.04 | 625 | -0.8 | [-2.9, +1.2] | [-2.9, +1.4] | 0.4925 | 0.5098 | 1.0000 | 1.0000 |
+| Slayer kolejne | Slayer1B-1.06 | Slayer1B-1.05 | 625 | -0.2 | [-2.3, +1.8] | [-2.5, +2.1] | 0.8758 | 0.8920 | 1.0000 | 1.0000 |
+| Slayer 1.06 vs 1.00 (pl) | Slayer1B-1.06 | Slayer1B-1.00 | 625 | +1.0 | [-1.9, +3.8] | [-3.6, +5.5] | 0.5480 | 0.7074 | 0.7074 | 1.0000 |
+| Slayer 1.06 vs 1.00 (en625) | Slayer1B-1.06 | Slayer1B-1.00 | 625 | +5.0 | [+2.2, +7.6] | [+0.9, +9.0] | 0.0006 | 0.0201 | 0.0201 | 0.3618 |
+| Slayer 1.06 vs 1.00 (en) | Slayer1B-1.06 | Slayer1B-1.00 | 4374 | +5.7 | [+4.7, +6.8] | [+4.2, +7.3] | 0.0001 | 0.0001 | 0.0001 | 0.0021 |
+| Slayer 1.06 vs 1.00: PL − EN625 (różnica różnic) | Slayer1B-1.06 | Slayer1B-1.00 | 625 | -4.0 | [-7.4, -0.6] | [-8.9, +0.9] | 0.0226 | 0.1284 | 0.1284 | 1.0000 |
+| Inne vs Slayer 1.06 (pl) | Bielik-1.5B-v3 | Slayer1B-1.06 | 625 | +10.6 | [+7.8, +13.4] | [+6.4, +14.8] | 0.0001 | 0.0001 | 0.0002 | 0.0021 |
+| Inne vs Slayer 1.06 (pl) | LFM3-1.7B-Base | Slayer1B-1.06 | 625 | +2.0 | [-0.9, +5.0] | [-2.8, +6.6] | 0.2018 | 0.4361 | 0.4361 | 1.0000 |
 
 ## Do przeglądu tłumaczenia, trudniejsze po pl: 51 rekordów (|EN − PL| ≥ 0.5 średnio po Bielik-1.5B-v3, LFM3-1.7B-Base)
 

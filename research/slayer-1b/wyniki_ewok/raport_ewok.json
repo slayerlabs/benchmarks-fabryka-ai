@@ -21797,7 +21797,8 @@
    },
    "p_po_szablonach": 0.08899110088991101,
    "p_holm": 0.1196880311968803,
-   "p_holm_po_szablonach": 0.622937706229377
+   "p_holm_po_szablonach": 0.622937706229377,
+   "p_holm_wszystkie_po_szablonach": 1.0
   },
   {
    "rodzina": "PL vs EN",
@@ -21827,7 +21828,8 @@
    },
    "p_po_szablonach": 9.999000099990002e-05,
    "p_holm": 0.0008999100089991002,
-   "p_holm_po_szablonach": 0.0008999100089991002
+   "p_holm_po_szablonach": 0.0008999100089991002,
+   "p_holm_wszystkie_po_szablonach": 0.0020997900209979003
   },
   {
    "rodzina": "PL vs EN",
@@ -21857,7 +21859,8 @@
    },
    "p_po_szablonach": 0.053594640535946404,
    "p_holm": 0.043995600439956005,
-   "p_holm_po_szablonach": 0.42875712428757123
+   "p_holm_po_szablonach": 0.42875712428757123,
+   "p_holm_wszystkie_po_szablonach": 0.9111088891110889
   },
   {
    "rodzina": "PL vs EN",
@@ -21887,7 +21890,8 @@
    },
    "p_po_szablonach": 0.7923207679232077,
    "p_holm": 1.0,
-   "p_holm_po_szablonach": 1.0
+   "p_holm_po_szablonach": 1.0,
+   "p_holm_wszystkie_po_szablonach": 1.0
   },
   {
    "rodzina": "PL vs EN",
@@ -21917,7 +21921,8 @@
    },
    "p_po_szablonach": 0.47135286471352866,
    "p_holm": 1.0,
-   "p_holm_po_szablonach": 1.0
+   "p_holm_po_szablonach": 1.0,
+   "p_holm_wszystkie_po_szablonach": 1.0
   },
   {
    "rodzina": "PL vs EN",
@@ -21947,7 +21952,8 @@
    },
    "p_po_szablonach": 0.2348765123487651,
    "p_holm": 0.4187581241875813,
-   "p_holm_po_szablonach": 1.0
+   "p_holm_po_szablonach": 1.0,
+   "p_holm_wszystkie_po_szablonach": 1.0
   },
   {
    "rodzina": "PL vs EN",
@@ -21977,7 +21983,8 @@
    },
    "p_po_szablonach": 0.8754124587541245,
    "p_holm": 1.0,
-   "p_holm_po_szablonach": 1.0
+   "p_holm_po_szablonach": 1.0,
+   "p_holm_wszystkie_po_szablonach": 1.0
   },
   {
    "rodzina": "PL vs EN",
@@ -22007,7 +22014,8 @@
    },
    "p_po_szablonach": 0.5089491050894911,
    "p_holm": 1.0,
-   "p_holm_po_szablonach": 1.0
+   "p_holm_po_szablonach": 1.0,
+   "p_holm_wszystkie_po_szablonach": 1.0
   },
   {
    "rodzina": "PL vs EN",
@@ -22037,7 +22045,8 @@
    },
    "p_po_szablonach": 0.7125287471252875,
    "p_holm": 1.0,
-   "p_holm_po_szablonach": 1.0
+   "p_holm_po_szablonach": 1.0,
+   "p_holm_wszystkie_po_szablonach": 1.0
   },
   {
    "rodzina": "Slayer kolejne",
@@ -22067,7 +22076,8 @@
    },
    "p_po_szablonach": 0.28957104289571045,
    "p_holm": 0.9494050594940506,
-   "p_holm_po_szablonach": 1.0
+   "p_holm_po_szablonach": 1.0,
+   "p_holm_wszystkie_po_szablonach": 1.0
   },
   {
    "rodzina": "Slayer kolejne",
@@ -22097,7 +22107,8 @@
    },
    "p_po_szablonach": 0.39836016398360163,
    "p_holm": 0.9494050594940506,
-   "p_holm_po_szablonach": 1.0
+   "p_holm_po_szablonach": 1.0,
+   "p_holm_wszystkie_po_szablonach": 1.0
   },
   {
    "rodzina": "Slayer kolejne",
@@ -22127,7 +22138,8 @@
    },
    "p_po_szablonach": 0.951004899510049,
    "p_holm": 1.0,
-   "p_holm_po_szablonach": 1.0
+   "p_holm_po_szablonach": 1.0,
+   "p_holm_wszystkie_po_szablonach": 1.0
   },
   {
    "rodzina": "Slayer kolejne",
@@ -22157,7 +22169,8 @@
    },
    "p_po_szablonach": 0.27717228277172284,
    "p_holm": 0.8657134286571344,
-   "p_holm_po_szablonach": 1.0
+   "p_holm_po_szablonach": 1.0,
+   "p_holm_wszystkie_po_szablonach": 1.0
   },
   {
    "rodzina": "Slayer kolejne",
@@ -22187,7 +22200,8 @@
    },
    "p_po_szablonach": 0.5098490150984901,
    "p_holm": 1.0,
-   "p_holm_po_szablonach": 1.0
+   "p_holm_po_szablonach": 1.0,
+   "p_holm_wszystkie_po_szablonach": 1.0
   },
   {
    "rodzina": "Slayer kolejne",
@@ -22217,7 +22231,8 @@
    },
    "p_po_szablonach": 0.892010798920108,
    "p_holm": 1.0,
-   "p_holm_po_szablonach": 1.0
+   "p_holm_po_szablonach": 1.0,
+   "p_holm_wszystkie_po_szablonach": 1.0
   },
   {
    "rodzina": "Slayer 1.06 vs 1.00 (pl)",
@@ -22247,7 +22262,8 @@
    },
    "p_po_szablonach": 0.7074292570742926,
    "p_holm": 0.5480451954804519,
-   "p_holm_po_szablonach": 0.7074292570742926
+   "p_holm_po_szablonach": 0.7074292570742926,
+   "p_holm_wszystkie_po_szablonach": 1.0
   },
   {
    "rodzina": "Slayer 1.06 vs 1.00 (en625)",
@@ -22277,7 +22293,8 @@
    },
    "p_po_szablonach": 0.020097990200979902,
    "p_holm": 0.0005999400059994001,
-   "p_holm_po_szablonach": 0.020097990200979902
+   "p_holm_po_szablonach": 0.020097990200979902,
+   "p_holm_wszystkie_po_szablonach": 0.36176382361763826
   },
   {
    "rodzina": "Slayer 1.06 vs 1.00 (en)",
@@ -22307,7 +22324,8 @@
    },
    "p_po_szablonach": 9.999000099990002e-05,
    "p_holm": 9.999000099990002e-05,
-   "p_holm_po_szablonach": 9.999000099990002e-05
+   "p_holm_po_szablonach": 9.999000099990002e-05,
+   "p_holm_wszystkie_po_szablonach": 0.0020997900209979003
   },
   {
    "rodzina": "Slayer 1.06 vs 1.00: PL − EN625 (różnica różnic)",
@@ -22337,7 +22355,8 @@
    },
    "p_po_szablonach": 0.12838716128387162,
    "p_holm": 0.0225977402259774,
-   "p_holm_po_szablonach": 0.12838716128387162
+   "p_holm_po_szablonach": 0.12838716128387162,
+   "p_holm_wszystkie_po_szablonach": 1.0
   },
   {
    "rodzina": "Inne vs Slayer 1.06 (pl)",
@@ -22367,7 +22386,8 @@
    },
    "p_po_szablonach": 9.999000099990002e-05,
    "p_holm": 0.00019998000199980003,
-   "p_holm_po_szablonach": 0.00019998000199980003
+   "p_holm_po_szablonach": 0.00019998000199980003,
+   "p_holm_wszystkie_po_szablonach": 0.0020997900209979003
   },
   {
    "rodzina": "Inne vs Slayer 1.06 (pl)",
@@ -22397,7 +22417,8 @@
    },
    "p_po_szablonach": 0.4360563943605639,
    "p_holm": 0.20177982201779823,
-   "p_holm_po_szablonach": 0.4360563943605639
+   "p_holm_po_szablonach": 0.4360563943605639,
+   "p_holm_wszystkie_po_szablonach": 1.0
   }
  ],
  "do_przegladu": {
