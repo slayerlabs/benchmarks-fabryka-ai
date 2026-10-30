@@ -51,7 +51,6 @@ licencje per komponent nie były sprawdzane u źródła.
 | `SKocur/polish-pre1918-corpus` | CC0 | kandydat | OCR; różnorodność polszczyzny | 2026-10-30 |
 | `demelin/moral_stories` | MIT | kandydat | mały, pokrewny SIQA: ostrożnie (kontaminacja, format) | 2026-10-30 |
 | `openbmb/Ultra-FineWeb` (EN) | Apache-2.0 | kandydat | filtrowany web EN; bez wariantu L3 | 2026-10-30 |
-| `SlayerLab/polish-dynaword-mix-extended-500M` | niepewna wg Arka | odrzucony | wg Arka (30.10): generowane dane SFT, licencja niepewna, zbiór tylko u niego lokalnie, sam go nie używa | 2026-10-30 |
 | Multi_Legal_Pile | — | odrzucony | licencja | 2026-10-30 |
 | `MegaScience/TextbookReasoning` | — | odrzucony | licencja | 2026-10-30 |
 | Lots-of-LoRAs task579-581, task384, task385 | — | odrzucony | pochodne SIQA (test) | 2026-10-30 |

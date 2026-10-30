@@ -33,15 +33,13 @@ Krótko:
 
 **Propozycja do Space:** obok surowego wyniku z liter dodać miarę po treści (prawdopodobieństwo / BPB poprawnej odpowiedzi, 5-shot, kilka szablonów pytania — tak zaleca praca na 26 modelach 2B, arXiv 2610.19185). Wtedy tabela pokaże postęp, który dziś jest niewidoczny.
 
-**Trzy pytania:**
+**Dwa pytania:**
 1. Czy angielska część danych (fineweb-edu + finemath wg `dataset.json`) była czyszczona z pytań ARC/MMLU? W `dataset.json` dekontaminacja jest opisana tylko dla web i tylko wobec 8tags/polemo2.
 2. Czy planujesz wygaszanie LR na końcu treningu? Nasz krótki test (150 kroków z ckpt_13848) dał −0,047 nat lossu wobec stałego LR, bez zmiany trafności (wiersz 10). Kod i wyniki: katalog `wygaszanie/`, opis w `wygaszanie/README.md`.
-3. Skąd są dodatki w `polish-dynaword-mix-extended-500M` ponad dynaword?
 
 **Odpowiedzi Arka (30.10):**
 1. Dekontaminacja wobec ARC była na pewno, wobec MMLU nie jest pewien. Trzeba sprawdzić jeszcze raz (A2).
 2. Wygaszanie LR planuje, ale dopiero przy ok. 100 mld tokenów; dziś trening jest w 1/8.
-3. Zbiór 500M to generowane dane SFT, licencja niepewna, został tylko u niego i go nie używa. Pomijamy.
 
 Wszystko jest do sprawdzenia: surowe wyniki per pytanie, kod i komendy. Dla chętnych do niezależnego powtórzenia jest „ślepa” paczka (surowe dane i instrukcja, bez naszych liczb), suma kontrolna zipa `da0edbd792d2c8074bda39d7232c628fcfbf60933278728afd6db9220c225303`.
 
