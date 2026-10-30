@@ -8,28 +8,28 @@ Arek, sprawdziliśmy, skąd Slayer 1.06 siedzi na poziomie losowym na większoś
 |---|---|---|---|---|
 | 1 | Którą literę wybiera Slayer w pytaniach A/B/C/D | „A” w 92% (ARC-C), 93% (MedMCQA), 83% (MMLU); poprawne „A” to 22,7% | n=1172 (ARC-C) | Model nie łączy treści z literą |
 | 2 | Czy po przesunięciu odpowiedzi wybór idzie za treścią | 95% wyborów zostaje na tej samej literze | jw. | Potwierdza punkt 1 |
-| 3 | Pythia-1B na tych samych testach | Jedna litera w 84–96%, MMLU z literami 0,231 (Slayer też 0,231) | ten sam pomiar | Cecha skali ~1B, nie Twojego modelu |
+| 3 | Pythia-1B na tych samych testach | Jedna litera w 84–96% w testach angielskich (Belebele 43%), MMLU z literami 0,231 (Slayer też 0,231) | ten sam pomiar | Cecha skali ~1B, nie Twojego modelu |
 | 4 | Literatura (OLMES, arXiv 2406.08446) | Modele 1B: ARC-C z literami 24–26, po treści 31–39 | publikacja | To samo u Pythii, OLMo, TinyLlamy |
-| 5 | ARC-C liczone po treści (PMI) | 0,298 przy bazie 0,25 | SE 0,013 (autorzy ARC podają ±2,5 pkt na 95%, zgodne) | Wiedza jest, litery jej nie pokazują. ARC-C to z definicji pytania, których nie rozwiązały proste statystyki słów (arXiv 1803.05457), więc dla 1B lepszym sygnałem postępu jest ARC-E |
+| 5 | ARC-C liczone po treści (PMI) | 0,298 przy bazie 0,25 | SE 0,013 (autorzy ARC podają ±2,5 pkt na 95%, zgodne) | Wiedza jest, litery jej nie pokazują. ARC-C to z definicji pytania, których nie rozwiązały proste statystyki słów (arXiv 1803.05457), więc dla 1B lepszym sygnałem postępu jest ARC-E <!-- ocena-bez-se: ocena wyboru testu, nie różnica wyników --> |
 | 6 | Postęp 1.00 → 1.06 po treści | acc_norm 0,218 → 0,258 (+0,040); BPB poprawnej odp. −0,114 | SE 0,011 / 0,007 | Trening działa, Space tego nie widzi |
 | 7 | Polski vs Pythia-1B | Belebele (po treści, acc) 0,330 vs 0,297; MultiBLiMP-PL 0,986 vs 0,774 | Belebele 1,5 SE, MultiBLiMP 28 SE | MultiBLiMP pewny, ale oczekiwany (Pythia uczona na angielskim); Belebele w granicach szumu |
 | 8 | Angielski vs Pythia-1B | ARC-E −4,4 pkt, MMLU −2,2 pkt, SIQA −0,9 pkt (po treści, acc) | 3,0 / 4,2 / 0,6 SE | ARC-E i MMLU prawdopodobna luka; SIQA bez różnicy |
 | 9 | WikiText-2 byte_ppl | Nasz 1,893, Space 1,846 (+2,5%) | — | Do wyjaśnienia (zadanie A5) |
 | 10 | Wygaszanie LR (150 kroków z ckpt_13848, 157 mln tokenów) | Loss na odłożonych danych: wygaszanie 2,2807, stały LR 2,3276 (Δ −0,047 nat), spadek we wszystkich częściach danych (web, core, legal, en); trafność ARC-C, MedMCQA, SIQA, MultiBLiMP bez zmian | SE różnicy 0,0006; szum między checkpointami 0,0011 | Wygaszenie obniża perplexity, testów nie podnosi; warto zrobić przed wydaniem |
-| 11 | Testy danych na Slayerze (EN 10% vs 25%, lepszy polski web) | Plan i progi gotowe, nie uruchomione | — | Czekamy na Twoje zdanie, czy warto |
+| 11 | Testy danych na Slayerze (EN 10% vs 25%, lepszy polski web) <!-- ocena-bez-se: nazwa planowanego ramienia, nie wynik --> | Plan i progi gotowe, nie uruchomione | — | Czekamy na Twoje zdanie, czy warto |
 
 Krótko:
 
 **1. To głównie format pytań, nie brak wiedzy.** W pytaniach z literami (A/B/C/D) Slayer wybiera „A” w 92% odpowiedzi na ARC-C (poprawne „A” to 22,7%, n=1172) i w 93% na MedMCQA (MMLU: 83%). Po przesunięciu treści odpowiedzi 95% wyborów zostaje na tej samej literze. Model nie łączy treści z literą.
 
-**2. Pythia-1B robi dokładnie to samo** (jedna litera w 84–96% odpowiedzi, MMLU z literami 0,231 u obu modeli). To cecha skali ~1B, nie Twojego modelu ani danych. Potwierdza to publikacja Ai2 OLMES (arXiv 2406.08446): Pythia-1B, OLMo-1B i TinyLlama-1.1B mają ARC-C z literami 24–26, a liczone po treści 31–39.
+**2. Pythia-1B robi dokładnie to samo** (jedna litera w 84–96% odpowiedzi w testach angielskich, MMLU z literami 0,231 u obu modeli). To cecha skali ~1B, nie Twojego modelu ani danych. Potwierdza to publikacja Ai2 OLMES (arXiv 2406.08446): Pythia-1B, OLMo-1B i TinyLlama-1.1B mają ARC-C z literami 24–26, a liczone po treści 31–39.
 
 **3. Liczone po treści, Slayer się uczy.** ARC-C (PMI) 0,298 przy bazie 0,25 (SE 0,013). Między 1.00 a 1.06: acc_norm 0,218 → 0,258 (+0,040, SE 0,011), BPB poprawnej odpowiedzi −0,114 (SE 0,007).
 
 **4. Porównanie z Pythią-1B: pewna jest tylko część różnic** (różnica w jednostkach SE, SE różnicy liczone jak dla niezależnych prób, czyli ostrożnie; po jednym modelu na stronę, bez powtórzeń treningu):
 - Po polsku: MultiBLiMP-PL 0,986 vs 0,774 (28 SE) to pewna różnica, ale oczekiwana, bo Pythia uczyła się na angielskim. Belebele po treści 0,330 vs 0,297 to 1,5 SE, czyli w granicach szumu.
 - Po angielsku: ARC-E −4,4 pkt (3,0 SE) i MMLU −2,2 pkt (4,2 SE) to prawdopodobna luka. SIQA −0,9 pkt (0,6 SE) to brak wykrywalnej różnicy.
-- Luka EN może wynikać po prostu z udziału angielskiego (10% danych Slayera wobec 100% u Pythii), więc nie jest jeszcze wnioskiem o jakości danych (zob. B2).
+- Prawdopodobna luka EN (ARC-E, MMLU) może wynikać po prostu z udziału angielskiego (10% danych Slayera wobec 100% u Pythii), więc nie jest jeszcze wnioskiem o jakości danych (zob. B2).
 
 **Propozycja do Space:** obok surowego wyniku z liter dodać miarę po treści (prawdopodobieństwo / BPB poprawnej odpowiedzi, 5-shot, kilka szablonów pytania — tak zaleca praca na 26 modelach 2B, arXiv 2610.19185). Wtedy tabela pokaże postęp, który dziś jest niewidoczny.
 
