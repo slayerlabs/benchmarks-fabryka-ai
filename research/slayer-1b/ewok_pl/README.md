@@ -7,7 +7,7 @@ LFM3-1.7B-Base ma po polsku 57,4% (różnica ze Slayerem w granicach szumu), ale
 Dzisiejszy EWoK-PL obejmuje tylko domenę `agent-properties`, więc nie mówi jeszcze nic
 o fizyce, przestrzeni ani relacjach społecznych.
 
-Pełne liczby: [`../wyniki_ewok/raport_ewok.md`](../wyniki_ewok/raport_ewok.md) (CI95, kontrasty, rozbicia), dane: `raport_ewok.json`.
+**Podsumowanie wyników i wnioski: [`WYNIKI.md`](WYNIKI.md).** Pełne liczby: [`../wyniki_ewok/raport_ewok.md`](../wyniki_ewok/raport_ewok.md) (CI95, kontrasty, rozbicia), dane: `raport_ewok.json`.
 
 ## Protokół
 
