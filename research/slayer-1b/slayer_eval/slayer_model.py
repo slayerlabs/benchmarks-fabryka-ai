@@ -10,8 +10,8 @@ Weryfikacja 30.10 (odczyt train_gpt_ref_r23.py z repo HF SlayerLab/Slayer1B-1.06
 forward zgodny z referencją - RMSNorm x*rsqrt(mean(x^2)+eps)*w, qk_norm przed RoPE, RoPE
 „interleaved" na pełnym wymiarze głowy, v = v + vr_lambda*v0 (v0 = surowe V bloku 0), domyślna
 skala SDPA, head = tok (tied), bez skalowania embeddingu. Jedyna różnica: referencja liczy kąty
-RoPE w float32, my w float64 (różnica kąta < 1e-3 rad przy pozycji 4096). Nasz WikiText-2 byte_ppl
-1,893 vs Space 1,846 (CI95 1,815-1,878) zostaje niewyjaśniony po stronie runnera Space.
+RoPE w float32, my w float64 (różnica kąta < 1e-3 rad przy pozycji 4096). WikiText-2 byte_ppl
+1,846284 wobec 1,846284 w Space przy mianowniku jak w lm-eval (wyniki/wikitext_mianownik.md).
 """
 
 import json
@@ -31,7 +31,8 @@ def rmsnorm(x, w, eps):
 
 class Slayer(torch.nn.Module):
     # Domyślne = wariant wybrany pomiarem 29.10 na 3 dokumentach WikiText-2 (1.06): RoPE przeplatany
-    # (gptj) + v = v + lambda*v0 dał byte_ppl 1,98; neox 3,98-5,65, lerp 2,09, sigmoid 3,97.
+    # (gptj) + v = v + lambda*v0 dał byte_ppl 1,98; neox 3,98-5,65, lerp 2,09, sigmoid 3,97. Liczby z mianownikiem
+    # po detokenizacji (sprzed korekty), więc wyższe niż w konwencji lm-eval; ranking wariantów od tego nie zależy.
     def __init__(self, katalog, device="cpu", dtype=torch.float32, rope="gptj", vr="add"):
         super().__init__()
         katalog = Path(katalog)

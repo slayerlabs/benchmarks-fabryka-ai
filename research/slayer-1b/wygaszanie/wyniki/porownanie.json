@@ -985,21 +985,54 @@
  "wikitext": {
   "1.06": {
    "n_docs": 62,
-   "byte_perplexity": 1.892541306655693,
-   "bits_per_byte": 0.9203247888540619,
-   "word_perplexity": 48.035187913332166
+   "byte_perplexity": 1.846283823111059,
+   "bits_per_byte": 0.8846243507734769,
+   "word_perplexity": 26.547149409677345,
+   "nll_suma": 791318.7313842773,
+   "bajty": 1290527,
+   "slowa": 241335,
+   "metoda": "przeliczone z korekty mianownika (bajty i słowa z doc['page'] jak lm-eval, nie z tekstu po detokenizacji)",
+   "przed_korekta": {
+    "byte_perplexity": 1.892541306655693,
+    "bits_per_byte": 0.9203247888540619,
+    "word_perplexity": 48.035187913332166,
+    "bajty": 1240466,
+    "slowa": 204373
+   }
   },
   "A": {
    "n_docs": 62,
-   "byte_perplexity": 1.8921322827403875,
-   "bits_per_byte": 0.9200129538899228,
-   "word_perplexity": 47.97221029144642
+   "byte_perplexity": 1.845900273638784,
+   "bits_per_byte": 0.8843246122398191,
+   "word_perplexity": 26.517671852581575,
+   "nll_suma": 791050.6077270508,
+   "bajty": 1290527,
+   "slowa": 241335,
+   "metoda": "przeliczone z korekty mianownika (bajty i słowa z doc['page'] jak lm-eval, nie z tekstu po detokenizacji)",
+   "przed_korekta": {
+    "byte_perplexity": 1.8921322827403875,
+    "bits_per_byte": 0.9200129538899228,
+    "word_perplexity": 47.97221029144642,
+    "bajty": 1240466,
+    "slowa": 204373
+   }
   },
   "B": {
    "n_docs": 62,
-   "byte_perplexity": 1.920473628354125,
-   "bits_per_byte": 0.9414621531405505,
-   "word_perplexity": 52.50254487864288
+   "byte_perplexity": 1.872468920493297,
+   "bits_per_byte": 0.9049417728243161,
+   "word_perplexity": 28.62356497922757,
+   "nll_suma": 809493.1764221191,
+   "bajty": 1290527,
+   "slowa": 241335,
+   "metoda": "przeliczone z korekty mianownika (bajty i słowa z doc['page'] jak lm-eval, nie z tekstu po detokenizacji)",
+   "przed_korekta": {
+    "byte_perplexity": 1.920473628354125,
+    "bits_per_byte": 0.9414621531405505,
+    "word_perplexity": 52.50254487864288,
+    "bajty": 1240466,
+    "slowa": 204373
+   }
   }
  }
 }

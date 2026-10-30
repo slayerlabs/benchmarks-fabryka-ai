@@ -4017,9 +4017,20 @@
  },
  "slayer_wikitext_kontrola": {
   "n_docs": 62,
-  "byte_perplexity": 1.8925413080292057,
-  "bits_per_byte": 0.9203247899010982,
-  "word_perplexity": 48.03518812492844,
-  "space_1.06_byte_ppl": 1.846
+  "byte_perplexity": 1.846283824399022,
+  "bits_per_byte": 0.8846243517798974,
+  "word_perplexity": 26.547149508708006,
+  "nll_suma": 791318.7322845459,
+  "bajty": 1290527,
+  "slowa": 241335,
+  "metoda": "przeliczone z korekty mianownika (bajty i słowa z doc['page'] jak lm-eval, nie z tekstu po detokenizacji)",
+  "przed_korekta": {
+   "byte_perplexity": 1.8925413080292057,
+   "bits_per_byte": 0.9203247899010982,
+   "word_perplexity": 48.03518812492844,
+   "bajty": 1240466,
+   "slowa": 204373
+  },
+  "space_1.06_byte_ppl": 1.846283835597753
  }
 }
