@@ -1,4 +1,8 @@
 import { useState } from "react";
+import { Link } from "react-router";
+import { benchmarkSuites } from "./suites";
+import type { Metric } from "./suites";
+import { EvaluationDetails } from "./EvaluationDetails";
 import { PageTop } from "../../components/PageTop";
 import { fixtureSource } from "../../data/fixture-source";
 import type { LeaderboardSource } from "../../data/source";
@@ -8,7 +12,6 @@ import {
   NATURAL_DIRECTION,
   SIZE_BUCKETS,
   TRUST_LABELS,
-  checkpointDetails,
   filterRows,
   hfLink,
   measuredByUs,
@@ -28,73 +31,8 @@ import type {
 } from "./model-board-data";
 import "./leaderboard.css";
 
-const CATEGORY_LABELS: Record<Category, string> = {
-  en: "EN",
-  pl: "PL",
-  plen: "PL+EN",
-};
-// dagger: a value we measured for an external model with our protocol.
-type Column = {
-  key: SortKey;
-  label: string;
-  note?: string;
-  digits?: number;
-  dagger?: boolean;
-};
-const SCORE_COLUMNS: Record<Category, Column[]> = {
-  en: [
-    { key: "en_eff", label: "eff", note: "per scale revision", digits: 2 },
-    {
-      key: "en_overall",
-      label: "Overall",
-      note: "Glint, no size bonus",
-      digits: 2,
-    },
-    { key: "arc_easy", label: "ARC-Easy", digits: 2 },
-    { key: "blimp", label: "BLiMP", digits: 2 },
-    {
-      key: "wiki_byte_ppl",
-      label: "Wiki byte-PPL",
-      note: "lower is better",
-      digits: 4,
-    },
-  ],
-  pl: [
-    {
-      key: "multiblimp",
-      label: "MultiBLiMP-pl accuracy",
-      note: "length baseline ≈ 60 %",
-      digits: 2,
-      dagger: true,
-    },
-    {
-      key: "pl_arc_easy",
-      label: "ARC-Easy-PL accuracy",
-      digits: 2,
-      dagger: true,
-    },
-    {
-      key: "pl_byte_ppl",
-      label: "byte-PPL PL",
-      note: "lower is better",
-      digits: 4,
-      dagger: true,
-    },
-    { key: "pl_eff", label: "eff-PL", digits: 2, dagger: true },
-  ],
-  plen: [
-    { key: "combined", label: "PL+EN", digits: 2, dagger: true },
-    { key: "en_eff", label: "eff EN", digits: 2 },
-    { key: "pl_eff", label: "eff-PL", digits: 2, dagger: true },
-  ],
-};
-const CATEGORY_NOTES: Record<Category, string> = {
-  en: "Ranked by eff: the Glint Tiny-ML efficiency score (0–100) for owner-marked rows, the track's Tiny-ML efficiency for rows measured by track. Each row shows its scale revision. The size bonus stops at 150M parameters (Glint formula), so larger models get no bonus.",
-  pl: "Ranked by eff-PL = (G + K + WS) / 3 × the same size multiplier as EN; our protocol, not official. G = MultiBLiMP-pl accuracy (length baseline ≈ 60 %: always picking the shorter sentence scores about 60 %), K = ARC-Easy-PL accuracy, WS = score from byte-PPL on frozen Polish W (text public since 2026-10-25; check training-data overlap). Rows without eff-PL are listed below, unranked, by MultiBLiMP-pl.",
-  plen: "Average of eff EN and eff-PL; favours bilingual models. Shown only for models with both.",
-};
-const EN_OVERALL_NOTE =
-  "Ranked by Overall = (BLiMP + ARC-Easy + WikiText score) / 3, the Glint Tiny-ML overall score without the size bonus, computed in the browser from the row's published values.";
+const CATEGORY_LABELS = Object.fromEntries(benchmarkSuites.map(s => [s.category, s.label]));
+type Column = Pick<Metric, "key" | "label"> & Partial<Omit<Metric, "key" | "label">>;
 /** A cell carries the dagger when it is our measurement of an external model. */
 const daggered = (row: BoardRow, column: Column) =>
   !!column.dagger && measuredByUs(row) && sortValue(row, column.key) !== null;
@@ -102,6 +40,7 @@ const daggered = (row: BoardRow, column: Column) =>
 function BoardTable({
   rows,
   category,
+  suiteId,
   rankedKey,
   columns,
   ranks,
@@ -110,6 +49,7 @@ function BoardTable({
 }: {
   rows: BoardRow[];
   category: Category;
+  suiteId: string;
   rankedKey: SortKey;
   columns: Column[];
   ranks: Map<string, number>;
@@ -149,12 +89,13 @@ function BoardTable({
       aria-label={`${CATEGORY_LABELS[category]} model results`}
     >
       <table className="lb-table mb-table">
+        <caption className="sr-only">Synthetic legacy results. Rankings are not verified comparisons across scoring protocols.</caption>
         <thead>
           <tr>
             <th scope="col">Rank</th>
             <th scope="col">Model</th>
-            <th scope="col">Author</th>
             {columns.map(header)}
+            <th scope="col">Author</th>
             {header({ key: "n_params", label: "Params" })}
             {header({ key: "tokens_seen", label: "Tokens" })}
             <th scope="col">Trust</th>
@@ -182,40 +123,15 @@ function BoardTable({
                       ? `HF checkpoint · ${row.revision?.slice(0, 8) ?? "revision unavailable"}`
                       : `Track run · ${row.owner}`}
                   </span>
-                  <details className="mb-model-details">
-                    <summary>Details</summary>
-                    <div className="mb-model-detail-content">
-                      {row.kind === "external" && row.hf_repo && (
-                        <small>
-                          Hugging Face: {row.hf_repo}
-                          {row.revision ? `@${row.revision}` : ""} · logged by {row.owner}
-                        </small>
-                      )}
-                      <small>
-                        {checkpointDetails(row)}
-                        {row.scale_rev ? " · " : ""}
-                        {row.scale_rev && (
-                          <abbr title="eff depends on the min/max ranges of its scale; compare eff only between rows with the same scale revision.">
-                            scale {row.scale_rev}
-                          </abbr>
-                        )}
-                        {row.harness || row.harness_sha
-                          ? ` · harness ${[row.harness, row.harness_sha?.slice(0, 8)].filter(Boolean).join(" @ ")}`
-                          : ""}
-                      </small>
-                      {row.public_note && (
-                        <small className="mb-note">{row.public_note}</small>
-                      )}
-                    </div>
-                  </details>
+                  <span className="scale-label">Scale: {row.scale_rev ?? "Unavailable"}</span>
+                  <EvaluationDetails row={row} suiteId={suiteId} />
                 </td>
-                <td>{row.author ?? row.owner}</td>
                 {columns.map((column) => {
                   const text =
                     format(sortValue(row, column.key), column.digits) +
                     (daggered(row, column) ? "†" : "");
                   return (
-                    <td className="lb-number" key={column.key}>
+                    <td className={`lb-number ${column.key === rankedKey ? "primary-metric" : ""}`} key={column.key}>
                       {column.key === rankedKey ? (
                         <strong>{text}</strong>
                       ) : (
@@ -224,6 +140,7 @@ function BoardTable({
                     </td>
                   );
                 })}
+                <td>{row.author ?? row.owner}</td>
                 <td className="lb-number">{compact(row.n_params)}</td>
                 <td className="lb-number">{compact(row.tokens_seen)}</td>
                 <td>
@@ -265,7 +182,10 @@ export function ModelBoardPage({ source = fixtureSource }: { source?: Leaderboar
     source.load().then(({ models }) => { if (active) { setModels(models); setStatus("ready"); } }, () => { if (active) setStatus("error"); });
     return () => { active = false; };
   }, [source, attempt]);
-  const [category, setCategory] = useState<Category>("en");
+  const [suiteId, setSuiteId] = useState(benchmarkSuites[0].id);
+  const suite = benchmarkSuites.find(s => s.id === suiteId)!;
+  const category = suite.category;
+  const [showSecondary, setShowSecondary] = useState(true);
   const [size, setSize] = useState<SizeKey>("all");
   const [hideReported, setHideReported] = useState(false);
   const [axis, setAxis] = useState<RankAxis>("eff");
@@ -282,12 +202,15 @@ export function ModelBoardPage({ source = fixtureSource }: { source?: Leaderboar
   const rows = sortRows(visible, sort.key, sort.direction);
   const ranks = rankRows(visible, category, axis);
   const rankedKey = rankKey(category, axis);
-  const columns = SCORE_COLUMNS[category];
+  const metrics = [suite.primary, ...suite.secondary];
+  const primary = metrics.find(m => m.key === rankedKey) ?? suite.primary;
+  const columns = [primary, ...(showSecondary ? metrics.filter(m => m.key !== primary.key) : [])];
   const showDagger = visible.some((row) =>
     columns.some((column) => daggered(row, column)),
   );
-  const chooseCategory = (next: Category) => {
-    setCategory(next);
+  const chooseSuite = (id: string) => {
+    setSuiteId(id);
+    const next = benchmarkSuites.find(s => s.id === id)!.category;
     setSort({
       key: rankKey(next, axis),
       direction: NATURAL_DIRECTION[rankKey(next, axis)],
@@ -304,11 +227,7 @@ export function ModelBoardPage({ source = fixtureSource }: { source?: Leaderboar
     <>
       <PageTop
         description={
-          <p>
-            Each row is the checkpoint its owner marked as the result, scored
-            at exactly that training step, or the latest checkpoint the track
-            evaluated itself.
-          </p>
+          <p>Explore model checkpoints, scores and provenance. <Link to="/methodology">How to read these results →</Link></p>
         }
       />
       <div className="leaderboard-page model-board">
@@ -326,17 +245,17 @@ export function ModelBoardPage({ source = fixtureSource }: { source?: Leaderboar
       ) : (
         <>
           <div className="mb-tabs" role="group" aria-label="Language">
-            {(Object.keys(CATEGORY_LABELS) as Category[]).map((item) => (
+            {benchmarkSuites.map((item) => (
               <button
-                key={item}
-                aria-label={CATEGORY_LABELS[item]}
-                aria-pressed={category === item}
-                onClick={() => chooseCategory(item)}
+                key={item.id}
+                aria-label={item.label}
+                aria-pressed={suiteId === item.id}
+                onClick={() => chooseSuite(item.id)}
               >
-                {CATEGORY_LABELS[item]}
+                {item.label}
                 <small>
                   {
-                    models.filter((row) => row.categories.includes(item))
+                    models.filter((row) => row.categories.includes(item.category))
                       .length
                   }
                 </small>
@@ -344,8 +263,9 @@ export function ModelBoardPage({ source = fixtureSource }: { source?: Leaderboar
             ))}
           </div>
           <p className="lb-group-note">
-            {category === "en" && axis === "overall" ? EN_OVERALL_NOTE : CATEGORY_NOTES[category]}
+            {suite.summary} <Link to={suite.documentation}>Metric guide →</Link>
           </p>
+          <aside className="compatibility-note">Legacy fixture view · Protocol compatibility is unverified. Scales are labeled per row; do not treat mixed or unavailable scales as comparable measurements.</aside>
           <div className="mb-controls">
             <div className="mb-sizes" role="group" aria-label="Model size">
               <button
@@ -380,6 +300,7 @@ export function ModelBoardPage({ source = fixtureSource }: { source?: Leaderboar
               />
               Hide self-reported
             </label>
+            <label className="mb-toggle"><input type="checkbox" checked={showSecondary} onChange={e => setShowSecondary(e.target.checked)} />Show secondary metrics</label>
             {category === "en" && (
               <div className="mb-sizes" role="group" aria-label="Ranking">
                 Ranking:
@@ -422,6 +343,7 @@ export function ModelBoardPage({ source = fixtureSource }: { source?: Leaderboar
             <BoardTable
               rows={rows}
               category={category}
+              suiteId={suiteId}
               rankedKey={rankedKey}
               columns={columns}
               ranks={ranks}
@@ -445,13 +367,7 @@ export function ModelBoardPage({ source = fixtureSource }: { source?: Leaderboar
               own evaluation
             </p>
           )}
-          <p className="lb-footnote mb-caveat">
-            These are synthetic test data illustrating the Glint Tiny-ML protocol, not
-            official leaderboard results. eff depends on the Glint min/max
-            ranges at the revision shown. Self-reported rows use the authors'
-            own protocols. Rows measured by track use the server's own
-            evaluation of each public run's latest checkpoint.
-          </p>
+          <p className="lb-footnote mb-caveat">Synthetic test data only · <Link to="/methodology">Scoring, trust and reproducibility limitations</Link></p>
         </>
       )}
     </div>
