@@ -5,7 +5,7 @@ Jedno miejsce na pytanie „czy ten zbiór już był?” przy pracy nad danymi S
 Zasady wpisu:
 
 - **status**: `użyty` (jest w treningu któregoś modelu), `kandydat` (czeka na test), `wstrzymany`
-  (czeka na wyjaśnienie). Odrzucone: [`ODRZUCONE.md`](ODRZUCONE.md).
+  (czeka na wyjaśnienie). Odrzucone stoją osobno, w sekcji 4.
 - **licencja**: tak, jak podaje karta zbioru; „niesprawdzone” znaczy, że nikt jej nie potwierdził u
   źródła.
 - **data**: dzień decyzji (dla `użyty`: dzień zapisu w manifeście).
@@ -47,3 +47,24 @@ licencje per komponent nie były sprawdzane u źródła.
 | `SKocur/polish-pre1918-corpus` | CC0 | kandydat | OCR; różnorodność polszczyzny | 2026-10-30 |
 | `demelin/moral_stories` | MIT | kandydat | mały, pokrewny SIQA: ostrożnie (kontaminacja, format) | 2026-10-30 |
 | `openbmb/Ultra-FineWeb` (EN) | Apache-2.0 | kandydat | filtrowany web EN; bez wariantu L3 | 2026-10-30 |
+
+## 4. Odrzucone
+
+Te zbiory zostały już sprawdzone i **odpadają z treningu**; lista jest po to, żeby nikt nie sprawdzał
+ich drugi raz. Wracają tylko z nowym faktem (np. zgodą licencjodawcy). Kolumna **do testów**: „tak”
+znaczy, że można na nim oceniać model (to pytania z benchmarku albo zbudowane z nich, więc trening
+na nich zawyżałby wynik).
+
+| zbiór | powód odrzucenia z treningu | do testów | data |
+|---|---|---|---|
+| OpenStax Polska (Fizyka t.1-3, Psychologia, Mikro/Makroekonomia) | strona zastrzega zakaz trenowania AI bez zgody OpenStax Poland | nie | 2026-10-30 |
+| `joelniklaus/Multi_Legal_Pile` | licencja niekomercyjna (CC-BY-NC-SA-4.0, części NC); część PL (MARCELL, CC0) do osobnego sprawdzenia | nie | 2026-10-30 |
+| `MegaScience/TextbookReasoning` | licencja niekomercyjna (CC-BY-NC-SA-4.0) | nie | 2026-10-30 |
+| `speakleash/PES-2018-2022` | egzaminy specjalizacyjne lekarzy | tak | 2026-10-30 |
+| `NASK-PIB/Reassess-Polish-Medical-Exams` | polskie egzaminy medyczne | tak | 2026-10-30 |
+| `Gregniuki/polish-medical-cot-PES` | zbudowany z pytań PES | tak (ostrożnie: pochodna PES) | 2026-10-30 |
+| Global-MMLU | tłumaczone pytania MMLU | tak | 2026-10-30 |
+| exams | pytania egzaminacyjne | tak | 2026-10-30 |
+| Lots-of-LoRAs task579-581, task384, task385 | zbudowane z pytań SIQA | tak (ostrożnie: pochodna SIQA) | 2026-10-30 |
+| Zbiory benchmarków w formacie pytanie-litera (ARC, MMLU, SIQA, PubMedQA, arkusze CKE), także tłumaczone | uczą formatu testu, nie wiedzy | tak | 2026-10-30 |
+| Dane NLI w formacie zadania (RTE/CB/ANLI-podobne) | stałe predykcje na tych testach to bariera formatu, nie brak danych | tak | 2026-10-30 |
