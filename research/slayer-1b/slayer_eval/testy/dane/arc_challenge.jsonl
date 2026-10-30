@@ -1,0 +1,5 @@
+{"id": "syn-arc-1", "question": "Which gas do plants take in for photosynthesis?", "choices": {"text": ["oxygen", "carbon dioxide", "nitrogen", "helium"], "label": ["A", "B", "C", "D"]}, "answerKey": "B"}
+{"id": "syn-arc-2", "question": "What causes day and night on Earth?", "choices": {"text": ["the rotation of Earth on its axis", "the Moon", "clouds", "the orbit of Mars"], "label": ["A", "B", "C", "D"]}, "answerKey": "A"}
+{"id": "syn-arc-3", "question": "Which material is the best conductor of electricity?", "choices": {"text": ["wood", "rubber", "copper", "glass"], "label": ["A", "B", "C", "D"]}, "answerKey": "C"}
+{"id": "syn-arc-4", "question": "Water freezes at what temperature in Celsius?", "choices": {"text": ["100", "50", "10", "0"], "label": ["1", "2", "3", "4"]}, "answerKey": "4"}
+{"id": "syn-arc-5", "question": "Which organ pumps blood through the body?", "choices": {"text": ["heart", "lung", "stomach"], "label": ["A", "B", "C"]}, "answerKey": "A"}

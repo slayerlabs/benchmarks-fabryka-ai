@@ -1,0 +1,25 @@
+{
+ "m106": {
+  "repo": "SlayerLab/Slayer1B-1.06",
+  "rewizja": "ef81be58742544ad32e1afab38db011fec209609"
+ },
+ "m103": {
+  "repo": "SlayerLab/Slayer1B-1.03",
+  "rewizja": "fee113efcad47f48dd0b80aa37952434f00bed43"
+ },
+ "ckpt_13848": {
+  "repo": "SlayerLab/Slayer1B-1.06-checkpoints",
+  "rewizja": "1113e3e657c1e82d0da09c1fb6d08a356edb8aa3",
+  "sha256": "1fc7396ca1790805128244b2f827e02b9fe88e352534cd887d0c488f121d1e4d",
+  "rozmiar": 8860287151
+ },
+ "ckpt_13800": {
+  "repo": "SlayerLab/Slayer1B-1.06-checkpoints",
+  "rewizja": "1113e3e657c1e82d0da09c1fb6d08a356edb8aa3",
+  "sha256": "eae7a00d4ead9426ac976530a6372c1da2202a88f1fc4541bd2a142e4f2ab896",
+  "rozmiar": 8860287151
+ },
+ "ckpt_13848_zgodny_z_config_1.06": true,
+ "trainer_sha256": "db36c150e95c184e82b5f84c3ee783fd5fd2c62e960a438177f543dc3eba1d0b",
+ "trainer_zgodny_z_config": true
+}

@@ -1,0 +1,26 @@
+# checkpointy i wagi
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.bin
+*.gguf
+# dane treningowe i zbiory
+*.parquet
+*.arrow
+*.npy
+# paczka dla testerów idzie osobno, poza repo
+*.zip
+paczka_testerzy/dane/
+# wyniki per pytanie (kopia w wygaszanie/wyniki/pelne_wyniki.tgz)
+wygaszanie/wyniki/*/*.jsonl
+wygaszanie/wyniki/*/trace/
+# klucze
+*.pem
+vastkey*
+.env*
+# python
+__pycache__/
+*.pyc
+.venv*/
+.pytest_cache/
