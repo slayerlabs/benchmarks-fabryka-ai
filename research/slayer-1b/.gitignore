@@ -24,3 +24,6 @@ __pycache__/
 *.pyc
 .venv*/
 .pytest_cache/
+# EWoK-PL: surowe logliki per rekord (lokalnie; raport_ewok.json/md idzie do repo)
+wyniki_ewok/*/*.jsonl
+_smoke_*
