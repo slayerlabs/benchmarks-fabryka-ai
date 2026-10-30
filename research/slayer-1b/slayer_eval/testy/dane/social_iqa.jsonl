@@ -1,0 +1,5 @@
+{"context": "Kasia forgot her umbrella and walked home in the rain.", "question": "How would Kasia feel afterwards?", "answerA": "wet and cold", "answerB": "very dry", "answerC": "sunburned", "label": "1"}
+{"context": "Tomek helped his neighbor carry heavy boxes.", "question": "What will the neighbor want to do next?", "answerA": "ignore Tomek", "answerB": "thank Tomek", "answerC": "move the boxes back", "label": "2"}
+{"context": "Ola studied all night for the exam.", "question": "How would Ola feel in the morning?", "answerA": "energetic", "answerB": "bored", "answerC": "tired", "label": "3"}
+{"context": "Marek gave his sister a birthday present.", "question": "Why did Marek do this?", "answerA": "to make her happy", "answerB": "to make her angry", "answerC": "to lose money", "label": "1"}
+{"context": "Ania lost her keys at the park.", "question": "What does Ania need to do before this?", "answerA": "buy a car", "answerB": "go to the park", "answerC": "cook dinner", "label": "2"}

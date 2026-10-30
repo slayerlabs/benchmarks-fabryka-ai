@@ -1,0 +1,5 @@
+{"id": "syn-med-1", "question": "Which organ produces insulin?", "opa": "Liver", "opb": "Pancreas", "opc": "Kidney", "opd": "Spleen", "cop": 1}
+{"id": "syn-med-2", "question": "Normal human body temperature in Celsius is about", "opa": "37", "opb": "30", "opc": "42", "opd": "25", "cop": 0}
+{"id": "syn-med-3", "question": "Vitamin deficiency causing scurvy is vitamin", "opa": "A", "opb": "D", "opc": "C", "opd": "K", "cop": 2}
+{"id": "syn-med-4", "question": "The largest bone in the human body is the", "opa": "Humerus", "opb": "Tibia", "opc": "Radius", "opd": "Femur", "cop": 3}
+{"id": "syn-med-5", "question": "Red blood cells carry oxygen using", "opa": "Hemoglobin", "opb": "Insulin", "opc": "Keratin", "opd": "Collagen", "cop": 0}
