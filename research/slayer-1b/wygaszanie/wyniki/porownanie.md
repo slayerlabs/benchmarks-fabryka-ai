@@ -39,9 +39,9 @@
 
 | WikiText-2 | 1.06 | A | B |
 |---|---|---|---|
-| byte_perplexity | 1.8925 | 1.8921 | 1.9205 |
-| bits_per_byte | 0.9203 | 0.9200 | 0.9415 |
-| word_perplexity | 48.0352 | 47.9722 | 52.5025 |
+| byte_perplexity | 1.8463 | 1.8459 | 1.8725 |
+| bits_per_byte | 0.8846 | 0.8843 | 0.9049 |
+| word_perplexity | 26.5471 | 26.5177 | 28.6236 |
 
 | loss heldout (nat/token) | 1.06 | 13800 | 1.03 | A | B |
 |---|---|---|---|---|---|
