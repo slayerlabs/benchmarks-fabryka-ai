@@ -40,18 +40,25 @@ bajtów i słów (`wyniki/wikitext_diagnoza/przelicz_mianownik.py`).
 Po korekcie nasz 1.06 i Space różnią się w 8. cyfrze znaczącej (względnie około 6e-9), czyli
 różnica +2,5% w całości pochodziła z mianownika. <!-- liczba-spoza-wynikow: 2,5% to różnica sprzed korekty -->
 
-## Cztery niezależne potwierdzenia
+## Diagnoza i trzy niezależne sprawdzenia
 
-1. Źródło lm-eval: `process_results` w `6d2abda4` (wersja używana przez Space) liczy mianownik z
-   `doc["page"]`; plik jest identyczny (ten sam SHA-1) w v0.4.8 i v0.4.9.1. Kopia:
-   `wyniki/wikitext_diagnoza/dane/lm_eval_src/`.
-2. Kąt „dane” (`wyniki/wikitext_diagnoza/dane/bajty.py`, własna przepisana kopia detokenizera):
-   liczy bajty obu wersji per dokument i przelicza wynik z `raport_formatu` na 1,846283824.
-3. Kąt „tokenizacja” (`wyniki/wikitext_diagnoza/tokenizacja/mianownik.py`, detokenizer wczytany wprost
-   z pliku lm-eval): te same liczby bajtów i słów, wynik z wygaszania przeliczony na 1,846283823.
-4. Test regresyjny `tests/test_wikitext_mianownik.py`: uruchamia `cmd_wikitext` na dokumencie z
-   „ @-@ ” i „ , ” (model i zbiór podstawione) i sprawdza mianownik z oryginału; na starym kodzie
-   test pada na wartości byte_perplexity.
+Diagnoza: trzech agentów z różnymi kątami (tekst i mianownik, okno i stride, dane i agregacja);
+przyczynę znalazł kąt „tokenizacja” (`wyniki/wikitext_diagnoza/tokenizacja/mianownik.py`), dwa
+pozostałe zatrzymano po jej znalezieniu. Źródło lm-eval: `process_results` w `6d2abda4` (wersja
+Space) liczy mianownik z `doc["page"]`, kopia w `wyniki/wikitext_diagnoza/dane/lm_eval_src/`.
+
+Potem trzy osobne sprawdzenia, każde bez wglądu w pozostałe:
+
+1. Przeliczenie od zera: własne pobranie zbioru, własne liczenie bajtów i słów obiema definicjami,
+   ten sam wynik co Space do 8. cyfry (`wyniki/wikitext_diagnoza/dane/bajty.py`).
+2. Przegląd adwersarialny z zadaniem obalenia: potwierdził definicję w lm-eval, tę samą agregację
+   ważoną po obu stronach, zgodność tokenów (różnica sumy NLL rzędu setnych nata) i to, że liczba
+   Space powstała przed naszą, więc nie została przepisana z naszego kodu.
+3. Zasięg błędu: ten sam wzorzec tylko w `cmd_wikitext` (i wołającym go `wygaszanie/ewal.py`);
+   żaden wniosek porównawczy się nie zmienia, bo korekta jest wspólną monotoniczną transformacją.
+
+Test regresyjny `tests/test_wikitext_mianownik.py` uruchamia `cmd_wikitext` na dokumencie z
+„ @-@ ” i „ , ” (model i zbiór podstawione) i na starym kodzie pada na wartości byte_perplexity.
 
 ## Co się zmienia
 
