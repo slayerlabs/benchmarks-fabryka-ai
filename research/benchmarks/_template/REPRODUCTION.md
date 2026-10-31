@@ -1,6 +1,6 @@
 # <Benchmark>: odtworzenie (etap B)
 
-Procedura: [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworzenie wyniku oryginalnym kodem (REPRODUCTION.md)”.
+Procedurę opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworzenie wyniku oryginalnym kodem (REPRODUCTION.md)”.
 
 | | wartość |
 |---|---|
@@ -19,4 +19,4 @@ Procedura: [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworzenie wyni
 | warunek odtworzenia | ±2 pkt dla trafności; gdy 2 SE > 2 pkt, w granicach 2 SE; dla perpleksji i BPB próg zapisany tu przed pomiarem |
 | werdykt | spełniony / niespełniony / bez kontroli: kod zgodny / bez kontroli: kod niezgodny |
 
-Komenda i środowisko: wpis w [`RECIPE.md`](RECIPE.md).
+Komendę i środowisko zapisujesz w [`RECIPE.md`](RECIPE.md).

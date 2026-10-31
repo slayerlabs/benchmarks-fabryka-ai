@@ -1,8 +1,9 @@
 # <Benchmark>: karta oryginału (etap A)
 
-Znaczenie pól: [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „A. Karta oryginału (ORIGINAL.md)”. Czego nie da się
-ustalić, wpisz „nieustalone” z tym, gdzie szukałeś. Benchmark bez oryginału: usuń ten plik i `REPRODUCTION.md`,
-wypełnij `DATASET.md` (sekcja „Benchmark bez oryginału: karta zbioru (DATASET.md)”).
+Znaczenie pól opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „A. Karta oryginału (ORIGINAL.md)”. Gdy
+czegoś nie da się ustalić, wpisz „nieustalone” i dopisz, gdzie szukałeś. Benchmark bez oryginału nie ma tego pliku
+ani `REPRODUCTION.md`. Usuń oba i wypełnij `DATASET.md` (sekcja „Benchmark bez oryginału: karta zbioru
+(DATASET.md)”).
 
 | pole | wartość |
 |---|---|

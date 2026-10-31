@@ -1,7 +1,7 @@
 # <Benchmark>: przepis
 
-Jeden wpis na każdy wynik w repo, także na przebieg kontrolny z etapu B. Z samego przepisu ktoś inny za dwa tygodnie
-odtwarza ten sam wynik. Czego nie zapisano, wpisz „niezapisane”, nie zgaduj.
+Każdy wynik w repo ma tu jeden wpis. Dotyczy to też przebiegu kontrolnego z etapu B. Z samego przepisu ktoś inny za
+dwa tygodnie ma odtworzyć ten sam wynik. Czego nie zapisano, wpisz jako „niezapisane”. Nie zgaduj.
 
 ## <model>
 

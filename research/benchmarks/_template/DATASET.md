@@ -1,8 +1,8 @@
 # <Benchmark>: karta zbioru (benchmark bez oryginału)
 
-Znaczenie pól: [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „Benchmark bez oryginału: karta zbioru (DATASET.md)”.
-Ten plik zastępuje `ORIGINAL.md` i `REPRODUCTION.md`: usuń je. Czego nie da się ustalić, wpisz „nieustalone” z tym,
-gdzie szukałeś.
+Znaczenie pól opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „Benchmark bez oryginału: karta zbioru
+(DATASET.md)”. Ten plik zastępuje `ORIGINAL.md` i `REPRODUCTION.md`, więc tamte dwa usuń. Gdy czegoś nie da się
+ustalić, wpisz „nieustalone” i dopisz, gdzie szukałeś.
 
 | pole | wartość |
 |---|---|
@@ -38,4 +38,4 @@ Zbiór liczony przez NLL albo BPB nie ma bazy losowej. Zamiast tabeli wyżej wyp
 | różnica BPB w SE (SE bootstrapem po dokumentach) | |
 | werdykt | model znający język ma BPB niższe o co najmniej 2 SE / nie (stop) |
 
-Komenda i środowisko: wpis w [`RECIPE.md`](RECIPE.md).
+Komendę i środowisko zapisujesz w [`RECIPE.md`](RECIPE.md).

@@ -1,9 +1,10 @@
 # <Benchmark> po polsku: wersja polska (etap D)
 
-Ten plik leży w osobnym katalogu `benchmarks/<name>-pl/`. Procedura i znaczenie pól: [METODOLOGIA.md](../../METODOLOGIA.md),
-sekcja „D. Wersja polska (POLISH.md)”.
+Ten plik leży w osobnym katalogu `benchmarks/<name>-pl/`. Procedurę i znaczenie pól opisuje
+[METODOLOGIA.md](../../METODOLOGIA.md), sekcja „D. Wersja polska (POLISH.md)”.
 
-Oryginał: `../<name>/` (wpisz link do jego `README.md`; karta oryginału i odtworzenie, etapy A–C).
+Oryginał: `../<name>/`. Wpisz tu link do jego `README.md`. W katalogu oryginału są karta oryginału i odtworzenie,
+czyli etapy A–C.
 
 ## D1. Przetłumaczyć czy napisać od zera
 
@@ -33,4 +34,4 @@ Oryginał: `../<name>/` (wpisz link do jego `README.md`; karta oryginału i odtw
 | 2. model, który zna polski @ rewizja: wynik (SE), różnica od bazy w SE | |
 | werdykt | obie kontrole spełnione / niespełnione (stop) |
 
-Komenda i środowisko: wpis w [`RECIPE.md`](RECIPE.md).
+Komendę i środowisko zapisujesz w [`RECIPE.md`](RECIPE.md).
