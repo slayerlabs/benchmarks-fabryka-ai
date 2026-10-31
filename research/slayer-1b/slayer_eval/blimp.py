@@ -226,6 +226,16 @@ def wczytaj_wyniki(plik):
         return {w["id"]: w for w in (json.loads(l) for l in f if l.strip())}
 
 
+def wczytaj_odrzucone(plik):
+    """Ids rejected by hipoteza_formatu.licz_zadanie (input over the context): <task>.odrzucone.jsonl beside it."""
+    p = Path(plik)
+    rdzen = p.name.removesuffix(".gz").removesuffix(".jsonl")
+    p = p.with_name(rdzen + ".odrzucone.jsonl")
+    if not p.exists():
+        return set()
+    return {json.loads(l)["id"] for l in p.read_text().splitlines() if l.strip()}
+
+
 def statystyki_modelu(wiersze, docs, bootstrap=True):
     po_gr, po_zj = {}, {}
     for d in docs:
@@ -280,18 +290,24 @@ def porownanie_parowane(wa, wb, docs):
 
 def cmd_zbierz(a):
     docs = wczytaj(a.dane)
-    modele = {}
+    modele, odrzucone = {}, {}
     for m in a.modele.split(","):
         plik = Path(a.wyniki) / m / "blimp.jsonl"
         modele[m] = wczytaj_wyniki(plik if plik.exists() else Path(a.wyniki) / f"{m}.jsonl.gz")  # raw/ in the repo
-        brak = [d["id"] for d in docs if d["id"] not in modele[m]]
+        odrzucone[m] = wczytaj_odrzucone(plik if plik.exists() else Path(a.wyniki) / f"{m}.jsonl")
+        brak = [d["id"] for d in docs if d["id"] not in modele[m] and d["id"] not in odrzucone[m]]
         if brak:
             raise SystemExit(f"{m}: {len(brak)} pairs without a result (first {brak[0]})")
+    # a pair rejected for one model (input over the context, METHOD.md) leaves the paired comparison for all
+    wszystkie_odrz = set().union(*odrzucone.values())
+    docs = [d for d in docs if d["id"] not in wszystkie_odrz]
     identyczne = [d for d in docs if d["opcje"][0] == d["opcje"][1]]
-    out = {"zbior": {"repo": REPO, "rewizja": REWIZJA, "n": len(docs), "pary_identyczne": len(identyczne)},
+    out = {"zbior": {"repo": REPO, "rewizja": REWIZJA, "n": len(docs), "pary_identyczne": len(identyczne),
+                     "n_odrzucone": len(wszystkie_odrz)},
            "modele": {}, "panel_space": {}}
     for m, w in modele.items():
         out["modele"][m] = statystyki_modelu(w, docs)
+        out["modele"][m]["n_odrzucone"] = len(odrzucone[m])
         # pairs whose two log-likelihoods differ by less than the CPU/MPS float noise seen (< 1e-3)
         out["modele"][m]["pary_bliskie_remisu"] = sum(
             1 for d in docs if d["opcje"][0] != d["opcje"][1] and abs(w[d["id"]]["ll"][0] - w[d["id"]]["ll"][1]) < 1e-3)

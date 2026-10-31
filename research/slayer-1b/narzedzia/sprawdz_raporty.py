@@ -325,7 +325,9 @@ def bramki_raportu(meta, linie, liczby):
     """Gates for a report on a multi-paradigm set (BLiMP, MultiBLiMP, MMLU):
     (d) a verdict word needs an SE/z clustered by paradigm in LICZBY.json, and a ranking of
         more than one paradigm needs a Holm field for every paradigm;
-    (e) a group with < 3 members may only be "undetermined", in the metadata and in its table row;
+    (e) a group with < 3 members may only be "undetermined" at the paradigm level: in the metadata and in the
+        clustered-verdict column of its table row (meta "kolumna_werdyktu_klastrowego"; the pair-level verdict
+        in the same row is a claim about the pairs and stays); without that key, anywhere in the row;
     (f) models with different tokenizers need a per-token comparison in LICZBY.json and in the text."""
     plik, bledy = meta["plik"], []
     tekst = "\n".join(linie)
@@ -338,18 +340,75 @@ def bramki_raportu(meta, linie, liczby):
         if meta.get("k_paradygmatow", 0) > 1 and (len(holm) < meta["k_paradygmatow"]
                                                    or not all(isinstance(v, bool) for v in holm.values())):
             bledy.append((plik, 0, "(d) ranking paradygmatów bez poprawki Holma dla każdego paradygmatu"))
+    kolumna = meta.get("kolumna_werdyktu_klastrowego")
     for g in meta.get("grupy", []):
         if g["k"] >= 3:
             continue
         if g["werdykt"] not in BEZ_WERDYKTU:
             bledy.append((plik, 0, f"(e) grupa {g['nazwa']} ma {g['k']} członków, a werdykt „{g['werdykt']}”"))
         for nr, l in enumerate(linie, 1):
-            if l.startswith(f"| {g['etykieta']} |") and SLOWO_WERDYKTU.search(l):
-                bledy.append((plik, nr, f"(e) wiersz grupy {g['nazwa']} (k = {g['k']}) z werdyktem innym niż undetermined"))
+            if not l.startswith(f"| {g['etykieta']} |"):
+                continue
+            komorka = komorka_kolumny(linie, nr - 1, kolumna) if kolumna else l
+            if komorka is None:
+                bledy.append((plik, nr, f"(e) wiersz grupy {g['nazwa']} bez kolumny „{kolumna}” w nagłówku tabeli"))
+            elif SLOWO_WERDYKTU.search(komorka) or not any(s in komorka for s in BEZ_WERDYKTU):
+                bledy.append((plik, nr, f"(e) wiersz grupy {g['nazwa']} (k = {g['k']}) z werdyktem paradygmatów "
+                                        f"innym niż undetermined: „{komorka.strip()}”"))
     if len(set((meta.get("tokenizery") or {}).values())) > 1:
         t = por.get(meta.get("porownanie_na_token") or "")
         if not t or t.get("z") is None or not NA_TOKEN.search(tekst):
             bledy.append((plik, 0, "(f) modele z różnymi tokenizerami, a raport nie ma wyniku na token/bajt"))
+    return bledy
+
+
+def komorki(l):
+    return [c.strip() for c in l.strip().strip("|").split("|")]
+
+
+def komorka_kolumny(linie, i, nazwa):
+    """Cell of table row linie[i] under header `nazwa` (header = first line of the table block)."""
+    j = i
+    while j > 0 and linie[j - 1].lstrip().startswith("|"):
+        j -= 1
+    naglowek = komorki(linie[j])
+    if nazwa not in naglowek:
+        return None
+    wiersz = komorki(linie[i])
+    k = naglowek.index(nazwa)
+    return wiersz[k] if k < len(wiersz) else ""
+
+
+def bramka_generatora(meta, liczby, korzen=None):
+    """(g) a generated report must equal, byte for byte, the generator output from LICZBY.json: a number,
+    verdict or sentence edited by hand, or a stale report after new numbers, gives code 1."""
+    import importlib.util
+    korzen = korzen or KORZEN
+    gen = meta.get("generator")
+    if not gen:
+        return []
+    try:
+        spec = importlib.util.spec_from_file_location("_generator_raportu", korzen / gen["modul"])
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        wejscie = json.loads((korzen / gen["wejscie"]).read_text(encoding="utf-8"))
+        oczekiwane = getattr(mod, gen["funkcja"])(liczby, wejscie)
+    except Exception as e:  # a generator that cannot run from LICZBY.json is a failed gate, not a pass
+        return [(meta["plik"], 0, f"(g) generator {gen['modul']} nie działa na LICZBY.json: {type(e).__name__}: {e}")]
+    katalog = (korzen / meta["plik"]).parent
+    bledy = []
+    for nazwa, tresc in sorted(oczekiwane.items()):
+        p = katalog / nazwa
+        rel = str(p.relative_to(korzen))
+        if not p.exists():
+            bledy.append((rel, 0, f"(g) brak pliku generowanego przez {gen['modul']}"))
+            continue
+        jest = p.read_text(encoding="utf-8")
+        if jest != tresc:
+            a, b = jest.splitlines(), tresc.splitlines()
+            nr = next((i for i, (x, y) in enumerate(zip(a, b), 1) if x != y), min(len(a), len(b)) + 1)
+            bledy.append((rel, nr, f"(g) plik różni się od wyjścia {gen['modul']} z LICZBY.json (pierwsza różnica "
+                                   f"w tej linii); przegeneruj: python slayer_eval/blimp.py raport"))
     return bledy
 
 
@@ -387,6 +446,7 @@ def main(argv=None):
             bledy.append((meta["plik"], 0, "(d) raport z metadanymi w LICZBY.json nie istnieje"))
             continue
         bledy += bramki_raportu(meta, p.read_text(encoding="utf-8").splitlines(), liczby)
+        bledy += bramka_generatora(meta, liczby)
     for plik, nr, powod in bledy:
         print(f"{plik}:{nr}: {powod}")
     print(f"{len(cele)} plików, {len(bledy)} problemów")

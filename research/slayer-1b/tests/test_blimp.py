@@ -108,6 +108,39 @@ def test_licz_logliki_odrzuca_za_dlugie_wejscie():
     assert H.licz_logliki(m, [([0, 1], [2, 3, 4])], batch=1)  # 4 input tokens: fits
     with pytest.raises(ValueError):
         H.licz_logliki(m, [([0, 1], [2, 3, 4, 5])], batch=1)  # 5 > 4: rejected, not truncated
+    # odrzucaj=True (licz_zadanie): the long input gets None, the others are still scored
+    wynik = H.licz_logliki(m, [([0, 1], [2, 3, 4, 5]), ([0, 1], [2, 3, 4])], batch=2, odrzucaj=True)
+    assert wynik[0] is None and math.isclose(wynik[1][0], m.oczekiwany([0, 1], [2, 3, 4]), rel_tol=1e-5)
+
+
+def test_licz_zadanie_zapisuje_odrzucone_i_liczy_dalej(monkeypatch, tmp_path):
+    """A document with an input over the context does not stop the run (arc_c_mc_25shot on Pythia: 64 of
+    4687 over 2048): it goes to <task>.odrzucone.jsonl, the rest is scored, and blimp.py zbierz counts it."""
+    import json
+    import pytest
+    pytest.importorskip("torch")
+    monkeypatch.setenv("BLIMP_DIR", str(PROBKA))
+    import hipoteza_formatu as H
+
+    class Krotki(AtrapaModelu):
+        prefiks, prefiks_pusty = [0], [0]
+
+        def encode(self, s):
+            return [ord(c) % 10 + 1 for c in s]
+
+    docs = H.dokumenty("blimp")
+    dl = {d["id"]: max(len(o) + 1 for o in d["opcje"]) for d in docs}  # " " + sentence, 1 BOS, minus 1 shift
+    prog = sorted(dl.values())[len(dl) // 2]
+    m = Krotki(max_len=prog)
+    plik = tmp_path / "blimp.jsonl"
+    H.licz_zadanie(m, "blimp", plik, batch=4, porcja=4)
+    zapisane = [json.loads(l)["id"] for l in plik.read_text().splitlines()]
+    odrzucone = [json.loads(l)["id"] for l in H.plik_odrzuconych(plik).read_text().splitlines()]
+    assert sorted(odrzucone) == sorted(i for i, n in dl.items() if n > prog) and odrzucone
+    assert sorted(zapisane + odrzucone) == sorted(dl) and not set(zapisane) & set(odrzucone)
+    assert H.n_odrzuconych(plik) == len(odrzucone) and B.wczytaj_odrzucone(plik) == set(odrzucone)
+    H.licz_zadanie(m, "blimp", plik, batch=4)  # resume: rejected ids are not tried again
+    assert H.n_odrzuconych(plik) == len(odrzucone) and len(plik.read_text().splitlines()) == len(zapisane)
 
 
 SLAYER_TOKENIZER_SHA = "0640d3bd3674d7a6e59c540d945a2ad275a12e1bcaeb6007c37a90751f9815dd"
@@ -122,7 +155,12 @@ def test_slayer_pusty_kontekst_to_bos_endoftext(monkeypatch):
         "~/.cache/huggingface/hub/models--SlayerLab--Slayer1B-1.06/snapshots/"
         "ef81be58742544ad32e1afab38db011fec209609/tokenizer.json")))
     if not sciezka.exists():
-        pytest.skip("Slayer tokenizer.json not available (set SLAYER_TOKENIZER)")
+        # not a silent skip: the run lists it as XFAIL with the path it looked at. The file (2.3 MB, Apache-2.0)
+        # is not committed; research/slayer-1b/tokenizer/tokenizer.json is a different tokenizer.
+        pytest.xfail(f"NOT CHECKED: Slayer tokenizer.json not found at {sciezka}. Get it with "
+                     "`huggingface-cli download SlayerLab/Slayer1B-1.06 tokenizer.json --revision "
+                     "ef81be58742544ad32e1afab38db011fec209609` or set SLAYER_TOKENIZER=<path>; expected sha256 "
+                     f"{SLAYER_TOKENIZER_SHA}")
     assert hashlib.sha256(sciezka.read_bytes()).hexdigest() == SLAYER_TOKENIZER_SHA
     from tokenizers import Tokenizer
     import slayer_model
@@ -227,7 +265,35 @@ def test_analiza_funkcje_statystyczne():
     m, se, t = A.t_klastrowe([0.1, 0.3])
     assert math.isclose(m, 0.2) and math.isclose(se, 0.1) and math.isclose(t, 2.0)
     assert A.werdykt_grupy([-0.1, -0.11]) == A.NIEROZSTRZYGALNE  # 2 members: no verdict, whatever t says
-    assert A.werdykt_grupy([-0.10, -0.11, -0.12]) == "pewne"
+    assert A.werdykt_grupy([-0.10, -0.105, -0.11]) == "pewne"  # t = -36.4, df = 2: p 0.0008
+    # t = -19.05 and -10.39 would be certain read as a z; at df = 2 their p (0.0027, 0.0091) is only probable
+    assert A.werdykt_grupy([-0.10, -0.11, -0.12]) == "prawdopodobne"
+    assert A.werdykt_grupy([-0.10, -0.12, -0.14]) == "prawdopodobne"
+
+
+def test_p_t_rozklad_studenta():
+    import blimp_analiza as A
+    for t in (0.3, 1.0, 2.5, 19.05):  # df = 2 has a closed form: p = 1 - |t| / sqrt(t^2 + 2)
+        assert math.isclose(A.p_t(t, 2), 1 - t / math.sqrt(t * t + 2), rel_tol=1e-9)
+        assert math.isclose(A.p_t(-t, 2), A.p_t(t, 2))
+    assert math.isclose(A.p_t(1.0, 1), 0.5, rel_tol=1e-12)  # df = 1 is Cauchy: P(|T| > 1) = 1/2
+    assert math.isclose(A.p_t(3.0, 10 ** 6), A.P_PEWNE, rel_tol=1e-4)  # large df -> normal
+    assert math.isclose(A.p_t(2.0, 10 ** 6), A.P_PRAWDOPODOBNE, rel_tol=1e-4)
+    assert math.isclose(A.p_t(2.228138851986, 10), 0.05, rel_tol=1e-7)  # t table, df = 10
+    assert A.p_t(None, 5) == 1.0
+    # the report's cases: overall stays certain, a t near 4 at df 5-7 is only probable
+    assert A.werdykt_p(A.p_t(-3.30, 66)) == "pewne"
+    assert A.werdykt_p(A.p_t(-3.79, 7)) == "prawdopodobne" and A.werdykt_p(A.p_t(-4.91, 5)) == "prawdopodobne"
+    assert A.werdykt_p(A.p_t(-2.91, 64)) == "prawdopodobne" and A.werdykt_p(A.p_t(1.5, 64)) == "szum"
+
+
+def test_ten_sam_worek_slow():
+    import blimp_analiza as A
+    assert A.ten_sam_worek_slow("Who did Amy see the man and?", "Who did Amy and see the man?")
+    assert A.ten_sam_worek_slow("Susan revealed herself.", "susan herself revealed.")
+    # the BLiMP flag lexically_identical is set on these, but the word forms differ
+    assert not A.ten_sam_worek_slow("Raymond is selling this sketch.", "Raymond is selling this sketches.")
+    assert not A.ten_sam_worek_slow("Susan revealed herself.", "Susan revealed themselves.")
     assert math.isclose(A.test_znakow(0, 5), 2 / 32) and A.test_znakow(3, 3) == 1.0
     odrz = A.holm({"a": 0.001, "b": 0.02, "c": 0.04})
     assert odrz == {"a": True, "b": True, "c": True}  # 0.001<=0.05/3, 0.02<=0.05/2, 0.04<=0.05
@@ -255,7 +321,27 @@ def test_analiza_na_przykladzie():
     # token differences: a has dn = 0, b has dn = 1 -> no pair with the same tokenization
     assert an["tokenizacja"]["ta_sama_roznica_tokenow"]["n"] == 0
     assert an["tokenizacja"]["rozna_roznica_tokenow"]["n"] == 9
-    assert an["leksykalnie_identyczne"]["tak"]["n"] == 4  # the adjunct_island rows of the sample
+    worek = an["ten_sam_worek_slow"]
+    oczek = sum(A.ten_sam_worek_slow(*x["opcje"]) for x in d)
+    assert worek["tak"]["n"] == oczek and worek["tak"]["n"] + worek["nie"]["n"] == 9
+    for g in an["przewagi_a_odwrocone_na_token"]:
+        assert por[g]["werdykt"] == "pewne" and por[g]["roznica"] > 0
+        assert an["paradygmaty_dodatkowe"][g]["roznica_na_token"] < 0
+    assert an["przewagi_a_pewne"] == sum(1 for r in por.values() if r["werdykt"] == "pewne" and r["roznica"] > 0)
+
+
+def test_odwrocenie_przewagi_na_token():
+    """Summed ll favours a, per token (b's bad sentence is much longer) b wins: listed as a reversal."""
+    import blimp_analiza as A
+    d = [x for x in docs() if x["grupa"] == "adjunct_island"]
+    ids = [x["id"] for x in d]
+    # a: good wins summed (-10 vs -11) but loses per token (-10/2 vs -11/4)
+    a = {i: {"ll": [-10.0, -11.0], "ntok": [2, 4]} for i in ids}
+    # b: good loses summed (-11 vs -10) but wins per token (-11/6 vs -10/2)
+    b = {i: {"ll": [-11.0, -10.0], "ntok": [6, 2]} for i in ids}
+    por = {"adjunct_island": {"roznica": 1.0, "z": 9.0, "werdykt": "pewne"}}
+    an = A.analiza(d, a, b, por)
+    assert an["przewagi_a_pewne"] == 1 and an["przewagi_a_odwrocone_na_token"] == ["adjunct_island"]
 
 
 def test_werdykt_progi():

@@ -5,9 +5,11 @@ Protocol and thresholds (written before the measurement): [`THRESHOLDS.md`](THRE
 
 **Slayer 1.06: 0.7921 (CI95 0.7892-0.7949), Pythia-1B: 0.8207 (CI95 0.8181-0.8233) on all 67000 minimal pairs.**
 
-- **On these 67 000 pairs:** difference -2.87 pts, paired SE 0.16 pts, z = -18.11: certain. This says the gap is real for these pairs.
-- **Generalised to paradigms** (the 67 paradigms as clusters, since pairs of one paradigm share a template): SE 0.87 pts, t = -3.30: certain; bootstrap over paradigms CI95 -4.50 pts to -1.16 pts; Pythia ahead in 56 of 67 paradigms (exact sign test, p < 10^-7). Sensitivity: without the 2 paradigms with the largest gap t = -2.91 (probable), so the paradigm-level verdict rests partly on a few paradigms.
-- **Per token** (log-likelihood divided by the number of tokens, since the tokenizers differ): difference -3.09 pts, SE 0.17 pts, z = -17.76: certain.
+- **On these 67 000 pairs:** difference -2.87 pts, paired SE 0.16 pts, z = -18.11: certain. This says the gap is real for these pairs. This is the comparison THRESHOLDS.md fixed before the measurement.
+- **Generalised to paradigms** (the 67 paradigms as clusters, since pairs of one paradigm share a template): SE 0.87 pts, t = -3.30, df = 66, p = 0.0016 from the t distribution: certain; bootstrap over paradigms CI95 -4.50 pts to -1.16 pts; Pythia ahead in 56 of 67 paradigms (exact sign test, p < 10^-7). Sensitivity: without the 2 paradigms with the largest gap t = -2.91, df = 64, p = 0.0049 (probable), so the paradigm-level verdict rests partly on a few paradigms. *[Added after the measurement: exploratory, not in THRESHOLDS.md.]*
+- **Per token** (log-likelihood divided by the number of tokens, since the tokenizers differ): difference -3.09 pts, SE 0.17 pts, z = -17.76: certain. *[Added after the measurement: exploratory, not in THRESHOLDS.md.]*
+
+THRESHOLDS.md fixed, before any result was seen: the pair-level comparison and its verdicts (overall, phenomena, paradigms), the Pythia control and the Space panel check. Everything marked *added after the measurement* was added after the results were seen, partly at reviewers' request: paradigms as clusters (read through the t distribution), the k < 3 rule, the Holm correction, per-token scores, the tokenization and same-words splits, and the random-panel analysis of the Space panel. Read those as exploratory. Verdict thresholds everywhere are those of THRESHOLDS.md: |z| >= 3 certain, 2-3 probable, < 2 noise; a t with df = k - 1 is held to the same two-sided p (<= 0.0027 certain, <= 0.0455 probable).
 
 ## Overall
 
@@ -32,36 +34,38 @@ Space T01, Slayer 1.06: 0.8408 (CI95 0.806-0.876, n = 200). Panel rebuilt by MET
 
 **Verdict by THRESHOLDS.md: panel not identical (not reproduced).** The Space `source_id_digest` is not reproduced by any id/separator/order format we tried. METHOD.md section 3 names the document's native id as the source id; for BLiMP that is `pair_id`, and that panel gives a value outside the Space CI95.
 
+The rest of this section: *[Added after the measurement: exploratory, not in THRESHOLDS.md.]*
+
 The SHA-256-of-the-row panel was added as a second reading, not as the protocol. Its Slayer 1.06 value is the same as the Space value to all printed digits (difference 0.0000). Among random panels with the same per-member sizes drawn from Slayer's own per-pair results, a share of 0.0064 gives exactly this value (20 000 draws, seed 20261028); corrected for the two source-id readings we tried, 0.013. So the Space most likely hashes the canonical row and this is probably its panel; that is an inference from one value, not proof.
 
 The panel is a lucky one for both models: only 3.3% of random panels give Slayer this value or higher, and 2.1% for Pythia. The full-set value 0.7921 lies outside the Space CI95. The Space CI95 is narrower than the spread of random panels of this allocation (ratio 1.49), so it understates the panel-to-panel uncertainty (inference: the Space bootstrap resamples the 200 chosen pairs, not the choice of pairs). Use the full set.
 
 ## 12 phenomena
 
-Two verdicts per phenomenon. *Pairs*: paired SE over the pairs of the phenomenon (is the gap real on these pairs). *Paradigms*: SE over the paradigm differences of the phenomenon, t = mean / SE (would it hold for other paradigms of the phenomenon). A phenomenon with fewer than 3 paradigms gets no verdict (undetermined). Thresholds on |z| and |t|: >= 3 certain, 2-3 probable, < 2 noise.
+Two verdicts per phenomenon. *Pairs* (fixed in THRESHOLDS.md): paired SE over the pairs of the phenomenon, verdict from |z| (is the gap real on these pairs); it applies at any number of paradigms. *Paradigms*: SE over the paradigm differences of the phenomenon, t = mean / SE with df = k - 1, verdict from the p of the t distribution (would it hold for other paradigms of the phenomenon); with fewer than 3 paradigms this column gives no verdict (undetermined). The paradigm columns: *[Added after the measurement: exploratory, not in THRESHOLDS.md.]*
 
-| phenomenon | paradigms | n | Slayer 1.06 | Pythia-1B | difference | SE pairs | z pairs | verdict pairs | SE paradigms | t paradigms | verdict paradigms |
-|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---|
-| anaphor agreement | 2 | 2000 | 0.986 | 0.995 | -0.9 pts | 0.26 pts | z = -3.41 | undetermined (k < 3) | 0.40 pts | t = -2.25 | undetermined |
-| argument structure | 9 | 9000 | 0.785 | 0.836 | -5.2 pts | 0.42 pts | z = -12.22 | certain | 1.11 pts | t = -4.68 | certain |
-| binding | 7 | 7000 | 0.791 | 0.808 | -1.7 pts | 0.50 pts | z = -3.42 | certain | 3.43 pts | t = -0.50 | noise |
-| control raising | 5 | 5000 | 0.776 | 0.832 | -5.5 pts | 0.55 pts | z = -9.99 | certain | 3.64 pts | t = -1.52 | noise |
-| determiner noun agreement | 8 | 8000 | 0.930 | 0.951 | -2.1 pts | 0.29 pts | z = -7.11 | certain | 0.55 pts | t = -3.79 | certain |
-| ellipsis | 2 | 2000 | 0.843 | 0.867 | -2.4 pts | 0.90 pts | z = -2.68 | undetermined (k < 3) | 0.60 pts | t = -4.00 | undetermined |
-| filler gap dependency | 7 | 7000 | 0.749 | 0.777 | -2.8 pts | 0.50 pts | z = -5.56 | certain | 2.70 pts | t = -1.04 | noise |
-| irregular forms | 2 | 2000 | 0.865 | 0.939 | -7.4 pts | 0.73 pts | z = -10.14 | undetermined (k < 3) | 5.65 pts | t = -1.32 | undetermined |
-| island effects | 8 | 8000 | 0.666 | 0.673 | -0.7 pts | 0.58 pts | z = -1.17 | noise | 4.26 pts | t = -0.16 | noise |
-| npi licensing | 7 | 7000 | 0.740 | 0.776 | -3.5 pts | 0.56 pts | z = -6.26 | certain | 3.45 pts | t = -1.02 | noise |
-| quantifiers | 4 | 4000 | 0.735 | 0.721 | 1.4 pts | 0.71 pts | z = 1.89 | noise | 4.94 pts | t = 0.27 | noise |
-| subject verb agreement | 6 | 6000 | 0.844 | 0.883 | -3.9 pts | 0.51 pts | z = -7.64 | certain | 0.79 pts | t = -4.91 | certain |
+| phenomenon | paradigms | n | Slayer 1.06 | Pythia-1B | difference | SE pairs | z pairs | verdict pairs | SE paradigms | t paradigms | df | p paradigms | verdict paradigms |
+|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|---|
+| anaphor agreement | 2 | 2000 | 0.986 | 0.995 | -0.9 pts | 0.26 pts | z = -3.41 | certain | 0.40 pts | t = -2.25 | 1 | 0.2662 | undetermined (k < 3) |
+| argument structure | 9 | 9000 | 0.785 | 0.836 | -5.2 pts | 0.42 pts | z = -12.22 | certain | 1.11 pts | t = -4.68 | 8 | 0.0016 | certain |
+| binding | 7 | 7000 | 0.791 | 0.808 | -1.7 pts | 0.50 pts | z = -3.42 | certain | 3.43 pts | t = -0.50 | 6 | 0.6354 | noise |
+| control raising | 5 | 5000 | 0.776 | 0.832 | -5.5 pts | 0.55 pts | z = -9.99 | certain | 3.64 pts | t = -1.52 | 4 | 0.2040 | noise |
+| determiner noun agreement | 8 | 8000 | 0.930 | 0.951 | -2.1 pts | 0.29 pts | z = -7.11 | certain | 0.55 pts | t = -3.79 | 7 | 0.0068 | probable |
+| ellipsis | 2 | 2000 | 0.843 | 0.867 | -2.4 pts | 0.90 pts | z = -2.68 | probable | 0.60 pts | t = -4.00 | 1 | 0.1560 | undetermined (k < 3) |
+| filler gap dependency | 7 | 7000 | 0.749 | 0.777 | -2.8 pts | 0.50 pts | z = -5.56 | certain | 2.70 pts | t = -1.04 | 6 | 0.3402 | noise |
+| irregular forms | 2 | 2000 | 0.865 | 0.939 | -7.4 pts | 0.73 pts | z = -10.14 | certain | 5.65 pts | t = -1.32 | 1 | 0.4131 | undetermined (k < 3) |
+| island effects | 8 | 8000 | 0.666 | 0.673 | -0.7 pts | 0.58 pts | z = -1.17 | noise | 4.26 pts | t = -0.16 | 7 | 0.8787 | noise |
+| npi licensing | 7 | 7000 | 0.740 | 0.776 | -3.5 pts | 0.56 pts | z = -6.26 | certain | 3.45 pts | t = -1.02 | 6 | 0.3474 | noise |
+| quantifiers | 4 | 4000 | 0.735 | 0.721 | 1.4 pts | 0.71 pts | z = 1.89 | noise | 4.94 pts | t = 0.27 | 3 | 0.8023 | noise |
+| subject verb agreement | 6 | 6000 | 0.844 | 0.883 | -3.9 pts | 0.51 pts | z = -7.64 | certain | 0.79 pts | t = -4.91 | 5 | 0.0044 | probable |
 
 ![BLiMP overall and phenomena](blimp_phenomena.svg)
 
 ## 67 paradigms
 
-n = 1000 pairs per paradigm and model. On pairs: Slayer ahead 7 certain, 1 probable; Pythia ahead 34 certain, 7 probable; noise 18. With 67 comparisons a Holm correction (family-wise 5%) keeps 37 differences; the 'certain' rows marked `certain, not Holm` (npi_present_2, regular_plural_subject_verb_agreement_2, determiner_noun_agreement_irregular_2, sentential_negation_npi_licensor_present) do not survive it.
+n = 1000 pairs per paradigm and model. On pairs: Slayer ahead 7 certain, 1 probable; Pythia ahead 34 certain, 7 probable; noise 18. With 67 comparisons a Holm correction (family-wise 5%) keeps 37 differences; the 'certain' rows marked `certain, not Holm` (npi_present_2, regular_plural_subject_verb_agreement_2, determiner_noun_agreement_irregular_2, sentential_negation_npi_licensor_present) do not survive it. Holm, per token and same tokenization: *[Added after the measurement: exploratory, not in THRESHOLDS.md.]*
 
-The order of the gaps depends on the measure: Spearman rank correlation between the summed and the per-token differences is 0.77. Example: tough_vs_raising_1 is -16.5 pts summed, -2.2 pts per token, and -14.1 pts on the pairs where both tokenizers give the same token difference between good and bad sentence. Read the ranking as 'where the gap is large under summed log-likelihood', not as a ranking of syntactic weaknesses.
+The order of the gaps depends on the measure: Spearman rank correlation between the summed and the per-token differences is 0.77. 1 of the 7 certain Slayer advantages reverses per token: tough_vs_raising_2 (4.0 pts summed, -9.2 pts per token). Another example: tough_vs_raising_1 is -16.5 pts summed, -2.2 pts per token, and -14.1 pts on the pairs where both tokenizers give the same token difference between good and bad sentence. Read the ranking as 'where the gap is large under summed log-likelihood', not as a ranking of syntactic weaknesses.
 
 | paradigm | Slayer 1.06 | Pythia-1B | difference | SE | z | verdict | per token | same tokenization (n) |
 |---|---:|---:|---:|---:|---:|---|---:|---|
@@ -137,14 +141,17 @@ The order of the gaps depends on the measure: Spearman rank correlation between 
 
 ## What the gap measures: tokenizer and vocabulary
 
-- Slayer's tokenizer cuts these English sentences into 1.18x as many tokens as Pythia's. A summed log-likelihood penalises the longer sentence of a pair more for the model with more tokens.
-- On the 57329 pairs where both tokenizers give the same token difference between good and bad sentence the gap is -2.39 pts (SE 0.17 pts, z = -13.95); on the 9671 other pairs -5.69 pts (SE 0.41 pts, z = -13.87). About 0.48 pts of the overall gap goes with the tokenizer difference.
-- On `lexically_identical` paradigms (the same words in a different order, so a pure syntax contrast) the gap is -0.61 pts (SE 0.31 pts, z = -1.97: noise); on the others, where good and bad sentences differ in a word or its form, -3.82 pts (SE 0.18 pts, z = -20.95: certain). The gap sits in lexical and morphological knowledge rather than in word order. This is a correlation over paradigm types, not a controlled experiment.
+*[Added after the measurement: exploratory, not in THRESHOLDS.md.]*
+
+- Slayer's tokenizer cuts these English sentences into 1.18x as many tokens as Pythia's.
+- Accuracy depends on the token-length difference within a pair. On the 57329 pairs where both tokenizers give the same token difference between good and bad sentence the gap is -2.39 pts (SE 0.17 pts, z = -13.95); on the 9671 other pairs -5.69 pts (SE 0.41 pts, z = -13.87). About 0.48 pts of the overall gap goes with the tokenizer difference.
+- On the 13163 pairs (16 paradigms) whose good and bad sentence use the same words, as a multiset, and differ only in word order, the gap is 0.52 pts (SE 0.47 pts, z = 1.09: noise; over paradigms t = 0.13). On the 53837 other pairs (54 paradigms), where the sentences differ in a word or its form, -3.69 pts (SE 0.16 pts, z = -23.18: certain; over paradigms t = -5.43). On the word-order pairs the paradigm differences are large in both directions (mean |d| 8.4 pts vs 4.7 pts) and cancel out; Pythia's steady advantage is where the sentences differ in a word or its form. A paradigm with pairs of both kinds is counted on both sides. This is a correlation over paradigm types, not a controlled experiment.
+- The BLiMP flag `lexically_identical` does not mark this split: 9 of its 20 paradigms have pairs with different word forms (e.g. sketch / sketches in determiner_noun_agreement_1), so the split is made on the words of each pair.
 
 ## Deviations from METHOD.md and limits
 
 - **Batch and device:** METHOD.md runs batch 1; we ran batch 64 with right padding on Apple MPS (causal attention, so padding does not reach scored tokens). MPS and CPU log-likelihoods differ by float noise, so only pairs whose two sentences score almost the same can flip: 11 for Slayer and 10 for Pythia (of 67 000) are closer than that noise, which bounds the effect. Our CPU re-run of 300 pairs per model flipped none; an independent CPU check of 52 pairs flipped one per model.
-- **Slayer forward is a re-implementation** (`slayer_model.py`), not the harness forward. The METHOD.md runtime calibration (bitwise-equal logits, per-token difference bound) was not done. Against the official `load_slayer.py` model from the HF repo (CPU, batch 1) on the 400 sentences of the sha256 panel: mean |difference| 0.00018 and max 0.00053 in summed log-likelihood per sentence, 0 pairs changed their outcome.
+- **Slayer forward is a re-implementation** (`slayer_model.py`), not the harness forward. The METHOD.md runtime calibration (bitwise-equal logits, per-token difference bound) was not done. Against the official `load_slayer.py` model from the HF repo (CPU, batch 1) on the 400 sentences of the sha256 panel: mean |difference| 0.00018 and max 0.00052-0.00058 in summed log-likelihood per sentence, 0 pairs changed their outcome in any of the 8 runs. The max is given as a range because it is float32 rounding and moves in its second digit with the number of CPU threads, with whether the unscored last token is fed, and with summing the token log-probs in float32 or float64 (the runs and versions are in `kontrola_forward.json`). The independent check's max, which differed from our earlier single value, is reproduced to all digits by one of these runs (all CPU threads, last token fed, float64 sum).
 - 7 pairs of the dataset have identical good and bad sentences (passive_1, principle_A_case_2). lm-eval scores them as a tie, which counts as correct; we decide them from the text the same way, so batch noise cannot turn them into errors.
 - Contamination is not scanned here (no access to the Slayer training corpus). The Space flags BLiMP for Slayer 1.06 with hits on 3 of its 200 panel pairs; Pythia's Pile was not scanned either.
 - Pythia-1B uses the lm-eval HFLM pair encoding (the empty context is the tokenizer's BOS, else EOS; for Pythia both are `<|endoftext|>`); Slayer one BOS `<|endoftext|>` as in the Space METHOD.md: the 'exactly one unscored prefix token' rule.

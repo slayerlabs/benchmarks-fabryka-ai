@@ -3,7 +3,8 @@
   "repo": "nyu-mll/blimp",
   "rewizja": "877fba0801ffb7cbd8c39c1ff314a46f053f6036",
   "n": 67000,
-  "pary_identyczne": 7
+  "pary_identyczne": 7,
+  "n_odrzucone": 0
  },
  "modele": {
   "1.06": {
@@ -745,6 +746,7 @@
      ]
     }
    },
+   "n_odrzucone": 0,
    "pary_bliskie_remisu": 11
   },
   "pythia-1b": {
@@ -1486,6 +1488,7 @@
      ]
     }
    },
+   "n_odrzucone": 0,
    "pary_bliskie_remisu": 10
   }
  },
@@ -2008,11 +2011,17 @@
   }
  },
  "analiza": {
+  "progi_p": {
+   "pewne": 0.0026997960632601913,
+   "prawdopodobne": 0.04550026389635843
+  },
   "generalizacja": {
    "k": 67,
    "roznica": -0.028656716417910434,
    "se_klastrowe": 0.008681628326123337,
    "z_klastrowe": -3.300845802357298,
+   "df": 66,
+   "p_t": 0.0015575586373863593,
    "werdykt_klastrowy": "pewne",
    "ci95_bootstrap_paradygmatow": [
     -0.044985447761194036,
@@ -2028,6 +2037,8 @@
     "roznica": -0.024692307692307666,
     "se": 0.00847725812544621,
     "t": -2.9127705358161378,
+    "df": 64,
+    "p_t": 0.004927792139581211,
     "werdykt": "prawdopodobne"
    }
   },
@@ -2037,6 +2048,8 @@
     "roznica": -0.009,
     "se": 0.003999999999999999,
     "t": -2.2500000000000004,
+    "df": 1,
+    "p_t": 0.2662498774953127,
     "werdykt": "nierozstrzygalne"
    },
    "argument_structure": {
@@ -2044,6 +2057,8 @@
     "roznica": -0.05188888888888889,
     "se": 0.011098604071939813,
     "t": -4.675262632359112,
+    "df": 8,
+    "p_t": 0.0015916192728288958,
     "werdykt": "pewne"
    },
    "binding": {
@@ -2051,6 +2066,8 @@
     "roznica": -0.017142857142857147,
     "se": 0.03433825339557188,
     "t": -0.49923497696210195,
+    "df": 6,
+    "p_t": 0.6353877412695011,
     "werdykt": "szum"
    },
    "control_raising": {
@@ -2058,6 +2075,8 @@
     "roznica": -0.055200000000000006,
     "se": 0.036402472443503066,
     "t": -1.5163805174407001,
+    "df": 4,
+    "p_t": 0.20401367095710846,
     "werdykt": "szum"
    },
    "determiner_noun_agreement": {
@@ -2065,13 +2084,17 @@
     "roznica": -0.020874999999999998,
     "se": 0.005504665229213697,
     "t": -3.7922378801920065,
-    "werdykt": "pewne"
+    "df": 7,
+    "p_t": 0.006783072390203226,
+    "werdykt": "prawdopodobne"
    },
    "ellipsis": {
     "k": 2,
     "roznica": -0.024,
     "se": 0.005999999999999999,
     "t": -4.000000000000001,
+    "df": 1,
+    "p_t": 0.15595826075473845,
     "werdykt": "nierozstrzygalne"
    },
    "filler_gap_dependency": {
@@ -2079,6 +2102,8 @@
     "roznica": -0.028,
     "se": 0.027030846576951057,
     "t": -1.0358536097006792,
+    "df": 6,
+    "p_t": 0.3402025808718011,
     "werdykt": "szum"
    },
    "irregular_forms": {
@@ -2086,6 +2111,8 @@
     "roznica": -0.0745,
     "se": 0.0565,
     "t": -1.31858407079646,
+    "df": 1,
+    "p_t": 0.4130698807568304,
     "werdykt": "nierozstrzygalne"
    },
    "island_effects": {
@@ -2093,6 +2120,8 @@
     "roznica": -0.006750000000000004,
     "se": 0.04262785390529798,
     "t": -0.15834716931787843,
+    "df": 7,
+    "p_t": 0.8786545822228619,
     "werdykt": "szum"
    },
    "npi_licensing": {
@@ -2100,6 +2129,8 @@
     "roznica": -0.03514285714285714,
     "se": 0.03448010369793583,
     "t": -1.019221329805948,
+    "df": 6,
+    "p_t": 0.3474217871217735,
     "werdykt": "szum"
    },
    "quantifiers": {
@@ -2107,6 +2138,8 @@
     "roznica": 0.013500000000000002,
     "se": 0.04939382552505931,
     "t": 0.27331351351093375,
+    "df": 3,
+    "p_t": 0.8023479931882211,
     "werdykt": "szum"
    },
    "subject_verb_agreement": {
@@ -2114,7 +2147,9 @@
     "roznica": -0.03883333333333333,
     "se": 0.007901125095692246,
     "t": -4.914911846479378,
-    "werdykt": "pewne"
+    "df": 5,
+    "p_t": 0.004416934373227915,
+    "werdykt": "prawdopodobne"
    }
   },
   "paradygmaty_dodatkowe": {
@@ -2597,6 +2632,44 @@
    "z": -17.763013742912936,
    "werdykt": "pewne"
   },
+  "przewagi_a_pewne": 7,
+  "przewagi_a_odwrocone_na_token": [
+   "tough_vs_raising_2"
+  ],
+  "ten_sam_worek_slow": {
+   "tak": {
+    "n": 13163,
+    "roznica": 0.005165995593709641,
+    "se": 0.0047366700717253974,
+    "z": 1.0906386798073642,
+    "werdykt": "szum",
+    "k_paradygmatow": 16,
+    "srednia_paradygmatow": 0.0035737179487179485,
+    "se_paradygmatow": 0.027580943163513366,
+    "t_paradygmatow": 0.1295719993160203,
+    "df_paradygmatow": 15,
+    "p_t_paradygmatow": 0.8986265894884536,
+    "werdykt_paradygmatow": "szum",
+    "srednia_abs_paradygmatow": 0.08367628205128205
+   },
+   "nie": {
+    "n": 53837,
+    "roznica": -0.03692627746716942,
+    "se": 0.0015930065714744922,
+    "z": -23.180241769492724,
+    "werdykt": "pewne",
+    "k_paradygmatow": 54,
+    "srednia_paradygmatow": -0.03702695620339481,
+    "se_paradygmatow": 0.006815175569291694,
+    "t_paradygmatow": -5.433015749474381,
+    "df_paradygmatow": 53,
+    "p_t_paradygmatow": 1.421008196674421e-06,
+    "werdykt_paradygmatow": "pewne",
+    "srednia_abs_paradygmatow": 0.047063993240431846
+   },
+   "flaga_lexically_identical_paradygmaty": 20,
+   "flaga_bez_tego_samego_worka": 9
+  },
   "tokenizacja": {
    "stosunek_tokenow_a_do_b": 1.18098102852318,
    "ta_sama_roznica_tokenow": {
@@ -2614,22 +2687,6 @@
     "werdykt": "pewne"
    },
    "czesc_luki_od_tokenizacji": -0.0047595614003800545
-  },
-  "leksykalnie_identyczne": {
-   "tak": {
-    "n": 20000,
-    "roznica": -0.00615,
-    "se": 0.0031179206097860994,
-    "z": -1.9724684396059438,
-    "werdykt": "szum"
-   },
-   "nie": {
-    "n": 47000,
-    "roznica": -0.03823404255319149,
-    "se": 0.0018246292170470794,
-    "z": -20.95441758576475,
-    "werdykt": "pewne"
-   }
   }
  },
  "tokenizery_sha256": {
@@ -2639,10 +2696,88 @@
  "kontrola_forward": {
   "zdania": 400,
   "pary": 200,
-  "max_abs_roznica_ll": 0.0005340576171875,
-  "srednia_abs_roznica_ll": 0.00017686843872070313,
+  "max_abs_roznica_ll": [
+   0.0005225446075201035,
+   0.000579833984375
+  ],
+  "srednia_abs_roznica_ll": [
+   0.00017600059509277345,
+   0.00017686843872070313
+  ],
   "przestawione_pary": 0,
-  "opis": "official load_slayer.py GPT (HF repo @ ef81be58), CPU float32, batch 1, vs slayer_model.py on MPS, batch 64; sha256 panel pairs"
+  "przebiegi": [
+   {
+    "watki_cpu": 1,
+    "wejscie": "bez_ostatniego",
+    "suma": "float32",
+    "max_abs_roznica_ll": 0.00054931640625,
+    "srednia_abs_roznica_ll": 0.00017634391784667968,
+    "przestawione_pary": 0
+   },
+   {
+    "watki_cpu": 1,
+    "wejscie": "bez_ostatniego",
+    "suma": "float64",
+    "max_abs_roznica_ll": 0.0005578622221946716,
+    "srednia_abs_roznica_ll": 0.00017633383013162529,
+    "przestawione_pary": 0
+   },
+   {
+    "watki_cpu": 1,
+    "wejscie": "pelne",
+    "suma": "float32",
+    "max_abs_roznica_ll": 0.00054931640625,
+    "srednia_abs_roznica_ll": 0.00017624855041503906,
+    "przestawione_pary": 0
+   },
+   {
+    "watki_cpu": 1,
+    "wejscie": "pelne",
+    "suma": "float64",
+    "max_abs_roznica_ll": 0.0005578622221946716,
+    "srednia_abs_roznica_ll": 0.00017617757632251596,
+    "przestawione_pary": 0
+   },
+   {
+    "watki_cpu": 6,
+    "wejscie": "bez_ostatniego",
+    "suma": "float32",
+    "max_abs_roznica_ll": 0.0005340576171875,
+    "srednia_abs_roznica_ll": 0.00017686843872070313,
+    "przestawione_pary": 0
+   },
+   {
+    "watki_cpu": 6,
+    "wejscie": "bez_ostatniego",
+    "suma": "float64",
+    "max_abs_roznica_ll": 0.0005225446075201035,
+    "srednia_abs_roznica_ll": 0.000176711935455387,
+    "przestawione_pary": 0
+   },
+   {
+    "watki_cpu": 6,
+    "wejscie": "pelne",
+    "suma": "float32",
+    "max_abs_roznica_ll": 0.000579833984375,
+    "srednia_abs_roznica_ll": 0.00017600059509277345,
+    "przestawione_pary": 0
+   },
+   {
+    "watki_cpu": 6,
+    "wejscie": "pelne",
+    "suma": "float64",
+    "max_abs_roznica_ll": 0.0005702748894691467,
+    "srednia_abs_roznica_ll": 0.00017612674386327854,
+    "przestawione_pary": 0
+   }
+  ],
+  "wersje": {
+   "python": "3.9.6",
+   "torch": "2.8.0",
+   "tokenizers": "0.22.2",
+   "maszyna": "macOS-26.6-arm64-arm-64bit"
+  },
+  "opis": "official load_slayer.py GPT (HF repo @ ef81be58), CPU float32, batch 1, vs slayer_model.py on MPS, batch 64 (raw/1.06.jsonl.gz); sha256 panel pairs; 8 runs: CPU threads x input with or without the last token x float32 or float64 sum of token log-probs"
  },
  "kontrola_pythia": {
   "wartosc": 0.8234328358208955,

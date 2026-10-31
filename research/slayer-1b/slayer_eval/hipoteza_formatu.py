@@ -108,20 +108,27 @@ def para(model, ctx, cont):
     return ce, whole[len(ce):]
 
 
-def licz_logliki(model, pary, batch=16):
-    """pary: [(ctx_ids, cont_ids)] -> [(suma logprob, liczba tokenów)]; batchowanie po długości, prawy padding."""
+def za_dlugie(model, para_ids):
+    return len(para_ids[0]) + len(para_ids[1]) - 1 > model.max_len
+
+
+def licz_logliki(model, pary, batch=16, odrzucaj=False):
+    """pary: [(ctx_ids, cont_ids)] -> [(suma logprob, liczba tokenów)]; batchowanie po długości, prawy padding.
+    METHOD.md: an input longer than the context is rejected, never truncated. odrzucaj=True: its entry is None
+    and the rest is scored (licz_zadanie records the document as rejected); False: ValueError."""
     wynik = [None] * len(pary)
-    kolej = sorted(range(len(pary)), key=lambda i: -(len(pary[i][0]) + len(pary[i][1])))
+    dlugie = [i for i in range(len(pary)) if za_dlugie(model, pary[i])]
+    if dlugie and not odrzucaj:
+        i = dlugie[0]
+        raise ValueError(f"input of {len(pary[i][0]) + len(pary[i][1]) - 1} tokens exceeds the context of {model.max_len}")
+    pomin = set(dlugie)
+    kolej = sorted((i for i in range(len(pary)) if i not in pomin), key=lambda i: -(len(pary[i][0]) + len(pary[i][1])))
     for s in range(0, len(kolej), batch):
         idx = kolej[s:s + batch]
         seqs = []
         for i in idx:
             ce, co = pary[i]
-            pelne = ce + co
-            if len(pelne) - 1 > model.max_len:
-                # METHOD.md: longer inputs are rejected, never truncated
-                raise ValueError(f"input of {len(pelne) - 1} tokens exceeds the context of {model.max_len}")
-            seqs.append((pelne, len(co)))
+            seqs.append((ce + co, len(co)))
         T = max(len(p) - 1 for p, _ in seqs)
         x = torch.full((len(seqs), T), model.pad, dtype=torch.long)
         for j, (p, _) in enumerate(seqs):
@@ -343,12 +350,25 @@ def dokumenty(nazwa, limit=None):
     return [prz(d) for d in docs] if prz else docs
 
 
+def plik_odrzuconych(plik):
+    """Rejected documents (an input over the context) of a result file: <task>.odrzucone.jsonl next to it."""
+    plik = Path(plik)
+    return plik.with_name(plik.stem + ".odrzucone.jsonl")
+
+
+def n_odrzuconych(plik):
+    p = plik_odrzuconych(plik)
+    return sum(1 for l in p.read_text().splitlines() if l.strip()) if p.exists() else 0
+
+
 def licz_zadanie(model, nazwa, plik, limit=None, batch=16, porcja=64):
     _, budowa, _, z_bezw = ZADANIA[nazwa]
     docs = dokumenty(nazwa, limit)
+    plik_odrz = plik_odrzuconych(plik)
     gotowe = set()
-    if plik.exists():
-        gotowe = {json.loads(l)["id"] for l in plik.read_text().splitlines() if l.strip()}
+    for p in (plik, plik_odrz):
+        if p.exists():
+            gotowe |= {json.loads(l)["id"] for l in p.read_text().splitlines() if l.strip()}
     docs = [d for d in docs if d["id"] not in gotowe]
     t0 = time.time()
     for s in range(0, len(docs), porcja):
@@ -360,20 +380,36 @@ def licz_zadanie(model, nazwa, plik, limit=None, batch=16, porcja=64):
                 pary.append(para(model, ctx, c)); mapa.append((di, "w", oi))
                 if z_bezw:
                     pary.append(para(model, "", c)); mapa.append((di, "b", oi))
-        ll = licz_logliki(model, pary, batch)
+        ll = licz_logliki(model, pary, batch, odrzucaj=True)
+        # a document with any input over the context is rejected as a whole (METHOD.md), the run goes on
+        odrz = {}
+        for (di, _, _), p, v in zip(mapa, pary, ll):
+            if v is None:
+                odrz[di] = max(odrz.get(di, 0), len(p[0]) + len(p[1]) - 1)
         wiersze = [{"id": d["id"], "grupa": d.get("grupa"), "gold": d["gold"], "k": len(d["opcje"]), "ll": [None] * len(d["opcje"]),
                     "ntok": [None] * len(d["opcje"]), "bezw": [None] * len(d["opcje"]) if z_bezw else None,
                     "bajty": [len(c.encode()) for c in budowa(d)[1]],
                     "znaki": [len(o) for o in (d["opcje"] if budowa in BUDOWY_TRESC else [LITERY[i] for i in range(len(d["opcje"]))])]}
                    for d in czesc]
-        for (di, typ, oi), (v, n) in zip(mapa, ll):
+        for (di, typ, oi), wart in zip(mapa, ll):
+            if di in odrz:
+                continue
+            v, n = wart
             if typ == "w":
                 wiersze[di]["ll"][oi] = v; wiersze[di]["ntok"][oi] = n
             else:
                 wiersze[di]["bezw"][oi] = v
         with open(plik, "a") as f:
-            for w in wiersze:
-                f.write(json.dumps(w) + "\n")
+            for di, w in enumerate(wiersze):
+                if di not in odrz:
+                    f.write(json.dumps(w) + "\n")
+        if odrz:
+            # a document with any input over the context is rejected as a whole (METHOD.md); the run goes on
+            with open(plik_odrz, "a") as f:
+                for di, n in sorted(odrz.items()):
+                    f.write(json.dumps({"id": czesc[di]["id"], "odrzucony": True, "tokeny": n,
+                                        "kontekst": model.max_len}) + "\n")
+            print(f"[{nazwa}] rejected {len(odrz)} documents over the context of {model.max_len}", flush=True)
         print(f"[{nazwa}] {s + len(czesc)}/{len(docs)}  {time.time() - t0:.0f}s", flush=True)
 
 

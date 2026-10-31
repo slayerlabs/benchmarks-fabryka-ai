@@ -209,24 +209,36 @@ def porownania_blimp(bl):
         return out
     # paradigms as clusters: SE over the 67 paradigm differences (generalisation to paradigms)
     gen = an["generalizacja"]
-    out.append(porownanie("slayer_vs_pythia/blimp_klastrowane/acc", "slayer_vs_pythia", "blimp_klastrowane", "acc", a, b,
-                          None, None, None, None, se_par=gen["se_klastrowe"], zrodlo_par="clustered by paradigm (k = 67)",
-                          roznica=gen["roznica"]))
-    b2 = gen["bez_2_najgorszych"]
-    out.append(porownanie("slayer_vs_pythia/blimp_klastrowane_bez_2/acc", "slayer_vs_pythia", "blimp_klastrowane_bez_2",
-                          "acc", a, b, None, None, None, None, se_par=b2["se"],
-                          zrodlo_par="clustered by paradigm, 2 lowest paradigms dropped", roznica=b2["roznica"]))
-    for z, r in an["zjawiska_klastrowe"].items():
-        p = porownanie(f"slayer_vs_pythia/blimp_zjawisko_klastr_{z}/acc", "slayer_vs_pythia", f"blimp_zjawisko_klastr_{z}",
-                       "acc", a, b, None, None, None, None, se_par=r["se"], zrodlo_par=f"clustered by paradigm (k = {r['k']})",
-                       roznica=r["roznica"])
-        p["werdykt"] = r["werdykt"]  # k < 3: "nierozstrzygalne", whatever z says
+    def klastr(p, df, p_t, wer):
+        # a clustered t is read through the t distribution (df = k - 1), not as a z
+        p.update({"df": df, "p_t": p_t, "werdykt": wer, "werdykt_parowane": wer})
         out.append(p)
+
+    klastr(porownanie("slayer_vs_pythia/blimp_klastrowane/acc", "slayer_vs_pythia", "blimp_klastrowane", "acc", a, b,
+                      None, None, None, None, se_par=gen["se_klastrowe"],
+                      zrodlo_par=f"clustered by paradigm (k = {gen['k']})", roznica=gen["roznica"]),
+           gen["df"], gen["p_t"], gen["werdykt_klastrowy"])
+    b2 = gen["bez_2_najgorszych"]
+    klastr(porownanie("slayer_vs_pythia/blimp_klastrowane_bez_2/acc", "slayer_vs_pythia", "blimp_klastrowane_bez_2",
+                      "acc", a, b, None, None, None, None, se_par=b2["se"],
+                      zrodlo_par="clustered by paradigm, 2 lowest paradigms dropped", roznica=b2["roznica"]),
+           b2["df"], b2["p_t"], b2["werdykt"])
+    for z, r in an["zjawiska_klastrowe"].items():
+        klastr(porownanie(f"slayer_vs_pythia/blimp_zjawisko_klastr_{z}/acc", "slayer_vs_pythia", f"blimp_zjawisko_klastr_{z}",
+                          "acc", a, b, None, None, None, None, se_par=r["se"],
+                          zrodlo_par=f"clustered by paradigm (k = {r['k']})", roznica=r["roznica"]),
+               r["df"], r["p_t"], r["werdykt"])  # k < 3: "nierozstrzygalne", whatever t says
+    worek = an["ten_sam_worek_slow"]
+    for nazwa, r in (("blimp_ten_sam_worek_slow_klastr", worek["tak"]), ("blimp_inny_worek_slow_klastr", worek["nie"])):
+        klastr(porownanie(f"slayer_vs_pythia/{nazwa}/acc", "slayer_vs_pythia", nazwa, "acc", a, b, None, None, None, None,
+                          se_par=r["se_paradygmatow"], zrodlo_par=f"clustered by paradigm (k = {r['k_paradygmatow']})",
+                          roznica=r["srednia_paradygmatow"]),
+               r["df_paradygmatow"], r["p_t_paradygmatow"], r["werdykt_paradygmatow"])
     for nazwa, r in (("blimp_na_token", an["na_token"]),
                      ("blimp_ta_sama_tokenizacja", an["tokenizacja"]["ta_sama_roznica_tokenow"]),
                      ("blimp_rozna_tokenizacja", an["tokenizacja"]["rozna_roznica_tokenow"]),
-                     ("blimp_leksykalnie_identyczne", an["leksykalnie_identyczne"]["tak"]),
-                     ("blimp_nie_leksykalnie_identyczne", an["leksykalnie_identyczne"]["nie"])):
+                     ("blimp_ten_sam_worek_slow", worek["tak"]),
+                     ("blimp_inny_worek_slow", worek["nie"])):
         out.append(porownanie(f"slayer_vs_pythia/{nazwa}/acc", "slayer_vs_pythia", nazwa, "acc", a, b, None, None, None, None,
                               se_par=r["se"], zrodlo_par="paired by minimal pair, stratified by paradigm", roznica=r["roznica"]))
     return out
@@ -243,6 +255,12 @@ def raporty_blimp(bl):
              "holm": {g: r["holm"] for g, r in an["paradygmaty_dodatkowe"].items()},
              "grupy": [{"nazwa": z, "etykieta": z.replace("_", " "), "k": r["k"], "werdykt": r["werdykt"]}
                        for z, r in an["zjawiska_klastrowe"].items()],
+             # the k < 3 rule binds only the paradigm-level (clustered) column of a group row; the pair-level
+             # verdict next to it is a claim about the pairs, valid at any k
+             "kolumna_werdyktu_klastrowego": "verdict paradigms",
+             # the report must equal, byte for byte, what this generator writes from LICZBY.json + blimp.json
+             "generator": {"modul": "slayer_eval/blimp_raport.py", "funkcja": "pliki",
+                           "wejscie": "wyniki/blimp/blimp.json"},
              "tokenizery": bl.get("tokenizery_sha256", {}),
              "porownanie_na_token": "slayer_vs_pythia/blimp_na_token/acc"}]
 

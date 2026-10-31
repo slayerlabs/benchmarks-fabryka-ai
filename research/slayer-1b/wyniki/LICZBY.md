@@ -137,19 +137,21 @@ Slayer vs Pythia ma SE niezależne (hypot), czyli ostrożne.
 | blimp_zjawisko_klastr_argument_structure/acc | — | — | −0,0519 (−5,2) | — | — | 0,0111 | −4,7 | pewne |
 | blimp_zjawisko_klastr_binding/acc | — | — | −0,0171 (−1,7) | — | — | 0,0343 | −0,5 | szum |
 | blimp_zjawisko_klastr_control_raising/acc | — | — | −0,0552 (−5,5) | — | — | 0,0364 | −1,5 | szum |
-| blimp_zjawisko_klastr_determiner_noun_agreement/acc | — | — | −0,0209 (−2,1) | — | — | 0,0055 | −3,8 | pewne |
+| blimp_zjawisko_klastr_determiner_noun_agreement/acc | — | — | −0,0209 (−2,1) | — | — | 0,0055 | −3,8 | prawdopodobne |
 | blimp_zjawisko_klastr_ellipsis/acc | — | — | −0,0240 (−2,4) | — | — | 0,0060 | −4,0 | nierozstrzygalne |
 | blimp_zjawisko_klastr_filler_gap_dependency/acc | — | — | −0,0280 (−2,8) | — | — | 0,0270 | −1,0 | szum |
 | blimp_zjawisko_klastr_irregular_forms/acc | — | — | −0,0745 (−7,4) | — | — | 0,0565 | −1,3 | nierozstrzygalne |
 | blimp_zjawisko_klastr_island_effects/acc | — | — | −0,0068 (−0,7) | — | — | 0,0426 | −0,2 | szum |
 | blimp_zjawisko_klastr_npi_licensing/acc | — | — | −0,0351 (−3,5) | — | — | 0,0345 | −1,0 | szum |
 | blimp_zjawisko_klastr_quantifiers/acc | — | — | 0,0135 (1,4) | — | — | 0,0494 | 0,3 | szum |
-| blimp_zjawisko_klastr_subject_verb_agreement/acc | — | — | −0,0388 (−3,9) | — | — | 0,0079 | −4,9 | pewne |
+| blimp_zjawisko_klastr_subject_verb_agreement/acc | — | — | −0,0388 (−3,9) | — | — | 0,0079 | −4,9 | prawdopodobne |
+| blimp_ten_sam_worek_slow_klastr/acc | — | — | 0,0036 (0,4) | — | — | 0,0276 | 0,1 | szum |
+| blimp_inny_worek_slow_klastr/acc | — | — | −0,0370 (−3,7) | — | — | 0,0068 | −5,4 | pewne |
 | blimp_na_token/acc | — | — | −0,0309 (−3,1) | — | — | 0,0017 | −17,8 | pewne |
 | blimp_ta_sama_tokenizacja/acc | — | — | −0,0239 (−2,4) | — | — | 0,0017 | −13,9 | pewne |
 | blimp_rozna_tokenizacja/acc | — | — | −0,0569 (−5,7) | — | — | 0,0041 | −13,9 | pewne |
-| blimp_leksykalnie_identyczne/acc | — | — | −0,0062 (−0,6) | — | — | 0,0031 | −2,0 | szum |
-| blimp_nie_leksykalnie_identyczne/acc | — | — | −0,0382 (−3,8) | — | — | 0,0018 | −21,0 | pewne |
+| blimp_ten_sam_worek_slow/acc | — | — | 0,0052 (0,5) | — | — | 0,0047 | 1,1 | szum |
+| blimp_inny_worek_slow/acc | — | — | −0,0369 (−3,7) | — | — | 0,0016 | −23,2 | pewne |
 
 ## Wersje Slayera
 
