@@ -58,6 +58,7 @@ USTAWIENIA_BENCHMARKOW = {
 }
 WYGASZANIE = "slayer-1b/wygaszanie/wyniki"
 BLIMP = "benchmarks/blimp/results/blimp.json"
+KRZYWA = "benchmarks/blimp/results/checkpoints.json"  # BLiMP over checkpoints and weight averaging
 FORMAT = "analyses/answer-format/results/raport_formatu.json"
 
 
@@ -291,6 +292,102 @@ def porownania_blimp(bl):
     return out
 
 
+def porownania_krzywej(kr):
+    """BLiMP over checkpoints and weight averages (benchmarks/blimp/checkpoints.py, CHECKPOINTS_THRESHOLDS.md):
+    gap of every checkpoint to Pythia-1B, slopes, step changes, averages vs 1.06; pair SE and clustered t."""
+    out = []
+    par = "paired by minimal pair, stratified by paradigm"
+
+    def dodaj(pid, rodzina, zadanie, a, b, r, metryka="acc", se_key="se", zrodlo=par):
+        out.append(porownanie(pid, rodzina, zadanie, metryka, a, b, None, None, None, None,
+                              se_par=r[se_key], zrodlo_par=zrodlo, roznica=r.get("roznica", r.get("nachylenie"))))
+
+    def klastr(pid, rodzina, zadanie, a, b, r):
+        if r.get("se_klastr") is None:
+            return
+        p = porownanie(pid, rodzina, zadanie, "acc", a, b, None, None, None, None, se_par=r["se_klastr"],
+                       zrodlo_par=f"clustered by paradigm (k = {r['k']})", roznica=r.get("roznica", r.get("nachylenie")))
+        w = r["werdykt_klastr"]
+        p.update({"df": r["df"], "p_t": r["p_klastr"], "werdykt": w, "werdykt_parowane": w})
+        out.append(p)
+
+    for pt in kr.get("punkty", []):
+        e = pt["etykieta"]
+        dodaj(f"{e}_vs_pythia/blimp_krzywa_luka/acc", "slayer_ckpt_vs_pythia", f"blimp_krzywa_luka_{e}", e, "pythia-1b",
+              pt["luka_pythia"])
+    if "nachylenie" in kr:
+        n = kr["nachylenie"]
+        dodaj("krzywa/blimp_krzywa_nachylenie/acc", "slayer_krzywa", "blimp_krzywa_nachylenie", "slope", "0", n,
+              metryka="acc_per_bn_tokens", zrodlo="bootstrap of pairs within paradigms, shared across checkpoints")
+        klastr("krzywa/blimp_krzywa_nachylenie_klastr/acc", "slayer_krzywa", "blimp_krzywa_nachylenie_klastr", "slope", "0", n)
+        for z, r in kr["nachylenie_zjawiska"].items():
+            dodaj(f"krzywa/blimp_krzywa_nachylenie_{z}/acc", "slayer_krzywa", f"blimp_krzywa_nachylenie_{z}", "slope", "0", r,
+                  metryka="acc_per_bn_tokens", zrodlo="bootstrap of pairs within paradigms, shared across checkpoints")
+            klastr(f"krzywa/blimp_krzywa_nachylenie_klastr_{z}/acc", "slayer_krzywa", f"blimp_krzywa_nachylenie_klastr_{z}",
+                   "slope", "0", r)
+        for r in kr["kroki"]:
+            a, b = f"k{r['do']}", f"k{r['od']}"
+            dodaj(f"{a}_vs_{b}/blimp_krzywa_krok/acc", "slayer_krzywa", f"blimp_krzywa_krok_{r['od']}_{r['do']}", a, b, r)
+            klastr(f"{a}_vs_{b}/blimp_krzywa_krok_klastr/acc", "slayer_krzywa", f"blimp_krzywa_krok_klastr_{r['od']}_{r['do']}",
+                   a, b, r)
+    if "nachylenie_bez_ostatniego" in kr:
+        n = kr["nachylenie_bez_ostatniego"]
+        dodaj("krzywa/blimp_krzywa_nachylenie_bez_ostatniego/acc", "slayer_krzywa", "blimp_krzywa_nachylenie_bez_ostatniego",
+              "slope", "0", n, metryka="acc_per_bn_tokens", zrodlo="bootstrap of pairs within paradigms, shared across checkpoints")
+        klastr("krzywa/blimp_krzywa_nachylenie_bez_ostatniego_klastr/acc", "slayer_krzywa",
+               "blimp_krzywa_nachylenie_bez_ostatniego_klastr", "slope", "0", n)
+
+    def reszty(pid, zadanie, n):
+        if not n or n.get("se_reszty") is None:
+            return
+        p = porownanie(pid, "slayer_krzywa", zadanie, "acc_per_bn_tokens", "slope", "0", None, None, None, None,
+                       se_par=n["se_reszty"],
+                       zrodlo_par=f"residuals of the checkpoint accuracies around the line (df = {n['df']})",
+                       roznica=n["nachylenie"])
+        p.update({"df": n["df"], "p_t": n["p"], "werdykt": n["werdykt"], "werdykt_parowane": n["werdykt"]})
+        out.append(p)
+
+    reszty("krzywa/blimp_krzywa_nachylenie_reszty/acc", "blimp_krzywa_nachylenie_reszty", kr.get("nachylenie_reszty"))
+    for z, r in kr.get("nachylenie_zjawiska", {}).items():
+        reszty(f"krzywa/blimp_krzywa_nachylenie_reszty_{z}/acc", f"blimp_krzywa_nachylenie_reszty_{z}", r.get("reszty"))
+    if "nachylenie_ln_D" in kr:
+        n = kr["nachylenie_ln_D"]
+        dodaj("krzywa/blimp_krzywa_nachylenie_lnD/acc", "slayer_krzywa", "blimp_krzywa_nachylenie_lnD", "slope", "0", n,
+              metryka="acc_per_ln_tokens", zrodlo="bootstrap of pairs within paradigms, shared across checkpoints")
+        klastr("krzywa/blimp_krzywa_nachylenie_lnD_klastr/acc", "slayer_krzywa", "blimp_krzywa_nachylenie_lnD_klastr",
+               "slope", "0", n)
+    for e, r in kr.get("srednie", {}).items():
+        dodaj(f"{e}_vs_k13848/blimp_srednia/acc", "srednia_vs_1.06", f"blimp_srednia_{e}", e, "k13848", r["blimp"])
+        klastr(f"{e}_vs_k13848/blimp_srednia_klastr/acc", "srednia_vs_1.06", f"blimp_srednia_klastr_{e}", e, "k13848", r["blimp"])
+        for z, rz in r["blimp_zjawiska"].items():
+            dodaj(f"{e}_vs_k13848/blimp_srednia_{z}/acc", "srednia_vs_1.06", f"blimp_srednia_{e}_{z}", e, "k13848", rz)
+            if "se_klastr" in rz:
+                klastr(f"{e}_vs_k13848/blimp_srednia_klastr_{z}/acc", "srednia_vs_1.06", f"blimp_srednia_klastr_{e}_{z}",
+                       e, "k13848", rz)
+    for e, r in kr.get("heldout", {}).get("srednie", {}).items():
+        dodaj(f"{e}_vs_1.06/heldout_srednia/loss", "srednia_vs_1.06", f"heldout_srednia_{e}", e, "1.06", r, metryka="loss",
+              zrodlo="paired by held-out window")
+        if "vs_wygaszanie" in r:
+            dodaj(f"{e}_vs_A/heldout_srednia_vs_wygaszanie/loss", "srednia_vs_wygaszanie", f"heldout_srednia_vs_A_{e}", e,
+                  "A", r["vs_wygaszanie"], metryka="loss", zrodlo="paired by held-out window")
+    return out
+
+
+def raporty_krzywej(kr):
+    """Metadata of CHECKPOINTS.md for the gates of sprawdz_raporty.py: generated report (g), clustered verdicts (d),
+    phenomena with < 3 paradigms undetermined in the clustered column (e)."""
+    if "nachylenie" not in kr:
+        return []
+    return [{"plik": "benchmarks/blimp/results/CHECKPOINTS.md", "test": "blimp", "wieloparadygmatowy": True,
+             "k_paradygmatow": 0, "porownanie_klastrowe": "krzywa/blimp_krzywa_nachylenie_klastr/acc", "holm": {},
+             "grupy": [{"nazwa": z, "etykieta": z.replace("_", " "), "k": r["k"],
+                        "werdykt": r["werdykt_klastr"] if r["k"] >= 3 else "nierozstrzygalne"}
+                       for z, r in kr["nachylenie_zjawiska"].items()],
+             "kolumna_werdyktu_klastrowego": "verdict paradigms",
+             "generator": {"modul": "benchmarks/blimp/checkpoints_report.py", "funkcja": "pliki",
+                           "wejscie": KRZYWA, "komenda": "python benchmarks/blimp/checkpoints.py raport"}}]
+
+
 def raporty_blimp(bl):
     """Metadata of the BLiMP report for the gates of sprawdz_raporty.py (bramki_raportu)."""
     an = bl.get("analiza")
@@ -307,7 +404,7 @@ def raporty_blimp(bl):
              "kolumna_werdyktu_klastrowego": "verdict paradigms",
              # the report must equal, byte for byte, what this generator writes from LICZBY.json + blimp.json
              "generator": {"modul": "benchmarks/blimp/blimp_raport.py", "funkcja": "pliki",
-                           "wejscie": BLIMP},
+                           "wejscie": BLIMP, "komenda": "python benchmarks/blimp/blimp.py raport"},
              "tokenizery": bl.get("tokenizery_sha256", {}),
              "porownanie_na_token": "slayer_vs_pythia/blimp_na_token/acc"}]
 
@@ -340,6 +437,12 @@ def zbuduj(korzen=KORZEN):
                  pomin=("okna", "per_grupa", "per_grupa_acc_norm", "paradygmaty"))
         porownania += porownania_blimp(bl)
         raporty += raporty_blimp(bl)
+    plik_krzywej = korzen / KRZYWA
+    if plik_krzywej.exists():
+        kr = json.loads(plik_krzywej.read_text())
+        splaszcz(kr, "blimp_krzywa", wartosci, pomin=("paradygmaty",))
+        porownania += porownania_krzywej(kr)
+        raporty += raporty_krzywej(kr)
     bench = benchmarki(korzen)
     return {"zrodla": zrodla + [z for b in bench.values() for z in b["zrodla"]],
             "benchmarki": bench, "raporty": raporty,

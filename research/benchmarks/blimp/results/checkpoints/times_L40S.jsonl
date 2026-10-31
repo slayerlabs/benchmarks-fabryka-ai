@@ -1,0 +1,21 @@
+{"etap": "pip", "s": 10.8}
+{"etap": "pobranie_1.06", "s": 26.7, "bajty": 4298114350}
+{"etap": "pobranie_blimp", "s": 4.5}
+{"etap": "pobranie", "repo": "SlayerLab/Slayer1B-1.06-checkpoints", "rewizja": "1113e3e657c1e82d0da09c1fb6d08a356edb8aa3", "krok": 13848, "plik": "/workspace/ckpt/ckpt_13848.pt", "bajty": 8860287151, "s": 24.4, "MB_s": 362.4, "sha256": "1fc7396ca1790805128244b2f827e02b9fe88e352534cd887d0c488f121d1e4d", "sha256_s": 5.6, "lfs_oid": "1fc7396ca1790805128244b2f827e02b9fe88e352534cd887d0c488f121d1e4d", "zgodny_z_lfs": true}
+{"etap": "konwersja", "s": 22.2, "krok": 13848}
+{"etap": "blimp", "s": 255.5, "gpu_util_sr": 89.9, "gpu_mem_max_MiB": 6420.0, "cpu_util_sr": 1.4, "probek": 125, "model": "k13848", "pary": 67000}
+{"etap": "pobranie", "repo": "SlayerLab/Slayer1B-1.06-checkpoints", "rewizja": "1113e3e657c1e82d0da09c1fb6d08a356edb8aa3", "krok": 13800, "plik": "/workspace/ckpt/ckpt_13800.pt", "bajty": 8860287151, "s": 54.0, "MB_s": 164.1, "sha256": "eae7a00d4ead9426ac976530a6372c1da2202a88f1fc4541bd2a142e4f2ab896", "sha256_s": 5.6, "lfs_oid": "eae7a00d4ead9426ac976530a6372c1da2202a88f1fc4541bd2a142e4f2ab896", "zgodny_z_lfs": true}
+{"etap": "pobranie", "repo": "SlayerLab/Slayer1B-1.06-checkpoints", "rewizja": "1113e3e657c1e82d0da09c1fb6d08a356edb8aa3", "krok": 13750, "plik": "/workspace/ckpt/ckpt_13750.pt", "bajty": 8860287151, "s": 55.1, "MB_s": 160.8, "sha256": "de86a4ac0dd3f9f7662f76bfa07198be47d023fad55e8304fe07c1f7f79033e4", "sha256_s": 5.6, "lfs_oid": "de86a4ac0dd3f9f7662f76bfa07198be47d023fad55e8304fe07c1f7f79033e4", "zgodny_z_lfs": true}
+{"etap": "srednia_avg3", "s": 38.7}
+{"etap": "blimp", "s": 256.8, "gpu_util_sr": 90.2, "gpu_mem_max_MiB": 6420.0, "cpu_util_sr": 1.4, "probek": 126, "model": "avg3", "pary": 67000}
+{"etap": "pobranie", "repo": "SlayerLab/Slayer1B-1.03-checkpoints", "rewizja": "b8ac4d483204b6d00acade3af2d8bfec95f84bce", "krok": 7150, "plik": "/workspace/ckpt/ckpt_7150.pt", "bajty": 8860287151, "s": 77.4, "MB_s": 114.5, "sha256": "d7cad9673f3ee706f3022ad6a97fa7593604806d4d25ba936c27885a8f115d97", "sha256_s": 5.8, "lfs_oid": "d7cad9673f3ee706f3022ad6a97fa7593604806d4d25ba936c27885a8f115d97", "zgodny_z_lfs": true}
+{"etap": "konwersja", "s": 12.2, "krok": 7150}
+{"etap": "blimp", "s": 257.5, "gpu_util_sr": 90.6, "gpu_mem_max_MiB": 6420.0, "cpu_util_sr": 1.4, "probek": 126, "model": "k7150", "pary": 67000}
+{"etap": "pobranie", "repo": "SlayerLab/Slayer1B-1.04-checkpoints", "rewizja": "14b5a8ccb60ac79570593e3410124c7edb879780", "krok": 8600, "plik": "/workspace/ckpt/ckpt_8600.pt", "bajty": 8860287151, "s": 99.5, "MB_s": 89.0, "sha256": "daa4308f0502c5c6562a9b96a33ab5c80dd051a8a4d61e541f262655be9c62b7", "sha256_s": 5.8, "lfs_oid": "daa4308f0502c5c6562a9b96a33ab5c80dd051a8a4d61e541f262655be9c62b7", "zgodny_z_lfs": true}
+{"etap": "konwersja", "s": 12.4, "krok": 8600}
+{"etap": "blimp", "s": 258.6, "gpu_util_sr": 90.3, "gpu_mem_max_MiB": 6420.0, "cpu_util_sr": 1.8, "probek": 127, "model": "k8600", "pary": 67000}
+{"etap": "pobranie", "repo": "SlayerLab/Slayer1B-1.04-checkpoints", "rewizja": "14b5a8ccb60ac79570593e3410124c7edb879780", "krok": 10010, "plik": "/workspace/ckpt/ckpt_10010.pt", "bajty": 8860287151, "s": 94.2, "MB_s": 94.0, "sha256": "04438959d7b317d1a8d972b264e9610a06fd8addde7349c6e9f458ee56dc1e51", "sha256_s": 5.6, "lfs_oid": "04438959d7b317d1a8d972b264e9610a06fd8addde7349c6e9f458ee56dc1e51", "zgodny_z_lfs": true}
+{"etap": "konwersja", "s": 13.2, "krok": 10010}
+{"etap": "blimp", "s": 257.5, "gpu_util_sr": 90.5, "gpu_mem_max_MiB": 6420.0, "cpu_util_sr": 1.3, "probek": 126, "model": "k10010", "pary": 67000}
+{"etap": "pobranie", "repo": "SlayerLab/Slayer1B-1.04-checkpoints", "rewizja": "14b5a8ccb60ac79570593e3410124c7edb879780", "krok": 11450, "plik": "/workspace/ckpt/ckpt_11450.pt", "bajty": 8860287151, "s": 120.5, "MB_s": 73.5, "sha256": "b60b0d28fedf35d49f4ff36bdf2bc870e8e23343a67b2ba4f40f2c62981788b0", "sha256_s": 5.6, "lfs_oid": "b60b0d28fedf35d49f4ff36bdf2bc870e8e23343a67b2ba4f40f2c62981788b0", "zgodny_z_lfs": true}
+{"etap": "konwersja", "s": 13.5, "krok": 11450}

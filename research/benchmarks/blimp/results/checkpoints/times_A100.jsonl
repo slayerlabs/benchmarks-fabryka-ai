@@ -1,0 +1,18 @@
+{"etap": "pip", "s": 11.7}
+{"etap": "pobranie_1.06", "s": 7.1, "bajty": 4298114353}
+{"etap": "pobranie_blimp", "s": 8.4}
+{"etap": "pobranie", "repo": "SlayerLab/Slayer1B-1.06-checkpoints", "rewizja": "1113e3e657c1e82d0da09c1fb6d08a356edb8aa3", "krok": 13848, "plik": "/workspace/ckpt/ckpt_13848.pt", "bajty": 8860287151, "s": 14.9, "MB_s": 593.6, "sha256": "1fc7396ca1790805128244b2f827e02b9fe88e352534cd887d0c488f121d1e4d", "sha256_s": 5.7, "lfs_oid": "1fc7396ca1790805128244b2f827e02b9fe88e352534cd887d0c488f121d1e4d", "zgodny_z_lfs": true}
+{"etap": "konwersja", "s": 18.2, "krok": 13848}
+{"etap": "blimp", "s": 426.8, "gpu_util_sr": 89.4, "gpu_mem_max_MiB": 6401.0, "cpu_util_sr": 9.9, "probek": 210, "model": "k13848", "pary": 67000}
+{"etap": "pobranie", "repo": "SlayerLab/Slayer1B-1.06-checkpoints", "rewizja": "1113e3e657c1e82d0da09c1fb6d08a356edb8aa3", "krok": 13800, "plik": "/workspace/ckpt/ckpt_13800.pt", "bajty": 8860287151, "s": 18.3, "MB_s": 485.0, "sha256": "eae7a00d4ead9426ac976530a6372c1da2202a88f1fc4541bd2a142e4f2ab896", "sha256_s": 5.8, "lfs_oid": "eae7a00d4ead9426ac976530a6372c1da2202a88f1fc4541bd2a142e4f2ab896", "zgodny_z_lfs": true}
+{"etap": "pobranie", "repo": "SlayerLab/Slayer1B-1.06-checkpoints", "rewizja": "1113e3e657c1e82d0da09c1fb6d08a356edb8aa3", "krok": 13750, "plik": "/workspace/ckpt/ckpt_13750.pt", "bajty": 8860287151, "s": 19.5, "MB_s": 453.3, "sha256": "de86a4ac0dd3f9f7662f76bfa07198be47d023fad55e8304fe07c1f7f79033e4", "sha256_s": 5.7, "lfs_oid": "de86a4ac0dd3f9f7662f76bfa07198be47d023fad55e8304fe07c1f7f79033e4", "zgodny_z_lfs": true}
+{"etap": "srednia_avg3", "s": 33.8}
+{"etap": "blimp", "s": 393.6, "gpu_util_sr": 93.8, "gpu_mem_max_MiB": 6401.0, "cpu_util_sr": 7.7, "probek": 193, "model": "avg3", "pary": 67000}
+{"etap": "pobranie", "repo": "SlayerLab/Slayer1B-1.00-checkpoints", "rewizja": "950a62a9d30b522c65bd76931157cef7929f3113", "krok": 1430, "plik": "/workspace/ckpt/ckpt_1430.pt", "bajty": 8860285999, "s": 22.4, "MB_s": 395.6, "sha256": "7d092d4d0bf838da1115a5369bf0a6729fe4c170e0d5ad303873f7320d6c1866", "sha256_s": 5.7, "lfs_oid": "7d092d4d0bf838da1115a5369bf0a6729fe4c170e0d5ad303873f7320d6c1866", "zgodny_z_lfs": true}
+{"etap": "konwersja", "s": 14.5, "krok": 1430}
+{"etap": "blimp", "s": 394.2, "gpu_util_sr": 93.5, "gpu_mem_max_MiB": 6401.0, "cpu_util_sr": 7.8, "probek": 194, "model": "k1430", "pary": 67000}
+{"etap": "pobranie", "repo": "SlayerLab/Slayer1B-1.01-checkpoints", "rewizja": "fd7e55d177c162b3d8f6677d833a34e05afe7275", "krok": 2860, "plik": "/workspace/ckpt/ckpt_2860.pt", "bajty": 8860287151, "s": 21.4, "MB_s": 414.5, "sha256": "b0a288798ae614c38e37ff8176a293f6650cec2221d59e46d5116afac7c31eba", "sha256_s": 5.3, "lfs_oid": "b0a288798ae614c38e37ff8176a293f6650cec2221d59e46d5116afac7c31eba", "zgodny_z_lfs": true}
+{"etap": "konwersja", "s": 14.8, "krok": 2860}
+{"etap": "blimp", "s": 395.1, "gpu_util_sr": 93.6, "gpu_mem_max_MiB": 6401.0, "cpu_util_sr": 9.8, "probek": 194, "model": "k2860", "pary": 67000}
+{"etap": "pobranie", "repo": "SlayerLab/Slayer1B-1.02-checkpoints", "rewizja": "177fe19f9b6583713be0590d06fd4eeba802b8af", "krok": 5720, "plik": "/workspace/ckpt/ckpt_5720.pt", "bajty": 8860287151, "s": 19.1, "MB_s": 465.0, "sha256": "6b2a9b11df4c1063476d5235475c98d35abbab3be4282a83d9f3613bbcbc805a", "sha256_s": 5.4, "lfs_oid": "6b2a9b11df4c1063476d5235475c98d35abbab3be4282a83d9f3613bbcbc805a", "zgodny_z_lfs": true}
+{"etap": "konwersja", "s": 12.5, "krok": 5720}
