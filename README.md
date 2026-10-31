@@ -9,9 +9,7 @@ benchmarkach odtworzonych zgodnie z oryginałem i budujemy polskie benchmarki. K
 **1. Dołącz do Discorda**, kanał **#bench-team**: https://discord.gg/HnTkVR4c5T. Tam pytasz, ogłaszasz, że bierzesz
 zadanie, i dostajesz dostęp do repo (napisz swój nick GitHub do Elwenora, sekcja [„Kto jest kim”](#kto-jest-kim)).
 
-**2. Weź pierwsze zadanie** z etykietą `good first issue`: karta oryginału jednego benchmarku (zadanie „Karta
-oryginału: <benchmark>”, etap A, około 2 h, bez GPU) albo recenzja cudzej karty. Zadania na start:
-[`good first issue` w tym repo](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22).
+**2. Weź pierwsze zadanie** według [`CONTRIBUTING.md`, „Pierwsze zadanie”](CONTRIBUTING.md#pierwsze-zadanie).
 
 **3. Przygotuj komputer** według sekcji [„Przygotowanie (raz)”](research/README.md#przygotowanie-raz) w
 `research/README.md`.
@@ -23,7 +21,7 @@ powstaje benchmark i co jest w każdym pliku.
 
 ```mermaid
 flowchart LR
-  A[Discord #bench-team] --> B[good first issue]
+  A[Discord #bench-team] --> B[Pierwsze zadanie: CONTRIBUTING.md]
   B --> C[Przypisz się do zadania]
   C --> D[PR do main + Refs #N]
   D --> E[Testy autora PR, potem recenzja] --> F[Merge]
