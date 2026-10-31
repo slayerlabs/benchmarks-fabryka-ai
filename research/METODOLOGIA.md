@@ -270,8 +270,12 @@ MathQA, IFEval, PubMedQA, Social IQa) liczysz do 8.11 protokołem Space (`METHOD
 
 **Kontrola** to pierwszy dostępny model z listy w sekcji „Model kontrolny etapu B”, liczony na tym samym lm-eval:
 `EleutherAI/pythia-1b-v0` @ `step143000`, potem `utter-project/EuroLLM-1.7B`, potem opublikowany wynik dowolnego
-modelu, który da się pobrać, z pracy autorów albo z Open LLM Leaderboard, z rewizją i ustawieniami. Różnica wobec
-opublikowanej wartości większa niż warunek odtworzenia (sekcja B) wstrzymuje wysłanie wyniku.
+modelu, który da się pobrać, z pracy autorów albo z Open LLM Leaderboard, z rewizją i ustawieniami.
+
+**Próg wstrzymania** jest ten sam co warunek odtworzenia z sekcji B: różnica kontroli wobec opublikowanej wartości
+mieści się w ±2 pkt, a gdy 2 SE > 2 pkt, w granicach 2 SE. Różnica poza tym progiem wstrzymuje wysłanie wyniku. Przy
+200 pytaniach 2 SE często przekracza 2 pkt: WSC273 ma SE około 3 pkt (próg około ±6 pkt), PubMedQA około 2,2 pkt (próg
+około ±4,4 pkt).
 
 Co jest w [pliku wyników Pythii v0](https://github.com/EleutherAI/pythia/blob/main/evals/pythia-v0/pythia-1b/zero-shot/pythia-1b-0shot-global_step143000_eval_results_11-28-2022-15-14-35.json)
 (odczyt 31.10.2026, 0-shot, `version` 0 każdego zadania):
@@ -351,10 +355,26 @@ Benchmark jest skończony, gdy spełnia sekcję „Definicja „zrobione”” w
   typowe SE pomiaru jednego wyniku. SNR bliski 1 lub mniejszy znaczy, że różnice między modelami giną w szumie.
 - **Held-out:** tekst albo pytania odłożone tak, że nie było ich w danych treningowych żadnego mierzonego modelu;
   wynik na nich mierzy uogólnianie, a nie pamięć.
+- **Kontaminacja:** sytuacja, w której pytania albo odpowiedzi benchmarku trafiły do danych treningowych modelu, więc
+  wynik mierzy pamięć zamiast umiejętności.
+- **13-gram:** ciąg 13 kolejnych słów (tokenów); tekst treningowy dzielący z pytaniem benchmarku choć jeden taki ciąg
+  uznaje się zwykle za pokrywający się z benchmarkiem.
 - **Dekontaminacja:** usunięcie z danych treningowych tekstów pokrywających się z benchmarkiem (sekcja „Czystość
   benchmarku”), żeby model nie widział pytań przed testem.
 - **lm-eval:** [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) EleutherAI, biblioteka,
   która liczy większość standardowych benchmarków; wersja obowiązująca w repo: sekcja „Wersja lm-eval”.
+- **HF:** Hugging Face, serwis, z którego pobierasz modele i zbiory danych i na którym stoi Space.
+- **Rewizja:** konkretny commit repozytorium modelu albo zbioru na HF (hash), który przypina dokładnie te pliki, na
+  których liczono wynik.
+- **Split:** wydzielona część zbioru (np. `train`, `validation`, `test`); wynik podajesz zawsze z nazwą splitu, bo
+  różne splity dają różne liczby.
+- **NLL** (ujemne log-prawdopodobieństwo): −log P(tekstu według modelu), z którego liczy się perpleksję i BPB; niżej =
+  model lepiej przewiduje tekst.
+- **Checkpoint:** zapis wag modelu z danego kroku treningu (np. `step143000` Pythii), który da się pobrać i policzyć
+  osobno.
+- **CI95** (95% przedział ufności): zakres wynik ± 1,96 SE, który przy wielokrotnym losowaniu pytań obejmowałby
+  prawdziwą wartość w 95% przypadków.
+- **0-shot:** model dostaje samo pytanie, bez przykładów rozwiązanych zadań w prompcie (k-shot = k takich przykładów).
 - **Warunek odtworzenia i bramka liczb:** pierwszy kończy etap B (sekcja B), druga sprawdza liczby w raportach
   (`tools/`). To dwie różne rzeczy.
 
