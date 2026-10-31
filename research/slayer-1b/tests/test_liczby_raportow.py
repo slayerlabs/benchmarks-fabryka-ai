@@ -81,14 +81,43 @@ def test_wyjatek_w_linii_wylacza_regule():
     assert bledy("Wynik 0,777 z innego źródła.")
 
 
+def _wartosc_tylko_blimp(liczby):
+    """A BLiMP value (4 digits) that no non-BLiMP value of LICZBY.json rounds to."""
+    inne = S.Zbior([v for k, v in liczby["wartosci"].items() if S.test_sciezki(k, liczby["aliasy"]) != "blimp"] +
+                   [p[k] for p in liczby["porownania"] if p["test"] != "blimp"
+                    for k in ("wartosc_a", "wartosc_b", "se_a", "se_b", "roznica", "se_niezalezne", "se_parowane")
+                    if p.get(k) is not None])
+    for p in liczby["porownania"]:
+        if p["test"] == "blimp" and not inne.zawiera(p["wartosc_a"], 4):
+            return f"{p['wartosc_a']:.4f}".replace(".", ",")
+    raise AssertionError("no BLiMP-only value: BLiMP numbers are missing from LICZBY.json")
+
+
 def test_liczby_blimp_tylko_w_linii_z_nazwa():
-    liczby, _ = dane()
-    p = next(p for p in liczby["porownania"] if p["test"] == "blimp")
-    tekst = f"{p['wartosc_a']:.4f}".replace(".", ",")
-    zb = S.zbiory(liczby)
+    liczby, zb = dane()
+    tekst = _wartosc_tylko_blimp(liczby)
     assert not S.niepasujace_liczby(f"BLiMP: {tekst}", zb, liczby["aliasy"])
-    assert S.niepasujace_liczby(f"Wynik {tekst}", zb, liczby["aliasy"]) or \
-        zb["*"]["surowa"].zawiera(p["wartosc_a"], 4)  # unless a non-BLiMP value happens to match
+    assert S.niepasujace_liczby(f"Wynik {tekst}", zb, liczby["aliasy"])  # catch-all set has no BLiMP values
+
+
+def test_multiblimp_nie_jest_blimp():
+    liczby, zb = dane()
+    assert S.testy_w_tekscie("MultiBLiMP-PL: 99,0", liczby["aliasy"]) == {"multiblimp"}
+    assert S.testy_w_tekscie("BLiMP i MultiBLiMP", liczby["aliasy"]) == {"blimp", "multiblimp"}
+    tekst = _wartosc_tylko_blimp(liczby)
+    assert S.niepasujace_liczby(f"MultiBLiMP-PL {tekst}", zb, liczby["aliasy"])
+
+
+def test_blimp_md_liczby_sprawdzane():
+    liczby, zb = dane()
+    plik = "wyniki/blimp/BLIMP.md"
+    linie = (KORZEN / plik).read_text(encoding="utf-8").splitlines()
+    assert S.sprawdz_tekst(plik, linie, liczby, zb) == []
+    i = next(i for i, l in enumerate(linie) if l.startswith("**Slayer 1.06:"))
+    zepsute = list(linie)
+    zepsute[i] = S.LICZBA_EN.sub("0.7777", linie[i].replace("Slayer 1.06", "Slayer"), count=1)
+    bl = S.sprawdz_tekst(plik, zepsute, liczby, zb)
+    assert bl and "0.7777" in bl[0][2]
 
 
 def test_dokumenty_repo_zgodne_z_liczbami():

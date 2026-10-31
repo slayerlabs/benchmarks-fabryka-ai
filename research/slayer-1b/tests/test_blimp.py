@@ -57,6 +57,20 @@ def test_remis_liczy_sie_jako_trafienie():
     assert B.trafienie([-3.0, -3.0]) == 1 and B.trafienie([-3.0, -2.9]) == 0
 
 
+def test_identyczne_zdania_to_remis_niezaleznie_od_szumu():
+    d = {"opcje": ["Same sentence.", "Same sentence."]}
+    assert B.trafienie_pary(d, {"ll": [-74.41427, -74.41425]}) == 1  # float noise must not make it an error
+    assert B.trafienie_pary({"opcje": ["a", "b"]}, {"ll": [-74.41427, -74.41425]}) == 0
+
+
+def test_p_wartosci_panelu():
+    d = docs()
+    w = wyniki({x["id"]: True for x in d})
+    p = B.panel(d, "pair_id", budzet=7)
+    assert B.p_wartosci_panelu(d, w, p, 1.0, powtorzen=100) == 1.0  # all correct -> every panel gives 1.0
+    assert B.p_wartosci_panelu(d, w, p, 0.5, powtorzen=100) == 0.0
+
+
 def test_panel_przydzial_grupy():
     d = docs()
     p = B.panel(d, "pair_id", budzet=7)

@@ -132,6 +132,34 @@ def trafienie(ll):
     return 1 if ll[0] >= ll[1] else 0
 
 
+def trafienie_pary(doc, wiersz):
+    """Hit of one pair. BLiMP has 7 pairs with good == bad (passive_1, principle_A_case_2): lm-eval
+    scores two identical requests, gets equal log-likelihoods and argmax picks the good one. A batched
+    run can split the tie by float noise (seen at 2e-5 on MPS), so identical sentences are decided
+    here by the text: a tie, i.e. correct."""
+    if doc["opcje"][0] == doc["opcje"][1]:
+        return 1
+    return trafienie(wiersz["ll"])
+
+
+def p_wartosci_panelu(docs, wiersze, panel_docs, cel, powtorzen=20000, seed=SEED):
+    """Share of random panels with the same per-member sizes whose equal-weight value equals `cel`:
+    how surprising an exact match with the Space value is if the panel were not the Space panel."""
+    import numpy as np
+    rng = np.random.default_rng(seed)
+    traf, rozm = {}, {}
+    for d in docs:
+        traf.setdefault(d["grupa"], []).append(trafienie_pary(d, wiersze[d["id"]]))
+    for d in panel_docs:
+        rozm[d["grupa"]] = rozm.get(d["grupa"], 0) + 1
+    wart = np.zeros(powtorzen)
+    for g, m in rozm.items():
+        k, n = sum(traf[g]), len(traf[g])
+        wart += rng.hypergeometric(k, n - k, m, size=powtorzen) / m
+    wart /= len(rozm)
+    return float(np.mean(np.abs(wart - cel) < 1e-9))
+
+
 def werdykt(z):
     if z is None:
         return None
@@ -191,7 +219,7 @@ def wczytaj_wyniki(plik):
 def statystyki_modelu(wiersze, docs, bootstrap=True):
     po_gr, po_zj = {}, {}
     for d in docs:
-        t = trafienie(wiersze[d["id"]]["ll"])
+        t = trafienie_pary(d, wiersze[d["id"]])
         po_gr.setdefault(d["grupa"], []).append(t)
         po_zj.setdefault(d["zjawisko"], {}).setdefault(d["grupa"], []).append(t)
     warstwy = [po_gr[g] for g in sorted(po_gr)]
@@ -220,7 +248,7 @@ def porownanie_parowane(wa, wb, docs):
     """Slayer - Pythia on the same pairs: overall, per phenomenon, per paradigm; paired SE, z, verdict."""
     po_gr, zj_gr = {}, {}
     for d in docs:
-        r = trafienie(wa[d["id"]]["ll"]) - trafienie(wb[d["id"]]["ll"])
+        r = trafienie_pary(d, wa[d["id"]]) - trafienie_pary(d, wb[d["id"]])
         po_gr.setdefault(d["grupa"], []).append(r)
         zj_gr[d["grupa"]] = d["zjawisko"]
 
@@ -249,16 +277,25 @@ def cmd_zbierz(a):
         brak = [d["id"] for d in docs if d["id"] not in modele[m]]
         if brak:
             raise SystemExit(f"{m}: {len(brak)} pairs without a result (first {brak[0]})")
-    out = {"zbior": {"repo": REPO, "rewizja": REWIZJA, "n": len(docs)}, "modele": {}, "panel_space": {}}
+    identyczne = [d for d in docs if d["opcje"][0] == d["opcje"][1]]
+    out = {"zbior": {"repo": REPO, "rewizja": REWIZJA, "n": len(docs), "pary_identyczne": len(identyczne)},
+           "modele": {}, "panel_space": {}}
     for m, w in modele.items():
         out["modele"][m] = statystyki_modelu(w, docs)
+        # pairs whose two log-likelihoods differ by less than the CPU/MPS float noise seen (< 1e-3)
+        out["modele"][m]["pary_bliskie_remisu"] = sum(
+            1 for d in docs if d["opcje"][0] != d["opcje"][1] and abs(w[d["id"]]["ll"][0] - w[d["id"]]["ll"][1]) < 1e-3)
     a_, b_ = a.modele.split(",")[:2]
     out["porownanie"] = {"a": a_, "b": b_, **porownanie_parowane(modele[a_], modele[b_], docs)}
+    panele = {}
     for wariant in ("pair_id", "sha256"):
-        p = panel(docs, wariant)
+        p = panele[wariant] = panel(docs, wariant)
         out["panel_space"][wariant] = {
-            "n": len(p), **{m: wartosc_grupy([trafienie(w[d["id"]]["ll"]) for d in p], [d["grupa"] for d in p])
+            "n": len(p), **{m: wartosc_grupy([trafienie_pary(d, w[d["id"]]) for d in p], [d["grupa"] for d in p])
                             for m, w in modele.items()}}
+        if "1.06" in modele:
+            out["panel_space"][wariant]["p_rownej_wartosci_losowo"] = p_wartosci_panelu(
+                docs, modele["1.06"], p, SPACE_T01["wartosc"])
     if "pythia-1b" in out["modele"]:
         nasza = out["modele"]["pythia-1b"]["acc"]
         out["kontrola_pythia"] = {**REFERENCJA_PYTHIA, "nasza": nasza, "roznica": nasza - REFERENCJA_PYTHIA["wartosc"],

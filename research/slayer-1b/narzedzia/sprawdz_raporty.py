@@ -30,14 +30,22 @@ WYLACZENIA = [
     ("testy_danych_slayer/README.md", None, "a", "plan przebiegu: koszty, czasy, rozmiary; wyników jeszcze nie ma"),
     ("wygaszanie/README.md", "## Rozbieg i wybór K", "a", "log instancji i trenera (cena, tok/s, strata kroku), nie ma go w surowych JSON-ach"),
     ("slayer_eval/README.md", None, "a", "liczby ze Space Arka (bench50, scores-history), nie z naszych surowych wyników"),
+    ("wyniki/blimp/THRESHOLDS.md", None, "abc", "thresholds written before the measurement, not results"),
 ]
+# English reports: dot decimals ("0.792", "-2.87 points"), and the test whose numbers a line may use
+# without naming it (a table row of BLIMP.md does not repeat "BLiMP").
+PLIKI_EN = {"wyniki/blimp/BLIMP.md": "blimp"}
 POMIN_KATALOGI = {".git", ".venv", "venv", "node_modules", "__pycache__"}
 
 LICZBA = re.compile(r"(?<![\d,.\w])([−-]?)(\d+),(\d+)(?!,?\d)")
+LICZBA_EN = re.compile(r"(?<![\d,.\w])([−-]?)(\d+)\.(\d+)(?!\.?\d)")
 JEDNOSTKA_POMIN = re.compile(r"\s*(\$|h\b|s\b|s/|GB|tok\b|tok/|tok\.|mld|mln|bln|min\b|M\b)")
 SKALOWANA = re.compile(r"\s*(pkt|%|p\.\s?p\.)")
+SKALOWANA_EN = re.compile(r"\s*(points?\b|pts?\b|%)")
 LISTA_SE = re.compile(r"((?:[−-]?\d+(?:,\d+)?\s*/\s*)*[−-]?\d+(?:,\d+)?)\s*SE\b")
 Z_ROWNA = re.compile(r"\bz\s*=\s*([−-]?\d+(?:,\d+)?)")
+Z_ROWNA_EN = re.compile(r"\bz\s*=\s*([−-]?\d+(?:\.\d+)?)")
+WERSJA_MODELU = re.compile(r"Slayer\s*$")  # "Slayer 1.06" is a model name, not a number
 OCENA = re.compile(r"\b(lepsz\w*|gorsz\w*|lu(?:ka|ki|kę|ką|ce|k)\b|przewag\w*|popraw(?:a|y|ie|ę|ą)\b|"
                    r"pogorsz\w*|pogarsz\w*|istotn\w*|prawdziw\w*)", re.IGNORECASE)
 DOWOD = re.compile(r"\bSE\b|\bz\s*=|szum|pewn|prawdopodobn|bez (?:wykrywalnej )?różnicy|w granicach|\|Δ\|",
@@ -132,15 +140,16 @@ def zadeklarowany_werdykt(tekst):
     return None
 
 
-def rodzaj_liczby(linia, start, koniec):
-    """'z' (liczba przed „SE” albo po „z =”), 'skalowana' (pkt, %) albo 'surowa'."""
-    for m in LISTA_SE.finditer(linia):
-        if m.start(1) <= start and koniec <= m.end(1):
-            return "z"
-    for m in Z_ROWNA.finditer(linia):
+def rodzaj_liczby(linia, start, koniec, kropka=False):
+    """'z' (liczba przed „SE” albo po „z =”), 'skalowana' (pkt, %; w EN points/pts) albo 'surowa'."""
+    if not kropka:
+        for m in LISTA_SE.finditer(linia):
+            if m.start(1) <= start and koniec <= m.end(1):
+                return "z"
+    for m in (Z_ROWNA_EN if kropka else Z_ROWNA).finditer(linia):
         if m.start(1) <= start < m.end(1):
             return "z"
-    if SKALOWANA.match(linia, koniec):
+    if (SKALOWANA_EN if kropka else SKALOWANA).match(linia, koniec):
         return "skalowana"
     return "surowa"
 
@@ -151,18 +160,21 @@ def bez_kodu(linia):
     return re.sub(r"<!--.*?-->", lambda m: " " * len(m.group(0)), linia)
 
 
-def niepasujace_liczby(linia, zb, aliasy=None):
+def niepasujace_liczby(linia, zb, aliasy=None, kropka=False, test_domyslny=None):
     """Liczby z linii, których nie da się odtworzyć z LICZBY.json: [(tekst, rodzaj)].
     Gdy linia nazywa testy (ARC-E, SIQA...), liczba musi pasować do wartości tych testów albo
-    wartości bez testu (loss, WikiText); linia bez nazwy testu porównuje ze wszystkimi."""
+    wartości bez testu (loss, WikiText); linia bez nazwy testu porównuje ze wszystkimi
+    (albo, w pliku z PLIKI_EN, z testem tego pliku). `kropka`: zapis dziesiętny z kropką (pliki EN)."""
     czysta = bez_kodu(linia)
     testy = [t for t in testy_w_tekscie(czysta, aliasy) if t in zb] if aliasy else []
+    if not testy and test_domyslny is not None and test_domyslny in zb:  # zb has a None key too
+        testy = [test_domyslny]
     zle = []
-    for m in LICZBA.finditer(czysta):
-        if JEDNOSTKA_POMIN.match(czysta, m.end()):
+    for m in (LICZBA_EN if kropka else LICZBA).finditer(czysta):
+        if JEDNOSTKA_POMIN.match(czysta, m.end()) or (kropka and WERSJA_MODELU.search(czysta[:m.start()])):
             continue
-        x, cyfr = parsuj_liczbe(m.group(0))
-        rodzaj = rodzaj_liczby(czysta, m.start(), m.end())
+        x, cyfr = parsuj_liczbe(m.group(0).replace(".", ",") if kropka else m.group(0))
+        rodzaj = rodzaj_liczby(czysta, m.start(), m.end(), kropka)
         kandydaci = [zb[t][rodzaj] for t in testy] or [zb["*"][rodzaj]]
         if not any(k.zawiera(x, cyfr) for k in kandydaci):
             zle.append((m.group(0), rodzaj))
@@ -170,7 +182,9 @@ def niepasujace_liczby(linia, zb, aliasy=None):
 
 
 def testy_w_tekscie(tekst, aliasy):
-    return {t for t, nazwy in aliasy.items() if any(re.search(re.escape(n), tekst, re.IGNORECASE) for n in nazwy)}
+    # (?<!\w): "BLiMP" must not match inside "MultiBLiMP"
+    return {t for t, nazwy in aliasy.items()
+            if any(re.search(r"(?<!\w)" + re.escape(n), tekst, re.IGNORECASE) for n in nazwy)}
 
 
 def rodziny_kontekstu(tekst, plik=""):
@@ -274,7 +288,8 @@ def sprawdz_tekst(plik, linie, liczby, zb):
             continue
         if w_kodzie or WYJATEK_A in l or wylaczone(plik, sekcje[nr], "a"):
             continue
-        for tekst, rodzaj in niepasujace_liczby(l, zb, liczby["aliasy"]):
+        for tekst, rodzaj in niepasujace_liczby(l, zb, liczby["aliasy"], kropka=plik in PLIKI_EN,
+                                                test_domyslny=PLIKI_EN.get(plik)):
             opis = {"z": "jako z (×SE)", "skalowana": "jako pkt/% (×100)", "surowa": "jako wartość"}[rodzaj]
             bledy.append((plik, nr, f"(a) {tekst} nie odpowiada żadnej liczbie z LICZBY.json {opis}"))
     for akapit in jednostki(linie):

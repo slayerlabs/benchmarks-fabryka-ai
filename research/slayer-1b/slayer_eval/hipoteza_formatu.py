@@ -46,7 +46,9 @@ class ModelHF:
         self.m = AutoModelForCausalLM.from_pretrained(katalog, torch_dtype=torch.float32).to(device).eval()
         self.device = device
         eot = self.tok.eos_token_id
-        self.prefiks, self.prefiks_pusty = [], [eot]
+        # empty context = lm-eval HFLM prefix_token_id: BOS when the tokenizer has one, else EOS
+        bos = self.tok.bos_token_id
+        self.prefiks, self.prefiks_pusty = [], [bos if bos is not None else eot]
         self.pad = eot if eot is not None else 0
         self.max_len = min(getattr(self.m.config, "max_position_embeddings", 2048), 4096)
 

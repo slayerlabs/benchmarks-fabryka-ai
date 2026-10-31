@@ -51,10 +51,10 @@ Slayer vs Pythia ma SE niezależne (hypot), czyli ostrożne.
 | siqa_mc/acc | 0,3275 | 0,3311 | −0,0036 (−0,4) | 0,0150 | −0,2 | — | — | szum |
 | siqa_mc/acc_norm | 0,3275 | 0,3311 | −0,0036 (−0,4) | 0,0150 | −0,2 | — | — | szum |
 | siqa_mc/bpb | 0,3275 | 0,3311 | −0,0036 (−0,4) | 0,0150 | −0,2 | — | — | szum |
-| blimp/acc | 0,7920 | 0,8207 | −0,0287 (−2,9) | 0,0020 | −14,6 | 0,0016 | −18,1 | pewne |
+| blimp/acc | 0,7921 | 0,8207 | −0,0287 (−2,9) | 0,0020 | −14,6 | 0,0016 | −18,1 | pewne |
 | blimp_zjawisko_anaphor_agreement/acc | 0,9860 | 0,9950 | −0,0090 (−0,9) | 0,0031 | −2,9 | 0,0026 | −3,4 | pewne |
 | blimp_zjawisko_argument_structure/acc | 0,7846 | 0,8364 | −0,0519 (−5,2) | 0,0057 | −9,1 | 0,0042 | −12,2 | pewne |
-| blimp_zjawisko_binding/acc | 0,7907 | 0,8080 | −0,0173 (−1,7) | 0,0060 | −2,9 | 0,0050 | −3,5 | pewne |
+| blimp_zjawisko_binding/acc | 0,7909 | 0,8080 | −0,0171 (−1,7) | 0,0060 | −2,9 | 0,0050 | −3,4 | pewne |
 | blimp_zjawisko_control_raising/acc | 0,7764 | 0,8316 | −0,0552 (−5,5) | 0,0077 | −7,1 | 0,0055 | −10,0 | pewne |
 | blimp_zjawisko_determiner_noun_agreement/acc | 0,9300 | 0,9509 | −0,0209 (−2,1) | 0,0037 | −5,6 | 0,0029 | −7,1 | pewne |
 | blimp_zjawisko_ellipsis/acc | 0,8430 | 0,8670 | −0,0240 (−2,4) | 0,0110 | −2,2 | 0,0090 | −2,7 | prawdopodobne |
@@ -108,7 +108,7 @@ Slayer vs Pythia ma SE niezależne (hypot), czyli ostrożne.
 | blimp_passive_2/acc | 0,8840 | 0,9030 | −0,0190 (−1,9) | 0,0138 | −1,4 | 0,0092 | −2,1 | prawdopodobne |
 | blimp_principle_A_c_command/acc | 0,7320 | 0,7800 | −0,0480 (−4,8) | 0,0192 | −2,5 | 0,0140 | −3,4 | pewne |
 | blimp_principle_A_case_1/acc | 0,9990 | 1,0000 | −0,0010 (−0,1) | 0,0010 | −1,0 | 0,0010 | −1,0 | szum |
-| blimp_principle_A_case_2/acc | 0,9110 | 0,9380 | −0,0270 (−2,7) | 0,0118 | −2,3 | 0,0106 | −2,5 | prawdopodobne |
+| blimp_principle_A_case_2/acc | 0,9120 | 0,9380 | −0,0260 (−2,6) | 0,0118 | −2,2 | 0,0106 | −2,5 | prawdopodobne |
 | blimp_principle_A_domain_1/acc | 0,9640 | 0,9970 | −0,0330 (−3,3) | 0,0061 | −5,4 | 0,0058 | −5,7 | pewne |
 | blimp_principle_A_domain_2/acc | 0,8200 | 0,8390 | −0,0190 (−1,9) | 0,0168 | −1,1 | 0,0137 | −1,4 | szum |
 | blimp_principle_A_domain_3/acc | 0,5900 | 0,7400 | −0,1500 (−15,0) | 0,0208 | −7,2 | 0,0205 | −7,3 | pewne |

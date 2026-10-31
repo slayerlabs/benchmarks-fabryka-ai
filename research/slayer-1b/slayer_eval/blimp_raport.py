@@ -151,13 +151,18 @@ def raport(sciezka_liczb, katalog):
         p = pan[wr]
         L.append(f"| {opis} | {int(p['n'])} | {f(p['1.06'], 4)} | {f(p['roznica_1.06_do_space'], 4)} | "
                  f"{'yes' if p['w_ci95_space'] else 'no'} | {f(p['pythia-1b'], 4)} |")
-    zgodny = [wr for wr in pan if pan[wr].get("rowna_space")]
-    L += ["", ("With the source id = SHA-256 of the canonical row our Slayer 1.06 value equals the Space value "
-               "exactly (338 of 402 in the equal-member weighting), while `pair_id` gives a different panel. "
-               if zgodny else "No source-id definition reproduces the Space value. ") +
-          "We could not reproduce the Space `source_id_digest` itself (its id/separator format is not published), "
-          "so the panel identity is inferred from the value, not proven by the digest. Same pairs or not, 200 pairs "
-          "give a CI95 about +-3.5 points wide, which is why the full set is the number to use.", "",
+    ps = pan["sha256"]
+    L += ["", "**Verdict by THRESHOLDS.md: panel not identical (not reproduced).** The Space `source_id_digest` is "
+          "not reproduced by any id/separator/order format we tried. METHOD.md section 3 names the document's native "
+          "id as the source id; for BLiMP that is `pair_id`, and that panel gives a value outside the Space CI95.",
+          "",
+          "The SHA-256-of-the-row panel was added as a second reading, not as the protocol. Its Slayer 1.06 value "
+          f"is the same as the Space value to all printed digits (difference {f(ps['roznica_1.06_do_space'], 4)}). "
+          "That is unlikely by chance: among random panels of the same per-member sizes drawn from Slayer's own "
+          f"per-pair results, a share of {f(ps['p_rownej_wartosci_losowo'], 4)} gives exactly this value "
+          "(20 000 draws, seed 20261028). So the Space most likely hashes the canonical row and this is probably "
+          "its panel. That is an inference from one value, not proof. Either way a 200-pair panel has a much wider "
+          "CI95 than the full set, and the full set is the number to use.", "",
           "## 12 phenomena", "",
           "Paired SE over the same pairs; verdict from |z|: >= 3 certain, 2-3 probable, < 2 noise.", "",
           "| phenomenon | paradigms | n | Slayer 1.06 | Pythia-1B | difference (points) | SE (points) | z | verdict |",
@@ -166,26 +171,33 @@ def raport(sciezka_liczb, katalog):
         p = por[f"blimp_zjawisko_{z}"]
         npar = int(w[f"blimp/modele/1.06/zjawiska/{z}/n_paradygmatow"])
         L.append(f"| {nazwa_zjawiska(z)} | {npar} | {int(zj('1.06', z)['n'])} | {f(p['wartosc_a'])} | {f(p['wartosc_b'])} | "
-                 f"{f(p['roznica'] * 100, 1)} | {f(p['se'] * 100, 2)} | {f(p['z'], 1)} | {WERDYKT_EN[p['werdykt']]} |")
+                 f"{f(p['roznica'] * 100, 1)} pts | {f(p['se'] * 100, 2)} pts | z = {f(p['z'], 1)} | {WERDYKT_EN[p['werdykt']]} |")
     L += ["", "![BLiMP overall and phenomena](blimp_phenomena.svg)", "",
           "## 67 paradigms", "",
           f"n = 1000 pairs per paradigm and model. Slayer ahead: {licz['pewne'][0]} certain, "
           f"{licz['prawdopodobne'][0]} probable; Pythia ahead: {licz['pewne'][1]} certain, {licz['prawdopodobne'][1]} "
-          f"probable; noise: {sum(licz['szum'])}. With 67 comparisons about 3 'probable' and 0.2 'certain' are expected "
-          "by chance alone, so single 'probable' paradigms are not findings.", "",
+          f"probable; noise: {sum(licz['szum'])}. With 67 comparisons about 3 'probable' and fewer than one 'certain' "
+          "are expected by chance alone, so single 'probable' paradigms are not findings.", "",
           "| paradigm | Slayer 1.06 | Pythia-1B | difference (points) | SE (points) | z | verdict |",
           "|---|---:|---:|---:|---:|---:|---|"]
     for p in parad:
-        L.append(f"| {p['zadanie'][len('blimp_'):]} | {f(p['wartosc_a'])} | {f(p['wartosc_b'])} | {f(p['roznica'] * 100, 1)} | "
-                 f"{f(p['se'] * 100, 2)} | {f(p['z'], 1)} | {WERDYKT_EN[p['werdykt']]} |")
+        L.append(f"| {p['zadanie'][len('blimp_'):]} | {f(p['wartosc_a'])} | {f(p['wartosc_b'])} | {f(p['roznica'] * 100, 1)} pts | "
+                 f"{f(p['se'] * 100, 2)} pts | z = {f(p['z'], 1)} | {WERDYKT_EN[p['werdykt']]} |")
     L += ["", "![BLiMP paradigms](blimp_paradigms.svg)", "",
           "## Limits", "",
           "- Runtime: Apple MPS, float32, batch 64 with right padding (causal attention, so padding does not reach "
-          "scored tokens). A CPU float32 re-run of 300 pairs per model (the sha256 panel and 100 pairs spread over "
-          "the set) flipped no pair.",
+          "scored tokens). MPS and CPU log-likelihoods differ by float noise, so a pair whose two sentences score "
+          "almost the same can flip between devices: our CPU re-run of 300 pairs per model flipped none, an "
+          "independent CPU check of 52 pairs flipped one per model. Pairs closer than that noise: "
+          f"{int(w['blimp/modele/1.06/pary_bliskie_remisu'])} for Slayer, "
+          f"{int(w['blimp/modele/pythia-1b/pary_bliskie_remisu'])} for Pythia (of 67 000).",
+          f"- {int(w['blimp/zbior/pary_identyczne'])} pairs of the dataset have identical good and bad sentences "
+          "(passive_1, principle_A_case_2). lm-eval scores them as a tie, which counts as correct; we decide them from "
+          "the text the same way, so batch noise cannot turn them into errors.",
           "- Contamination is not scanned here (no access to the Slayer training corpus). The Space flags BLiMP for "
           "Slayer 1.06 with hits on 3 of its 200 panel pairs; Pythia's Pile was not scanned either.",
-          "- Pythia-1B is scored with the same pair encoding as lm-eval HFLM (EOT as the empty context, no BOS); "
+          "- Pythia-1B is scored with the same pair encoding as lm-eval HFLM (the empty context is the tokenizer's "
+          "BOS, else EOS; for Pythia both are `<|endoftext|>`); "
           "Slayer with one BOS `<|endoftext|>` as in the Space METHOD.md. Both are the 'exactly one unscored prefix "
           "token' rule.", "",
           "## How to reproduce", "",
