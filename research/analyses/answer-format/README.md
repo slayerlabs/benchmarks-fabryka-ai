@@ -1,4 +1,8 @@
-# Format odpowiedzi: Slayer 1B nie wie, czy nie radzi sobie z formatem litery?
+# Format odpowiedzi: Slayer 1B nic nie wie, czy tylko nie radzi sobie z formatem liter?
+
+> Praca idzie według [`METODOLOGIA.md`](../../METODOLOGIA.md): etap A to karta oryginału (`ORIGINAL.md`), etap B to
+> odtworzenie opublikowanego wyniku kodem autorów (`REPRODUCTION.md`), etap D to wersja polska tą samą metodą.
+> Pojęcia (Space, T01–T50, acc_norm, cloze, PMI, BPB, SE, werdykt): [słowniczek](../../METODOLOGIA.md#słowniczek).
 
 To analiza, nie benchmark. Istniejące testy wyboru (ARC-Easy, ARC-Challenge, MedMCQA, Social IQa, MMLU, polski
 Belebele, polski MultiBLiMP) liczymy jednym scorerem w dwóch formatach: litery (A/B/C/D) i cloze (treść
@@ -26,7 +30,7 @@ Pythia-1B robi to samo w angielskich testach z literami (od 84,4% do 96,0%).
 Trafność z liter obu modeli różni się tylko o szum we wszystkich sześciu testach z literami (tabela niżej). Losowe
 wyniki w formacie liter to więc cecha modeli tej skali, a nie dowód, że Slayer nic nie wie.
 Liczony po treści odpowiedzi Slayer uczy się między wersjami: ARC-C acc_norm, Slayer 1.00 -> Slayer 1.06:
-0,2176 -> 0,2577, +4,0 pkt, sparowane SE 0,0112, z = 3,57, pewne; trafność z liter stoi na 0,2304 w obu (szum).
+0,2176 -> 0,2577, +4,0 pkt, sparowane SE 1,12 pkt, z = 3,57, pewne; trafność z liter stoi na 0,2304 w obu (szum).
 
 Eksperyment z wygaszaniem LR z tego samego raportu leży w [`../../slayer-1b/wygaszanie/`](../../slayer-1b/wygaszanie/README.md).
 
@@ -41,9 +45,9 @@ Eksperyment z wygaszaniem LR z tego samego raportu leży w [`../../slayer-1b/wyg
 | T4 pułapka częstej odpowiedzi | ARC-C cloze: w 80,1% z 900 błędnych wyborów acc wybrana odpowiedź ma wyższe prawdopodobieństwo bezwarunkowe niż poprawna; PMI 0,2978 wobec acc 0,2321, 245 pytań z błędnych na dobre, 168 z dobrych na błędne, McNemar p 0,00018 | tak |
 | T5 treść wyuczona, trafność stoi | BPB poprawnej odpowiedzi w ARC-C spada z 1,5757 do 1,4621, sparowana różnica −0,1136, SE 0,0072; ale acc_norm też rośnie (z = 3,57) | nie: trafność nie stoi |
 
-T5 nie przechodzi z dobrego powodu: reguła zapisana przed wynikami wymagała, żeby trafność liczona po treści stała
-w miejscu, a nie stała. Od Slayer 1.00 do Slayer 1.06 rusza się i treść (BPB poprawnej odpowiedzi), i trafność
-liczona po treści; w miejscu stoi tylko wynik z liter.
+T5 nie przechodzi z dobrego powodu. Reguła zapisana przed wynikami zakładała, że BPB poprawnej odpowiedzi spada, a
+trafność liczona po treści się nie zmienia. Tymczasem od Slayer 1.00 do Slayer 1.06 poprawiają się obie: spada BPB
+poprawnej odpowiedzi i rośnie trafność liczona po treści. Bez zmian zostaje tylko wynik z liter.
 
 Dwa dodatkowe warianty liter na ARC-C (opisowo, bez testu): z 5 przykładami w prompcie najczęstsza litera spada do
 40,7% wyborów, a trafność zostaje na 0,2466 (SE 0,0126, baza losowa 0,2502); bez spacji przed literą trafność to
@@ -58,22 +62,22 @@ Cloze: acc_norm, plus PMI tam, gdzie werdykt nie jest szumem.
 
 | zadanie | format | n | Slayer 1.06 | Pythia-1B | różnica | SE | z | werdykt |
 |---|---|---:|---:|---:|---:|---:|---:|---|
-| ARC-C | litery | 1172 | 0,2304 | 0,2287 | 0,17 pkt | 0,0174 | z = 0,10 | szum |
-| ARC-E | litery | 2376 | 0,2534 | 0,2542 | −0,08 pkt | 0,0126 | z = −0,07 | szum |
-| MedMCQA | litery | 4183 | 0,3160 | 0,3158 | 0,02 pkt | 0,0102 | z = 0,02 | szum |
-| SIQA | litery | 1954 | 0,3275 | 0,3311 | −0,36 pkt | 0,0150 | z = −0,24 | szum |
-| MMLU | litery | 14042 | 0,2307 | 0,2314 | −0,06 pkt | 0,0050 | z = −0,13 | szum |
-| Belebele | litery | 900 | 0,2522 | 0,2422 | 1,00 pkt | 0,0203 | z = 0,49 | szum |
-| ARC-C | cloze acc_norm | 1172 | 0,2577 | 0,2705 | −1,28 pkt | 0,0182 | z = −0,70 | szum |
-| ARC-E | cloze acc_norm | 2376 | 0,4588 | 0,4899 | −3,11 pkt | 0,0145 | z = −2,15 | prawdopodobne |
-| ARC-E | cloze acc | 2376 | 0,5261 | 0,5699 | −4,38 pkt | 0,0144 | z = −3,03 | pewne |
-| MedMCQA | cloze acc_norm | 4183 | 0,2711 | 0,2838 | −1,27 pkt | 0,0098 | z = −1,29 | szum |
-| MedMCQA | cloze PMI | 4183 | 0,2577 | 0,2972 | −3,94 pkt | 0,0098 | z = −4,03 | pewne |
-| SIQA | cloze acc_norm | 1954 | 0,4237 | 0,4396 | −1,59 pkt | 0,0158 | z = −1,00 | szum |
-| SIQA | cloze PMI | 1954 | 0,3746 | 0,4094 | −3,48 pkt | 0,0156 | z = −2,23 | prawdopodobne |
-| MMLU | cloze acc_norm | 14042 | 0,2813 | 0,2997 | −1,84 pkt | 0,0054 | z = −3,39 | pewne |
-| Belebele | cloze acc_norm | 900 | 0,3189 | 0,2767 | 4,22 pkt | 0,0215 | z = 1,96 | szum |
-| MultiBLiMP | para, acc | 3272 | 0,9859 | 0,7735 | 21,24 pkt | 0,0076 | z = 27,94 | pewne |
+| ARC-C | litery | 1172 | 0,2304 | 0,2287 | 0,17 pkt | 1,74 pkt | z = 0,10 | szum |
+| ARC-E | litery | 2376 | 0,2534 | 0,2542 | −0,08 pkt | 1,26 pkt | z = −0,07 | szum |
+| MedMCQA | litery | 4183 | 0,3160 | 0,3158 | 0,02 pkt | 1,02 pkt | z = 0,02 | szum |
+| SIQA | litery | 1954 | 0,3275 | 0,3311 | −0,36 pkt | 1,50 pkt | z = −0,24 | szum |
+| MMLU | litery | 14042 | 0,2307 | 0,2314 | −0,06 pkt | 0,50 pkt | z = −0,13 | szum |
+| Belebele | litery | 900 | 0,2522 | 0,2422 | 1,00 pkt | 2,03 pkt | z = 0,49 | szum |
+| ARC-C | cloze acc_norm | 1172 | 0,2577 | 0,2705 | −1,28 pkt | 1,82 pkt | z = −0,70 | szum |
+| ARC-E | cloze acc_norm | 2376 | 0,4588 | 0,4899 | −3,11 pkt | 1,45 pkt | z = −2,15 | prawdopodobne |
+| ARC-E | cloze acc | 2376 | 0,5261 | 0,5699 | −4,38 pkt | 1,44 pkt | z = −3,03 | pewne |
+| MedMCQA | cloze acc_norm | 4183 | 0,2711 | 0,2838 | −1,27 pkt | 0,98 pkt | z = −1,29 | szum |
+| MedMCQA | cloze PMI | 4183 | 0,2577 | 0,2972 | −3,94 pkt | 0,98 pkt | z = −4,03 | pewne |
+| SIQA | cloze acc_norm | 1954 | 0,4237 | 0,4396 | −1,59 pkt | 1,58 pkt | z = −1,00 | szum |
+| SIQA | cloze PMI | 1954 | 0,3746 | 0,4094 | −3,48 pkt | 1,56 pkt | z = −2,23 | prawdopodobne |
+| MMLU | cloze acc_norm | 14042 | 0,2813 | 0,2997 | −1,84 pkt | 0,54 pkt | z = −3,39 | pewne |
+| Belebele | cloze acc_norm | 900 | 0,3189 | 0,2767 | 4,22 pkt | 2,15 pkt | z = 1,96 | szum |
+| MultiBLiMP | para, acc | 3272 | 0,9859 | 0,7735 | 21,24 pkt | 0,76 pkt | z = 27,94 | pewne |
 
 Bazy losowe: ARC-C 0,2502; 0,25 dla MedMCQA, MMLU i Belebele; SIQA 0,3333; MultiBLiMP 0,5.
 Bazy większościowe są w `zestawienie` raportu.
@@ -87,14 +91,14 @@ na tekście angielskim (the Pile); mieszanki danych Slayera tu nie badamy.
 
 | porównanie | format / metryka | różnica | SE | z | werdykt |
 |---|---|---:|---:|---:|---|
-| Slayer 1.00 do Slayer 1.06 | litery acc | 0,00 pkt | 0,0174 | z = 0,00 | szum |
-| Slayer 1.00 do Slayer 1.06 | cloze acc_norm (sparowane) | 4,01 pkt | 0,0112 | z = 3,57 | pewne |
-| Slayer 1.00 do Slayer 1.06 | cloze PMI | 6,23 pkt | 0,0182 | z = 3,42 | pewne |
-| Slayer 1.00 do Slayer 1.06 | BPB poprawnej odpowiedzi (sparowane) | −11,36 pkt | 0,0072 | z = −15,78 | pewne |
-| Slayer 1.00 do Slayer 1.03 | cloze acc_norm | 3,84 pkt | 0,0175 | z = 2,19 | prawdopodobne |
-| Slayer 1.03 do Slayer 1.06 | cloze acc_norm | 0,17 pkt | 0,0180 | z = 0,09 | szum |
+| Slayer 1.00 do Slayer 1.06 | litery acc | 0,00 pkt | 1,74 pkt | z = 0,00 | szum |
+| Slayer 1.00 do Slayer 1.06 | cloze acc_norm (sparowane) | 4,01 pkt | 1,12 pkt | z = 3,57 | pewne |
+| Slayer 1.00 do Slayer 1.06 | cloze PMI | 6,23 pkt | 1,82 pkt | z = 3,42 | pewne |
+| Slayer 1.00 do Slayer 1.06 | BPB poprawnej odpowiedzi (sparowane), bity na bajt | −0,1136 | 0,0072 | z = −15,78 | pewne |
+| Slayer 1.00 do Slayer 1.03 | cloze acc_norm | 3,84 pkt | 1,75 pkt | z = 2,19 | prawdopodobne |
+| Slayer 1.03 do Slayer 1.06 | cloze acc_norm | 0,17 pkt | 1,80 pkt | z = 0,09 | szum |
 
-Dla BPB kolumna „różnica” to 100 x zmiana bitów na bajt (z 1,5757 do 1,4621). Udział najczęstszej litery wynosi
+Wiersz BPB podaje różnicę i SE w bitach na bajt (z 1,5757 do 1,4621), nie w punktach. Udział najczęstszej litery wynosi
 98,0% (Slayer 1.00), 96,6% (Slayer 1.03), 92,0% (Slayer 1.06); dla tych udziałów nie zapisano SE.
 
 ## Wnioski
@@ -113,6 +117,9 @@ Dla BPB kolumna „różnica” to 100 x zmiana bitów na bajt (z 1,5757 do 1,46
    predykcji.
 
 ## Co dodaje metodologia
+
+Lista tego, czego ta praca jeszcze nie spełnia według [`METODOLOGIA.md`](../../METODOLOGIA.md); każdy punkt to osobne
+zadanie do wzięcia.
 
 - [ ] Etap B oryginalnym kodem: żadnego zadania nie policzono lm-eval ani kodem autorów benchmarku; T0 sprawdza
       nasz scorer tylko na ARC cloze.
