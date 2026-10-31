@@ -299,9 +299,7 @@ kontroli”). Po merge'u Arek (właściciel modelu Slayer i Space) wgrywa go do 
 
 ## Pierwsze zadanie i recenzja
 
-**Pierwsze zadanie nowej osoby to karta oryginału** jednego benchmarku (zadanie „Karta oryginału: <benchmark>”, plik
-`ORIGINAL.md`, etap A, około 2 h, bez GPU) **albo recenzja cudzej karty**. Zadania na start mają etykietę
-`good first issue` w [zadaniach tego repo](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues).
+Pierwsze zadanie opisuje [`CONTRIBUTING.md`, „Pierwsze zadanie”](../CONTRIBUTING.md#pierwsze-zadanie).
 
 **Recenzja idzie w dwóch krokach:**
 
@@ -317,9 +315,8 @@ zaglądania w liczby autora.
 
 ## Kamienie bez terminu
 
-Kamienie [#6](https://github.com/slayerlabs/benchmarks-fabryka-ai/milestone/6) (opis zbiorów: baza, format, n, SNR,
-kontaminacja) i [#7](https://github.com/slayerlabs/benchmarks-fabryka-ai/milestone/7) (start nowych osób: od README
-do pierwszego PR) nie mają terminu, tak jak #8–#10 (przebieg centralny, tygodniowy automat odtwarzania, polskie
+Kamień [#6](https://github.com/slayerlabs/benchmarks-fabryka-ai/milestone/6) (opis zbiorów: baza, format, n, SNR,
+kontaminacja) nie ma terminu, tak jak #8–#10 (przebieg centralny, tygodniowy automat odtwarzania, polskie
 benchmarki od zera). To prace ciągłe albo w budowie: zamyka się je, gdy spełnią opis kamienia, a nie w dniu z
 kalendarza. Terminy mają kamienie #1–#5.
 
