@@ -53,7 +53,7 @@ def main():
     import torch
     import torch.nn.functional as F
     from tokenizers import Tokenizer
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "slayer_eval"))
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "wspolne"))
     from slayer_model import Slayer
 
     p = argparse.ArgumentParser()

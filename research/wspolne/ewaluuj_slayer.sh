@@ -1,7 +1,7 @@
 #!/bin/bash
 # Niezależna ewaluacja jednego checkpointu Slayera 1B.
-#   slayer_eval/ewaluuj_slayer.sh <repo_hf> <revision>
-# np. slayer_eval/ewaluuj_slayer.sh SlayerLab/Slayer1B-1.06 ef81be58742544ad32e1afab38db011fec209609
+#   wspolne/ewaluuj_slayer.sh <repo_hf> <revision>
+# np. wspolne/ewaluuj_slayer.sh SlayerLab/Slayer1B-1.06 ef81be58742544ad32e1afab38db011fec209609
 #
 # Zmienne (opcjonalne):
 #   MODEL_PATH   katalog z wagami pobranymi wcześniej (np. models/slayer1b-106); bez niej HFLM pobiera z HF
@@ -13,7 +13,7 @@
 #   HISTORIA_CSV istniejący scores-history.csv, do którego dopisać wiersz
 #   WYJSCIE      katalog wyników (domyślnie wyniki_slayer/<repo>@<rev8>)
 #   TRUST_REMOTE_CODE=1  gdy architektura modelu wymaga własnego kodu z repo
-#   OFFLINE=1    bez sieci: zbiory z cache (najpierw slayer_eval/pobierz_zbiory.py), model z MODEL_PATH
+#   OFFLINE=1    bez sieci: zbiory z cache (najpierw wspolne/pobierz_zbiory.py), model z MODEL_PATH
 set -euo pipefail
 if [ "${OFFLINE:-0}" = "1" ]; then
   export HF_DATASETS_OFFLINE=1 HF_HUB_OFFLINE=1
@@ -28,7 +28,7 @@ REV="$2"
 KORZEN="$(cd "$(dirname "$0")/.." && pwd)"
 PY="$KORZEN/.venv-eval/bin/python"
 if [ ! -x "$PY" ]; then
-  echo "brak $PY: python3 -m venv .venv-eval && .venv-eval/bin/pip install -r slayer_eval/requirements.lock.txt" >&2
+  echo "brak $PY: python3 -m venv .venv-eval && .venv-eval/bin/pip install -r wspolne/requirements.lock.txt" >&2
   exit 69
 fi
 
@@ -47,4 +47,4 @@ ARGS=(--model hf --repo "$REPO" --revision "$REV" --device "$DEVICE" --batch "${
 NICE=()
 [ "$DEVICE" = "cpu" ] && NICE=(nice -n 19)
 mkdir -p "$WYJSCIE"
-${NICE[@]+"${NICE[@]}"} "$PY" "$KORZEN/slayer_eval/ewaluuj.py" "${ARGS[@]}" 2> >(tee "$WYJSCIE/stderr.log" >&2)
+${NICE[@]+"${NICE[@]}"} "$PY" "$KORZEN/wspolne/ewaluuj.py" "${ARGS[@]}" 2> >(tee "$WYJSCIE/stderr.log" >&2)

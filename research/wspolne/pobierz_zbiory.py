@@ -1,6 +1,6 @@
-"""Jednorazowe pobranie do lokalnego cache HF wszystkich zbiorów, których używa slayer_eval.
+"""Jednorazowe pobranie do lokalnego cache HF wszystkich zbiorów, których używa wspolne/.
 
-  .venv-eval/bin/python slayer_eval/pobierz_zbiory.py
+  .venv-eval/bin/python wspolne/pobierz_zbiory.py
 
 Dwie grupy:
 - pipeline: dokładnie te argumenty `load_dataset`, które budują konfiguracje w zadania.py
@@ -109,7 +109,7 @@ def main():
         print(f"{stan:5} {etykieta} — {opis}")
     bledy = sum(s != "OK" for s, _, _ in wyniki)
     print(f"\nOK: {len(wyniki) - bledy}, BŁĄD: {bledy}")
-    print("Dalej bez sieci: HF_DATASETS_OFFLINE=1 HF_HUB_OFFLINE=1 (albo OFFLINE=1 slayer_eval/ewaluuj_slayer.sh …)")
+    print("Dalej bez sieci: HF_DATASETS_OFFLINE=1 HF_HUB_OFFLINE=1 (albo OFFLINE=1 wspolne/ewaluuj_slayer.sh …)")
     sys.exit(1 if bledy else 0)
 
 

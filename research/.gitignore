@@ -11,10 +11,10 @@
 *.npy
 # paczka dla testerów idzie osobno, poza repo
 *.zip
-paczka_testerzy/dane/
-# wyniki per pytanie (kopia w wygaszanie/wyniki/pelne_wyniki.tgz)
-wygaszanie/wyniki/*/*.jsonl
-wygaszanie/wyniki/*/trace/
+slayer-1b/paczka_testerzy/dane/
+# wyniki per pytanie (kopia w slayer-1b/wygaszanie/wyniki/pelne_wyniki.tgz)
+slayer-1b/wygaszanie/wyniki/*/*.jsonl
+slayer-1b/wygaszanie/wyniki/*/trace/
 # klucze
 *.pem
 vastkey*
@@ -24,6 +24,6 @@ __pycache__/
 *.pyc
 .venv*/
 .pytest_cache/
-# EWoK-PL: surowe logliki per rekord (lokalnie; raport_ewok.json/md idzie do repo)
-wyniki_ewok/*/*.jsonl
+# benchmarki: surowe wyniki per rekord zostają lokalnie (raporty w wyniki/*.json i *.md idą do repo)
+benchmarki/*/wyniki/*/*.jsonl
 _smoke_*

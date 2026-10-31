@@ -1,4 +1,6 @@
-# Fabryka Benchmarks
+# Fabryka Benchmarks: frontend (beta, not in use)
+
+All commands below run in `frontend-beta/`.
 
 An isolated React 19 / TypeScript / Vite / React Router frontend for Fabryka Benchmarks. Phase 1 adds Leaderboard, AutoEval, Benchmarks and About / Methodology views. All displayed models and measurements are explicitly labeled **synthetic test data**. AutoEval is a disconnected prototype; no backend, credentials, production API, database, training jobs or deployment.
 

@@ -90,7 +90,7 @@ def test_dokumenty_repo_zgodne_z_liczbami():
 
 
 def test_zepsuta_liczba_w_kopii_dokumentu_zlapana():
-    plik = "lab/DLA_ARKA_I_CHETNYCH.md"
+    plik = "slayer-1b/lab/DLA_ARKA_I_CHETNYCH.md"
     tekst = (KORZEN / plik).read_text(encoding="utf-8")
     assert "Belebele po treści 0,330 vs 0,297" in tekst
     zepsuty = tekst.replace("Belebele po treści 0,330 vs 0,297", "Belebele po treści 0,345 vs 0,297")
@@ -100,8 +100,8 @@ def test_zepsuta_liczba_w_kopii_dokumentu_zlapana():
 
 def test_liczby_benchmarku_sprawdzane_w_jego_plikach_i_nie_wyciekaja():
     # Bielik PL EWoK = 66,0%; tabela EWoK pisze wartości w % bez znaku „%”
-    assert not bledy("| Bielik-1.5B-v3 | 66,0 [63,4; 68,5] |", "ewok_pl/WYNIKI.md")
-    assert [p for _, _, p in bledy("| Bielik-1.5B-v3 | 66,3 [63,4; 68,5] |", "ewok_pl/WYNIKI.md") if "66,3" in p]
+    assert not bledy("| Bielik-1.5B-v3 | 66,0 [63,4; 68,5] |", "benchmarki/ewok-pl/WYNIKI.md")
+    assert [p for _, _, p in bledy("| Bielik-1.5B-v3 | 66,3 [63,4; 68,5] |", "benchmarki/ewok-pl/WYNIKI.md") if "66,3" in p]
     assert not bledy("Bielik ma na EWoK 66,0%.")
     assert [p for _, _, p in bledy("Bielik ma 63,4%.") if "63,4" in p]
 

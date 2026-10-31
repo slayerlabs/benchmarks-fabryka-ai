@@ -1,4 +1,4 @@
-"""ckpt.pt trenera Arka -> katalog modelu dla slayer_eval/slayer_model.py (model.safetensors, config.json, tokenizer.json).
+"""ckpt.pt trenera Arka -> katalog modelu dla wspolne/slayer_model.py (model.safetensors, config.json, tokenizer.json).
 
 python wygaszanie/konwertuj.py <ckpt.pt> <katalog_wzorca_1.06> <katalog_wyjścia> [--porownaj]
 

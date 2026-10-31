@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Etapy na instancji vast.ai (2x RTX 4090). Odpalane z komputera lokalnego pojedynczym wywołaniem:
-#   ssh -i <klucz> -p PORT root@sshN.vast.ai 'bash /workspace/kod/testy_danych_slayer/na_instancji.sh ETAP ARG...'
+#   ssh -i <klucz> -p PORT root@sshN.vast.ai 'bash /workspace/kod/slayer-1b/testy_danych_slayer/na_instancji.sh ETAP ARG...'
 # Etapy długie startują w tle (nohup) i kończą się plikiem /workspace/stan/<nazwa>.ok albo .blad.
 # Kolejność i czasy: README.md w tym katalogu.
 set -euo pipefail
-K=/workspace/kod
+K=/workspace/kod/slayer-1b
 WS=/workspace
 ST=$WS/stan
 mkdir -p "$ST" "$WS/wyniki" "$WS/logi"
