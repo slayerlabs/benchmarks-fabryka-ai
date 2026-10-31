@@ -35,6 +35,7 @@ komenda kończy się kodem 0. CI dla `research/` nie ma.
 ```
 
 Każda liczba w raporcie `.md` pod `research/` musi być w `results/LICZBY.json`; każde porównanie ma SE i werdykt.
+Liczbę spoza wyników (np. z pracy) oznaczasz na końcu jej linii: `<!-- liczba-spoza-wynikow: skąd jest liczba -->`.
 
 ## Zasady
 

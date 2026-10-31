@@ -58,7 +58,7 @@ Do benchmarku polskiego albo bez oryginału pobierz też model, który zna polsk
 .venv-eval/bin/hf download speakleash/Bielik-1.5B-v3 --revision 4b25049621bf3952a1fc9314c89773102eda0333 --local-dir models/bielik-1.5b-v3
 ```
 
-`git clone` bierze gałąź `main`. Środowisko z `common/requirements.lock.txt` (lm-eval 0.4.9.1) obowiązuje we wszystkich
+`git clone` pobiera domyślną gałąź repo, czyli `main`; od niej zakładasz swoją gałąź. Środowisko z `common/requirements.lock.txt` (lm-eval 0.4.9.1) obowiązuje we wszystkich
 przebiegach; czym różni się od lm-eval w Space: [`METODOLOGIA.md`](METODOLOGIA.md), sekcja „Wersja lm-eval”.
 `EleutherAI/pythia-1b-v0` @ `step143000` to pierwszy model z listy kontrolnej etapu B; gdy nie ma opublikowanego
 wyniku dla Twojego benchmarku, bierzesz następny z listy (sekcja „Model kontrolny etapu B”). Wagi zostają w `models/`,

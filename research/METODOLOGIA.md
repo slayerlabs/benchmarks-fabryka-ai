@@ -49,11 +49,15 @@ szukałeś.
 | Metryka decyzyjna | **jedna** metryka, po której porównujesz modele i podejmujesz decyzje; pozostałe to metryki pomocnicze |
 | Agregacja | średnia po pytaniach czy po kategoriach/paradygmatach, wagi |
 | Bazy | baza losowa i większościowa (sekcja „Bazy: losowa i większościowa” w [`README.md`](README.md#bazy-losowa-i-większościowa)) |
-| SNR | zmierzony stosunek sygnału do szumu (Słowniczek): rozrzut wyników między modelami albo checkpointami, SE pomiaru, iloraz i na jakich modelach |
+| SNR | stosunek sygnału do szumu (Słowniczek): rozrzut wyników między modelami albo checkpointami, SE pomiaru, iloraz i na jakich modelach. Wolno go policzyć z opublikowanych wyników (praca, plik wyników, leaderboard) albo wpisać „nieustalone” z tym, gdzie szukałeś; własny pomiar nie jest potrzebny |
 | Wyniki referencyjne | co najmniej jeden opublikowany wynik modelu, który da się pobrać (model, liczba, tabela w pracy albo plik wyników), jako snapshot z datą odczytu |
 | Train policy | `eval_only` (żaden split nie trafia do treningu), `decon_only` (zbiór służy tylko do dekontaminacji danych treningowych) albo `train_allowed` (wymień, które splity wolno trenować); sekcja „Czystość benchmarku” |
 | Decyzja treningowa | co oznacza słaby wynik: jakie dane albo jaka metoda treningu z niego wynika, a czego nie wolno z niego wnioskować |
 | Znane rozbieżności | czym różnią się popularne implementacje (np. zadanie lm-eval) od kodu autorów, znane błędy w danych, kontaminacja |
+
+Liczbę spoza `results/LICZBY.json` (np. wynik referencyjny z pracy) oznaczasz na końcu jej linii znacznikiem
+`<!-- liczba-spoza-wynikow: skąd jest liczba -->`, inaczej bramka liczb ją odrzuci (wzór:
+`benchmarks/wikitext-2/ORIGINAL.md`).
 
 ## B. Odtworzenie wyniku oryginalnym kodem (REPRODUCTION.md)
 
@@ -98,10 +102,12 @@ Kod wspólny trafia do `common/` dopiero wtedy, gdy używa go więcej niż jeden
 
 ## D. Wersja polska (POLISH.md)
 
-Wersja polska to osobny katalog `benchmarks/<name>-pl/` (jak [`benchmarks/ewok-pl/`](benchmarks/ewok-pl/README.md)),
-założony z [`benchmarks/_template/`](benchmarks/_template/README.md). Zamiast `ORIGINAL.md` i `REPRODUCTION.md` ma
+Wersja polska to osobny katalog `benchmarks/<name>-pl/`, założony z [`benchmarks/_template/`](benchmarks/_template/README.md). Zamiast `ORIGINAL.md` i `REPRODUCTION.md` ma
 `POLISH.md` (wzór: [`benchmarks/_template/POLISH.md`](benchmarks/_template/POLISH.md)), który wskazuje katalog
 oryginału `benchmarks/<name>/` z etapami A–C. Własne `RECIPE.md`, kod i `results/` ma jak każdy benchmark.
+
+`benchmarks/ewok-pl/` nie jest wzorem: to katalog sprzed tej metodologii, uzupełniany w zadaniu
+[#34](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/34).
 
 ### D1. Przetłumaczyć czy napisać od zera?
 
@@ -158,7 +164,7 @@ Wersja polska zachowuje metodę z karty. Zanim zbudujesz dane, wypełnij tabelę
 
 ## Benchmark bez oryginału: karta zbioru (DATASET.md)
 
-Zbiór, który nie ma pracy ani kodu autorów do odtworzenia (polski test pisany od zera, held-out tekst, świeży tekst),
+Zbiór, który nie ma pracy ani kodu autorów do odtworzenia (polski test pisany od zera, held-out tekst),
 nie przechodzi etapów A i B. Zamiast nich ma kartę zbioru `DATASET.md` (wzór:
 [`benchmarks/_template/DATASET.md`](benchmarks/_template/DATASET.md)) i kontrolę na modelu, który zna polski. Etapy C
 i D (jeśli dotyczy) oraz przepis zostają bez zmian.
@@ -178,6 +184,11 @@ i D (jeśli dotyczy) oraz przepis zostają bez zmian.
 **Kontrola** zastępuje warunek odtworzenia: model, który zna polski (sekcja D3, punkt 2), ma wynik wyraźnie powyżej
 bazy, czyli różnica od bazy przekracza 2 SE. Wynik na poziomie bazy zatrzymuje pracę tak jak niespełniony warunek
 odtworzenia.
+
+Dla zbioru liczonego przez NLL albo BPB (bez odpowiedzi do wyboru nie ma bazy losowej) kontrola brzmi: model, który zna
+język zbioru (dla polskiego `speakleash/Bielik-1.5B-v3` albo `utter-project/EuroLLM-1.7B`), ma BPB niższe niż model bez
+tego języka (`EleutherAI/pythia-1b-v0` @ `step143000`), a różnica wynosi co najmniej 2 SE. SE różnicy liczysz
+bootstrapem po dokumentach: losujesz dokumenty ze zwracaniem i liczysz różnicę BPB obu modeli na każdej próbie.
 
 ## Modele: kontrolny i odniesienia
 
@@ -327,6 +338,8 @@ Benchmark jest skończony, gdy spełnia sekcję „Definicja „zrobione”” w
 
 ## Słowniczek
 
+- **Repo benchmarków:** to repo,
+  [slayerlabs/benchmarks-fabryka-ai](https://github.com/slayerlabs/benchmarks-fabryka-ai).
 - **Space:** strona z wynikami Slayera 1B na Hugging Face,
   [SlayerLab/Slayer1B-Benchmarks](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks). Sama nic nie liczy,
   tylko wyświetla `results.json`. Protokół liczenia:
@@ -335,6 +348,9 @@ Benchmark jest skończony, gdy spełnia sekcję „Definicja „zrobione”” w
   a ten sam numer ma wpis w `common/zadania.py`.
 - **Próbka 200 (panel 200):** Space liczy każdy test na najwyżej 200 pytaniach wybranych po haszu SHA-256, tych samych
   dla wszystkich modeli (WikiText-2 w całości). Przy 200 pytaniach SE trafności to kilka punktów.
+- **Metryka decyzyjna:** jedna metryka benchmarku, według której porównujesz modele; pozostałe są pomocnicze.
+- **Perpleksja:** średnia niepewność modelu na tekście, liczona z NLL na token albo na słowo; niżej = lepiej, ale
+  porównujesz ją tylko przy tym samym tokenizerze albo na słowach.
 - **acc:** trafność; model wybiera odpowiedź o największym log-prawdopodobieństwie.
 - **acc_norm:** jak acc, ale log-prawdopodobieństwo dzielone przez długość odpowiedzi (w znakach albo bajtach), żeby
   długie odpowiedzi nie przegrywały z krótkimi.
@@ -367,6 +383,8 @@ Benchmark jest skończony, gdy spełnia sekcję „Definicja „zrobione”” w
   różne splity dają różne liczby.
 - **NLL** (ujemne log-prawdopodobieństwo): −log P(tekstu według modelu), z którego liczy się perpleksję i BPB; niżej =
   model lepiej przewiduje tekst.
+- **Pythia v0:** pierwsze wydanie wag modeli Pythia od EleutherAI (np. `EleutherAI/pythia-1b-v0`); w repo używasz
+  checkpointu `step143000`, czyli końca treningu.
 - **Checkpoint:** zapis wag modelu z danego kroku treningu (np. `step143000` Pythii), który da się pobrać i policzyć
   osobno.
 - **CI95** (95% przedział ufności): zakres wynik ± 1,96 SE, który przy wielokrotnym losowaniu pytań obejmowałby

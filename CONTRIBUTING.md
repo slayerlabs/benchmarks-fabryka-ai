@@ -3,15 +3,17 @@
 ## Kontakt
 
 Discord, kanał **#bench-team**: https://discord.gg/HnTkVR4c5T. Tam pytasz, ogłaszasz, że bierzesz zadanie, i
-zgłaszasz potknięcia: jednym zdaniem, w którym kroku i czego brakuje. Dostęp do repo daje Elwenor (koordynacja
-zespołu): napisz mu na Discordzie swój nick GitHub. Wyniki do Space wgrywa Arek (właściciel modelu Slayer i Space).
+zgłaszasz potknięcia: jednym zdaniem, w którym kroku i czego brakuje. Opiekunowie to osoby z sekcji
+[„Kto jest kim”](README.md#kto-jest-kim) w README: Elwenor (koordynacja zespołu, dostęp do repo) i Arek (właściciel
+modelu Slayer i Space, wgrywa wyniki do Space).
 
 ## Pierwsze zadanie
 
 Weź zadanie z etykietą `good first issue`
 ([lista w tym repo](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22)).
 To karta oryginału jednego benchmarku (zadanie „Karta oryginału: <benchmark>”, plik `ORIGINAL.md`, etap A, około 2 h,
-bez GPU). Przypisz się do zadania, zanim zaczniesz; jedno zadanie naraz. Recenzję cudzej karty bierzesz, gdy masz już
+bez GPU). Żeby wziąć zadanie, napisz w nim komentarz, że je bierzesz; opiekun przypisze Cię do zadania. Zacznij po
+przypisaniu; jedno zadanie naraz. Recenzję cudzej karty bierzesz, gdy masz już
 za sobą jedną własną kartę. Wszystkie zadania:
 https://github.com/slayerlabs/benchmarks-fabryka-ai/issues, tablica: https://github.com/orgs/slayerlabs/projects/10.
 Przygotowanie komputera: [`research/README.md`, „Przygotowanie (raz)”](research/README.md#przygotowanie-raz).
@@ -19,7 +21,8 @@ Procedura: [`research/METODOLOGIA.md`](research/METODOLOGIA.md).
 
 ## PR
 
-1. Gałąź od `main`, nazwa `research/<name>` (benchmark) albo `docs/<temat>`.
+1. Gałąź od `main`, nazwa `research/<name>` (benchmark) albo `docs/<temat>`. PR z forka jest dozwolony: dostęp do
+   zapisu w repo nie jest potrzebny.
 2. Przed PR uruchamiasz sam (CI dla `research/` nie ma) w `research/` testy zmienionego benchmarku,
    `tests/test_liczby_raportow.py` i bramkę liczb; każda komenda kończy się kodem 0:
 
@@ -43,5 +46,10 @@ Procedura: [`research/METODOLOGIA.md`](research/METODOLOGIA.md).
 - `dev`: zadanie techniczne (kod wspólny, narzędzia, CI).
 - `needs-recheck`: wynik idzie dalej (do Space albo do decyzji o treningu), więc musi przejść niezależne sprawdzenie.
 
-Dokumenty piszesz po polsku, nazwy katalogów, plików i kod po angielsku. Wag modeli, zbiorów i plików powyżej 10 MB
-nie commitujesz; wyniki per pytanie jako `.jsonl.gz` do około 10 MB na plik wolno ([`AGENTS.md`](AGENTS.md), „Zasady”).
+## Pliki w repo
+
+- Dokumenty piszesz po polsku, nazwy katalogów, plików i kod po angielsku.
+- Nie commitujesz wag modeli (`*.safetensors`, `*.bin`, `*.pt`, katalog `models/`), zbiorów danych (`*.parquet`,
+  `*.arrow`), archiwów `*.zip` ani żadnego pliku powyżej 10 MB.
+- Wyniki per pytanie wolno commitować skompresowane, jako `results/<model>/<zadanie>.jsonl.gz`, do około 10 MB na
+  plik. Surowe `*.jsonl` zostają lokalnie (`.gitignore`).
