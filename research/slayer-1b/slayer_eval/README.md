@@ -71,7 +71,7 @@ najczęstszej predykcji.
 
 | T | zadanie | warianty | uwagi |
 |---|---|---|---|
-| T01 | BLiMP (EN) | `space` (minimal pair, empty context, `" " + sentence`, summed logprob); full set of 67 000 pairs via `hipoteza_formatu.py licz --zadania blimp`, statistics and Space panel in `blimp.py` | results: `wyniki/blimp/BLIMP.md` |
+| T01 | BLiMP (EN) | `space` (minimal pair, empty context, `" " + sentence`, summed logprob); full set of 67 000 pairs via `hipoteza_formatu.py licz --zadania blimp`, statistics and Space panel in `blimp.py`, official-forward check in `kontrola_forward.py` (commands: BLIMP.md, "How to reproduce") | results: `wyniki/blimp/BLIMP.md` |
 | **T02** | **ARC-Challenge** | `space` (cloze, główna acc_norm) + `mc` (litery A–D) | **trace per pytanie** + tryb po checkpointach |
 | T03 | WikiText-2 | `space` (rolling) | word/byte/token perplexity + bits per byte, pełny strumień |
 | T04 | MultiBLiMP-PL | `space` (para minimalna, spacja przed zdaniem, suma logprob) | PMI pominięte (pusty kontekst) |

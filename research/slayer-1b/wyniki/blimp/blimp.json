@@ -2638,19 +2638,19 @@
   ],
   "ten_sam_worek_slow": {
    "tak": {
-    "n": 13163,
-    "roznica": 0.005165995593709641,
-    "se": 0.0047366700717253974,
-    "z": 1.0906386798073642,
+    "n": 13156,
+    "roznica": 0.005168744299179082,
+    "se": 0.004739190343122636,
+    "z": 1.0906386798073644,
     "werdykt": "szum",
-    "k_paradygmatow": 16,
-    "srednia_paradygmatow": 0.0035737179487179485,
-    "se_paradygmatow": 0.027580943163513366,
-    "t_paradygmatow": 0.1295719993160203,
-    "df_paradygmatow": 15,
-    "p_t_paradygmatow": 0.8986265894884536,
+    "k_paradygmatow": 14,
+    "srednia_paradygmatow": 0.004084249084249084,
+    "se_paradygmatow": 0.03166972678994274,
+    "t_paradygmatow": 0.12896382439099877,
+    "df_paradygmatow": 13,
+    "p_t_paradygmatow": 0.899360162585215,
     "werdykt_paradygmatow": "szum",
-    "srednia_abs_paradygmatow": 0.08367628205128205
+    "srednia_abs_paradygmatow": 0.09563003663003664
    },
    "nie": {
     "n": 53837,

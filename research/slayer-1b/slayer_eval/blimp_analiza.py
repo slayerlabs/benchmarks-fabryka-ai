@@ -196,7 +196,8 @@ def analiza(docs, wa, wb, por_paradygmaty):
         dn_b = rb["ntok"][1] - rb["ntok"][0]
         (ta_sama if dn_a == dn_b else rozna)[g].append(r)
         sam = ten_sam_worek_slow(*d["opcje"])
-        (worek if sam else inny)[g].append(r)
+        if d["opcje"][0] != d["opcje"][1]:  # identical good and bad sentence: no contrast at all, in neither side
+            (worek if sam else inny)[g].append(r)
         if d["rekord"].get("lexically_identical"):
             flaga.setdefault(g, []).append(sam)
         tok_a += ra["ntok"][0]

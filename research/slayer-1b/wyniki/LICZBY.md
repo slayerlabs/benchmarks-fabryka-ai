@@ -145,7 +145,7 @@ Slayer vs Pythia ma SE niezależne (hypot), czyli ostrożne.
 | blimp_zjawisko_klastr_npi_licensing/acc | — | — | −0,0351 (−3,5) | — | — | 0,0345 | −1,0 | szum |
 | blimp_zjawisko_klastr_quantifiers/acc | — | — | 0,0135 (1,4) | — | — | 0,0494 | 0,3 | szum |
 | blimp_zjawisko_klastr_subject_verb_agreement/acc | — | — | −0,0388 (−3,9) | — | — | 0,0079 | −4,9 | prawdopodobne |
-| blimp_ten_sam_worek_slow_klastr/acc | — | — | 0,0036 (0,4) | — | — | 0,0276 | 0,1 | szum |
+| blimp_ten_sam_worek_slow_klastr/acc | — | — | 0,0041 (0,4) | — | — | 0,0317 | 0,1 | szum |
 | blimp_inny_worek_slow_klastr/acc | — | — | −0,0370 (−3,7) | — | — | 0,0068 | −5,4 | pewne |
 | blimp_na_token/acc | — | — | −0,0309 (−3,1) | — | — | 0,0017 | −17,8 | pewne |
 | blimp_ta_sama_tokenizacja/acc | — | — | −0,0239 (−2,4) | — | — | 0,0017 | −13,9 | pewne |

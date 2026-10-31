@@ -330,6 +330,23 @@ def test_analiza_na_przykladzie():
     assert an["przewagi_a_pewne"] == sum(1 for r in por.values() if r["werdykt"] == "pewne" and r["roznica"] > 0)
 
 
+def test_identyczne_zdania_poza_podzialem_slow():
+    """A pair with identical good and bad sentence (passive_1, principle_A_case_2) is no word-order contrast:
+    it goes to neither side of the same-words split, though it still counts in the overall comparison."""
+    import blimp_analiza as A
+    d = [dict(x) for x in docs()]
+    d[0] = {**d[0], "opcje": [d[0]["opcje"][0], d[0]["opcje"][0]]}
+    ids = [x["id"] for x in d]
+    a = {i: {"ll": [-1.0, -2.0], "ntok": [3, 3]} for i in ids}
+    b = {i: {"ll": [-2.0, -1.0], "ntok": [3, 3]} for i in ids}
+    por = B.porownanie_parowane(a, b, d)["paradygmaty"]
+    an = A.analiza(d, a, b, por)
+    w = an["ten_sam_worek_slow"]
+    assert w["tak"]["n"] + w["nie"]["n"] == len(d) - 1
+    assert w["tak"]["n"] == sum(A.ten_sam_worek_slow(*x["opcje"]) for x in d[1:])
+    assert an["generalizacja"]["k"] == 3  # the pair stays in the paradigm comparison
+
+
 def test_odwrocenie_przewagi_na_token():
     """Summed ll favours a, per token (b's bad sentence is much longer) b wins: listed as a reversal."""
     import blimp_analiza as A
@@ -368,6 +385,30 @@ def test_wpis_t01_w_zadaniach():
     assert cfg["doc_to_target"] == 0 and cfg["dataset_kwargs"]["data_files"]["test"].endswith("blimp.jsonl")
     (_, hf), = Z.konfiguracje("T01", "hf")
     assert hf["dataset_path"] == "parquet" and B.REWIZJA in hf["dataset_kwargs"]["data_files"]["test"]
+
+
+def test_kontrola_forward_argumenty_i_format():
+    """kontrola_forward.py without weights: CLI parsing and the JSON that blimp.py zbierz reads."""
+    import json
+    import pytest
+    import kontrola_forward as K
+    a = K.argumenty(["--model", "m", "--watki", "6,1,6", "--sumy", "float64", "--wejscia", "pelne"])
+    assert a.model == "m" and a.watki == [1, 6] and a.sumy == ["float64"] and a.wejscia == ["pelne"]
+    d = K.argumenty(["--model", "m"])
+    assert d.sumy == ["float32", "float64"] and d.wejscia == ["bez_ostatniego", "pelne"]
+    assert d.wyjscie.endswith("wyniki/blimp/kontrola_forward.json") and d.wyniki.endswith("raw/1.06.jsonl.gz")
+    for zle in (["--sumy", "float16"], ["--wejscia", "x"], ["--watki", "0"], []):  # [] : --model is required
+        with pytest.raises(SystemExit):
+            K.argumenty((["--model", "m"] if zle else []) + zle)
+    przebiegi = [K.przebieg([0.1, 0.3], 0, 1, "pelne", "float32"), K.przebieg([0.2, 0.2], 1, 6, "pelne", "float64")]
+    w = K.podsumuj(przebiegi, 1, {"torch": "x"})
+    assert w["max_abs_roznica_ll"] == [0.2, 0.3] and w["srednia_abs_roznica_ll"] == [0.2, 0.2]
+    assert w["przestawione_pary"] == 1 and w["zdania"] == 2 and "2 runs" in w["opis"]
+    # the committed file has the same shape (written by this script)
+    zap = json.loads((KAT.parent / "wyniki/blimp/kontrola_forward.json").read_text())
+    assert set(zap) == set(w) and set(zap["przebiegi"][0]) == set(przebiegi[0])
+    assert zap["max_abs_roznica_ll"] == [min(p["max_abs_roznica_ll"] for p in zap["przebiegi"]),
+                                         max(p["max_abs_roznica_ll"] for p in zap["przebiegi"])]
 
 
 if __name__ == "__main__":

@@ -243,6 +243,11 @@ def pliki(liczby, bl):
           "  --wyjscie <out>/1.06 --device mps --batch 64",
           "BLIMP_DIR=<snapshot> python slayer_eval/hipoteza_formatu.py licz --model <pythia-1b dir> --zadania blimp \\",
           "  --wyjscie <out>/pythia-1b --device mps --batch 64",
+          "# official-forward check (wyniki/blimp/kontrola_forward.json); needs the HF repo files incl. weights",
+          "huggingface-cli download SlayerLab/Slayer1B-1.06 --revision ef81be58742544ad32e1afab38db011fec209609 "
+          "--local-dir <slayer-1.06 dir>",
+          "BLIMP_DIR=<snapshot> python slayer_eval/kontrola_forward.py --model <slayer-1.06 dir> \\",
+          "  --wyniki <out>/1.06/blimp.jsonl --watki 1,6 --sumy float32,float64",
           "BLIMP_DIR=<snapshot> python slayer_eval/blimp.py zbierz --wyniki <out>",
           "python narzedzia/liczby.py && python slayer_eval/blimp.py raport && python narzedzia/sprawdz_raporty.py",
           "```", "",
@@ -302,15 +307,16 @@ def sekcja_tokenizacji(w, por):
             f"overall gap goes with the tokenizer difference.",
             f"- On the {int(w[wr + '/tak/n'])} pairs ({int(w[wr + '/tak/k_paradygmatow'])} paradigms) whose good and bad "
             f"sentence use the same words, as a multiset, and differ only in word order, the gap is "
-            f"{pkt(lt['roznica'])} (SE {pkt(lt['se'])}, z = {f(lt['z'], 2)}: {WERDYKT_EN[lt['werdykt']]}; over "
-            f"paradigms t = {f(w[wr + '/tak/t_paradygmatow'], 2)}). On the {int(w[wr + '/nie/n'])} other pairs "
+            f"{pkt(lt['roznica'])} (SE {pkt(lt['se'])}, z = {f(lt['z'], 2)}: {WERDYKT_EN[lt['werdykt']]}; mean over "
+            f"paradigms {pkt(w[wr + '/tak/srednia_paradygmatow'])}, t = {f(w[wr + '/tak/t_paradygmatow'], 2)}). On the {int(w[wr + '/nie/n'])} other pairs "
             f"({int(w[wr + '/nie/k_paradygmatow'])} paradigms), where the sentences differ in a word or its form, "
-            f"{pkt(ln['roznica'])} (SE {pkt(ln['se'])}, z = {f(ln['z'], 2)}: {WERDYKT_EN[ln['werdykt']]}; over "
-            f"paradigms t = {f(w[wr + '/nie/t_paradygmatow'], 2)}). On the word-order pairs the paradigm differences "
+            f"{pkt(ln['roznica'])} (SE {pkt(ln['se'])}, z = {f(ln['z'], 2)}: {WERDYKT_EN[ln['werdykt']]}; mean over "
+            f"paradigms {pkt(w[wr + '/nie/srednia_paradygmatow'])}, t = {f(w[wr + '/nie/t_paradygmatow'], 2)}). On the word-order pairs the paradigm differences "
             f"are large in both directions (mean |d| {pkt(w[wr + '/tak/srednia_abs_paradygmatow'], 1)} vs "
             f"{pkt(w[wr + '/nie/srednia_abs_paradygmatow'], 1)}) and cancel out; Pythia's steady advantage is where "
             "the sentences differ in a word or its form. A paradigm with pairs of both kinds is counted on both "
-            "sides. This is a correlation over paradigm types, not a controlled experiment.",
+            f"sides; the {int(w['blimp/zbior/pary_identyczne'])} pairs with identical good and bad sentences are in "
+            "neither. This is a correlation over paradigm types, not a controlled experiment.",
             f"- The BLiMP flag `lexically_identical` does not mark this split: {int(w[wr + '/flaga_bez_tego_samego_worka'])} "
             f"of its {int(w[wr + '/flaga_lexically_identical_paradygmaty'])} paradigms have pairs with different word "
             "forms (e.g. sketch / sketches in determiner_noun_agreement_1), so the split is made on the words of each "
@@ -337,7 +343,8 @@ def sekcja_odstepstw(w, bl):
             f"of the {len([k for k in w if k.startswith(kf + '/przebiegi/') and k.endswith('/watki_cpu')])} runs. The "
             "max is given as a range because it is float32 rounding and moves in its second digit with the "
             "number of CPU threads, with whether the unscored last token is fed, and with summing the token "
-            "log-probs in float32 or float64 (the runs and versions are in `kontrola_forward.json`). The "
+            "log-probs in float32 or float64 (the runs and versions are in `kontrola_forward.json`, written by "
+            "`slayer_eval/kontrola_forward.py`). The "
             "independent check's max, which differed from our earlier single value, is reproduced to all digits "
             "by one of these runs (all CPU threads, last token fed, float64 sum).",
             f"- {int(w['blimp/zbior/pary_identyczne'])} pairs of the dataset have identical good and bad sentences "
