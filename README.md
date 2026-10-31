@@ -1,5 +1,7 @@
 # benchmarks-fabryka-ai
 
+Budujemy otwarte modele językowe dla ludzi, z publicznymi wagami, danymi i kodem.
+
 Mierzymy modele językowe na benchmarkach odtworzonych zgodnie z oryginałem. Budujemy też polskie benchmarki. Dziś
 mierzymy polsko-angielski **Slayer 1B** i pięć modeli odniesienia, a później każdy następny model. Przyda się każda
 pomoc, nawet 2 godziny pracy.
