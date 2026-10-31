@@ -58,8 +58,6 @@ Kod ≠ 0 = liczba spoza `wyniki/LICZBY.json` albo ocena różnicy bez SE/werdyk
 
 Slayer 1.06 wypada losowo w testach z literami A/B/C/D, bo za często wybiera „A” (83–94% odpowiedzi w testach angielskich, 63% w polskim Belebele), podobnie jak Pythia-1B, więc to cecha skali ~1B, nie brak wiedzy. Liczony po treści odpowiedzi model się uczy (ARC-C acc_norm 0,2176 → 0,2577 od 1.00 do 1.06), a wygaszanie LR obniża loss o 0,047 nat bez zmiany trafności.
 
-**Wykresy i tabele:** https://claude.ai/artifact/A25Hg6FfP9ZaXrRpUdzqaa
-
 ### Co dalej
 
 - Zadania dla chętnych (A1–A7 bez GPU, B1–B4 z GPU): [`slayer-1b/lab/DLA_ARKA_I_CHETNYCH.md`](slayer-1b/lab/DLA_ARKA_I_CHETNYCH.md).
