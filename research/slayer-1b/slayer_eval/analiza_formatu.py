@@ -261,7 +261,8 @@ def analiza(R):
                             if (R / e).exists()}
     wt = S / "wikitext.json"
     if wt.exists():
-        wynik["slayer_wikitext_kontrola"] = {**json.loads(wt.read_text()), "space_1.06_byte_ppl": 1.846}
+        # results.json Space SlayerLab/Slayer1B-1.06, T03 byte_perplexity (pełna precyzja; 1,846 to zaokrąglenie)
+        wynik["slayer_wikitext_kontrola"] = {**json.loads(wt.read_text()), "space_1.06_byte_ppl": 1.846283835597753}
     (R / "raport_formatu.json").write_text(json.dumps(wynik, ensure_ascii=False, indent=1, default=float))
     print(json.dumps(wynik, ensure_ascii=False, indent=1, default=float))
     return wynik

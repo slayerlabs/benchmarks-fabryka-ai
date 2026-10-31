@@ -20,6 +20,7 @@ import argparse
 import json
 import math
 import os
+import re
 import sys
 import time
 from collections import Counter
@@ -451,9 +452,12 @@ def cmd_wikitext(a):
             token_list=ids, prefix_token=model.prefiks_pusty[0], max_seq_len=model.max_len, context_len=1)]
         pary = [(list(c), list(t)) for c, t in okna]
         nll -= sum(v for v, _ in licz_logliki(model, pary, 1))
-        bajty += len(tekst.encode()); slowa += len(tekst.split())
+        # Mianownik z ORYGINAŁU, jak lm-eval wikitext process_results: tekst po detokenizacji jest o 4% krótszy
+        # w bajtach i dawał byte_ppl 1,8925 zamiast 1,8463 (wyniki/wikitext_mianownik.md).
+        bajty += len(d["page"].encode("utf-8")); slowa += len(re.split(r"\s+", d["page"]))
     out = {"n_docs": len(docs), "byte_perplexity": math.exp(nll / bajty), "bits_per_byte": nll / bajty / LN2,
-           "word_perplexity": math.exp(nll / slowa)}
+           "word_perplexity": math.exp(nll / slowa), "nll_suma": nll, "bajty": bajty, "slowa": slowa,
+           "mianownik": "oryginal (doc['page']), jak lm-eval"}
     Path(a.wyjscie).mkdir(parents=True, exist_ok=True)
     (Path(a.wyjscie) / "wikitext.json").write_text(json.dumps(out, indent=1))
     print(json.dumps(out))
