@@ -30,6 +30,8 @@ def rmsnorm(x, w, eps):
 
 
 class Slayer(torch.nn.Module):
+    BOS = 0  # <|endoftext|> in the Slayer tokenizer.json (load_slayer.py: "id 0 is end-of-text")
+
     # Domyślne = wariant wybrany pomiarem 29.10 na 3 dokumentach WikiText-2 (1.06): RoPE przeplatany
     # (gptj) + v = v + lambda*v0 dał byte_ppl 1,98; neox 3,98-5,65, lerp 2,09, sigmoid 3,97.
     def __init__(self, katalog, device="cpu", dtype=torch.float32, rope="gptj", vr="add"):
@@ -45,7 +47,7 @@ class Slayer(torch.nn.Module):
         self.hd = self.d // self.n_head
         self.eps = c["norm_eps"]
         self.blok = c["block"]
-        self.bos = 0  # <|endoftext|>
+        self.bos = self.BOS
         inv = 1.0 / (c["rope_theta"] ** (torch.arange(0, self.hd, 2, dtype=torch.float64) / self.hd))
         t = torch.arange(self.blok, dtype=torch.float64)
         fr = torch.outer(t, inv)

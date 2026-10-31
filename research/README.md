@@ -16,7 +16,7 @@ Wszystkie komendy niżej uruchamiasz w katalogu `research/`.
 | `tests/` | testy kodu, bez sieci i bez wag |
 | `slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami: `dane/`, `testy_danych_slayer/`, `wygaszanie/`, `tokenizer/`, `lab/`, `paczka_testerzy/` (komendy w ich README uruchamiasz w `research/slayer-1b/`) |
 
-Benchmarki dziś: [`benchmarki/ewok-pl/`](benchmarki/ewok-pl/README.md) (EWoK po polsku i angielsku). Testy z listy Space (ARC, MMLU, SIQA, Belebele, MultiBLiMP i inne) liczy `wspolne/`; opis: [`wspolne/README.md`](wspolne/README.md).
+Benchmarki dziś: [`benchmarki/ewok-pl/`](benchmarki/ewok-pl/README.md) (EWoK po polsku i angielsku), [`benchmarki/blimp/`](benchmarki/blimp/wyniki/BLIMP.md) (BLiMP, pełny zbiór). Testy z listy Space (ARC, MMLU, SIQA, Belebele, MultiBLiMP i inne) liczy `wspolne/`; opis: [`wspolne/README.md`](wspolne/README.md).
 
 ## Przygotowanie (raz)
 
@@ -41,6 +41,7 @@ Bez sieci i bez wag, każdy kończy się kodem 0:
 .venv-eval/bin/python tests/test_slayer_eval.py
 .venv-eval/bin/python tests/test_testy_danych_slayer.py
 .venv-eval/bin/python tests/test_ewok_pl.py
+.venv-eval/bin/python tests/test_blimp.py
 .venv-eval/bin/python tests/test_liczby_raportow.py
 ```
 

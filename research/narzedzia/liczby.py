@@ -31,8 +31,11 @@ ALIASY = {
     "mmlu": ["MMLU"],
     "multiblimp": ["MultiBLiMP"],
     "pubmedqa": ["PubMedQA"],
+    "blimp": ["BLiMP"],
 }
 METRYKI = ("acc", "acc_norm", "bpb", "pmi")
+# tests whose numbers count only in a line that names the test (sprawdz_raporty.zbiory)
+TYLKO_Z_NAZWA = ["blimp"]
 
 # Każdy benchmarki/<nazwa>/wyniki/*.json (bez podkatalogów per model) to osobna pula wartości,
 # sprawdzana tylko w plikach benchmarki/<nazwa>/ i w liniach, które nazywają benchmark (aliasy).
@@ -46,6 +49,7 @@ USTAWIENIA_BENCHMARKOW = {
                           "kontekst_staly", "kontekst_staly_pmi", "staly_target", "margines"]},
 }
 WYGASZANIE = "slayer-1b/wygaszanie/wyniki"
+BLIMP = "benchmarki/blimp/wyniki/blimp.json"
 
 
 def werdykt(z):
@@ -213,6 +217,91 @@ def benchmarki(korzen=KORZEN):
     return out
 
 
+def porownania_blimp(bl):
+    """BLiMP full set, Slayer 1.06 vs Pythia-1B on the same 67 000 pairs: overall, 12 phenomena,
+    67 paradigms; SE paired by pair (benchmarki/blimp/blimp.py porownanie_parowane)."""
+    por, mod = bl["porownanie"], bl["modele"]
+    a, b = por["a"], por["b"]
+    zrodlo = "paired by minimal pair (benchmarki/blimp/blimp.py)"
+    out = []
+
+    def dodaj(zadanie, wa, sa, wb, sb, r):
+        out.append(porownanie(f"slayer_vs_pythia/{zadanie}/acc", "slayer_vs_pythia", zadanie, "acc", a, b,
+                              wa, sa, wb, sb, se_par=r["se"], zrodlo_par=zrodlo, roznica=r["roznica"]))
+
+    dodaj("blimp", mod[a]["acc"], mod[a]["se"], mod[b]["acc"], mod[b]["se"], por["ogolem"])
+    for z, r in por["zjawiska"].items():
+        x, y = mod[a]["zjawiska"][z], mod[b]["zjawiska"][z]
+        dodaj(f"blimp_zjawisko_{z}", x["acc"], x["se"], y["acc"], y["se"], r)
+    for g, r in por["paradygmaty"].items():
+        x, y = mod[a]["paradygmaty"][g], mod[b]["paradygmaty"][g]
+        dodaj(f"blimp_{g}", x["acc"], x["se"], y["acc"], y["se"], r)
+    an = bl.get("analiza")
+    if not an:
+        return out
+    # paradigms as clusters: SE over the 67 paradigm differences (generalisation to paradigms)
+    gen = an["generalizacja"]
+    def klastr(p, df, p_t, wer):
+        # a clustered t is read through the t distribution (df = k - 1), not as a z
+        p.update({"df": df, "p_t": p_t, "werdykt": wer, "werdykt_parowane": wer})
+        out.append(p)
+
+    klastr(porownanie("slayer_vs_pythia/blimp_klastrowane/acc", "slayer_vs_pythia", "blimp_klastrowane", "acc", a, b,
+                      None, None, None, None, se_par=gen["se_klastrowe"],
+                      zrodlo_par=f"clustered by paradigm (k = {gen['k']})", roznica=gen["roznica"]),
+           gen["df"], gen["p_t"], gen["werdykt_klastrowy"])
+    b2 = gen["bez_2_najgorszych"]
+    klastr(porownanie("slayer_vs_pythia/blimp_klastrowane_bez_2/acc", "slayer_vs_pythia", "blimp_klastrowane_bez_2",
+                      "acc", a, b, None, None, None, None, se_par=b2["se"],
+                      zrodlo_par="clustered by paradigm, 2 lowest paradigms dropped", roznica=b2["roznica"]),
+           b2["df"], b2["p_t"], b2["werdykt"])
+    for z, r in an["zjawiska_klastrowe"].items():
+        klastr(porownanie(f"slayer_vs_pythia/blimp_zjawisko_klastr_{z}/acc", "slayer_vs_pythia", f"blimp_zjawisko_klastr_{z}",
+                          "acc", a, b, None, None, None, None, se_par=r["se"],
+                          zrodlo_par=f"clustered by paradigm (k = {r['k']})", roznica=r["roznica"]),
+               r["df"], r["p_t"], r["werdykt"])  # k < 3: "nierozstrzygalne", whatever t says
+    worek = an["ten_sam_worek_slow"]
+    for df, strony in worek.get("wrazliwosc", {}).items():  # three readings of "same words"
+        for s, r in strony.items():
+            out.append(porownanie(f"slayer_vs_pythia/blimp_worek_{df}_{s}/acc", "slayer_vs_pythia",
+                                  f"blimp_worek_{df}_{s}", "acc", a, b, None, None, None, None, se_par=r["se"],
+                                  zrodlo_par="paired by minimal pair, stratified by paradigm", roznica=r["roznica"]))
+    for nazwa, r in (("blimp_ten_sam_worek_slow_klastr", worek["tak"]), ("blimp_inny_worek_slow_klastr", worek["nie"])):
+        klastr(porownanie(f"slayer_vs_pythia/{nazwa}/acc", "slayer_vs_pythia", nazwa, "acc", a, b, None, None, None, None,
+                          se_par=r["se_paradygmatow"], zrodlo_par=f"clustered by paradigm (k = {r['k_paradygmatow']})",
+                          roznica=r["srednia_paradygmatow"]),
+               r["df_paradygmatow"], r["p_t_paradygmatow"], r["werdykt_paradygmatow"])
+    for nazwa, r in (("blimp_na_token", an["na_token"]),
+                     ("blimp_ta_sama_tokenizacja", an["tokenizacja"]["ta_sama_roznica_tokenow"]),
+                     ("blimp_rozna_tokenizacja", an["tokenizacja"]["rozna_roznica_tokenow"]),
+                     ("blimp_ten_sam_worek_slow", worek["tak"]),
+                     ("blimp_inny_worek_slow", worek["nie"])):
+        out.append(porownanie(f"slayer_vs_pythia/{nazwa}/acc", "slayer_vs_pythia", nazwa, "acc", a, b, None, None, None, None,
+                              se_par=r["se"], zrodlo_par="paired by minimal pair, stratified by paradigm", roznica=r["roznica"]))
+    return out
+
+
+def raporty_blimp(bl):
+    """Metadata of the BLiMP report for the gates of sprawdz_raporty.py (bramki_raportu)."""
+    an = bl.get("analiza")
+    if not an:
+        return []
+    return [{"plik": "benchmarki/blimp/wyniki/BLIMP.md", "test": "blimp", "wieloparadygmatowy": True,
+             "k_paradygmatow": an["generalizacja"]["k"],
+             "porownanie_klastrowe": "slayer_vs_pythia/blimp_klastrowane/acc",
+             "holm": {g: r["holm"] for g, r in an["paradygmaty_dodatkowe"].items()},
+             "grupy": [{"nazwa": z, "etykieta": z.replace("_", " "), "k": r["k"], "werdykt": r["werdykt"]}
+                       for z, r in an["zjawiska_klastrowe"].items()],
+             # the k < 3 rule binds only the paradigm-level (clustered) column of a group row; the pair-level
+             # verdict next to it is a claim about the pairs, valid at any k
+             "kolumna_werdyktu_klastrowego": "verdict paradigms",
+             # the report must equal, byte for byte, what this generator writes from LICZBY.json + blimp.json
+             "generator": {"modul": "benchmarki/blimp/blimp_raport.py", "funkcja": "pliki",
+                           "wejscie": BLIMP},
+             "tokenizery": bl.get("tokenizery_sha256", {}),
+             "porownanie_na_token": "slayer_vs_pythia/blimp_na_token/acc"}]
+
+
 def zbuduj(korzen=KORZEN):
     raport = json.loads((korzen / "wyniki/raport_formatu.json").read_text())
     por = json.loads((korzen / WYGASZANIE / "porownanie.json").read_text())
@@ -232,13 +321,22 @@ def zbuduj(korzen=KORZEN):
     porownania = porownania_formatu(raport) + porownania_wygaszania(por)
     zrodla = ["wyniki/raport_formatu.json", f"{WYGASZANIE}/porownanie.json"] + \
              [str(p.relative_to(korzen)) for p in heldouty]
+    plik_blimp = korzen / BLIMP
+    raporty = []  # reports with metadata for the gates of sprawdz_raporty.py (older reports have none)
+    if plik_blimp.exists():
+        bl = json.loads(plik_blimp.read_text())
+        # per-paradigm values live in `porownania` (with SE and verdict), not twice in `wartosci`
+        splaszcz({k: v for k, v in bl.items() if k != "porownanie"}, "blimp", wartosci,
+                 pomin=("okna", "per_grupa", "per_grupa_acc_norm", "paradygmaty"))
+        porownania += porownania_blimp(bl)
+        raporty += raporty_blimp(bl)
     bench = benchmarki(korzen)
     return {"zrodla": zrodla + [z for b in bench.values() for z in b["zrodla"]],
-            "benchmarki": bench,
+            "benchmarki": bench, "raporty": raporty,
             "werdykt": {"pewne": f"|z| >= {PROG_PEWNE}", "prawdopodobne": f"{PROG_PRAWDOPODOBNE} <= |z| < {PROG_PEWNE}",
                         "szum": f"|z| < {PROG_PRAWDOPODOBNE}",
                         "uwaga": "werdykt główny z SE parowanego, gdy jest; inaczej z niezależnego (ostrożnego)"},
-            "aliasy": ALIASY, "wartosci": wartosci, "porownania": porownania}
+            "aliasy": ALIASY, "tylko_z_nazwa": TYLKO_Z_NAZWA, "wartosci": wartosci, "porownania": porownania}
 
 
 def pl(x, cyfr=4):
