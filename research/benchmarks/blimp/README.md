@@ -100,13 +100,13 @@ kontrole i odchylenia od protokołu: [`results/CHECKPOINTS.md`](results/CHECKPOI
 | 10010 | tak | 0,7707 | 0,0015 | -5,00 pkt | 0,16 pkt | z = -30,88 | pewne |
 | 13848 | tak | 0,7921 | 0,0014 | -2,87 pkt | 0,16 pkt | z = -18,11 | pewne |
 
-- Pytanie 1 (czy różnica do Pythii-1B maleje w biegu końcowym): reguła protokołu spełniona, nachylenie po krokach
-  7150, 8600, 10010 i 13848 to 0,26 pkt na mld tokenów, SE 0,02 pkt, z = 12,55 (pewne), po 67 paradygmatach
-  t = 3,34 (pewne).
+- Pytanie 1 (czy różnica do Pythii-1B maleje w biegu końcowym). Czy luka maleje z tokenami: nierozstrzygnięte
+  (z SE z reszt wokół prostej nachylenie to szum, p = 0,18). Reguła z protokołu jest spełniona (nachylenie po krokach 7150, 8600, 10010 i 13848 to 0,26 pkt na mld tokenów,
+  SE 0,02 pkt, z = 12,55; po 67 paradygmatach t = 3,34), ale cały wzrost leży w odcinku po wznowieniu biegu.
 - Cały wzrost leży między 10010 a 13848: 2,14 pkt, z = 15,00 (pewne). Między 7150 a 10010 zmiana to -0,36 pkt,
   z = -2,50 (prawdopodobne), a bez kroku 13848 nachylenie wynosi -0,12 pkt na mld tokenów, z = -2,38
   (prawdopodobne).
-- W tym przedziale bieg wznowiono na innym sprzęcie, a z SE liczonym z rozrzutu czterech checkpointów wokół prostej
+- W przedziale 10010-13848 bieg wznowiono na innym sprzęcie, a z SE liczonym z rozrzutu czterech checkpointów wokół prostej
   (0,13 pkt) nachylenie to szum (p = 0,18). Trendu nie da się więc oddzielić od skoku między checkpointami.
 - Pytanie 2 (uśrednianie wag zamiast wygaszania LR): potwierdzone na avg3 i avg5. Zmiana straty na held-out wobec 1.06
   to -0,0290 nat (SE 0,0005, z = -63,54) dla avg3 i -0,0381 nat (SE 0,0007, z = -57,68) dla avg5, czyli 0,575 i
