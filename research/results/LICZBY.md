@@ -1,6 +1,6 @@
 # Liczby raportów (wygenerowane, nie edytuj ręcznie)
 
-Źródło: `python tools/liczby.py` z `results/raport_formatu.json`, `slayer-1b/wygaszanie/wyniki/porownanie.json`, `slayer-1b/wygaszanie/wyniki/heldout_1.03.json`, `slayer-1b/wygaszanie/wyniki/heldout_1.06.json`, `slayer-1b/wygaszanie/wyniki/heldout_13800.json`, `slayer-1b/wygaszanie/wyniki/heldout_A.json`, `slayer-1b/wygaszanie/wyniki/heldout_B.json`, `benchmarks/blimp/results/blimp.json`, `benchmarks/blimp/results/kontrola_forward.json`, `benchmarks/ewok-pl/results/raport_ewok.json`, `benchmarks/wikitext-2/results/bajty.json`, `benchmarks/wikitext-2/results/mianownik.json`.
+Źródło: `python tools/liczby.py` z `analyses/answer-format/results/raport_formatu.json`, `slayer-1b/wygaszanie/wyniki/porownanie.json`, `slayer-1b/wygaszanie/wyniki/heldout_1.03.json`, `slayer-1b/wygaszanie/wyniki/heldout_1.06.json`, `slayer-1b/wygaszanie/wyniki/heldout_13800.json`, `slayer-1b/wygaszanie/wyniki/heldout_A.json`, `slayer-1b/wygaszanie/wyniki/heldout_B.json`, `benchmarks/blimp/results/blimp.json`, `benchmarks/blimp/results/kontrola_forward.json`, `benchmarks/ewok-pl/results/raport_ewok.json`, `benchmarks/wikitext-2/results/bajty.json`, `benchmarks/wikitext-2/results/mianownik.json`.
 Werdykt z |z|: ≥ 3 pewne, 2–3 prawdopodobne, < 2 szum. SE parowane tylko tam, gdzie są wyniki per pytanie;
 Slayer vs Pythia ma SE niezależne (hypot), czyli ostrożne.
 

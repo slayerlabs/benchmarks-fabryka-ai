@@ -97,15 +97,15 @@ służą do diagnozy.
 `HFLM` (transformers), a `config.json` Slayera nie ma `model_type` ani kodu modelowania:
 `AutoConfig.from_pretrained` kończy się `ValueError: Unrecognized model` (sprawdzone na 1.06 z
 transformers 4.57.6). Ta ścieżka działa dla modeli z transformers (Pythia, Qwen). Wyniki Slayera w
-`results/raport_formatu.json` liczy `hipoteza_formatu.py` z forwardem `slayer_model.py`:
+`analyses/answer-format/results/raport_formatu.json` liczy `hipoteza_formatu.py` z forwardem `slayer_model.py`:
 
 ```bash
 huggingface-cli download SlayerLab/Slayer1B-1.06 --revision ef81be58742544ad32e1afab38db011fec209609 \
   --local-dir models/slayer-1.06
 .venv-eval/bin/python common/hipoteza_formatu.py licz --model models/slayer-1.06 \
-  --zadania arc_c_cloze,arc_c_mc --wyjscie results/1.06 --device cpu
-.venv-eval/bin/python common/hipoteza_formatu.py wikitext --model models/slayer-1.06 --wyjscie results/1.06
-.venv-eval/bin/python common/hipoteza_formatu.py analiza --wyniki wyniki
+  --zadania arc_c_cloze,arc_c_mc --wyjscie analyses/answer-format/results/1.06 --device cpu
+.venv-eval/bin/python common/hipoteza_formatu.py wikitext --model models/slayer-1.06 --wyjscie analyses/answer-format/results/1.06
+.venv-eval/bin/python analyses/answer-format/analiza_formatu.py --wyniki analyses/answer-format/results
 ```
 
 Pełna lista zadań i komenda dla Pythii: `paczka_testerzy/INSTRUKCJA.md`, sekcja „Jak wygenerować

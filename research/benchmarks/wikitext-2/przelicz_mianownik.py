@@ -45,7 +45,7 @@ por = json.loads(t)
 por["wikitext"] = {m: przelicz(w) for m, w in por["wikitext"].items()}
 zapisz(f, por, t)
 
-f = KORZEN / "results/raport_formatu.json"
+f = KORZEN / "analyses/answer-format/results/raport_formatu.json"
 t = f.read_text()
 rap = json.loads(t)
 wk = {k: v for k, v in rap["slayer_wikitext_kontrola"].items() if k != "space_1.06_byte_ppl"}

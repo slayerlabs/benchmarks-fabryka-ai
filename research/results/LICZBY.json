@@ -1,6 +1,6 @@
 {
  "zrodla": [
-  "results/raport_formatu.json",
+  "analyses/answer-format/results/raport_formatu.json",
   "slayer-1b/wygaszanie/wyniki/porownanie.json",
   "slayer-1b/wygaszanie/wyniki/heldout_1.03.json",
   "slayer-1b/wygaszanie/wyniki/heldout_1.06.json",

@@ -1,6 +1,6 @@
 """Jedno źródło liczb dla raportów: results/LICZBY.json + results/LICZBY.md z surowych wyników.
 
-Czyta results/raport_formatu.json, slayer-1b/wygaszanie/wyniki/{porownanie,heldout_*}.json
+Czyta analyses/answer-format/results/raport_formatu.json, slayer-1b/wygaszanie/wyniki/{porownanie,heldout_*}.json
 i benchmarks/*/results/*.json (osobna pula wartości per benchmark, bez porównań).
 Każde porównanie dostaje różnicę, SE różnicy, z = różnica / SE i werdykt (|z| >= 3 „pewne”,
 2-3 „prawdopodobne”, < 2 „szum”). SE parowane (to samo pytanie / to samo okno, dwa modele) jest
@@ -58,6 +58,7 @@ USTAWIENIA_BENCHMARKOW = {
 }
 WYGASZANIE = "slayer-1b/wygaszanie/wyniki"
 BLIMP = "benchmarks/blimp/results/blimp.json"
+FORMAT = "analyses/answer-format/results/raport_formatu.json"
 
 
 def werdykt(z):
@@ -312,7 +313,7 @@ def raporty_blimp(bl):
 
 
 def zbuduj(korzen=KORZEN):
-    raport = json.loads((korzen / "results/raport_formatu.json").read_text())
+    raport = json.loads((korzen / FORMAT).read_text())
     por = json.loads((korzen / WYGASZANIE / "porownanie.json").read_text())
     wartosci = {}
     splaszcz(raport, "raport_formatu", wartosci)
@@ -328,7 +329,7 @@ def zbuduj(korzen=KORZEN):
     wartosci["pochodne/3xZ1_103_106"] = 3 * h["Z1_103_106"]
     wartosci["pochodne/3xZ2_13800_13848"] = 3 * h["Z2_13800_13848"]
     porownania = porownania_formatu(raport) + porownania_wygaszania(por)
-    zrodla = ["results/raport_formatu.json", f"{WYGASZANIE}/porownanie.json"] + \
+    zrodla = [FORMAT, f"{WYGASZANIE}/porownanie.json"] + \
              [str(p.relative_to(korzen)) for p in heldouty]
     plik_blimp = korzen / BLIMP
     raporty = []  # reports with metadata for the gates of sprawdz_raporty.py (older reports have none)

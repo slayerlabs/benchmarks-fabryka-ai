@@ -6,10 +6,10 @@ Slayer: zawsze jeden BOS <|endoftext|>, jak w METHOD.md Space). Ten sam scorer p
 test 0 (Pythia/Qwen vs opublikowane liczby), zanim mierzymy nim Slayera.
 
   python common/hipoteza_formatu.py licz --model <katalog> --etykieta 1.06 \
-      --zadania arc_c_cloze,arc_c_mc --wyjscie results/1.06 [--device mps] [--limit N]
-  python common/hipoteza_formatu.py wikitext --model <katalog_slayera> --wyjscie results/1.06
+      --zadania arc_c_cloze,arc_c_mc --wyjscie analyses/answer-format/results/1.06 [--device mps] [--limit N]
+  python common/hipoteza_formatu.py wikitext --model <katalog_slayera> --wyjscie analyses/answer-format/results/1.06
   python common/hipoteza_formatu.py zgodnosc --model <katalog> --n 20   # MPS vs CPU
-  python common/hipoteza_formatu.py analiza --wyniki wyniki
+  python analyses/answer-format/analiza_formatu.py --wyniki analyses/answer-format/results
 
 Wyjście `licz`: <wyjscie>/<zadanie>.jsonl, wiersz na pytanie (logliki opcji, bezwarunkowe,
 bajty/znaki/tokeny), dopisywane przyrostowo (wznowienie pomija gotowe id), oraz
@@ -525,14 +525,8 @@ def main():
     w = sub.add_parser("wikitext")
     w.add_argument("--model", required=True); w.add_argument("--wyjscie", required=True)
     w.add_argument("--device", default="cpu")
-    an = sub.add_parser("analiza")
-    an.add_argument("--wyniki", required=True)
     a = p.parse_args()
-    if a.cmd == "analiza":
-        from analiza_formatu import analiza
-        analiza(Path(a.wyniki))
-    else:
-        {"licz": cmd_licz, "zgodnosc": cmd_zgodnosc, "wikitext": cmd_wikitext}[a.cmd](a)
+    {"licz": cmd_licz, "zgodnosc": cmd_zgodnosc, "wikitext": cmd_wikitext}[a.cmd](a)
 
 
 if __name__ == "__main__":
