@@ -1,7 +1,11 @@
 # WikiText-2: mianownik perpleksji na bajt i na słowo
 
+> Praca idzie według [`METODOLOGIA.md`](../../METODOLOGIA.md): etap A to karta oryginału (`ORIGINAL.md`), etap B to
+> odtworzenie opublikowanego wyniku kodem autorów (`REPRODUCTION.md`), etap D to wersja polska tą samą metodą.
+> Pojęcia (Space, T01–T50, BPB, SE, werdykt): [słowniczek](../../METODOLOGIA.md#słowniczek).
+
 WikiText-2 (Merity i in. 2016) to zadanie modelowania języka T03 w Space: perpleksja 62 dokumentów
-testowych, liczona przez lm-eval w commicie `6d2abda4fd171e68a8789330c4149e37c1ca0bda`. W tym katalogu jest
+testowych, liczona według [`METHOD.md`](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks/blob/main/METHOD.md) przez lm-eval w commicie `6d2abda4fd171e68a8789330c4149e37c1ca0bda`. W tym katalogu jest
 diagnoza i poprawka różnicy między naszą perpleksją na bajt Slayera 1.06 a wartością ze Space (PR #8).
 
 - [ORIGINAL.md](ORIGINAL.md): karta zbioru i zadania `wikitext` z lm-eval (etap A).
@@ -45,17 +49,24 @@ perpleksja nie ma SE (nie liczyliśmy bootstrapu po dokumentach), więc żaden w
 | B (stały LR, `wygaszanie/wyniki/B`) | 1,9205 | 1,8725 | 0,9049 | 52,5025 | 28,6236 |
 | Space, Slayer 1.06 | | 1,846283836 | | | |
 
+Dwie wartości Slayera 1.06 po poprawce (1,846283824 i 1,846283823) pochodzą z dwóch osobnych przebiegów forwardu tego
+samego modelu; ich sumy NLL różnią się o około jedną tysięczną nata, co zmienia tylko ostatnią cyfrę.
+A i B to dwa krótkie dotrenowania Slayera 1.06 (150 kroków od `ckpt_13848`): A z liniowym wygaszaniem tempa uczenia
+(LR) do zera, B ze stałym LR; opis eksperymentu: [`../../slayer-1b/wygaszanie/README.md`](../../slayer-1b/wygaszanie/README.md).
+
 ## Wnioski
 
 - Po poprawce nasz Slayer 1.06 i Space zgadzają się do ósmej cyfry znaczącej, więc cała różnica
-  pochodziła z mianownika (werdykt wobec spisanego progu: nierozstrzygalne, bo metodologia nie ma jeszcze
-  progu dla perpleksji, zadanie #41); zob. [REPRODUCTION.md](REPRODUCTION.md).
+  pochodziła z mianownika (werdykt wobec spisanego progu: nierozstrzygalne, bo próg dla perpleksji jest dopiero do ustalenia,
+  [METODOLOGIA.md, „Próg dla perpleksji i BPB”](../../METODOLOGIA.md#próg-dla-perpleksji-i-bpb)); zob. [REPRODUCTION.md](REPRODUCTION.md).
 - Najmocniej spada perpleksja na słowo (z 48,0352 do 26,5471), bo oryginalny tekst ma dużo więcej słów
   rozdzielonych białymi znakami niż tekst po detokenizacji (241335 wobec 204373).
 - Zmienia się tylko mianownik. Suma NLL, forward, okna i tokenizacja zostają bez zmian.
 - Porównania między checkpointami się nie zmieniają, bo wszystkie modele mają ten sam mianownik: kolejność
   A, Slayer 1.06, B na WikiText-2 zostaje i zostaje wybór wariantu modelu (RoPE `gptj`, value residual
-  `add`). Czy A jest lepszy od Slayera 1.06 albo od B, jest nierozstrzygalne: te perpleksje nie mają SE.
+  `add`). Wariant to dwa szczegóły architektury Slayera, których `config.json` nie rozstrzyga, więc
+  `common/slayer_model.py` wybrał je pomiarem: styl obrotu pozycji RoPE (`gptj` = sąsiednie pary wymiarów) i sposób
+  mieszania wartości V z pierwszego bloku (`add` = V plus V pierwszego bloku pomnożone przez wyuczony skalar). Czy A jest lepszy od Slayera 1.06 albo od B, jest nierozstrzygalne: te perpleksje nie mają SE.
 - `results/mianownik.json` porównuje z wartością Space zaokrągloną do `1.846`; jego `roznica_po_proc`
   odzwierciedla to zaokrąglenie. Porównanie w pełnej precyzji jest w `results/bajty.json`.
 - Wartości z 3-dokumentowej sondy wariantów w komentarzu `common/slayer_model.py` są w starej konwencji;
@@ -73,12 +84,15 @@ perpleksja nie ma SE (nie liczyliśmy bootstrapu po dokumentach), więc żaden w
 
 ## Co dodaje metodologia
 
+Lista tego, czego ta praca jeszcze nie spełnia według [`METODOLOGIA.md`](../../METODOLOGIA.md); każdy punkt to osobne
+zadanie do wzięcia.
+
 - [ ] Uruchomić samo lm-eval (`--tasks wikitext`, commit `6d2abda4fd171e68a8789330c4149e37c1ca0bda`) na
       Slayerze 1.06 i porównać z naszym `cmd_wikitext`; na razie etap B stoi na naszym forwardzie
       z elementami lm-eval.
 - [ ] Model kontrolny `EleutherAI/pythia-1b-v0` @ `step143000` na WikiText-2, przez lm-eval i naszym kodem.
-- [ ] Ustalić próg zgodności dla perpleksji i BPB (zadanie #41 metodologii), potem dać etapowi B formalny
-      werdykt.
+- [ ] Ustalić próg zgodności dla perpleksji i BPB ([METODOLOGIA.md, „Próg dla perpleksji i BPB”](../../METODOLOGIA.md#próg-dla-perpleksji-i-bpb)),
+      potem dać etapowi B formalny werdykt.
 - [ ] Dodać SE albo CI dla perpleksji na bajt (np. bootstrap po 62 dokumentach), żeby porównania
       checkpointów (A wobec B) dostały werdykt.
 - [ ] Test zgodności `tests/test_wikitext_zgodnosc.py`: wartości per dokument z oryginalnego kodu dla 10-20

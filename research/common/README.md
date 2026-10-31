@@ -16,10 +16,10 @@ po SHA-256 zapisanym w `results-feed.json`.
 | `results.schema.json` | JSON Schema (draft 2020-12, `additionalProperties: false` wszędzie) |
 | `results-feed.json` | `{"results": "results.json", "sha256": …}` |
 | `tasks_50.json` | rejestr 50 benchmarków: zadanie lm-eval, repo i rewizja zbioru, split, shoty, metryka, licencja |
-| `METHOD.md` | protokół (niżej) |
+| [`METHOD.md`](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks/blob/main/METHOD.md) | protokół (niżej) |
 | `contamination_field_roles.json` | które pola rekordu są skanowane na kontaminację |
 
-**Protokół (METHOD.md):** 50 benchmarków (38 EN, 12 PL). EN liczy lm-evaluation-harness
+**Protokół ([METHOD.md](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks/blob/main/METHOD.md)):** 50 benchmarków (38 EN, 12 PL). EN liczy lm-evaluation-harness
 w commicie `6d2abda4`, PL fork OpenPL w commicie `21d0ea9c`. Ustawienia: float32, batch 1,
 kontekst do 4096 tokenów (dłuższe wejścia są odrzucane, nie przycinane), bez szablonu czatu,
 jeden BOS. Seedy: python 0, numpy/torch/fewshot 1234. Próbka to `min(200, N)` dokumentów
@@ -71,7 +71,7 @@ najczęstszej predykcji.
 
 | T | zadanie | warianty | uwagi |
 |---|---|---|---|
-| T01 | BLiMP (EN) | `space` (minimal pair, empty context, `" " + sentence`, summed logprob); full set of 67 000 pairs via `hipoteza_formatu.py licz --zadania blimp`, statistics and Space panel in `blimp.py`, official-forward check in `kontrola_forward.py` (commands: BLIMP.md, "How to reproduce") | `benchmarks/blimp/` (README, karta, przepis; pełny raport `results/BLIMP.md`) |
+| T01 | BLiMP (EN) | `space` (para minimalna, pusty kontekst, `" " + zdanie`, suma logprob); pełny zbiór 67 000 par przez `hipoteza_formatu.py licz --zadania blimp`, statystyki i panel Space w `blimp.py`, porównanie z oficjalnym forwardem w `kontrola_forward.py` (komendy: `results/BLIMP.md`, sekcja „How to reproduce”) | `benchmarks/blimp/` (README, karta, przepis; pełny raport `results/BLIMP.md`) |
 | **T02** | **ARC-Challenge** | `space` (cloze, główna acc_norm) + `mc` (litery A–D) | **trace per pytanie** + tryb po checkpointach |
 | T03 | WikiText-2 | `space` (rolling) | word/byte/token perplexity + bits per byte, pełny strumień; mianownik z oryginału jak w lm-eval: `benchmarks/wikitext-2/` |
 | T04 | MultiBLiMP-PL | `space` (para minimalna, spacja przed zdaniem, suma logprob) | PMI pominięte (pusty kontekst) |
@@ -130,7 +130,8 @@ Wyjście: `results.json` (schemat Space, tylko pola schematu, kontaminacja `unsc
 
 ## Różnice wobec Space i rzeczy niezweryfikowane
 
-- lm-eval **0.4.9.1 z PyPI**, nie commit `6d2abda4` (instalacja z gita nie była możliwa). Prompty
+- lm-eval **0.4.9.1 z PyPI**, nie commit `6d2abda4`; która wersja obowiązuje i co porównać:
+  [`../METODOLOGIA.md`](../METODOLOGIA.md), sekcja „Wersja lm-eval”. Prompty
   zadań są przepisane 1:1 z definicji lm-eval, ale zgodności logitów z runnerem Space nie sprawdziliśmy.
 - `source_id` w haszu próbki: używamy pola `id` zbioru (ARC, MedMCQA), a gdzie go brak, indeksu wiersza.
   Definicji z Space nie znamy, więc panel200 może nie być identyczny z panelem Space; porównania

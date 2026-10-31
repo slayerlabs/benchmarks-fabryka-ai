@@ -5,6 +5,7 @@
 *.safetensors
 *.bin
 *.gguf
+models/
 # dane treningowe i zbiory
 *.parquet
 *.arrow
@@ -24,7 +25,8 @@ __pycache__/
 *.pyc
 .venv*/
 .pytest_cache/
-# benchmarki: surowe wyniki per rekord zostają lokalnie (raporty w results/*.json i *.md idą do repo)
+# benchmarki: surowe wyniki per rekord zostają lokalnie (raporty w results/*.json i *.md idą do repo;
+# skompresowane *.jsonl.gz do ~10 MB na plik wolno commitować, AGENTS.md)
 benchmarks/*/results/*/*.jsonl
 analyses/*/results/*/*.jsonl
 analyses/*/results/*/trace/

@@ -15,7 +15,7 @@ w commicie `6d2abda4fd171e68a8789330c4149e37c1ca0bda`.
 | odniesienie (Space) | 1,846283836 |
 | SE | brak: ani nasze pliki, ani skopiowana wartość ze Space nie mają SE ani CI dla tej perpleksji |
 | różnica | zgodność do ósmej cyfry znaczącej (`roznica_po_przeliczeniu_proc` w `results/bajty.json`) |
-| werdykt | zgodne; dla perpleksji nie ma formalnego progu (zadanie #41 metodologii), więc wobec spisanej reguły werdykt jest nierozstrzygalny |
+| werdykt | zgodne; dla perpleksji nie ma formalnego progu ([METODOLOGIA.md, „Próg dla perpleksji i BPB”](../../METODOLOGIA.md#próg-dla-perpleksji-i-bpb)), więc wobec spisanej reguły werdykt jest nierozstrzygalny |
 
 Nasza wartość pochodzi z przeliczenia, nie z nowego uruchomienia modelu: pierwotny przebieg dzielił tę
 samą sumę NLL (791319 natów) przez bajty tekstu po detokenizacji (1240466) i dawał 1,8925. Podział przez
@@ -42,7 +42,7 @@ Sprawdzenia, na których stoi werdykt (z raportu PR #8):
 - **Brak modelu kontrolnego.** `EleutherAI/pythia-1b-v0` @ `step143000` nie był liczony na WikiText-2 ani
   przez lm-eval, ani naszym kodem.
 - **Brak progu dla perpleksji.** Reguła zgodności metodologii (2 pkt albo 2 SE) dotyczy trafności; próg
-  dla perpleksji i BPB jest wciąż otwarty (zadanie #41 metodologii).
+  dla perpleksji i BPB jest wciąż otwarty ([METODOLOGIA.md, „Próg dla perpleksji i BPB”](../../METODOLOGIA.md#próg-dla-perpleksji-i-bpb)).
 - **Brak porównania per dokument.** Etap C wymaga różnicy per dokument poniżej `0,1%` (próg metodologii,
   nie wynik); wartości per dokument ze Space nie ma w naszych plikach, więc porównaliśmy tylko wartość dla
   całego korpusu.

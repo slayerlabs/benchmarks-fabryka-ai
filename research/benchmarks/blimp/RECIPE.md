@@ -44,7 +44,7 @@ BLIMP_DIR=<snapshot> python common/hipoteza_formatu.py licz --model <slayer-1.06
 - Wynik per para: `benchmarks/blimp/results/1.06/blimp.jsonl.gz` (identyfikatory i log-prawdopodobieństwa, bez
   zdań).
 
-## Wynik 2: Pythia-1B (kontrola)
+## Wynik 2: Pythia-1B v1 (porównanie, nie kontrola etapu B)
 
 - Model: [`EleutherAI/pythia-1b` @ `f73d7dcc545c8bd326d8559c8ef84ffe92fea6b2`](https://huggingface.co/EleutherAI/pythia-1b/tree/f73d7dcc545c8bd326d8559c8ef84ffe92fea6b2)
   (wagi v1), transformers, kodowanie par jak w lm-eval HFLM (prefiks `<|endoftext|>`).

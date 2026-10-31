@@ -1,5 +1,10 @@
 # EWoK-PL: Slayer 1B 1.00–1.06, Bielik 1.5B, LFM3 1.7B (30.10.2026)
 
+> Praca idzie według [`METODOLOGIA.md`](../../METODOLOGIA.md): etap A to karta oryginału (`ORIGINAL.md`), etap B to
+> odtworzenie opublikowanego wyniku kodem autorów (`REPRODUCTION.md`), etap D to wersja polska tą samą metodą. Ten
+> katalog powstał przed metodologią i nie ma jeszcze tych plików. Pojęcia (Space, SE, werdykt, CI95):
+> [słowniczek](../../METODOLOGIA.md#słowniczek).
+
 Na polskim EWoK-PL (625 rekordów) Slayer 1.06 ma 55,4% przy losowym 50% i nie rośnie od 1.00
 (+1,0 pkt, p = 0,55). Na pełnym angielskim EWoK (4374) ten sam model rośnie z 53,1 do 58,9%
 (+5,7 pkt, p < 0,001). Bielik-1.5B-v3 ma po polsku 66,0%, czyli 10,6 pkt więcej niż Slayer 1.06 (p < 0,001).
@@ -20,7 +25,7 @@ Jest zgodny z paperem EWoK (Ivanova i in. 2024, [arXiv:2405.09605](https://arxiv
   litery i długości odpowiedzi (główny problem z [raportu Slayera](../../README.md)) z definicji
   się tu nie pojawia.
 - **Scorer:** `common/hipoteza_formatu.py` (`para`, `licz_logliki`, forward `slayer_model.py`). Pary
-  kodujemy jak w lm-eval, z jednym BOS przed kontekstem dla wszystkich modeli (METHOD.md Space), w float32.
+  kodujemy jak w lm-eval, z jednym BOS przed kontekstem dla wszystkich modeli ([`METHOD.md`](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks/blob/main/METHOD.md) Space), w float32.
   Modele HF ładujemy przez `AutoModelForCausalLM` (LFM3 z `trust_remote_code`). Sprawdziliśmy, że
   `glowa(ukryte) == logits` (max |Δ| = 0).
 - **Niepewność:** CI95 z bootstrapu (10 000 powtórzeń, seed 20261028). Kontrasty liczymy sparowanym testem

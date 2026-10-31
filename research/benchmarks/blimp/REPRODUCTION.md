@@ -12,9 +12,9 @@ opisane niżej. Karta oryginału: [`ORIGINAL.md`](ORIGINAL.md).
 | kod autorów (jiant) | nie uruchomiony |
 | lm-eval `blimp` @ `6d2abda4fd171e68a8789330c4149e37c1ca0bda` | nie uruchomiony |
 | zbiór | `nyu-mll/blimp` @ `877fba0801ffb7cbd8c39c1ff314a46f053f6036`, wszystkie 67 paradygmatów, n = 67000 |
-| model kontrolny | `EleutherAI/pythia-1b` (v1) @ `f73d7dcc545c8bd326d8559c8ef84ffe92fea6b2`, float32 |
+| model porównawczy (nie kontrola etapu B, ta wymaga `pythia-1b-v0` @ `step143000`) | `EleutherAI/pythia-1b` (v1) @ `f73d7dcc545c8bd326d8559c8ef84ffe92fea6b2`, float32 |
 
-## Kontrola: Pythia-1B wobec opublikowanej wartości
+## Zakres kontrolny: Pythia-1B v1 wobec opublikowanej wartości v0 (nie kontrola etapu B)
 
 | | wartość |
 |---|---|

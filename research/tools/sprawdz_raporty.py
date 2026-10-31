@@ -61,7 +61,9 @@ OCENA = re.compile(r"\b(lepsz\w*|gorsz\w*|lu(?:ka|ki|kę|ką|ce|k)\b|przewag\w*|
                    r"pogorsz\w*|pogarsz\w*|istotn\w*|prawdziw\w*|"
                    r"better|worse|gaps?\b|advantage\w*|ahead|behind|outperform\w*|significant\w*)", re.IGNORECASE)
 DOWOD = re.compile(r"\bSE\b|\b[zt]\s*=|szum|pewn|prawdopodobn|bez (?:wykrywalnej )?różnicy|w granicach|\|Δ\||"
-                   r"\bnoise\b|\bcertain\b|\bprobable\b|\bwithin\b|undetermined|no detectable difference",
+                   r"\bnoise\b|\bcertain\b|\bprobable\b|undetermined|no detectable difference|"
+                   # "within" is evidence only as a bound: "within ±2 points", "within 2 SE" (not "within 7 paradigms")
+                   r"\bwithin\s*(?:±|\+-|\+/-)|\bwithin\s+\d+(?:[.,]\d+)?\s*SE\b",
                    re.IGNORECASE)
 WERDYKT = [("pewne", re.compile(r"\bpewn(?:e|a|y|ą|ych)\b|\bcertain\b", re.IGNORECASE)),
            ("prawdopodobne", re.compile(r"\bprawdopodobn\w*|\bprobable\b|\bprobably\b", re.IGNORECASE))]

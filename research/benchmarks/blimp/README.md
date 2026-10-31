@@ -1,5 +1,9 @@
 # BLiMP: Slayer 1.06 i Pythia-1B na pełnym zbiorze
 
+> Praca idzie według [`METODOLOGIA.md`](../../METODOLOGIA.md): etap A to karta oryginału (`ORIGINAL.md`), etap B to
+> odtworzenie opublikowanego wyniku kodem autorów (`REPRODUCTION.md`), etap D to wersja polska tą samą metodą.
+> Pojęcia (Space, T01–T50, panel 200, SE, werdykt): [słowniczek](../../METODOLOGIA.md#słowniczek).
+
 BLiMP (Warstadt i in. 2020) sprawdza gramatykę angielską na 67 paradygmatach x 1000 par minimalnych: para jest
 trafiona, gdy model daje zdaniu poprawnemu wyższe log-prawdopodobieństwo. Poziom losowy to 0,5. Space liczy ten
 test (T01) na panelu 200 par; tutaj oba modele liczone są na wszystkich 67 000.
@@ -53,18 +57,25 @@ poprawka Holma zostawia 37 różnic. Największe pewne różnice na korzyść Sl
 Spearmana 0,77 między różnicami sumowanymi a liczonymi na token), patrz pełny raport.
 
 Przewaga Pythii leży w parach, które różnią się słowem albo jego formą: z od -18,12 do -23,18 (pewne) we
-wszystkich trzech odczytach „tych samych słów”. Dla par z tymi samymi słowami w innej kolejności werdykt zmienia
+wszystkich trzech odczytach „tych samych słów”. Odczyt to sposób rozstrzygania, czy zdanie poprawne i błędne
+składają się z tych samych słów (tylko w innej kolejności): małe litery bez interpunkcji, surowy tekst dzielony na
+spacjach albo słowa i interpunkcja jako osobne jednostki; szczegóły w [`results/BLIMP.md`](results/BLIMP.md),
+sekcja o tokenizerze i słownictwie („tokenizer and vocabulary”). Dla par z tymi samymi słowami w innej kolejności werdykt zmienia
 znak razem z definicją (z od -2,53 do 2,32), więc tam nie ma wniosku (eksploracyjnie).
 
 ### Panel Space 200 par a pełny zbiór
 
-Wartość Space dla Slayera 1.06 to 0,8408 (CI95 0,806-0,876, n = 200). Odbudowany według odczytu z protokołu
-(`pair_id`) panel daje 0,7761, poza CI95 Space: panel nie odtworzony. Hasz kanonicznego wiersza daje dokładnie
-0,8408, więc to prawdopodobnie panel Space (wniosek z jednej wartości). To panel szczęśliwy: tylko 3,3% losowych
+Wartość Space dla Slayera 1.06 to 0,8408 (CI95 0,806-0,876, n = 200). Space wybiera 200 par
+po haszu SHA-256 z identyfikatorem pary w środku ([`METHOD.md`](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks/blob/main/METHOD.md),
+sekcja 3), ale nie mówi dokładnie, jaki to identyfikator. Panel odbudowany z identyfikatorem `pair_id` (pole
+identyfikatora pary w zbiorze BLiMP, odczyt z protokołu) daje 0,7761, poza CI95 Space: panel nie odtworzony. Panel
+odbudowany z haszem całego wiersza zbioru zapisanego w ustalonej postaci („hasz kanonicznego wiersza”) daje dokładnie
+0,8408, więc to prawdopodobnie panel Space (wniosek z jednej wartości). Szczegóły: [`results/BLIMP.md`](results/BLIMP.md),
+sekcja „Agreement with the Space (panel of 200)”. To panel szczęśliwy: tylko 3,3% losowych
 paneli o tym samym podziale daje Slayerowi tę wartość albo wyższą. Wartość z pełnego zbioru 0,7921 leży poza
 CI95 Space. Używaj pełnego zbioru.
 
-### Kontrola na Pythii
+### Pythia-1B wobec opublikowanej wartości (nie kontrola etapu B)
 
 Nasza Pythia-1B 0,8207 wobec 0,8234 opublikowanego dla `EleutherAI/pythia-1b-v0` @ `step143000`: różnica
 -0,27 pkt, w granicach +-2 pkt. Inne wagi i starszy harness, więc to zakres kontrolny, nie odtworzenie
@@ -79,6 +90,9 @@ Nasza Pythia-1B 0,8207 wobec 0,8234 opublikowanego dla `EleutherAI/pythia-1b-v0`
 
 ## Co dodaje metodologia
 
+Lista tego, czego ta praca jeszcze nie spełnia według [`METODOLOGIA.md`](../../METODOLOGIA.md); każdy punkt to osobne
+zadanie do wzięcia.
+
 - [ ] Etap B z kodem referencyjnym: lm-eval `blimp` @ `6d2abda4fd171e68a8789330c4149e37c1ca0bda` (albo skrypty
       jiant autorów) i nasz kod oceny na tych samych wagach, `EleutherAI/pythia-1b-v0` @ `step143000`,
       porównane z opublikowaną wartością Pythii v0; dziś kontrola porównuje wagi v1 z wagami v0.
@@ -88,7 +102,7 @@ Nasza Pythia-1B 0,8207 wobec 0,8234 opublikowanego dla `EleutherAI/pythia-1b-v0`
       `speakleash/Bielik-1.5B-v3`, `LiquidAI/LFM3-1.7B-Base`, `utter-project/EuroLLM-1.7B`) na pełnym zbiorze.
 - [ ] Brakujące pola przepisu: dokładny sprzęt (chip), wersja Pythona w głównym przebiegu, sha256 plików zbioru,
       transformers przypięty do commitu.
-- [ ] Kalibracja forwardu Slayera z METHOD.md (logity równe bit w bit), nie zrobiona.
+- [ ] Kalibracja forwardu Slayera z [`METHOD.md`](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks/blob/main/METHOD.md) (logity równe bit w bit), nie zrobiona.
 - [ ] Skan kontaminacji dla obu modeli.
-- [ ] Wersja polska (etap D): BLiMP to test zjawisk językowych, więc buduje się go od zera na zjawiskach
-      polszczyzny, nie tłumaczy.
+- [ ] Wersja polska (etap D): BLiMP to test zjawisk językowych, więc osoba z Polski pisze nowe pary od
+      zera na zjawiskach polszczyzny, bez tłumaczenia i parafrazy angielskich par.

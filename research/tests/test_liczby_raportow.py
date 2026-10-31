@@ -267,6 +267,19 @@ def test_english_assessment_needs_se_or_verdict():
     assert S.zadeklarowany_werdykt("a certain gap") == "pewne"
 
 
+def test_within_counts_only_as_a_bound():
+    # regression: any "within" used to pass as evidence, so a count of paradigms hid a claim without SE
+    assert S.ocena_bez_dowodu("X is better than Y within 7 paradigms.")
+    assert not S.ocena_bez_dowodu("X is better than Y, within ±2 points.")
+    assert not S.ocena_bez_dowodu("X is better than Y, within 2 SE.")
+
+
+def test_within_paradigms_gives_exit_code_1(tmp_path):
+    p = tmp_path / "raport.md"
+    p.write_text("X is better than Y within 7 paradigms.\n", encoding="utf-8")
+    assert S.main([str(p)]) == 1
+
+
 def test_wikitext_files_use_pool_and_global_values():
     plik = "benchmarks/wikitext-2/README.md"
     assert not bledy("Byte perplexity Slayera 1.06: 1,846284.", plik)        # global (porownanie/wikitext)

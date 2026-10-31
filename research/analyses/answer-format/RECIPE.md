@@ -8,7 +8,7 @@ pliki (komendy niżej), potem uruchamia analizę.
 
 | pole | wartość |
 |---|---|
-| commit kodu przebiegów | nie zapisany. Surowe pliki i `raport_formatu.json` weszły do repo w `626449d` (2026-10-30, kod był wtedy w `slayer-1b/slayer_eval/`); scorer z tego commitu to najbliższy zapisany stan |
+| commit kodu przebiegów | nie zapisany. Surowe pliki i `raport_formatu.json` weszły do repo w `626449d` (2026-10-30, kod był wtedy w `research/slayer-1b/`, przed przeniesieniem do `common/`); scorer z tego commitu to najbliższy zapisany stan |
 | obecny kod | `common/hipoteza_formatu.py` (scorer), `common/slayer_model.py` (forward Slayera), `analyses/answer-format/analiza_formatu.py` (testy T0-T5), przeniesione tu w `a9e8410` |
 | zmiany kodu od przebiegów | `hipoteza_formatu.py` teraz odrzuca wejścia dłuższe niż kontekst modelu (`<task>.odrzucone.jsonl`) zamiast przycinać je z lewej i używa BOS (inaczej EOS) jako tokenu pustego kontekstu dla modeli HF (wcześniej EOS; dla Pythii i Qwena to ten sam token). Prompty i reguły wyboru bez zmian. Po tych zmianach nie liczono ponownie |
 | raport wygenerowany | `raport_formatu.json` ostatnio zmieniony w `3ed788c` (2026-10-31; tylko blok `slayer_wikitext_kontrola`) |
