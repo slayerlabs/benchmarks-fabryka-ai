@@ -1,4 +1,4 @@
-"""Ewaluacja jednego modelu scorerem slayer_eval/hipoteza_formatu.py: testy główne albo szuflada (BETR).
+"""Ewaluacja jednego modelu scorerem wspolne/hipoteza_formatu.py: testy główne albo szuflada (BETR).
 
 python testy_danych_slayer/ewal_ramion.py --model <katalog> --wyjscie wyniki/<etykieta> [--szuflada] [--limit N]
 
@@ -15,7 +15,7 @@ import sys
 import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "slayer_eval"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "wspolne"))
 import hipoteza_formatu as H  # noqa: E402
 
 GLOWNE = "arc_e_cloze,arc_c_cloze,mmlu_cloze_5shot,siqa_cloze,belebele_cloze,belebele_mc,multiblimp"

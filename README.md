@@ -1,34 +1,39 @@
-# Fabryka Benchmarks
+# Jak dołączyć
 
-An isolated React 19 / TypeScript / Vite / React Router frontend for Fabryka Benchmarks. Phase 1 adds Leaderboard, AutoEval, Benchmarks and About / Methodology views. All displayed models and measurements are explicitly labeled **synthetic test data**. AutoEval is a disconnected prototype; no backend, credentials, production API, database, training jobs or deployment.
+Mierzymy polsko-angielski model **Slayer 1B** na 50 testach i budujemy polskie benchmarki. Każda para rąk się przyda, nawet na 2 godziny.
 
-See [Phase 1 UI architecture, verification and screenshots](docs/phase1-product-ui.md) for the display registry, version-aware provenance contract, limitations and stacked-PR dependency.
+**1. Dołącz do Discorda**, kanał **#bench-team**: https://discord.gg/HnTkVR4c5T. Tam pytasz, ogłaszasz, że bierzesz zadanie, i dostajesz dostęp do repo (napisz swój nick GitHub do Elwenora).
 
-## Local development
+**2. Weź pierwsze zadanie** z etykietą `good first issue`. Są małe (do 2 h) i mają dokładne kroki:
+- [#5](https://github.com/LoIlita/test-slayer/issues/5) Social IQa ma w Space status not_run dla Slayera 1.06
+- [#6](https://github.com/LoIlita/test-slayer/issues/6) Winograd Schema Challenge ma w Space status not_run dla Slayera 1.06
+- [#7](https://github.com/LoIlita/test-slayer/issues/7) LogiQA ma w Space status not_run dla Slayera 1.06
+- [#16](https://github.com/LoIlita/test-slayer/issues/16) MathQA ma w Space status not_run dla Slayera 1.06
 
-Use Node 24 (see `.nvmrc`) and npm:
+Wszystkie zadania dla nowych: https://github.com/users/LoIlita/projects/2/views/4
 
-```sh
-npm ci
-npm run dev
+**3. Zobacz, dokąd zmierzamy:**
+- Tablica zadań: https://github.com/users/LoIlita/projects/2
+- Kamienie z terminami: https://github.com/LoIlita/test-slayer/milestones
+- Szybkie zadania (do 2 h): https://github.com/users/LoIlita/projects/2/views/5
+- Wyniki modelu (Space): https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks
+- Kod i PR-y: https://github.com/slayerlabs/benchmarks-fabryka-ai
+- Organizacja na GitHubie: https://github.com/slayerlabs
+- Organizacja na Hugging Face (model, Space): https://huggingface.co/SlayerLab
+
+**4. Przygotuj komputer** według sekcji „Przygotowanie (raz)” w [`research/README.md`](research/README.md#przygotowanie-raz) i otwórz pierwszy PR.
+
+```mermaid
+flowchart LR
+  A[Discord #bench-team] --> B[good first issue]
+  B --> C[Przypisz się: In Progress]
+  C --> D[PR + Refs LoIlita/test-slayer#N]
+  D --> E[Review] --> F[Done]
 ```
 
-Open the local Vite address printed by the command; the app routes to `/models`. No environment variables or external services are needed. Fixtures are bundled locally; no fetch occurs. All fonts and styles are local.
+Szczegóły (pola, etykiety, definicja „zrobione”): [README test-slayer](https://github.com/LoIlita/test-slayer#readme). Układ katalogów, uruchomienie, testy i bramka liczb: [`research/README.md`](research/README.md).
 
-```sh
-npm run check
-npm run lint
-npm test
-npx playwright install chromium
-npm run test:ui
-npm run build
-npm run preview
-```
+## Co jest w repo
 
-Unit tests use Node's built-in runner. Playwright exercises the actual UI and blocks nonlocal requests. Both use local fixtures only. CI runs checks, lint, tests and build on pull requests and main pushes; there is no deployment workflow. To reuse an installed Chromium locally, set CHROMIUM_PATH to its executable path when running npm run test:ui.
-
-## Working together
-
-Keep `main` stable. Create `feature/*`, `fix/*` or `experiment/*` branches and open a PR. Describe behavior, test results, screenshots for UI changes and any scoring/provenance impact. Request team review before merging. Never modify `slayerlabs/fabryka-track` or production infrastructure. Never configure production API access, credentials, SSH or autodeploy here.
-
-See [architecture and source attribution](docs/architecture.md) for responsibilities, exact calculation semantics and the future read-only adapter boundary. See [AGENTS.md](AGENTS.md) for agent instructions.
+- [`research/`](research/README.md): benchmarki, kod wspólny, bramka liczb, wyniki.
+- [`frontend-beta/`](frontend-beta/README.md): prototyp tablicy wyników (React, dane syntetyczne), teraz nieużywany.

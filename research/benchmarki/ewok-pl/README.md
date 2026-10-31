@@ -7,7 +7,7 @@ LFM3-1.7B-Base ma po polsku 57,4% (różnica ze Slayerem w granicach szumu), ale
 Dzisiejszy EWoK-PL obejmuje tylko domenę `agent-properties`, więc nie mówi jeszcze nic
 o fizyce, przestrzeni ani relacjach społecznych.
 
-**Podsumowanie wyników i wnioski: [`WYNIKI.md`](WYNIKI.md).** Pełne liczby: [`../wyniki_ewok/raport_ewok.md`](../wyniki_ewok/raport_ewok.md) (CI95, kontrasty, rozbicia), dane: `raport_ewok.json`.
+**Podsumowanie wyników i wnioski: [`WYNIKI.md`](WYNIKI.md).** Pełne liczby: [`wyniki/raport_ewok.md`](wyniki/raport_ewok.md) (CI95, kontrasty, rozbicia), dane: `raport_ewok.json`.
 
 ## Protokół
 
@@ -17,9 +17,9 @@ Jest zgodny z paperem EWoK (Ivanova i in. 2024, [arXiv:2405.09605](https://arxiv
   `" " + T` po kontekście `C`.
 - **Reguła główna (target stały):** `s1 = [P(T1|C1) > P(T1|C2)]`, `s2 = [P(T2|C2) > P(T2|C1)]`, `wynik = (s1+s2)/2`.
   Losowo wychodzi 50%, remis liczy się jako pudło. Po obu stronach porównania jest ten sam napis T, więc prior
-  litery i długości odpowiedzi (główny problem z [raportu Slayera](../README.md)) z definicji
+  litery i długości odpowiedzi (główny problem z [raportu Slayera](../../README.md)) z definicji
   się tu nie pojawia.
-- **Scorer:** `slayer_eval/hipoteza_formatu.py` (`para`, `licz_logliki`, forward `slayer_model.py`). Pary
+- **Scorer:** `wspolne/hipoteza_formatu.py` (`para`, `licz_logliki`, forward `slayer_model.py`). Pary
   kodujemy jak w lm-eval, z jednym BOS przed kontekstem dla wszystkich modeli (METHOD.md Space), w float32.
   Modele HF ładujemy przez `AutoModelForCausalLM` (LFM3 z `trust_remote_code`). Sprawdziliśmy, że
   `glowa(ukryte) == logits` (max |Δ| = 0).
@@ -52,14 +52,14 @@ Jest zgodny z paperem EWoK (Ivanova i in. 2024, [arXiv:2405.09605](https://arxiv
 Wnioski:
 
 1. **Slayer uczy się wiedzy o świecie, ale na PL-625 tego nie widać.** Na EN 1.06 jest lepszy od 1.00
-   o 5,7 pkt (CI95 +4,7…+6,8). Rosną głównie `material-dynamics` (53 → 67), `social-properties`
+   o 5,7 pkt (SE 0,5 pkt, pewne; CI95 +4,7…+6,8). Rosną głównie `material-dynamics` (53 → 67), `social-properties`
    (58 → 68) i `social-relations` (51 → 57). Na PL-625 różnice między kolejnymi wersjami mają wszystkie
    p_holm > 0,8. Te same 625 rekordów po angielsku (EN625) też dają u Slayera tylko 51–57%, więc wąską
    próbkę wyjaśnia sam wybór domeny, a nie tłumaczenie.
 2. **Para „make more / less effort” (220 z 625 rekordów) jest na poziomie losowym dla wszystkich modeli**
    (Bielik 57, LFM3 55, Slayer 48–52). To 35% PL-625 i właśnie ten kawałek spłaszcza wynik. Flagi
    przeglądu (`review_flags`) nie przewidują porażki modeli: 45 rekordów bez flagi wypada nie lepiej niż reszta.
-3. **Polski Slayer nie ma przewagi nad LFM3 po polsku** (−2,0 pkt, p = 0,20), choć LFM3 nie deklaruje
+3. **Polski Slayer nie ma przewagi nad LFM3 po polsku** (−2,0 pkt, SE 1,5 pkt, p = 0,20, szum), choć LFM3 nie deklaruje
    polskiego. Bielik wygrywa wyraźnie (+10,6 pkt). Wniosek jest zawężony do `agent-properties`.
 4. **Ślad prioru zdania:** przy porównaniu T1 vs T2 w tym samym kontekście Slayer w 81–85% rekordów
    wybiera to samo zdanie niezależnie od kontekstu (Bielik i LFM3 74–75%). Reguła z paperu jest na to
@@ -75,7 +75,7 @@ Wnioski:
 - EWoK-PL to wersja **robocza** (`draft_review_required`): 580/625 rekordów ma flagę przeglądu.
   Wynik dotyczy jednej domeny i 9 par pojęć.
 - Zgodności scorera z liczbami z paperu EWoK nie sprawdzaliśmy (brak opublikowanych liczb dla tych
-  modeli). Scorer przeszedł test 0 w `slayer_eval` (Pythia/Qwen vs lm-eval).
+  modeli). Scorer przeszedł test 0 w `wspolne` (Pythia/Qwen vs lm-eval).
 - Nie ma skanu kontaminacji. EWoK jest szyfrowany właśnie po to, żeby nie trafiał do korpusów, a EWoK-PL
   nie był publikowany.
 
@@ -83,11 +83,11 @@ Wnioski:
 
 ```bash
 # dane PL czytamy prosto z zipa (hasło jak w oryginale, TERMS_OF_USE EWoK); w repo nie ma tekstu rekordów
-python ewok_pl/ewok.py licz --model models/Slayer1B-1.06 --zip ewok-pl-complete-0001-0625.zip \
-  --wyjscie wyniki_ewok/Slayer1B-1.06            # domyślnie --dane pl,en; EN wymaga akceptacji gated repo
-python ewok_pl/ewok.py analiza --wyniki wyniki_ewok --zip ewok-pl-complete-0001-0625.zip
+python benchmarki/ewok-pl/ewok.py licz --model models/Slayer1B-1.06 --zip ewok-pl-complete-0001-0625.zip \
+  --wyjscie benchmarki/ewok-pl/wyniki/Slayer1B-1.06            # domyślnie --dane pl,en; EN wymaga akceptacji gated repo
+python benchmarki/ewok-pl/ewok.py analiza --wyniki benchmarki/ewok-pl/wyniki --zip ewok-pl-complete-0001-0625.zip
 python tests/test_ewok_pl.py
 ```
 
 Na RTX 5060 Ti (16 GB) jeden model to ok. 7 min (PL + pełny EN, float32).
-Surowe logliki per rekord (`wyniki_ewok/*/*.jsonl`) zostają lokalnie (.gitignore).
+Surowe logliki per rekord (`wyniki/*/*.jsonl`) zostają lokalnie (.gitignore).

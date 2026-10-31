@@ -1,11 +1,11 @@
 # EWoK-PL: wyniki Slayera 1B (30.10.2026)
 
 > **W skrócie.** Na polskim EWoK-PL Slayer 1.06 ma **55,4%** przy losowych 50% i od wersji 1.00 nie
-> poprawia się istotnie. Na angielskim EWoK ten sam model rośnie z **53,1% do 58,9%** (p < 0,001), więc
+> poprawia się istotnie (+1,0 pkt, SE 1,4 pkt, szum). Na angielskim EWoK ten sam model rośnie z **53,1% do 58,9%** (p < 0,001), więc
 > wiedza o świecie przybywa, a polski zestaw tego jeszcze nie pokazuje. Bielik-1.5B-v3 ma po polsku
 > **66,0%**, a LFM3-1.7B-Base **57,4%**. EWoK-PL obejmuje na razie tylko jedną domenę (`agent-properties`).
 
-Metoda, rewizje modeli i polecenia do uruchomienia: [`README.md`](README.md). Wszystkie tabele z CI95: [`../wyniki_ewok/raport_ewok.md`](../wyniki_ewok/raport_ewok.md).
+Metoda, rewizje modeli i polecenia do uruchomienia: [`README.md`](README.md). Wszystkie tabele z CI95: [`wyniki/raport_ewok.md`](wyniki/raport_ewok.md).
 
 ---
 
@@ -64,7 +64,7 @@ Bielik 69,5 / LFM3 69,7  (dla porównania)
    się z wyboru domeny, a nie z tłumaczenia.
 2. **Bielik wyraźnie wygrywa po polsku** (+10,6 pkt nad Slayerem 1.06, p < 0,001), a w 42% rekordów
    trafia obie pary. Slayer trafia je w 25%, czyli na poziomie losowym.
-3. **LFM3 nie jest po polsku lepszy od Slayera** (−2,0 pkt, p = 0,20), choć po angielsku ma 69,7%.
+3. **LFM3 nie jest po polsku lepszy od Slayera** (−2,0 pkt, SE 1,5 pkt, p = 0,20, szum), choć po angielsku ma 69,7%.
    Na tych samych rekordach po polsku traci 9,3 pkt względem angielskiego (p < 0,001), co jest śladem
    słabego polskiego. Bielik i Slayer po polsku nie tracą: różnica PL − EN mieści się u nich
    w przedziale −1,4…+3,2 pkt.
@@ -127,5 +127,4 @@ sygnał do sprawdzenia, a nie wynik.
 1. Przetłumaczyć pozostałe domeny EWoK (w pierwszej kolejności `physical-relations`, `spatial-relations`
    i `material-dynamics`). Dopiero wtedy PL pokaże to samo, co EN.
 2. Przejrzeć parę „make more / less effort” i 3 rekordy z listy wyżej.
-3. Przenieść liczby do `wyniki/LICZBY.json`, żeby przechodziły przez `narzedzia/sprawdz_raporty.py`.
-4. Dodać EWoK-PL do Space SlayerLab/Slayer1B-Benchmarks jako osobne zadanie z metryką `ewok` (%).
+3. Dodać EWoK-PL do Space SlayerLab/Slayer1B-Benchmarks jako osobne zadanie z metryką `ewok` (%).
