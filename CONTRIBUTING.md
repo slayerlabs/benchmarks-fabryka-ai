@@ -15,7 +15,7 @@ krok, w którym utknąłeś, i czego zabrakło. Wystarczy jedno zdanie. Opiekuno
 Zacznij od zadania z etykietą `good first issue`
 ([lista w tym repo](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22)).
 Takie zadanie nazywa się „Karta oryginału: <benchmark>”. Piszesz w nim kartę oryginału jednego benchmarku, czyli plik
-`ORIGINAL.md` (etap A). Zajmuje to około 2 h i nie wymaga GPU.
+`ORIGINAL.md` (etap A). Zajmuje to około 2 h.
 
 Żeby wziąć zadanie, napisz w nim komentarz, że je bierzesz. Opiekun przypisze Cię do zadania. Pracę zaczynasz dopiero
 po przypisaniu. Bierzesz jedno zadanie naraz. Recenzję cudzej karty możesz wziąć, gdy masz już za sobą jedną własną
@@ -48,7 +48,7 @@ adresem https://github.com/orgs/slayerlabs/projects/10. Jak przygotować kompute
 
 ## Etykiety
 
-- `good first issue`: tylko zadania „Karta oryginału: <benchmark>” (etap A, około 2 h, bez GPU).
+- `good first issue`: tylko zadania „Karta oryginału: <benchmark>” (etap A, około 2 h).
 - `research`: zadanie badawcze, np. benchmark, pomiar albo analiza.
 - `dev`: zadanie techniczne, np. kod wspólny, narzędzia albo CI.
 - `needs-recheck`: wynik trafi dalej, do Space albo do decyzji o treningu. Dlatego musi przejść niezależne

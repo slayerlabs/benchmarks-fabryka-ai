@@ -147,6 +147,6 @@ to co innego niż warunek odtworzenia z etapu B metodologii.
 
 ### Co dalej
 
-- Zadania dla chętnych (A1–A7 bez GPU, B1–B4 z GPU): [`slayer-1b/lab/DLA_ARKA_I_CHETNYCH.md`](slayer-1b/lab/DLA_ARKA_I_CHETNYCH.md).
+- Zadania dla chętnych: [`slayer-1b/lab/DLA_ARKA_I_CHETNYCH.md`](slayer-1b/lab/DLA_ARKA_I_CHETNYCH.md).
 - Ślepa paczka do A1 to `paczka_testerzy.zip`, trzymana poza repo. Jej sha256 to `da0edbd792d2c8074bda39d7232c628fcfbf60933278728afd6db9220c225303`.
   Skąd ją wziąć albo jak samemu wygenerować dane, opisuje [`slayer-1b/paczka_testerzy/INSTRUKCJA.md`](slayer-1b/paczka_testerzy/INSTRUKCJA.md).
