@@ -101,6 +101,8 @@ Testy działają bez sieci i bez wag. Każdy kończy się kodem 0:
 .venv-eval/bin/python tests/test_testy_danych_slayer.py
 .venv-eval/bin/python tests/test_ewok_pl.py
 .venv-eval/bin/python tests/test_blimp.py
+.venv-eval/bin/python tests/test_blimp_checkpoints.py
+.venv-eval/bin/python tests/test_blimp_checkpoints_independent.py
 .venv-eval/bin/python tests/test_wikitext_mianownik.py
 .venv-eval/bin/python tests/test_liczby_raportow.py
 ```

@@ -13,6 +13,9 @@ test (T01) na panelu 200 par; tutaj oba modele liczone są na wszystkich 67 000.
 - Przepis (commity, modele, komendy, sprzęt): [`RECIPE.md`](RECIPE.md)
 - Pełny raport ze wszystkimi tabelami (generowany, nie edytować; po angielsku): [`results/BLIMP.md`](results/BLIMP.md)
 - Progi zapisane przed pomiarem: [`THRESHOLDS.md`](THRESHOLDS.md)
+- BLiMP po checkpointach treningu i uśrednianie wag: raport [`results/CHECKPOINTS.md`](results/CHECKPOINTS.md)
+  (generowany, po angielsku), progi zapisane przed pomiarem
+  [`results/CHECKPOINTS_THRESHOLDS.md`](results/CHECKPOINTS_THRESHOLDS.md)
 
 ## Wyniki
 
@@ -80,6 +83,39 @@ CI95 Space. Używaj pełnego zbioru.
 Nasza Pythia-1B 0,8207 wobec 0,8234 opublikowanego dla `EleutherAI/pythia-1b-v0` @ `step143000`: różnica
 -0,27 pkt, w granicach +-2 pkt. Inne wagi i starszy harness, więc to zakres kontrolny, nie odtworzenie
 ([`REPRODUCTION.md`](REPRODUCTION.md)).
+
+## Po checkpointach treningu i uśrednianie wag
+
+Te same 67 000 par na checkpointach trenera Slayera i na średnich wag z ostatnich checkpointów 1.06. Pełne tabele,
+kontrole i odchylenia od protokołu: [`results/CHECKPOINTS.md`](results/CHECKPOINTS.md).
+
+![BLiMP po checkpointach](results/blimp_curve.svg)
+
+| krok | bieg końcowy | trafność | SE | Slayer minus Pythia-1B | SE | z | werdykt |
+|---:|---|---:|---:|---:|---:|---:|---|
+| 1430 | nie | 0,7382 | 0,0015 | -8,26 pkt | 0,17 pkt | z = -48,76 | pewne |
+| 2860 | nie | 0,7616 | 0,0015 | -5,91 pkt | 0,17 pkt | z = -35,80 | pewne |
+| 7150 | tak | 0,7743 | 0,0015 | -4,64 pkt | 0,16 pkt | z = -28,77 | pewne |
+| 8600 | tak | 0,7766 | 0,0015 | -4,41 pkt | 0,16 pkt | z = -27,46 | pewne |
+| 10010 | tak | 0,7707 | 0,0015 | -5,00 pkt | 0,16 pkt | z = -30,88 | pewne |
+| 13848 | tak | 0,7921 | 0,0014 | -2,87 pkt | 0,16 pkt | z = -18,11 | pewne |
+
+- Pytanie 1 (czy różnica do Pythii-1B maleje w biegu końcowym). Czy luka maleje z tokenami: nierozstrzygnięte
+  (z SE z reszt wokół prostej nachylenie to szum, p = 0,18). Reguła z protokołu jest spełniona (nachylenie po krokach 7150, 8600, 10010 i 13848 to 0,26 pkt na mld tokenów,
+  SE 0,02 pkt, z = 12,55; po 67 paradygmatach t = 3,34), ale cały wzrost leży w odcinku po wznowieniu biegu.
+- Cały wzrost leży między 10010 a 13848: 2,14 pkt, z = 15,00 (pewne). Między 7150 a 10010 zmiana to -0,36 pkt,
+  z = -2,50 (prawdopodobne), a bez kroku 13848 nachylenie wynosi -0,12 pkt na mld tokenów, z = -2,38
+  (prawdopodobne).
+- W przedziale 10010-13848 bieg wznowiono na innym sprzęcie, a z SE liczonym z rozrzutu czterech checkpointów wokół prostej
+  (0,13 pkt) nachylenie to szum (p = 0,18). Trendu nie da się więc oddzielić od skoku między checkpointami.
+- Pytanie 2 (uśrednianie wag zamiast wygaszania LR): potwierdzone na avg3 i avg5. Zmiana straty na held-out wobec 1.06
+  to -0,0290 nat (SE 0,0005, z = -63,54) dla avg3 i -0,0381 nat (SE 0,0007, z = -57,68) dla avg5, czyli 0,575 i
+  0,756 zysku z wygaszania. Średnia z 10 checkpointów (avg10, dodana po odczycie BLiMP avg3 i avg5) wobec ramienia
+  wygaszonego: 0,0028 nat, SE 0,0023, z = 1,23 (szum).
+- Uśrednianie podnosi też BLiMP na tych parach wobec kroku 13848: avg3 0,7964 (0,43 pkt, SE 0,08 pkt, z = 5,15, pewne), avg5
+  0,8000 (0,79 pkt, SE 0,09 pkt, z = 8,62, pewne), avg10 0,8030 (1,09 pkt, SE 0,10 pkt, z = 10,81, pewne).
+  Protokół nie przewidywał zmiany BLiMP, więc to obserwacja, nie teza.
+- Pulpit treningu liczy BLiMP innym protokołem: 76,1 przy kroku 13848 wobec 79,2 na pełnym BLiMP dla 1.06, więc tych liczb nie porównuje się wprost. <!-- liczba-spoza-wynikow: 76,1 to eval/blimp_acc pulpitu https://track.fabryka.ai/run/f056bb5c-f1da-56d5-9776-cc33063f10a5 przy kroku 13848; 79,2 to 0,7921 z tabeli wyżej w procentach -->
 
 ## Ograniczenia
 

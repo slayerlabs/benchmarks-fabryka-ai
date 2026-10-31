@@ -74,7 +74,8 @@ def test_liczba_z_se_i_pkt_sprawdzana_w_swojej_skali():
     liczby, zb = dane()
     assert S.niepasujace_liczby("SIQA −0,9 pkt (0,6 SE)", zb, liczby["aliasy"]) == []
     assert S.niepasujace_liczby("SIQA −4,9 pkt", zb, liczby["aliasy"]) == [("−4,9", "skalowana")]
-    assert S.niepasujace_liczby("SIQA 5,1 SE", zb, liczby["aliasy"]) == [("5,1", "z")]
+    # a z that no comparison has (5,1 is a real held-out z of BLiMP checkpoints: avg5 vs the annealed arm, z = 5,15)
+    assert S.niepasujace_liczby("SIQA 5,3 SE", zb, liczby["aliasy"]) == [("5,3", "z")]
     assert S.niepasujace_liczby("koszt 0,85 $/h, `0,999`", zb, liczby["aliasy"]) == []
 
 
@@ -133,7 +134,10 @@ def _meta_blimp():
 def test_bramki_przechodza_na_raporcie_blimp():
     liczby, meta, linie = _meta_blimp()
     assert S.bramki_raportu(meta, linie, liczby) == []
-    assert [m["plik"] for m in liczby["raporty"]] == ["benchmarks/blimp/results/BLIMP.md"]  # older reports have no metadata
+    # older reports have no metadata; CHECKPOINTS.md (BLiMP over checkpoints) has, when checkpoints.json exists
+    assert [m["plik"] for m in liczby["raporty"]][0] == "benchmarks/blimp/results/BLIMP.md"
+    assert set(m["plik"] for m in liczby["raporty"]) <= {"benchmarks/blimp/results/BLIMP.md",
+                                                         "benchmarks/blimp/results/CHECKPOINTS.md"}
 
 
 def test_bramka_d_werdykt_bez_se_klastrowego():
