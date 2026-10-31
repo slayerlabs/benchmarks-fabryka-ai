@@ -52,8 +52,8 @@ USTAWIENIA_BENCHMARKOW = {
     "blimp": {"aliasy": ["BLiMP"], "skala": 1,
               "pomin": ["porownanie", "okna", "per_grupa", "per_grupa_acc_norm", "paradygmaty", "pair_id", "sha256"]},
     # WikiText-2: denominator diagnosis (bajty.json, mianownik.json); the perplexities themselves live in the
-    # global values (wygaszanie, raport_formatu), so `globalne` lets the benchmark files use them too.
-    "wikitext-2": {"aliasy": ["WikiText"], "skala": 100, "globalne": True,
+    # global values (wygaszanie, raport_formatu), so `with_global` lets the benchmark files use them too.
+    "wikitext-2": {"aliasy": ["WikiText"], "skala": 100, "with_global": True,
                    "pomin": ["per_doc_bajty_page_detok"]},
 }
 WYGASZANIE = "slayer-1b/wygaszanie/wyniki"
@@ -223,7 +223,7 @@ def benchmarki(korzen=KORZEN):
             splaszcz(json.loads(p.read_text()), f"{nazwa}/{p.stem}", wartosci, tuple(u.get("pomin", ())))
         out[nazwa] = {"zrodla": [str(p.relative_to(korzen)) for p in raporty], "aliasy": u.get("aliasy", [nazwa]),
                       "pliki": [f"benchmarks/{nazwa}/"], "skala": u.get("skala", 1),
-                      "globalne": u.get("globalne", False), "wartosci": wartosci}
+                      "with_global": u.get("with_global", False), "wartosci": wartosci}
     return out
 
 

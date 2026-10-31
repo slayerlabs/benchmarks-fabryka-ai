@@ -252,6 +252,30 @@ def test_liczby_benchmarku_sprawdzane_w_jego_plikach_i_nie_wyciekaja():
     assert [p for _, _, p in bledy("Bielik ma 63,4%.") if "63,4" in p]
 
 
+def test_number_format_by_path_prefix():
+    assert S.file_number_format("benchmarks/blimp/results/BLIMP.md") == (True, "blimp")  # generated English report
+    assert S.file_number_format("benchmarks/blimp/README.md") == (False, "blimp")       # Polish docs, BLiMP numbers
+    assert S.file_number_format("benchmarks/wikitext-2/RECIPE.md") == (False, None)
+    assert S.file_number_format("benchmarks/ewok-pl/README.md") == (False, None)
+
+
+def test_english_assessment_needs_se_or_verdict():
+    assert S.ocena_bez_dowodu("Pythia-1B is better on BLiMP.")
+    assert S.ocena_bez_dowodu("The gap is real for these pairs.")
+    assert not S.ocena_bez_dowodu("Pythia-1B is ahead by 2.87 pts (SE 0.16 pts): certain.")
+    assert not S.ocena_bez_dowodu("Slayer 1.06 is better on quantifiers, t = 0.27: noise.")
+    assert S.zadeklarowany_werdykt("a certain gap") == "pewne"
+
+
+def test_wikitext_files_use_pool_and_global_values():
+    plik = "benchmarks/wikitext-2/README.md"
+    assert not bledy("Byte perplexity Slayera 1.06: 1,846284.", plik)        # global (porownanie/wikitext)
+    assert not bledy("Bajty oryginału: 1290527 (stosunek 1,0404).", plik)    # pool (mianownik.json)
+    assert [p for _, _, p in bledy("Byte perplexity Slayera 1.06: 1,846290.", plik) if "1,846290" in p]
+    assert not bledy("Model `x` ma 0,5.", plik)                               # code spans are skipped
+    assert bledy("Model x ma 0,512345.", plik)
+
+
 def test_porownanie_parowane_ma_obie_wersje_se():
     liczby, _ = dane()
     p = next(x for x in liczby["porownania"] if x["id"] == "wygaszanie/A-B/heldout/loss")

@@ -1,21 +1,29 @@
 # Wzór nowego benchmarku
 
-Nowy benchmark dostaje katalog `benchmarks/<nazwa>/` (małe litery, myślnik, np. `ewok-pl`):
+Nowy benchmark dostaje jeden katalog `benchmarks/<nazwa>/` (małe litery, myślnik, np. `ewok-pl`):
 
 ```
 benchmarks/<nazwa>/
-  README.md        co mierzy, metoda, komendy (uruchamiane w research/)
-  ORYGINAL.md      karta oryginału (pytania niżej)
-  <kod>.py         kod benchmarku; wspólny kod importuje z ../../common
+  README.md          co mierzy, wyniki z n, SE i werdyktem, sekcja „Co dodaje metodologia”
+  ORIGINAL.md        karta oryginału (etap A, pola niżej)
+  REPRODUCTION.md    etap B: wynik referencyjny odtworzony oryginalnym kodem
+  RECIPE.md          przepis na każdy wynik (wzór niżej)
+  <kod>.py           kod benchmarku; wspólny kod importuje z ../../common
   results/
-    <raport>.json  liczby zbiorcze benchmarku; bramka liczb czyta je sama
+    <raport>.json    liczby zbiorcze benchmarku; bramka liczb czyta je sama
     <raport>.md
-    <model>/       wyniki jednego modelu + PRZEPIS.md
+    <model>/         wyniki jednego modelu (pliki per pytanie)
 ```
+
+Analiza przekrojowa na wielu benchmarkach (nie osobny benchmark) ma te same pliki w `analyses/<nazwa>/`,
+a `ORIGINAL.md` opisuje analizę i testy, na których stoi. Przykłady: [`../blimp/`](../blimp/README.md),
+[`../wikitext-2/`](../wikitext-2/README.md), [`../../analyses/answer-format/`](../../analyses/answer-format/README.md).
+
+Dokumenty piszemy po polsku, nazwy katalogów, plików i kod po angielsku.
 
 Pełna metodologia: https://github.com/LoIlita/test-slayer/blob/main/METODOLOGIA.md
 
-## Karta oryginału (`ORYGINAL.md`)
+## Karta oryginału (`ORIGINAL.md`)
 
 Przeczytaj pracę i kod autorów. Wypełnij każde pole; czego nie da się ustalić, wpisz „nieustalone” z tym, gdzie szukałeś.
 
@@ -31,12 +39,13 @@ Przeczytaj pracę i kod autorów. Wypełnij każde pole; czego nie da się ustal
 | Wyniki referencyjne | co najmniej jeden opublikowany wynik modelu, który da się pobrać (model, liczba, tabela w pracy albo plik wyników) |
 | Znane rozbieżności | czym różnią się popularne implementacje (np. zadanie lm-eval) od kodu autorów, znane błędy w danych, kontaminacja |
 
-## Przepis (`results/<model>/PRZEPIS.md`)
+## Przepis (`RECIPE.md`)
 
-Przy każdym wyniku leży `PRZEPIS.md`. Z samego przepisu ktoś inny za dwa tygodnie odtwarza ten sam wynik.
+Każdy wynik ma przepis. Z samego przepisu ktoś inny za dwa tygodnie odtwarza ten sam wynik.
+Czego nie zapisano, wpisz „niezapisane”, nie zgaduj.
 
 ```markdown
-# Przepis: <benchmark>, <model>
+## <benchmark>, <model>
 
 - Commit kodu: <sha>
 - Środowisko: <lockfile, np. common/requirements.lock.txt>; transformers <wersja>@<commit>

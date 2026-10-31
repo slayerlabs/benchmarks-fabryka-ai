@@ -55,3 +55,8 @@ def test_mianownik_wikitext_z_oryginalu_nie_z_detokenizacji(monkeypatch, tmp_pat
     assert math.isclose(w["byte_perplexity"], math.exp(NLL / bajty))
     assert math.isclose(w["word_perplexity"], math.exp(NLL / slowa))
     assert (w["bajty"], w["slowa"], w["nll_suma"]) == (bajty, slowa, NLL)
+
+
+if __name__ == "__main__":  # python tests/test_wikitext_mianownik.py runs the test, not just imports it
+    import pytest
+    sys.exit(pytest.main([__file__, "-q"]))

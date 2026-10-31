@@ -1,7 +1,7 @@
 """Analiza testów 0-5 hipotezy formatu z plików `common/hipoteza_formatu.py licz`.
 
   python analyses/answer-format/analiza_formatu.py --wyniki analyses/answer-format/results
-  (<wyniki>/<model>/<zadanie>.jsonl -> <wyniki>/raport_formatu.json)
+  (<wyniki>/<model>/<task>.jsonl -> <wyniki>/raport_formatu.json)
 
 Progi ustalone przed wynikami (zlecenie 29.10):
   T0  |nasza - opublikowana| <= 2 pkt (Pythia-1B 0-shot ARC-E/ARC-C acc i acc_norm; Qwen2.5-0.5B ARC-C 25-shot).
@@ -274,5 +274,5 @@ def analiza(R):
 if __name__ == "__main__":
     import argparse
     p = argparse.ArgumentParser()
-    p.add_argument("--wyniki", required=True, help="katalog z <model>/<zadanie>.jsonl z hipoteza_formatu.py licz")
+    p.add_argument("--wyniki", required=True, help="directory with <model>/<task>.jsonl from hipoteza_formatu.py licz")
     analiza(Path(p.parse_args().wyniki))
