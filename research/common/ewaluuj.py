@@ -37,11 +37,16 @@ def sha256_runnera():
 
 
 def zbuduj_model(a):
-    from lm_eval.models.huggingface import HFLM
-    # --model_path: katalog z wagami pobranymi wcześniej (np. models/slayer1b-106); repo i rewizja idą do raportu
-    lm = HFLM(pretrained=a.model_path or a.repo, revision=None if a.model_path else a.revision,
-              dtype="float32", batch_size=a.batch, device=a.device, trust_remote_code=a.trust_remote_code)
-    return lm, a.repo, a.revision
+    # --model_path: katalog z wagami pobranymi wcześniej (np. models/slayer-1.06); repo i rewizja idą do raportu
+    weights_path = a.model_path or a.repo
+    if a.model == "slayer":
+        import slayer_lm
+        lm = slayer_lm.SlayerLM(pretrained=weights_path, dtype="float32", batch_size=a.batch, device=a.device)
+    else:
+        from lm_eval.models.huggingface import HFLM
+        lm = HFLM(pretrained=weights_path, revision=None if a.model_path else a.revision,
+                  dtype="float32", batch_size=a.batch, device=a.device, trust_remote_code=a.trust_remote_code)
+    return lm, a.repo or Path(a.model_path).resolve().name, a.revision
 
 
 def licznik_tokenow(lm):
@@ -129,7 +134,7 @@ def zapisz_historie(sciezka, wiersz, nowy):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--model", choices=["hf"], default="hf")
+    p.add_argument("--model", choices=["hf", "slayer"], default="hf")
     p.add_argument("--repo")
     p.add_argument("--revision")
     p.add_argument("--ckpt")
@@ -140,13 +145,15 @@ def main():
     p.add_argument("--device", default="cpu")
     p.add_argument("--batch", default="1")
     p.add_argument("--trust_remote_code", action="store_true")
-    p.add_argument("--model_path", help="lokalny katalog wag zamiast pobierania z HF")
+    p.add_argument("--model_path", help="lokalny katalog wag zamiast pobierania z HF; przy --model slayer wymagany")
     p.add_argument("--etykieta", help="kolumna model w scores-history.csv, np. 1.06")
     p.add_argument("--step", type=int)
     p.add_argument("--tokens", type=int, help="domyślnie step * 2^20, jak w scores-history.csv")
     p.add_argument("--eval_gpu", default="", help="kolumna eval_gpu (oznaczenie maszyny w konwencji Space)")
     p.add_argument("--historia_csv", help="istniejący CSV w formacie scores-history.csv, do którego dopisać wiersz")
     a = p.parse_args()
+    if a.model == "slayer" and not a.model_path:
+        p.error("--model slayer requires --model_path (local weights directory, e.g. models/slayer-1.06); --repo and --revision only go to the report")
 
     from lm_eval import simple_evaluate
     import trace_pytan as T
@@ -224,11 +231,11 @@ def main():
     commit = subprocess.run(["git", "-C", str(KATALOG), "rev-parse", "HEAD"], capture_output=True,
                             text=True).stdout.strip()
     freeze = subprocess.run([sys.executable, "-m", "pip", "freeze"], capture_output=True, text=True).stdout
-    wagi_sha = sha_wag(a.repo, rewizja, a.model_path) if a.model == "hf" else sha_pliku(a.ckpt)
+    wagi_sha = sha_wag(a.repo, rewizja, a.model_path) if a.model in ("hf", "slayer") else sha_pliku(a.ckpt)
     wyniki = {
         "schema_version": 2, "protocol_id": protocol_id, "run_id": run_id,
         "models": [{"model_id": model_id, "repo": a.repo or model_id, "revision": rewizja,
-                    "weights_sha256": wagi_sha if a.model == "hf" else None}],
+                    "weights_sha256": wagi_sha if a.model in ("hf", "slayer") else None}],
         "tasks": zadania_space, "observations": obserwacje, "contrasts": [],
         "provenance": {"inventory_commit": commit, "kind": "measurement",
                        "sources": [{"run_id": run_id, "results_sha256": s} for s in zrodla]

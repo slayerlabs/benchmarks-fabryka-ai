@@ -1,0 +1,24 @@
+# ARC-Challenge jak lm-eval 0.4.9.1 (arc_easy.yaml + arc_challenge.yaml), z rewizją zbioru z tasks_50.json Space.
+# Próbka 200: common/tests/data/arc_panel200.json (ranking_panel, seed 20261028).
+task: arc_challenge
+dataset_path: allenai/ai2_arc
+dataset_name: ARC-Challenge
+dataset_kwargs:
+  revision: 210d026faf9955653af8916fad021475a3f00453
+output_type: multiple_choice
+training_split: train
+validation_split: validation
+test_split: test
+doc_to_text: "Question: {{question}}\nAnswer:"
+doc_to_target: "{{choices.label.index(answerKey)}}"
+doc_to_choice: "{{choices.text}}"
+target_delimiter: " "
+metric_list:
+  - metric: acc
+    aggregation: mean
+    higher_is_better: true
+  - metric: acc_norm
+    aggregation: mean
+    higher_is_better: true
+metadata:
+  version: 1.0
