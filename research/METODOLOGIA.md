@@ -210,6 +210,10 @@ dostępny z listy**, w tej kolejności:
 Kontrolę liczysz tym samym kodem co mierzony model. Jeśli wynik kontroli odbiega od opublikowanego, błąd jest w kodzie
 ewaluacji, nie w mierzonym modelu.
 
+Gdy żaden model z listy nie ma opublikowanego wyniku, w `REPRODUCTION.md` wpisujesz „bez kontroli” i miejsca, w których
+szukałeś; etap B potwierdza wtedy zgodność z kodem autorów (albo z lm-eval) na tych samych danych, a przy etapie C
+test zgodności.
+
 Benchmark polski albo bez oryginału nie ma opublikowanego wyniku do odtworzenia. Jego kontrolą jest model, który zna
 polski (`speakleash/Bielik-1.5B-v3` albo `utter-project/EuroLLM-1.7B` z tabeli niżej), a warunkiem jest wynik wyraźnie
 powyżej bazy (sekcja „Benchmark bez oryginału: karta zbioru (DATASET.md)”). Pythia nie jest tam wymagana, poza zbiorem liczonym przez NLL albo BPB (karta zbioru).
