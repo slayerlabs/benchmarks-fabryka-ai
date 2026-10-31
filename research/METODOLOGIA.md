@@ -212,7 +212,7 @@ ewaluacji, nie w mierzonym modelu.
 
 Benchmark polski albo bez oryginału nie ma opublikowanego wyniku do odtworzenia. Jego kontrolą jest model, który zna
 polski (`speakleash/Bielik-1.5B-v3` albo `utter-project/EuroLLM-1.7B` z tabeli niżej), a warunkiem jest wynik wyraźnie
-powyżej bazy (sekcja „Benchmark bez oryginału: karta zbioru (DATASET.md)”). Pythia nie jest tam wymagana.
+powyżej bazy (sekcja „Benchmark bez oryginału: karta zbioru (DATASET.md)”). Pythia nie jest tam wymagana, poza zbiorem liczonym przez NLL albo BPB (karta zbioru).
 
 ### Pięć modeli odniesienia
 
@@ -232,7 +232,7 @@ Każdy benchmark porównuje mierzony model z pięcioma modelami, zawsze w tych r
   `ef81be58742544ad32e1afab38db011fec209609`) i model kontrolny, tym samym kodem:
   - benchmark z oryginałem: pierwszy dostępny z listy w sekcji „Model kontrolny etapu B”;
   - benchmark polski i bez oryginału: model, który zna polski (`speakleash/Bielik-1.5B-v3` albo
-    `utter-project/EuroLLM-1.7B`); Pythia nie jest wymagana.
+    `utter-project/EuroLLM-1.7B`); Pythia nie jest wymagana, poza zbiorem liczonym przez NLL albo BPB (karta zbioru).
 - **Przebieg centralny** liczy pięć modeli odniesienia na wspólnym GPU dla każdego benchmarku po recenzji i zapisuje
   wyniki w `benchmarks/<name>/results/<model>/`. **W budowie:** dziś go nie ma; kamień
   [„Przebieg centralny: 5 modeli odniesienia”](https://github.com/slayerlabs/benchmarks-fabryka-ai/milestone/8).
@@ -348,7 +348,7 @@ Benchmark jest skończony, gdy spełnia sekcję „Definicja „zrobione”” w
   a ten sam numer ma wpis w `common/zadania.py`.
 - **Próbka 200 (panel 200):** Space liczy każdy test na najwyżej 200 pytaniach wybranych po haszu SHA-256, tych samych
   dla wszystkich modeli (WikiText-2 w całości). Przy 200 pytaniach SE trafności to kilka punktów.
-- **Metryka decyzyjna:** jedna metryka benchmarku, według której porównujesz modele; pozostałe są pomocnicze.
+- **Metryka decyzyjna:** metryka, według której porównujesz modele (pole w karcie oryginału).
 - **Perpleksja:** średnia niepewność modelu na tekście, liczona z NLL na token albo na słowo; niżej = lepiej, ale
   porównujesz ją tylko przy tym samym tokenizerze albo na słowach.
 - **acc:** trafność; model wybiera odpowiedź o największym log-prawdopodobieństwie.

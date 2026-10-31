@@ -2,8 +2,8 @@
 
 ## Kontakt
 
-Discord, kanał **#bench-team**: https://discord.gg/HnTkVR4c5T. Tam pytasz, ogłaszasz, że bierzesz zadanie, i
-zgłaszasz potknięcia: jednym zdaniem, w którym kroku i czego brakuje. Opiekunowie to osoby z sekcji
+Discord, kanał **#bench-team**: https://discord.gg/HnTkVR4c5T. Tam pytasz i zgłaszasz potknięcia: jednym
+zdaniem, w którym kroku i czego brakuje. Opiekunowie to osoby z sekcji
 [„Kto jest kim”](README.md#kto-jest-kim) w README: Elwenor (koordynacja zespołu, dostęp do repo) i Arek (właściciel
 modelu Slayer i Space, wgrywa wyniki do Space).
 
