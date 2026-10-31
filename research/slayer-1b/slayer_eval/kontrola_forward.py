@@ -57,6 +57,56 @@ def argumenty(argv=None):
     return a
 
 
+SPRAWDZANE = ("model.safetensors", "tokenizer.json", "load_slayer.py", "train_gpt_ref_r23.py", "config.json")
+
+
+def sprawdz_sumy(katalog, pliki=SPRAWDZANE):
+    """Check the files of --model against the SHA256SUMS shipped in the model repo; SystemExit naming the file
+    on a missing SHA256SUMS, a file it does not list, a missing file or a different hash."""
+    import hashlib
+    katalog = Path(katalog)
+    sumy_plik = katalog / "SHA256SUMS"
+    if not sumy_plik.exists():
+        raise SystemExit(f"{sumy_plik}: missing; download the whole SlayerLab/Slayer1B-1.06 repo at the pinned revision")
+    sumy = {}
+    for l in sumy_plik.read_text().splitlines():
+        if l.strip():
+            h, nazwa = l.split(maxsplit=1)
+            sumy[nazwa.strip().lstrip("*")] = h.lower()
+    bledy = []
+    for nazwa in pliki:
+        p = katalog / nazwa
+        if nazwa not in sumy:
+            bledy.append(f"{nazwa}: not listed in {sumy_plik}")
+        elif not p.exists():
+            bledy.append(f"{p}: missing")
+        else:
+            h = hashlib.sha256()
+            with open(p, "rb") as f:
+                for blok in iter(lambda: f.read(1 << 20), b""):
+                    h.update(blok)
+            if h.hexdigest() != sumy[nazwa]:
+                bledy.append(f"{p}: sha256 {h.hexdigest()} != {sumy[nazwa]} in SHA256SUMS")
+    if bledy:
+        raise SystemExit("model files do not match SHA256SUMS, nothing computed:\n  " + "\n  ".join(bledy))
+    return {n: sumy[n] for n in pliki}
+
+
+BOS = 0  # <|endoftext|> in the Slayer tokenizer: the one unscored prefix token (METHOD.md, lm-eval blimp)
+
+
+def ll_zdania(model, encode, zdanie, wejscie, sumy):
+    """Summed log-prob of " " + sentence after one BOS, as lm-eval blimp scores it: ids = [BOS] + encode(" " + s),
+    the logits at position t predict ids[t + 1], so positions 0 .. len(ids) - 2 are scored. wejscie: feed all
+    ids ("pelne") or all but the last ("bez_ostatniego"; its logits are never scored). -> {sum dtype: value}."""
+    import torch
+    ids = [BOS] + encode(" " + zdanie)
+    out = model(torch.tensor([ids[:-1] if wejscie == "bez_ostatniego" else ids]))
+    logits = out[0] if isinstance(out, tuple) else out
+    lp = torch.log_softmax(logits[0, :len(ids) - 1].float(), -1)[torch.arange(len(ids) - 1), torch.tensor(ids[1:])]
+    return {s: (lp.sum().item() if s == "float32" else sum(v.item() for v in lp)) for s in sumy}
+
+
 def przebieg(roznice, przestawione, watki, wejscie, suma):
     """One run: |our ll - official ll| per sentence -> summary row."""
     return {"watki_cpu": watki, "wejscie": wejscie, "suma": suma, "max_abs_roznica_ll": max(roznice),
@@ -78,6 +128,7 @@ def podsumuj(przebiegi, pary, wersje):
 
 def main(argv=None):
     a = argumenty(argv)
+    sprawdz_sumy(a.model)  # before any import of the model code
     import torch
     import tokenizers
     from tokenizers import Tokenizer
@@ -88,6 +139,9 @@ def main(argv=None):
     spec.loader.exec_module(ls)
     model = ls.load(str(model_dir))
     tok = Tokenizer.from_file(str(model_dir / "tokenizer.json"))
+
+    def encode(s):
+        return tok.encode(s, add_special_tokens=False).ids
     docs = B.wczytaj(a.dane)
     panel = B.panel(docs, "sha256")
     nasze = B.wczytaj_wyniki(a.wyniki)
@@ -102,13 +156,9 @@ def main(argv=None):
                 for d in panel:
                     ll = {s: [] for s in a.sumy}
                     for zd in d["opcje"]:
-                        ids = [0] + tok.encode(" " + zd, add_special_tokens=False).ids  # one BOS <|endoftext|>
-                        out = model(torch.tensor([ids[:-1] if wejscie == "bez_ostatniego" else ids]))
-                        logits = out[0] if isinstance(out, tuple) else out
-                        lp = torch.log_softmax(logits[0, :len(ids) - 1].float(), -1)[
-                            torch.arange(len(ids) - 1), torch.tensor(ids[1:])]
+                        wart = ll_zdania(model, encode, zd, wejscie, a.sumy)
                         for s in a.sumy:
-                            ll[s].append(lp.sum().item() if s == "float32" else sum(v.item() for v in lp))
+                            ll[s].append(wart[s])
                     n = nasze[d["id"]]["ll"]
                     for s in a.sumy:
                         roz[s] += [abs(ll[s][0] - n[0]), abs(ll[s][1] - n[1])]

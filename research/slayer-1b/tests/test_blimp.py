@@ -411,6 +411,90 @@ def test_kontrola_forward_argumenty_i_format():
                                          max(p["max_abs_roznica_ll"] for p in zap["przebiegi"])]
 
 
+def test_kontrola_forward_sprawdza_sha256sums(tmp_path):
+    """Dummy model directory: matching files pass; one changed byte, a missing file or no SHA256SUMS stop the run."""
+    import hashlib
+    import pytest
+    import kontrola_forward as K
+    tresc = {n: f"plik {n}\n".encode() for n in K.SPRAWDZANE}
+    for n, b in tresc.items():
+        (tmp_path / n).write_bytes(b)
+    (tmp_path / "SHA256SUMS").write_text("".join(f"{hashlib.sha256(b).hexdigest()}  {n}\n" for n, b in tresc.items()))
+    assert set(K.sprawdz_sumy(tmp_path)) == set(K.SPRAWDZANE)
+    zly = bytearray(tresc["model.safetensors"])
+    zly[0] ^= 1
+    (tmp_path / "model.safetensors").write_bytes(bytes(zly))
+    with pytest.raises(SystemExit, match="model.safetensors: sha256"):
+        K.sprawdz_sumy(tmp_path)
+    (tmp_path / "model.safetensors").write_bytes(tresc["model.safetensors"])
+    (tmp_path / "tokenizer.json").unlink()
+    with pytest.raises(SystemExit, match="tokenizer.json: missing"):
+        K.sprawdz_sumy(tmp_path)
+    (tmp_path / "SHA256SUMS").unlink()
+    with pytest.raises(SystemExit, match="SHA256SUMS: missing"):
+        K.sprawdz_sumy(tmp_path)
+    with pytest.raises(SystemExit):  # main checks before importing torch or the model code
+        K.main(["--model", str(tmp_path)])
+
+
+def test_kontrola_forward_ll_zdania_na_atrapie():
+    """ll_zdania on a dummy causal model (logits at t = W[token t]): one BOS 0, " " before the sentence, the
+    logits at t scored against token t + 1. Fails on a missing BOS, a missing space or logits shifted by one."""
+    import pytest
+    torch = pytest.importorskip("torch")
+    import kontrola_forward as K
+    V = 11
+    W = torch.randn(V, V, generator=torch.Generator().manual_seed(7))
+
+    def model(x):
+        return (torch.nn.functional.one_hot(x, V).float() @ W,)  # tuple, like the official GPT
+
+    def encode(s):
+        return [ord(c) % 10 + 1 for c in s]  # ' ' -> 3; never 0, so BOS is distinct
+
+    lp = torch.log_softmax(W, -1)
+    for zdanie in ("ab", "Who left?"):
+        ids = [0] + encode(" " + zdanie)
+        oczek = sum(lp[ids[t - 1], ids[t]].item() for t in range(1, len(ids)))
+        for wej in K.WEJSCIA:
+            w = K.ll_zdania(model, encode, zdanie, wej, ["float32", "float64"])
+            assert math.isclose(w["float32"], oczek, rel_tol=1e-5) and math.isclose(w["float64"], oczek, rel_tol=1e-9)
+        # what the mutations would compute instead: each differs from the expected value
+        bez_bos = encode(" " + zdanie)
+        bez_spacji = [0] + encode(zdanie)
+        for zle in (sum(lp[bez_bos[t - 1], bez_bos[t]].item() for t in range(1, len(bez_bos))),
+                    sum(lp[bez_spacji[t - 1], bez_spacji[t]].item() for t in range(1, len(bez_spacji))),
+                    sum(lp[ids[t], ids[t]].item() for t in range(1, len(ids)))):  # logits shifted by one
+            assert not math.isclose(zle, oczek, rel_tol=1e-3)
+
+
+def test_worek_slow_trzy_czytania():
+    """The three readings of 'same words' disagree on real BLiMP pairs; the main one ignores case and punctuation."""
+    import blimp_analiza as A
+    a, b = "Who did Amy see the man and?", "Who did Amy and see the man?"
+    assert A.ten_sam_worek_slow(a, b, "bez_interpunkcji") and A.ten_sam_worek_slow(a, b, "interpunkcja_osobno")
+    assert not A.ten_sam_worek_slow(a, b, "split")  # "and?" vs "and"
+    c, d = "Sam isn't leaving.", "isn't Sam leaving?"
+    assert A.ten_sam_worek_slow(c, d) and not A.ten_sam_worek_slow(c, d, "interpunkcja_osobno")  # . vs ?
+    assert not A.ten_sam_worek_slow("Amy left.", "amy left.", "split") and A.ten_sam_worek_slow("Amy left.", "amy left.")
+    assert A.WOREK_GLOWNY == "bez_interpunkcji" and set(A.WORKI) == {"bez_interpunkcji", "split", "interpunkcja_osobno"}
+
+
+def test_analiza_tabela_wrazliwosci_worka():
+    import blimp_analiza as A
+    d = docs()
+    ids = [x["id"] for x in d]
+    a = {i: {"ll": [-1.0, -2.0], "ntok": [3, 3]} for i in ids}
+    b = {i: {"ll": [-2.0, -1.0], "ntok": [3, 3]} for i in ids}
+    an = A.analiza(d, a, b, B.porownanie_parowane(a, b, d)["paradygmaty"])
+    wr = an["ten_sam_worek_slow"]["wrazliwosc"]
+    assert set(wr) == set(A.WORKI)
+    for df, r in wr.items():
+        assert r["tak"]["n"] + r["nie"]["n"] == sum(x["opcje"][0] != x["opcje"][1] for x in d)
+        assert r["tak"]["n"] == sum(A.ten_sam_worek_slow(*x["opcje"], df) for x in d if x["opcje"][0] != x["opcje"][1])
+    assert wr[A.WOREK_GLOWNY]["tak"] == an["ten_sam_worek_slow"]["tak"]
+
+
 if __name__ == "__main__":
     import pytest
     sys.exit(pytest.main([__file__, "-q"]))

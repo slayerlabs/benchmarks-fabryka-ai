@@ -145,6 +145,12 @@ Slayer vs Pythia ma SE niezależne (hypot), czyli ostrożne.
 | blimp_zjawisko_klastr_npi_licensing/acc | — | — | −0,0351 (−3,5) | — | — | 0,0345 | −1,0 | szum |
 | blimp_zjawisko_klastr_quantifiers/acc | — | — | 0,0135 (1,4) | — | — | 0,0494 | 0,3 | szum |
 | blimp_zjawisko_klastr_subject_verb_agreement/acc | — | — | −0,0388 (−3,9) | — | — | 0,0079 | −4,9 | prawdopodobne |
+| blimp_worek_bez_interpunkcji_tak/acc | — | — | 0,0052 (0,5) | — | — | 0,0047 | 1,1 | szum |
+| blimp_worek_bez_interpunkcji_nie/acc | — | — | −0,0369 (−3,7) | — | — | 0,0016 | −23,2 | pewne |
+| blimp_worek_split_tak/acc | — | — | −0,0257 (−2,6) | — | — | 0,0102 | −2,5 | prawdopodobne |
+| blimp_worek_split_nie/acc | — | — | −0,0288 (−2,9) | — | — | 0,0016 | −18,1 | pewne |
+| blimp_worek_interpunkcja_osobno_tak/acc | — | — | 0,0129 (1,3) | — | — | 0,0056 | 2,3 | prawdopodobne |
+| blimp_worek_interpunkcja_osobno_nie/acc | — | — | −0,0352 (−3,5) | — | — | 0,0016 | −21,8 | pewne |
 | blimp_ten_sam_worek_slow_klastr/acc | — | — | 0,0041 (0,4) | — | — | 0,0317 | 0,1 | szum |
 | blimp_inny_worek_slow_klastr/acc | — | — | −0,0370 (−3,7) | — | — | 0,0068 | −5,4 | pewne |
 | blimp_na_token/acc | — | — | −0,0309 (−3,1) | — | — | 0,0017 | −17,8 | pewne |

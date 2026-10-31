@@ -6,6 +6,7 @@ share a template, so for "is the gap real for paradigms of this kind" the unit i
 SE over the 67 paradigm differences (clustered), a bootstrap over paradigms and a sign test.
 """
 import math
+import re
 
 from blimp import PROG_PEWNE, PROG_PRAWDOPODOBNE, SEED, trafienie_pary, werdykt
 
@@ -92,11 +93,22 @@ def werdykt_grupy(xs):
     return klastry(xs)["werdykt"]
 
 
-def ten_sam_worek_slow(a, b):
-    """Good and bad sentence use the same words (as a multiset), so they differ only in word order."""
-    def worek(s):
-        return sorted(s.lower().rstrip(".?").split())
-    return worek(a) == worek(b)
+# What "the same words" means changes the word-order side of the split a lot, so three readings are kept:
+WORKI = {
+    # main reading: lower case, every character other than a letter, digit, _, ' or whitespace removed, split on spaces
+    "bez_interpunkcji": lambda s: sorted(re.sub(r"[^\w\s']", "", s.lower()).split()),
+    # the raw text split on whitespace (punctuation stays glued to its word, case kept)
+    "split": lambda s: sorted(s.split()),
+    # words and punctuation marks as separate tokens, case kept
+    "interpunkcja_osobno": lambda s: sorted(re.findall(r"\w+|[^\w\s]", s)),
+}
+WOREK_GLOWNY = "bez_interpunkcji"
+
+
+def ten_sam_worek_slow(a, b, definicja=WOREK_GLOWNY):
+    """Good and bad sentence use the same words (as a multiset, by WORKI[definicja]): only word order differs."""
+    f = WORKI[definicja]
+    return f(a) == f(b)
 
 
 def bootstrap_srednich(xs, powtorzen=10000, seed=SEED):
@@ -184,7 +196,8 @@ def analiza(docs, wa, wb, por_paradygmaty):
     """wa, wb: {id: row} of model a (Slayer) and b (Pythia); por_paradygmaty: pair-level per-paradigm entries."""
     gr = sorted({d["grupa"] for d in docs})
     zj = {d["grupa"]: d["zjawisko"] for d in docs}
-    roz, roz_tok, ta_sama, rozna, worek, inny = ({g: [] for g in gr} for _ in range(6))
+    roz, roz_tok, ta_sama, rozna = ({g: [] for g in gr} for _ in range(4))
+    worki = {df: ({g: [] for g in gr}, {g: [] for g in gr}) for df in WORKI}  # definition -> (same, other)
     flaga = {}
     tok_a = tok_b = 0
     for d in docs:
@@ -197,7 +210,8 @@ def analiza(docs, wa, wb, por_paradygmaty):
         (ta_sama if dn_a == dn_b else rozna)[g].append(r)
         sam = ten_sam_worek_slow(*d["opcje"])
         if d["opcje"][0] != d["opcje"][1]:  # identical good and bad sentence: no contrast at all, in neither side
-            (worek if sam else inny)[g].append(r)
+            for df, (tak, nie) in worki.items():
+                (tak if ten_sam_worek_slow(*d["opcje"], df) else nie)[g].append(r)
         if d["rekord"].get("lexically_identical"):
             flaga.setdefault(g, []).append(sam)
         tok_a += ra["ntok"][0]
@@ -252,7 +266,9 @@ def analiza(docs, wa, wb, por_paradygmaty):
             "na_token": na_token,
             "przewagi_a_pewne": len(przewagi),
             "przewagi_a_odwrocone_na_token": [g for g in przewagi if parad[g]["roznica_na_token"] < 0],
-            "ten_sam_worek_slow": {"tak": worek_opis(worek), "nie": worek_opis(inny),
+            "ten_sam_worek_slow": {"tak": worek_opis(worki[WOREK_GLOWNY][0]), "nie": worek_opis(worki[WOREK_GLOWNY][1]),
+                                   "wrazliwosc": {df: {"tak": worek_opis(t), "nie": worek_opis(n)}
+                                                  for df, (t, n) in worki.items()},
                                    "flaga_lexically_identical_paradygmaty": len(flaga),
                                    "flaga_bez_tego_samego_worka": sum(not all(v) for v in flaga.values())},
             "tokenizacja": {"stosunek_tokenow_a_do_b": tok_a / tok_b, "ta_sama_roznica_tokenow": neutr,

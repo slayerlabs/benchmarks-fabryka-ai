@@ -145,7 +145,18 @@ The order of the gaps depends on the measure: Spearman rank correlation between 
 
 - Slayer's tokenizer cuts these English sentences into 1.18x as many tokens as Pythia's.
 - Accuracy depends on the token-length difference within a pair. On the 57329 pairs where both tokenizers give the same token difference between good and bad sentence the gap is -2.39 pts (SE 0.17 pts, z = -13.95); on the 9671 other pairs -5.69 pts (SE 0.41 pts, z = -13.87). About 0.48 pts of the overall gap goes with the tokenizer difference.
-- On the 13156 pairs (14 paradigms) whose good and bad sentence use the same words, as a multiset, and differ only in word order, the gap is 0.52 pts (SE 0.47 pts, z = 1.09: noise; mean over paradigms 0.41 pts, t = 0.13). On the 53837 other pairs (54 paradigms), where the sentences differ in a word or its form, -3.69 pts (SE 0.16 pts, z = -23.18: certain; mean over paradigms -3.70 pts, t = -5.43). On the word-order pairs the paradigm differences are large in both directions (mean |d| 9.6 pts vs 4.7 pts) and cancel out; Pythia's steady advantage is where the sentences differ in a word or its form. A paradigm with pairs of both kinds is counted on both sides; the 7 pairs with identical good and bad sentences are in neither. This is a correlation over paradigm types, not a controlled experiment.
+- **Same words, different word order.** A pair is on the word-order side when its good and bad sentence have the same multiset of words. The main reading in the code (`blimp_analiza.WORKI`, `bez_interpunkcji`): lower case, every character other than a letter, digit, `_`, `'` or whitespace removed, split on whitespace. The 7 pairs with identical good and bad sentences are on neither side; a paradigm with pairs of both kinds is counted on both sides.
+- **The verdict for the word-order pairs depends on that definition** (table): from Pythia probably better (raw text split on whitespace, z = -2.53) to Slayer probably better (words and punctuation as separate tokens, z = 2.32). So there is no finding for word-order pairs, neither a gap nor its absence. Stable under all three readings is only that Pythia's advantage lies in the pairs that differ in a word or its form: z from -18.12 to -23.18, over paradigms t from -3.51 to -5.43. This is a correlation over paradigm types, not a controlled experiment.
+
+| reading of 'same words' | pairs | n | paradigms | difference | SE | z | verdict pairs | mean over paradigms | t over paradigms | df | p | verdict over paradigms |
+|---|---|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|---|
+| lower case, punctuation removed (main) | same words, order differs | 13156 | 14 | 0.52 pts | 0.47 pts | 1.09 | noise | 0.41 pts | 0.13 | 13 | 0.8994 | noise |
+| lower case, punctuation removed (main) | differ in a word or form | 53837 | 54 | -3.69 pts | 0.16 pts | -23.18 | certain | -3.70 pts | -5.43 | 53 | 0.0000 | certain |
+| raw text split on whitespace | same words, order differs | 2920 | 4 | -2.57 pts | 1.02 pts | -2.53 | probable | -4.28 pts | -0.76 | 3 | 0.5030 | noise |
+| raw text split on whitespace | differ in a word or form | 64073 | 65 | -2.88 pts | 0.16 pts | -18.12 | certain | -3.02 pts | -3.51 | 64 | 0.0008 | certain |
+| words and punctuation as separate tokens | same words, order differs | 9064 | 10 | 1.29 pts | 0.56 pts | 2.32 | probable | 0.92 pts | 0.24 | 9 | 0.8164 | noise |
+| words and punctuation as separate tokens | differ in a word or form | 57929 | 59 | -3.52 pts | 0.16 pts | -21.85 | certain | -3.67 pts | -4.89 | 58 | 0.0000 | certain |
+
 - The BLiMP flag `lexically_identical` does not mark this split: 9 of its 20 paradigms have pairs with different word forms (e.g. sketch / sketches in determiner_noun_agreement_1), so the split is made on the words of each pair.
 
 ## Deviations from METHOD.md and limits

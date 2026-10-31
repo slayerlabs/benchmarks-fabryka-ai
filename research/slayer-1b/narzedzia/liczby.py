@@ -229,6 +229,11 @@ def porownania_blimp(bl):
                           zrodlo_par=f"clustered by paradigm (k = {r['k']})", roznica=r["roznica"]),
                r["df"], r["p_t"], r["werdykt"])  # k < 3: "nierozstrzygalne", whatever t says
     worek = an["ten_sam_worek_slow"]
+    for df, strony in worek.get("wrazliwosc", {}).items():  # three readings of "same words"
+        for s, r in strony.items():
+            out.append(porownanie(f"slayer_vs_pythia/blimp_worek_{df}_{s}/acc", "slayer_vs_pythia",
+                                  f"blimp_worek_{df}_{s}", "acc", a, b, None, None, None, None, se_par=r["se"],
+                                  zrodlo_par="paired by minimal pair, stratified by paradigm", roznica=r["roznica"]))
     for nazwa, r in (("blimp_ten_sam_worek_slow_klastr", worek["tak"]), ("blimp_inny_worek_slow_klastr", worek["nie"])):
         klastr(porownanie(f"slayer_vs_pythia/{nazwa}/acc", "slayer_vs_pythia", nazwa, "acc", a, b, None, None, None, None,
                           se_par=r["se_paradygmatow"], zrodlo_par=f"clustered by paradigm (k = {r['k_paradygmatow']})",

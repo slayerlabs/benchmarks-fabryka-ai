@@ -234,7 +234,7 @@ def pliki(liczby, bl):
                  f"z = {f(p['z'], 2)} | {wer} | {pkt(d['roznica_na_token'], 1)} | "
                  f"{pkt(d.get('roznica_ta_sama_tokenizacja'), 1)} ({int(d['n_ta_sama_tokenizacja'])}) |")
     L += ["", "![BLiMP paradigms](blimp_paradigms.svg)", ""]
-    L += sekcja_tokenizacji(w, por)
+    L += sekcja_tokenizacji(w, por, bl)
     L += sekcja_odstepstw(w, bl)
     L += ["## How to reproduce", "",
           "```bash",
@@ -291,11 +291,10 @@ def sekcja_space(w, pan, sl):
         "not the choice of pairs). Use the full set.", ""]
 
 
-def sekcja_tokenizacji(w, por):
+def sekcja_tokenizacji(w, por, bl):
     an = "blimp/analiza/tokenizacja"
     wr = "blimp/analiza/ten_sam_worek_slow"
     ts, tr = por["blimp_ta_sama_tokenizacja"], por["blimp_rozna_tokenizacja"]
-    lt, ln = por["blimp_ten_sam_worek_slow"], por["blimp_inny_worek_slow"]
     return ["## What the gap measures: tokenizer and vocabulary", "", EKSPL, "",
             f"- Slayer's tokenizer cuts these English sentences into {f(w[an + '/stosunek_tokenow_a_do_b'], 2)}x as many "
             "tokens as Pythia's.",
@@ -305,22 +304,55 @@ def sekcja_tokenizacji(w, por):
             f"z = {f(ts['z'], 2)}); on the {int(w[an + '/rozna_roznica_tokenow/n'])} other pairs {pkt(tr['roznica'])} "
             f"(SE {pkt(tr['se'])}, z = {f(tr['z'], 2)}). About {pkt(-w[an + '/czesc_luki_od_tokenizacji'])} of the "
             f"overall gap goes with the tokenizer difference.",
-            f"- On the {int(w[wr + '/tak/n'])} pairs ({int(w[wr + '/tak/k_paradygmatow'])} paradigms) whose good and bad "
-            f"sentence use the same words, as a multiset, and differ only in word order, the gap is "
-            f"{pkt(lt['roznica'])} (SE {pkt(lt['se'])}, z = {f(lt['z'], 2)}: {WERDYKT_EN[lt['werdykt']]}; mean over "
-            f"paradigms {pkt(w[wr + '/tak/srednia_paradygmatow'])}, t = {f(w[wr + '/tak/t_paradygmatow'], 2)}). On the {int(w[wr + '/nie/n'])} other pairs "
-            f"({int(w[wr + '/nie/k_paradygmatow'])} paradigms), where the sentences differ in a word or its form, "
-            f"{pkt(ln['roznica'])} (SE {pkt(ln['se'])}, z = {f(ln['z'], 2)}: {WERDYKT_EN[ln['werdykt']]}; mean over "
-            f"paradigms {pkt(w[wr + '/nie/srednia_paradygmatow'])}, t = {f(w[wr + '/nie/t_paradygmatow'], 2)}). On the word-order pairs the paradigm differences "
-            f"are large in both directions (mean |d| {pkt(w[wr + '/tak/srednia_abs_paradygmatow'], 1)} vs "
-            f"{pkt(w[wr + '/nie/srednia_abs_paradygmatow'], 1)}) and cancel out; Pythia's steady advantage is where "
-            "the sentences differ in a word or its form. A paradigm with pairs of both kinds is counted on both "
-            f"sides; the {int(w['blimp/zbior/pary_identyczne'])} pairs with identical good and bad sentences are in "
-            "neither. This is a correlation over paradigm types, not a controlled experiment.",
+            ] + sekcja_slow(w, bl) + [
             f"- The BLiMP flag `lexically_identical` does not mark this split: {int(w[wr + '/flaga_bez_tego_samego_worka'])} "
             f"of its {int(w[wr + '/flaga_lexically_identical_paradygmaty'])} paradigms have pairs with different word "
             "forms (e.g. sketch / sketches in determiner_noun_agreement_1), so the split is made on the words of each "
             "pair.", ""]
+
+
+CZYTANIA_WORKA = (("bez_interpunkcji", "lower case, punctuation removed (main)"),
+                  ("split", "raw text split on whitespace"),
+                  ("interpunkcja_osobno", "words and punctuation as separate tokens"))
+
+
+def sekcja_slow(w, bl):
+    """Same words / different word order, under the three readings of 'same words' (blimp_analiza.WORKI).
+    Numbers from LICZBY.json; verdict words (strings, not in LICZBY) from blimp.json."""
+    wr = "blimp/analiza/ten_sam_worek_slow/wrazliwosc"
+    wer = bl["analiza"]["ten_sam_worek_slow"]["wrazliwosc"]
+
+    def v(df, s, k):
+        return w[f"{wr}/{df}/{s}/{k}"]
+
+    z_nie = [v(df, "nie", "z") for df, _ in CZYTANIA_WORKA]
+    t_nie = [v(df, "nie", "t_paradygmatow") for df, _ in CZYTANIA_WORKA]
+    z_tak = {df: v(df, "tak", "z") for df, _ in CZYTANIA_WORKA}
+    lo, hi = min(z_tak, key=z_tak.get), max(z_tak, key=z_tak.get)
+    opis = dict(CZYTANIA_WORKA)
+    L = ["- **Same words, different word order.** A pair is on the word-order side when its good and bad sentence "
+         "have the same multiset of words. The main reading in the code (`blimp_analiza.WORKI`, "
+         "`bez_interpunkcji`): lower case, every character other than a letter, digit, `_`, `'` or whitespace "
+         "removed, split on whitespace. The "
+         f"{int(w['blimp/zbior/pary_identyczne'])} pairs with identical good and bad sentences are on neither side; "
+         "a paradigm with pairs of both kinds is counted on both sides.",
+         "- **The verdict for the word-order pairs depends on that definition** (table): from Pythia probably "
+         f"better ({opis[lo]}, z = {f(z_tak[lo], 2)}) to Slayer probably better ({opis[hi]}, "
+         f"z = {f(z_tak[hi], 2)}). So there is no finding for word-order pairs, neither a gap nor its absence. "
+         "Stable under all three readings is only that Pythia's advantage lies in the pairs that differ in a word or "
+         f"its form: z from {f(max(z_nie), 2)} to {f(min(z_nie), 2)}, over paradigms t from {f(max(t_nie), 2)} "
+         f"to {f(min(t_nie), 2)}. This is a correlation over paradigm types, not a controlled experiment.", "",
+         "| reading of 'same words' | pairs | n | paradigms | difference | SE | z | verdict pairs | mean over "
+         "paradigms | t over paradigms | df | p | verdict over paradigms |",
+         "|---|---|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|---|"]
+    for df, nazwa in CZYTANIA_WORKA:
+        for s, strona in (("tak", "same words, order differs"), ("nie", "differ in a word or form")):
+            L.append(f"| {nazwa} | {strona} | {int(v(df, s, 'n'))} | {int(v(df, s, 'k_paradygmatow'))} | "
+                     f"{pkt(v(df, s, 'roznica'))} | {pkt(v(df, s, 'se'))} | {f(v(df, s, 'z'), 2)} | "
+                     f"{WERDYKT_EN[wer[df][s]['werdykt']]} | {pkt(v(df, s, 'srednia_paradygmatow'))} | "
+                     f"{f(v(df, s, 't_paradygmatow'), 2)} | {int(v(df, s, 'df_paradygmatow'))} | "
+                     f"{f(v(df, s, 'p_t_paradygmatow'), 4)} | {WERDYKT_EN[wer[df][s]['werdykt_paradygmatow']]} |")
+    return L + [""]
 
 
 def sekcja_odstepstw(w, bl):
