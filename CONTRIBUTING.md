@@ -46,6 +46,24 @@ Procedura: [`research/METODOLOGIA.md`](research/METODOLOGIA.md).
 - `dev`: zadanie techniczne (kod wspólny, narzędzia, CI).
 - `needs-recheck`: wynik idzie dalej (do Space albo do decyzji o treningu), więc musi przejść niezależne sprawdzenie.
 
+## Tablica
+
+Tablica zadań: https://github.com/orgs/slayerlabs/projects/10. Kolumny Status po kolei:
+
+1. **Backlog**: zadanie czeka, jeszcze nie do wzięcia.
+2. **Ready**: zadanie można brać.
+3. **In Progress**: ktoś je robi.
+4. **Review**: pierwsze sprawdzenie.
+5. **Independent Check**: drugie, niezależne sprawdzenie.
+6. **Done**: zrobione.
+
+Pola zadania:
+
+- **Czas**: ile pracy zajmie zadanie: „do 2 h”, „do 1 dnia” albo „kilka dni”.
+- **Rodzaj**: „Kroki podane”, gdy wystarczy wykonać rozpisane kroki, albo „Do zbadania”, gdy sposób wykonania trzeba
+  najpierw samemu ustalić.
+- **Obszar**: Dane, Architektura i uczenie, Systemy treningu, Infrastruktura albo Ewaluacja i pomiar.
+
 ## Pliki w repo
 
 - Dokumenty piszesz po polsku, nazwy katalogów, plików i kod po angielsku.
