@@ -1,0 +1,86 @@
+{
+ "zdania": 400,
+ "pary": 200,
+ "max_abs_roznica_ll": [
+  0.0005225446075201035,
+  0.000579833984375
+ ],
+ "srednia_abs_roznica_ll": [
+  0.00017600059509277345,
+  0.00017686843872070313
+ ],
+ "przestawione_pary": 0,
+ "przebiegi": [
+  {
+   "watki_cpu": 1,
+   "wejscie": "bez_ostatniego",
+   "suma": "float32",
+   "max_abs_roznica_ll": 0.00054931640625,
+   "srednia_abs_roznica_ll": 0.00017634391784667968,
+   "przestawione_pary": 0
+  },
+  {
+   "watki_cpu": 1,
+   "wejscie": "bez_ostatniego",
+   "suma": "float64",
+   "max_abs_roznica_ll": 0.0005578622221946716,
+   "srednia_abs_roznica_ll": 0.00017633383013162529,
+   "przestawione_pary": 0
+  },
+  {
+   "watki_cpu": 1,
+   "wejscie": "pelne",
+   "suma": "float32",
+   "max_abs_roznica_ll": 0.00054931640625,
+   "srednia_abs_roznica_ll": 0.00017624855041503906,
+   "przestawione_pary": 0
+  },
+  {
+   "watki_cpu": 1,
+   "wejscie": "pelne",
+   "suma": "float64",
+   "max_abs_roznica_ll": 0.0005578622221946716,
+   "srednia_abs_roznica_ll": 0.00017617757632251596,
+   "przestawione_pary": 0
+  },
+  {
+   "watki_cpu": 6,
+   "wejscie": "bez_ostatniego",
+   "suma": "float32",
+   "max_abs_roznica_ll": 0.0005340576171875,
+   "srednia_abs_roznica_ll": 0.00017686843872070313,
+   "przestawione_pary": 0
+  },
+  {
+   "watki_cpu": 6,
+   "wejscie": "bez_ostatniego",
+   "suma": "float64",
+   "max_abs_roznica_ll": 0.0005225446075201035,
+   "srednia_abs_roznica_ll": 0.000176711935455387,
+   "przestawione_pary": 0
+  },
+  {
+   "watki_cpu": 6,
+   "wejscie": "pelne",
+   "suma": "float32",
+   "max_abs_roznica_ll": 0.000579833984375,
+   "srednia_abs_roznica_ll": 0.00017600059509277345,
+   "przestawione_pary": 0
+  },
+  {
+   "watki_cpu": 6,
+   "wejscie": "pelne",
+   "suma": "float64",
+   "max_abs_roznica_ll": 0.0005702748894691467,
+   "srednia_abs_roznica_ll": 0.00017612674386327854,
+   "przestawione_pary": 0
+  }
+ ],
+ "wersje": {
+  "python": "3.9.6",
+  "torch": "2.8.0",
+  "tokenizers": "0.22.2",
+  "maszyna": "macOS-26.6-arm64-arm-64bit"
+ },
+ "opis": "official load_slayer.py GPT (HF repo @ ef81be58), CPU float32, batch 1, vs slayer_model.py on MPS, batch 64 (raw/1.06.jsonl.gz); sha256 panel pairs; 8 runs: CPU threads x input with or without the last token x float32 or float64 sum of token log-probs"
+}

@@ -7,6 +7,9 @@ Kod wyjścia 1, gdy:
      w akapicie z liczbami nie ma SE, z ani werdyktu (szum / prawdopodobne / pewne / w granicach);
  (c) słowo werdyktu („pewne”, „prawdopodobna”) stoi przy teście, którego żadne porównanie z tej
      rodziny nie ma w LICZBY.json tak mocnego werdyktu.
+ (d)-(f) bramki raportów z metadanymi w LICZBY.json "raporty" (bramki_raportu): werdykt na zbiorze
+     wieloparadygmatowym bez SE klastrowanego / Holma, werdykt grupy < 3 członków, różne tokenizery bez
+     wyniku na token.
 Wyjątek na linię: `<!-- liczba-spoza-wynikow: powód -->` wyłącza (a), `<!-- ocena-bez-se: powód -->` wyłącza (b).
 
 Uruchom: python narzedzia/liczby.py && python narzedzia/sprawdz_raporty.py [plik.html ...]
@@ -19,7 +22,7 @@ import sys
 from pathlib import Path
 
 KORZEN = Path(__file__).resolve().parent.parent
-SILA = {"szum": 0, "prawdopodobne": 1, "pewne": 2}
+SILA = {"nierozstrzygalne": 0, "szum": 0, "prawdopodobne": 1, "pewne": 2}
 
 # (plik, nagłówek sekcji albo None = cały plik, reguły, powód) — krótka lista, każdy wpis z powodem
 WYLACZENIA = [
@@ -30,14 +33,22 @@ WYLACZENIA = [
     ("testy_danych_slayer/README.md", None, "a", "plan przebiegu: koszty, czasy, rozmiary; wyników jeszcze nie ma"),
     ("wygaszanie/README.md", "## Rozbieg i wybór K", "a", "log instancji i trenera (cena, tok/s, strata kroku), nie ma go w surowych JSON-ach"),
     ("slayer_eval/README.md", None, "a", "liczby ze Space Arka (bench50, scores-history), nie z naszych surowych wyników"),
+    ("wyniki/blimp/THRESHOLDS.md", None, "abc", "thresholds written before the measurement, not results"),
 ]
+# English reports: dot decimals ("0.792", "-2.87 points"), and the test whose numbers a line may use
+# without naming it (a table row of BLIMP.md does not repeat "BLiMP").
+PLIKI_EN = {"wyniki/blimp/BLIMP.md": "blimp"}
 POMIN_KATALOGI = {".git", ".venv", "venv", "node_modules", "__pycache__"}
 
 LICZBA = re.compile(r"(?<![\d,.\w])([−-]?)(\d+),(\d+)(?!,?\d)")
+LICZBA_EN = re.compile(r"(?<![\d,.\w])([−-]?)(\d+)\.(\d+)(?!\.?\d)")
 JEDNOSTKA_POMIN = re.compile(r"\s*(\$|h\b|s\b|s/|GB|tok\b|tok/|tok\.|mld|mln|bln|min\b|M\b)")
 SKALOWANA = re.compile(r"\s*(pkt|%|p\.\s?p\.)")
+SKALOWANA_EN = re.compile(r"\s*(points?\b|pts?\b|%)")
 LISTA_SE = re.compile(r"((?:[−-]?\d+(?:,\d+)?\s*/\s*)*[−-]?\d+(?:,\d+)?)\s*SE\b")
 Z_ROWNA = re.compile(r"\bz\s*=\s*([−-]?\d+(?:,\d+)?)")
+Z_ROWNA_EN = re.compile(r"\b[zt]\s*=\s*([−-]?\d+(?:\.\d+)?)")  # t = clustered z (mean / SE over paradigms)
+WERSJA_MODELU = re.compile(r"Slayer\s*$")  # "Slayer 1.06" is a model name, not a number
 OCENA = re.compile(r"\b(lepsz\w*|gorsz\w*|lu(?:ka|ki|kę|ką|ce|k)\b|przewag\w*|popraw(?:a|y|ie|ę|ą)\b|"
                    r"pogorsz\w*|pogarsz\w*|istotn\w*|prawdziw\w*)", re.IGNORECASE)
 DOWOD = re.compile(r"\bSE\b|\bz\s*=|szum|pewn|prawdopodobn|bez (?:wykrywalnej )?różnicy|w granicach|\|Δ\|",
@@ -104,7 +115,11 @@ def zbiory(liczby):
     for t in set(surowe) | set(zety):
         s = surowe.get(t, [])
         out[t] = {"surowa": s, "skalowana": [v * 100 for v in s], "z": zety.get(t, [])}
-    wszystkie = {r: Zbior([v for d in out.values() for v in d[r]]) for r in ("surowa", "skalowana", "z")}
+    # Tests with hundreds of values (BLiMP: 67 paradigms) only match lines that name them;
+    # in the catch-all set they would let almost any 3-digit number pass.
+    tylko_z_nazwa = set(liczby.get("tylko_z_nazwa", []))
+    wszystkie = {r: Zbior([v for t, d in out.items() if t not in tylko_z_nazwa for v in d[r]])
+                 for r in ("surowa", "skalowana", "z")}
     wynik = {t: {r: Zbior(d[r] + out.get(None, {}).get(r, [])) for r in d} for t, d in out.items()}
     wynik["*"] = wszystkie
     return wynik
@@ -128,15 +143,16 @@ def zadeklarowany_werdykt(tekst):
     return None
 
 
-def rodzaj_liczby(linia, start, koniec):
-    """'z' (liczba przed „SE” albo po „z =”), 'skalowana' (pkt, %) albo 'surowa'."""
-    for m in LISTA_SE.finditer(linia):
-        if m.start(1) <= start and koniec <= m.end(1):
-            return "z"
-    for m in Z_ROWNA.finditer(linia):
+def rodzaj_liczby(linia, start, koniec, kropka=False):
+    """'z' (liczba przed „SE” albo po „z =”), 'skalowana' (pkt, %; w EN points/pts) albo 'surowa'."""
+    if not kropka:
+        for m in LISTA_SE.finditer(linia):
+            if m.start(1) <= start and koniec <= m.end(1):
+                return "z"
+    for m in (Z_ROWNA_EN if kropka else Z_ROWNA).finditer(linia):
         if m.start(1) <= start < m.end(1):
             return "z"
-    if SKALOWANA.match(linia, koniec):
+    if (SKALOWANA_EN if kropka else SKALOWANA).match(linia, koniec):
         return "skalowana"
     return "surowa"
 
@@ -147,18 +163,21 @@ def bez_kodu(linia):
     return re.sub(r"<!--.*?-->", lambda m: " " * len(m.group(0)), linia)
 
 
-def niepasujace_liczby(linia, zb, aliasy=None):
+def niepasujace_liczby(linia, zb, aliasy=None, kropka=False, test_domyslny=None):
     """Liczby z linii, których nie da się odtworzyć z LICZBY.json: [(tekst, rodzaj)].
     Gdy linia nazywa testy (ARC-E, SIQA...), liczba musi pasować do wartości tych testów albo
-    wartości bez testu (loss, WikiText); linia bez nazwy testu porównuje ze wszystkimi."""
+    wartości bez testu (loss, WikiText); linia bez nazwy testu porównuje ze wszystkimi
+    (albo, w pliku z PLIKI_EN, z testem tego pliku). `kropka`: zapis dziesiętny z kropką (pliki EN)."""
     czysta = bez_kodu(linia)
     testy = [t for t in testy_w_tekscie(czysta, aliasy) if t in zb] if aliasy else []
+    if not testy and test_domyslny is not None and test_domyslny in zb:  # zb has a None key too
+        testy = [test_domyslny]
     zle = []
-    for m in LICZBA.finditer(czysta):
-        if JEDNOSTKA_POMIN.match(czysta, m.end()):
+    for m in (LICZBA_EN if kropka else LICZBA).finditer(czysta):
+        if JEDNOSTKA_POMIN.match(czysta, m.end()) or (kropka and WERSJA_MODELU.search(czysta[:m.start()])):
             continue
-        x, cyfr = parsuj_liczbe(m.group(0))
-        rodzaj = rodzaj_liczby(czysta, m.start(), m.end())
+        x, cyfr = parsuj_liczbe(m.group(0).replace(".", ",") if kropka else m.group(0))
+        rodzaj = rodzaj_liczby(czysta, m.start(), m.end(), kropka)
         kandydaci = [zb[t][rodzaj] for t in testy] or [zb["*"][rodzaj]]
         if not any(k.zawiera(x, cyfr) for k in kandydaci):
             zle.append((m.group(0), rodzaj))
@@ -166,7 +185,9 @@ def niepasujace_liczby(linia, zb, aliasy=None):
 
 
 def testy_w_tekscie(tekst, aliasy):
-    return {t for t, nazwy in aliasy.items() if any(re.search(re.escape(n), tekst, re.IGNORECASE) for n in nazwy)}
+    # (?<!\w): "BLiMP" must not match inside "MultiBLiMP"
+    return {t for t, nazwy in aliasy.items()
+            if any(re.search(r"(?<!\w)" + re.escape(n), tekst, re.IGNORECASE) for n in nazwy)}
 
 
 def rodziny_kontekstu(tekst, plik=""):
@@ -270,7 +291,8 @@ def sprawdz_tekst(plik, linie, liczby, zb):
             continue
         if w_kodzie or WYJATEK_A in l or wylaczone(plik, sekcje[nr], "a"):
             continue
-        for tekst, rodzaj in niepasujace_liczby(l, zb, liczby["aliasy"]):
+        for tekst, rodzaj in niepasujace_liczby(l, zb, liczby["aliasy"], kropka=plik in PLIKI_EN,
+                                                test_domyslny=PLIKI_EN.get(plik)):
             opis = {"z": "jako z (×SE)", "skalowana": "jako pkt/% (×100)", "surowa": "jako wartość"}[rodzaj]
             bledy.append((plik, nr, f"(a) {tekst} nie odpowiada żadnej liczbie z LICZBY.json {opis}"))
     for akapit in jednostki(linie):
@@ -289,6 +311,104 @@ def sprawdz_tekst(plik, linie, liczby, zb):
             for klauzula in re.split(r"[;|]", zd):
                 for test, dekl, dane in za_mocny_werdykt(klauzula, tekst_akapitu, liczby, plik, zd):
                     bledy.append((plik, nr, f"(c) „{dekl}” przy {test}, a najmocniejszy werdykt w LICZBY.json to „{dane}”"))
+    return bledy
+
+
+# ---------- bramki raportów z metadanymi (LICZBY.json "raporty"; starsze raporty ich nie mają) ----------
+
+SLOWO_WERDYKTU = re.compile(r"\b(certain|probable|pewn\w*|prawdopodobn\w*)\b", re.IGNORECASE)
+BEZ_WERDYKTU = {"nierozstrzygalne", "undetermined"}
+NA_TOKEN = re.compile(r"\b(per[ -]token|per[ -]byte|na token|na bajt)\b", re.IGNORECASE)
+
+
+def bramki_raportu(meta, linie, liczby):
+    """Gates for a report on a multi-paradigm set (BLiMP, MultiBLiMP, MMLU):
+    (d) a verdict word needs an SE/z clustered by paradigm in LICZBY.json, and a ranking of
+        more than one paradigm needs a Holm field for every paradigm;
+    (e) a group with < 3 members may only be "undetermined" at the paradigm level: in the metadata and in the
+        clustered-verdict column of its table row (meta "kolumna_werdyktu_klastrowego"; the pair-level verdict
+        in the same row is a claim about the pairs and stays); without that key, anywhere in the row;
+    (f) models with different tokenizers need a per-token comparison in LICZBY.json and in the text."""
+    plik, bledy = meta["plik"], []
+    tekst = "\n".join(linie)
+    por = {p["id"]: p for p in liczby["porownania"]}
+    if meta.get("wieloparadygmatowy") and SLOWO_WERDYKTU.search(tekst):
+        k = por.get(meta.get("porownanie_klastrowe") or "")
+        if not k or k.get("se") is None or k.get("z") is None:
+            bledy.append((plik, 0, "(d) werdykt na zbiorze wieloparadygmatowym bez SE/z klastrowanego po paradygmatach"))
+        holm = meta.get("holm") or {}
+        if meta.get("k_paradygmatow", 0) > 1 and (len(holm) < meta["k_paradygmatow"]
+                                                   or not all(isinstance(v, bool) for v in holm.values())):
+            bledy.append((plik, 0, "(d) ranking paradygmatów bez poprawki Holma dla każdego paradygmatu"))
+    kolumna = meta.get("kolumna_werdyktu_klastrowego")
+    for g in meta.get("grupy", []):
+        if g["k"] >= 3:
+            continue
+        if g["werdykt"] not in BEZ_WERDYKTU:
+            bledy.append((plik, 0, f"(e) grupa {g['nazwa']} ma {g['k']} członków, a werdykt „{g['werdykt']}”"))
+        for nr, l in enumerate(linie, 1):
+            if not l.startswith(f"| {g['etykieta']} |"):
+                continue
+            komorka = komorka_kolumny(linie, nr - 1, kolumna) if kolumna else l
+            if komorka is None:
+                bledy.append((plik, nr, f"(e) wiersz grupy {g['nazwa']} bez kolumny „{kolumna}” w nagłówku tabeli"))
+            elif SLOWO_WERDYKTU.search(komorka) or not any(s in komorka for s in BEZ_WERDYKTU):
+                bledy.append((plik, nr, f"(e) wiersz grupy {g['nazwa']} (k = {g['k']}) z werdyktem paradygmatów "
+                                        f"innym niż undetermined: „{komorka.strip()}”"))
+    if len(set((meta.get("tokenizery") or {}).values())) > 1:
+        t = por.get(meta.get("porownanie_na_token") or "")
+        if not t or t.get("z") is None or not NA_TOKEN.search(tekst):
+            bledy.append((plik, 0, "(f) modele z różnymi tokenizerami, a raport nie ma wyniku na token/bajt"))
+    return bledy
+
+
+def komorki(l):
+    return [c.strip() for c in l.strip().strip("|").split("|")]
+
+
+def komorka_kolumny(linie, i, nazwa):
+    """Cell of table row linie[i] under header `nazwa` (header = first line of the table block)."""
+    j = i
+    while j > 0 and linie[j - 1].lstrip().startswith("|"):
+        j -= 1
+    naglowek = komorki(linie[j])
+    if nazwa not in naglowek:
+        return None
+    wiersz = komorki(linie[i])
+    k = naglowek.index(nazwa)
+    return wiersz[k] if k < len(wiersz) else ""
+
+
+def bramka_generatora(meta, liczby, korzen=None):
+    """(g) a generated report must equal, byte for byte, the generator output from LICZBY.json: a number,
+    verdict or sentence edited by hand, or a stale report after new numbers, gives code 1."""
+    import importlib.util
+    korzen = korzen or KORZEN
+    gen = meta.get("generator")
+    if not gen:
+        return []
+    try:
+        spec = importlib.util.spec_from_file_location("_generator_raportu", korzen / gen["modul"])
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        wejscie = json.loads((korzen / gen["wejscie"]).read_text(encoding="utf-8"))
+        oczekiwane = getattr(mod, gen["funkcja"])(liczby, wejscie)
+    except Exception as e:  # a generator that cannot run from LICZBY.json is a failed gate, not a pass
+        return [(meta["plik"], 0, f"(g) generator {gen['modul']} nie działa na LICZBY.json: {type(e).__name__}: {e}")]
+    katalog = (korzen / meta["plik"]).parent
+    bledy = []
+    for nazwa, tresc in sorted(oczekiwane.items()):
+        p = katalog / nazwa
+        rel = str(p.relative_to(korzen))
+        if not p.exists():
+            bledy.append((rel, 0, f"(g) brak pliku generowanego przez {gen['modul']}"))
+            continue
+        jest = p.read_text(encoding="utf-8")
+        if jest != tresc:
+            a, b = jest.splitlines(), tresc.splitlines()
+            nr = next((i for i, (x, y) in enumerate(zip(a, b), 1) if x != y), min(len(a), len(b)) + 1)
+            bledy.append((rel, nr, f"(g) plik różni się od wyjścia {gen['modul']} z LICZBY.json (pierwsza różnica "
+                                   f"w tej linii); przegeneruj: python slayer_eval/blimp.py raport"))
     return bledy
 
 
@@ -320,6 +440,13 @@ def main(argv=None):
         tekst = p.read_text(encoding="utf-8")
         linie = linie_html(tekst) if p.suffix.lower() in (".html", ".htm") else tekst.splitlines()
         bledy += sprawdz_tekst(nazwa, linie, liczby, zb)
+    for meta in liczby.get("raporty", []):
+        p = KORZEN / meta["plik"]
+        if not p.exists():
+            bledy.append((meta["plik"], 0, "(d) raport z metadanymi w LICZBY.json nie istnieje"))
+            continue
+        bledy += bramki_raportu(meta, p.read_text(encoding="utf-8").splitlines(), liczby)
+        bledy += bramka_generatora(meta, liczby)
     for plik, nr, powod in bledy:
         print(f"{plik}:{nr}: {powod}")
     print(f"{len(cele)} plików, {len(bledy)} problemów")

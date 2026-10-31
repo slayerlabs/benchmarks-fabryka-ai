@@ -56,6 +56,14 @@ def multiblimp_choices(doc):
 # Metadane z tasks_50.json Space (odczyt 29.10.2026). `klasy_stale` steruje bazą
 # większościową: Space podaje ją tylko dla zadań o stałym zbiorze klas.
 ZADANIA = {
+    # BLiMP: lm-eval group `blimp` (67 members, 6d2abda4 _template_yaml). One config over all 67
+    # parquet files; on the full set the micro mean equals the group's equal-weight mean (1000 pairs
+    # each). The panel of 200 needs the group allocation from blimp.panel(), not wybor_probki.
+    # Counted results (Slayer included) come from `hipoteza_formatu.py licz --zadania blimp`.
+    "T01": dict(benchmark_id="blimp", task="blimp", family="blimp", language="EN",
+                metric="acc,none", unit="score", higher_is_better=True,
+                repo="nyu-mll/blimp", rewizja="877fba0801ffb7cbd8c39c1ff314a46f053f6036",
+                parquet_hf="*/train-*.parquet", split="train", rodzaj="mc", klasy_stale=False),
     "T02": dict(benchmark_id="arc", task="arc_challenge", family="science_qa", language="EN",
                 metric="acc_norm,none", unit="score", higher_is_better=True, klucz="acc_norm",
                 repo="allenai/ai2_arc", rewizja="210d026faf9955653af8916fad021475a3f00453",
@@ -115,6 +123,10 @@ def _zrodlo(task_id, meta, zrodlo):
         # Repo z loading scriptem: Space czyta przypiętą konwersję parquet (METHOD.md);
         # gałąź refs/convert/parquet nie ma przypiętego SHA, więc rewizja idzie do raportu.
         kw = {"revision": "refs/convert/parquet"}
+    if meta.get("parquet_hf"):
+        return {"dataset_path": "parquet", "dataset_name": None,
+                "dataset_kwargs": {"data_files": {"test": f"hf://datasets/{meta['repo']}@{meta['rewizja']}/{meta['parquet_hf']}"}},
+                "test_split": "test"}
     if meta.get("plik_hf"):
         return {"dataset_path": "csv", "dataset_name": None,
                 "dataset_kwargs": {"data_files": {"test": f"hf://datasets/{meta['repo']}@{meta['rewizja']}/{meta['plik_hf']}"},
@@ -137,6 +149,11 @@ def _konfiguracje(task_id, zrodlo):
     baza = {"output_type": "multiple_choice", "num_fewshot": 0, "metric_list": METRYKI_MC,
             "metadata": {"version": 1.0, "task_id": task_id}, **_zrodlo(task_id, meta, zrodlo)}
     t = meta["task"]
+    if t == "blimp":
+        # lm-eval blimp: empty context, default delimiter " ", gold = good sentence; metric acc only
+        return [("space", {**baza, "task": "slayer_blimp", "doc_to_text": "", "target_delimiter": " ",
+                           "doc_to_choice": "{{[sentence_good, sentence_bad]}}", "doc_to_target": 0,
+                           "metric_list": [METRYKI_MC[0]]})]
     if t == "arc_challenge":
         # Space liczy ARC-C jak lm-eval arc_challenge (cloze, metryka główna acc_norm).
         return [("space", {**baza, "task": "slayer_arc_challenge", "doc_to_text": "Question: {{question}}\nAnswer:",
