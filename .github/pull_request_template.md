@@ -8,12 +8,11 @@ Refs #
 
 <!-- Usuń punkty, które nie dotyczą PR (np. PR z samą kartą oryginału). Definicja „zrobione”: README.md. -->
 
-- [ ] Bramka liczb kod 0: `.venv-eval/bin/python tools/liczby.py && .venv-eval/bin/python tools/sprawdz_raporty.py` (w `research/`)
-- [ ] Testy zmienionych plików kod 0: `.venv-eval/bin/python tests/test_<name>.py`, także test zgodności, jeśli jest własna implementacja
+- [ ] Komendy z sekcji „Przed PR” w README.md kod 0 (w `research/`): bramka liczb, testy zmienionego benchmarku (z testem zgodności, jeśli jest własna implementacja), `tests/test_liczby_raportow.py`
 - [ ] `ORIGINAL.md` i `REPRODUCTION.md` ze spełnionym warunkiem odtworzenia (albo `DATASET.md` z kontrolą na modelu, który zna polski)
-- [ ] Kontrola na `EleutherAI/pythia-1b-v0` @ `step143000` tym samym kodem
+- [ ] Kontrola tym samym kodem: pierwszy dostępny model z sekcji „Model kontrolny etapu B” w `research/METODOLOGIA.md` (benchmark polski i bez oryginału: Bielik-1.5B-v3 albo EuroLLM-1.7B), albo wprost „bez kontroli” (tylko 7 testów Space do 8.11)
 - [ ] `RECIPE.md` z wpisem dla każdego wyniku w tym PR
 - [ ] Każdy wynik ma n i SE, każde porównanie różnicę w SE i werdykt
-- [ ] Bez wag modeli, zbiorów i dużych plików w commitach
+- [ ] Bez wag modeli, zbiorów i plików powyżej 10 MB w commitach
 
 Zmiany w `frontend-beta/`: komendy sprawdzające są w [`frontend-beta/README.md`](../frontend-beta/README.md).

@@ -48,7 +48,8 @@ szukałeś.
 | Ocena | metryka (acc, acc_norm, exact match, F1, perpleksja, BPB) i sposób jej liczenia: po czym normalizowana jest długość (znaki, bajty, tokeny), jak normalizowany jest tekst odpowiedzi |
 | Metryka decyzyjna | **jedna** metryka, po której porównujesz modele i podejmujesz decyzje; pozostałe to metryki pomocnicze |
 | Agregacja | średnia po pytaniach czy po kategoriach/paradygmatach, wagi |
-| Bazy | baza losowa i większościowa (sekcja „Bazy” w [`README.md`](README.md#bazy-losowa-i-większościowa)) |
+| Bazy | baza losowa i większościowa (sekcja „Bazy: losowa i większościowa” w [`README.md`](README.md#bazy-losowa-i-większościowa)) |
+| SNR | zmierzony stosunek sygnału do szumu (Słowniczek): rozrzut wyników między modelami albo checkpointami, SE pomiaru, iloraz i na jakich modelach |
 | Wyniki referencyjne | co najmniej jeden opublikowany wynik modelu, który da się pobrać (model, liczba, tabela w pracy albo plik wyników), jako snapshot z datą odczytu |
 | Train policy | `eval_only` (żaden split nie trafia do treningu), `decon_only` (zbiór służy tylko do dekontaminacji danych treningowych) albo `train_allowed` (wymień, które splity wolno trenować); sekcja „Czystość benchmarku” |
 | Decyzja treningowa | co oznacza słaby wynik: jakie dane albo jaka metoda treningu z niego wynika, a czego nie wolno z niego wnioskować |
@@ -63,8 +64,8 @@ szukałeś.
 3. Zapisz komendę, commit kodu, rewizję zbioru i modelu, n, wynik z SE i różnicę wobec wartości referencyjnej.
    Ten przebieg dostaje wpis w `RECIPE.md` jak każdy inny.
 
-**Warunek odtworzenia** jest spełniony, gdy różnica mieści się w ±2 pkt dla trafności albo w 2 SE, gdy SE jest
-większe. Dla perpleksji i BPB: sekcja „Próg dla perpleksji i BPB”.
+**Warunek odtworzenia** jest spełniony, gdy różnica mieści się w ±2 pkt dla trafności; gdy 2 SE > 2 pkt, w granicach
+2 SE. Dla perpleksji i BPB: sekcja „Próg dla perpleksji i BPB”.
 
 ### Próg dla perpleksji i BPB
 
@@ -96,6 +97,11 @@ oryginalną metodą, nigdy w jego miejsce. W raporcie stoją w osobnej tabeli z 
 Kod wspólny trafia do `common/` dopiero wtedy, gdy używa go więcej niż jeden benchmark.
 
 ## D. Wersja polska (POLISH.md)
+
+Wersja polska to osobny katalog `benchmarks/<name>-pl/` (jak [`benchmarks/ewok-pl/`](benchmarks/ewok-pl/README.md)),
+założony z [`benchmarks/_template/`](benchmarks/_template/README.md). Zamiast `ORIGINAL.md` i `REPRODUCTION.md` ma
+`POLISH.md` (wzór: [`benchmarks/_template/POLISH.md`](benchmarks/_template/POLISH.md)), który wskazuje katalog
+oryginału `benchmarks/<name>/` z etapami A–C. Własne `RECIPE.md`, kod i `results/` ma jak każdy benchmark.
 
 ### D1. Przetłumaczyć czy napisać od zera?
 
@@ -153,7 +159,8 @@ Wersja polska zachowuje metodę z karty. Zanim zbudujesz dane, wypełnij tabelę
 ## Benchmark bez oryginału: karta zbioru (DATASET.md)
 
 Zbiór, który nie ma pracy ani kodu autorów do odtworzenia (polski test pisany od zera, held-out tekst, świeży tekst),
-nie przechodzi etapów A i B. Zamiast nich ma kartę zbioru `DATASET.md` i kontrolę na modelu, który zna polski. Etapy C
+nie przechodzi etapów A i B. Zamiast nich ma kartę zbioru `DATASET.md` (wzór:
+[`benchmarks/_template/DATASET.md`](benchmarks/_template/DATASET.md)) i kontrolę na modelu, który zna polski. Etapy C
 i D (jeśli dotyczy) oraz przepis zostają bez zmian.
 
 | pole | co wpisać |
@@ -165,6 +172,7 @@ i D (jeśli dotyczy) oraz przepis zostają bez zmian.
 | Ukryta reszta | gdzie leży (poza repo), kto ją trzyma, jak poprosić o przebieg na niej |
 | Jak liczyć | metryka decyzyjna, prompt, ocena (dla odpowiedzi tekstowych: lista dopuszczalnych form, ocena deterministyczna, bez modelu-sędziego), agregacja, n i oczekiwane SE |
 | Bazy | baza losowa i większościowa |
+| SNR | jak w karcie oryginału (Słowniczek) |
 | Train policy i decyzja treningowa | jak w karcie oryginału |
 
 **Kontrola** zastępuje warunek odtworzenia: model, który zna polski (sekcja D3, punkt 2), ma wynik wyraźnie powyżej
@@ -175,14 +183,25 @@ odtworzenia.
 
 ### Model kontrolny etapu B
 
-- **`EleutherAI/pythia-1b-v0` @ `step143000`.** Opublikowane wyniki 0-shot z pełnym zapisem ustawień:
-  [plik wyników Pythii v0](https://github.com/EleutherAI/pythia/blob/main/evals/pythia-v0/pythia-1b/zero-shot/pythia-1b-0shot-global_step143000_eval_results_11-28-2022-15-14-35.json).
-  Liczby policzono w 2022 r. starszą wersją lm-eval, więc w `REPRODUCTION.md` zapisz wersję, której użyłeś.
-- **`utter-project/EuroLLM-1.7B`** tam, gdzie jego karta modelu podaje wynik (ARC-Challenge, HellaSwag).
-- Gdy żaden z nich nie ma wyniku dla danego benchmarku: model z tabeli w pracy autorów benchmarku.
+Model kontrolny to model, który da się pobrać, z opublikowanym wynikiem na tym benchmarku. Bierzesz **pierwszy
+dostępny z listy**, w tej kolejności:
+
+1. **`EleutherAI/pythia-1b-v0` @ `step143000`.** Opublikowane wyniki 0-shot z pełnym zapisem ustawień:
+   [plik wyników Pythii v0](https://github.com/EleutherAI/pythia/blob/main/evals/pythia-v0/pythia-1b/zero-shot/pythia-1b-0shot-global_step143000_eval_results_11-28-2022-15-14-35.json).
+   Liczby policzono w 2022 r. starszą wersją lm-eval, więc w `REPRODUCTION.md` zapisz wersję, której użyłeś. Plik ma
+   tylko te zadania: `arc_challenge`, `arc_easy`, `lambada_openai`, `logiqa`, `piqa`, `sciq`, `winogrande`, `wsc`, 67
+   zadań `blimp_*` i 57 zadań `hendrycksTest-*` (MMLU). Jego `wsc` to SuperGLUE WSC (104 przykłady), nie WSC273.
+2. **`utter-project/EuroLLM-1.7B`** tam, gdzie jego karta modelu podaje wynik (ARC-Challenge, HellaSwag).
+3. **Opublikowany wynik dowolnego modelu, który da się pobrać:** z tabeli w pracy autorów benchmarku albo z
+   [Open LLM Leaderboard](https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard). Zapisz model z
+   rewizją i ustawienia, z którymi policzono wynik (prompt, liczba przykładów w prompcie, metryka, wersja kodu).
 
 Kontrolę liczysz tym samym kodem co mierzony model. Jeśli wynik kontroli odbiega od opublikowanego, błąd jest w kodzie
 ewaluacji, nie w mierzonym modelu.
+
+Benchmark polski albo bez oryginału nie ma opublikowanego wyniku do odtworzenia. Jego kontrolą jest model, który zna
+polski (`speakleash/Bielik-1.5B-v3` albo `utter-project/EuroLLM-1.7B` z tabeli niżej), a warunkiem jest wynik wyraźnie
+powyżej bazy (sekcja „Benchmark bez oryginału: karta zbioru (DATASET.md)”). Pythia nie jest tam wymagana.
 
 ### Pięć modeli odniesienia
 
@@ -199,7 +218,10 @@ Każdy benchmark porównuje mierzony model z pięcioma modelami, zawsze w tych r
 ### Kto liczy które modele
 
 - **Autor PR** liczy mierzony model (dziś Slayer 1B 1.06: `SlayerLab/Slayer1B-1.06` @
-  `ef81be58742544ad32e1afab38db011fec209609`) i model kontrolny etapu B.
+  `ef81be58742544ad32e1afab38db011fec209609`) i model kontrolny, tym samym kodem:
+  - benchmark z oryginałem: pierwszy dostępny z listy w sekcji „Model kontrolny etapu B”;
+  - benchmark polski i bez oryginału: model, który zna polski (`speakleash/Bielik-1.5B-v3` albo
+    `utter-project/EuroLLM-1.7B`); Pythia nie jest wymagana.
 - **Przebieg centralny** liczy pięć modeli odniesienia na wspólnym GPU dla każdego benchmarku po recenzji i zapisuje
   wyniki w `benchmarks/<name>/results/<model>/`. **W budowie:** dziś go nie ma; kamień
   [„Przebieg centralny: 5 modeli odniesienia”](https://github.com/slayerlabs/benchmarks-fabryka-ai/milestone/8).
@@ -244,26 +266,58 @@ sprawdzona w tym repo; jeśli jej użyjesz, zrób to w osobnym środowisku i zap
 Testy ze statusem `not_run` dla Slayera 1.06 w Space
 [SlayerLab/Slayer1B-Benchmarks](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks) (PIQA, WSC273, LogiQA,
 MathQA, IFEval, PubMedQA, Social IQa) liczysz do 8.11 protokołem Space (`METHOD.md` Space, ustawienia z
-`tasks_50.json`) i lm-eval według sekcji „Wersja lm-eval”. Kontrolą jest model kontrolny etapu B na tym samym lm-eval:
-różnica ponad 2 pkt od opublikowanej wartości wstrzymuje wysłanie wyniku.
+`tasks_50.json`) i lm-eval według sekcji „Wersja lm-eval”.
 
-Przekazanie wyniku: autor wkleja wynik w opisie PR (wartość, n, CI95, komenda, rewizje). Po merge'u Arek, właściciel
-Space, wgrywa go do `results.json` Space. Kartę oryginału (etap A) i pełne „zrobione” dopisujesz po terminie, w
-osobnym zadaniu.
+**Kontrola** to pierwszy dostępny model z listy w sekcji „Model kontrolny etapu B”, liczony na tym samym lm-eval:
+`EleutherAI/pythia-1b-v0` @ `step143000`, potem `utter-project/EuroLLM-1.7B`, potem opublikowany wynik dowolnego
+modelu, który da się pobrać, z pracy autorów albo z Open LLM Leaderboard, z rewizją i ustawieniami. Różnica wobec
+opublikowanej wartości większa niż warunek odtworzenia (sekcja B) wstrzymuje wysłanie wyniku.
+
+Co jest w [pliku wyników Pythii v0](https://github.com/EleutherAI/pythia/blob/main/evals/pythia-v0/pythia-1b/zero-shot/pythia-1b-0shot-global_step143000_eval_results_11-28-2022-15-14-35.json)
+(odczyt 31.10.2026, 0-shot, `version` 0 każdego zadania):
+
+| test Space | zadanie w pliku Pythii | kontrola z Pythii |
+|---|---|---|
+| PIQA | `piqa` | jest |
+| LogiQA | `logiqa` | jest |
+| WSC273 | brak; `wsc` w pliku to SuperGLUE WSC (104 przykłady), inny zbiór niż WSC273 (273) | nie, następny z listy |
+| MathQA | brak | nie, następny z listy |
+| PubMedQA | brak | nie, następny z listy |
+| Social IQa | brak | nie, następny z listy |
+| IFEval | brak | nie, następny z listy |
+
+Gdy żadnej kontroli z listy nie ma, wynik i tak idzie do Space: autor zaznacza w opisie PR wprost „bez kontroli” i
+wymienia, gdzie szukał. Brak kontroli nie wstrzymuje terminu.
+
+Przekazanie wyniku: autor wkleja wynik w opisie PR (wartość, n, CI95, komenda, rewizje, kontrola albo „bez
+kontroli”). Po merge'u Arek (właściciel modelu Slayer i Space) wgrywa go do `results.json` Space. Kartę oryginału
+(etap A) i pełne „zrobione” dopisujesz po terminie, w osobnym zadaniu.
 
 ## Pierwsze zadanie i recenzja
 
-**Pierwsze zadanie nowej osoby to jeden etap**, np. karta oryginału `ORIGINAL.md` dla jednego benchmarku (około 2 h, bez
-GPU), albo recenzja cudzej karty. Zadania na start mają etykietę `good first issue`.
+**Pierwsze zadanie nowej osoby to karta oryginału** jednego benchmarku (zadanie „Karta oryginału: <benchmark>”, plik
+`ORIGINAL.md`, etap A, około 2 h, bez GPU) **albo recenzja cudzej karty**. Zadania na start mają etykietę
+`good first issue` w [zadaniach tego repo](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues).
 
 **Recenzja idzie w dwóch krokach:**
 
-1. Najpierw automaty: bramka liczb, testy kodu i test zgodności (etap C) kończą się kodem 0. Komendy: [`README.md`](README.md#testy-kodu).
+1. Najpierw automaty: komendy z sekcji [„Przed PR”](../README.md#przed-pr) README repo (testy zmienionego benchmarku z
+   testem zgodności z etapu C, `tests/test_liczby_raportow.py` i bramka liczb) kończą się kodem 0. „Automaty” to te
+   komendy uruchamiane przez autora PR przed otwarciem PR; CI dla `research/` nie ma. Recenzent sprawdza, że autor je
+   uruchomił, i w razie wątpliwości uruchamia je sam.
 2. Potem osoba, która zna ten kod, czyta kartę i odtwarza co najmniej jeden wynik z `RECIPE.md`.
 
 Ról na stałe nie ma: recenzuje ktoś inny niż autor, kto zna dany kod albo benchmark. Wynik, który idzie dalej (do Space
 albo do decyzji o treningu), ma etykietę `needs-recheck`: druga osoba liczy go od zera, na innym sprzęcie, bez
 zaglądania w liczby autora.
+
+## Kamienie bez terminu
+
+Kamienie [#6](https://github.com/slayerlabs/benchmarks-fabryka-ai/milestone/6) (opis zbiorów: baza, format, n, SNR,
+kontaminacja) i [#7](https://github.com/slayerlabs/benchmarks-fabryka-ai/milestone/7) (start nowych osób: od README
+do pierwszego PR) nie mają terminu, tak jak #8–#10 (przebieg centralny, tygodniowy automat odtwarzania, polskie
+benchmarki od zera). To prace ciągłe albo w budowie: zamyka się je, gdy spełnią opis kamienia, a nie w dniu z
+kalendarza. Terminy mają kamienie #1–#5.
 
 ## Co oddajesz
 
@@ -292,6 +346,15 @@ Benchmark jest skończony, gdy spełnia sekcję „Definicja „zrobione”” w
 - **SE** (błąd standardowy) i **werdykt**: SE mówi, o ile wynik waha się od samego doboru pytań. Różnicę dwóch wyników
   dzielisz przez jej SE i dostajesz z. Werdykt: |z| ≥ 3 „pewne”, od 2 do 3 „prawdopodobne”, poniżej 2 „szum” (pomiar
   nie rozstrzyga). Wzory: [`README.md`, „SE i werdykt”](README.md#se-i-werdykt).
+- **SNR** (stosunek sygnału do szumu): jak bardzo benchmark rozróżnia modele wobec szumu samego pomiaru. Liczysz
+  go jako odchylenie standardowe wyników kilku modeli (albo kolejnych checkpointów jednego modelu) podzielone przez
+  typowe SE pomiaru jednego wyniku. SNR bliski 1 lub mniejszy znaczy, że różnice między modelami giną w szumie.
+- **Held-out:** tekst albo pytania odłożone tak, że nie było ich w danych treningowych żadnego mierzonego modelu;
+  wynik na nich mierzy uogólnianie, a nie pamięć.
+- **Dekontaminacja:** usunięcie z danych treningowych tekstów pokrywających się z benchmarkiem (sekcja „Czystość
+  benchmarku”), żeby model nie widział pytań przed testem.
+- **lm-eval:** [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) EleutherAI, biblioteka,
+  która liczy większość standardowych benchmarków; wersja obowiązująca w repo: sekcja „Wersja lm-eval”.
 - **Warunek odtworzenia i bramka liczb:** pierwszy kończy etap B (sekcja B), druga sprawdza liczby w raportach
   (`tools/`). To dwie różne rzeczy.
 

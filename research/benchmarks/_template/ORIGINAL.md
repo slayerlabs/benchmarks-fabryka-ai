@@ -15,6 +15,7 @@ wypełnij `DATASET.md` (sekcja „Benchmark bez oryginału: karta zbioru (DATASE
 | Metryka decyzyjna | |
 | Agregacja | |
 | Bazy | losowa: ; większościowa: |
+| SNR | rozrzut wyników (odchylenie std.) między modelami/checkpointami: ; typowe SE: ; SNR = rozrzut / SE: ; modele: |
 | Wyniki referencyjne (odczyt RRRR-MM-DD) | model @ rewizja → wynik, źródło |
 | Train policy | `eval_only` / `decon_only` / `train_allowed` (które splity) |
 | Decyzja treningowa | |

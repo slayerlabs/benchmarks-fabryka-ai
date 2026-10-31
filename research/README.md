@@ -1,6 +1,8 @@
 # Research: benchmarki modeli
 
-Tu mierzymy modele (dziś Slayer 1B, Pythia-1B, Bielik, LFM3; jutro każdy następny) i budujemy polskie benchmarki.
+Tu mierzymy modele (dziś mierzony Slayer 1B, pięć modeli odniesienia: Qwen3.5-0.8B, LFM2.5-1.2B, Bielik-1.5B-v3,
+LFM3-1.7B, EuroLLM-1.7B, oraz model kontrolny etapu B; jutro każdy następny model z Hugging Face) i budujemy polskie
+benchmarki. Rewizje i role modeli: [`METODOLOGIA.md`](METODOLOGIA.md#modele-kontrolny-i-odniesienia).
 Każdy benchmark ma jeden katalog w `benchmarks/`, a kod wspólny dla wielu benchmarków leży w `common/`.
 Jak powstaje benchmark (karta oryginału, odtworzenie, kod, wersja polska): [`METODOLOGIA.md`](METODOLOGIA.md).
 Kiedy jest skończony: [„Definicja „zrobione””](../README.md#definicja-zrobione) w README repo.
@@ -12,7 +14,7 @@ Wszystkie komendy niżej uruchamiasz w katalogu `research/`.
 |---|---|
 | `METODOLOGIA.md` | jak powstaje benchmark: etapy A–D, karta zbioru, modele kontrolne i odniesienia, przepis, czystość |
 | `BENCHMARKI_PL.md` | które benchmarki przetłumaczyć, a które napisać od zera po polsku |
-| `benchmarks/<name>/` | kod, dokumentacja i wyniki jednego benchmarku: `README.md`, `ORIGINAL.md`, `REPRODUCTION.md`, `RECIPE.md`; wyniki per model w `results/<model>/` (lokalnie), raporty zbiorcze w `results/*.json` i `*.md` |
+| `benchmarks/<name>/` | kod, dokumentacja i wyniki jednego benchmarku: `README.md`, `ORIGINAL.md`, `REPRODUCTION.md`, `RECIPE.md`; wyniki per model w `results/<model>/` (surowe `.jsonl` lokalnie, `.jsonl.gz` do ~10 MB w repo), raporty zbiorcze w `results/*.json` i `*.md`; wersja polska w osobnym `benchmarks/<name>-pl/` z `POLISH.md` |
 | `benchmarks/_template/` | od czego zacząć nowy benchmark |
 | `analyses/<name>/` | analiza na wielu testach naraz, te same pliki co benchmark (dziś `answer-format/`: litery A/B/C/D a losowość) |
 | `common/` | ładowanie modeli, wspólny format odpowiedzi, lista zadań (`zadania.py`), dane do testów (`tests/data/`), ewaluacja przez lm-eval |
@@ -30,21 +32,37 @@ Testy z listy Space (ARC, MMLU, SIQA, Belebele, MultiBLiMP i inne) liczy `common
 
 Raz na komputer, z siecią do Hugging Face (HF). Kilka GB dysku; działa na CPU (wolno) albo GPU (`--device cuda`).
 
+Przed pierwszym pobraniem:
+
+- załóż konto na HF i token do odczytu (Settings → Access Tokens na huggingface.co); `hf auth login` niżej pyta o ten
+  token;
+- `speakleash/Bielik-1.5B-v3` jest za bramką zgody: zaloguj się na
+  [stronie modelu](https://huggingface.co/speakleash/Bielik-1.5B-v3) i zaakceptuj warunki, zanim go pobierzesz
+  (bez tego pobranie kończy się błędem 401/403).
+
 ```bash
 git clone https://github.com/slayerlabs/benchmarks-fabryka-ai
 cd benchmarks-fabryka-ai/research
 python3 -m venv .venv-eval
 .venv-eval/bin/pip install -r common/requirements.lock.txt pytest
+.venv-eval/bin/hf auth login
 .venv-eval/bin/python common/pobierz_zbiory.py
-.venv-eval/bin/huggingface-cli download SlayerLab/Slayer1B-1.06 --revision ef81be58742544ad32e1afab38db011fec209609 --local-dir models/slayer-1.06
-.venv-eval/bin/huggingface-cli download EleutherAI/pythia-1b-v0 --revision step143000 --local-dir models/pythia-1b-v0
+.venv-eval/bin/hf download SlayerLab/Slayer1B-1.06 --revision ef81be58742544ad32e1afab38db011fec209609 --local-dir models/slayer-1.06
+.venv-eval/bin/hf download EleutherAI/pythia-1b-v0 --revision step143000 --local-dir models/pythia-1b-v0
 .venv-eval/bin/python tests/test_slayer_eval.py
+```
+
+Do benchmarku polskiego albo bez oryginału pobierz też model, który zna polski (po akceptacji warunków Bielika):
+
+```bash
+.venv-eval/bin/hf download speakleash/Bielik-1.5B-v3 --revision 4b25049621bf3952a1fc9314c89773102eda0333 --local-dir models/bielik-1.5b-v3
 ```
 
 `git clone` bierze gałąź `main`. Środowisko z `common/requirements.lock.txt` (lm-eval 0.4.9.1) obowiązuje we wszystkich
 przebiegach; czym różni się od lm-eval w Space: [`METODOLOGIA.md`](METODOLOGIA.md), sekcja „Wersja lm-eval”.
-`EleutherAI/pythia-1b-v0` @ `step143000` to model kontrolny etapu B (sekcja „Model kontrolny etapu B”). Wagi zostają
-w `models/`, poza gitem.
+`EleutherAI/pythia-1b-v0` @ `step143000` to pierwszy model z listy kontrolnej etapu B; gdy nie ma opublikowanego
+wyniku dla Twojego benchmarku, bierzesz następny z listy (sekcja „Model kontrolny etapu B”). Wagi zostają w `models/`,
+poza gitem (`.gitignore`).
 
 ## Uruchomienie
 
@@ -76,7 +94,8 @@ Bez sieci i bez wag, każdy kończy się kodem 0:
 .venv-eval/bin/python tests/test_liczby_raportow.py
 ```
 
-Przed PR wystarczą testy dotyczące zmienionych plików i `test_liczby_raportow.py`.
+Przed PR nie uruchamiasz wszystkich: lista komend jest w README repo, sekcja
+[„Przed PR”](../README.md#przed-pr) (testy zmienionego benchmarku, `tests/test_liczby_raportow.py` i bramka liczb).
 
 ## Bramka liczb
 
