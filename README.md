@@ -6,8 +6,9 @@ benchmarkach odtworzonych zgodnie z oryginałem i budujemy polskie benchmarki. K
 
 ## Jak dołączyć
 
-**1. Dołącz do Discorda**, kanał **#bench-team**: https://discord.gg/HnTkVR4c5T. Tam pytasz i zgłaszasz
-potknięcia. PR możesz otworzyć z forka, bez dostępu do repo.
+**1. Dołącz do Discorda**, kanał **#bench-team**: https://discord.gg/HnTkVR4c5T, i napisz do LoIlita albo
+Elwenora swój login GitHub. Dodadzą Cię do zespołu Benchmark Team: wtedy możesz brać zadania, przesuwać karty na
+tablicy i pushować gałęzie do repo. Na Discordzie pytasz też o wszystko i zgłaszasz potknięcia.
 
 **2. Weź pierwsze zadanie** według [`CONTRIBUTING.md`, „Pierwsze zadanie”](CONTRIBUTING.md#pierwsze-zadanie).
 
@@ -21,7 +22,7 @@ powstaje benchmark i co jest w każdym pliku.
 
 ```mermaid
 flowchart LR
-  A[Discord #bench-team] --> B[Pierwsze zadanie: CONTRIBUTING.md]
+  A[Discord #bench-team: dostęp od LoIlita albo Elwenora] --> B[Pierwsze zadanie: CONTRIBUTING.md]
   B --> C[Komentarz w zadaniu, opiekun przypisuje]
   C --> D[PR do main + Refs #N]
   D --> E[Testy autora PR, potem recenzja] --> F[Merge]
@@ -37,7 +38,8 @@ Dokąd zmierzamy:
 
 ## Kto jest kim
 
-- **Elwenor:** koordynacja zespołu, dostęp do repo. Kontakt przez Discord, kanał #bench-team.
+- **LoIlita i Elwenor:** koordynacja zespołu, dodawanie do zespołu Benchmark Team (zadania, tablica, repo). Kontakt
+  przez Discord, kanał #bench-team.
 - **Arek:** właściciel modelu Slayer i Space z wynikami; wgrywa wyniki do Space.
 
 ## Definicja „zrobione”

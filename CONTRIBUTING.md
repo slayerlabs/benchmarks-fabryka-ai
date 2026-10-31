@@ -2,10 +2,10 @@
 
 ## Kontakt
 
-Discord, kanał **#bench-team**: https://discord.gg/HnTkVR4c5T. Tam pytasz i zgłaszasz potknięcia: jednym
-zdaniem, w którym kroku i czego brakuje. Opiekunowie to osoby z sekcji
-[„Kto jest kim”](README.md#kto-jest-kim) w README: Elwenor (koordynacja zespołu, dostęp do repo) i Arek (właściciel
-modelu Slayer i Space, wgrywa wyniki do Space).
+Discord, kanał **#bench-team**: https://discord.gg/HnTkVR4c5T. Na start napisz tam do LoIlita albo Elwenora swój
+login GitHub: dodadzą Cię do zespołu Benchmark Team, żebyś mógł brać zadania, przesuwać karty na tablicy i pushować
+gałęzie. Tam też pytasz i zgłaszasz potknięcia: jednym zdaniem, w którym kroku i czego brakuje. Opiekunowie to osoby
+z sekcji [„Kto jest kim”](README.md#kto-jest-kim) w README.
 
 ## Pierwsze zadanie
 
