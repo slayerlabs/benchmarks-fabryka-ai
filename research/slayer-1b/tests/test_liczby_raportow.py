@@ -120,6 +120,57 @@ def test_blimp_md_liczby_sprawdzane():
     assert bl and "0.7777" in bl[0][2]
 
 
+def _meta_blimp():
+    import copy
+    liczby, _ = dane()
+    (meta,) = [m for m in liczby["raporty"] if m["plik"] == "wyniki/blimp/BLIMP.md"]
+    linie = (KORZEN / meta["plik"]).read_text(encoding="utf-8").splitlines()
+    return liczby, copy.deepcopy(meta), linie
+
+
+def test_bramki_przechodza_na_raporcie_blimp():
+    liczby, meta, linie = _meta_blimp()
+    assert S.bramki_raportu(meta, linie, liczby) == []
+    assert [m["plik"] for m in liczby["raporty"]] == ["wyniki/blimp/BLIMP.md"]  # older reports have no metadata
+
+
+def test_bramka_d_werdykt_bez_se_klastrowego():
+    # today's BLiMP case: z = -18 on pairs with no clustered field -> code 1
+    liczby, meta, linie = _meta_blimp()
+    meta["porownanie_klastrowe"] = None
+    assert any("(d)" in b[2] and "klastrowan" in b[2] for b in S.bramki_raportu(meta, linie, liczby))
+    liczby, meta, linie = _meta_blimp()
+    del meta["holm"]
+    assert any("Holma" in b[2] for b in S.bramki_raportu(meta, linie, liczby))
+    liczby, meta, linie = _meta_blimp()
+    meta["porownanie_klastrowe"] = None
+    bez_werdyktow = [l for l in linie if not S.SLOWO_WERDYKTU.search(l)]
+    assert not any("(d)" in b[2] for b in S.bramki_raportu(meta, bez_werdyktow, liczby))  # no verdict, no gate
+
+
+def test_bramka_e_grupa_ponizej_3():
+    liczby, meta, linie = _meta_blimp()
+    g = next(g for g in meta["grupy"] if g["nazwa"] == "ellipsis")
+    g["werdykt"] = "pewne"  # ellipsis has 2 paradigms
+    assert any("(e)" in b[2] for b in S.bramki_raportu(meta, linie, liczby))
+    liczby, meta, linie = _meta_blimp()
+    zepsute = [l.replace("undetermined (k < 3)", "probable") if l.startswith("| ellipsis |") else l for l in linie]
+    assert any("(e)" in b[2] and b[1] > 0 for b in S.bramki_raportu(meta, zepsute, liczby))
+
+
+def test_bramka_f_rozne_tokenizery_bez_wyniku_na_token():
+    liczby, meta, linie = _meta_blimp()
+    meta["porownanie_na_token"] = None
+    assert any("(f)" in b[2] for b in S.bramki_raportu(meta, linie, liczby))
+    liczby, meta, linie = _meta_blimp()
+    bez = [l for l in linie if "per token" not in l.lower() and "per-token" not in l.lower()]
+    assert any("(f)" in b[2] for b in S.bramki_raportu(meta, bez, liczby))
+    liczby, meta, linie = _meta_blimp()
+    meta["tokenizery"] = {"a": "x", "b": "x"}  # same tokenizer: no per-token result needed
+    meta["porownanie_na_token"] = None
+    assert not any("(f)" in b[2] for b in S.bramki_raportu(meta, linie, liczby))
+
+
 def test_dokumenty_repo_zgodne_z_liczbami():
     liczby, zb = dane()
     wszystkie = []

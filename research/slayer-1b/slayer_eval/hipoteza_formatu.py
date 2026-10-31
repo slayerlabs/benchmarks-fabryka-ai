@@ -117,7 +117,10 @@ def licz_logliki(model, pary, batch=16):
         seqs = []
         for i in idx:
             ce, co = pary[i]
-            pelne = (ce + co)[-(model.max_len + 1):]
+            pelne = ce + co
+            if len(pelne) - 1 > model.max_len:
+                # METHOD.md: longer inputs are rejected, never truncated
+                raise ValueError(f"input of {len(pelne) - 1} tokens exceeds the context of {model.max_len}")
             seqs.append((pelne, len(co)))
         T = max(len(p) - 1 for p, _ in seqs)
         x = torch.full((len(seqs), T), model.pad, dtype=torch.long)

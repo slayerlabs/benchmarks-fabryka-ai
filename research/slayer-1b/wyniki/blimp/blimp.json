@@ -1495,6 +1495,11 @@
    "1.06": 0.7761194029850745,
    "pythia-1b": 0.8134328358208954,
    "p_rownej_wartosci_losowo": 0.0064,
+   "p_rownej_wartosci_skorygowane_2_warianty": 0.0128,
+   "udzial_paneli_nie_nizszych_1.06": 0.74755,
+   "sd_paneli_1.06": 0.026407251598644894,
+   "udzial_paneli_nie_nizszych_pythia-1b": 0.63855,
+   "sd_paneli_pythia-1b": 0.024789004102383983,
    "roznica_1.06_do_space": -0.06467661691542292,
    "w_ci95_space": false,
    "rowna_space": false
@@ -1504,6 +1509,11 @@
    "1.06": 0.8407960199004975,
    "pythia-1b": 0.870646766169154,
    "p_rownej_wartosci_losowo": 0.0064,
+   "p_rownej_wartosci_skorygowane_2_warianty": 0.0128,
+   "udzial_paneli_nie_nizszych_1.06": 0.03325,
+   "sd_paneli_1.06": 0.026407251598644894,
+   "udzial_paneli_nie_nizszych_pythia-1b": 0.02115,
+   "sd_paneli_pythia-1b": 0.024789004102383983,
    "roznica_1.06_do_space": 0.0,
    "w_ci95_space": true,
    "rowna_space": true
@@ -1997,6 +2007,643 @@
    }
   }
  },
+ "analiza": {
+  "generalizacja": {
+   "k": 67,
+   "roznica": -0.028656716417910434,
+   "se_klastrowe": 0.008681628326123337,
+   "z_klastrowe": -3.300845802357298,
+   "werdykt_klastrowy": "pewne",
+   "ci95_bootstrap_paradygmatow": [
+    -0.044985447761194036,
+    -0.011611567164179111
+   ],
+   "znak": {
+    "a_lepszy": 11,
+    "b_lepszy": 56,
+    "remis": 0,
+    "p": 2.1457960315833698e-08
+   },
+   "bez_2_najgorszych": {
+    "roznica": -0.024692307692307666,
+    "se": 0.00847725812544621,
+    "t": -2.9127705358161378,
+    "werdykt": "prawdopodobne"
+   }
+  },
+  "zjawiska_klastrowe": {
+   "anaphor_agreement": {
+    "k": 2,
+    "roznica": -0.009,
+    "se": 0.003999999999999999,
+    "t": -2.2500000000000004,
+    "werdykt": "nierozstrzygalne"
+   },
+   "argument_structure": {
+    "k": 9,
+    "roznica": -0.05188888888888889,
+    "se": 0.011098604071939813,
+    "t": -4.675262632359112,
+    "werdykt": "pewne"
+   },
+   "binding": {
+    "k": 7,
+    "roznica": -0.017142857142857147,
+    "se": 0.03433825339557188,
+    "t": -0.49923497696210195,
+    "werdykt": "szum"
+   },
+   "control_raising": {
+    "k": 5,
+    "roznica": -0.055200000000000006,
+    "se": 0.036402472443503066,
+    "t": -1.5163805174407001,
+    "werdykt": "szum"
+   },
+   "determiner_noun_agreement": {
+    "k": 8,
+    "roznica": -0.020874999999999998,
+    "se": 0.005504665229213697,
+    "t": -3.7922378801920065,
+    "werdykt": "pewne"
+   },
+   "ellipsis": {
+    "k": 2,
+    "roznica": -0.024,
+    "se": 0.005999999999999999,
+    "t": -4.000000000000001,
+    "werdykt": "nierozstrzygalne"
+   },
+   "filler_gap_dependency": {
+    "k": 7,
+    "roznica": -0.028,
+    "se": 0.027030846576951057,
+    "t": -1.0358536097006792,
+    "werdykt": "szum"
+   },
+   "irregular_forms": {
+    "k": 2,
+    "roznica": -0.0745,
+    "se": 0.0565,
+    "t": -1.31858407079646,
+    "werdykt": "nierozstrzygalne"
+   },
+   "island_effects": {
+    "k": 8,
+    "roznica": -0.006750000000000004,
+    "se": 0.04262785390529798,
+    "t": -0.15834716931787843,
+    "werdykt": "szum"
+   },
+   "npi_licensing": {
+    "k": 7,
+    "roznica": -0.03514285714285714,
+    "se": 0.03448010369793583,
+    "t": -1.019221329805948,
+    "werdykt": "szum"
+   },
+   "quantifiers": {
+    "k": 4,
+    "roznica": 0.013500000000000002,
+    "se": 0.04939382552505931,
+    "t": 0.27331351351093375,
+    "werdykt": "szum"
+   },
+   "subject_verb_agreement": {
+    "k": 6,
+    "roznica": -0.03883333333333333,
+    "se": 0.007901125095692246,
+    "t": -4.914911846479378,
+    "werdykt": "pewne"
+   }
+  },
+  "paradygmaty_dodatkowe": {
+   "adjunct_island": {
+    "roznica_na_token": -0.085,
+    "p": 3.6811245453564253e-10,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.085
+   },
+   "anaphor_gender_agreement": {
+    "roznica_na_token": -0.013,
+    "p": 0.0007409314824994856,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.013
+   },
+   "anaphor_number_agreement": {
+    "roznica_na_token": -0.005,
+    "p": 0.16532238066053462,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.005
+   },
+   "animate_subject_passive": {
+    "roznica_na_token": -0.089,
+    "p": 6.045494959006889e-10,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 557,
+    "roznica_ta_sama_tokenizacja": -0.07360861759425494
+   },
+   "animate_subject_trans": {
+    "roznica_na_token": -0.006,
+    "p": 4.30225912164288e-14,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 449,
+    "roznica_ta_sama_tokenizacja": -0.0556792873051225
+   },
+   "causative": {
+    "roznica_na_token": -0.103,
+    "p": 1.0799053692349953e-11,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 543,
+    "roznica_ta_sama_tokenizacja": -0.09760589318600368
+   },
+   "complex_NP_island": {
+    "roznica_na_token": -0.084,
+    "p": 2.7793471384915335e-06,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.084
+   },
+   "coordinate_structure_constraint_complex_left_branch": {
+    "roznica_na_token": 0.114,
+    "p": 9.655481705995488e-13,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": 0.114
+   },
+   "coordinate_structure_constraint_object_extraction": {
+    "roznica_na_token": -0.063,
+    "p": 1.940259737032515e-06,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.063
+   },
+   "determiner_noun_agreement_1": {
+    "roznica_na_token": -0.043,
+    "p": 0.22055582497898535,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 773,
+    "roznica_ta_sama_tokenizacja": 0.0
+   },
+   "determiner_noun_agreement_2": {
+    "roznica_na_token": -0.001,
+    "p": 0.847462256879777,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.001
+   },
+   "determiner_noun_agreement_irregular_1": {
+    "roznica_na_token": -0.047,
+    "p": 3.1559746780645664e-07,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 753,
+    "roznica_ta_sama_tokenizacja": -0.03054448871181939
+   },
+   "determiner_noun_agreement_irregular_2": {
+    "roznica_na_token": -0.024,
+    "p": 0.0018594425505852295,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.024
+   },
+   "determiner_noun_agreement_with_adj_2": {
+    "roznica_na_token": -0.027,
+    "p": 0.00292752107377011,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.027
+   },
+   "determiner_noun_agreement_with_adj_irregular_1": {
+    "roznica_na_token": 0.004,
+    "p": 0.3403777122967857,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 862,
+    "roznica_ta_sama_tokenizacja": -0.01740139211136891
+   },
+   "determiner_noun_agreement_with_adj_irregular_2": {
+    "roznica_na_token": -0.02,
+    "p": 0.04734541408856299,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.02
+   },
+   "determiner_noun_agreement_with_adjective_1": {
+    "roznica_na_token": -0.036,
+    "p": 5.9841767627815274e-05,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 767,
+    "roznica_ta_sama_tokenizacja": -0.024771838331160364
+   },
+   "distractor_agreement_relational_noun": {
+    "roznica_na_token": -0.068,
+    "p": 2.3933167279226953e-06,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 901,
+    "roznica_ta_sama_tokenizacja": -0.06104328523862375
+   },
+   "distractor_agreement_relative_clause": {
+    "roznica_na_token": -0.02,
+    "p": 0.25283116847305975,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 847,
+    "roznica_ta_sama_tokenizacja": -0.03423848878394333
+   },
+   "drop_argument": {
+    "roznica_na_token": -0.157,
+    "p": 0.0007102474080198955,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 567,
+    "roznica_ta_sama_tokenizacja": -0.029982363315696647
+   },
+   "ellipsis_n_bar_1": {
+    "roznica_na_token": -0.03,
+    "p": 0.043742188448648606,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.03
+   },
+   "ellipsis_n_bar_2": {
+    "roznica_na_token": -0.012,
+    "p": 0.07154203587240979,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 566,
+    "roznica_ta_sama_tokenizacja": -0.012367491166077738
+   },
+   "existential_there_object_raising": {
+    "roznica_na_token": -0.056,
+    "p": 6.266861298275377e-11,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 556,
+    "roznica_ta_sama_tokenizacja": -0.0737410071942446
+   },
+   "existential_there_quantifiers_1": {
+    "roznica_na_token": 0.005,
+    "p": 0.22514364282921767,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": 0.005
+   },
+   "existential_there_quantifiers_2": {
+    "roznica_na_token": 0.051,
+    "p": 0.004402452293002257,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": 0.051
+   },
+   "existential_there_subject_raising": {
+    "roznica_na_token": -0.153,
+    "p": 3.947366102427411e-11,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 706,
+    "roznica_ta_sama_tokenizacja": -0.10198300283286119
+   },
+   "expletive_it_object_raising": {
+    "roznica_na_token": 0.04,
+    "p": 0.45491613025233124,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 514,
+    "roznica_ta_sama_tokenizacja": -0.009727626459143969
+   },
+   "inchoative": {
+    "roznica_na_token": -0.013,
+    "p": 0.2740229922485815,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 544,
+    "roznica_ta_sama_tokenizacja": -0.04411764705882353
+   },
+   "intransitive": {
+    "roznica_na_token": -0.035,
+    "p": 7.94642993297446e-05,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 481,
+    "roznica_ta_sama_tokenizacja": -0.02079002079002079
+   },
+   "irregular_past_participle_adjectives": {
+    "roznica_na_token": -0.089,
+    "p": 0.004287210439906574,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 808,
+    "roznica_ta_sama_tokenizacja": -0.022277227722772276
+   },
+   "irregular_past_participle_verbs": {
+    "roznica_na_token": -0.038,
+    "p": 5.392801341743306e-23,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 816,
+    "roznica_ta_sama_tokenizacja": -0.10661764705882353
+   },
+   "irregular_plural_subject_verb_agreement_1": {
+    "roznica_na_token": -0.027,
+    "p": 0.00041830566416064467,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 859,
+    "roznica_ta_sama_tokenizacja": -0.02910360884749709
+   },
+   "irregular_plural_subject_verb_agreement_2": {
+    "roznica_na_token": -0.032,
+    "p": 0.055924582220442574,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 822,
+    "roznica_ta_sama_tokenizacja": -0.027980535279805353
+   },
+   "left_branch_island_echo_question": {
+    "roznica_na_token": -0.061,
+    "p": 4.778563953578955e-07,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 995,
+    "roznica_ta_sama_tokenizacja": -0.09246231155778895
+   },
+   "left_branch_island_simple_question": {
+    "roznica_na_token": -0.002,
+    "p": 0.8964676078804605,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.002
+   },
+   "matrix_question_npi_licensor_present": {
+    "roznica_na_token": -0.092,
+    "p": 2.7754917991198255e-12,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 928,
+    "roznica_ta_sama_tokenizacja": -0.10883620689655173
+   },
+   "npi_present_1": {
+    "roznica_na_token": -0.125,
+    "p": 6.300034138088607e-14,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.125
+   },
+   "npi_present_2": {
+    "roznica_na_token": -0.051,
+    "p": 0.0020115736782302654,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.051
+   },
+   "only_npi_licensor_present": {
+    "roznica_na_token": -0.009,
+    "p": 0.34010633235644,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.009
+   },
+   "only_npi_scope": {
+    "roznica_na_token": 0.136,
+    "p": 9.778246519849155e-17,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 973,
+    "roznica_ta_sama_tokenizacja": 0.13052415210688592
+   },
+   "passive_1": {
+    "roznica_na_token": -0.066,
+    "p": 0.011758746566297783,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 381,
+    "roznica_ta_sama_tokenizacja": -0.01837270341207349
+   },
+   "passive_2": {
+    "roznica_na_token": -0.098,
+    "p": 0.03899906854344606,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 374,
+    "roznica_ta_sama_tokenizacja": -0.016042780748663103
+   },
+   "principle_A_c_command": {
+    "roznica_na_token": -0.048,
+    "p": 0.0006046557249641048,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.048
+   },
+   "principle_A_case_1": {
+    "roznica_na_token": -0.001,
+    "p": 0.31731050786291665,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.001
+   },
+   "principle_A_case_2": {
+    "roznica_na_token": -0.037,
+    "p": 0.013778584610412108,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 613,
+    "roznica_ta_sama_tokenizacja": -0.01957585644371941
+   },
+   "principle_A_domain_1": {
+    "roznica_na_token": -0.033,
+    "p": 1.4784908740910052e-08,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.033
+   },
+   "principle_A_domain_2": {
+    "roznica_na_token": -0.019,
+    "p": 0.16676406046667575,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.019
+   },
+   "principle_A_domain_3": {
+    "roznica_na_token": -0.148,
+    "p": 2.4806629356907464e-13,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 998,
+    "roznica_ta_sama_tokenizacja": -0.1492985971943888
+   },
+   "principle_A_reconstruction": {
+    "roznica_na_token": 0.157,
+    "p": 3.743383327493658e-21,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": 0.157
+   },
+   "regular_plural_subject_verb_agreement_1": {
+    "roznica_na_token": -0.058,
+    "p": 6.1055262114595515e-09,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 773,
+    "roznica_ta_sama_tokenizacja": -0.03880983182406209
+   },
+   "regular_plural_subject_verb_agreement_2": {
+    "roznica_na_token": -0.059,
+    "p": 0.0024321461898288823,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 713,
+    "roznica_ta_sama_tokenizacja": -0.02244039270687237
+   },
+   "sentential_negation_npi_licensor_present": {
+    "roznica_na_token": -0.006,
+    "p": 0.001680526483289072,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.015
+   },
+   "sentential_negation_npi_scope": {
+    "roznica_na_token": -0.05,
+    "p": 0.000921987852044435,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.05
+   },
+   "sentential_subject_island": {
+    "roznica_na_token": 0.237,
+    "p": 2.886655590522165e-31,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": 0.237
+   },
+   "superlative_quantifiers_1": {
+    "roznica_na_token": -0.118,
+    "p": 4.365123508592903e-12,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.118
+   },
+   "superlative_quantifiers_2": {
+    "roznica_na_token": 0.116,
+    "p": 1.4045966273539135e-17,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": 0.116
+   },
+   "tough_vs_raising_1": {
+    "roznica_na_token": -0.022,
+    "p": 1.0605357374736181e-33,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 745,
+    "roznica_ta_sama_tokenizacja": -0.14093959731543623
+   },
+   "tough_vs_raising_2": {
+    "roznica_na_token": -0.092,
+    "p": 0.0005634961792212155,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 711,
+    "roznica_ta_sama_tokenizacja": 0.0450070323488045
+   },
+   "transitive": {
+    "roznica_na_token": -0.085,
+    "p": 0.008670868811556282,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 434,
+    "roznica_ta_sama_tokenizacja": -0.009216589861751152
+   },
+   "wh_island": {
+    "roznica_na_token": -0.079,
+    "p": 1.38781398477657e-07,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.079
+   },
+   "wh_questions_object_gap": {
+    "roznica_na_token": -0.118,
+    "p": 9.791346192041338e-15,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.118
+   },
+   "wh_questions_subject_gap": {
+    "roznica_na_token": -0.073,
+    "p": 2.461545528757638e-09,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.073
+   },
+   "wh_questions_subject_gap_long_distance": {
+    "roznica_na_token": -0.017,
+    "p": 0.2161258301600902,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.017
+   },
+   "wh_vs_that_no_gap": {
+    "roznica_na_token": -0.002,
+    "p": 0.7855916584670996,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.002
+   },
+   "wh_vs_that_no_gap_long_distance": {
+    "roznica_na_token": 0.006,
+    "p": 0.4461549795847511,
+    "holm": false,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": 0.006
+   },
+   "wh_vs_that_with_gap": {
+    "roznica_na_token": 0.095,
+    "p": 1.0923598180973946e-08,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": 0.095
+   },
+   "wh_vs_that_with_gap_long_distance": {
+    "roznica_na_token": -0.087,
+    "p": 1.7829709774318828e-07,
+    "holm": true,
+    "n_ta_sama_tokenizacja": 1000,
+    "roznica_ta_sama_tokenizacja": -0.087
+   }
+  },
+  "holm_odrzucone": 37,
+  "spearman_suma_na_token": 0.7702370973536103,
+  "na_token": {
+   "n": 67000,
+   "roznica": -0.03091044776119403,
+   "se": 0.0017401578475683293,
+   "z": -17.763013742912936,
+   "werdykt": "pewne"
+  },
+  "tokenizacja": {
+   "stosunek_tokenow_a_do_b": 1.18098102852318,
+   "ta_sama_roznica_tokenow": {
+    "n": 57329,
+    "roznica": -0.023897155017530394,
+    "se": 0.0017134827127338636,
+    "z": -13.946539897914963,
+    "werdykt": "pewne"
+   },
+   "rozna_roznica_tokenow": {
+    "n": 9671,
+    "roznica": -0.05687105780167511,
+    "se": 0.004100155166127307,
+    "z": -13.870464774481002,
+    "werdykt": "pewne"
+   },
+   "czesc_luki_od_tokenizacji": -0.0047595614003800545
+  },
+  "leksykalnie_identyczne": {
+   "tak": {
+    "n": 20000,
+    "roznica": -0.00615,
+    "se": 0.0031179206097860994,
+    "z": -1.9724684396059438,
+    "werdykt": "szum"
+   },
+   "nie": {
+    "n": 47000,
+    "roznica": -0.03823404255319149,
+    "se": 0.0018246292170470794,
+    "z": -20.95441758576475,
+    "werdykt": "pewne"
+   }
+  }
+ },
+ "tokenizery_sha256": {
+  "1.06": "0640d3bd3674d7a6e59c540d945a2ad275a12e1bcaeb6007c37a90751f9815dd",
+  "pythia-1b": "c24618a1b3e6a38167beff1c72cffd126c3a66254347304b50547d12c5f25624"
+ },
+ "kontrola_forward": {
+  "zdania": 400,
+  "pary": 200,
+  "max_abs_roznica_ll": 0.0005340576171875,
+  "srednia_abs_roznica_ll": 0.00017686843872070313,
+  "przestawione_pary": 0,
+  "opis": "official load_slayer.py GPT (HF repo @ ef81be58), CPU float32, batch 1, vs slayer_model.py on MPS, batch 64; sha256 panel pairs"
+ },
  "kontrola_pythia": {
   "wartosc": 0.8234328358208955,
   "prog": 0.02,
@@ -2014,6 +2661,8 @@
   ],
   "n": 200,
   "digest_odtworzony": false,
-  "uwaga": "no id/separator/order format tried reproduces the Space source_id_digest"
+  "uwaga": "no id/separator/order format tried reproduces the Space source_id_digest",
+  "pelny_zbior_w_ci95_space": false,
+  "stosunek_rozrzutu_paneli_do_ci_space": 1.4861728106957568
  }
 }

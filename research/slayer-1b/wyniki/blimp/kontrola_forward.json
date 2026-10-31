@@ -1,0 +1,8 @@
+{
+ "zdania": 400,
+ "pary": 200,
+ "max_abs_roznica_ll": 0.0005340576171875,
+ "srednia_abs_roznica_ll": 0.00017686843872070313,
+ "przestawione_pary": 0,
+ "opis": "official load_slayer.py GPT (HF repo @ ef81be58), CPU float32, batch 1, vs slayer_model.py on MPS, batch 64; sha256 panel pairs"
+}

@@ -204,7 +204,47 @@ def porownania_blimp(bl):
     for g, r in por["paradygmaty"].items():
         x, y = mod[a]["paradygmaty"][g], mod[b]["paradygmaty"][g]
         dodaj(f"blimp_{g}", x["acc"], x["se"], y["acc"], y["se"], r)
+    an = bl.get("analiza")
+    if not an:
+        return out
+    # paradigms as clusters: SE over the 67 paradigm differences (generalisation to paradigms)
+    gen = an["generalizacja"]
+    out.append(porownanie("slayer_vs_pythia/blimp_klastrowane/acc", "slayer_vs_pythia", "blimp_klastrowane", "acc", a, b,
+                          None, None, None, None, se_par=gen["se_klastrowe"], zrodlo_par="clustered by paradigm (k = 67)",
+                          roznica=gen["roznica"]))
+    b2 = gen["bez_2_najgorszych"]
+    out.append(porownanie("slayer_vs_pythia/blimp_klastrowane_bez_2/acc", "slayer_vs_pythia", "blimp_klastrowane_bez_2",
+                          "acc", a, b, None, None, None, None, se_par=b2["se"],
+                          zrodlo_par="clustered by paradigm, 2 lowest paradigms dropped", roznica=b2["roznica"]))
+    for z, r in an["zjawiska_klastrowe"].items():
+        p = porownanie(f"slayer_vs_pythia/blimp_zjawisko_klastr_{z}/acc", "slayer_vs_pythia", f"blimp_zjawisko_klastr_{z}",
+                       "acc", a, b, None, None, None, None, se_par=r["se"], zrodlo_par=f"clustered by paradigm (k = {r['k']})",
+                       roznica=r["roznica"])
+        p["werdykt"] = r["werdykt"]  # k < 3: "nierozstrzygalne", whatever z says
+        out.append(p)
+    for nazwa, r in (("blimp_na_token", an["na_token"]),
+                     ("blimp_ta_sama_tokenizacja", an["tokenizacja"]["ta_sama_roznica_tokenow"]),
+                     ("blimp_rozna_tokenizacja", an["tokenizacja"]["rozna_roznica_tokenow"]),
+                     ("blimp_leksykalnie_identyczne", an["leksykalnie_identyczne"]["tak"]),
+                     ("blimp_nie_leksykalnie_identyczne", an["leksykalnie_identyczne"]["nie"])):
+        out.append(porownanie(f"slayer_vs_pythia/{nazwa}/acc", "slayer_vs_pythia", nazwa, "acc", a, b, None, None, None, None,
+                              se_par=r["se"], zrodlo_par="paired by minimal pair, stratified by paradigm", roznica=r["roznica"]))
     return out
+
+
+def raporty_blimp(bl):
+    """Metadata of the BLiMP report for the gates of sprawdz_raporty.py (bramki_raportu)."""
+    an = bl.get("analiza")
+    if not an:
+        return []
+    return [{"plik": "wyniki/blimp/BLIMP.md", "test": "blimp", "wieloparadygmatowy": True,
+             "k_paradygmatow": an["generalizacja"]["k"],
+             "porownanie_klastrowe": "slayer_vs_pythia/blimp_klastrowane/acc",
+             "holm": {g: r["holm"] for g, r in an["paradygmaty_dodatkowe"].items()},
+             "grupy": [{"nazwa": z, "etykieta": z.replace("_", " "), "k": r["k"], "werdykt": r["werdykt"]}
+                       for z, r in an["zjawiska_klastrowe"].items()],
+             "tokenizery": bl.get("tokenizery_sha256", {}),
+             "porownanie_na_token": "slayer_vs_pythia/blimp_na_token/acc"}]
 
 
 def zbuduj(korzen=KORZEN):
@@ -227,14 +267,16 @@ def zbuduj(korzen=KORZEN):
     zrodla = ["wyniki/raport_formatu.json", "wygaszanie/wyniki/porownanie.json"] + \
              [str(p.relative_to(korzen)) for p in heldouty]
     plik_blimp = korzen / "wyniki/blimp/blimp.json"
+    raporty = []  # reports with metadata for the gates of sprawdz_raporty.py (older reports have none)
     if plik_blimp.exists():
         bl = json.loads(plik_blimp.read_text())
         # per-paradigm values live in `porownania` (with SE and verdict), not twice in `wartosci`
         splaszcz({k: v for k, v in bl.items() if k != "porownanie"}, "blimp", wartosci,
                  pomin=("okna", "per_grupa", "per_grupa_acc_norm", "paradygmaty"))
         porownania += porownania_blimp(bl)
+        raporty += raporty_blimp(bl)
         zrodla.append("wyniki/blimp/blimp.json")
-    return {"zrodla": zrodla,
+    return {"zrodla": zrodla, "raporty": raporty,
             "werdykt": {"pewne": f"|z| >= {PROG_PEWNE}", "prawdopodobne": f"{PROG_PRAWDOPODOBNE} <= |z| < {PROG_PEWNE}",
                         "szum": f"|z| < {PROG_PRAWDOPODOBNE}",
                         "uwaga": "werdykt główny z SE parowanego, gdy jest; inaczej z niezależnego (ostrożnego)"},

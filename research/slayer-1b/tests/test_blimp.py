@@ -33,10 +33,10 @@ def test_wczytaj_sortuje_paradygmaty_i_sklada_s_selection():
     assert zj["regular_plural_subject_verb_agreement_1"] == "subject_verb_agreement"
 
 
-def test_para_jak_lm_eval_pusty_kontekst_bos_i_spacja():
+def test_para_jak_lm_eval_pusty_kontekst_bos_i_spacja(monkeypatch):
     import pytest
     pytest.importorskip("torch")
-    os.environ["BLIMP_DIR"] = str(PROBKA)
+    monkeypatch.setenv("BLIMP_DIR", str(PROBKA))
     import hipoteza_formatu as H
 
     class Stub:
@@ -51,6 +51,90 @@ def test_para_jak_lm_eval_pusty_kontekst_bos_i_spacja():
     ce, co = H.para(Stub(), ctx, konty[0])
     assert ce == [0]  # exactly one unscored BOS/EOT
     assert co == [ord(c) for c in " " + dane[0]["opcje"][0]]  # target delimiter " " goes to the sentence
+
+
+class AtrapaModelu:
+    """Deterministic logits: hidden state = one-hot of the input token, head = fixed matrix W[V, V]."""
+
+    def __init__(self, V=11, max_len=16):
+        import torch
+        g = torch.Generator().manual_seed(7)
+        self.W = torch.randn(V, V, generator=g)
+        self.V, self.max_len, self.pad, self.device = V, max_len, 0, "cpu"
+
+    def ukryte(self, ids):
+        import torch
+        return torch.nn.functional.one_hot(ids, self.V).float()
+
+    def glowa(self, h):
+        return h @ self.W
+
+    def oczekiwany(self, ce, co):
+        """Sum of log p(token_t | token_{t-1}) over the continuation, computed directly from W."""
+        import torch
+        pelne = ce + co
+        lp = torch.log_softmax(self.W, -1)
+        return sum(lp[pelne[i - 1], pelne[i]].item() for i in range(len(ce), len(pelne)))
+
+
+PARY_ATRAPY = [([0], [3, 4, 5]), ([0, 2], [7]), ([0], [1, 9, 9, 2, 6, 3]), ([0, 5, 5, 5], [8, 1])]
+
+
+def test_licz_logliki_bierze_pozycje_kontynuacji():
+    import pytest
+    pytest.importorskip("torch")
+    import hipoteza_formatu as H
+    m = AtrapaModelu()
+    wynik = H.licz_logliki(m, PARY_ATRAPY, batch=4)
+    for (ce, co), (ll, n) in zip(PARY_ATRAPY, wynik):
+        assert n == len(co) and math.isclose(ll, m.oczekiwany(ce, co), rel_tol=1e-5)
+
+
+def test_licz_logliki_batch_1_rowny_batch_n_z_paddingiem():
+    import pytest
+    pytest.importorskip("torch")
+    import hipoteza_formatu as H
+    m = AtrapaModelu()
+    jeden = H.licz_logliki(m, PARY_ATRAPY, batch=1)
+    wiele = H.licz_logliki(m, PARY_ATRAPY, batch=3)  # different lengths in one batch: right padding
+    assert all(math.isclose(a[0], b[0], rel_tol=1e-6) for a, b in zip(jeden, wiele))
+
+
+def test_licz_logliki_odrzuca_za_dlugie_wejscie():
+    import pytest
+    pytest.importorskip("torch")
+    import hipoteza_formatu as H
+    m = AtrapaModelu(max_len=4)
+    assert H.licz_logliki(m, [([0, 1], [2, 3, 4])], batch=1)  # 4 input tokens: fits
+    with pytest.raises(ValueError):
+        H.licz_logliki(m, [([0, 1], [2, 3, 4, 5])], batch=1)  # 5 > 4: rejected, not truncated
+
+
+SLAYER_TOKENIZER_SHA = "0640d3bd3674d7a6e59c540d945a2ad275a12e1bcaeb6007c37a90751f9815dd"
+
+
+def test_slayer_pusty_kontekst_to_bos_endoftext(monkeypatch):
+    """ModelSlayer's empty context is [0], and 0 is <|endoftext|> in the Slayer tokenizer.json (no weights)."""
+    import hashlib
+    import pytest
+    pytest.importorskip("torch")
+    sciezka = Path(os.environ.get("SLAYER_TOKENIZER", os.path.expanduser(
+        "~/.cache/huggingface/hub/models--SlayerLab--Slayer1B-1.06/snapshots/"
+        "ef81be58742544ad32e1afab38db011fec209609/tokenizer.json")))
+    if not sciezka.exists():
+        pytest.skip("Slayer tokenizer.json not available (set SLAYER_TOKENIZER)")
+    assert hashlib.sha256(sciezka.read_bytes()).hexdigest() == SLAYER_TOKENIZER_SHA
+    from tokenizers import Tokenizer
+    import slayer_model
+    import hipoteza_formatu as H
+    assert Tokenizer.from_file(str(sciezka)).id_to_token(slayer_model.Slayer.BOS) == "<|endoftext|>"
+
+    class BezWag:
+        bos, blok = slayer_model.Slayer.BOS, 4096
+
+    monkeypatch.setattr(slayer_model, "Slayer", lambda katalog, device: BezWag())
+    m = H.ModelSlayer("brak", "cpu")
+    assert m.prefiks_pusty == [0] and m.prefiks == [0]
 
 
 def test_remis_liczy_sie_jako_trafienie():
@@ -136,6 +220,42 @@ def test_liczby_porownania_blimp_parowane():
     assert {p["test"] for p in por} == {"blimp"} and all(p["rodzina"] == "slayer_vs_pythia" for p in por)
     og = por[0]
     assert og["zadanie"] == "blimp" and math.isclose(og["roznica"], 1 / 3) and og["se"] == og["se_parowane"]
+
+
+def test_analiza_funkcje_statystyczne():
+    import blimp_analiza as A
+    m, se, t = A.t_klastrowe([0.1, 0.3])
+    assert math.isclose(m, 0.2) and math.isclose(se, 0.1) and math.isclose(t, 2.0)
+    assert A.werdykt_grupy([-0.1, -0.11]) == A.NIEROZSTRZYGALNE  # 2 members: no verdict, whatever t says
+    assert A.werdykt_grupy([-0.10, -0.11, -0.12]) == "pewne"
+    assert math.isclose(A.test_znakow(0, 5), 2 / 32) and A.test_znakow(3, 3) == 1.0
+    odrz = A.holm({"a": 0.001, "b": 0.02, "c": 0.04})
+    assert odrz == {"a": True, "b": True, "c": True}  # 0.001<=0.05/3, 0.02<=0.05/2, 0.04<=0.05
+    assert A.holm({"a": 0.001, "b": 0.03, "c": 0.04}) == {"a": True, "b": False, "c": False}  # step-down stops
+    assert math.isclose(A.spearman([1, 2, 3, 4], [10, 20, 30, 40]), 1.0)
+    assert math.isclose(A.spearman([1, 2, 3, 4], [4, 3, 2, 1]), -1.0)
+    assert A.rangi([5, 1, 5]) == [2.5, 1.0, 2.5]
+    p = A.podzbior({"a": [1, 0], "b": [0, 0, 0, 0]})
+    assert p["n"] == 6 and math.isclose(p["roznica"], 1 / 6)
+    assert A.podzbior({})["roznica"] is None
+
+
+def test_analiza_na_przykladzie():
+    import blimp_analiza as A
+    d = docs()
+    for x in d:
+        x["rekord"] = {**x["rekord"]}
+    ids = [x["id"] for x in d]
+    a = {i: {"ll": [-1.0, -2.0], "ntok": [3, 3]} for i in ids}
+    b = {i: {"ll": [-2.0, -1.0] if i.startswith("blimp_adjunct") else [-1.0, -2.0], "ntok": [3, 4]} for i in ids}
+    por = B.porownanie_parowane(a, b, d)["paradygmaty"]
+    an = A.analiza(d, a, b, por)
+    assert an["generalizacja"]["k"] == 3 and an["generalizacja"]["znak"]["a_lepszy"] == 1
+    assert an["zjawiska_klastrowe"]["island_effects"]["werdykt"] == A.NIEROZSTRZYGALNE  # k = 1
+    # token differences: a has dn = 0, b has dn = 1 -> no pair with the same tokenization
+    assert an["tokenizacja"]["ta_sama_roznica_tokenow"]["n"] == 0
+    assert an["tokenizacja"]["rozna_roznica_tokenow"]["n"] == 9
+    assert an["leksykalnie_identyczne"]["tak"]["n"] == 4  # the adjunct_island rows of the sample
 
 
 def test_werdykt_progi():

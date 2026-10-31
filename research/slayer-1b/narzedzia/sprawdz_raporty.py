@@ -7,6 +7,9 @@ Kod wyjścia 1, gdy:
      w akapicie z liczbami nie ma SE, z ani werdyktu (szum / prawdopodobne / pewne / w granicach);
  (c) słowo werdyktu („pewne”, „prawdopodobna”) stoi przy teście, którego żadne porównanie z tej
      rodziny nie ma w LICZBY.json tak mocnego werdyktu.
+ (d)-(f) bramki raportów z metadanymi w LICZBY.json "raporty" (bramki_raportu): werdykt na zbiorze
+     wieloparadygmatowym bez SE klastrowanego / Holma, werdykt grupy < 3 członków, różne tokenizery bez
+     wyniku na token.
 Wyjątek na linię: `<!-- liczba-spoza-wynikow: powód -->` wyłącza (a), `<!-- ocena-bez-se: powód -->` wyłącza (b).
 
 Uruchom: python narzedzia/liczby.py && python narzedzia/sprawdz_raporty.py [plik.html ...]
@@ -19,7 +22,7 @@ import sys
 from pathlib import Path
 
 KORZEN = Path(__file__).resolve().parent.parent
-SILA = {"szum": 0, "prawdopodobne": 1, "pewne": 2}
+SILA = {"nierozstrzygalne": 0, "szum": 0, "prawdopodobne": 1, "pewne": 2}
 
 # (plik, nagłówek sekcji albo None = cały plik, reguły, powód) — krótka lista, każdy wpis z powodem
 WYLACZENIA = [
@@ -44,7 +47,7 @@ SKALOWANA = re.compile(r"\s*(pkt|%|p\.\s?p\.)")
 SKALOWANA_EN = re.compile(r"\s*(points?\b|pts?\b|%)")
 LISTA_SE = re.compile(r"((?:[−-]?\d+(?:,\d+)?\s*/\s*)*[−-]?\d+(?:,\d+)?)\s*SE\b")
 Z_ROWNA = re.compile(r"\bz\s*=\s*([−-]?\d+(?:,\d+)?)")
-Z_ROWNA_EN = re.compile(r"\bz\s*=\s*([−-]?\d+(?:\.\d+)?)")
+Z_ROWNA_EN = re.compile(r"\b[zt]\s*=\s*([−-]?\d+(?:\.\d+)?)")  # t = clustered z (mean / SE over paradigms)
 WERSJA_MODELU = re.compile(r"Slayer\s*$")  # "Slayer 1.06" is a model name, not a number
 OCENA = re.compile(r"\b(lepsz\w*|gorsz\w*|lu(?:ka|ki|kę|ką|ce|k)\b|przewag\w*|popraw(?:a|y|ie|ę|ą)\b|"
                    r"pogorsz\w*|pogarsz\w*|istotn\w*|prawdziw\w*)", re.IGNORECASE)
@@ -311,6 +314,45 @@ def sprawdz_tekst(plik, linie, liczby, zb):
     return bledy
 
 
+# ---------- bramki raportów z metadanymi (LICZBY.json "raporty"; starsze raporty ich nie mają) ----------
+
+SLOWO_WERDYKTU = re.compile(r"\b(certain|probable|pewn\w*|prawdopodobn\w*)\b", re.IGNORECASE)
+BEZ_WERDYKTU = {"nierozstrzygalne", "undetermined"}
+NA_TOKEN = re.compile(r"\b(per[ -]token|per[ -]byte|na token|na bajt)\b", re.IGNORECASE)
+
+
+def bramki_raportu(meta, linie, liczby):
+    """Gates for a report on a multi-paradigm set (BLiMP, MultiBLiMP, MMLU):
+    (d) a verdict word needs an SE/z clustered by paradigm in LICZBY.json, and a ranking of
+        more than one paradigm needs a Holm field for every paradigm;
+    (e) a group with < 3 members may only be "undetermined", in the metadata and in its table row;
+    (f) models with different tokenizers need a per-token comparison in LICZBY.json and in the text."""
+    plik, bledy = meta["plik"], []
+    tekst = "\n".join(linie)
+    por = {p["id"]: p for p in liczby["porownania"]}
+    if meta.get("wieloparadygmatowy") and SLOWO_WERDYKTU.search(tekst):
+        k = por.get(meta.get("porownanie_klastrowe") or "")
+        if not k or k.get("se") is None or k.get("z") is None:
+            bledy.append((plik, 0, "(d) werdykt na zbiorze wieloparadygmatowym bez SE/z klastrowanego po paradygmatach"))
+        holm = meta.get("holm") or {}
+        if meta.get("k_paradygmatow", 0) > 1 and (len(holm) < meta["k_paradygmatow"]
+                                                   or not all(isinstance(v, bool) for v in holm.values())):
+            bledy.append((plik, 0, "(d) ranking paradygmatów bez poprawki Holma dla każdego paradygmatu"))
+    for g in meta.get("grupy", []):
+        if g["k"] >= 3:
+            continue
+        if g["werdykt"] not in BEZ_WERDYKTU:
+            bledy.append((plik, 0, f"(e) grupa {g['nazwa']} ma {g['k']} członków, a werdykt „{g['werdykt']}”"))
+        for nr, l in enumerate(linie, 1):
+            if l.startswith(f"| {g['etykieta']} |") and SLOWO_WERDYKTU.search(l):
+                bledy.append((plik, nr, f"(e) wiersz grupy {g['nazwa']} (k = {g['k']}) z werdyktem innym niż undetermined"))
+    if len(set((meta.get("tokenizery") or {}).values())) > 1:
+        t = por.get(meta.get("porownanie_na_token") or "")
+        if not t or t.get("z") is None or not NA_TOKEN.search(tekst):
+            bledy.append((plik, 0, "(f) modele z różnymi tokenizerami, a raport nie ma wyniku na token/bajt"))
+    return bledy
+
+
 def linie_html(tekst):
     tekst = re.sub(r"(?is)<(script|style)\b.*?</\1>", " ", tekst)
     tekst = re.sub(r"(?i)<br\s*/?>|</(p|div|li|tr|h\d|td|th)>", "\n", tekst)
@@ -339,6 +381,12 @@ def main(argv=None):
         tekst = p.read_text(encoding="utf-8")
         linie = linie_html(tekst) if p.suffix.lower() in (".html", ".htm") else tekst.splitlines()
         bledy += sprawdz_tekst(nazwa, linie, liczby, zb)
+    for meta in liczby.get("raporty", []):
+        p = KORZEN / meta["plik"]
+        if not p.exists():
+            bledy.append((meta["plik"], 0, "(d) raport z metadanymi w LICZBY.json nie istnieje"))
+            continue
+        bledy += bramki_raportu(meta, p.read_text(encoding="utf-8").splitlines(), liczby)
     for plik, nr, powod in bledy:
         print(f"{plik}:{nr}: {powod}")
     print(f"{len(cele)} plików, {len(bledy)} problemów")

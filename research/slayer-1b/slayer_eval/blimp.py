@@ -34,6 +34,10 @@ REFERENCJA_PYTHIA = {"wartosc": 0.8234328358208955, "prog": 0.02,
                      "zrodlo": "github.com/EleutherAI/pythia evals/pythia-v0/pythia-1b/zero-shot/"
                                "pythia-1b-0shot-global_step143000_eval_results_11-28-2022-15-14-35.json",
                      "uwaga": "v0 weights and old harness (sentence scored without leading space)"}
+# SHA-256 of tokenizer.json at the pinned revisions; different values = different tokenizers, so the
+# report must also show a length-normalised (per token) comparison (sprawdz_raporty.py gate)
+TOKENIZERY = {"1.06": "0640d3bd3674d7a6e59c540d945a2ad275a12e1bcaeb6007c37a90751f9815dd",
+              "pythia-1b": "c24618a1b3e6a38167beff1c72cffd126c3a66254347304b50547d12c5f25624"}
 # Space SlayerLab/Slayer1B-Benchmarks, results.json, T01 observation of SlayerLab/Slayer1B-1.06
 SPACE_T01 = {"wartosc": 0.8407960199004975, "ci95": [0.8059701492537314, 0.8756218905472644], "n": 200,
              "source_id_digest": "9d6d5c8b444b57a4043af8030c77daca572418a54ace83cd6c16ebe8945faf67"}
@@ -146,6 +150,12 @@ def p_wartosci_panelu(docs, wiersze, panel_docs, cel, powtorzen=20000, seed=SEED
     """Share of random panels with the same per-member sizes whose equal-weight value equals `cel`:
     how surprising an exact match with the Space value is if the panel were not the Space panel."""
     import numpy as np
+    return float(np.mean(np.abs(rozklad_paneli(docs, wiersze, panel_docs, powtorzen, seed) - cel) < 1e-9))
+
+
+def rozklad_paneli(docs, wiersze, panel_docs, powtorzen=20000, seed=SEED):
+    """Values of random panels with the per-member sizes of `panel_docs` (hypergeometric per member)."""
+    import numpy as np
     rng = np.random.default_rng(seed)
     traf, rozm = {}, {}
     for d in docs:
@@ -157,7 +167,7 @@ def p_wartosci_panelu(docs, wiersze, panel_docs, cel, powtorzen=20000, seed=SEED
         k, n = sum(traf[g]), len(traf[g])
         wart += rng.hypergeometric(k, n - k, m, size=powtorzen) / m
     wart /= len(rozm)
-    return float(np.mean(np.abs(wart - cel) < 1e-9))
+    return wart
 
 
 def werdykt(z):
@@ -294,8 +304,20 @@ def cmd_zbierz(a):
             "n": len(p), **{m: wartosc_grupy([trafienie_pary(d, w[d["id"]]) for d in p], [d["grupa"] for d in p])
                             for m, w in modele.items()}}
         if "1.06" in modele:
-            out["panel_space"][wariant]["p_rownej_wartosci_losowo"] = p_wartosci_panelu(
-                docs, modele["1.06"], p, SPACE_T01["wartosc"])
+            ps = out["panel_space"][wariant]
+            ps["p_rownej_wartosci_losowo"] = p_wartosci_panelu(docs, modele["1.06"], p, SPACE_T01["wartosc"])
+            # two source-id readings were tried, so the chance of an exact hit is corrected x2
+            ps["p_rownej_wartosci_skorygowane_2_warianty"] = min(1.0, 2 * ps["p_rownej_wartosci_losowo"])
+            for m, w in modele.items():
+                rozk = rozklad_paneli(docs, w, p)
+                ps[f"udzial_paneli_nie_nizszych_{m}"] = float((rozk >= ps[m] - 1e-9).mean())
+                ps[f"sd_paneli_{m}"] = float(rozk.std())
+    import blimp_analiza
+    out["analiza"] = blimp_analiza.analiza(docs, modele[a_], modele[b_], out["porownanie"]["paradygmaty"])
+    out["tokenizery_sha256"] = {m: TOKENIZERY[m] for m in modele if m in TOKENIZERY}
+    kf = KORZEN / "wyniki/blimp/kontrola_forward.json"
+    if kf.exists():
+        out["kontrola_forward"] = json.loads(kf.read_text())
     if "pythia-1b" in out["modele"]:
         nasza = out["modele"]["pythia-1b"]["acc"]
         out["kontrola_pythia"] = {**REFERENCJA_PYTHIA, "nasza": nasza, "roznica": nasza - REFERENCJA_PYTHIA["wartosc"],
@@ -308,6 +330,11 @@ def cmd_zbierz(a):
             p["roznica_1.06_do_space"] = p["1.06"] - SPACE_T01["wartosc"]
             p["w_ci95_space"] = SPACE_T01["ci95"][0] <= p["1.06"] <= SPACE_T01["ci95"][1]
             p["rowna_space"] = abs(p["roznica_1.06_do_space"]) < 1e-9
+        sp = out["space"]
+        sp["pelny_zbior_w_ci95_space"] = sp["ci95"][0] <= out["modele"]["1.06"]["acc"] <= sp["ci95"][1]
+        # random-panel spread (2 x 1.96 sd) relative to the width of the Space CI95
+        sp["stosunek_rozrzutu_paneli_do_ci_space"] = (2 * 1.959963984540054 * out["panel_space"]["sha256"]["sd_paneli_1.06"]
+                                                      / (sp["ci95"][1] - sp["ci95"][0]))
     Path(a.wyjscie).parent.mkdir(parents=True, exist_ok=True)
     Path(a.wyjscie).write_text(json.dumps(out, indent=1) + "\n")
     print(json.dumps({m: (s["acc"], s["ci95"]) for m, s in out["modele"].items()}))
