@@ -1,11 +1,13 @@
 # Research: benchmarki modeli
 
-Tu mierzymy modele (dziś mierzony Slayer 1B, pięć modeli odniesienia: Qwen3.5-0.8B, LFM2.5-1.2B, Bielik-1.5B-v3,
-LFM3-1.7B, EuroLLM-1.7B, oraz model kontrolny etapu B; jutro każdy następny model z Hugging Face) i budujemy polskie
-benchmarki. Rewizje i role modeli: [`METODOLOGIA.md`](METODOLOGIA.md#modele-kontrolny-i-odniesienia).
-Każdy benchmark ma jeden katalog w `benchmarks/`, a kod wspólny dla wielu benchmarków leży w `common/`.
-Jak powstaje benchmark (karta oryginału, odtworzenie, kod, wersja polska): [`METODOLOGIA.md`](METODOLOGIA.md).
-Kiedy jest skończony: [„Definicja „zrobione””](../README.md#definicja-zrobione) w README repo.
+Tu mierzymy modele i budujemy polskie benchmarki. Dziś mierzymy Slayera 1B. Obok niego liczymy pięć modeli
+odniesienia (Qwen3.5-0.8B, LFM2.5-1.2B, Bielik-1.5B-v3, LFM3-1.7B, EuroLLM-1.7B) i model kontrolny etapu B. Później
+dojdzie każdy następny model z Hugging Face. Rewizje i role modeli opisuje
+[`METODOLOGIA.md`](METODOLOGIA.md#modele-kontrolny-i-odniesienia).
+
+Każdy benchmark ma jeden katalog w `benchmarks/`. Kod wspólny dla wielu benchmarków leży w `common/`. Jak powstaje
+benchmark (karta oryginału, odtworzenie, kod, wersja polska), opisuje [`METODOLOGIA.md`](METODOLOGIA.md). Kiedy
+benchmark jest skończony, mówi sekcja [„Definicja „zrobione””](../README.md#definicja-zrobione) w README repo.
 Wszystkie komendy niżej uruchamiasz w katalogu `research/`.
 
 ## Układ
@@ -23,22 +25,27 @@ Wszystkie komendy niżej uruchamiasz w katalogu `research/`.
 | `tests/` | testy kodu, bez sieci i bez wag |
 | `slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami: `dane/`, `testy_danych_slayer/`, `wygaszanie/`, `tokenizer/`, `lab/`, `paczka_testerzy/` (komendy w ich README uruchamiasz w `research/slayer-1b/`) |
 
-Benchmarki dziś: [`benchmarks/ewok-pl/`](benchmarks/ewok-pl/README.md) (EWoK po polsku i angielsku),
-[`benchmarks/blimp/`](benchmarks/blimp/README.md) (BLiMP, pełny zbiór), [`benchmarks/wikitext-2/`](benchmarks/wikitext-2/README.md)
-(perpleksja WikiText-2, mianownik jak w lm-eval). Analizy: [`analyses/answer-format/`](analyses/answer-format/README.md).
-Testy z listy Space (ARC, MMLU, SIQA, Belebele, MultiBLiMP i inne) liczy `common/`; opis: [`common/README.md`](common/README.md).
+Dziś w repo są trzy benchmarki:
+
+- [`benchmarks/ewok-pl/`](benchmarks/ewok-pl/README.md): EWoK po polsku i angielsku;
+- [`benchmarks/blimp/`](benchmarks/blimp/README.md): BLiMP, pełny zbiór;
+- [`benchmarks/wikitext-2/`](benchmarks/wikitext-2/README.md): perpleksja WikiText-2, mianownik jak w lm-eval.
+
+Jest też jedna analiza: [`analyses/answer-format/`](analyses/answer-format/README.md). Testy z listy Space (ARC,
+MMLU, SIQA, Belebele, MultiBLiMP i inne) liczy kod w `common/`. Opisuje go [`common/README.md`](common/README.md).
 
 ## Przygotowanie (raz)
 
-Raz na komputer, z siecią do Hugging Face (HF). Kilka GB dysku; działa na CPU (wolno) albo GPU (`--device cuda`).
+Robisz to raz na komputer. Potrzebujesz dostępu do Hugging Face (HF) i kilku GB wolnego dysku. Kod działa na CPU,
+choć wolno, albo na GPU z opcją `--device cuda`.
 
 Przed pierwszym pobraniem:
 
-- załóż konto na HF i token do odczytu (Settings → Access Tokens na huggingface.co); `hf auth login` niżej pyta o ten
-  token;
-- `speakleash/Bielik-1.5B-v3` jest za bramką zgody: zaloguj się na
-  [stronie modelu](https://huggingface.co/speakleash/Bielik-1.5B-v3) i zaakceptuj warunki, zanim go pobierzesz
-  (bez tego pobranie kończy się błędem 401/403).
+- Załóż konto na HF i token do odczytu (Settings → Access Tokens na huggingface.co). Komenda `hf auth login` niżej
+  poprosi o ten token.
+- Model `speakleash/Bielik-1.5B-v3` wymaga zgody na warunki. Zaloguj się na
+  [stronie modelu](https://huggingface.co/speakleash/Bielik-1.5B-v3) i zaakceptuj warunki przed pobraniem. Bez tego
+  pobranie kończy się błędem 401/403.
 
 ```bash
 git clone https://github.com/slayerlabs/benchmarks-fabryka-ai
@@ -52,22 +59,25 @@ python3 -m venv .venv-eval
 .venv-eval/bin/python tests/test_slayer_eval.py
 ```
 
-Do benchmarku polskiego albo bez oryginału pobierz też model, który zna polski (po akceptacji warunków Bielika):
+Do benchmarku polskiego albo bez oryginału pobierz też model, który zna polski. Wcześniej zaakceptuj warunki Bielika.
 
 ```bash
 .venv-eval/bin/hf download speakleash/Bielik-1.5B-v3 --revision 4b25049621bf3952a1fc9314c89773102eda0333 --local-dir models/bielik-1.5b-v3
 ```
 
-`git clone` bierze gałąź `main`. Środowisko z `common/requirements.lock.txt` (lm-eval 0.4.9.1) obowiązuje we wszystkich
-przebiegach; czym różni się od lm-eval w Space: [`METODOLOGIA.md`](METODOLOGIA.md), sekcja „Wersja lm-eval”.
-`EleutherAI/pythia-1b-v0` @ `step143000` to pierwszy model z listy kontrolnej etapu B; gdy nie ma opublikowanego
-wyniku dla Twojego benchmarku, bierzesz następny z listy (sekcja „Model kontrolny etapu B”). Wagi zostają w `models/`,
-poza gitem (`.gitignore`).
+`git clone` pobiera domyślną gałąź repo, czyli `main`. Od niej zakładasz swoją gałąź.
+
+Wszystkie przebiegi liczysz w środowisku z `common/requirements.lock.txt` (lm-eval 0.4.9.1). Czym różni się ono od
+lm-eval w Space, opisuje [`METODOLOGIA.md`](METODOLOGIA.md), sekcja „Wersja lm-eval”.
+
+`EleutherAI/pythia-1b-v0` @ `step143000` to pierwszy model z listy kontrolnej etapu B. Gdy nie ma opublikowanego
+wyniku dla Twojego benchmarku, bierzesz następny model z listy (sekcja „Model kontrolny etapu B”). Wagi zostają w
+`models/`, poza gitem (`.gitignore`).
 
 ## Uruchomienie
 
-Benchmark z własnym katalogiem ma komendy w swoim `RECIPE.md`. Testy z wyborem odpowiedzi, które przeszły test zgodności
-z oryginałem, liczy wspólny `common/hipoteza_formatu.py`; ten sam kod liczy każdy model:
+Benchmark z własnym katalogiem ma komendy w swoim `RECIPE.md`. Testy z wyborem odpowiedzi, które przeszły test
+zgodności z oryginałem, liczy wspólny skrypt `common/hipoteza_formatu.py`. Ten sam kod liczy każdy model:
 
 ```bash
 .venv-eval/bin/python common/hipoteza_formatu.py licz --model models/slayer-1.06 --zadania arc_c_cloze,arc_c_mc --wyjscie analyses/answer-format/results/1.06 --device cpu
@@ -75,15 +85,16 @@ z oryginałem, liczy wspólny `common/hipoteza_formatu.py`; ten sam kod liczy ka
 python analyses/answer-format/analiza_formatu.py --wyniki <dir>
 ```
 
-- `licz` zapisuje plik `<zadanie>.jsonl` na zadanie; przerwane liczenie wznawia się od brakujących pytań.
-- `analiza_formatu.py` czyta `<dir>/<model>/<zadanie>.jsonl` i zapisuje `<dir>/raport_formatu.json`: n, SE, bazy,
-  rozkład odpowiedzi i porównanie modeli (z `.venv-eval/bin/python` zamiast `python`, jeśli venv nie jest aktywny).
-- Slayera ładuje tylko `common/slayer_model.py` (jego `config.json` nie ma `model_type`); inne modele ładuje
+- `licz` zapisuje jeden plik `<zadanie>.jsonl` na zadanie. Przerwane liczenie wznawia się od brakujących pytań.
+- `analiza_formatu.py` czyta `<dir>/<model>/<zadanie>.jsonl` i zapisuje `<dir>/raport_formatu.json`. Raport podaje
+  n, SE, bazy, rozkład odpowiedzi i porównanie modeli. Jeśli venv nie jest aktywny, uruchom skrypt przez
+  `.venv-eval/bin/python` zamiast `python`.
+- Slayera ładuje tylko `common/slayer_model.py`, bo jego `config.json` nie ma `model_type`. Inne modele ładuje
   transformers.
 
 ## Testy kodu
 
-Bez sieci i bez wag, każdy kończy się kodem 0:
+Testy działają bez sieci i bez wag. Każdy kończy się kodem 0:
 
 ```bash
 .venv-eval/bin/python tests/test_slayer_eval.py
@@ -94,48 +105,48 @@ Bez sieci i bez wag, każdy kończy się kodem 0:
 .venv-eval/bin/python tests/test_liczby_raportow.py
 ```
 
-Przed PR nie uruchamiasz wszystkich: lista komend jest w README repo, sekcja
-[„Przed PR”](../README.md#przed-pr) (testy zmienionego benchmarku, `tests/test_liczby_raportow.py` i bramka liczb).
+Przed PR nie uruchamiasz wszystkich testów. Listę komend ma README repo, sekcja [„Przed PR”](../README.md#przed-pr).
+To testy zmienionego benchmarku, `tests/test_liczby_raportow.py` i bramka liczb.
 
 ## Bramka liczb
 
-Przed każdą zmianą raportu (README, `benchmarks/`, `analyses/`, `slayer-1b/lab/`, `slayer-1b/wygaszanie/`,
+Uruchom ją przed każdą zmianą raportu (README, `benchmarks/`, `analyses/`, `slayer-1b/lab/`, `slayer-1b/wygaszanie/`,
 `slayer-1b/testy_danych_slayer/`, strona HTML):
 
 ```bash
 .venv-eval/bin/python tools/liczby.py && .venv-eval/bin/python tools/sprawdz_raporty.py [strona.html]
 ```
 
-Kod ≠ 0 = liczba spoza `results/LICZBY.json` albo ocena różnicy bez SE i werdyktu. Liczby benchmarku bramka bierze z
-`benchmarks/<name>/results/*.json` i sprawdza je w plikach tego benchmarku. Bramka liczb to co innego niż warunek
-odtworzenia z etapu B metodologii.
+Kod różny od 0 znaczy, że raport ma liczbę spoza `results/LICZBY.json` albo ocenę różnicy bez SE i werdyktu. Liczby
+benchmarku bramka bierze z `benchmarks/<name>/results/*.json` i sprawdza je w plikach tego benchmarku. Bramka liczb
+to co innego niż warunek odtworzenia z etapu B metodologii.
 
 ## SE i werdykt
 
 - **SE** (błąd standardowy): dla trafności p na n pytaniach SE = √(p(1−p)/n). Przedział 95% (CI95) to wynik plus minus
   około 2 SE. Space liczy CI95 bootstrapem (10 000 powtórzeń, seed 20261028).
-- **Porównanie dwóch wyników:** różnica, SE różnicy (parowane, gdy oba modele odpowiadały na te same pytania; inaczej
-  √(SE₁² + SE₂²), co zawyża szum), z = różnica / SE.
+- **Porównanie dwóch wyników:** liczysz różnicę, SE różnicy i z = różnica / SE. Gdy oba modele odpowiadały na te same
+  pytania, SE różnicy jest parowane. Inaczej SE różnicy to √(SE₁² + SE₂²), co zawyża szum.
 - **Werdykt** (jak w `tools/liczby.py`): |z| ≥ 3 „pewne”, 2–3 „prawdopodobne”, poniżej 2 „szum”. „Szum” znaczy, że
-  pomiar nie rozstrzyga, a nie że różnicy nie ma.
+  pomiar nie rozstrzyga. Nie znaczy, że różnicy nie ma.
 
 ## Bazy: losowa i większościowa
 
 - **Baza losowa:** wynik zgadywania (1/k przy k opcjach, połowa przy parach zdań).
-- **Baza większościowa:** wynik stałej odpowiedzi „najczęstsza klasa”, np. zawsze „tak” w BoolQ; tylko dla testów o
-  stałym zbiorze klas.
+- **Baza większościowa:** wynik stałej odpowiedzi „najczęstsza klasa”, np. zawsze „tak” w BoolQ. Liczysz ją tylko dla
+  testów o stałym zbiorze klas.
 - **Udział najczęstszej predykcji:** jaki odsetek odpowiedzi modelu to ta sama opcja. Małe modele w testach z literami
-  często wybierają jedną literę, więc wynik bez tych liczb myli.
+  często wybierają w kółko jedną literę. Wynik podany bez tych liczb wprowadza w błąd.
 
 ## Slayer 1B: wyniki testów (30.10.2026)
 
-- Litery A/B/C/D a losowość (dlaczego Slayer 1.06 wypada losowo w testach z literami i co widać po treści odpowiedzi): [`analyses/answer-format/`](analyses/answer-format/README.md).
+- Litery A/B/C/D a losowość. Dlaczego Slayer 1.06 wypada losowo w testach z literami i co widać po treści odpowiedzi: [`analyses/answer-format/`](analyses/answer-format/README.md).
 - BLiMP, pełny zbiór, Slayer 1.06 i Pythia-1B: [`benchmarks/blimp/`](benchmarks/blimp/README.md).
-- WikiText-2: byte_ppl z tego repo zgodny ze Space po poprawce mianownika: [`benchmarks/wikitext-2/`](benchmarks/wikitext-2/README.md).
+- WikiText-2. Po poprawce mianownika byte_ppl z tego repo jest zgodny ze Space: [`benchmarks/wikitext-2/`](benchmarks/wikitext-2/README.md).
 - Wygaszanie LR obniża loss o 0,047 nat bez zmiany trafności: [`slayer-1b/wygaszanie/README.md`](slayer-1b/wygaszanie/README.md).
 
 ### Co dalej
 
-- Zadania dla chętnych (A1–A7 bez GPU, B1–B4 z GPU): [`slayer-1b/lab/DLA_ARKA_I_CHETNYCH.md`](slayer-1b/lab/DLA_ARKA_I_CHETNYCH.md).
-- Ślepa paczka do A1 (`paczka_testerzy.zip`, poza repo): sha256 `da0edbd792d2c8074bda39d7232c628fcfbf60933278728afd6db9220c225303`; skąd go wziąć albo jak
-  wygenerować dane samemu: [`slayer-1b/paczka_testerzy/INSTRUKCJA.md`](slayer-1b/paczka_testerzy/INSTRUKCJA.md).
+- Zadania dla chętnych: [`slayer-1b/lab/DLA_ARKA_I_CHETNYCH.md`](slayer-1b/lab/DLA_ARKA_I_CHETNYCH.md).
+- Ślepa paczka do A1 to `paczka_testerzy.zip`, trzymana poza repo. Jej sha256 to `da0edbd792d2c8074bda39d7232c628fcfbf60933278728afd6db9220c225303`.
+  Skąd ją wziąć albo jak samemu wygenerować dane, opisuje [`slayer-1b/paczka_testerzy/INSTRUKCJA.md`](slayer-1b/paczka_testerzy/INSTRUKCJA.md).

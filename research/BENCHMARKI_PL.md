@@ -1,14 +1,14 @@
 # Które benchmarki przetłumaczyć, a które napisać od zera
 
-Każdy benchmark powstał w swoim kraju i niesie jego kontekst: amerykańskie prawo, historię, wyszukiwania Google z USA,
-angielską gramatykę. Model dla Polski ma znać polski teren, więc część testów da się przenieść tłumaczeniem, a część
-trzeba napisać od zera. Test kulturowy albo językowy pisze od zera osoba z Polski: nie tłumaczy i nie parafrazuje
-oryginalnych pytań, przejmuje tylko metodę (format, metrykę, agregację). Zasada i procedura:
-[METODOLOGIA.md](METODOLOGIA.md), sekcja „D1. Przetłumaczyć czy napisać od zera?”.
+Każdy benchmark powstał w jakimś kraju i niesie jego kontekst. Bywa to amerykańskie prawo i historia, wyszukiwania
+Google z USA albo angielska gramatyka. Model dla Polski ma znać polski teren. Część testów da się więc przenieść
+tłumaczeniem, a część trzeba napisać od zera. Test kulturowy albo językowy pisze od zera osoba z Polski. Nie tłumaczy
+i nie parafrazuje oryginalnych pytań. Przejmuje tylko metodę, czyli format, metrykę i agregację. Zasadę i procedurę
+opisuje [METODOLOGIA.md](METODOLOGIA.md), sekcja „D1. Przetłumaczyć czy napisać od zera?”.
 
-Tabela niżej to **wstępny podział 38 angielskich testów ze Space** (T01–T50, `tasks_50.json` w Space
-[SlayerLab/Slayer1B-Benchmarks](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks)). To ocena z opisu zbiorów,
-nie pomiar: każdy wiersz potwierdzasz próbką 50 przykładów z sekcji D1, zanim zaczniesz pracę.
+Tabele niżej to **wstępny podział 38 angielskich testów ze Space** (T01–T50, `tasks_50.json` w Space
+[SlayerLab/Slayer1B-Benchmarks](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks)). Podział oparto na
+opisach zbiorów, bez pomiaru. Zanim zaczniesz pracę, potwierdź swój wiersz próbką 50 przykładów z sekcji D1.
 
 ## Przetłumaczyć 1:1 (treść niezależna od kraju)
 
@@ -39,7 +39,7 @@ nie pomiar: każdy wiersz potwierdzasz próbką 50 przykładów z sekcji D1, zan
 ## Napisać od zera: wiedza lokalna
 
 Osoba z Polski pisze nowe pytania o polski teren w formacie i z metryką oryginału. Ostatnia kolumna wymienia istniejące
-polskie benchmarki o podobnej metodzie; zanim zaczniesz pisać, sprawdź, czy któryś już wystarcza.
+polskie benchmarki o podobnej metodzie. Zanim zaczniesz pisać, sprawdź, czy któryś już wystarcza.
 
 | T | benchmark | dlaczego nie tłumaczyć | istniejący polski benchmark (w Space albo poza nim) |
 |---|---|---|---|
@@ -70,7 +70,7 @@ Osoba z Polski pisze nowe przykłady na zjawiskach polszczyzny w formacie i z me
 
 ## Polskie benchmarki od zera: kierunek długoterminowy
 
-Polski test nie naśladuje amerykańskiego tematu. Pisanie od zera to szansa na testy, których nikt jeszcze nie ma:
+Polski test nie naśladuje amerykańskiego tematu. Pisząc od zera, możemy zrobić testy, których nikt jeszcze nie ma:
 
 - **wiedza o Polsce:** historia, geografia, prawo, instytucje, kultura, język urzędowy, także lokalnie (np. Warszawa i
   region);
@@ -79,34 +79,40 @@ Polski test nie naśladuje amerykańskiego tematu. Pisanie od zera to szansa na 
 - **zjawiska polszczyzny:** przypadki, aspekt, rodzaj, szyk swobodny, frazeologia.
 
 Każdy taki zbiór ma kartę zbioru `DATASET.md` zamiast etapów A i B ([METODOLOGIA.md](METODOLOGIA.md), sekcja
-„Benchmark bez oryginału: karta zbioru (DATASET.md)”). Kamień:
+„Benchmark bez oryginału: karta zbioru (DATASET.md)”). Prace nad takimi zbiorami śledzi kamień
 [„Polskie benchmarki od zera”](https://github.com/slayerlabs/benchmarks-fabryka-ai/milestone/10).
 
 ### Wzór: PLCC
 
-Polish Linguistic and Cultural Competency Benchmark (Dadas i in., 2025, https://arxiv.org/abs/2503.00995, wyniki:
-https://huggingface.co/spaces/sdadas/plcc) to gotowy przykład benchmarku napisanego od zera z polskiego kontekstu:
+Polish Linguistic and Cultural Competency Benchmark (PLCC) to gotowy przykład benchmarku napisanego od zera na
+polskim materiale. Autorzy to Dadas i in., 2025. Praca jest pod adresem https://arxiv.org/abs/2503.00995, a wyniki
+pod adresem https://huggingface.co/spaces/sdadas/plcc. Najważniejsze cechy PLCC:
 
 - 600 pytań napisanych ręcznie, 6 kategorii po 100: historia, geografia, kultura i tradycja, sztuka i rozrywka,
-  gramatyka, słownictwo;
-- pytania otwarte, model odpowiada tekstem; ocena regułami bez modelu-sędziego: lista dopuszczalnych odpowiedzi ze
-  wszystkimi odmianami („bikiniarze”, „bikiniarzy”, „bikiniarstwo”), lista zakazanych, przy sortowaniu sprawdzana
-  kolejność;
-- jawne jest 60 pytań, reszta jest ukryta, żeby nie trafiła do danych treningowych;
-- wynik to trafność per kategoria; przy 100 pytaniach SE ≈ 5 pkt, więc różnice między kategoriami jednego modelu
-  poniżej ~10 pkt to szum.
+  gramatyka, słownictwo.
+- Pytania są otwarte, a model odpowiada tekstem. Ocenę liczą reguły, bez modelu-sędziego. Jest lista dopuszczalnych
+  odpowiedzi ze wszystkimi odmianami („bikiniarze”, „bikiniarzy”, „bikiniarstwo”) i lista odpowiedzi zakazanych.
+  Przy sortowaniu reguły sprawdzają kolejność.
+- Jawnych jest 60 pytań. Reszta jest ukryta, żeby nie trafiła do danych treningowych.
+- Wynik to trafność per kategoria. Przy 100 pytaniach SE ≈ 5 pkt. Różnice między kategoriami jednego modelu
+  poniżej ~10 pkt to więc szum.
 
 Co z tego wynika przy pomiarze:
 
-- PLCC ma autorów i opublikowane wyniki, więc etapy A i B z METODOLOGIA.md dotyczą go tak samo jak każdego oryginału:
-  odtwórz wynik modelu z tabeli PLCC, zanim policzysz inny model. Najmniejszy model w tabeli to
+- PLCC ma autorów i opublikowane wyniki. Etapy A i B z METODOLOGIA.md dotyczą go więc tak samo jak każdego
+  oryginału. Zanim policzysz inny model, odtwórz wynik modelu z tabeli PLCC. Najmniejszy model w tabeli to
   Bielik-1.5B-v3.0-Instruct.
 - Pytania są pisane dla modeli instrukcyjnych („Podaj pojedynczą liczbę…”). Model bazowy potrzebuje przykładów w
-  prompcie; to odstępstwo od oryginału zapisujesz w karcie.
-- Samodzielnie da się policzyć tylko 60 jawnych pytań (SE ≈ 6 pkt dla całości). Pełne 600 pytań mają autorzy; jak
+  prompcie. To odstępstwo od oryginału zapisujesz w karcie.
+- Samodzielnie da się policzyć tylko 60 jawnych pytań (SE ≈ 6 pkt dla całości). Pełne 600 pytań mają autorzy. Jak
   policzyć na nich model, trzeba ustalić z nimi.
 
-Przy pisaniu własnego zbioru bierz z PLCC metodę, nie pytania: kategorie polskiego terenu, odpowiedzi jako listy form
-fleksyjnych (polska odmiana psuje proste porównanie tekstu), ocenę deterministyczną bez modelu-sędziego i ukrytą część
-zbioru. Zanim zaczniesz, sprawdź, czy polski benchmark o tej metodzie już istnieje (kolumna wyżej, Open PL LLM
-Leaderboard: https://huggingface.co/spaces/speakleash/open_pl_llm_leaderboard).
+Przy pisaniu własnego zbioru bierz z PLCC metodę, nie pytania. Ta metoda to:
+
+- kategorie polskiego terenu;
+- odpowiedzi jako listy form fleksyjnych, bo polska odmiana psuje proste porównanie tekstu;
+- ocena deterministyczna bez modelu-sędziego;
+- ukryta część zbioru.
+
+Zanim zaczniesz, sprawdź, czy polski benchmark o tej metodzie już istnieje. Zajrzyj do ostatniej kolumny tabel wyżej
+i do Open PL LLM Leaderboard: https://huggingface.co/spaces/speakleash/open_pl_llm_leaderboard.
