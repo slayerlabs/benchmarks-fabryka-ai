@@ -11,7 +11,7 @@ import sys
 import types
 from pathlib import Path
 
-KAT = Path(__file__).resolve().parent.parent / "wspolne"
+KAT = Path(__file__).resolve().parent.parent / "common"
 STRONA = " = Tytuł = \n Rok 1 @-@ 2 , potem @,@ koniec . \n"
 NLL = 1234.5
 

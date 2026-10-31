@@ -1,4 +1,4 @@
-"""Liczby raportów (narzedzia/liczby.py) i ich strażnik (narzedzia/sprawdz_raporty.py).
+"""Liczby raportów (tools/liczby.py) i ich strażnik (tools/sprawdz_raporty.py).
 Uruchom: python tests/test_liczby_raportow.py (albo pytest). Bez sieci; czyta surowe JSON-y z repo."""
 import inspect
 import math
@@ -7,7 +7,7 @@ import tempfile
 from pathlib import Path
 
 KORZEN = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(KORZEN / "narzedzia"))
+sys.path.insert(0, str(KORZEN / "tools"))
 import liczby as L  # noqa: E402
 import sprawdz_raporty as S  # noqa: E402
 
@@ -112,7 +112,7 @@ def test_multiblimp_nie_jest_blimp():
 
 def test_blimp_md_liczby_sprawdzane():
     liczby, zb = dane()
-    plik = "benchmarki/blimp/wyniki/BLIMP.md"
+    plik = "benchmarks/blimp/results/BLIMP.md"
     linie = (KORZEN / plik).read_text(encoding="utf-8").splitlines()
     assert S.sprawdz_tekst(plik, linie, liczby, zb) == []
     i = next(i for i, l in enumerate(linie) if l.startswith("**Slayer 1.06:"))
@@ -125,7 +125,7 @@ def test_blimp_md_liczby_sprawdzane():
 def _meta_blimp():
     import copy
     liczby, _ = dane()
-    (meta,) = [m for m in liczby["raporty"] if m["plik"] == "benchmarki/blimp/wyniki/BLIMP.md"]
+    (meta,) = [m for m in liczby["raporty"] if m["plik"] == "benchmarks/blimp/results/BLIMP.md"]
     linie = (KORZEN / meta["plik"]).read_text(encoding="utf-8").splitlines()
     return liczby, copy.deepcopy(meta), linie
 
@@ -133,7 +133,7 @@ def _meta_blimp():
 def test_bramki_przechodza_na_raporcie_blimp():
     liczby, meta, linie = _meta_blimp()
     assert S.bramki_raportu(meta, linie, liczby) == []
-    assert [m["plik"] for m in liczby["raporty"]] == ["benchmarki/blimp/wyniki/BLIMP.md"]  # older reports have no metadata
+    assert [m["plik"] for m in liczby["raporty"]] == ["benchmarks/blimp/results/BLIMP.md"]  # older reports have no metadata
 
 
 def test_bramka_d_werdykt_bez_se_klastrowego():
@@ -184,8 +184,8 @@ def test_bramka_e_tylko_kolumna_klastrowa():
 
 def _kopia_do_generatora(tmp_path):
     import shutil
-    for rel in ("benchmarki/blimp/blimp_raport.py", "benchmarki/blimp/wyniki/blimp.json", "benchmarki/blimp/wyniki/BLIMP.md",
-                "benchmarki/blimp/wyniki/blimp_phenomena.svg", "benchmarki/blimp/wyniki/blimp_paradigms.svg"):
+    for rel in ("benchmarks/blimp/blimp_raport.py", "benchmarks/blimp/results/blimp.json", "benchmarks/blimp/results/BLIMP.md",
+                "benchmarks/blimp/results/blimp_phenomena.svg", "benchmarks/blimp/results/blimp_paradigms.svg"):
         (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(KORZEN / rel, tmp_path / rel)
     return tmp_path
@@ -196,7 +196,7 @@ def test_bramka_g_raport_bajt_w_bajt_z_generatora(tmp_path):
     assert S.bramka_generatora(meta, liczby) == []  # the committed report is the generator output
     k = _kopia_do_generatora(tmp_path)
     assert S.bramka_generatora(meta, liczby, k) == []
-    md = k / "benchmarki/blimp/wyniki/BLIMP.md"
+    md = k / "benchmarks/blimp/results/BLIMP.md"
     tekst = md.read_text(encoding="utf-8")
     # a verdict word, a number nobody else checks, a removed sentence, one trailing space
     for stare, nowe in (("t = -3.30, df = 66", "t = -3.30, df = 65"), (": certain;", ": probable;"),
@@ -205,11 +205,11 @@ def test_bramka_g_raport_bajt_w_bajt_z_generatora(tmp_path):
         assert stare in tekst, stare
         md.write_text(tekst.replace(stare, nowe, 1), encoding="utf-8")
         b = S.bramka_generatora(meta, liczby, k)
-        assert len(b) == 1 and "(g)" in b[0][2] and b[0][0] == "benchmarki/blimp/wyniki/BLIMP.md" and b[0][1] > 0, (stare, b)
+        assert len(b) == 1 and "(g)" in b[0][2] and b[0][0] == "benchmarks/blimp/results/BLIMP.md" and b[0][1] > 0, (stare, b)
     md.write_text(tekst, encoding="utf-8")
-    svg = k / "benchmarki/blimp/wyniki/blimp_paradigms.svg"
+    svg = k / "benchmarks/blimp/results/blimp_paradigms.svg"
     svg.write_text(svg.read_text(encoding="utf-8").replace("#2a78d6", "#2a78d7", 1), encoding="utf-8")
-    assert [b[0] for b in S.bramka_generatora(meta, liczby, k)] == ["benchmarki/blimp/wyniki/blimp_paradigms.svg"]
+    assert [b[0] for b in S.bramka_generatora(meta, liczby, k)] == ["benchmarks/blimp/results/blimp_paradigms.svg"]
     svg.unlink()
     assert any("brak pliku" in b[2] for b in S.bramka_generatora(meta, liczby, k))
 
@@ -246,8 +246,8 @@ def test_zepsuta_liczba_w_kopii_dokumentu_zlapana():
 
 def test_liczby_benchmarku_sprawdzane_w_jego_plikach_i_nie_wyciekaja():
     # Bielik PL EWoK = 66,0%; tabela EWoK pisze wartości w % bez znaku „%”
-    assert not bledy("| Bielik-1.5B-v3 | 66,0 [63,4; 68,5] |", "benchmarki/ewok-pl/WYNIKI.md")
-    assert [p for _, _, p in bledy("| Bielik-1.5B-v3 | 66,3 [63,4; 68,5] |", "benchmarki/ewok-pl/WYNIKI.md") if "66,3" in p]
+    assert not bledy("| Bielik-1.5B-v3 | 66,0 [63,4; 68,5] |", "benchmarks/ewok-pl/WYNIKI.md")
+    assert [p for _, _, p in bledy("| Bielik-1.5B-v3 | 66,3 [63,4; 68,5] |", "benchmarks/ewok-pl/WYNIKI.md") if "66,3" in p]
     assert not bledy("Bielik ma na EWoK 66,0%.")
     assert [p for _, _, p in bledy("Bielik ma 63,4%.") if "63,4" in p]
 

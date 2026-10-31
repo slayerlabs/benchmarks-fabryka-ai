@@ -1,4 +1,4 @@
-"""BLiMP (benchmarki/blimp/blimp.py + the `blimp` task of hipoteza_formatu.py), no network, no weights.
+"""BLiMP (benchmarks/blimp/blimp.py + the `blimp` task of hipoteza_formatu.py), no network, no weights.
 Run: python tests/test_blimp.py (or pytest)."""
 import importlib.util
 import math
@@ -7,12 +7,12 @@ import sys
 from pathlib import Path
 
 KORZEN = Path(__file__).resolve().parent.parent
-KAT = KORZEN / "benchmarki" / "blimp"
+KAT = KORZEN / "benchmarks" / "blimp"
 sys.path.insert(0, str(KAT))
-sys.path.insert(0, str(KORZEN / "wspolne"))
+sys.path.insert(0, str(KORZEN / "common"))
 import blimp as B  # noqa: E402
 
-PROBKA = KORZEN / "wspolne" / "testy" / "dane" / "blimp.jsonl"
+PROBKA = KORZEN / "common" / "tests" / "data" / "blimp.jsonl"
 
 
 def docs():
@@ -247,7 +247,7 @@ def test_porownanie_odwrocona_kolejnosc_wejscia():
 
 
 def test_liczby_porownania_blimp_parowane():
-    sys.path.insert(0, str(KORZEN / "narzedzia"))
+    sys.path.insert(0, str(KORZEN / "tools"))
     import liczby as Lz
     d = docs()
     ids = [x["id"] for x in d]
@@ -398,7 +398,7 @@ def test_kontrola_forward_argumenty_i_format():
     assert a.model == "m" and a.watki == [1, 6] and a.sumy == ["float64"] and a.wejscia == ["pelne"]
     d = K.argumenty(["--model", "m"])
     assert d.sumy == ["float32", "float64"] and d.wejscia == ["bez_ostatniego", "pelne"]
-    assert d.wyjscie.endswith("benchmarki/blimp/wyniki/kontrola_forward.json") and d.wyniki.endswith("1.06/blimp.jsonl.gz")
+    assert d.wyjscie.endswith("benchmarks/blimp/results/kontrola_forward.json") and d.wyniki.endswith("1.06/blimp.jsonl.gz")
     for zle in (["--sumy", "float16"], ["--wejscia", "x"], ["--watki", "0"], []):  # [] : --model is required
         with pytest.raises(SystemExit):
             K.argumenty((["--model", "m"] if zle else []) + zle)
@@ -407,7 +407,7 @@ def test_kontrola_forward_argumenty_i_format():
     assert w["max_abs_roznica_ll"] == [0.2, 0.3] and w["srednia_abs_roznica_ll"] == [0.2, 0.2]
     assert w["przestawione_pary"] == 1 and w["zdania"] == 2 and "2 runs" in w["opis"]
     # the committed file has the same shape (written by this script)
-    zap = json.loads((KAT / "wyniki/kontrola_forward.json").read_text())
+    zap = json.loads((KAT / "results/kontrola_forward.json").read_text())
     assert set(zap) == set(w) and set(zap["przebiegi"][0]) == set(przebiegi[0])
     assert zap["max_abs_roznica_ll"] == [min(p["max_abs_roznica_ll"] for p in zap["przebiegi"]),
                                          max(p["max_abs_roznica_ll"] for p in zap["przebiegi"])]
