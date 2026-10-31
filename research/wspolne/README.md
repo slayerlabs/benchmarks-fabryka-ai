@@ -1,4 +1,4 @@
-# slayer_eval: niezależna ewaluacja checkpointów Slayera 1B
+# wspolne: niezależna ewaluacja checkpointów Slayera 1B
 
 Jesteśmy zewnętrznym ewaluatorem dla SlayerLab: autor modelu (Arek) nie benchmarkuje go sam.
 Pipeline liczy to samo co Space SlayerLab/Slayer1B-Benchmarks, a obok surowego acc także
@@ -101,24 +101,24 @@ transformers 4.57.6). Ta ścieżka działa dla modeli z transformers (Pythia, Qw
 ```bash
 huggingface-cli download SlayerLab/Slayer1B-1.06 --revision ef81be58742544ad32e1afab38db011fec209609 \
   --local-dir models/slayer-1.06
-.venv-eval/bin/python slayer_eval/hipoteza_formatu.py licz --model models/slayer-1.06 \
+.venv-eval/bin/python wspolne/hipoteza_formatu.py licz --model models/slayer-1.06 \
   --zadania arc_c_cloze,arc_c_mc --wyjscie wyniki/1.06 --device cpu
-.venv-eval/bin/python slayer_eval/hipoteza_formatu.py wikitext --model models/slayer-1.06 --wyjscie wyniki/1.06
-.venv-eval/bin/python slayer_eval/hipoteza_formatu.py analiza --wyniki wyniki
+.venv-eval/bin/python wspolne/hipoteza_formatu.py wikitext --model models/slayer-1.06 --wyjscie wyniki/1.06
+.venv-eval/bin/python wspolne/hipoteza_formatu.py analiza --wyniki wyniki
 ```
 
 Pełna lista zadań i komenda dla Pythii: `paczka_testerzy/INSTRUKCJA.md`, sekcja „Jak wygenerować
 surowe dane od zera”. Ścieżka lm-eval (model z transformers):
 
 ```bash
-python3 -m venv .venv-eval && .venv-eval/bin/pip install -r slayer_eval/requirements.lock.txt
+python3 -m venv .venv-eval && .venv-eval/bin/pip install -r wspolne/requirements.lock.txt
 # raz, z siecią do HF: zbiory do cache (lista OK/BŁĄD na końcu; --lista wypisuje bez pobierania)
-.venv-eval/bin/python slayer_eval/pobierz_zbiory.py
+.venv-eval/bin/python wspolne/pobierz_zbiory.py
 # dalej bez sieci (OFFLINE=1 ustawia HF_DATASETS_OFFLINE=1 i HF_HUB_OFFLINE=1);
 # bez MODEL_PATH i OFFLINE model pobiera się z HF po nazwie i rewizji:
-ETYKIETA=pythia-1b slayer_eval/ewaluuj_slayer.sh EleutherAI/pythia-1b <rewizja>
+ETYKIETA=pythia-1b wspolne/ewaluuj_slayer.sh EleutherAI/pythia-1b <rewizja>
 # diff ARC-C między wersjami:
-.venv-eval/bin/python slayer_eval/porownaj_checkpointy.py --zadanie T02_space --wyjscie wyniki_slayer/arc_diff \
+.venv-eval/bin/python wspolne/porownaj_checkpointy.py --zadanie T02_space --wyjscie wyniki_slayer/arc_diff \
   wyniki_slayer/<1.05> wyniki_slayer/<1.06>
 ```
 

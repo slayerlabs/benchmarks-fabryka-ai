@@ -2,7 +2,7 @@
 
 Rekord EWoK to dwa konteksty (C1, C2) i dwa zdania docelowe (T1, T2) w układzie par minimalnych:
 T1 pasuje do C1, T2 do C2. Liczymy log P(T | C) = suma logprob tokenów T po „C " (ten sam scorer co
-slayer_eval/hipoteza_formatu.py: para jak lm-eval, jeden BOS jak METHOD.md Space).
+wspolne/hipoteza_formatu.py: para jak lm-eval, jeden BOS jak METHOD.md Space).
 
 Reguła główna (Ivanova i in. 2024, LOGPROBS, arXiv:2405.09605): target stały, porównujemy konteksty.
   s1 = [log P(T1|C1) > log P(T1|C2)],  s2 = [log P(T2|C2) > log P(T2|C1)],  wynik = (s1 + s2) / 2.
@@ -12,10 +12,10 @@ Losowo 0,5. Ten sam napis T po obu stronach porównania, więc prior litery/dłu
 odjęciu log P(T) bez kontekstu) i `staly_target` (udział rekordów, w których przy obu kontekstach
 model woli to samo zdanie: ślad prioru, odpowiednik stałej litery).
 
-  python ewok_pl/ewok.py licz --model <katalog> --dane pl --zip ewok-pl-complete-0001-0625.zip --wyjscie wyniki_ewok/<etykieta>
-  python ewok_pl/ewok.py licz --model <katalog> --dane en625 --wyjscie wyniki_ewok/<etykieta>
-  python ewok_pl/ewok.py licz --model <katalog> --dane en --wyjscie wyniki_ewok/<etykieta>
-  python ewok_pl/ewok.py analiza --wyniki wyniki_ewok --zip ewok-pl-complete-0001-0625.zip
+  python benchmarki/ewok-pl/ewok.py licz --model <katalog> --dane pl --zip ewok-pl-complete-0001-0625.zip --wyjscie benchmarki/ewok-pl/wyniki/<etykieta>
+  python benchmarki/ewok-pl/ewok.py licz --model <katalog> --dane en625 --wyjscie benchmarki/ewok-pl/wyniki/<etykieta>
+  python benchmarki/ewok-pl/ewok.py licz --model <katalog> --dane en --wyjscie benchmarki/ewok-pl/wyniki/<etykieta>
+  python benchmarki/ewok-pl/ewok.py analiza --wyniki benchmarki/ewok-pl/wyniki --zip ewok-pl-complete-0001-0625.zip
 
 Dane PL czytamy prosto z zipa z hasłem (TERMS_OF_USE EWoK: bez odszyfrowanej treści w repo); EN
 z ewok-core/ewok-core-1.0 (gated, przypięta rewizja). Wyjście `licz`: <wyjscie>/<dane>.jsonl, wiersz
@@ -34,7 +34,7 @@ import numpy as np
 import torch
 
 KATALOG = Path(__file__).resolve().parent
-sys.path.insert(0, str(KATALOG.parent / "slayer_eval"))
+sys.path.insert(0, str(KATALOG.parents[1] / "wspolne"))
 
 from hipoteza_formatu import ModelSlayer, licz_logliki, para  # noqa: E402
 from metryki import POWTORZENIA, SEED, srednia_z_niepewnoscia  # noqa: E402

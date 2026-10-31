@@ -1,7 +1,7 @@
 """Niezależna ewaluacja checkpointu Slayera 1B: lm-eval + metryki dodatkowe, wynik w formacie Space.
 
 Przykłady:
-  python slayer_eval/ewaluuj.py --model hf --repo SlayerLab/Slayer1B-1.06 --revision <sha> --wyjscie wyniki/1.06
+  python wspolne/ewaluuj.py --model hf --repo SlayerLab/Slayer1B-1.06 --revision <sha> --wyjscie wyniki/1.06
 
 Wyjście w --wyjscie: results.json (schemat Space, bez pól spoza schematu),
 results_rozszerzone.json (te same obserwacje + `dodatkowe`: acc, acc_norm, acc_pmi,

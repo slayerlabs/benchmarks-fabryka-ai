@@ -1,7 +1,7 @@
 """Jedno źródło liczb dla raportów: wyniki/LICZBY.json + wyniki/LICZBY.md z surowych wyników.
 
-Czyta wyniki/raport_formatu.json, wygaszanie/wyniki/porownanie.json, wygaszanie/wyniki/heldout_*.json
-i raporty benchmarków z BENCHMARKI (osobna pula wartości, bez porównań).
+Czyta wyniki/raport_formatu.json, slayer-1b/wygaszanie/wyniki/{porownanie,heldout_*}.json
+i benchmarki/*/wyniki/*.json (osobna pula wartości per benchmark, bez porównań).
 Każde porównanie dostaje różnicę, SE różnicy, z = różnica / SE i werdykt (|z| >= 3 „pewne”,
 2-3 „prawdopodobne”, < 2 „szum”). SE parowane (to samo pytanie / to samo okno, dwa modele) jest
 tylko tam, gdzie surowe wyniki per pytanie istnieją: wygaszanie (bootstrap z porownaj.py na plikach
@@ -34,17 +34,18 @@ ALIASY = {
 }
 METRYKI = ("acc", "acc_norm", "bpb", "pmi")
 
-# Benchmarki z własnym raportem wyników. Ich liczby trafiają do osobnej puli, sprawdzanej tylko w
-# plikach z `pliki` i w liniach, które nazywają benchmark. `skala` 100 = raporty piszą wartości w %.
-# GOTCHA: grupy (wg_*) i metryki poboczne pominięte: z nimi 90% liczb 40,0-80,0 pasowało do czegoś
-# i bramka nie łapała pomyłek; raporty cytują je tylko jako liczby całkowite, których strażnik nie czyta.
-BENCHMARKI = {
-    "ewok": {"zrodlo": "wyniki_ewok/raport_ewok.json", "aliasy": ["EWoK"],
-             "pliki": ["ewok_pl/", "wyniki_ewok/"], "skala": 100,
-             "pomin": ("protokol", "do_przegladu", "n", "wg_Domain", "wg_ConceptA", "wg_ContextType",
-                       "wg_ContextDiff", "wg_TargetDiff", "wg_flaga",
-                       "kontekst_staly", "kontekst_staly_pmi", "staly_target", "margines")},
+# Każdy benchmarki/<nazwa>/wyniki/*.json (bez podkatalogów per model) to osobna pula wartości,
+# sprawdzana tylko w plikach benchmarki/<nazwa>/ i w liniach, które nazywają benchmark (aliasy).
+# USTAWIENIA nadpisują domyślne: aliasy [nazwa], skala 1, pomin (). `skala` 100 = raporty piszą w %.
+# GOTCHA: grupy (wg_*) i metryki poboczne EWoK pominięte: z nimi 90% liczb 40,0-80,0 pasowało do
+# czegoś i bramka nie łapała pomyłek; raporty cytują je tylko jako liczby całkowite (strażnik ich nie czyta).
+USTAWIENIA_BENCHMARKOW = {
+    "ewok-pl": {"aliasy": ["EWoK"], "skala": 100,
+                "pomin": ["protokol", "do_przegladu", "n", "wg_Domain", "wg_ConceptA", "wg_ContextType",
+                          "wg_ContextDiff", "wg_TargetDiff", "wg_flaga",
+                          "kontekst_staly", "kontekst_staly_pmi", "staly_target", "margines"]},
 }
+WYGASZANIE = "slayer-1b/wygaszanie/wyniki"
 
 
 def werdykt(z):
@@ -196,22 +197,29 @@ def porownania_wygaszania(por):
 
 
 def benchmarki(korzen=KORZEN):
-    """{nazwa: opis z BENCHMARKI + spłaszczone wartości jej raportu}."""
+    """{nazwa: {zrodla, aliasy, pliki, skala, wartosci}} z benchmarki/<nazwa>/wyniki/*.json."""
     out = {}
-    for nazwa, b in BENCHMARKI.items():
+    for katalog in sorted((korzen / "benchmarki").iterdir()):
+        raporty = sorted((katalog / "wyniki").glob("*.json")) if katalog.is_dir() else []
+        if not raporty:
+            continue
+        nazwa = katalog.name
+        u = USTAWIENIA_BENCHMARKOW.get(nazwa, {})
         wartosci = {}
-        splaszcz(json.loads((korzen / b["zrodlo"]).read_text()), nazwa, wartosci, b["pomin"])
-        out[nazwa] = {k: v for k, v in b.items() if k != "pomin"} | {"wartosci": wartosci}
+        for p in raporty:
+            splaszcz(json.loads(p.read_text()), f"{nazwa}/{p.stem}", wartosci, tuple(u.get("pomin", ())))
+        out[nazwa] = {"zrodla": [str(p.relative_to(korzen)) for p in raporty], "aliasy": u.get("aliasy", [nazwa]),
+                      "pliki": [f"benchmarki/{nazwa}/"], "skala": u.get("skala", 1), "wartosci": wartosci}
     return out
 
 
 def zbuduj(korzen=KORZEN):
     raport = json.loads((korzen / "wyniki/raport_formatu.json").read_text())
-    por = json.loads((korzen / "wygaszanie/wyniki/porownanie.json").read_text())
+    por = json.loads((korzen / WYGASZANIE / "porownanie.json").read_text())
     wartosci = {}
     splaszcz(raport, "raport_formatu", wartosci)
     splaszcz(por, "porownanie", wartosci)
-    heldouty = sorted((korzen / "wygaszanie/wyniki").glob("heldout_*.json"))
+    heldouty = sorted((korzen / WYGASZANIE).glob("heldout_*.json"))
     for p in heldouty:
         splaszcz(json.loads(p.read_text()), p.stem, wartosci)
     udzialy_liter(raport["zestawienie"], wartosci)
@@ -222,10 +230,11 @@ def zbuduj(korzen=KORZEN):
     wartosci["pochodne/3xZ1_103_106"] = 3 * h["Z1_103_106"]
     wartosci["pochodne/3xZ2_13800_13848"] = 3 * h["Z2_13800_13848"]
     porownania = porownania_formatu(raport) + porownania_wygaszania(por)
-    zrodla = ["wyniki/raport_formatu.json", "wygaszanie/wyniki/porownanie.json"] + \
+    zrodla = ["wyniki/raport_formatu.json", f"{WYGASZANIE}/porownanie.json"] + \
              [str(p.relative_to(korzen)) for p in heldouty]
-    return {"zrodla": zrodla + [b["zrodlo"] for b in BENCHMARKI.values()],
-            "benchmarki": benchmarki(korzen),
+    bench = benchmarki(korzen)
+    return {"zrodla": zrodla + [z for b in bench.values() for z in b["zrodla"]],
+            "benchmarki": bench,
             "werdykt": {"pewne": f"|z| >= {PROG_PEWNE}", "prawdopodobne": f"{PROG_PRAWDOPODOBNE} <= |z| < {PROG_PEWNE}",
                         "szum": f"|z| < {PROG_PRAWDOPODOBNE}",
                         "uwaga": "werdykt główny z SE parowanego, gdy jest; inaczej z niezależnego (ostrożnego)"},

@@ -1,6 +1,6 @@
 # Liczby raportów (wygenerowane, nie edytuj ręcznie)
 
-Źródło: `python narzedzia/liczby.py` z `wyniki/raport_formatu.json`, `wygaszanie/wyniki/porownanie.json`, `wygaszanie/wyniki/heldout_1.03.json`, `wygaszanie/wyniki/heldout_1.06.json`, `wygaszanie/wyniki/heldout_13800.json`, `wygaszanie/wyniki/heldout_A.json`, `wygaszanie/wyniki/heldout_B.json`, `wyniki_ewok/raport_ewok.json`.
+Źródło: `python narzedzia/liczby.py` z `wyniki/raport_formatu.json`, `slayer-1b/wygaszanie/wyniki/porownanie.json`, `slayer-1b/wygaszanie/wyniki/heldout_1.03.json`, `slayer-1b/wygaszanie/wyniki/heldout_1.06.json`, `slayer-1b/wygaszanie/wyniki/heldout_13800.json`, `slayer-1b/wygaszanie/wyniki/heldout_A.json`, `slayer-1b/wygaszanie/wyniki/heldout_B.json`, `benchmarki/ewok-pl/wyniki/raport_ewok.json`.
 Werdykt z |z|: ≥ 3 pewne, 2–3 prawdopodobne, < 2 szum. SE parowane tylko tam, gdzie są wyniki per pytanie;
 Slayer vs Pythia ma SE niezależne (hypot), czyli ostrożne.
 

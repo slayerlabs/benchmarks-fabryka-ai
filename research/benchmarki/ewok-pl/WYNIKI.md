@@ -5,7 +5,7 @@
 > wiedza o świecie przybywa, a polski zestaw tego jeszcze nie pokazuje. Bielik-1.5B-v3 ma po polsku
 > **66,0%**, a LFM3-1.7B-Base **57,4%**. EWoK-PL obejmuje na razie tylko jedną domenę (`agent-properties`).
 
-Metoda, rewizje modeli i polecenia do uruchomienia: [`README.md`](README.md). Wszystkie tabele z CI95: [`../wyniki_ewok/raport_ewok.md`](../wyniki_ewok/raport_ewok.md).
+Metoda, rewizje modeli i polecenia do uruchomienia: [`README.md`](README.md). Wszystkie tabele z CI95: [`wyniki/raport_ewok.md`](wyniki/raport_ewok.md).
 
 ---
 

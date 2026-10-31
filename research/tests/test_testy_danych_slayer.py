@@ -17,13 +17,13 @@ from pathlib import Path
 import numpy as np
 
 KAT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(KAT / "testy_danych_slayer"))
-sys.path.insert(0, str(KAT / "slayer_eval"))
+sys.path.insert(0, str(KAT / "slayer-1b" / "testy_danych_slayer"))
+sys.path.insert(0, str(KAT / "wspolne"))
 import dane_ramion as D  # noqa: E402
 import heldout_bpb as HB  # noqa: E402
 import porownaj_ramion as P  # noqa: E402
 
-TOKENIZER = KAT / "tokenizer" / "tokenizer.json"
+TOKENIZER = KAT / "slayer-1b" / "tokenizer" / "tokenizer.json"
 SL = ("dom kot pies rzeka góra miasto szkoła nauka prawo sąd ustawa artykuł rozdział wiedza fizyka chemia "
       "historia król wojna pokój zdrowie lekarz szpital droga samochód").split()
 EN = "the of energy cell water plant force mass number equation proof theorem river".split()
@@ -206,7 +206,7 @@ def test_main_na_fiksturze_ramiona_rowne_heldout_rozlaczny_wspolne_dokumenty():
         fikstura(baza / "zr", random.Random(9))
         (baza / "ewal.json").write_text(json.dumps({"test": [PYTANIE]}))
         wyj = baza / "wyj"
-        r = subprocess.run([sys.executable, str(KAT / "testy_danych_slayer" / "dane_ramion.py"),
+        r = subprocess.run([sys.executable, str(KAT / "slayer-1b" / "testy_danych_slayer" / "dane_ramion.py"),
                             "--tokenizer", str(TOKENIZER), "--wyjscie", str(wyj), "--lokalne", str(baza / "zr"),
                             "--tokeny_train", "6e4", "--skala_heldout", "0.003", "--dedup_packi", "6,7",
                             "--hq_pliki", "2", "--procesy", "2", "--ewal_teksty", str(baza / "ewal.json")],

@@ -25,15 +25,16 @@ SILA = {"szum": 0, "prawdopodobne": 1, "pewne": 2}
 
 # (plik, nagłówek sekcji albo None = cały plik, reguły, powód) — krótka lista, każdy wpis z powodem
 WYLACZENIA = [
-    ("wygaszanie/PROGI.md", None, "abc", "progi zapisane przed pomiarem, nie wyniki"),
-    ("testy_danych_slayer/PROGI.md", None, "abc", "progi zapisane przed pomiarem, nie wyniki"),
+    ("slayer-1b/wygaszanie/PROGI.md", None, "abc", "progi zapisane przed pomiarem, nie wyniki"),
+    ("slayer-1b/testy_danych_slayer/PROGI.md", None, "abc", "progi zapisane przed pomiarem, nie wyniki"),
     ("wyniki/LICZBY.md", None, "abc", "plik wygenerowany przez liczby.py"),
-    ("wygaszanie/wyniki/porownanie.md", None, "abc", "plik wygenerowany przez porownaj.py z porownanie.json"),
-    ("testy_danych_slayer/README.md", None, "a", "plan przebiegu: koszty, czasy, rozmiary; wyników jeszcze nie ma"),
-    ("wygaszanie/README.md", "## Rozbieg i wybór K", "a", "log instancji i trenera (cena, tok/s, strata kroku), nie ma go w surowych JSON-ach"),
-    ("slayer_eval/README.md", None, "a", "liczby ze Space Arka (bench50, scores-history), nie z naszych surowych wyników"),
+    ("slayer-1b/wygaszanie/wyniki/porownanie.md", None, "abc", "plik wygenerowany przez porownaj.py z porownanie.json"),
+    ("slayer-1b/testy_danych_slayer/README.md", None, "a", "plan przebiegu: koszty, czasy, rozmiary; wyników jeszcze nie ma"),
+    ("slayer-1b/wygaszanie/README.md", "## Rozbieg i wybór K", "a", "log instancji i trenera (cena, tok/s, strata kroku), nie ma go w surowych JSON-ach"),
+    ("wspolne/README.md", None, "a", "liczby ze Space Arka (bench50, scores-history), nie z naszych surowych wyników"),
 ]
-POMIN_KATALOGI = {".git", ".venv", "venv", "node_modules", "__pycache__"}
+# modele z HF przynoszą własne README (karty modeli), venv-y pliki .md pakietów
+POMIN_KATALOGI = {"venv", "node_modules", "__pycache__", "models"}
 
 LICZBA = re.compile(r"(?<![\d,.\w])([−-]?)(\d+),(\d+)(?!,?\d)")
 JEDNOSTKA_POMIN = re.compile(r"\s*(\$|h\b|s\b|s/|GB|tok\b|tok/|tok\.|mld|mln|bln|min\b|M\b)")
@@ -198,7 +199,7 @@ def rodziny_kontekstu(tekst, plik=""):
         r.add("slayer_vs_pythia")
     if re.search(r"1\.0[03]\s*(→|->|do|a)", tekst) or "wersj" in tekst:
         r.add("wersje")
-    if re.search(r"wygasz|A−B|A-B", tekst) or plik.startswith("wygaszanie/"):
+    if re.search(r"wygasz|A−B|A-B", tekst) or plik.startswith("slayer-1b/wygaszanie/"):
         r.add("wygaszanie")
     return r or {"slayer_vs_pythia", "wersje", "wygaszanie"}
 
@@ -326,7 +327,8 @@ def linie_html(tekst):
 
 def pliki_md(korzen):
     for p in sorted(korzen.rglob("*.md")):
-        if not POMIN_KATALOGI & set(p.relative_to(korzen).parts):
+        katalogi = p.relative_to(korzen).parts[:-1]
+        if not POMIN_KATALOGI & set(katalogi) and not any(k.startswith(".") for k in katalogi):
             yield p
 
 

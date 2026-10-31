@@ -19,7 +19,7 @@ from pathlib import Path
 
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "slayer_eval"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "wspolne"))
 from hipoteza_formatu import wybory  # noqa: E402
 
 LN2 = math.log(2)

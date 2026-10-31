@@ -51,7 +51,7 @@ Zadania (nazwa pliku):
 - `znaki` — w cloze i multiblimp: liczba znaków treści opcji BEZ wiodącej spacji; w formatach
   liter: 1 (długość litery). Do normalizacji `ll / znaki` (tak liczy `acc_norm` lm-eval).
 
-## Budowa promptów (z kodu `slayer_eval/hipoteza_formatu.py`)
+## Budowa promptów (z kodu `research/wspolne/hipoteza_formatu.py`)
 
 Wszędzie: kontynuacja jest oceniana jako całość, końcowe spacje kontekstu przechodzą do
 kontynuacji (jak `_encode_pair` w lm-evaluation-harness), 0-shot o ile nie napisano inaczej.
@@ -91,14 +91,14 @@ niepoprawnego (indeks 1); `gold` zawsze 0.
 
 ## Jak wygenerować surowe dane od zera
 
-Kod: katalog `slayer_eval/` tego repozytorium.
-Wymagania: Python 3.9+ (lock spisany na 3.9.6), pakiety z `slayer_eval/requirements.lock.txt` (m.in. torch, datasets
+Kod: katalog `research/wspolne/` tego repozytorium; komendy niżej uruchamiasz w `research/`.
+Wymagania: Python 3.9+ (lock spisany na 3.9.6), pakiety z `wspolne/requirements.lock.txt` (m.in. torch, datasets
 3.6.0, lm_eval 0.4.9.1), dostęp do Hugging Face, kilka GB dysku na modele i zbiory. Działa na CPU
 (wolno) albo GPU (`--device cuda`).
 
     python3 -m venv .venv-eval
-    .venv-eval/bin/pip install -r slayer_eval/requirements.lock.txt
-    .venv-eval/bin/python slayer_eval/pobierz_zbiory.py
+    .venv-eval/bin/pip install -r wspolne/requirements.lock.txt
+    .venv-eval/bin/python wspolne/pobierz_zbiory.py
 
 Modele pobierz do katalogów lokalnych w podanych rewizjach, np.:
 
@@ -108,11 +108,11 @@ Modele pobierz do katalogów lokalnych w podanych rewizjach, np.:
 Liczenie (jeden plik `{zadanie}.jsonl` na zadanie w katalogu `--wyjscie`; przerwane liczenie
 wznawia się od brakujących `id`):
 
-    .venv-eval/bin/python slayer_eval/hipoteza_formatu.py licz --model models/slayer-1.06 \
+    .venv-eval/bin/python wspolne/hipoteza_formatu.py licz --model models/slayer-1.06 \
       --zadania arc_c_mc,arc_c_cloze,arc_c_mc_przes,arc_c_mc_bezspacji,arc_c_mc_5shot,arc_e_mc,arc_e_cloze,med_mc,med_cloze,mmlu_mc,mmlu_cloze,siqa_mc,siqa_cloze,belebele_mc,belebele_cloze,multiblimp \
       --wyjscie moje_wyniki/slayer-1.06 --device cpu --batch 16
 
-    .venv-eval/bin/python slayer_eval/hipoteza_formatu.py licz --model models/pythia-1b \
+    .venv-eval/bin/python wspolne/hipoteza_formatu.py licz --model models/pythia-1b \
       --zadania arc_c_mc,arc_c_cloze,arc_e_mc,arc_e_cloze,med_mc,med_cloze,mmlu_mc,mmlu_cloze,siqa_mc,siqa_cloze,belebele_mc,belebele_cloze,multiblimp \
       --wyjscie moje_wyniki/pythia-1b --device cpu --batch 16
 

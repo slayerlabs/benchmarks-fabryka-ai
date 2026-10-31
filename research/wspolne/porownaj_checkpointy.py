@@ -1,6 +1,6 @@
 """Tryb „po checkpointach": ta sama lista pytań na kilku wersjach i diff przejść.
 
-  python slayer_eval/porownaj_checkpointy.py --zadanie T02_space --wyjscie wyniki/arc_diff \
+  python wspolne/porownaj_checkpointy.py --zadanie T02_space --wyjscie wyniki/arc_diff \
       wyniki/1.00 wyniki/1.01 ... wyniki/1.06
 
 Każdy katalog to wyjście `ewaluuj.py` (podkatalog trace/). Kolejność argumentów = kolejność

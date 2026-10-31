@@ -5,11 +5,11 @@ par kontekst/kontynuacja jak lm-eval 0.4.9.1 (HFLM: bez BOS, pusty kontekst = to
 Slayer: zawsze jeden BOS <|endoftext|>, jak w METHOD.md Space). Ten sam scorer przechodzi
 test 0 (Pythia/Qwen vs opublikowane liczby), zanim mierzymy nim Slayera.
 
-  python slayer_eval/hipoteza_formatu.py licz --model <katalog> --etykieta 1.06 \
+  python wspolne/hipoteza_formatu.py licz --model <katalog> --etykieta 1.06 \
       --zadania arc_c_cloze,arc_c_mc --wyjscie wyniki/1.06 [--device mps] [--limit N]
-  python slayer_eval/hipoteza_formatu.py wikitext --model <katalog_slayera> --wyjscie wyniki/1.06
-  python slayer_eval/hipoteza_formatu.py zgodnosc --model <katalog> --n 20   # MPS vs CPU
-  python slayer_eval/hipoteza_formatu.py analiza --wyniki wyniki
+  python wspolne/hipoteza_formatu.py wikitext --model <katalog_slayera> --wyjscie wyniki/1.06
+  python wspolne/hipoteza_formatu.py zgodnosc --model <katalog> --n 20   # MPS vs CPU
+  python wspolne/hipoteza_formatu.py analiza --wyniki wyniki
 
 Wyjście `licz`: <wyjscie>/<zadanie>.jsonl, wiersz na pytanie (logliki opcji, bezwarunkowe,
 bajty/znaki/tokeny), dopisywane przyrostowo (wznowienie pomija gotowe id), oraz

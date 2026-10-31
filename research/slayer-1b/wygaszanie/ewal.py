@@ -1,4 +1,4 @@
-"""Ewaluacja jednego modelu scorerem slayer_eval/hipoteza_formatu.py, plus PubMedQA.
+"""Ewaluacja jednego modelu scorerem wspolne/hipoteza_formatu.py, plus PubMedQA.
 
 python wygaszanie/ewal.py --model <katalog> --wyjscie wyniki/<etykieta> [--device cuda] [--limit N]
 
@@ -12,7 +12,7 @@ import sys
 import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "slayer_eval"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "wspolne"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import hipoteza_formatu as H  # noqa: E402
 from dane import pubmedqa_docs  # noqa: E402

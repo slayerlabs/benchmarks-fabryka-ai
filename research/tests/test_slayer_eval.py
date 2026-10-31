@@ -1,9 +1,9 @@
-"""Czyste funkcje niezależnej ewaluacji Slayera (slayer_eval/). Uruchom: python tests/test_slayer_eval.py (albo pytest)."""
+"""Czyste funkcje niezależnej ewaluacji Slayera (wspolne/). Uruchom: python tests/test_slayer_eval.py (albo pytest)."""
 import math
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "slayer_eval"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "wspolne"))
 import metryki as M  # noqa: E402
 import trace_pytan as T  # noqa: E402
 
