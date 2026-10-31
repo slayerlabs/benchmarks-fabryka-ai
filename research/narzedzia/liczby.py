@@ -47,6 +47,14 @@ USTAWIENIA_BENCHMARKOW = {
                 "pomin": ["protokol", "do_przegladu", "n", "wg_Domain", "wg_ConceptA", "wg_ContextType",
                           "wg_ContextDiff", "wg_TargetDiff", "wg_flaga",
                           "kontekst_staly", "kontekst_staly_pmi", "staly_target", "margines"]},
+    # BLiMP: comparisons with SE and verdicts come from porownania_blimp (test "blimp"); the pool adds the
+    # remaining values of blimp.json and kontrola_forward.json. Reports write 0.792 and "-2.87 pts".
+    "blimp": {"aliasy": ["BLiMP"], "skala": 1,
+              "pomin": ["porownanie", "okna", "per_grupa", "per_grupa_acc_norm", "paradygmaty", "pair_id", "sha256"]},
+    # WikiText-2: denominator diagnosis (bajty.json, mianownik.json); the perplexities themselves live in the
+    # global values (wygaszanie, raport_formatu), so `globalne` lets the benchmark files use them too.
+    "wikitext-2": {"aliasy": ["WikiText"], "skala": 100, "globalne": True,
+                   "pomin": ["per_doc_bajty_page_detok"]},
 }
 WYGASZANIE = "slayer-1b/wygaszanie/wyniki"
 BLIMP = "benchmarki/blimp/wyniki/blimp.json"
@@ -213,7 +221,8 @@ def benchmarki(korzen=KORZEN):
         for p in raporty:
             splaszcz(json.loads(p.read_text()), f"{nazwa}/{p.stem}", wartosci, tuple(u.get("pomin", ())))
         out[nazwa] = {"zrodla": [str(p.relative_to(korzen)) for p in raporty], "aliasy": u.get("aliasy", [nazwa]),
-                      "pliki": [f"benchmarki/{nazwa}/"], "skala": u.get("skala", 1), "wartosci": wartosci}
+                      "pliki": [f"benchmarki/{nazwa}/"], "skala": u.get("skala", 1),
+                      "globalne": u.get("globalne", False), "wartosci": wartosci}
     return out
 
 

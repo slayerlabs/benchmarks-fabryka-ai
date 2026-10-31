@@ -40,7 +40,7 @@ WYLACZENIA = [
 # modele z HF przynoszą własne README (karty modeli), venv-y pliki .md pakietów
 # English reports (prefix of the path): dot decimals ("0.792", "-2.87 points") and the test whose
 # numbers a line may use without naming it (a table row of BLIMP.md does not repeat "BLiMP").
-PLIKI_EN = {"benchmarki/blimp/": "blimp", "benchmarki/wikitext-2/": None, "analizy/format-odpowiedzi/": None}
+PLIKI_EN = {"benchmarki/blimp/": "blimp"}
 POMIN_KATALOGI = {".git", ".venv", "venv", "node_modules", "__pycache__", "models"}
 
 LICZBA = re.compile(r"(?<![\d,.\w])([−-]?)(\d+),(\d+)(?!,?\d)")
@@ -122,15 +122,17 @@ def zbiory(liczby):
     # Tests with hundreds of values (BLiMP: 67 paradigms) only match lines that name them;
     # in the catch-all set they would let almost any 3-digit number pass.
     tylko_z_nazwa = set(liczby.get("tylko_z_nazwa", []))
-    wszystkie = {r: Zbior([v for t, d in out.items() if t not in tylko_z_nazwa for v in d[r]])
-                 for r in ("surowa", "skalowana", "z")}
+    listy = {r: [v for t, d in out.items() if t not in tylko_z_nazwa for v in d[r]] for r in ("surowa", "skalowana", "z")}
+    wszystkie = {r: Zbior(listy[r]) for r in listy}
     wynik = {t: {r: Zbior(d[r] + out.get(None, {}).get(r, [])) for r in d} for t, d in out.items()}
     wynik["*"] = wszystkie
     for nazwa, b in liczby.get("benchmarki", {}).items():
         v = list(b["wartosci"].values())
         skalowane = [x * b.get("skala", 1) for x in v]
-        wynik[KLUCZ_BENCHMARKU + nazwa] = {"surowa": Zbior(v + skalowane), "skalowana": Zbior([x * 100 for x in v]),
-                                         "z": Zbior([])}
+        # "globalne": the benchmark's own values plus all global ones (its numbers live in both places)
+        g = listy if b.get("globalne") else {"surowa": [], "skalowana": [], "z": []}
+        wynik[KLUCZ_BENCHMARKU + nazwa] = {"surowa": Zbior(v + skalowane + g["surowa"]),
+                                         "skalowana": Zbior([x * 100 for x in v] + g["skalowana"]), "z": Zbior(g["z"])}
     return wynik
 
 
