@@ -11,4 +11,5 @@ Slayer 1.06 wypada losowo w testach z literami A/B/C/D, bo za często wybiera �
   wygenerować dane samemu: `paczka_testerzy/INSTRUKCJA.md`.
 - Testy kodu (po `pip install -r slayer_eval/requirements.lock.txt`, Python 3.9+, bez sieci i bez wag):
   `python tests/test_slayer_eval.py && python tests/test_testy_danych_slayer.py`. Ewaluacja Slayera: `slayer_eval/README.md`.
+- BLiMP full set (67 000 pairs), Slayer 1.06 vs Pythia-1B per paradigm and phenomenon: [`wyniki/blimp/BLIMP.md`](wyniki/blimp/BLIMP.md); test: `python tests/test_blimp.py`.
 - Przed każdą zmianą raportu (README, `lab/`, `wygaszanie/`, `testy_danych_slayer/`, strona HTML): `python narzedzia/liczby.py && python narzedzia/sprawdz_raporty.py [strona.html]` (kod ≠ 0 = liczba spoza `wyniki/LICZBY.json` albo ocena różnicy bez SE/werdyktu); testy strażnika: `python tests/test_liczby_raportow.py`.

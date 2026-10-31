@@ -81,6 +81,16 @@ def test_wyjatek_w_linii_wylacza_regule():
     assert bledy("Wynik 0,777 z innego źródła.")
 
 
+def test_liczby_blimp_tylko_w_linii_z_nazwa():
+    liczby, _ = dane()
+    p = next(p for p in liczby["porownania"] if p["test"] == "blimp")
+    tekst = f"{p['wartosc_a']:.4f}".replace(".", ",")
+    zb = S.zbiory(liczby)
+    assert not S.niepasujace_liczby(f"BLiMP: {tekst}", zb, liczby["aliasy"])
+    assert S.niepasujace_liczby(f"Wynik {tekst}", zb, liczby["aliasy"]) or \
+        zb["*"]["surowa"].zawiera(p["wartosc_a"], 4)  # unless a non-BLiMP value happens to match
+
+
 def test_dokumenty_repo_zgodne_z_liczbami():
     liczby, zb = dane()
     wszystkie = []

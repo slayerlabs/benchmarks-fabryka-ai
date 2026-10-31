@@ -1,6 +1,6 @@
 # Liczby raportów (wygenerowane, nie edytuj ręcznie)
 
-Źródło: `python narzedzia/liczby.py` z `wyniki/raport_formatu.json`, `wygaszanie/wyniki/porownanie.json`, `wygaszanie/wyniki/heldout_1.03.json`, `wygaszanie/wyniki/heldout_1.06.json`, `wygaszanie/wyniki/heldout_13800.json`, `wygaszanie/wyniki/heldout_A.json`, `wygaszanie/wyniki/heldout_B.json`.
+Źródło: `python narzedzia/liczby.py` z `wyniki/raport_formatu.json`, `wygaszanie/wyniki/porownanie.json`, `wygaszanie/wyniki/heldout_1.03.json`, `wygaszanie/wyniki/heldout_1.06.json`, `wygaszanie/wyniki/heldout_13800.json`, `wygaszanie/wyniki/heldout_A.json`, `wygaszanie/wyniki/heldout_B.json`, `wyniki/blimp/blimp.json`.
 Werdykt z |z|: ≥ 3 pewne, 2–3 prawdopodobne, < 2 szum. SE parowane tylko tam, gdzie są wyniki per pytanie;
 Slayer vs Pythia ma SE niezależne (hypot), czyli ostrożne.
 
@@ -51,6 +51,86 @@ Slayer vs Pythia ma SE niezależne (hypot), czyli ostrożne.
 | siqa_mc/acc | 0,3275 | 0,3311 | −0,0036 (−0,4) | 0,0150 | −0,2 | — | — | szum |
 | siqa_mc/acc_norm | 0,3275 | 0,3311 | −0,0036 (−0,4) | 0,0150 | −0,2 | — | — | szum |
 | siqa_mc/bpb | 0,3275 | 0,3311 | −0,0036 (−0,4) | 0,0150 | −0,2 | — | — | szum |
+| blimp/acc | 0,7920 | 0,8207 | −0,0287 (−2,9) | 0,0020 | −14,6 | 0,0016 | −18,1 | pewne |
+| blimp_zjawisko_anaphor_agreement/acc | 0,9860 | 0,9950 | −0,0090 (−0,9) | 0,0031 | −2,9 | 0,0026 | −3,4 | pewne |
+| blimp_zjawisko_argument_structure/acc | 0,7846 | 0,8364 | −0,0519 (−5,2) | 0,0057 | −9,1 | 0,0042 | −12,2 | pewne |
+| blimp_zjawisko_binding/acc | 0,7907 | 0,8080 | −0,0173 (−1,7) | 0,0060 | −2,9 | 0,0050 | −3,5 | pewne |
+| blimp_zjawisko_control_raising/acc | 0,7764 | 0,8316 | −0,0552 (−5,5) | 0,0077 | −7,1 | 0,0055 | −10,0 | pewne |
+| blimp_zjawisko_determiner_noun_agreement/acc | 0,9300 | 0,9509 | −0,0209 (−2,1) | 0,0037 | −5,6 | 0,0029 | −7,1 | pewne |
+| blimp_zjawisko_ellipsis/acc | 0,8430 | 0,8670 | −0,0240 (−2,4) | 0,0110 | −2,2 | 0,0090 | −2,7 | prawdopodobne |
+| blimp_zjawisko_filler_gap_dependency/acc | 0,7491 | 0,7771 | −0,0280 (−2,8) | 0,0061 | −4,6 | 0,0050 | −5,6 | pewne |
+| blimp_zjawisko_irregular_forms/acc | 0,8645 | 0,9390 | −0,0745 (−7,4) | 0,0090 | −8,3 | 0,0073 | −10,1 | pewne |
+| blimp_zjawisko_island_effects/acc | 0,6661 | 0,6729 | −0,0068 (−0,7) | 0,0070 | −1,0 | 0,0058 | −1,2 | szum |
+| blimp_zjawisko_npi_licensing/acc | 0,7404 | 0,7756 | −0,0351 (−3,5) | 0,0068 | −5,2 | 0,0056 | −6,3 | pewne |
+| blimp_zjawisko_quantifiers/acc | 0,7350 | 0,7215 | 0,0135 (1,4) | 0,0084 | 1,6 | 0,0071 | 1,9 | szum |
+| blimp_zjawisko_subject_verb_agreement/acc | 0,8443 | 0,8832 | −0,0388 (−3,9) | 0,0061 | −6,4 | 0,0051 | −7,6 | pewne |
+| blimp_adjunct_island/acc | 0,8040 | 0,8890 | −0,0850 (−8,5) | 0,0160 | −5,3 | 0,0136 | −6,3 | pewne |
+| blimp_anaphor_gender_agreement/acc | 0,9850 | 0,9980 | −0,0130 (−1,3) | 0,0041 | −3,2 | 0,0039 | −3,4 | pewne |
+| blimp_anaphor_number_agreement/acc | 0,9870 | 0,9920 | −0,0050 (−0,5) | 0,0046 | −1,1 | 0,0036 | −1,4 | szum |
+| blimp_animate_subject_passive/acc | 0,7290 | 0,8080 | −0,0790 (−7,9) | 0,0188 | −4,2 | 0,0128 | −6,2 | pewne |
+| blimp_animate_subject_trans/acc | 0,8100 | 0,9000 | −0,0900 (−9,0) | 0,0156 | −5,8 | 0,0119 | −7,6 | pewne |
+| blimp_causative/acc | 0,6810 | 0,7890 | −0,1080 (−10,8) | 0,0196 | −5,5 | 0,0159 | −6,8 | pewne |
+| blimp_complex_NP_island/acc | 0,5350 | 0,6190 | −0,0840 (−8,4) | 0,0220 | −3,8 | 0,0179 | −4,7 | pewne |
+| blimp_coordinate_structure_constraint_complex_left_branch/acc | 0,7500 | 0,6360 | 0,1140 (11,4) | 0,0205 | 5,6 | 0,0160 | 7,1 | pewne |
+| blimp_coordinate_structure_constraint_object_extraction/acc | 0,8040 | 0,8670 | −0,0630 (−6,3) | 0,0165 | −3,8 | 0,0132 | −4,8 | pewne |
+| blimp_determiner_noun_agreement_1/acc | 0,9810 | 0,9870 | −0,0060 (−0,6) | 0,0056 | −1,1 | 0,0049 | −1,2 | szum |
+| blimp_determiner_noun_agreement_2/acc | 0,9790 | 0,9800 | −0,0010 (−0,1) | 0,0063 | −0,2 | 0,0052 | −0,2 | szum |
+| blimp_determiner_noun_agreement_irregular_1/acc | 0,9010 | 0,9510 | −0,0500 (−5,0) | 0,0117 | −4,3 | 0,0098 | −5,1 | pewne |
+| blimp_determiner_noun_agreement_irregular_2/acc | 0,9310 | 0,9550 | −0,0240 (−2,4) | 0,0104 | −2,3 | 0,0077 | −3,1 | pewne |
+| blimp_determiner_noun_agreement_with_adj_2/acc | 0,9170 | 0,9440 | −0,0270 (−2,7) | 0,0114 | −2,4 | 0,0091 | −3,0 | prawdopodobne |
+| blimp_determiner_noun_agreement_with_adj_irregular_1/acc | 0,8870 | 0,8970 | −0,0100 (−1,0) | 0,0139 | −0,7 | 0,0105 | −1,0 | szum |
+| blimp_determiner_noun_agreement_with_adj_irregular_2/acc | 0,9070 | 0,9270 | −0,0200 (−2,0) | 0,0123 | −1,6 | 0,0101 | −2,0 | szum |
+| blimp_determiner_noun_agreement_with_adjective_1/acc | 0,9370 | 0,9660 | −0,0290 (−2,9) | 0,0096 | −3,0 | 0,0072 | −4,0 | pewne |
+| blimp_distractor_agreement_relational_noun/acc | 0,8170 | 0,8810 | −0,0640 (−6,4) | 0,0159 | −4,0 | 0,0136 | −4,7 | pewne |
+| blimp_distractor_agreement_relative_clause/acc | 0,6840 | 0,7040 | −0,0200 (−2,0) | 0,0206 | −1,0 | 0,0175 | −1,1 | szum |
+| blimp_drop_argument/acc | 0,7750 | 0,8180 | −0,0430 (−4,3) | 0,0180 | −2,4 | 0,0127 | −3,4 | pewne |
+| blimp_ellipsis_n_bar_1/acc | 0,7960 | 0,8260 | −0,0300 (−3,0) | 0,0175 | −1,7 | 0,0149 | −2,0 | prawdopodobne |
+| blimp_ellipsis_n_bar_2/acc | 0,8900 | 0,9080 | −0,0180 (−1,8) | 0,0135 | −1,3 | 0,0100 | −1,8 | szum |
+| blimp_existential_there_object_raising/acc | 0,8080 | 0,8920 | −0,0840 (−8,4) | 0,0159 | −5,3 | 0,0128 | −6,5 | pewne |
+| blimp_existential_there_quantifiers_1/acc | 0,9630 | 0,9580 | 0,0050 (0,5) | 0,0087 | 0,6 | 0,0041 | 1,2 | szum |
+| blimp_existential_there_quantifiers_2/acc | 0,3680 | 0,3170 | 0,0510 (5,1) | 0,0212 | 2,4 | 0,0179 | 2,8 | prawdopodobne |
+| blimp_existential_there_subject_raising/acc | 0,8220 | 0,8980 | −0,0760 (−7,6) | 0,0154 | −4,9 | 0,0115 | −6,6 | pewne |
+| blimp_expletive_it_object_raising/acc | 0,7860 | 0,7770 | 0,0090 (0,9) | 0,0185 | 0,5 | 0,0120 | 0,7 | szum |
+| blimp_inchoative/acc | 0,6640 | 0,6800 | −0,0160 (−1,6) | 0,0210 | −0,8 | 0,0146 | −1,1 | szum |
+| blimp_intransitive/acc | 0,7820 | 0,8360 | −0,0540 (−5,4) | 0,0175 | −3,1 | 0,0137 | −3,9 | pewne |
+| blimp_irregular_past_participle_adjectives/acc | 0,9690 | 0,9870 | −0,0180 (−1,8) | 0,0065 | −2,7 | 0,0063 | −2,9 | prawdopodobne |
+| blimp_irregular_past_participle_verbs/acc | 0,7600 | 0,8910 | −0,1310 (−13,1) | 0,0167 | −7,8 | 0,0133 | −9,9 | pewne |
+| blimp_irregular_plural_subject_verb_agreement_1/acc | 0,8880 | 0,9280 | −0,0400 (−4,0) | 0,0129 | −3,1 | 0,0113 | −3,5 | pewne |
+| blimp_irregular_plural_subject_verb_agreement_2/acc | 0,8820 | 0,9030 | −0,0210 (−2,1) | 0,0138 | −1,5 | 0,0110 | −1,9 | szum |
+| blimp_left_branch_island_echo_question/acc | 0,4070 | 0,4990 | −0,0920 (−9,2) | 0,0222 | −4,2 | 0,0183 | −5,0 | pewne |
+| blimp_left_branch_island_simple_question/acc | 0,7360 | 0,7380 | −0,0020 (−0,2) | 0,0197 | −0,1 | 0,0154 | −0,1 | szum |
+| blimp_matrix_question_npi_licensor_present/acc | 0,4970 | 0,6320 | −0,1350 (−13,5) | 0,0220 | −6,1 | 0,0193 | −7,0 | pewne |
+| blimp_npi_present_1/acc | 0,5940 | 0,7190 | −0,1250 (−12,5) | 0,0211 | −5,9 | 0,0167 | −7,5 | pewne |
+| blimp_npi_present_2/acc | 0,6330 | 0,6840 | −0,0510 (−5,1) | 0,0212 | −2,4 | 0,0165 | −3,1 | pewne |
+| blimp_only_npi_licensor_present/acc | 0,9450 | 0,9540 | −0,0090 (−0,9) | 0,0098 | −0,9 | 0,0094 | −1,0 | szum |
+| blimp_only_npi_scope/acc | 0,8180 | 0,6790 | 0,1390 (13,9) | 0,0192 | 7,3 | 0,0167 | 8,3 | pewne |
+| blimp_passive_1/acc | 0,8940 | 0,9190 | −0,0250 (−2,5) | 0,0130 | −1,9 | 0,0099 | −2,5 | prawdopodobne |
+| blimp_passive_2/acc | 0,8840 | 0,9030 | −0,0190 (−1,9) | 0,0138 | −1,4 | 0,0092 | −2,1 | prawdopodobne |
+| blimp_principle_A_c_command/acc | 0,7320 | 0,7800 | −0,0480 (−4,8) | 0,0192 | −2,5 | 0,0140 | −3,4 | pewne |
+| blimp_principle_A_case_1/acc | 0,9990 | 1,0000 | −0,0010 (−0,1) | 0,0010 | −1,0 | 0,0010 | −1,0 | szum |
+| blimp_principle_A_case_2/acc | 0,9110 | 0,9380 | −0,0270 (−2,7) | 0,0118 | −2,3 | 0,0106 | −2,5 | prawdopodobne |
+| blimp_principle_A_domain_1/acc | 0,9640 | 0,9970 | −0,0330 (−3,3) | 0,0061 | −5,4 | 0,0058 | −5,7 | pewne |
+| blimp_principle_A_domain_2/acc | 0,8200 | 0,8390 | −0,0190 (−1,9) | 0,0168 | −1,1 | 0,0137 | −1,4 | szum |
+| blimp_principle_A_domain_3/acc | 0,5900 | 0,7400 | −0,1500 (−15,0) | 0,0208 | −7,2 | 0,0205 | −7,3 | pewne |
+| blimp_principle_A_reconstruction/acc | 0,5190 | 0,3620 | 0,1570 (15,7) | 0,0219 | 7,2 | 0,0166 | 9,4 | pewne |
+| blimp_regular_plural_subject_verb_agreement_1/acc | 0,8960 | 0,9560 | −0,0600 (−6,0) | 0,0116 | −5,2 | 0,0103 | −5,8 | pewne |
+| blimp_regular_plural_subject_verb_agreement_2/acc | 0,8990 | 0,9270 | −0,0280 (−2,8) | 0,0126 | −2,2 | 0,0092 | −3,0 | pewne |
+| blimp_sentential_negation_npi_licensor_present/acc | 0,9780 | 0,9930 | −0,0150 (−1,5) | 0,0053 | −2,8 | 0,0048 | −3,1 | pewne |
+| blimp_sentential_negation_npi_scope/acc | 0,7180 | 0,7680 | −0,0500 (−5,0) | 0,0195 | −2,6 | 0,0151 | −3,3 | pewne |
+| blimp_sentential_subject_island/acc | 0,5500 | 0,3130 | 0,2370 (23,7) | 0,0215 | 11,0 | 0,0204 | 11,6 | pewne |
+| blimp_superlative_quantifiers_1/acc | 0,7180 | 0,8360 | −0,1180 (−11,8) | 0,0184 | −6,4 | 0,0170 | −6,9 | pewne |
+| blimp_superlative_quantifiers_2/acc | 0,8910 | 0,7750 | 0,1160 (11,6) | 0,0165 | 7,0 | 0,0136 | 8,5 | pewne |
+| blimp_tough_vs_raising_1/acc | 0,5780 | 0,7430 | −0,1650 (−16,5) | 0,0209 | −7,9 | 0,0136 | −12,1 | pewne |
+| blimp_tough_vs_raising_2/acc | 0,8880 | 0,8480 | 0,0400 (4,0) | 0,0151 | 2,6 | 0,0116 | 3,4 | pewne |
+| blimp_transitive/acc | 0,8420 | 0,8750 | −0,0330 (−3,3) | 0,0156 | −2,1 | 0,0126 | −2,6 | prawdopodobne |
+| blimp_wh_island/acc | 0,7430 | 0,8220 | −0,0790 (−7,9) | 0,0184 | −4,3 | 0,0150 | −5,3 | pewne |
+| blimp_wh_questions_object_gap/acc | 0,7370 | 0,8550 | −0,1180 (−11,8) | 0,0178 | −6,6 | 0,0152 | −7,7 | pewne |
+| blimp_wh_questions_subject_gap/acc | 0,8520 | 0,9250 | −0,0730 (−7,3) | 0,0140 | −5,2 | 0,0122 | −6,0 | pewne |
+| blimp_wh_questions_subject_gap_long_distance/acc | 0,8480 | 0,8650 | −0,0170 (−1,7) | 0,0157 | −1,1 | 0,0137 | −1,2 | szum |
+| blimp_wh_vs_that_no_gap/acc | 0,9640 | 0,9660 | −0,0020 (−0,2) | 0,0082 | −0,2 | 0,0074 | −0,3 | szum |
+| blimp_wh_vs_that_no_gap_long_distance/acc | 0,9650 | 0,9590 | 0,0060 (0,6) | 0,0085 | 0,7 | 0,0079 | 0,8 | szum |
+| blimp_wh_vs_that_with_gap/acc | 0,5700 | 0,4750 | 0,0950 (9,5) | 0,0222 | 4,3 | 0,0166 | 5,7 | pewne |
+| blimp_wh_vs_that_with_gap_long_distance/acc | 0,3080 | 0,3950 | −0,0870 (−8,7) | 0,0213 | −4,1 | 0,0167 | −5,2 | pewne |
 
 ## Wersje Slayera
 

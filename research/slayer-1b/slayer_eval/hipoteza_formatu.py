@@ -288,6 +288,12 @@ def multiblimp_dane():
              "pytanie": "", "opcje": [r["sen"], r["wrong_sen"]], "gold": 0} for i, r in enumerate(rows)]
 
 
+def blimp_dane():
+    # BLiMP EN (Space T01): pinned snapshot from BLIMP_DIR or the HF cache, see blimp.py
+    from blimp import wczytaj
+    return [{k: v for k, v in d.items() if k != "rekord"} for d in wczytaj()]
+
+
 def prompt_para(doc):
     # Space T04: pusty kontekst, zdanie po spacji, suma logprob
     return "", [" " + o for o in doc["opcje"]]
@@ -305,6 +311,7 @@ ZADANIA = {
     "mmlu_mc": (mmlu_dane, prompt_mmlu_mc, None, False),
     "mmlu_cloze": (mmlu_dane, prompt_cloze, None, False),
     "multiblimp": (multiblimp_dane, prompt_para, None, False),
+    "blimp": (blimp_dane, prompt_para, None, False),  # lm-eval blimp: empty context, " " + sentence
     "arc_c_cloze_25shot": (("allenai/ai2_arc", "ARC-Challenge", ARC_REW, "test", arc_doc), prompt_cloze_25shot, None, False),
     # nazwa: (źródło, budowa promptu, przekształcenie, czy liczyć bezwarunkowe)
     "arc_c_cloze": (("allenai/ai2_arc", "ARC-Challenge", ARC_REW, "test", arc_doc), prompt_cloze, None, True),

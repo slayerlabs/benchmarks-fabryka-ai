@@ -30,8 +30,11 @@ ALIASY = {
     "mmlu": ["MMLU"],
     "multiblimp": ["MultiBLiMP"],
     "pubmedqa": ["PubMedQA"],
+    "blimp": ["BLiMP"],
 }
 METRYKI = ("acc", "acc_norm", "bpb", "pmi")
+# tests whose numbers count only in a line that names the test (sprawdz_raporty.zbiory)
+TYLKO_Z_NAZWA = ["blimp"]
 
 
 def werdykt(z):
@@ -182,6 +185,28 @@ def porownania_wygaszania(por):
     return out
 
 
+def porownania_blimp(bl):
+    """BLiMP full set, Slayer 1.06 vs Pythia-1B on the same 67 000 pairs: overall, 12 phenomena,
+    67 paradigms; SE paired by pair (slayer_eval/blimp.py porownanie_parowane)."""
+    por, mod = bl["porownanie"], bl["modele"]
+    a, b = por["a"], por["b"]
+    zrodlo = "paired by minimal pair (slayer_eval/blimp.py)"
+    out = []
+
+    def dodaj(zadanie, wa, sa, wb, sb, r):
+        out.append(porownanie(f"slayer_vs_pythia/{zadanie}/acc", "slayer_vs_pythia", zadanie, "acc", a, b,
+                              wa, sa, wb, sb, se_par=r["se"], zrodlo_par=zrodlo, roznica=r["roznica"]))
+
+    dodaj("blimp", mod[a]["acc"], mod[a]["se"], mod[b]["acc"], mod[b]["se"], por["ogolem"])
+    for z, r in por["zjawiska"].items():
+        x, y = mod[a]["zjawiska"][z], mod[b]["zjawiska"][z]
+        dodaj(f"blimp_zjawisko_{z}", x["acc"], x["se"], y["acc"], y["se"], r)
+    for g, r in por["paradygmaty"].items():
+        x, y = mod[a]["paradygmaty"][g], mod[b]["paradygmaty"][g]
+        dodaj(f"blimp_{g}", x["acc"], x["se"], y["acc"], y["se"], r)
+    return out
+
+
 def zbuduj(korzen=KORZEN):
     raport = json.loads((korzen / "wyniki/raport_formatu.json").read_text())
     por = json.loads((korzen / "wygaszanie/wyniki/porownanie.json").read_text())
@@ -201,11 +226,19 @@ def zbuduj(korzen=KORZEN):
     porownania = porownania_formatu(raport) + porownania_wygaszania(por)
     zrodla = ["wyniki/raport_formatu.json", "wygaszanie/wyniki/porownanie.json"] + \
              [str(p.relative_to(korzen)) for p in heldouty]
+    plik_blimp = korzen / "wyniki/blimp/blimp.json"
+    if plik_blimp.exists():
+        bl = json.loads(plik_blimp.read_text())
+        # per-paradigm values live in `porownania` (with SE and verdict), not twice in `wartosci`
+        splaszcz({k: v for k, v in bl.items() if k != "porownanie"}, "blimp", wartosci,
+                 pomin=("okna", "per_grupa", "per_grupa_acc_norm", "paradygmaty"))
+        porownania += porownania_blimp(bl)
+        zrodla.append("wyniki/blimp/blimp.json")
     return {"zrodla": zrodla,
             "werdykt": {"pewne": f"|z| >= {PROG_PEWNE}", "prawdopodobne": f"{PROG_PRAWDOPODOBNE} <= |z| < {PROG_PEWNE}",
                         "szum": f"|z| < {PROG_PRAWDOPODOBNE}",
                         "uwaga": "werdykt główny z SE parowanego, gdy jest; inaczej z niezależnego (ostrożnego)"},
-            "aliasy": ALIASY, "wartosci": wartosci, "porownania": porownania}
+            "aliasy": ALIASY, "tylko_z_nazwa": TYLKO_Z_NAZWA, "wartosci": wartosci, "porownania": porownania}
 
 
 def pl(x, cyfr=4):

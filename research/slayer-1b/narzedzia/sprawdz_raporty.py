@@ -104,7 +104,11 @@ def zbiory(liczby):
     for t in set(surowe) | set(zety):
         s = surowe.get(t, [])
         out[t] = {"surowa": s, "skalowana": [v * 100 for v in s], "z": zety.get(t, [])}
-    wszystkie = {r: Zbior([v for d in out.values() for v in d[r]]) for r in ("surowa", "skalowana", "z")}
+    # Tests with hundreds of values (BLiMP: 67 paradigms) only match lines that name them;
+    # in the catch-all set they would let almost any 3-digit number pass.
+    tylko_z_nazwa = set(liczby.get("tylko_z_nazwa", []))
+    wszystkie = {r: Zbior([v for t, d in out.items() if t not in tylko_z_nazwa for v in d[r]])
+                 for r in ("surowa", "skalowana", "z")}
     wynik = {t: {r: Zbior(d[r] + out.get(None, {}).get(r, [])) for r in d} for t, d in out.items()}
     wynik["*"] = wszystkie
     return wynik
