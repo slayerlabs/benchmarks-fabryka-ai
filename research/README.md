@@ -143,10 +143,5 @@ to co innego niż warunek odtworzenia z etapu B metodologii.
 - Litery A/B/C/D a losowość. Dlaczego Slayer 1.06 wypada losowo w testach z literami i co widać po treści odpowiedzi: [`analyses/answer-format/`](analyses/answer-format/README.md).
 - BLiMP, pełny zbiór, Slayer 1.06 i Pythia-1B: [`benchmarks/blimp/`](benchmarks/blimp/README.md).
 - WikiText-2. Po poprawce mianownika byte_ppl z tego repo jest zgodny ze Space: [`benchmarks/wikitext-2/`](benchmarks/wikitext-2/README.md).
+- EWoK po polsku i angielsku, Slayer 1.00–1.06, Bielik 1.5B i LFM3 1.7B: [`benchmarks/ewok-pl/`](benchmarks/ewok-pl/README.md).
 - Wygaszanie LR obniża loss o 0,047 nat bez zmiany trafności: [`slayer-1b/wygaszanie/README.md`](slayer-1b/wygaszanie/README.md).
-
-### Co dalej
-
-- Zadania dla chętnych: [`slayer-1b/lab/DLA_ARKA_I_CHETNYCH.md`](slayer-1b/lab/DLA_ARKA_I_CHETNYCH.md).
-- Ślepa paczka do A1 to `paczka_testerzy.zip`, trzymana poza repo. Jej sha256 to `da0edbd792d2c8074bda39d7232c628fcfbf60933278728afd6db9220c225303`.
-  Skąd ją wziąć albo jak samemu wygenerować dane, opisuje [`slayer-1b/paczka_testerzy/INSTRUKCJA.md`](slayer-1b/paczka_testerzy/INSTRUKCJA.md).
