@@ -16,7 +16,7 @@ wypełnij `DATASET.md` (sekcja „Benchmark bez oryginału: karta zbioru (DATASE
 | Agregacja | |
 | Bazy | losowa: ; większościowa: |
 | SNR | z opublikowanych wyników albo „nieustalone”; rozrzut wyników (odchylenie std.) między modelami/checkpointami: ; typowe SE: ; SNR = rozrzut / SE: ; modele: |
-| Wyniki referencyjne (odczyt RRRR-MM-DD) | model @ rewizja → wynik, źródło. Liczbę, której nie ma w `results/LICZBY.json` (np. wynik z pracy), oznacz na końcu tej samej linii znacznikiem `<!-- liczba-spoza-wynikow: skąd jest liczba -->`, inaczej bramka liczb (`tools/sprawdz_raporty.py`) ją odrzuci; przykład: `benchmarks/wikitext-2/ORIGINAL.md` |
+| Wyniki referencyjne (odczyt RRRR-MM-DD) | model @ rewizja → wynik, źródło. Liczbę, której nie ma w `results/LICZBY.json` (np. wynik z pracy), oznacz na końcu tej samej linii znacznikiem `<!-- liczba-spoza-wynikow: skąd jest liczba -->`, inaczej bramka liczb (`tools/sprawdz_raporty.py`) ją odrzuci; przykład: `benchmarks/wikitext-2/ORIGINAL.md`. Gdy żaden model, który da się pobrać, nie ma opublikowanego wyniku: „brak” i miejsca, w których szukano (etap B idzie wtedy jako „bez kontroli”) |
 | Train policy | `eval_only` / `decon_only` / `train_allowed` (które splity) |
 | Decyzja treningowa | |
 | Znane rozbieżności | w tym plik zadania lm-eval w `6d2abda4` wobec 0.4.9.1 (METODOLOGIA.md, „Wersja lm-eval”) |

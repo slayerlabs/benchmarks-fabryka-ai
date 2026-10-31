@@ -16,7 +16,7 @@ wobec katalogu `research/`.
 
 Praca ma cztery etapy. Każdy kończy się plikiem w katalogu benchmarku `benchmarks/<name>/` (wzór plików:
 [`benchmarks/_template/`](benchmarks/_template/README.md)). Etap B kończy się **warunkiem odtworzenia**: bez
-odtworzonego wyniku nie przechodzisz dalej. (Nie myl go z **bramką liczb** z `tools/`, która sprawdza liczby w
+odtworzonego wyniku nie przechodzisz dalej; wyjątkiem jest benchmark „bez kontroli” (sekcja „Bez kontroli”). (Nie myl go z **bramką liczb** z `tools/`, która sprawdza liczby w
 raportach; sekcja „Bramka liczb” w [`README.md`](README.md#bramka-liczb).)
 
 ```mermaid
@@ -24,6 +24,7 @@ flowchart LR
   A[A. Karta oryginału] --> B[B. Odtworzenie wyniku oryginalnym kodem]
   B -->|warunek spełniony| C[C. Kod w repo]
   B -->|niespełniony| X[Stop: komentarz w zadaniu]
+  B -->|bez kontroli, kod autorów zgodny z repo| C
   C --> D[D. Wersja polska tą samą metodą]
 ```
 
@@ -50,7 +51,7 @@ szukałeś.
 | Agregacja | średnia po pytaniach czy po kategoriach/paradygmatach, wagi |
 | Bazy | baza losowa i większościowa (sekcja „Bazy: losowa i większościowa” w [`README.md`](README.md#bazy-losowa-i-większościowa)) |
 | SNR | stosunek sygnału do szumu (Słowniczek): rozrzut wyników między modelami albo checkpointami, SE pomiaru, iloraz i na jakich modelach. Wolno go policzyć z opublikowanych wyników (praca, plik wyników, leaderboard) albo wpisać „nieustalone” z tym, gdzie szukałeś; własny pomiar nie jest potrzebny |
-| Wyniki referencyjne | co najmniej jeden opublikowany wynik modelu, który da się pobrać (model, liczba, tabela w pracy albo plik wyników), jako snapshot z datą odczytu |
+| Wyniki referencyjne | co najmniej jeden opublikowany wynik modelu, który da się pobrać (model, liczba, tabela w pracy albo plik wyników), jako snapshot z datą odczytu; gdy takiego wyniku nie ma: „brak” i miejsca, w których szukano (etap B idzie wtedy jako „bez kontroli”) |
 | Train policy | `eval_only` (żaden split nie trafia do treningu), `decon_only` (zbiór służy tylko do dekontaminacji danych treningowych) albo `train_allowed` (wymień, które splity wolno trenować); sekcja „Czystość benchmarku” |
 | Decyzja treningowa | co oznacza słaby wynik: jakie dane albo jaka metoda treningu z niego wynika, a czego nie wolno z niego wnioskować |
 | Znane rozbieżności | czym różnią się popularne implementacje (np. zadanie lm-eval) od kodu autorów, znane błędy w danych, kontaminacja |
@@ -64,7 +65,8 @@ Liczbę spoza `results/LICZBY.json` (np. wynik referencyjny z pracy) oznaczasz n
 1. Uruchom kod autorów. Gdy autorzy kodu nie opublikowali, użyj implementacji, którą wskazuje praca albo leaderboard
    podający wyniki referencyjne (często zadanie lm-eval z konkretnego commitu), i zapisz, dlaczego ta.
 2. Policz model z wynikiem referencyjnym z karty: ten sam split, ten sam prompt, ta sama rewizja modelu. Domyślnie to
-   model kontrolny z sekcji „Model kontrolny etapu B”.
+   model kontrolny z sekcji „Model kontrolny etapu B”. Gdy żaden model z listy nie ma opublikowanego wyniku, to nie jest
+   stop: etap B idzie według sekcji „Bez kontroli”.
 3. Zapisz komendę, commit kodu, rewizję zbioru i modelu, n, wynik z SE i różnicę wobec wartości referencyjnej.
    Ten przebieg dostaje wpis w `RECIPE.md` jak każdy inny.
 
@@ -79,7 +81,17 @@ Do tego czasu autor zapisuje w `REPRODUCTION.md` własny próg z uzasadnieniem, 
 zapisanego przed pomiarem werdykt etapu B brzmi „nierozstrzygalny”, nawet gdy liczby wyglądają na zgodne.
 
 Niespełniony warunek zatrzymuje pracę. Wpisz w komentarzu zadania, co policzyłeś i jaką różnicę dostałeś. Rozbieżność z
-oryginałem to informacja, której szuka cały zespół: w każdym wyniku liczonym dalej siedziałaby ta sama różnica.
+oryginałem to informacja, której szuka cały zespół: w każdym wyniku liczonym dalej siedziałaby ta sama różnica. Brak
+opublikowanego wyniku nie jest niespełnionym warunkiem: wtedy obowiązuje sekcja „Bez kontroli”.
+
+### Bez kontroli
+
+Gdy żaden model z listy w sekcji „Model kontrolny etapu B” nie ma opublikowanego wyniku, w `REPRODUCTION.md` wpisujesz
+„bez kontroli” i miejsca, w których szukałeś. Zamiast odtworzenia wyniku sprawdzasz zgodność kodu: ten sam model (np.
+Pythię-1B v0, `EleutherAI/pythia-1b-v0` @ `step143000`) liczysz kodem autorów i kodem z repo (lm-eval) na tych samych
+danych. Warunek: co najmniej 99% zgodnych decyzji na przykład (jak w teście zgodności z etapu C), a dla perpleksji i BPB
+różnica poniżej 0,1%. Gdy kodu autorów nie da się uruchomić (np. autorzy go nie opublikowali), wpisz w `REPRODUCTION.md`
+powód, a zgodność sprawdza recenzent PR.
 
 ## C. Kod w repo
 
@@ -210,9 +222,8 @@ dostępny z listy**, w tej kolejności:
 Kontrolę liczysz tym samym kodem co mierzony model. Jeśli wynik kontroli odbiega od opublikowanego, błąd jest w kodzie
 ewaluacji, nie w mierzonym modelu.
 
-Gdy żaden model z listy nie ma opublikowanego wyniku, w `REPRODUCTION.md` wpisujesz „bez kontroli” i miejsca, w których
-szukałeś; etap B potwierdza wtedy zgodność z kodem autorów (albo z lm-eval) na tych samych danych, a przy etapie C
-test zgodności.
+Gdy żaden model z listy nie ma opublikowanego wyniku, etap B idzie według sekcji „Bez kontroli” (wyżej), nie kończy się
+stopem.
 
 Benchmark polski albo bez oryginału nie ma opublikowanego wyniku do odtworzenia. Jego kontrolą jest model, który zna
 polski (`speakleash/Bielik-1.5B-v3` albo `utter-project/EuroLLM-1.7B` z tabeli niżej), a warunkiem jest wynik wyraźnie
