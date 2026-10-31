@@ -12,14 +12,13 @@ krok, w którym utknąłeś, i czego zabrakło. Wystarczy jedno zdanie. Opiekuno
 
 ## Pierwsze zadanie
 
-Zacznij od zadania z etykietą `good first issue`
+Wybierz zadanie, przypisz się do niego (Assignees → Assign yourself) i przestaw je na tablicy na In Progress.
+Bierzesz jedno zadanie naraz. Jeśli zaczynasz, weź zadanie z etykietą `good first issue`
 ([lista w tym repo](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22)).
 Takie zadanie nazywa się „Karta oryginału: <benchmark>”. Piszesz w nim kartę oryginału jednego benchmarku, czyli plik
 `ORIGINAL.md` (etap A). Zajmuje to około 2 h.
 
-Żeby wziąć zadanie, napisz w nim komentarz, że je bierzesz. Opiekun przypisze Cię do zadania. Pracę zaczynasz dopiero
-po przypisaniu. Bierzesz jedno zadanie naraz. Recenzję cudzej karty możesz wziąć, gdy masz już za sobą jedną własną
-kartę.
+Recenzję cudzej karty możesz wziąć, gdy masz już za sobą jedną własną kartę.
 
 Wszystkie zadania są pod adresem https://github.com/slayerlabs/benchmarks-fabryka-ai/issues. Tablica jest pod
 adresem https://github.com/orgs/slayerlabs/projects/10. Jak przygotować komputer, opisuje
@@ -61,7 +60,7 @@ Status w tej kolejności:
 
 1. **Backlog**: zadanie czeka i jeszcze nie można go brać.
 2. **Ready**: zadanie można brać.
-3. **In Progress**: ktoś je robi.
+3. **In Progress**: ktoś je robi. Przestawiasz je tu sam, gdy się do niego przypiszesz.
 4. **Review**: pierwsze sprawdzenie.
 5. **Independent Check**: drugie, niezależne sprawdzenie.
 6. **Done**: zrobione.

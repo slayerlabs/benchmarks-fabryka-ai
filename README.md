@@ -27,7 +27,7 @@ zadania.
 ```mermaid
 flowchart LR
   A[Discord #bench-team: dostęp od LoIlita albo Elwenora] --> B[Pierwsze zadanie: CONTRIBUTING.md]
-  B --> C[Komentarz w zadaniu, opiekun przypisuje]
+  B --> C[Przypisz się i przestaw zadanie na In Progress]
   C --> D[PR do main + Refs #N]
   D --> E[Testy autora PR, potem recenzja] --> F[Merge]
 ```
