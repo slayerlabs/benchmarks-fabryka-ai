@@ -1,0 +1,10 @@
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router";
+import { ModelBoardPage } from "./features/leaderboard/ModelBoard";
+import { AppLayout } from "./components/AppLayout";
+import { AutoEvalPage } from "./pages/AutoEval";
+import { BenchmarksPage } from "./pages/Benchmarks";
+import { MethodologyPage } from "./pages/Methodology";
+import "./styles.css";
+createRoot(document.getElementById("root")!).render(<StrictMode><BrowserRouter><Routes><Route element={<AppLayout />}><Route path="/models" element={<ModelBoardPage />} /><Route path="/autoeval" element={<AutoEvalPage />} /><Route path="/benchmarks" element={<BenchmarksPage />} /><Route path="/methodology" element={<MethodologyPage />} /><Route path="*" element={<Navigate to="/models" replace />} /></Route></Routes></BrowserRouter></StrictMode>);

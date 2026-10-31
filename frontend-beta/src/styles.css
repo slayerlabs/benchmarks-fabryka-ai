@@ -1,0 +1,57 @@
+:root { font-family: Arial, sans-serif; color: #282722; background: #faf9f6; --mono: ui-monospace, monospace; --sans: Arial, sans-serif; } * { box-sizing: border-box; } body { margin: 0; padding: 32px; } header { max-width: 1400px; margin: 0 auto 32px; } h1 { font-size: 34px; font-weight: 500; letter-spacing: -1px; } header p { max-width: 900px; line-height: 1.6; font-size: 13px; color: #726f67; } .brand { font: 12px var(--mono); letter-spacing: 2px; } header .fixture-banner { max-width: none; background: #fff0d3; border: 1px solid #d5b167; color: #654612; padding: 12px; } button, summary { cursor: pointer; } button:focus-visible, summary:focus-visible, a:focus-visible { outline: 2px solid #d64726; outline-offset: 4px; } a { color: inherit; } @media(max-width:600px) { body { padding: 16px; } }
+.app-layout { max-width: 1400px; margin: auto; }
+.app-header { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; border-bottom: 1px solid #dedbd3; padding-bottom: 18px; margin-bottom: 20px; }
+.brand { text-decoration: none; font-weight: 600; }
+.development-label, .eyebrow { font: 10px var(--mono); letter-spacing: 1px; color: #726f67; }
+.app-header nav { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+.app-header nav a { text-decoration: none; padding: 10px 12px; font-size: 13px; border-radius: 3px; }
+.app-header nav a[aria-current="page"] { background: #fff0e6; color: #a53419; box-shadow: inset 0 -2px #d64726; }
+.fixture-banner { font-size: 12px; line-height: 1.5; padding: 12px 16px; border: 1px solid #d5b167; background: #fff0d3; color: #654612; margin-bottom: 28px; }
+.page-top { margin: 0 0 24px; }
+.page-top h1 { margin: 0 0 12px; }
+.page-top p { font-size: 14px; max-width: 800px; }
+.page-top a, .panel a, .lb-group-note a, .lb-footnote a { color: #a53419; text-underline-offset: 3px; }
+.skip-link { position: absolute; top: -100px; padding: 12px; background: white; z-index: 10; }
+.skip-link:focus { top: 8px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+main:focus { outline: none; }
+.panel { padding: 24px; background: white; border: 1px solid #dedbd3; border-radius: 4px; margin-bottom: 20px; min-width: 0; }
+.panel h2 { font-size: 19px; font-weight: 500; margin: 0 0 12px; }
+.panel p, .panel li { font-size: 14px; line-height: 1.7; overflow-wrap: anywhere; }
+.panel summary { font-size: 13px; color: #a53419; line-height: 1.6; }
+.reading-column { max-width: 900px; }
+.reading-column section { scroll-margin-top: 20px; }
+.suite-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); gap: 18px; }
+.autoeval-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.panel label { display: flex; flex-direction: column; gap: 8px; margin: 18px 0; font-size: 13px; }
+.panel input, .panel select { width: 100%; padding: 12px; border: 1px solid #b7b3a9; border-radius: 3px; color: #282722; background: #faf9f6; font: 14px var(--sans); }
+.panel button:disabled { padding: 12px 16px; border: 1px solid #dedbd3; border-radius: 3px; color: #68645d; background: #f3f1ec; cursor: not-allowed; }
+input:focus-visible, select:focus-visible { outline: 2px solid #d64726; outline-offset: 3px; }
+.app-footer { border-top: 1px solid #dedbd3; margin-top: 40px; padding: 20px 0; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; color: #726f67; font-size: 12px; }
+@media(max-width: 700px) { .app-header nav { margin-left: 0; width: 100%; gap: 2px; } .app-header nav a { padding: 10px 8px; } .autoeval-grid { grid-template-columns: 1fr; } h1 { font-size: 28px; } .panel { padding: 18px; } }
+.app-header { display: block; background: #fffdf9; border: 1px solid #e2dcd5; border-top: 3px solid #92391c; padding: 20px 24px 0; }
+.app-brand-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.brand-lockup { display: inline-flex; align-items: center; gap: 9px; font: 700 23px/1.1 var(--sans); letter-spacing: -1px; }
+.brand-lockup img { flex: none; }
+.brand-product { color: #92391c; font-weight: 600; }
+.app-header nav { margin: 18px 0 0; border-top: 1px solid #e2dcd5; gap: 24px; }
+.app-header nav a { padding: 17px 4px; border-radius: 0; font-size: 15px; font-weight: 600; color: #675f59; }
+.app-header nav a[aria-current="page"] { color: #92391c; background: transparent; box-shadow: inset 0 -3px #92391c; }
+.model-entry { max-width: 1000px; }
+.inspection-input { display: flex; align-items: stretch; gap: 10px; }
+.inspection-input input { min-width: 0; flex: 1; }
+.primary-action { color: #fffdf9; background: #92391c; border: 1px solid #92391c; border-radius: 3px; padding: 12px 20px; font-weight: 600; white-space: nowrap; }
+.primary-action:hover { background: #722913; }
+.input-example, .catalog-note { font-size: 12px; line-height: 1.6; color: #675f59; }
+.inspection-blocked { border-left: 3px solid #bd842c; background: #fff6e4; padding: 16px; margin-top: 20px; line-height: 1.6; }
+.workflow-list { padding-left: 20px; }
+.workflow-list li { padding-bottom: 10px; }
+.inspection-facts div, .benchmark-card dl div { margin-bottom: 14px; }
+.inspection-facts dt, .benchmark-card dt, .concept-grid dt { font-size: 12px; font-weight: 700; }
+.inspection-facts dd, .benchmark-card dd, .concept-grid dd { margin: 5px 0 0; line-height: 1.6; font-size: 13px; overflow-wrap: anywhere; }
+.benchmark-card p { font-size: 13px; }
+.concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 20px; }
+.section-heading { font-size: 24px; font-weight: 500; margin: 32px 0 12px; }
+.suite-definition { border-top: 1px solid #e2dcd5; margin-top: 20px; padding-top: 12px; }
+.mono { font: 12px var(--mono); overflow-wrap: anywhere; }
+@media(max-width: 600px) { .app-header { padding: 16px 12px 0; } .app-brand-row { flex-wrap: wrap; } .brand-lockup { font-size: 21px; } .app-header nav { gap: 6px 16px; } .app-header nav a { padding: 13px 0; font-size: 14px; } .inspection-input { flex-direction: column; } .primary-action { width: 100%; } }

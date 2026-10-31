@@ -1,0 +1,33 @@
+name: Frontend CI
+on:
+  pull_request:
+    paths:
+      - "frontend-beta/**"
+      - ".github/workflows/ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "frontend-beta/**"
+      - ".github/workflows/ci.yml"
+permissions:
+  contents: read
+defaults:
+  run:
+    working-directory: frontend-beta
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend-beta/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend-beta/package-lock.json
+      - run: npm ci
+      - run: npm run check
+      - run: npm run lint
+      - run: npm test
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:ui
+      - run: npm run build

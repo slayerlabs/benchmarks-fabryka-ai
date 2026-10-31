@@ -1,0 +1,5 @@
+{"QUESTION": "Does regular exercise lower resting heart rate?", "CONTEXTS": ["A cohort of 200 adults trained three times a week for six months.", "Resting heart rate decreased by 6 beats per minute on average."], "LONG_ANSWER": "Yes.", "final_decision": "yes"}
+{"QUESTION": "Does drug X cure the common cold?", "CONTEXTS": ["In a randomized trial drug X showed no difference versus placebo in symptom duration."], "LONG_ANSWER": "No.", "final_decision": "no"}
+{"QUESTION": "Is coffee intake associated with longevity?", "CONTEXTS": ["Observational data show a weak association that disappears after adjustment for smoking."], "LONG_ANSWER": "Unclear.", "final_decision": "maybe"}
+{"QUESTION": "Do helmets reduce head injuries in cyclists?", "CONTEXTS": ["Case-control studies report a 60 percent lower risk of head injury among helmet users."], "LONG_ANSWER": "Yes.", "final_decision": "yes"}
+{"QUESTION": "Does vitamin C supplementation prevent stroke?", "CONTEXTS": ["Large trials found no reduction in stroke incidence with vitamin C."], "LONG_ANSWER": "No.", "final_decision": "no"}
