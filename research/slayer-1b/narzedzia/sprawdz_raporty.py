@@ -3,6 +3,8 @@
 Kod wyjścia 1, gdy:
  (a) liczba dziesiętna w polskim zapisie (0,330, −0,047) nie odpowiada żadnej wartości z LICZBY.json
      po zaokrągleniu do liczby cyfr w tekście ("pkt" i "%" porównuje z wartością × 100, "x SE" z |z|);
+     plik w katalogu benchmarku z LICZBY.json["benchmarki"] (i linia z jego nazwą) porównuje z wartościami
+     tego benchmarku, a gdy benchmark ma "skala": 100, także liczby bez "%" (tabele w %);
  (b) zdanie z oceną różnicy (lepszy, gorszy, luka, przewaga, poprawa, pogorszenie, istotny, prawdziwy)
      w akapicie z liczbami nie ma SE, z ani werdyktu (szum / prawdopodobne / pewne / w granicach);
  (c) słowo werdyktu („pewne”, „prawdopodobna”) stoi przy teście, którego żadne porównanie z tej
@@ -47,6 +49,7 @@ WERDYKT = [("pewne", re.compile(r"\bpewn(?:e|a|y|ą|ych)\b", re.IGNORECASE)),
 ZDANIE = re.compile(r"(?<=[.!?])\s+(?=[A-ZĄĆĘŁŃÓŚŹŻ*„(])")
 WYJATEK_A = "liczba-spoza-wynikow"
 WYJATEK_B = "ocena-bez-se"
+KLUCZ_BENCHMARKU = "benchmark:"
 
 
 # ---------- czyste funkcje ----------
@@ -107,7 +110,25 @@ def zbiory(liczby):
     wszystkie = {r: Zbior([v for d in out.values() for v in d[r]]) for r in ("surowa", "skalowana", "z")}
     wynik = {t: {r: Zbior(d[r] + out.get(None, {}).get(r, [])) for r in d} for t, d in out.items()}
     wynik["*"] = wszystkie
+    for nazwa, b in liczby.get("benchmarki", {}).items():
+        v = list(b["wartosci"].values())
+        skalowane = [x * b.get("skala", 1) for x in v]
+        wynik[KLUCZ_BENCHMARKU + nazwa] = {"surowa": Zbior(v + skalowane), "skalowana": Zbior([x * 100 for x in v]),
+                                         "z": Zbior([])}
     return wynik
+
+
+def benchmark_pliku(plik, liczby):
+    """Benchmark, do którego katalogu należy plik raportu, albo None."""
+    for nazwa, b in liczby.get("benchmarki", {}).items():
+        if any(plik.startswith(p) for p in b["pliki"]):
+            return nazwa
+    return None
+
+
+def benchmarki_w_tekscie(tekst, liczby):
+    return {n for n, b in liczby.get("benchmarki", {}).items()
+            if any(re.search(rf"\b{re.escape(a)}", tekst, re.IGNORECASE) for a in b["aliasy"])}
 
 
 def werdykt_z(z):
@@ -147,19 +168,21 @@ def bez_kodu(linia):
     return re.sub(r"<!--.*?-->", lambda m: " " * len(m.group(0)), linia)
 
 
-def niepasujace_liczby(linia, zb, aliasy=None):
+def niepasujace_liczby(linia, zb, aliasy=None, benchmarki=()):
     """Liczby z linii, których nie da się odtworzyć z LICZBY.json: [(tekst, rodzaj)].
     Gdy linia nazywa testy (ARC-E, SIQA...), liczba musi pasować do wartości tych testów albo
-    wartości bez testu (loss, WikiText); linia bez nazwy testu porównuje ze wszystkimi."""
+    wartości bez testu (loss, WikiText); linia bez nazwy testu porównuje ze wszystkimi.
+    `benchmarki` (plik w katalogu benchmarku albo linia z jego nazwą) dokładają pule tych benchmarków."""
     czysta = bez_kodu(linia)
     testy = [t for t in testy_w_tekscie(czysta, aliasy) if t in zb] if aliasy else []
+    pule = [zb[KLUCZ_BENCHMARKU + b] for b in benchmarki if KLUCZ_BENCHMARKU + b in zb]
     zle = []
     for m in LICZBA.finditer(czysta):
         if JEDNOSTKA_POMIN.match(czysta, m.end()):
             continue
         x, cyfr = parsuj_liczbe(m.group(0))
         rodzaj = rodzaj_liczby(czysta, m.start(), m.end())
-        kandydaci = [zb[t][rodzaj] for t in testy] or [zb["*"][rodzaj]]
+        kandydaci = ([zb[t][rodzaj] for t in testy] or ([] if pule else [zb["*"][rodzaj]])) + [p[rodzaj] for p in pule]
         if not any(k.zawiera(x, cyfr) for k in kandydaci):
             zle.append((m.group(0), rodzaj))
     return zle
@@ -264,13 +287,15 @@ def sprawdz_tekst(plik, linie, liczby, zb):
             sekcja = l.strip()
         sekcje[nr] = sekcja
     w_kodzie = False
+    bench_pliku = benchmark_pliku(plik, liczby)
     for nr, l in enumerate(linie, 1):
         if l.strip().startswith("```"):
             w_kodzie = not w_kodzie
             continue
         if w_kodzie or WYJATEK_A in l or wylaczone(plik, sekcje[nr], "a"):
             continue
-        for tekst, rodzaj in niepasujace_liczby(l, zb, liczby["aliasy"]):
+        bench = benchmarki_w_tekscie(bez_kodu(l), liczby) | ({bench_pliku} if bench_pliku else set())
+        for tekst, rodzaj in niepasujace_liczby(l, zb, liczby["aliasy"], sorted(bench)):
             opis = {"z": "jako z (×SE)", "skalowana": "jako pkt/% (×100)", "surowa": "jako wartość"}[rodzaj]
             bledy.append((plik, nr, f"(a) {tekst} nie odpowiada żadnej liczbie z LICZBY.json {opis}"))
     for akapit in jednostki(linie):

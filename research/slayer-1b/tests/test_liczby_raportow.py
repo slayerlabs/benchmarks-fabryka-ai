@@ -98,6 +98,14 @@ def test_zepsuta_liczba_w_kopii_dokumentu_zlapana():
     assert [p for _, _, p in b if "0,345" in p], b
 
 
+def test_liczby_benchmarku_sprawdzane_w_jego_plikach_i_nie_wyciekaja():
+    # Bielik PL EWoK = 66,0%; tabela EWoK pisze wartości w % bez znaku „%”
+    assert not bledy("| Bielik-1.5B-v3 | 66,0 [63,4; 68,5] |", "ewok_pl/WYNIKI.md")
+    assert [p for _, _, p in bledy("| Bielik-1.5B-v3 | 66,3 [63,4; 68,5] |", "ewok_pl/WYNIKI.md") if "66,3" in p]
+    assert not bledy("Bielik ma na EWoK 66,0%.")
+    assert [p for _, _, p in bledy("Bielik ma 63,4%.") if "63,4" in p]
+
+
 def test_porownanie_parowane_ma_obie_wersje_se():
     liczby, _ = dane()
     p = next(x for x in liczby["porownania"] if x["id"] == "wygaszanie/A-B/heldout/loss")

@@ -52,14 +52,14 @@ Jest zgodny z paperem EWoK (Ivanova i in. 2024, [arXiv:2405.09605](https://arxiv
 Wnioski:
 
 1. **Slayer uczy się wiedzy o świecie, ale na PL-625 tego nie widać.** Na EN 1.06 jest lepszy od 1.00
-   o 5,7 pkt (CI95 +4,7…+6,8). Rosną głównie `material-dynamics` (53 → 67), `social-properties`
+   o 5,7 pkt (SE 0,5 pkt, pewne; CI95 +4,7…+6,8). Rosną głównie `material-dynamics` (53 → 67), `social-properties`
    (58 → 68) i `social-relations` (51 → 57). Na PL-625 różnice między kolejnymi wersjami mają wszystkie
    p_holm > 0,8. Te same 625 rekordów po angielsku (EN625) też dają u Slayera tylko 51–57%, więc wąską
    próbkę wyjaśnia sam wybór domeny, a nie tłumaczenie.
 2. **Para „make more / less effort” (220 z 625 rekordów) jest na poziomie losowym dla wszystkich modeli**
    (Bielik 57, LFM3 55, Slayer 48–52). To 35% PL-625 i właśnie ten kawałek spłaszcza wynik. Flagi
    przeglądu (`review_flags`) nie przewidują porażki modeli: 45 rekordów bez flagi wypada nie lepiej niż reszta.
-3. **Polski Slayer nie ma przewagi nad LFM3 po polsku** (−2,0 pkt, p = 0,20), choć LFM3 nie deklaruje
+3. **Polski Slayer nie ma przewagi nad LFM3 po polsku** (−2,0 pkt, SE 1,5 pkt, p = 0,20, szum), choć LFM3 nie deklaruje
    polskiego. Bielik wygrywa wyraźnie (+10,6 pkt). Wniosek jest zawężony do `agent-properties`.
 4. **Ślad prioru zdania:** przy porównaniu T1 vs T2 w tym samym kontekście Slayer w 81–85% rekordów
    wybiera to samo zdanie niezależnie od kontekstu (Bielik i LFM3 74–75%). Reguła z paperu jest na to
