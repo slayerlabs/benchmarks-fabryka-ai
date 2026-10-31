@@ -47,7 +47,7 @@ Kontrola na instancji przed rundą 1: `statystyki.json` → `en_komponenty` (czy
 Kod z zacommitowanego stanu gałęzi (jedno archiwum, bez `.venv`, `data/` i checkpointów):
 
 ```
-git -C <worktree> archive -o $TMPDIR/kod.tar.gz HEAD:research wspolne slayer-1b/wygaszanie slayer-1b/testy_danych_slayer tests
+git -C <worktree> archive -o $TMPDIR/kod.tar.gz HEAD:research common slayer-1b/wygaszanie slayer-1b/testy_danych_slayer tests
 scp -i <klucz> -P <port> $TMPDIR/kod.tar.gz root@sshN.vast.ai:/workspace/
 ssh -i <klucz> -p <port> root@sshN.vast.ai 'mkdir -p /workspace/kod && tar -xzf /workspace/kod.tar.gz -C /workspace/kod'
 ```

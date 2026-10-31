@@ -18,7 +18,7 @@ import numpy as np
 
 KAT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(KAT / "slayer-1b" / "testy_danych_slayer"))
-sys.path.insert(0, str(KAT / "wspolne"))
+sys.path.insert(0, str(KAT / "common"))
 import dane_ramion as D  # noqa: E402
 import heldout_bpb as HB  # noqa: E402
 import porownaj_ramion as P  # noqa: E402

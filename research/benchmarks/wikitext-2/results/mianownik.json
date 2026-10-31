@@ -1,0 +1,16 @@
+{
+ "n_docs": 62,
+ "bajty_detok": 1240466,
+ "bajty_oryginal": 1290527,
+ "stosunek_bajtow": 1.040356607919927,
+ "slowa_detok": 204373,
+ "slowa_oryginal_resplit": 241335,
+ "nll_nats_odtworzone": 791318.7313842773,
+ "nasz_byte_ppl_mianownik_detok": 1.892541306655693,
+ "byte_ppl_mianownik_lmeval": 1.846283823111059,
+ "bits_per_byte_lmeval": 0.8846243507734769,
+ "word_ppl_mianownik_lmeval": 26.547149409677345,
+ "space_byte_ppl": 1.846,
+ "roznica_przed_proc": 2.521197543645348,
+ "roznica_po_proc": 0.015375033101783231
+}

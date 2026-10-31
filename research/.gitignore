@@ -24,6 +24,8 @@ __pycache__/
 *.pyc
 .venv*/
 .pytest_cache/
-# benchmarki: surowe wyniki per rekord zostają lokalnie (raporty w wyniki/*.json i *.md idą do repo)
-benchmarki/*/wyniki/*/*.jsonl
+# benchmarki: surowe wyniki per rekord zostają lokalnie (raporty w results/*.json i *.md idą do repo)
+benchmarks/*/results/*/*.jsonl
+analyses/*/results/*/*.jsonl
+analyses/*/results/*/trace/
 _smoke_*

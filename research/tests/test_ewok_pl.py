@@ -1,8 +1,8 @@
-"""Czyste funkcje EWoK-PL (benchmarki/ewok-pl/ewok.py), bez wag i bez danych. Uruchom: python tests/test_ewok_pl.py (albo pytest)."""
+"""Czyste funkcje EWoK-PL (benchmarks/ewok-pl/ewok.py), bez wag i bez danych. Uruchom: python tests/test_ewok_pl.py (albo pytest)."""
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "benchmarki" / "ewok-pl"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "benchmarks" / "ewok-pl"))
 import ewok as E  # noqa: E402
 
 

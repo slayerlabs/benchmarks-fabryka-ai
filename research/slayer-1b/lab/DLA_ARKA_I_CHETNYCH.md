@@ -14,7 +14,7 @@ Arek, sprawdziliśmy, skąd Slayer 1.06 siedzi na poziomie losowym na większoś
 | 6 | Postęp 1.00 → 1.06 po treści | acc_norm 0,218 → 0,258 (+0,040); BPB poprawnej odp. −0,114 | SE 0,011 / 0,007 | Trening działa, Space tego nie widzi |
 | 7 | Polski vs Pythia-1B | Belebele (po treści, acc) 0,330 vs 0,297; MultiBLiMP-PL 0,986 vs 0,774 | Belebele 1,5 SE, MultiBLiMP 28 SE | MultiBLiMP pewny, ale oczekiwany (Pythia uczona na angielskim); Belebele w granicach szumu |
 | 8 | Angielski vs Pythia-1B | ARC-E −4,4 pkt, MMLU −2,2 pkt, SIQA −0,9 pkt (po treści, acc) | 3,0 / 4,2 / 0,6 SE | ARC-E i MMLU prawdopodobna luka; SIQA bez różnicy |
-| 9 | WikiText-2 byte_ppl | Nasz 1,893, Space 1,846 (+2,5%) | — | Do wyjaśnienia (zadanie A5) |
+| 9 | WikiText-2 byte_ppl | Nasz 1,846284, Space 1,846284 (różnica w 8. cyfrze); wcześniejsze 1,893 brało liczbę bajtów z tekstu po detokenizacji, lm-eval bierze z oryginału | ten sam pomiar, przeliczony (benchmarks/wikitext-2/README.md) | Wyjaśnione: nasz pipeline zgadza się ze Space (zadanie A5 zamknięte) |
 | 10 | Wygaszanie LR (150 kroków z ckpt_13848, 157 mln tokenów) | Loss na odłożonych danych: wygaszanie 2,2807, stały LR 2,3276 (Δ −0,047 nat), spadek we wszystkich częściach danych (web, core, legal, en); trafność ARC-C, MedMCQA, SIQA, MultiBLiMP bez zmian | SE różnicy 0,0006; szum między checkpointami 0,0011 | Wygaszenie obniża perplexity, testów nie podnosi; warto zrobić przed wydaniem |
 | 11 | Testy danych na Slayerze (EN 10% vs 25%, lepszy polski web) <!-- ocena-bez-se: nazwa planowanego ramienia, nie wynik --> | Plan i progi gotowe, nie uruchomione | — | Czekamy na Twoje zdanie, czy warto |
 
@@ -66,7 +66,7 @@ Po co: `polqa` jest w rdzeniu danych Slayera, więc wynik na PolQA może być za
 Po co: przed publikacją większego modelu trzeba wiedzieć, co jest CC-BY-SA (wymusza tę samą licencję pochodnych). Zmienia: licencję przyszłego modelu. Gotowe: tabela składnik → licencja → źródło, z `shared/manifest.json` i `pack-XX/manifest.json`.
 
 **A5. Rozbieżność WikiText.**
-Po co: nasz byte_ppl na WikiText-2 to 1,893, w Space 1,846 (+2,5%), a forward modelu zgadza się z kodem treningu. Zmienia: czy nasz pipeline oceny jest wierny Space (od tego zależą wszystkie porównania). Gotowe: przyczyna różnicy albo dowód, że to ustawienie okna/tokenizacji.
+Wyjaśnione (31.10). Nasze 1,893 dzieliło sumę NLL przez bajty tekstu PO detokenizacji (1 240 466), a lm-eval w Space dzieli przez bajty oryginału `doc["page"]` (1 290 527). Po tej samej poprawce nasz wynik to 1,846284, Space 1,846284 (różnica w 8. cyfrze), więc forward, okna i tokenizacja są zgodne ze Space. Opis i liczby: `benchmarks/wikitext-2/README.md`.
 
 **A6. Tokenizacja litery odpowiedzi.**
 Po co: „ A” ze spacją i „A” bez spacji dają inne wyniki (arXiv 2509.15020). Mamy oba warianty dla ARC-C, brakuje reszty testów. Zmienia: dokładny przepis oceny w Space. Gotowe: tabela obu wariantów dla wszystkich testów z literami.

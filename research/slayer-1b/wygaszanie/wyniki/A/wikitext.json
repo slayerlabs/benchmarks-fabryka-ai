@@ -1,6 +1,17 @@
 {
  "n_docs": 62,
- "byte_perplexity": 1.8921322827403875,
- "bits_per_byte": 0.9200129538899228,
- "word_perplexity": 47.97221029144642
+ "byte_perplexity": 1.845900273638784,
+ "bits_per_byte": 0.8843246122398191,
+ "word_perplexity": 26.517671852581575,
+ "nll_suma": 791050.6077270508,
+ "bajty": 1290527,
+ "slowa": 241335,
+ "metoda": "przeliczone z korekty mianownika (bajty i słowa z doc['page'] jak lm-eval, nie z tekstu po detokenizacji)",
+ "przed_korekta": {
+  "byte_perplexity": 1.8921322827403875,
+  "bits_per_byte": 0.9200129538899228,
+  "word_perplexity": 47.97221029144642,
+  "bajty": 1240466,
+  "slowa": 204373
+ }
 }
