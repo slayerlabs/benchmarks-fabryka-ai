@@ -25,6 +25,7 @@ flowchart LR
   B -->|warunek spełniony| C[C. Kod w repo]
   B -->|niespełniony| X[Stop: komentarz w zadaniu]
   B -->|bez kontroli, kod autorów zgodny z repo| C
+  B -->|bez kontroli, kod niezgodny| X
   C --> D[D. Wersja polska tą samą metodą]
 ```
 
@@ -91,7 +92,8 @@ Gdy żaden model z listy w sekcji „Model kontrolny etapu B” nie ma opublikow
 Pythię-1B v0, `EleutherAI/pythia-1b-v0` @ `step143000`) liczysz kodem autorów i kodem z repo (lm-eval) na tych samych
 danych. Warunek: co najmniej 99% zgodnych decyzji na przykład (jak w teście zgodności z etapu C), a dla perpleksji i BPB
 różnica poniżej 0,1%. Gdy kodu autorów nie da się uruchomić (np. autorzy go nie opublikowali), wpisz w `REPRODUCTION.md`
-powód, a zgodność sprawdza recenzent PR.
+powód, a zgodność sprawdza recenzent PR. Niezgodny kod zatrzymuje pracę jak niespełniony warunek: szukasz przyczyny i
+opisujesz ją w REPRODUCTION.md, zanim liczysz dalej.
 
 ## C. Kod w repo
 
