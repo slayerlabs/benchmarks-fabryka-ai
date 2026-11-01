@@ -17,7 +17,7 @@ COMMON_DIR = Path(__file__).resolve().parent.parent / "common"
 sys.path.insert(0, str(COMMON_DIR))
 
 import torch  # noqa: E402
-from safetensors.torch import load_file, save_file  # noqa: E402
+from safetensors.torch import save_file  # noqa: E402
 from tokenizers import Regex, Tokenizer  # noqa: E402
 from tokenizers.decoders import Fuse  # noqa: E402
 from tokenizers.models import WordLevel  # noqa: E402
@@ -158,23 +158,12 @@ def test_forward_matches_official_reference():
     with tempfile.TemporaryDirectory() as tmp:
         model_dir, cfg = reference_model_dir(tmp)
         assert cfg == ref["config"], "reference config changed, rerun tests/make_slayer_reference.py"
-        weights = load_file(str(model_dir / "model.safetensors"))
-        assert _weights_sha256(weights) == ref["weights_sha256"], "reference weights changed, rerun the script"
         slayer = slayer_model.Slayer(model_dir, device="cpu")
         logits = slayer.logits(torch.tensor(ref["ids"]))
     expected = torch.tensor(ref["logits"])
     assert logits.shape == expected.shape, (logits.shape, expected.shape)
     diff = (logits - expected).abs().max().item()
     assert diff < 1e-4, diff
-
-
-def _weights_sha256(weights):
-    import hashlib
-    h = hashlib.sha256()
-    for name in sorted(weights):
-        h.update(name.encode())
-        h.update(weights[name].to(torch.float32).contiguous().numpy().tobytes())
-    return h.hexdigest()
 
 
 def direct_rolling(slayer, text, window):

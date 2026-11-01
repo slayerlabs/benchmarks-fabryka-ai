@@ -49,7 +49,6 @@ def main(hf_dir):
         "trainer_sha256": trainer_sha,
         "torch": torch.__version__,
         "config": cfg,
-        "weights_sha256": t._weights_sha256(weights),
         "ids": ids.tolist(),
         "logits": [[[round(v, 6) for v in row] for row in seq] for seq in logits.tolist()],
     }
