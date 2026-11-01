@@ -323,8 +323,8 @@ rewizję zbioru, którą zadanie ładuje. Hashe blobów daje jedna komenda, uruc
 gh api 'repos/EleutherAI/lm-evaluation-harness/contents/lm_eval/tasks/<katalog>?ref=<tag>' --jq '.[] | "\(.sha) \(.name)"'
 ```
 
-Wynik zapisz w karcie, w polu „Znane rozbieżności”. Wpisz, że katalog jest identyczny, albo czym się różni. Wzór jest
-w `benchmarks/wikitext-2/ORIGINAL.md`.
+Wynik zapisz w karcie, w polu „Znane rozbieżności”. Wpisz, że katalog jest identyczny, albo czym się różni. Komenda
+pokazuje pierwszy poziom katalogu; podkatalog z innym hashem otwórz tą samą komendą.
 
 Nikt w tym repo nie sprawdził instalacji samego commitu `6d2abda4`
 (`pip install "lm_eval @ git+https://github.com/EleutherAI/lm-evaluation-harness@6d2abda4"`). Jeśli jej użyjesz, zrób
@@ -375,7 +375,7 @@ Dopisujesz kontrolę albo „bez kontroli, wynik wstępny”. Po merge'u Arek, w
 
 Pierwsze zadanie opisuje [`CONTRIBUTING.md`, „Pierwsze zadanie”](../CONTRIBUTING.md#pierwsze-zadanie).
 
-**Recenzja idzie w dwóch krokach:**
+**Recenzja idzie w dwóch krokach** (PR z samą kartą ma wariant krótszy, opisany niżej):
 
 1. Najpierw automaty. Komendy z sekcji [„Przed PR”](../README.md#przed-pr) README repo kończą się kodem 0. To testy
    zmienionego benchmarku z testem zgodności z etapu C, `tests/test_liczby_raportow.py` i bramka liczb. Uruchamia je

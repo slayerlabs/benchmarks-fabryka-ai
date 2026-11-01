@@ -29,7 +29,7 @@ adresem https://github.com/orgs/slayerlabs/projects/10. Jak przygotować kompute
 
 1. Załóż gałąź od `main`. Nazwij ją `research/<name>` (benchmark) albo `docs/<temat>`. Możesz też otworzyć PR z
    forka. Wtedy nie potrzebujesz prawa zapisu w repo.
-2. Przed PR uruchom w `research/` testy zmienionego benchmarku, `tests/test_liczby_raportow.py` i bramkę liczb.
+2. Przed PR (poza PR z samą kartą, wariant niżej) uruchom w `research/` testy zmienionego benchmarku, `tests/test_liczby_raportow.py` i bramkę liczb.
    Katalog `research/` nie ma CI, więc robisz to sam. Każda komenda musi zakończyć się kodem 0:
 
    ```bash

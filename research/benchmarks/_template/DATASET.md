@@ -2,7 +2,7 @@
 
 Znaczenie pól opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „Benchmark bez oryginału: karta zbioru
 (DATASET.md)”. Ten plik zastępuje `ORIGINAL.md` i `REPRODUCTION.md`, więc tamte dwa usuń. Gdy czegoś nie da się
-ustalić, wpisz „nieustalone” i dopisz, gdzie szukałeś.
+ustalić, wpisz „nieustalone” z listą przeszukanych miejsc.
 
 | pole | wartość |
 |---|---|

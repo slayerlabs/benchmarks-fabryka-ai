@@ -27,7 +27,8 @@ rosnąco po SHA-256 `20261028|benchmark_id|member_task|source_id`, ta sama dla w
 WikiText-2 idzie pełnym strumieniem (62 dokumenty). EN 0-shot, 12 zadań PL 5-shot, BBH 3-shot.
 Jedna metryka główna na benchmark i brak średniej. CI95: bootstrap 10 000 powtórzeń, seed 20261028.
 Kontrasty: sparowany test permutacyjny z poprawką Holma. Bazy odniesienia: losowa, większościowa
-(tylko zadania o stałym zbiorze klas), udział najczęstszej predykcji, flaga stałej predykcji.
+(ten kod, jak Space, liczy ją tylko dla zadań o stałym zbiorze klas; regułę dla karty podaje
+`research/README.md`, „Bazy: losowa i większościowa”), udział najczęstszej predykcji, flaga stałej predykcji.
 Kontaminacja: n-gramy 13 względem korpusu treningowego; dla flagowanych wyników także wartość
 na pytaniach bez trafień.
 

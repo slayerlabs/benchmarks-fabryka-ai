@@ -14,14 +14,19 @@ wierszy tabeli albo na listę, jedna pozycja na linię. Przykład: `benchmarks/w
 |---|---|
 | Co mierzy | |
 | Źródła | praca: ; repo autorów @ commit: ; zbiór HF @ rewizja: |
-| Dane | split w pracy: ; n: ; split w Space/repo: ; n: ; pełny split albo panel 200: ; licencja: ; ukryte odpowiedzi w teście: tak/nie |
+| Dane: split w pracy | split: ; n: |
+| Dane: split w Space/repo | split: ; n: ; pełny split albo panel 200: |
+| Dane: licencja | licencja autorów: ; tag HF: ; ukryte odpowiedzi w teście: tak/nie |
 | Format zadania | |
 | Prompt | szablon z pracy albo kodu; gdy praca nie ma promptu modelu językowego (modele dostrajane): szablon z implementacji Space/lm-eval z separatorem celu (`target_delimiter`, domyślnie spacja) i pełnym ocenianym tekstem jednej opcji |
 | Ocena | |
 | Metryka decyzyjna | |
 | Agregacja | |
 | Bazy | losowa: ; większościowa (udział najczęstszej poprawnej odpowiedzi, przy wyborze odpowiedzi najczęstszej pozycji opcji, dokładnie ze splitu): |
-| SNR | z opublikowanych wyników kilku modeli z jednego źródła (np. tabela w pracy, `evals/pythia-v0` w repo `EleutherAI/pythia`); rozrzut wyników (odchylenie std.) między modelami/checkpointami: ; typowe SE dla n pełnego splitu: ; SNR = rozrzut / SE: ; modele i źródło: |
+| SNR: źródło | z opublikowanych wyników kilku modeli z jednego źródła (np. tabela w pracy, `evals/pythia-v0` w repo `EleutherAI/pythia`); modele i źródło: |
+| SNR: rozrzut | odchylenie std. wyników między modelami/checkpointami: |
+| SNR: SE | typowe SE dla n pełnego splitu: |
+| SNR: iloraz | rozrzut / SE: |
 | Wyniki referencyjne (odczyt RRRR-MM-DD) | model @ rewizja → wynik, źródło. Gdy po sprawdzeniu miejsc z METODOLOGIA.md („Model kontrolny etapu B”) żaden model, który da się pobrać, nie ma opublikowanego wyniku: „brak” i lista przeszukanych miejsc (etap B idzie wtedy jako „bez kontroli”) |
 | Train policy | `eval_only` dla wszystkich splitów (domyślnie) albo `train_allowed`: które splity, issue z decyzją |
 | Decyzja treningowa | |
