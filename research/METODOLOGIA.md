@@ -233,6 +233,15 @@ dostępny z listy**, w tej kolejności:
 Kontrolę liczysz tym samym kodem co mierzony model. Jeśli wynik kontroli odbiega od opublikowanego, błąd jest w kodzie
 ewaluacji, nie w mierzonym modelu.
 
+**Kontrola musi odróżniać działający kod od zepsutego.** Opublikowany wynik modelu kontrolnego ma leżeć ponad 2 SE nad
+bazą losową i nad bazą większościową (udział najczęstszej odpowiedzi). Inaczej ten sam wynik da też kod, który
+zgaduje albo zawsze wybiera jedną odpowiedź. Wtedy bierzesz następny model z listy. Przykład: Pythia v0 na
+ARC-Challenge i LogiQA leży przy poziomie losowym, a na BoolQ znany wynik 1B leży pod bazą większościową.
+
+**Model kontrolny nie sprawdza ładowania Slayera.** Gdy Space ma wynik Slayera na tym teście, Slayer policzony Twoim
+kodem na tych samych pytaniach panelu Space ma się z nim zgadzać w granicach 2 SE. Wynik referencyjny nie może
+pochodzić z kodu, który sprawdzasz.
+
 Gdy żaden model z listy nie ma opublikowanego wyniku, etap B idzie według sekcji „Bez kontroli” (wyżej). Praca się
 wtedy nie zatrzymuje.
 
@@ -319,6 +328,9 @@ czyli według `METHOD.md` Space i ustawień z `tasks_50.json`. Wersja lm-eval je
 **Kontrola** to pierwszy dostępny model z listy w sekcji „Model kontrolny etapu B”, liczony na tym samym lm-eval.
 Najpierw `EleutherAI/pythia-1b-v0` @ `step143000`, potem `utter-project/EuroLLM-1.7B`. Na końcu opublikowany wynik
 dowolnego modelu, który da się pobrać, z pracy autorów albo z Open LLM Leaderboard, z rewizją i ustawieniami.
+Kontrola liczy się tylko wtedy, gdy odróżnia działający kod od zepsutego (warunek w „Model kontrolny etapu B”). Open
+LLM Leaderboard v2 ma z tych testów tylko IFEval. IFEval nie ma bazy losowej, więc bazą jest wynik stałej, pustej
+odpowiedzi.
 
 **Próg wstrzymania** jest ten sam co warunek odtworzenia z sekcji B. Różnica kontroli wobec opublikowanej wartości
 ma się mieścić w ±2 pkt. Gdy 2 SE > 2 pkt, ma się mieścić w granicach 2 SE. Różnica poza tym progiem wstrzymuje
