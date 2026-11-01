@@ -7,8 +7,8 @@ Excerpt of two files of the Space `SlayerLab/Slayer1B-Benchmarks` at revision
 - https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks/blob/2d3d73f5c0ee431df9d38bd9619ccb05a26bf9a9/tasks_50.json
 
 METHOD.md text copied verbatim from the instance's terminal output; the T06 entry as printed there by
-`json.dumps(entry, indent=1)` (same keys and values, whitespace of the original file not kept). The sha256 of the
-full files was not recorded. The Space's
+`json.dumps(entry, indent=1)` (same keys and values, whitespace of the original file not kept). sha256 of the full
+METHOD.md and tasks_50.json: not determined; this is a copy from the terminal output at revision `2d3d73f5`. The Space's
 `METHOD.md` is version v0.3.1. Only sections 2, 3 and 8 and the T06 entry are copied here.
 
 ## METHOD.md, section 2 (Harness and runtime)

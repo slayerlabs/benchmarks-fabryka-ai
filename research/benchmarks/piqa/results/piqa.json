@@ -101,7 +101,9 @@
     "batch": "1",
     "dtype": "float32"
    },
-   "panel_minus_full_pts": 2.053318824809569
+   "panel_minus_full_pts": 2.053318824809569,
+   "panel_minus_full_z": 0.6909350818129232,
+   "panel_minus_full_verdict": "szum"
   },
   "slayer-1.06": {
    "full": {
@@ -176,7 +178,9 @@
     "batch": "1",
     "dtype": "float32"
    },
-   "panel_minus_full_pts": 3.8541893362350477
+   "panel_minus_full_pts": 3.8541893362350477,
+   "panel_minus_full_z": 1.2343200044557052,
+   "panel_minus_full_verdict": "szum"
   }
  },
  "control": {

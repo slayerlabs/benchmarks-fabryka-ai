@@ -150,9 +150,22 @@ def test_result_rows(d):
 def test_headline_and_panel_gap(d):
     sf, sp = stats(d["s"]), stats(part(d["s"], d["panel"]))
     pf, pp = stats(d["p"]), stats(part(d["p"], d["panel"]))
-    has(d["text"], f"full validation split: {f4(sf['v'])} (n 1838, CI95 {f4(sf['lo'])}–{f4(sf['hi'])}). "
-                   f"Space panel: {f4(sp['v'])} (n 200, CI95 {f4(sp['lo'])}–{f4(sp['hi'])}).")
-    has(d["text"], f"(Slayer {f2(100 * (sp['v'] - sf['v']))} pts, Pythia {f2(100 * (pp['v'] - pf['v']))} pts)")
+    has(d["text"], f"Space panel (the Space protocol, `min(200, N)` questions): {f4(sp['v'])} "
+                   f"(n 200, CI95 {f4(sp['lo'])}–{f4(sp['hi'])}). Beside it, the more precise full validation split: "
+                   f"{f4(sf['v'])} (n 1838, CI95 {f4(sf['lo'])}–{f4(sf['hi'])})")
+    fpc = math.sqrt((1838 - 200) / (1838 - 1))
+    zs = (sp["v"] - sf["v"]) / (sp["se"] * fpc)
+    zp = (pp["v"] - pf["v"]) / (pp["se"] * fpc)
+    has(d["text"], f"Panel minus full split: Slayer {f2(100 * (sp['v'] - sf['v']))} pts (z {f2(zs)}, {verdict(zs)}), "
+                   f"Pythia {f2(100 * (pp['v'] - pf['v']))} pts (z {f2(zp)}, {verdict(zp)})")
+    assert "easier" not in d["text"] and "overstates" not in d["text"]
+
+
+def test_deviations_stated(d):
+    has(d["text"], "`instrument: lm_eval_0.4.8`")
+    has(d["text"], "ran on lm-eval 0.4.9.1")
+    has(d["text"], "as the `slayer` wrapper from #44")
+    assert "(as in the Space)" not in d["text"]
 
 
 def test_baselines_and_ties(d):

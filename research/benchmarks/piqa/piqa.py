@@ -303,8 +303,13 @@ def report(args):
         out["models"][k] = {"full": model_stats(lines), "panel": model_stats(lines, panel),
                             "meta": {m: metas[k][m] for m in ("model", "revision", "device", "lm_eval", "torch",
                                                               "transformers", "batch", "dtype")}}
-        out["models"][k]["panel_minus_full_pts"] = 100 * (out["models"][k]["panel"]["acc_norm"]["value"]
-                                                          - out["models"][k]["full"]["acc_norm"]["value"])
+        mk = out["models"][k]
+        mk["panel_minus_full_pts"] = 100 * (mk["panel"]["acc_norm"]["value"] - mk["full"]["acc_norm"]["value"])
+        # the panel is a sample without replacement from the full split: panel SE x finite-population correction
+        n_p, n_f = mk["panel"]["n"], mk["full"]["n"]
+        se_diff = mk["panel"]["acc_norm"]["se"] * math.sqrt((n_f - n_p) / (n_f - 1))
+        mk["panel_minus_full_z"] = mk["panel_minus_full_pts"] / 100 / se_diff
+        mk["panel_minus_full_verdict"] = verdict(mk["panel_minus_full_z"])
 
     # control
     pf = out["models"]["pythia-1b-v0"]["full"]
@@ -379,11 +384,13 @@ def render(o):
         "",
         "## Number for the Space",
         "",
-        f"Slayer 1.06, acc_norm, full validation split: {f3(sf['value'])} (n {sf['n']}, CI95 {f3(sf['ci95'][0])}–"
-        f"{f3(sf['ci95'][1])}). Space panel: {f3(sp['value'])} (n {sp['n']}, CI95 {f3(sp['ci95'][0])}–{f3(sp['ci95'][1])}).",
-        f"The panel is easier than the full split for both models (Slayer {p1(s['panel_minus_full_pts'])} pts, Pythia "
-        f"{p1(pt['panel_minus_full_pts'])} pts), so the panel value alone overstates the result; the full split is the "
-        "headline number and the panel value goes with its n.",
+        f"Slayer 1.06, acc_norm, Space panel (the Space protocol, `min(200, N)` questions): {f3(sp['value'])} "
+        f"(n {sp['n']}, CI95 {f3(sp['ci95'][0])}–{f3(sp['ci95'][1])}). Beside it, the more precise full validation split: "
+        f"{f3(sf['value'])} (n {sf['n']}, CI95 {f3(sf['ci95'][0])}–{f3(sf['ci95'][1])}); the main claim below uses the full split.",
+        f"Panel minus full split: Slayer {p1(s['panel_minus_full_pts'])} pts (z {p1(s['panel_minus_full_z'])}, "
+        f"{s['panel_minus_full_verdict']}), Pythia {p1(pt['panel_minus_full_pts'])} pts (z {p1(pt['panel_minus_full_z'])}, "
+        f"{pt['panel_minus_full_verdict']}); z = difference / (panel SE × sqrt((N − n) / (N − 1))), the finite-population "
+        "correction, since the panel is drawn from the full split.",
         "",
         f"Main claim: Slayer 1.06 scores {f3(sf['value'])} on the full split, {p1(cr['difference_pts'])} pts over the random "
         f"baseline (z {p1(cr['z'])}, {cr['verdict']}). The claim is about the score, not about physical reasoning: the "
@@ -447,12 +454,16 @@ def render(o):
     d = c["discriminates"]
     lines += ["",
               "Tolerance = max(2 pts, 2 × published SE).",
+              "Harness version: tasks_50.json gives T06 `instrument: lm_eval_0.4.8` (commit `6d2abda4`); this measurement "
+              "ran on lm-eval 0.4.9.1. Only the task directory (`piqa.yaml`, `README.md`) was compared between the two, not "
+              "the harness code; see METODOLOGIA.md, section „Wersja lm-eval”.",
               f"The published acc_norm lies {p1(d['z_over_random'])} standard errors over the random baseline and "
               f"{p1(d['z_over_majority'])} over the majority baseline (standard error {f3(d['se_published'])}), so the control "
               f"tells working code from guessing. Control passed: {'yes' if c['passed'] else 'no'}.",
               "",
-              "BOS differs between the models: Slayer gets one BOS before every request (as in the Space), Pythia none (its "
-              "tokenizer convention and the 2022 harness of the published value). Effect of a BOS on Pythia, and so on the "
+              "BOS differs between the models: Slayer gets one BOS before every request, as the `slayer` wrapper from #44 "
+              "does (METHOD.md ties the BOS to the tokenizer's `add_bos_token`, and Slayer has no tokenizer_config.json), "
+              "Pythia none (its tokenizer convention and the 2022 harness of the published value). Effect of a BOS on Pythia, and so on the "
               "Slayer − Pythia comparison: NOT RUN (it needs a second Pythia run with a BOS; the control itself is "
               "computed as the published value was).",
               "",

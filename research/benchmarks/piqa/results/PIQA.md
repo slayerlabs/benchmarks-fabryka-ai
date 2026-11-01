@@ -6,8 +6,8 @@ Slayer 1.06 is a checkpoint at about 1/8 of its training plan, without LR decay;
 
 ## Number for the Space
 
-Slayer 1.06, acc_norm, full validation split: 0,6415 (n 1838, CI95 0,6197–0,6632). Space panel: 0,6800 (n 200, CI95 0,6150–0,7450).
-The panel is easier than the full split for both models (Slayer 3,85 pts, Pythia 2,05 pts), so the panel value alone overstates the result; the full split is the headline number and the panel value goes with its n.
+Slayer 1.06, acc_norm, Space panel (the Space protocol, `min(200, N)` questions): 0,6800 (n 200, CI95 0,6150–0,7450). Beside it, the more precise full validation split: 0,6415 (n 1838, CI95 0,6197–0,6632); the main claim below uses the full split.
+Panel minus full split: Slayer 3,85 pts (z 1,23, szum), Pythia 2,05 pts (z 0,69, szum); z = difference / (panel SE × sqrt((N − n) / (N − 1))), the finite-population correction, since the panel is drawn from the full split.
 
 Main claim: Slayer 1.06 scores 0,6415 on the full split, 14,15 pts over the random baseline (z 12,64, pewne). The claim is about the score, not about physical reasoning: the Space flags T06 for Slayer 1.06 as contaminated (`contamination: flagged`), and without the training corpus we cannot say how much of the margin comes from questions seen in training (no hit-free value). Falsified if z against the random baseline were below 3, or if the control fell outside its tolerance.
 
@@ -47,9 +47,10 @@ The Space has no T06 value and no `source_id_digest` for any model, so the panel
 | acc_norm | 0,7095 | 0,7051 | 0,44 | 2,13 | yes |
 
 Tolerance = max(2 pts, 2 × published SE).
+Harness version: tasks_50.json gives T06 `instrument: lm_eval_0.4.8` (commit `6d2abda4`); this measurement ran on lm-eval 0.4.9.1. Only the task directory (`piqa.yaml`, `README.md`) was compared between the two, not the harness code; see METODOLOGIA.md, section „Wersja lm-eval”.
 The published acc_norm lies 19,28 standard errors over the random baseline and 18,82 over the majority baseline (standard error 0,0106), so the control tells working code from guessing. Control passed: yes.
 
-BOS differs between the models: Slayer gets one BOS before every request (as in the Space), Pythia none (its tokenizer convention and the 2022 harness of the published value). Effect of a BOS on Pythia, and so on the Slayer − Pythia comparison: NOT RUN (it needs a second Pythia run with a BOS; the control itself is computed as the published value was).
+BOS differs between the models: Slayer gets one BOS before every request, as the `slayer` wrapper from #44 does (METHOD.md ties the BOS to the tokenizer's `add_bos_token`, and Slayer has no tokenizer_config.json), Pythia none (its tokenizer convention and the 2022 harness of the published value). Effect of a BOS on Pythia, and so on the Slayer − Pythia comparison: NOT RUN (it needs a second Pythia run with a BOS; the control itself is computed as the published value was).
 
 ## Comparisons (verdict: |z| ≥ 3 pewne, 2–3 prawdopodobne, < 2 szum)
 
