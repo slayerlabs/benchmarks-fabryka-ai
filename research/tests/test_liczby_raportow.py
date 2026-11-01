@@ -137,7 +137,8 @@ def test_bramki_przechodza_na_raporcie_blimp():
     # older reports have no metadata; CHECKPOINTS.md (BLiMP over checkpoints) has, when checkpoints.json exists
     assert [m["plik"] for m in liczby["raporty"]][0] == "benchmarks/blimp/results/BLIMP.md"
     assert set(m["plik"] for m in liczby["raporty"]) <= {"benchmarks/blimp/results/BLIMP.md",
-                                                         "benchmarks/blimp/results/CHECKPOINTS.md"}
+                                                         "benchmarks/blimp/results/CHECKPOINTS.md",
+                                                         "benchmarks/piqa/results/PIQA.md"}
 
 
 def test_bramka_d_werdykt_bez_se_klastrowego():
