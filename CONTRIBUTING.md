@@ -40,19 +40,14 @@ adresem https://github.com/orgs/slayerlabs/projects/10. Jak przygotować kompute
    ```
 
 3. Otwórz PR do `main` i wypełnij checklistę z szablonu. W opisie wpisz `Refs #N` z numerem zadania z tego repo.
-   Piszesz `Refs`, a nie `Closes`, bo zadanie zamyka recenzent.
-4. Recenzja ma dwa kroki. Najpierw recenzent sprawdza, że komendy z punktu 2 kończą się kodem 0. Potem osoba, która
+   Piszesz `Refs`, a nie `Closes`, bo issue zamyka przestawienie zadania na Done na tablicy. Na Done przestawia je
+   recenzent, a przy ścieżce „bez recenzji” autor po scaleniu PR.
+4. Recenzja (ścieżki „recenzja” i „recenzja i przeliczenie”, akapit „Ścieżka sprawdzenia” niżej) ma dwa kroki. Najpierw recenzent sprawdza, że komendy z punktu 2 kończą się kodem 0. Potem osoba, która
    zna ten kod, odtwarza co najmniej jeden wynik z `RECIPE.md`. Wynik z etykietą `needs-recheck` liczy od zera druga
    osoba, na innym sprzęcie.
 
-**PR z samą kartą (etap A)** ma krótszą drogę. Przed PR wystarczy bramka liczb z kodem 0, bez testów benchmarku:
-
-```bash
-.venv-eval/bin/python tools/liczby.py && .venv-eval/bin/python tools/sprawdz_raporty.py
-```
-
-Recenzent nie odtwarza `RECIPE.md`. Sprawdza u źródła prompt, ocenę, wynik referencyjny i bazy, a przy „brak” albo
-„nieustalone” listę przeszukanych miejsc.
+**PR z samą kartą (etap A)** ma krótszą drogę, opisaną w wariancie „Sama karta” sekcji
+[„Przed PR”](README.md#przed-pr).
 
 ## Etykiety
 
@@ -84,7 +79,8 @@ Pola zadania:
 **Ścieżkę sprawdzenia** podaje każde zadanie w linii „Sprawdzenie:”. Siłę sprawdzenia dobiera się do kosztu błędu
 (METODOLOGIA, sekcja „Siła dowodu”):
 
-- **bez recenzji**: In Progress → Done po scaleniu PR. Automaty z „Przed PR” kończą się kodem 0.
+- **bez recenzji**: In Progress → Done po scaleniu PR. Automaty z „Przed PR” kończą się kodem 0. Tylko gdy zadanie
+  podaje tę ścieżkę wprost i zmiana nie dotyka żadnej liczby. Przykład: poprawka linku albo literówki w dokumentacji.
 - **recenzja**: In Progress → Review → Done. Jedna osoba sprawdza. To domyślna ścieżka, także gdy zadanie jej nie
   podaje. Przykład: karta oryginału.
 - **recenzja i przeliczenie** (etykieta `needs-recheck`): In Progress → Review → Independent Check → Done. Druga osoba

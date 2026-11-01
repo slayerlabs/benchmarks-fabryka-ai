@@ -45,7 +45,7 @@ przeszukanych miejsc.
 |---|---|
 | Co mierzy | umiejętność, jednym zdaniem, słowami autorów |
 | Źródła | praca (arXiv/ACL), repo autorów z commitem, karta zbioru na HF z rewizją |
-| Dane | dwa podpola. Split w pracy: split i n, na których praca podaje wyniki. Split w Space/repo: split i n, które liczy Space albo kod w repo, i czy to pełny split, czy panel 200. Do tego licencja i czy split testowy ma ukryte odpowiedzi |
+| Dane | trzy podpola. Split w pracy: split i n, na których praca podaje wyniki. Split w Space/repo: split i n, które liczy Space albo kod w repo, i czy to pełny split, czy panel 200. Licencja: licencja autorów, tag licencji na HF i czy split testowy ma ukryte odpowiedzi |
 | Format zadania | wybór z k opcji, para zdań, uzupełnienie, generacja, perpleksja |
 | Prompt | dokładny szablon z pracy albo kodu (separatory, spacje, etykiety odpowiedzi), liczba przykładów w prompcie i skąd są brane. Gdy praca nie ma promptu modelu językowego (np. modele dostrajane), wpisz szablon z implementacji, której używa Space albo lm-eval: tekst pytania, separator celu (`target_delimiter`, domyślnie spacja) i pełny oceniany tekst jednej opcji |
 | Ocena | metryka (acc, acc_norm, exact match, F1, perpleksja, BPB) i sposób jej liczenia: po czym normalizowana jest długość (znaki, bajty, tokeny), jak normalizowany jest tekst odpowiedzi |
@@ -364,7 +364,8 @@ Co jest w [pliku wyników Pythii v0](https://github.com/EleutherAI/pythia/blob/m
 | IFEval | brak | nie, następny z listy |
 
 Gdy żadnej kontroli z listy nie ma, wynik i tak idzie do Space, ale jako wstępny. Autor wpisuje w opisie PR „bez
-kontroli, wynik wstępny” i wymienia, gdzie szukał. Brak kontroli nie wstrzymuje terminu.
+kontroli, wynik wstępny” i wymienia, gdzie szukał. Brak kontroli nie wstrzymuje terminu. To świadome odstępstwo od sekcji „Siła dowodu”:
+zadanie ma etykietę `needs-recheck`, a przeliczenie przez drugą osobę i kontrola mogą przyjść po terminie.
 
 Minimum obowiązuje także tu (sekcja „Siła dowodu”): wynik Slayera i kontroli jest w `results/LICZBY.json` z SE, a
 bramka liczb kończy się kodem 0. Wynik przekazujesz w opisie PR. Wklejasz wartość, n, CI95, komendę i rewizje.
@@ -398,7 +399,7 @@ zawsze: liczba jest w `results/LICZBY.json`, a każde porównanie ma SE i werdyk
 [`README.md`](README.md#se-i-werdykt)). Proporcjonalność tego minimum nie luzuje. Decyzji taniej do cofnięcia, jak
 wybór narzędzia albo wstępna eksploracja, wystarcza jeden przebieg oznaczony w raporcie jako wstępny. Przykład to
 sprawdzenie, czy format cloze z `common/hipoteza_formatu.py` w ogóle pasuje do nowego testu. Decyzja droga albo
-wychodząca na zewnątrz wymaga więcej: odtworzenia wyniku przez recenzenta (etykieta `needs-recheck`), kilku seedów
+wychodząca na zewnątrz wymaga więcej: przeliczenia wyniku od zera przez drugą osobę (etykieta `needs-recheck`, sekcja wyżej), kilku seedów
 albo przebiegów i kontroli. Tak jest z wynikiem wysyłanym do Space i porównywanym z cudzym wynikiem, ze startem
 długiego treningu w `slayer-1b/wygaszanie/` i ze zmianą protokołu, np. wersji lm-eval albo formatu odpowiedzi. Gdy
 nie wiesz, do której grupy należy decyzja, traktuj ją jak drogą.

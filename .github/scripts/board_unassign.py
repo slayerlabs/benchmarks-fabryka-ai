@@ -102,7 +102,7 @@ def fetch_items(token, org, number):
                            {"query": QUERY, "variables": {"org": org, "number": number, "after": after}})
         if payload.get("errors"):
             raise RuntimeError(json.dumps(payload["errors"]))
-        project = (payload.get("data") or {}).get("organization", {}).get("projectV2")
+        project = ((payload.get("data") or {}).get("organization") or {}).get("projectV2")
         if project is None:
             raise RuntimeError(f"project {org}/{number} not visible: the token needs the 'project' scope")
         items = project["items"]
@@ -152,9 +152,9 @@ def main(argv=None):
         if not args.dry_run:
             try:
                 _request(token, "DELETE", f"{API}/repos/{repo}/issues/{number}/assignees", {"assignees": logins})
-            except urllib.error.HTTPError as err:
+            except (urllib.error.URLError, OSError) as err:
                 failed += 1
-                print(f"  failed: HTTP {err.code} for {url}", file=sys.stderr)
+                print(f"  failed: {err} for {url}", file=sys.stderr)
     print(f"issues to change: {count}, failed: {failed}")
     return 1 if failed else 0
 
