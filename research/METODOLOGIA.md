@@ -374,6 +374,18 @@ Nie ma stałych ról. Recenzuje ktoś inny niż autor, kto zna dany kod albo ben
 albo do decyzji o treningu, dostaje etykietę `needs-recheck`. Wtedy druga osoba liczy go od zera, na innym sprzęcie.
 Nie zagląda przy tym w liczby autora.
 
+## Siła dowodu
+
+Siła wymaganego dowodu rośnie z kosztem błędnej decyzji i kosztem jej odwrócenia. Minimum obowiązuje każdy raport
+zawsze: liczba jest w `results/LICZBY.json`, a każde porównanie ma SE i werdykt (sekcja „SE i werdykt” w
+[`README.md`](README.md#se-i-werdykt)). Proporcjonalność tego minimum nie luzuje. Decyzji taniej do cofnięcia, jak
+wybór narzędzia albo wstępna eksploracja, wystarcza jeden przebieg oznaczony w raporcie jako wstępny. Przykład to
+sprawdzenie, czy format cloze z `common/hipoteza_formatu.py` w ogóle pasuje do nowego testu. Decyzja droga albo
+wychodząca na zewnątrz wymaga więcej: odtworzenia wyniku przez recenzenta (etykieta `needs-recheck`), kilku seedów
+albo przebiegów i kontroli. Tak jest z wynikiem wysyłanym do Space i porównywanym z cudzym wynikiem, ze startem
+długiego treningu w `slayer-1b/wygaszanie/` i ze zmianą protokołu, np. wersji lm-eval albo formatu odpowiedzi. Gdy
+nie wiesz, do której grupy należy decyzja, traktuj ją jak drogą.
+
 ## Kamienie bez terminu
 
 Kamień [#6](https://github.com/slayerlabs/benchmarks-fabryka-ai/milestone/6) dotyczy opisu zbiorów (baza, format, n,
