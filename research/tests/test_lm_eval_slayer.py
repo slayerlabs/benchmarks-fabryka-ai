@@ -17,7 +17,7 @@ COMMON_DIR = Path(__file__).resolve().parent.parent / "common"
 sys.path.insert(0, str(COMMON_DIR))
 
 import torch  # noqa: E402
-from safetensors.torch import save_file  # noqa: E402
+from safetensors.torch import load_file, save_file  # noqa: E402
 from tokenizers import Regex, Tokenizer  # noqa: E402
 from tokenizers.decoders import Fuse  # noqa: E402
 from tokenizers.models import WordLevel  # noqa: E402
@@ -96,14 +96,114 @@ def _weights(cfg, seed):
     return w
 
 
-def _model_dir(tmp, questions):
+def _model_dir(tmp, questions, weights=None):
     model_dir = Path(tmp)
     vocab = _tokenizer(model_dir, questions)
     cfg = {"n_layer": 2, "n_head": 4, "n_embd": 32, "vocab": vocab, "block": 512,
            "norm_eps": 1e-6, "rope_theta": 10000.0, "value_residual": True}
     (model_dir / "config.json").write_text(json.dumps(cfg), encoding="utf-8")
-    save_file(_weights(cfg, seed=0), model_dir / "model.safetensors")
+    save_file((weights or _weights)(cfg, seed=0), model_dir / "model.safetensors")
     return model_dir
+
+
+REFERENCE = COMMON_DIR / "tests" / "data" / "slayer_reference_logits.json"
+# The fields of the Slayer 1.06 config.json that the official GPT class reads, with small sizes.
+REFERENCE_CFG = {"n_layer": 3, "n_head": 4, "n_embd": 32, "block": 64, "norm_eps": 1e-6, "rope_theta": 500000.0,
+                 "value_residual": True, "qk_norm": True, "norm": "rmsnorm", "pos": "rope", "ffn": "swiglu",
+                 "ffn_mult": 1.5, "attn_bias": 0, "logit_cap": 0.0, "z_loss": 0.0}
+
+
+def reference_weights(cfg, seed):
+    """Weights that make attention peaked, with non-unit norm gains and non-zero value-residual lambdas.
+
+    With unit gains and zero lambdas a forward that skips them would still match the reference.
+    """
+    g = torch.Generator().manual_seed(seed)
+    def r(*shape):
+        return torch.randn(*shape, generator=g) * shape[-1] ** -0.5
+    def gain(n):
+        return 1.0 + 0.3 * torch.randn(n, generator=g)
+    n, d, hd = cfg["n_layer"], cfg["n_embd"], cfg["n_embd"] // cfg["n_head"]
+    ffn = int(round(cfg.get("ffn_mult", 1.5) * d))
+    w = {"tok.weight": torch.randn(cfg["vocab"], d, generator=g), "lnf.weight": gain(d)}
+    for i in range(n):
+        p = f"blocks.{i}."
+        w[p + "ln1.weight"] = gain(d)
+        w[p + "ln2.weight"] = gain(d)
+        w[p + "qkv.weight"] = r(3 * d, d) * 3.0
+        w[p + "q_norm.weight"] = gain(hd)
+        w[p + "k_norm.weight"] = gain(hd)
+        w[p + "proj.weight"] = r(d, d)
+        w[p + "mlp.gate.weight"] = r(ffn, d)
+        w[p + "mlp.up.weight"] = r(ffn, d)
+        w[p + "mlp.down.weight"] = r(d, ffn)
+        if i:
+            w[p + "vr_lambda"] = 0.5 * torch.randn(1, generator=g)
+    return w
+
+
+def reference_model_dir(tmp):
+    """Directory in the Slayer format with the weights the frozen reference logits were computed on."""
+    model_dir = Path(tmp)
+    vocab = _tokenizer(model_dir, _questions())
+    cfg = dict(REFERENCE_CFG, vocab=vocab)
+    (model_dir / "config.json").write_text(json.dumps(cfg), encoding="utf-8")
+    save_file(reference_weights(cfg, seed=1), model_dir / "model.safetensors")
+    return model_dir, cfg
+
+
+def test_forward_matches_official_reference():
+    """`slayer_model.py` against logits of the official GPT class, frozen by tests/make_slayer_reference.py."""
+    ref = json.loads(REFERENCE.read_text(encoding="utf-8"))
+    with tempfile.TemporaryDirectory() as tmp:
+        model_dir, cfg = reference_model_dir(tmp)
+        assert cfg == ref["config"], "reference config changed, rerun tests/make_slayer_reference.py"
+        weights = load_file(str(model_dir / "model.safetensors"))
+        assert _weights_sha256(weights) == ref["weights_sha256"], "reference weights changed, rerun the script"
+        slayer = slayer_model.Slayer(model_dir, device="cpu")
+        logits = slayer.logits(torch.tensor(ref["ids"]))
+    expected = torch.tensor(ref["logits"])
+    assert logits.shape == expected.shape, (logits.shape, expected.shape)
+    diff = (logits - expected).abs().max().item()
+    assert diff < 1e-4, diff
+
+
+def _weights_sha256(weights):
+    import hashlib
+    h = hashlib.sha256()
+    for name in sorted(weights):
+        h.update(name.encode())
+        h.update(weights[name].to(torch.float32).contiguous().numpy().tobytes())
+    return h.hexdigest()
+
+
+def direct_rolling(slayer, text, window):
+    """Rolling log-prob of `text` from `Slayer.logits`: chunks of `window` predicted tokens, each chunk sees the
+    `window` tokens before its last target, starting from BOS."""
+    ids = slayer.encode(text)
+    seq = [slayer.bos] + ids
+    total = 0.0
+    for start in range(0, len(ids), window):
+        end = min(start + window, len(ids))
+        first = max(0, end - window)
+        lp = torch.log_softmax(slayer.logits(torch.tensor([seq[first:end]])), -1)[0]
+        for j in range(start, end):
+            total += lp[j - first, ids[j]].item()
+    return total, len(ids)
+
+
+def test_loglikelihood_rolling_longer_than_window():
+    questions = _questions()
+    with tempfile.TemporaryDirectory() as tmp:
+        model_dir = _model_dir(tmp, questions)
+        slayer = slayer_model.Slayer(model_dir, device="cpu")
+        text = " ".join(d["question"] + " " + " ".join(d["choices"]["text"]) for d in questions * 2)
+        expected, n_tokens = direct_rolling(slayer, text, slayer.blok)
+        assert n_tokens > 2 * slayer.blok, n_tokens
+        for batch_size in (1, 4):
+            request = [Instance("loglikelihood_rolling", {}, (text,), 0)]
+            result = _lm(model_dir, batch_size).loglikelihood_rolling(request, disable_tqdm=True)
+            assert abs(result[0] - expected) < 1e-3, (batch_size, result[0], expected)
 
 
 def _requests(questions):
@@ -122,8 +222,11 @@ def _lm(model_dir, batch_size):
 
 
 def direct(slayer, ctx, cont):
-    """Log-prob of `cont` after `ctx` and whether it is greedy, computed from `Slayer.logits` without lm-eval."""
-    c = slayer.encode(ctx) if ctx else [slayer.bos]
+    """Log-prob of `cont` after `ctx` and whether it is greedy, computed from `Slayer.logits` without lm-eval.
+
+    One leading BOS per request, as in Space METHOD.md.
+    """
+    c = [slayer.bos] + slayer.encode(ctx)
     k = slayer.encode(cont)
     assert len(c) + len(k) <= slayer.blok
     inputs = torch.tensor([(c + k)[:-1]])
@@ -133,8 +236,8 @@ def direct(slayer, ctx, cont):
 
 
 def _greedy(slayer, ctx, n):
-    """Text up to the first `\n`: greedy over one row, without lm-eval."""
-    start = slayer.encode(ctx)
+    """Text up to the first `\n`: greedy over one row after one leading BOS, without lm-eval."""
+    start = [slayer.bos] + slayer.encode(ctx)
     new_tokens = []
     for _ in range(n):
         next_token = int(slayer.logits(torch.tensor([start + new_tokens]))[0, -1].argmax())
@@ -175,7 +278,8 @@ def test_loglikelihood_rolling_matches_direct():
 def test_generate_until_matches_greedy_for_any_batch_size():
     questions = _questions()
     with tempfile.TemporaryDirectory() as tmp:
-        model_dir = _model_dir(tmp, questions)
+        # Peaked weights: with near-uniform logits a missing BOS or a pad token in the forward keeps the argmax.
+        model_dir = _model_dir(tmp, questions, weights=reference_weights)
         slayer = slayer_model.Slayer(model_dir, device="cpu")
         contexts = [PROMPT.format(question=d["question"]) for d in questions[:4]]
         assert len({len(c) for c in contexts}) > 1
@@ -184,6 +288,21 @@ def test_generate_until_matches_greedy_for_any_batch_size():
         one_by_one = _lm(model_dir, 1).generate_until(requests, disable_tqdm=True)
         batched = _lm(model_dir, 4).generate_until(requests, disable_tqdm=True)
         assert one_by_one == batched == [_greedy(slayer, c, 6) for c in contexts]
+
+
+def test_generation_context_has_one_leading_bos():
+    questions = _questions()
+    with tempfile.TemporaryDirectory() as tmp:
+        model_dir = _model_dir(tmp, questions)
+        slayer = slayer_model.Slayer(model_dir, device="cpu")
+        lm = _lm(model_dir, 4)
+        contexts = ["", "Answer:"] + [PROMPT.format(question=d["question"]) for d in questions[:2]]
+        ids, mask = lm.tok_batch_encode(contexts)
+        for row, row_mask, ctx in zip(ids, mask, contexts):
+            assert row[row_mask.bool()].tolist() == [slayer.bos] + slayer.encode(ctx), ctx
+        ids, mask = lm.tok_batch_encode(contexts, left_truncate_len=5)
+        assert ids.shape[1] == 5, ids.shape
+        assert ids[:, 0].tolist() == [slayer.bos] * len(contexts)
 
 
 class _ScriptedSlayer:
@@ -239,6 +358,24 @@ def test_rejects_arguments_slayer_does_not_use():
                 assert name in str(e), e
             else:
                 raise AssertionError(f"{name} was silently ignored")
+
+
+def test_rejects_config_keys_slayer_model_does_not_implement():
+    with tempfile.TemporaryDirectory() as tmp:
+        model_dir = _model_dir(tmp, _questions())
+        cfg_file = model_dir / "config.json"
+        cfg = json.loads(cfg_file.read_text(encoding="utf-8"))
+        for key, value in (("logit_cap", 30.0), ("loop", 2), ("rope_style", "half"), ("kv_heads", 2)):
+            cfg_file.write_text(json.dumps(dict(cfg, **{key: value})), encoding="utf-8")
+            try:
+                _lm(model_dir, 1)
+            except ValueError as e:
+                assert key in str(e), e
+            else:
+                raise AssertionError(f"{key}={value} was silently ignored")
+        cfg_file.write_text(json.dumps(dict(cfg, logit_cap=0.0, loop=1, rope_style="interleaved", kv_heads=4)),
+                            encoding="utf-8")
+        _lm(model_dir, 1)
 
 
 def test_ewaluuj_model_id_without_repo():

@@ -159,7 +159,32 @@ def _slayer_cfg(pretrained, subfolder=""):
     raw = json.loads(cfg_file.read_text(encoding="utf-8"))
     if "model_type" in raw or "n_embd" not in raw:
         return None
+    unsupported = sorted(k for k, ok in SUPPORTED_DEFAULTS.items() if k in raw and not ok(raw[k], raw))
+    if unsupported:
+        raise ValueError(f"SlayerLM: config.json sets {', '.join(unsupported)}, which slayer_model.py does not "
+                         "implement (the official GPT class does), so the logits would be wrong")
     return raw
+
+
+# Config keys of the official trainer that change the forward. The trainer writes only non-default values, so
+# Slayer 1.06 has none of them, but other checkpoints may.
+SUPPORTED_DEFAULTS = {
+    "arch": lambda v, c: v == "gpt",
+    "logit_cap": lambda v, c: not v,
+    "loop": lambda v, c: v == 1,
+    "rope_style": lambda v, c: v == "interleaved",
+    "rope_dims": lambda v, c: not v,
+    "kv_heads": lambda v, c: v in (0, c.get("n_head")),
+    "emb_dim": lambda v, c: not v,
+    "mixer_layout": lambda v, c: not v or set(v) == {"A"},
+    "imha_t": lambda v, c: not v,
+    "xsa": lambda v, c: not v,
+    "pos": lambda v, c: v == "rope",
+    "norm": lambda v, c: v == "rmsnorm",
+    "ffn": lambda v, c: v == "swiglu",
+    "attn_bias": lambda v, c: not v,
+    "qk_norm": lambda v, c: bool(v),
+}
 
 
 @register_model("slayer")
@@ -200,6 +225,26 @@ class SlayerLM(HFLM):
                                   add_bos_token=add_bos_token, subfolder=subfolder)
         if self._is_slayer:
             set_slayer_tokens(self.tokenizer)
+
+    # Space METHOD.md: "exactly one leading BOS per request". HFLM adds BOS only to an empty context, and Slayer's
+    # tokenizer.json has no post-processor, so `add_bos_token` would not add it either.
+    def _encode_pair(self, context, continuation):
+        context_enc, continuation_enc = super()._encode_pair(context, continuation)
+        if self._is_slayer:
+            context_enc = [self.prefix_token_id] + context_enc
+        return context_enc, continuation_enc
+
+    def tok_batch_encode(self, strings, padding_side="left", left_truncate_len=None, truncation=False):
+        if not self._is_slayer:
+            return super().tok_batch_encode(strings, padding_side=padding_side, left_truncate_len=left_truncate_len,
+                                            truncation=truncation)
+        assert padding_side == "left", padding_side
+        ids, mask = super().tok_batch_encode(strings, padding_side=padding_side,
+                                             left_truncate_len=left_truncate_len - 1 if left_truncate_len else None,
+                                             truncation=truncation)
+        # Left padding: the BOS column lands before the pad tokens, and `generate` drops the masked pads.
+        bos = ids.new_full((ids.shape[0], 1), self.prefix_token_id)
+        return torch.cat([bos, ids], dim=1), torch.cat([mask.new_ones((mask.shape[0], 1)), mask], dim=1)
 
     def _create_model(self, pretrained, dtype=None, **kwargs):
         if not self._is_slayer:

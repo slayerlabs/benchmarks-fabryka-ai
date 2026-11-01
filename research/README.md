@@ -104,7 +104,7 @@ python analyses/answer-format/analiza_formatu.py --wyniki <dir>
 .venv-eval/bin/lm_eval --model slayer --model_args pretrained=models/slayer-1.06,dtype=float32 --include_path common/lm_eval_tasks --tasks arc_challenge --samples common/tests/data/arc_panel200.json --num_fewshot 0 --batch_size 1 --device cpu --seed 0,1234,1234,1234
 ```
 
-Kontrola T02 (próbka Space, acc_norm): [`common/RECIPE.md`](common/RECIPE.md). Na Windows komendy są w
+Na czym opiera się poprawność nakładki i czym różni się od Space: [`common/RECIPE.md`](common/RECIPE.md). Na Windows komendy są w
 `.venv-eval/Scripts/` zamiast `.venv-eval/bin/`.
 
 ## Testy kodu

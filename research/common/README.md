@@ -96,8 +96,8 @@ służą do diagnozy.
 **Slayer w lm-eval: `slayer_lm.py`.** `HFLM` nie wczyta Slayera (`config.json` nie ma `model_type`:
 `AutoConfig.from_pretrained` kończy się `ValueError: Unrecognized model`, sprawdzone na 1.06 z
 transformers 4.57.6). Nakładka `SlayerLM` (`--model slayer`) ładuje go przez `slayer_model.py` i liczy
-`loglikelihood`, `loglikelihood_rolling` oraz `generate_until` tym samym kodem co `hf`. Komenda i kontrola
-T02: [`../README.md`](../README.md#uruchomienie), przepis: [`RECIPE.md`](RECIPE.md). Po `slayer_lm.py --install`
+`loglikelihood`, `loglikelihood_rolling` oraz `generate_until` tym samym kodem co `hf`, z jednym BOS przed każdym
+zapytaniem jak w Space. Komenda: [`../README.md`](../README.md#uruchomienie), przepis: [`RECIPE.md`](RECIPE.md). Po `slayer_lm.py --install`
 model `slayer` rejestruje się tylko pod komendą `lm_eval`, nie pod `python -m lm_eval`. `ewaluuj.py --model slayer
 --model_path <katalog wag>` używa tej samej nakładki. Wyniki w `analyses/answer-format/results/raport_formatu.json` dalej liczy
 `hipoteza_formatu.py` (ten sam forward):
