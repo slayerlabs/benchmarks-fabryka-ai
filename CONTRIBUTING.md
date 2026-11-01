@@ -45,6 +45,15 @@ adresem https://github.com/orgs/slayerlabs/projects/10. Jak przygotować kompute
    zna ten kod, odtwarza co najmniej jeden wynik z `RECIPE.md`. Wynik z etykietą `needs-recheck` liczy od zera druga
    osoba, na innym sprzęcie.
 
+**PR z samą kartą (etap A)** ma krótszą drogę. Przed PR wystarczy bramka liczb z kodem 0, bez testów benchmarku:
+
+```bash
+.venv-eval/bin/python tools/liczby.py && .venv-eval/bin/python tools/sprawdz_raporty.py
+```
+
+Recenzent nie odtwarza `RECIPE.md`. Sprawdza u źródła prompt, ocenę, wynik referencyjny i bazy, a przy „brak” albo
+„nieustalone” listę przeszukanych miejsc.
+
 ## Etykiety
 
 - `good first issue`: tylko zadania „Karta oryginału: <benchmark>” (etap A, około 2 h).

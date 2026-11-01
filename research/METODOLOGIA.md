@@ -38,29 +38,30 @@ sprawdza kartę i odtworzenie, zanim ktokolwiek policzy model.
 
 ## A. Karta oryginału (ORIGINAL.md)
 
-Przeczytaj pracę i kod autorów. Wypełnij każde pole. Gdy czegoś nie da się ustalić, wpisz „nieustalone” i dopisz,
-gdzie szukałeś.
+Przeczytaj pracę i kod autorów. Wypełnij każde pole. Gdy czegoś nie da się ustalić, wpisz „nieustalone” z listą
+przeszukanych miejsc.
 
 | pole | co wpisać |
 |---|---|
 | Co mierzy | umiejętność, jednym zdaniem, słowami autorów |
 | Źródła | praca (arXiv/ACL), repo autorów z commitem, karta zbioru na HF z rewizją |
-| Dane | split używany do wyników w pracy, n, licencja, czy split testowy ma ukryte odpowiedzi |
+| Dane | dwa podpola. Split w pracy: split i n, na których praca podaje wyniki. Split w Space/repo: split i n, które liczy Space albo kod w repo, i czy to pełny split, czy panel 200. Do tego licencja i czy split testowy ma ukryte odpowiedzi |
 | Format zadania | wybór z k opcji, para zdań, uzupełnienie, generacja, perpleksja |
-| Prompt | dokładny szablon z pracy albo kodu (separatory, spacje, etykiety odpowiedzi), liczba przykładów w prompcie i skąd są brane |
+| Prompt | dokładny szablon z pracy albo kodu (separatory, spacje, etykiety odpowiedzi), liczba przykładów w prompcie i skąd są brane. Gdy praca nie ma promptu modelu językowego (np. modele dostrajane), wpisz szablon z implementacji, której używa Space albo lm-eval: tekst pytania, separator celu (`target_delimiter`, domyślnie spacja) i pełny oceniany tekst jednej opcji |
 | Ocena | metryka (acc, acc_norm, exact match, F1, perpleksja, BPB) i sposób jej liczenia: po czym normalizowana jest długość (znaki, bajty, tokeny), jak normalizowany jest tekst odpowiedzi |
 | Metryka decyzyjna | **jedna** metryka, po której porównujesz modele i podejmujesz decyzje; pozostałe to metryki pomocnicze |
 | Agregacja | średnia po pytaniach czy po kategoriach/paradygmatach, wagi |
-| Bazy | baza losowa i większościowa (sekcja „Bazy: losowa i większościowa” w [`README.md`](README.md#bazy-losowa-i-większościowa)) |
-| SNR | stosunek sygnału do szumu (Słowniczek): rozrzut wyników między modelami albo checkpointami, SE pomiaru, iloraz i na jakich modelach. Wolno go policzyć z opublikowanych wyników (praca, plik wyników, leaderboard) albo wpisać „nieustalone” z tym, gdzie szukałeś; własny pomiar nie jest potrzebny |
+| Bazy | baza losowa i większościowa, dokładne wartości ze splitu (sekcja „Bazy: losowa i większościowa” w [`README.md`](README.md#bazy-losowa-i-większościowa)) |
+| SNR | stosunek sygnału do szumu (Słowniczek): rozrzut wyników między modelami albo checkpointami, SE pomiaru, iloraz i na jakich modelach. Gdy istnieją opublikowane wyniki kilku modeli, liczysz SNR z nich, bez własnego pomiaru. Przykłady: tabela w pracy, katalog `evals/pythia-v0` w repo `EleutherAI/pythia` z kilkoma rozmiarami Pythii. Wszystkie modele bierzesz z jednego źródła, a SE liczysz dla n pełnego splitu z tego źródła. „Nieustalone” wpisujesz tylko z listą przeszukanych miejsc |
 | Wyniki referencyjne | co najmniej jeden opublikowany wynik modelu, który da się pobrać (model, liczba, tabela w pracy albo plik wyników), jako snapshot z datą odczytu; gdy takiego wyniku nie ma: „brak” i miejsca, w których szukano (etap B idzie wtedy jako „bez kontroli”) |
-| Train policy | `eval_only` (żaden split nie trafia do treningu), `decon_only` (zbiór służy tylko do dekontaminacji danych treningowych) albo `train_allowed` (wymień, które splity wolno trenować); sekcja „Czystość benchmarku” |
+| Train policy | `eval_only` (domyślnie, dla wszystkich splitów benchmarku: żaden split nie trafia do treningu) albo `train_allowed` (wyjątek tylko decyzją zapisaną w issue: wymień splity, które wolno trenować, i podaj numer issue). Dekontaminacja dotyczy każdego benchmarku niezależnie od tego pola (sekcja „Czystość benchmarku”) |
 | Decyzja treningowa | co oznacza słaby wynik: jakie dane albo jaka metoda treningu z niego wynika, a czego nie wolno z niego wnioskować |
 | Znane rozbieżności | czym różnią się popularne implementacje (np. zadanie lm-eval) od kodu autorów, znane błędy w danych, kontaminacja |
 
-Liczbę spoza `results/LICZBY.json`, np. wynik referencyjny z pracy, oznaczasz na końcu jej linii znacznikiem
-`<!-- liczba-spoza-wynikow: skąd jest liczba -->`. Bez znacznika bramka liczb ją odrzuci. Wzór jest w
-`benchmarks/wikitext-2/ORIGINAL.md`.
+Każdą liczbę spoza `results/LICZBY.json`, w każdym polu karty (n, bazy, SNR, wyniki referencyjne), oznaczasz na
+końcu jej linii znacznikiem `<!-- liczba-spoza-wynikow: skąd jest liczba -->`. Jedna linia niesie jeden wynik. Pole z
+kilkoma wynikami rozpisz na kilka wierszy tabeli albo na listę, jedna pozycja na linię, każda ze swoim znacznikiem.
+Wzór jest w `benchmarks/wikitext-2/ORIGINAL.md`.
 
 ## B. Odtworzenie wyniku oryginalnym kodem (REPRODUCTION.md)
 
@@ -226,15 +227,17 @@ dostępny z listy**, w tej kolejności:
    tylko te zadania: `arc_challenge`, `arc_easy`, `lambada_openai`, `logiqa`, `piqa`, `sciq`, `winogrande`, `wsc`, 67
    zadań `blimp_*` i 57 zadań `hendrycksTest-*` (MMLU). Jego `wsc` to SuperGLUE WSC (104 przykłady), nie WSC273.
 2. **`utter-project/EuroLLM-1.7B`** tam, gdzie jego karta modelu podaje wynik (ARC-Challenge, HellaSwag).
-3. **Opublikowany wynik dowolnego modelu, który da się pobrać:** z tabeli w pracy autorów benchmarku albo z
-   [Open LLM Leaderboard](https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard). Zapisz model z
+3. **Opublikowany wynik dowolnego modelu, który da się pobrać:** z tabeli w pracy autorów benchmarku, z
+   [Open LLM Leaderboard](https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard) albo wynik lm-eval
+   opublikowany w pracy modelu z otwartymi wagami. Zapisz model z
    rewizją i ustawienia, z którymi policzono wynik (prompt, liczba przykładów w prompcie, metryka, wersja kodu).
 
 Kontrolę liczysz tym samym kodem co mierzony model. Jeśli wynik kontroli odbiega od opublikowanego, błąd jest w kodzie
 ewaluacji, nie w mierzonym modelu.
 
 **Kontrola musi odróżniać działający kod od zepsutego.** Opublikowany wynik modelu kontrolnego ma leżeć ponad 2 SE nad
-bazą losową i nad bazą większościową (udział najczęstszej odpowiedzi). Inaczej ten sam wynik da też kod, który
+bazą losową i nad bazą większościową (udział najczęstszej poprawnej odpowiedzi). SE to tu √(p(1−p)/n), gdzie p to
+wynik kontroli, a n to liczba pytań w źródle tego wyniku. Inaczej ten sam wynik da też kod, który
 zgaduje albo zawsze wybiera jedną odpowiedź. Wtedy bierzesz następny model z listy. Przykład: Pythia v0 na
 ARC-Challenge i LogiQA leży przy poziomie losowym, a na BoolQ znany wynik 1B leży pod bazą większościową.
 
@@ -242,8 +245,9 @@ ARC-Challenge i LogiQA leży przy poziomie losowym, a na BoolQ znany wynik 1B le
 kodem na tych samych pytaniach panelu Space ma się z nim zgadzać w granicach 2 SE. Wynik referencyjny nie może
 pochodzić z kodu, który sprawdzasz.
 
-Gdy żaden model z listy nie ma opublikowanego wyniku, etap B idzie według sekcji „Bez kontroli” (wyżej). Praca się
-wtedy nie zatrzymuje.
+Gdy po sprawdzeniu tych miejsc żaden model z listy nie ma opublikowanego wyniku, w polu „Wyniki referencyjne” karty
+wpisujesz „brak” z listą przeszukanych miejsc. Etap B idzie wtedy według sekcji „Bez kontroli” (wyżej). Praca się
+nie zatrzymuje.
 
 Benchmark polski albo bez oryginału nie ma opublikowanego wyniku do odtworzenia. Jego kontrolą jest model, który zna
 polski (`speakleash/Bielik-1.5B-v3` albo `utter-project/EuroLLM-1.7B` z tabeli niżej). Warunkiem jest wynik wyraźnie
@@ -298,8 +302,9 @@ zgłosi sam. Prace śledzi kamień [„Tygodniowy automat odtwarzania”](https:
   nich teksty pokrywające się z benchmarkiem.
 - Pojedyncze pytania wolno oglądać, żeby sprawdzić, czy ocena działa poprawnie (prompt, parsowanie odpowiedzi,
   normalizacja). Wniosek o modelu wyciągasz z wyniku zbiorczego, nie z pojedynczych pytań.
-- Train policy (`eval_only`, `decon_only`, `train_allowed`) stoi w karcie. Wynik na zbiorze, którego split był w
-  treningu, oznaczasz w raporcie jako trenowany.
+- Train policy stoi w karcie. Domyślnie `eval_only` dla wszystkich splitów. `train_allowed` dla wymienionych splitów
+  to wyjątek tylko decyzją zapisaną w issue. Dekontaminacja z punktu wyżej dotyczy każdego benchmarku, także
+  `train_allowed`. Wynik na zbiorze, którego split był w treningu, oznaczasz w raporcie jako trenowany.
 
 ## Wersja lm-eval
 
@@ -310,9 +315,16 @@ zgłosi sam. Prace śledzi kamień [„Tygodniowy automat odtwarzania”](https:
 Jedna różnica zostaje. Protokół Space (`METHOD.md`) podaje lm-eval w commicie
 [`6d2abda4`](https://github.com/EleutherAI/lm-evaluation-harness/commit/6d2abda4fd171e68a8789330c4149e37c1ca0bda)
 (wersja 0.4.8, 5.03.2025). Tag `v0.4.9.1` jest 160 commitów dalej. Dlatego dla każdego benchmarku liczonego przez
-lm-eval porównaj plik zadania w obu wersjach, czyli YAML i funkcje przetwarzania. Wynik zapisz w karcie, w polu
-„Znane rozbieżności”. Wpisz, że plik jest identyczny, albo czym się różni. Wzór jest w
-`benchmarks/wikitext-2/ORIGINAL.md`.
+lm-eval porównaj cały katalog zadania w obu wersjach (YAML, funkcje przetwarzania, pliki pomocnicze). Zapisz też
+rewizję zbioru, którą zadanie ładuje. Hashe blobów daje jedna komenda, uruchomiona raz z `ref=6d2abda4` i raz z
+`ref=v0.4.9.1`:
+
+```bash
+gh api 'repos/EleutherAI/lm-evaluation-harness/contents/lm_eval/tasks/<katalog>?ref=<tag>' --jq '.[] | "\(.sha) \(.name)"'
+```
+
+Wynik zapisz w karcie, w polu „Znane rozbieżności”. Wpisz, że katalog jest identyczny, albo czym się różni. Wzór jest
+w `benchmarks/wikitext-2/ORIGINAL.md`.
 
 Nikt w tym repo nie sprawdził instalacji samego commitu `6d2abda4`
 (`pip install "lm_eval @ git+https://github.com/EleutherAI/lm-evaluation-harness@6d2abda4"`). Jeśli jej użyjesz, zrób
@@ -370,6 +382,9 @@ Pierwsze zadanie opisuje [`CONTRIBUTING.md`, „Pierwsze zadanie”](../CONTRIBU
    autor PR przed otwarciem PR, bo `research/` nie ma CI. Recenzent sprawdza, że autor je uruchomił. W razie
    wątpliwości uruchamia je sam.
 2. Potem osoba, która zna ten kod, czyta kartę i odtwarza co najmniej jeden wynik z `RECIPE.md`.
+
+PR z samą kartą (etap A) ma krótszą recenzję, opisaną w wariancie „Sama karta” sekcji
+[„Przed PR”](../README.md#przed-pr).
 
 Nie ma stałych ról. Recenzuje ktoś inny niż autor, kto zna dany kod albo benchmark. Wynik, który idzie dalej, do Space
 albo do decyzji o treningu, dostaje etykietę `needs-recheck`. Wtedy druga osoba liczy go od zera, na innym sprzęcie.

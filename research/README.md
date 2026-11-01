@@ -151,8 +151,9 @@ to co innego niż warunek odtworzenia z etapu B metodologii.
 ## Bazy: losowa i większościowa
 
 - **Baza losowa:** wynik zgadywania (1/k przy k opcjach, połowa przy parach zdań).
-- **Baza większościowa:** wynik stałej odpowiedzi „najczęstsza klasa”, np. zawsze „tak” w BoolQ. Liczysz ją tylko dla
-  testów o stałym zbiorze klas.
+- **Baza większościowa:** udział najczęstszej poprawnej odpowiedzi, czyli wynik stałej odpowiedzi, np. zawsze „tak”
+  w BoolQ. Przy wyborze odpowiedzi liczysz ją po pozycji opcji, bo lm-eval punktuje indeks odpowiedzi. Podajesz
+  dokładną wartość ze splitu (np. ze statystyk HF datasets-server), nie zaokrągloną z abstraktu.
 - **Udział najczęstszej predykcji:** jaki odsetek odpowiedzi modelu to ta sama opcja. Małe modele w testach z literami
   często wybierają w kółko jedną literę. Wynik podany bez tych liczb wprowadza w błąd.
 

@@ -14,7 +14,7 @@ ustalić, wpisz „nieustalone” i dopisz, gdzie szukałeś.
 | Jak liczyć | metryka decyzyjna: ; prompt: ; ocena: ; agregacja: ; n: ; oczekiwane SE: |
 | Bazy | losowa: ; większościowa: |
 | SNR | rozrzut wyników (odchylenie std.) między modelami/checkpointami: ; typowe SE: ; SNR = rozrzut / SE: ; modele: |
-| Train policy | `eval_only` / `decon_only` / `train_allowed` (które splity) |
+| Train policy | `eval_only` dla wszystkich splitów (domyślnie) albo `train_allowed`: które splity, issue z decyzją |
 | Decyzja treningowa | |
 
 ## Kontrola

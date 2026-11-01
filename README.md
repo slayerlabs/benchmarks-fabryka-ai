@@ -91,6 +91,15 @@ CI, więc uruchamiasz je sam.
 .venv-eval/bin/python tests/test_liczby_raportow.py
 ```
 
+**Sama karta.** PR z samą kartą oryginału (etap A) wymaga tylko bramki liczb z kodem 0, bez testów benchmarku:
+
+```bash
+.venv-eval/bin/python tools/liczby.py && .venv-eval/bin/python tools/sprawdz_raporty.py
+```
+
+Recenzent takiego PR nie odtwarza `RECIPE.md`. Sprawdza u źródła prompt, ocenę, wynik referencyjny i bazy, a przy
+„brak” albo „nieustalone” listę przeszukanych miejsc.
+
 ## Co jest w repo
 
 - [`research/`](research/README.md): benchmarki, analizy, kod wspólny, bramka liczb, testy.
