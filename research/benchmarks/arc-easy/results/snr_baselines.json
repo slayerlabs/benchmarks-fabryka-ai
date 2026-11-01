@@ -1,0 +1,673 @@
+{
+ "protocol": "benchmarks/arc-easy/PROTOCOL-snr-baselines.md",
+ "read_date": "2026-11-01",
+ "inputs": {
+  "pythia": {
+   "repo": "EleutherAI/pythia",
+   "commit": "a19eecb807ec2c79a39ebf18108816e6ffffc1d5",
+   "dir": "evals/pythia-v0",
+   "task": "arc_easy",
+   "final_step_4m_batch": {
+    "pythia-160m": 71500,
+    "pythia-410m": 71500,
+    "pythia-1.4b": 71500
+   },
+   "files": [
+    {
+     "family": "non_deduped",
+     "size": "pythia-1.4b",
+     "role": "final",
+     "path": "evals/pythia-v0/pythia-1.4b/zero-shot/pythia-1.4b-0shot-global_step71500_eval_results_12-29-2022-16-23-33.json",
+     "blob_sha": "db9c60094133c55f30b2f3a0ef661ecefbcfdfad"
+    },
+    {
+     "family": "non_deduped",
+     "size": "pythia-12b",
+     "role": "final",
+     "path": "evals/pythia-v0/pythia-12b/zero-shot/pythia-12b-0shot-global_step143000_eval_results_12-15-2022-23-32-34.json",
+     "blob_sha": "40b8382baad3538686c42c80e3b5badda693a40f"
+    },
+    {
+     "family": "non_deduped",
+     "size": "pythia-160m",
+     "role": "final",
+     "path": "evals/pythia-v0/pythia-160m/zero-shot/pythia-160m-0shot-global_step71500_eval_results_12-30-2022-23-06-54.json",
+     "blob_sha": "511350c265838f01404e06086a177e5856d426f0"
+    },
+    {
+     "family": "non_deduped",
+     "size": "pythia-1b",
+     "role": "final",
+     "path": "evals/pythia-v0/pythia-1b/zero-shot/pythia-1b-0shot-global_step143000_eval_results_11-28-2022-15-14-35.json",
+     "blob_sha": "63988cb9c80e6f3b7ab3bb2fe18202b65104dfa3"
+    },
+    {
+     "family": "non_deduped",
+     "size": "pythia-2.8b",
+     "role": "final",
+     "path": "evals/pythia-v0/pythia-2.8b/zero-shot/pythia-2.8b-0shot-global_step143000__eval_results_11-24-2022-16-20-50.json",
+     "blob_sha": "a9e5bdde6eff3e100cc7f1de067f5f59c7b3d10d"
+    },
+    {
+     "family": "non_deduped",
+     "size": "pythia-410m",
+     "role": "final",
+     "path": "evals/pythia-v0/pythia-410m/zero-shot/pythia-410m-0shot-global_step71500_eval_results_12-30-2022-21-51-27.json",
+     "blob_sha": "135c2992e74fcb516aa900108e5f2db9f985e352"
+    },
+    {
+     "family": "non_deduped",
+     "size": "pythia-6.9b",
+     "role": "final",
+     "path": "evals/pythia-v0/pythia-6.9b/zero-shot/pythia-6.9b-0shot-global_step143000_eval_results_12-18-2022-18-58-35.json",
+     "blob_sha": "be7f017e58af87d9f342344d0ac5ef0849259309"
+    },
+    {
+     "family": "non_deduped",
+     "size": "pythia-70m",
+     "role": "final",
+     "path": "evals/pythia-v0/pythia-70m/zero-shot/pythia-70m-0shot-global_step143000_eval_results_11-25-2022-10-16-50.json",
+     "blob_sha": "8502e77d2f9d712eb37077cbe3f8f3ad7003e260"
+    },
+    {
+     "family": "deduped",
+     "size": "pythia-1.4b-deduped",
+     "role": "final",
+     "path": "evals/pythia-v0/pythia-1.4b-deduped/zero-shot/pythia-1.4b-deduped-0shot-global_step71500_eval_results_12-30-2022-04-43-36.json",
+     "blob_sha": "507a4a6ba0e93b5c9e57d372c50fe99974dc4f5c"
+    },
+    {
+     "family": "deduped",
+     "size": "pythia-12b-deduped",
+     "role": "final",
+     "path": "evals/pythia-v0/pythia-12b-deduped/zero-shot/pythia-12b-deduped-0shot-global_step143000_eval_results_12-16-2022-19-23-03.json",
+     "blob_sha": "c94fd952c0d28debfe79bc225d6d22a410dc2fc6"
+    },
+    {
+     "family": "deduped",
+     "size": "pythia-160m-deduped",
+     "role": "final",
+     "path": "evals/pythia-v0/pythia-160m-deduped/zero-shot/pythia-160m-deduped-0shot-global_step71500_eval_results_12-30-2022-22-38-31.json",
+     "blob_sha": "977024aa693315ccd77aad25d9806821165e4987"
+    },
+    {
+     "family": "deduped",
+     "size": "pythia-1b-deduped",
+     "role": "final",
+     "path": "evals/pythia-v0/pythia-1b-deduped/zero-shot/pythia-1b-deduped-0shot-global_step143000_eval_results_11-28-2022-18-07-27.json",
+     "blob_sha": "6086ae2b4a58ae672ec38c84571967c7d009426a"
+    },
+    {
+     "family": "deduped",
+     "size": "pythia-2.8b-deduped",
+     "role": "final",
+     "path": "evals/pythia-v0/pythia-2.8b-deduped/zero-shot/pythia-2.8b-deduped-0shot-global_step143000_eval_results_11-26-2022-02-41-00.json",
+     "blob_sha": "848319d8a0e2e4805ebd4a426b47a2ab34d332d2"
+    },
+    {
+     "family": "deduped",
+     "size": "pythia-410m-deduped",
+     "role": "final",
+     "path": "evals/pythia-v0/pythia-410m-deduped/zero-shot/pythia-410m-deduped-0shot-global_step71500_eval_results_12-30-2022-22-09-21.json",
+     "blob_sha": "1c79f04a7c40e4aa84c0731a4bc79c13ad359e72"
+    },
+    {
+     "family": "deduped",
+     "size": "pythia-6.9b-deduped",
+     "role": "final",
+     "path": "evals/pythia-v0/pythia-6.9b-deduped/zero-shot/pythia-6.9b-deduped-0shot-global_step143000_eval_results_12-20-2022-20-15-20.json",
+     "blob_sha": "378d9e00c89bd19608408912bc4f915eaa91d067"
+    },
+    {
+     "family": "deduped",
+     "size": "pythia-70m-deduped",
+     "role": "final",
+     "path": "evals/pythia-v0/pythia-70m-deduped/zero-shot/pythia-70m-deduped-0shot-global_step143000_eval_results_11-25-2022-21-31-34.json",
+     "blob_sha": "ee20c4c19afa975825d71d2ecdd77a6960545e48"
+    },
+    {
+     "family": "non_deduped",
+     "size": "pythia-12b",
+     "role": "original_protocol",
+     "path": "evals/pythia-v0/pythia-12b/zero-shot/pythia-12b-0shot-global_step143000_eval_results_12-15-2022-23-32-34.json",
+     "blob_sha": "40b8382baad3538686c42c80e3b5badda693a40f"
+    },
+    {
+     "family": "non_deduped",
+     "size": "pythia-1b",
+     "role": "original_protocol",
+     "path": "evals/pythia-v0/pythia-1b/zero-shot/pythia-1b-0shot-global_step143000_eval_results_11-28-2022-15-14-35.json",
+     "blob_sha": "63988cb9c80e6f3b7ab3bb2fe18202b65104dfa3"
+    },
+    {
+     "family": "non_deduped",
+     "size": "pythia-2.8b",
+     "role": "original_protocol",
+     "path": "evals/pythia-v0/pythia-2.8b/zero-shot/pythia-2.8b-0shot-global_step143000__eval_results_11-24-2022-16-20-50.json",
+     "blob_sha": "a9e5bdde6eff3e100cc7f1de067f5f59c7b3d10d"
+    },
+    {
+     "family": "non_deduped",
+     "size": "pythia-6.9b",
+     "role": "original_protocol",
+     "path": "evals/pythia-v0/pythia-6.9b/zero-shot/pythia-6.9b-0shot-global_step143000_eval_results_12-18-2022-18-58-35.json",
+     "blob_sha": "be7f017e58af87d9f342344d0ac5ef0849259309"
+    },
+    {
+     "family": "non_deduped",
+     "size": "pythia-70m",
+     "role": "original_protocol",
+     "path": "evals/pythia-v0/pythia-70m/zero-shot/pythia-70m-0shot-global_step143000_eval_results_11-25-2022-10-16-50.json",
+     "blob_sha": "8502e77d2f9d712eb37077cbe3f8f3ad7003e260"
+    },
+    {
+     "family": "non_deduped",
+     "size": "pythia-1b@103000",
+     "role": "checkpoint",
+     "path": "evals/pythia-v0/pythia-1b/zero-shot/pythia-1b-0shot-global_step103000_eval_results_11-28-2022-15-14-22.json",
+     "blob_sha": "6c67ad7908e12b55cbb2a14ae08e3bf56230b9ed"
+    },
+    {
+     "family": "non_deduped",
+     "size": "pythia-1b@113000",
+     "role": "checkpoint",
+     "path": "evals/pythia-v0/pythia-1b/zero-shot/pythia-1b-0shot-global_step113000_eval_results_11-28-2022-15-14-25.json",
+     "blob_sha": "f5271af2a27955dcdba6190f0c58e49e932e150b"
+    },
+    {
+     "family": "non_deduped",
+     "size": "pythia-1b@123000",
+     "role": "checkpoint",
+     "path": "evals/pythia-v0/pythia-1b/zero-shot/pythia-1b-0shot-global_step123000_eval_results_11-28-2022-15-15-35.json",
+     "blob_sha": "0a60f9754e068fea46fb0585f0ffc2f4337527fd"
+    },
+    {
+     "family": "non_deduped",
+     "size": "pythia-1b@133000",
+     "role": "checkpoint",
+     "path": "evals/pythia-v0/pythia-1b/zero-shot/pythia-1b-0shot-global_step133000_eval_results_11-28-2022-15-15-29.json",
+     "blob_sha": "42b5af30e30f4fcc43a696173d3c0636bd554d2f"
+    },
+    {
+     "family": "non_deduped",
+     "size": "pythia-1b@143000",
+     "role": "checkpoint",
+     "path": "evals/pythia-v0/pythia-1b/zero-shot/pythia-1b-0shot-global_step143000_eval_results_11-28-2022-15-14-35.json",
+     "blob_sha": "63988cb9c80e6f3b7ab3bb2fe18202b65104dfa3"
+    }
+   ],
+   "excluded": [],
+   "models": {
+    "non_deduped": {
+     "pythia-1.4b": {
+      "acc": 0.5744949494949495,
+      "acc_stderr": 0.010145271182591021,
+      "acc_norm": 0.5223063973063973,
+      "acc_norm_stderr": 0.010249568404555667
+     },
+     "pythia-12b": {
+      "acc": 0.696969696969697,
+      "acc_stderr": 0.009430140669278967,
+      "acc_norm": 0.6452020202020202,
+      "acc_norm_stderr": 0.009817629113069694
+     },
+     "pythia-160m": {
+      "acc": 0.4537037037037037,
+      "acc_stderr": 0.010215708295494133,
+      "acc_norm": 0.4036195286195286,
+      "acc_norm_stderr": 0.010067368960348207
+     },
+     "pythia-1b": {
+      "acc": 0.5585016835016835,
+      "acc_stderr": 0.010189314382749927,
+      "acc_norm": 0.5004208754208754,
+      "acc_norm_stderr": 0.010259779886094424
+     },
+     "pythia-2.8b": {
+      "acc": 0.6313131313131313,
+      "acc_stderr": 0.009899640855681034,
+      "acc_norm": 0.5736531986531986,
+      "acc_norm_stderr": 0.010147858603835146
+     },
+     "pythia-410m": {
+      "acc": 0.507996632996633,
+      "acc_stderr": 0.010258471289841992,
+      "acc_norm": 0.44191919191919193,
+      "acc_norm_stderr": 0.010190328123071782
+     },
+     "pythia-6.9b": {
+      "acc": 0.6658249158249159,
+      "acc_stderr": 0.009679106032919061,
+      "acc_norm": 0.632996632996633,
+      "acc_norm_stderr": 0.009890173658452114
+     },
+     "pythia-70m": {
+      "acc": 0.40404040404040403,
+      "acc_stderr": 0.010069061649549545,
+      "acc_norm": 0.3560606060606061,
+      "acc_norm_stderr": 0.009825454608416322
+     }
+    },
+    "deduped": {
+     "pythia-1.4b-deduped": {
+      "acc": 0.5824915824915825,
+      "acc_stderr": 0.010119187377776033,
+      "acc_norm": 0.5235690235690236,
+      "acc_norm_stderr": 0.010248378585554033
+     },
+     "pythia-12b-deduped": {
+      "acc": 0.696969696969697,
+      "acc_stderr": 0.009430140669278959,
+      "acc_norm": 0.640993265993266,
+      "acc_norm_stderr": 0.009843424713072178
+     },
+     "pythia-160m-deduped": {
+      "acc": 0.4478114478114478,
+      "acc_stderr": 0.0102037424511115,
+      "acc_norm": 0.40446127946127947,
+      "acc_norm_stderr": 0.01007074664827877
+     },
+     "pythia-1b-deduped": {
+      "acc": 0.5652356902356902,
+      "acc_stderr": 0.01017208367040279,
+      "acc_norm": 0.5029461279461279,
+      "acc_norm_stderr": 0.01025960541623758
+     },
+     "pythia-2.8b-deduped": {
+      "acc": 0.6607744107744108,
+      "acc_stderr": 0.009714917207765846,
+      "acc_norm": 0.5896464646464646,
+      "acc_norm_stderr": 0.01009353125576545
+     },
+     "pythia-410m-deduped": {
+      "acc": 0.51010101010101,
+      "acc_stderr": 0.010257689687458363,
+      "acc_norm": 0.4671717171717172,
+      "acc_norm_stderr": 0.010237645778853855
+     },
+     "pythia-6.9b-deduped": {
+      "acc": 0.6696127946127947,
+      "acc_stderr": 0.009651430216428185,
+      "acc_norm": 0.6132154882154882,
+      "acc_norm_stderr": 0.009993308355370961
+     },
+     "pythia-70m-deduped": {
+      "acc": 0.38804713804713803,
+      "acc_stderr": 0.009999295905750648,
+      "acc_norm": 0.3543771043771044,
+      "acc_norm_stderr": 0.009815004030251746
+     }
+    }
+   },
+   "models_original_protocol": {
+    "pythia-12b": {
+     "acc": 0.696969696969697,
+     "acc_stderr": 0.009430140669278967,
+     "acc_norm": 0.6452020202020202,
+     "acc_norm_stderr": 0.009817629113069694
+    },
+    "pythia-1b": {
+     "acc": 0.5585016835016835,
+     "acc_stderr": 0.010189314382749927,
+     "acc_norm": 0.5004208754208754,
+     "acc_norm_stderr": 0.010259779886094424
+    },
+    "pythia-2.8b": {
+     "acc": 0.6313131313131313,
+     "acc_stderr": 0.009899640855681034,
+     "acc_norm": 0.5736531986531986,
+     "acc_norm_stderr": 0.010147858603835146
+    },
+    "pythia-6.9b": {
+     "acc": 0.6658249158249159,
+     "acc_stderr": 0.009679106032919061,
+     "acc_norm": 0.632996632996633,
+     "acc_norm_stderr": 0.009890173658452114
+    },
+    "pythia-70m": {
+     "acc": 0.40404040404040403,
+     "acc_stderr": 0.010069061649549545,
+     "acc_norm": 0.3560606060606061,
+     "acc_norm_stderr": 0.009825454608416322
+    }
+   },
+   "checkpoints": {
+    "103000": {
+     "acc": 0.5547138047138047,
+     "acc_stderr": 0.010198171137873874,
+     "acc_norm": 0.4890572390572391,
+     "acc_norm_stderr": 0.01025732613117288
+    },
+    "113000": {
+     "acc": 0.5622895622895623,
+     "acc_stderr": 0.0101798564860069,
+     "acc_norm": 0.502104377104377,
+     "acc_norm_stderr": 0.010259692651537033
+    },
+    "123000": {
+     "acc": 0.5660774410774411,
+     "acc_stderr": 0.010169795770462111,
+     "acc_norm": 0.49957912457912457,
+     "acc_norm_stderr": 0.010259779886094424
+    },
+    "133000": {
+     "acc": 0.5622895622895623,
+     "acc_stderr": 0.010179856486006899,
+     "acc_norm": 0.49915824915824913,
+     "acc_norm_stderr": 0.010259768981815243
+    },
+    "143000": {
+     "acc": 0.5585016835016835,
+     "acc_stderr": 0.010189314382749927,
+     "acc_norm": 0.5004208754208754,
+     "acc_norm_stderr": 0.010259779886094424
+    }
+   }
+  },
+  "dataset": {
+   "repo": "allenai/ai2_arc",
+   "revision": "210d026faf9955653af8916fad021475a3f00453",
+   "file": "ARC-Easy/test-00000-of-00001.parquet",
+   "sha256": "4160597d618ae851c7eb04e281574f3f654776216ac6b6641588d64527b47177",
+   "n": 2376,
+   "options_per_question": {
+    "3": 7,
+    "4": 2365,
+    "5": 4
+   },
+   "answer_index": {
+    "counts": {
+     "0": 596,
+     "1": 585,
+     "2": 633,
+     "3": 561,
+     "4": 1
+    },
+    "shares": {
+     "0": 0.25084175084175087,
+     "1": 0.24621212121212122,
+     "2": 0.26641414141414144,
+     "3": 0.2361111111111111,
+     "4": 0.00042087542087542086
+    }
+   }
+  }
+ },
+ "baselines": {
+  "random_mean_1_over_k": 0.25016133557800224,
+  "random_control_card_value": 0.2502,
+  "majority": {
+   "top_index": [
+    2
+   ],
+   "top_letter": [
+    "C"
+   ],
+   "share": 0.26641414141414144
+  },
+  "majority_variants": {
+   "four_options_only": {
+    "n": 2365,
+    "top": [
+     2
+    ],
+    "share": 0.26765327695560254,
+    "counts": {
+     "0": 591,
+     "1": 581,
+     "2": 633,
+     "3": 560
+    },
+    "shares": {
+     "0": 0.24989429175475686,
+     "1": 0.2456659619450317,
+     "2": 0.26765327695560254,
+     "3": 0.23678646934460887
+    },
+    "same_top_as_main": true,
+    "share_diff": 0.0012391355414611005,
+    "falsifies": false
+   },
+   "letter_labels_only": {
+    "n": 2279,
+    "top": [
+     2
+    ],
+    "share": 0.2676612549363756,
+    "counts": {
+     "0": 570,
+     "1": 563,
+     "2": 610,
+     "3": 535,
+     "4": 1
+    },
+    "shares": {
+     "0": 0.25010969723562965,
+     "1": 0.24703817463799913,
+     "2": 0.2676612549363756,
+     "3": 0.23475208424747696,
+     "4": 0.00043878894251864854
+    },
+    "same_top_as_main": true,
+    "share_diff": 0.0012471135222341667,
+    "falsifies": false
+   },
+   "literal_label": {
+    "n": 2376,
+    "top": [
+     "C"
+    ],
+    "share": 0.25673400673400676,
+    "counts": {
+     "1": 26,
+     "2": 22,
+     "3": 23,
+     "4": 26,
+     "A": 570,
+     "B": 563,
+     "C": 610,
+     "D": 535,
+     "E": 1
+    },
+    "shares": {
+     "1": 0.010942760942760943,
+     "2": 0.009259259259259259,
+     "3": 0.00968013468013468,
+     "4": 0.010942760942760943,
+     "A": 0.2398989898989899,
+     "B": 0.23695286195286194,
+     "C": 0.25673400673400676,
+     "D": 0.22516835016835016,
+     "E": 0.00042087542087542086
+    },
+    "same_top_as_main": true,
+    "share_diff": -0.009680134680134678,
+    "falsifies": false
+   }
+  },
+  "majority_falsified": false
+ },
+ "snr": {
+  "main": {
+   "family": "non_deduped",
+   "ddof": 1,
+   "se_source": "formula",
+   "k": 8,
+   "p_bar": 0.5616056397306397,
+   "spread": 0.1025137939390986,
+   "se": 0.01017946588667372,
+   "snr": 10.070645658659052
+  },
+  "ddof0": {
+   "family": "non_deduped",
+   "ddof": 0,
+   "se_source": "formula",
+   "k": 8,
+   "p_bar": 0.5616056397306397,
+   "spread": 0.09589287358461249,
+   "se": 0.01017946588667372,
+   "snr": 9.42022642957614
+  },
+  "median_acc_stderr": 0.010107166416070283,
+  "acc_norm_main": {
+   "k": 8,
+   "p_bar": 0.5095223063973064,
+   "spread": 0.10511898519122806,
+   "se": 0.010255763873385114,
+   "snr": 10.249747019237047
+  },
+  "grid": [
+   {
+    "family": "non_deduped",
+    "ddof": 1,
+    "se_source": "formula",
+    "k": 8,
+    "p_bar": 0.5616056397306397,
+    "spread": 0.1025137939390986,
+    "se": 0.01017946588667372,
+    "snr": 10.070645658659052
+   },
+   {
+    "family": "non_deduped",
+    "ddof": 1,
+    "se_source": "median_acc_stderr",
+    "k": 8,
+    "p_bar": 0.5616056397306397,
+    "spread": 0.1025137939390986,
+    "se": 0.010107166416070283,
+    "snr": 10.142683885772653
+   },
+   {
+    "family": "non_deduped",
+    "ddof": 0,
+    "se_source": "formula",
+    "k": 8,
+    "p_bar": 0.5616056397306397,
+    "spread": 0.09589287358461249,
+    "se": 0.01017946588667372,
+    "snr": 9.42022642957614
+   },
+   {
+    "family": "non_deduped",
+    "ddof": 0,
+    "se_source": "median_acc_stderr",
+    "k": 8,
+    "p_bar": 0.5616056397306397,
+    "spread": 0.09589287358461249,
+    "se": 0.010107166416070283,
+    "snr": 9.487612020728568
+   },
+   {
+    "family": "deduped",
+    "ddof": 1,
+    "se_source": "formula",
+    "k": 8,
+    "p_bar": 0.5651304713804713,
+    "spread": 0.11077507552897002,
+    "se": 0.01017022668457073,
+    "snr": 10.892095030391712
+   },
+   {
+    "family": "deduped",
+    "ddof": 1,
+    "se_source": "median_acc_stderr",
+    "k": 8,
+    "p_bar": 0.5651304713804713,
+    "spread": 0.11077507552897002,
+    "se": 0.01005924164176334,
+    "snr": 11.012269063013745
+   },
+   {
+    "family": "deduped",
+    "ddof": 0,
+    "se_source": "formula",
+    "k": 8,
+    "p_bar": 0.5651304713804713,
+    "spread": 0.10362059490585299,
+    "se": 0.01017022668457073,
+    "snr": 10.188621956977222
+   },
+   {
+    "family": "deduped",
+    "ddof": 0,
+    "se_source": "median_acc_stderr",
+    "k": 8,
+    "p_bar": 0.5651304713804713,
+    "spread": 0.10362059490585299,
+    "se": 0.01005924164176334,
+    "snr": 10.301034471191882
+   }
+  ],
+  "min": {
+   "family": "non_deduped",
+   "ddof": 0,
+   "se_source": "formula",
+   "k": 8,
+   "p_bar": 0.5616056397306397,
+   "spread": 0.09589287358461249,
+   "se": 0.01017946588667372,
+   "snr": 9.42022642957614
+  },
+  "threshold": 2.0,
+  "claim_snr_at_least_2_holds": true,
+  "original_protocol_step143000_only": {
+   "k": 5,
+   "p_bar": 0.5913299663299664,
+   "spread": 0.11668652446622799,
+   "se": 0.010085051553459156,
+   "snr": 11.570245709473314
+  },
+  "near_1b": {
+   "pair_1b_1_4b": {
+    "sizes": [
+     "pythia-1b",
+     "pythia-1.4b"
+    ],
+    "k": 2,
+    "p_bar": 0.5664983164983165,
+    "spread": 0.011308946837158596,
+    "se": 0.01016650053480114,
+    "snr": 1.1123736037239882
+   },
+   "triple_410m_1b_1_4b": {
+    "sizes": [
+     "pythia-410m",
+     "pythia-1b",
+     "pythia-1.4b"
+    ],
+    "k": 3,
+    "p_bar": 0.5469977553310886,
+    "spread": 0.034709678719245185,
+    "se": 0.0102122098595878,
+    "snr": 3.398841112402109
+   },
+   "diff_1_4b_minus_1b": {
+    "diff": 0.015993265993266004,
+    "se_diff_independent": 0.014378757072808009,
+    "ratio": 1.1122843172245556,
+    "verdict": "szum"
+   }
+  },
+  "checkpoints": {
+   "model": "pythia-1b",
+   "steps": [
+    103000,
+    113000,
+    123000,
+    133000,
+    143000
+   ],
+   "k": 5,
+   "p_bar": 0.5607744107744107,
+   "spread": 0.0043188463071937005,
+   "se": 0.010181568623958198,
+   "snr": 0.4241828019536248
+  }
+ },
+ "environment": {
+  "python": "3.12.2",
+  "pyarrow": "21.0.0",
+  "huggingface_hub": "0.36.2",
+  "platform": "macOS-26.6-arm64-arm-64bit"
+ }
+}
