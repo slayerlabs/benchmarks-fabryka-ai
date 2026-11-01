@@ -40,6 +40,9 @@ adresem https://github.com/orgs/slayerlabs/projects/10. Jak przygotować kompute
    ```
 
 3. Otwórz PR do `main` i wypełnij checklistę z szablonu. W opisie wpisz `Refs #N` z numerem zadania z tego repo.
+   Dopóki pracujesz, PR jest w trybie **Draft** (`gh pr create --draft`), a zadanie stoi w In Progress. Gdy
+   komendy z punktu 2 kończą się kodem 0 i ktoś inny może PR przejąć, kliknij **Ready for review** (`gh pr ready`)
+   i przestaw zadanie na Review.
    Piszesz `Refs`, a nie `Closes`, bo issue zamyka przestawienie zadania na Done na tablicy. Na Done przestawia je
    recenzent, a przy ścieżce „bez recenzji” autor po scaleniu PR.
 4. Recenzja (ścieżki „recenzja” i „recenzja i przeliczenie”, akapit „Ścieżka sprawdzenia” niżej) ma dwa kroki. Najpierw recenzent sprawdza, że komendy z punktu 2 kończą się kodem 0. Potem osoba, która
