@@ -49,4 +49,6 @@ Liczbę spoza wyników, np. wynik z pracy, oznaczasz na końcu jej linii znaczni
   plik. Potrzebuje ich test zgodności i recenzent, który odtwarza wynik. Surowe `*.jsonl` w `results/<model>/`
   zostają lokalnie (`.gitignore`).
 - Pytania benchmarku nie trafiają do danych treningowych (`research/METODOLOGIA.md`, sekcja „Czystość benchmarku”).
+- Siła dowodu rośnie z kosztem błędnej decyzji i jej odwrócenia, ponad minimum z bramki liczb (liczba w
+  `LICZBY.json`, SE i werdykt). Sekcja „Siła dowodu” w `research/METODOLOGIA.md`.
 - PR otwierasz do `main`, z `Refs #N` zadania z tego repo w opisie.

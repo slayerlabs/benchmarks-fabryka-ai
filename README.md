@@ -32,6 +32,11 @@ flowchart LR
   D --> E[Testy autora PR, potem recenzja] --> F[Merge]
 ```
 
+Gdy przestawiasz zadanie z In Progress na Review albo Independent Check, automat
+[`board-unassign.yml`](.github/workflows/board-unassign.yml) w ciągu kilkunastu minut zdejmuje przypisanie z issue.
+Wtedy wszyscy widzą, że zadanie jest do wzięcia. Recenzent, który przypisze się sam już w Review, zostaje
+przypisany. Status Done zamyka issue.
+
 Przydatne linki:
 
 - Zadania: https://github.com/slayerlabs/benchmarks-fabryka-ai/issues
@@ -85,6 +90,15 @@ CI, więc uruchamiasz je sam.
 .venv-eval/bin/python tests/test_<name>_zgodnosc.py   # tylko gdy benchmark ma własną implementację
 .venv-eval/bin/python tests/test_liczby_raportow.py
 ```
+
+**Sama karta.** PR z samą kartą oryginału (etap A) wymaga tylko bramki liczb z kodem 0, bez testów benchmarku:
+
+```bash
+.venv-eval/bin/python tools/liczby.py && .venv-eval/bin/python tools/sprawdz_raporty.py
+```
+
+Recenzent takiego PR nie odtwarza `RECIPE.md`. Sprawdza u źródła prompt, ocenę, wynik referencyjny i bazy, a przy
+„brak” albo „nieustalone” listę przeszukanych miejsc.
 
 ## Co jest w repo
 

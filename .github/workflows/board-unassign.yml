@@ -1,0 +1,28 @@
+name: Board unassign
+# Board field changes do not trigger Actions, so this runs on a schedule.
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only print what would be unassigned"
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: board-unassign
+  cancel-in-progress: false
+jobs:
+  unassign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Unassign issues in Review / Independent Check
+        env:
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+        run: python .github/scripts/board_unassign.py ${{ inputs.dry_run && '--dry-run' || '' }}

@@ -151,12 +151,15 @@ to co innego niż warunek odtworzenia z etapu B metodologii.
 ## Bazy: losowa i większościowa
 
 - **Baza losowa:** wynik zgadywania (1/k przy k opcjach, połowa przy parach zdań).
-- **Baza większościowa:** wynik stałej odpowiedzi „najczęstsza klasa”, np. zawsze „tak” w BoolQ. Liczysz ją tylko dla
-  testów o stałym zbiorze klas.
+- **Baza większościowa:** udział najczęstszej poprawnej odpowiedzi, czyli wynik stałej odpowiedzi, np. zawsze „tak”
+  w BoolQ. Przy wyborze odpowiedzi liczysz ją po pozycji opcji, bo lm-eval punktuje indeks odpowiedzi. Podajesz
+  dokładną wartość ze splitu (np. ze statystyk HF datasets-server), nie zaokrągloną z abstraktu.
 - **Udział najczęstszej predykcji:** jaki odsetek odpowiedzi modelu to ta sama opcja. Małe modele w testach z literami
   często wybierają w kółko jedną literę. Wynik podany bez tych liczb wprowadza w błąd.
 
 ## Slayer 1B: wyniki testów (30.10.2026)
+
+Slayer 1.06 to checkpoint w trakcie treningu (ok. jednej ósmej, bez wygaszania LR), a porównania niżej śledzą postęp.
 
 - Litery A/B/C/D a losowość. Dlaczego Slayer 1.06 wypada losowo w testach z literami i co widać po treści odpowiedzi: [`analyses/answer-format/`](analyses/answer-format/README.md).
 - BLiMP, pełny zbiór, Slayer 1.06 i Pythia-1B: [`benchmarks/blimp/`](benchmarks/blimp/README.md).
