@@ -4,6 +4,12 @@ Slayer 1.06 wypada losowo w testach z literami A/B/C/D, bo za często wybiera �
 
 **Wykresy i tabele:** https://claude.ai/artifact/A25Hg6FfP9ZaXrRpUdzqaa
 
+## EWoK-PL (wiedza o świecie po polsku)
+
+[`ewok_pl/WYNIKI.md`](ewok_pl/WYNIKI.md): Slayer 1.00–1.06, Bielik-1.5B-v3, LFM3-1.7B-Base i Aster-0.5B(fp32) na
+EWoK-PL (625 rekordów, domena `agent-properties`) i pełnym EWoK EN (4374), wszystkie w float32. Protokół
+i uruchomienie: [`ewok_pl/README.md`](ewok_pl/README.md).
+
 ## Co dalej
 
 - Zadania dla chętnych (A1–A7 bez GPU, B1–B4 z GPU): [`lab/DLA_ARKA_I_CHETNYCH.md`](lab/DLA_ARKA_I_CHETNYCH.md).

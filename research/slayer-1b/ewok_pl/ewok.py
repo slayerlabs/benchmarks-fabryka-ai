@@ -60,20 +60,29 @@ class ModelHFBos:
         self.prefiks, self.prefiks_pusty = [bos], [bos]
         self.pad = self.tok.pad_token_id if self.tok.pad_token_id is not None else bos
         self.max_len = min(getattr(self.m.config, "max_position_embeddings", 2048), 4096)
+        # Modele bez osobnego modelu bazowego (np. Aster: base_model_prefix = "") nie dają last_hidden_state,
+        # a domyślne logits_to_keep=1 zwraca logity tylko ostatniej pozycji: liczymy wtedy pełne logity od razu.
+        self.bez_bazy = self.m.base_model is self.m
 
     def encode(self, s):
         return self.tok(s, add_special_tokens=False).input_ids
 
     @torch.no_grad()
     def ukryte(self, ids):
+        if self.bez_bazy:
+            return self.logits(ids)
         return self.m.base_model(ids).last_hidden_state
 
     @torch.no_grad()
     def glowa(self, h):
+        if self.bez_bazy:
+            return h.float()
         return self.m.get_output_embeddings()(h).float()
 
     @torch.no_grad()
     def logits(self, ids):
+        if self.bez_bazy:
+            return self.m(ids, use_cache=False, logits_to_keep=0).logits.float()
         return self.m(ids).logits.float()
 
 
@@ -304,11 +313,11 @@ def cmd_analiza(a):
     # ostrożniej: Holm na wszystkich kontrastach naraz (bez podziału na rodziny)
     for k, p in zip(raport["kontrasty"], holm([k["p_po_szablonach"] for k in raport["kontrasty"]])):
         k["p_holm_wszystkie_po_szablonach"] = p
-    # kandydaci do przeglądu tłumaczenia, w obie strony. Odniesieniem są tylko modele spoza rodziny Slayera
-    # (Slayer jest po angielsku blisko losowego, więc średnia po wszystkich modelach tłumiłaby sygnał).
+    # kandydaci do przeglądu tłumaczenia, w obie strony. Odniesieniem są tylko modele, które po angielsku
+    # wyraźnie coś umieją (dolna granica CI95 na pełnym EN > 60%): model losowy po angielsku tłumiłby sygnał.
     if pl:
-        ref = [m for m in modele if m not in slayery and "en625" in po_zrodle[m]]
-        raport["protokol"]["do_przegladu"] = {"modele": ref, "prog": 0.5}
+        ref = [m for m in modele if "en" in oceny[m] and raport["modele"][m]["en"]["ewok"]["ci95"][0] > 0.6]
+        raport["protokol"]["do_przegladu"] = {"modele": ref, "prog": 0.5, "kryterium": "dolna granica CI95 EN pełny > 0,6"}
         for kier in ("trudniejsze_po_pl", "latwiejsze_po_pl"):
             raport["do_przegladu"][kier] = []
         for r in pl:
