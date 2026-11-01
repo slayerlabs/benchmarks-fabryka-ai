@@ -158,6 +158,8 @@ to co innego niż warunek odtworzenia z etapu B metodologii.
 
 ## Slayer 1B: wyniki testów (30.10.2026)
 
+Slayer 1.06 to checkpoint w trakcie treningu (ok. jednej ósmej, bez wygaszania LR), a porównania niżej śledzą postęp.
+
 - Litery A/B/C/D a losowość. Dlaczego Slayer 1.06 wypada losowo w testach z literami i co widać po treści odpowiedzi: [`analyses/answer-format/`](analyses/answer-format/README.md).
 - BLiMP, pełny zbiór, Slayer 1.06 i Pythia-1B: [`benchmarks/blimp/`](benchmarks/blimp/README.md).
 - WikiText-2. Po poprawce mianownika byte_ppl z tego repo jest zgodny ze Space: [`benchmarks/wikitext-2/`](benchmarks/wikitext-2/README.md).
