@@ -81,6 +81,30 @@ Pola zadania:
   zbadania” znaczy, że sposób wykonania trzeba najpierw ustalić samemu.
 - **Obszar**: Dane, Architektura i uczenie, Systemy treningu, Infrastruktura albo Ewaluacja i pomiar.
 
+**Ścieżkę sprawdzenia** podaje każde zadanie w linii „Sprawdzenie:”. Siłę sprawdzenia dobiera się do kosztu błędu
+(METODOLOGIA, sekcja „Siła dowodu”):
+
+- **bez recenzji**: In Progress → Done po scaleniu PR. Automaty z „Przed PR” kończą się kodem 0.
+- **recenzja**: In Progress → Review → Done. Jedna osoba sprawdza. To domyślna ścieżka, także gdy zadanie jej nie
+  podaje. Przykład: karta oryginału.
+- **recenzja i przeliczenie** (etykieta `needs-recheck`): In Progress → Review → Independent Check → Done. Druga osoba
+  liczy wynik od zera. Dla wyniku, który idzie do Space albo do decyzji o treningu.
+
+## Jak piszemy zadania
+
+Zadanie mówi, co ma powstać, a nie jak to zrobić krok po kroku. Ma pięć części:
+
+1. **Cel**: jedno zdanie, po co jest zadanie i jaka decyzja zależy od wyniku.
+2. **Co zrobić**: rodzaj pracy i odesłanie do sekcji METODOLOGII. Sposób wykonania opisuje metodologia, nie zadanie.
+3. **Dane wejściowe**: tylko fakty potrzebne do startu, każdy z linkiem do źródła. Liczba w zadaniu jest dokładna, nie
+   zaokrąglona z abstraktu.
+4. **Gotowe**: sprawdzalne kryteria, w tym automaty z kodem 0.
+5. **Sprawdzenie**: jedna z trzech ścieżek wyżej.
+
+Nie podpowiadaj w zadaniu rozstrzygnięć, które należą do metodologii, także jako przykładu w nawiasie. Gdy zadanie i
+metodologia mówią co innego, autor robi według zadania, a błąd poprawiamy w metodologii albo w zadaniu, nie u
+autora.
+
 ## Pliki w repo
 
 - Dokumenty piszesz po polsku. Nazwy katalogów, plików i kod piszesz po angielsku.
