@@ -301,6 +301,37 @@ def test_porownanie_parowane_ma_obie_wersje_se():
     assert "se_parowane" not in s and "niezależne" in s["adnotacja"] and s["werdykt"] == "szum"
 
 
+class _WindowsLikeRel(type(KORZEN)):
+    """A relative path whose str() gives backslashes, like WindowsPath; as_posix() gives slashes."""
+    def __str__(self):
+        return super().__str__().replace("/", "\\")
+
+    def as_posix(self):
+        return super().__str__()
+
+
+class _WindowsLikeRoot(type(KORZEN)):
+    def relative_to(self, *other):
+        return _WindowsLikeRel(super().relative_to(*other))
+
+
+def test_path_keys_use_forward_slashes_when_str_gives_backslashes():
+    # regression for PR #66: str(path) instead of .as_posix() breaks the gate on Windows only
+    korzen = _WindowsLikeRoot(KORZEN)
+    assert "\\" in str((korzen / "a/b").relative_to(korzen))
+    rel = [r for r, _ in S.pliki_md(korzen)]
+    zrodla = L.zbuduj(korzen)["zrodla"]
+    assert rel and zrodla and all("\\" not in k for k in rel + zrodla), [k for k in rel + zrodla if "\\" in k][:3]
+
+
+def test_generator_gate_reports_forward_slashes_when_str_gives_backslashes(tmp_path):
+    liczby, meta, _ = _meta_blimp()
+    k = _kopia_do_generatora(tmp_path)
+    (k / "benchmarks/blimp/results/blimp_paradigms.svg").unlink()
+    b = S.bramka_generatora(meta, liczby, _WindowsLikeRoot(k))
+    assert [x[0] for x in b] == ["benchmarks/blimp/results/blimp_paradigms.svg"], b
+
+
 if __name__ == "__main__":
     testy = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_") and callable(f)]
     zle = 0
