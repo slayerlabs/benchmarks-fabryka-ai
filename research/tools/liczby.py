@@ -60,6 +60,7 @@ WYGASZANIE = "slayer-1b/wygaszanie/wyniki"
 BLIMP = "benchmarks/blimp/results/blimp.json"
 KRZYWA = "benchmarks/blimp/results/checkpoints.json"  # BLiMP over checkpoints and weight averaging
 FORMAT = "analyses/answer-format/results/raport_formatu.json"
+PIQA = "benchmarks/piqa/results/piqa.json"
 
 
 def werdykt(z):
@@ -409,6 +410,15 @@ def raporty_blimp(bl):
              "porownanie_na_token": "slayer_vs_pythia/blimp_na_token/acc"}]
 
 
+def raporty_piqa(korzen):
+    """PIQA.md for gate (g): the report must equal what benchmarks/piqa/piqa.py renders from piqa.json."""
+    if not (korzen / PIQA).exists():
+        return []
+    return [{"plik": "benchmarks/piqa/results/PIQA.md", "test": "piqa", "wieloparadygmatowy": False, "grupy": [],
+             "generator": {"modul": "benchmarks/piqa/piqa.py", "funkcja": "pliki", "wejscie": PIQA,
+                           "komenda": "python benchmarks/piqa/piqa.py report"}}]
+
+
 def zbuduj(korzen=KORZEN):
     raport = json.loads((korzen / FORMAT).read_text())
     por = json.loads((korzen / WYGASZANIE / "porownanie.json").read_text())
@@ -443,6 +453,7 @@ def zbuduj(korzen=KORZEN):
         splaszcz(kr, "blimp_krzywa", wartosci, pomin=("paradygmaty",))
         porownania += porownania_krzywej(kr)
         raporty += raporty_krzywej(kr)
+    raporty += raporty_piqa(korzen)
     bench = benchmarki(korzen)
     return {"zrodla": zrodla + [z for b in bench.values() for z in b["zrodla"]],
             "benchmarki": bench, "raporty": raporty,
