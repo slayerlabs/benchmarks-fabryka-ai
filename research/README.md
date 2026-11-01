@@ -50,12 +50,13 @@ Przed pierwszym pobraniem:
 ```bash
 git clone https://github.com/slayerlabs/benchmarks-fabryka-ai
 cd benchmarks-fabryka-ai/research
-python3 -m venv .venv-eval
+python3.12 -m venv .venv-eval
 .venv-eval/bin/pip install -r common/requirements.lock.txt pytest
 .venv-eval/bin/hf auth login
 .venv-eval/bin/python common/pobierz_zbiory.py
 .venv-eval/bin/hf download SlayerLab/Slayer1B-1.06 --revision ef81be58742544ad32e1afab38db011fec209609 --local-dir models/slayer-1.06
 .venv-eval/bin/hf download EleutherAI/pythia-1b-v0 --revision step143000 --local-dir models/pythia-1b-v0
+.venv-eval/bin/python common/slayer_lm.py --install
 .venv-eval/bin/python tests/test_slayer_eval.py
 ```
 
@@ -69,6 +70,13 @@ Do benchmarku polskiego albo bez oryginału pobierz też model, który zna polsk
 
 Wszystkie przebiegi liczysz w środowisku z `common/requirements.lock.txt` (lm-eval 0.4.9.1). Czym różni się ono od
 lm-eval w Space, opisuje [`METODOLOGIA.md`](METODOLOGIA.md), sekcja „Wersja lm-eval”.
+Lock ogranicza Pythona do 3.9–3.12: `numpy==2.0.2` i `scipy==1.13.1` wymagają co najmniej 3.9 i mają gotowe wheele
+tylko do 3.12. Sprawdzone na 3.9.25 i 3.12.10. Pilnuje tego pierwsza linia locka,
+`--only-binary numpy,scipy`: na 3.14 `pip install` od razu kończy się błędem `No matching distribution found for
+numpy==2.0.2`.
+
+`common/slayer_lm.py --install` uruchamiasz raz na venv i checkout. Zapisuje w venv ścieżkę tego `common/`.
+Rejestruje model `slayer` tylko pod komendą `lm_eval`, nie pod `python -m lm_eval`.
 
 `EleutherAI/pythia-1b-v0` @ `step143000` to pierwszy model z listy kontrolnej etapu B. Gdy nie ma opublikowanego
 wyniku dla Twojego benchmarku, bierzesz następny model z listy (sekcja „Model kontrolny etapu B”). Wagi zostają w
@@ -90,7 +98,14 @@ python analyses/answer-format/analiza_formatu.py --wyniki <dir>
   n, SE, bazy, rozkład odpowiedzi i porównanie modeli. Jeśli venv nie jest aktywny, uruchom skrypt przez
   `.venv-eval/bin/python` zamiast `python`.
 - Slayera ładuje tylko `common/slayer_model.py`, bo jego `config.json` nie ma `model_type`. Inne modele ładuje
-  transformers.
+  transformers. Ten sam forward jest nakładką lm-eval `slayer` (po `--install` z przygotowania):
+
+```bash
+.venv-eval/bin/lm_eval --model slayer --model_args pretrained=models/slayer-1.06,dtype=float32 --include_path common/lm_eval_tasks --tasks arc_challenge --samples common/tests/data/arc_panel200.json --num_fewshot 0 --batch_size 1 --device cpu --seed 0,1234,1234,1234
+```
+
+Na czym opiera się poprawność nakładki i czym różni się od Space: [`common/RECIPE.md`](common/RECIPE.md). Na Windows komendy są w
+`.venv-eval/Scripts/` zamiast `.venv-eval/bin/`.
 
 ## Testy kodu
 
@@ -98,6 +113,7 @@ Testy działają bez sieci i bez wag. Każdy kończy się kodem 0:
 
 ```bash
 .venv-eval/bin/python tests/test_slayer_eval.py
+.venv-eval/bin/python tests/test_lm_eval_slayer.py
 .venv-eval/bin/python tests/test_testy_danych_slayer.py
 .venv-eval/bin/python tests/test_ewok_pl.py
 .venv-eval/bin/python tests/test_blimp.py

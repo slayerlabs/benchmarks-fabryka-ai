@@ -93,11 +93,14 @@ służą do diagnozy.
 
 ## Uruchomienie
 
-**Slayer: tylko `hipoteza_formatu.py`.** `ewaluuj.py` / `ewaluuj_slayer.sh` ładują model przez
-`HFLM` (transformers), a `config.json` Slayera nie ma `model_type` ani kodu modelowania:
-`AutoConfig.from_pretrained` kończy się `ValueError: Unrecognized model` (sprawdzone na 1.06 z
-transformers 4.57.6). Ta ścieżka działa dla modeli z transformers (Pythia, Qwen). Wyniki Slayera w
-`analyses/answer-format/results/raport_formatu.json` liczy `hipoteza_formatu.py` z forwardem `slayer_model.py`:
+**Slayer w lm-eval: `slayer_lm.py`.** `HFLM` nie wczyta Slayera (`config.json` nie ma `model_type`:
+`AutoConfig.from_pretrained` kończy się `ValueError: Unrecognized model`, sprawdzone na 1.06 z
+transformers 4.57.6). Nakładka `SlayerLM` (`--model slayer`) ładuje go przez `slayer_model.py` i liczy
+`loglikelihood`, `loglikelihood_rolling` oraz `generate_until` tym samym kodem co `hf`, z jednym BOS przed każdym
+zapytaniem jak w Space. Komenda: [`../README.md`](../README.md#uruchomienie), przepis: [`RECIPE.md`](RECIPE.md). Po `slayer_lm.py --install`
+model `slayer` rejestruje się tylko pod komendą `lm_eval`, nie pod `python -m lm_eval`. `ewaluuj.py --model slayer
+--model_path <katalog wag>` używa tej samej nakładki. Wyniki w `analyses/answer-format/results/raport_formatu.json` dalej liczy
+`hipoteza_formatu.py` (ten sam forward):
 
 ```bash
 huggingface-cli download SlayerLab/Slayer1B-1.06 --revision ef81be58742544ad32e1afab38db011fec209609 \
@@ -112,7 +115,7 @@ Pełna lista zadań i komenda dla Pythii: `paczka_testerzy/INSTRUKCJA.md`, sekcj
 surowe dane od zera”. Ścieżka lm-eval (model z transformers):
 
 ```bash
-python3 -m venv .venv-eval && .venv-eval/bin/pip install -r common/requirements.lock.txt
+python3.12 -m venv .venv-eval && .venv-eval/bin/pip install -r common/requirements.lock.txt
 # raz, z siecią do HF: zbiory do cache (lista OK/BŁĄD na końcu; --lista wypisuje bez pobierania)
 .venv-eval/bin/python common/pobierz_zbiory.py
 # dalej bez sieci (OFFLINE=1 ustawia HF_DATASETS_OFFLINE=1 i HF_HUB_OFFLINE=1);
