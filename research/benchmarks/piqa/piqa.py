@@ -12,6 +12,7 @@
 The prompt, choices and target are piqa.yaml of lm-eval (identical in 6d2abda4 and v0.4.9.1 except dataset_path).
 """
 import argparse
+import copy
 import gzip
 import hashlib
 import json
@@ -164,7 +165,7 @@ def score(args):
     lm = build_lm(args)
     t_load = time.time() - t0
     cfg = task_config(data_files)
-    task = list(get_task_dict([cfg], TaskManager()).values())[0]
+    task = list(get_task_dict([copy.deepcopy(cfg)], TaskManager()).values())[0]  # get_task_dict pops keys
     task.config.task = cfg["task"]  # lm-eval 0.4.9.1 drops the name when loading a dict
     limit = None if args.limit is None else int(args.limit)
     t1 = time.time()
