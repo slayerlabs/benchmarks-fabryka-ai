@@ -351,11 +351,12 @@ Co jest w [pliku wyników Pythii v0](https://github.com/EleutherAI/pythia/blob/m
 | Social IQa | brak | nie, następny z listy |
 | IFEval | brak | nie, następny z listy |
 
-Gdy żadnej kontroli z listy nie ma, wynik i tak idzie do Space. Autor wpisuje w opisie PR „bez kontroli” i
-wymienia, gdzie szukał. Brak kontroli nie wstrzymuje terminu.
+Gdy żadnej kontroli z listy nie ma, wynik i tak idzie do Space, ale jako wstępny. Autor wpisuje w opisie PR „bez
+kontroli, wynik wstępny” i wymienia, gdzie szukał. Brak kontroli nie wstrzymuje terminu.
 
-Wynik przekazujesz w opisie PR. Wklejasz wartość, n, CI95, komendę i rewizje. Dopisujesz kontrolę albo „bez
-kontroli”. Po merge'u Arek, właściciel modelu Slayer i Space, wgrywa wynik do `results.json` Space. Kartę oryginału
+Minimum obowiązuje także tu (sekcja „Siła dowodu”): wynik Slayera i kontroli jest w `results/LICZBY.json` z SE, a
+bramka liczb kończy się kodem 0. Wynik przekazujesz w opisie PR. Wklejasz wartość, n, CI95, komendę i rewizje.
+Dopisujesz kontrolę albo „bez kontroli, wynik wstępny”. Po merge'u Arek, właściciel modelu Slayer i Space, wgrywa wynik do `results.json` Space. Kartę oryginału
 (etap A) i resztę „zrobione” dopisujesz po terminie, w osobnym zadaniu.
 
 ## Pierwsze zadanie i recenzja
@@ -372,7 +373,8 @@ Pierwsze zadanie opisuje [`CONTRIBUTING.md`, „Pierwsze zadanie”](../CONTRIBU
 
 Nie ma stałych ról. Recenzuje ktoś inny niż autor, kto zna dany kod albo benchmark. Wynik, który idzie dalej, do Space
 albo do decyzji o treningu, dostaje etykietę `needs-recheck`. Wtedy druga osoba liczy go od zera, na innym sprzęcie.
-Nie zagląda przy tym w liczby autora.
+Nie zagląda przy tym w liczby autora. Wynik różny od wartości, która już stoi w Space, nie zmienia Space bez takiego
+przeliczenia.
 
 ## Siła dowodu
 
