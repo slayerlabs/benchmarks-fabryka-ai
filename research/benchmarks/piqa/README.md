@@ -7,6 +7,8 @@ and stages B–C follow in #57.
   raw result.
 - [`results/PIQA.md`](results/PIQA.md): report generated from `results/piqa.json`.
 - [`RECIPE.md`](RECIPE.md): one entry per result.
+- [`SPACE_METHOD.md`](SPACE_METHOD.md): excerpt of the Space METHOD.md and the tasks_50.json entry T06 at the Space
+  revision used.
 - `piqa.py`: `fetch`, `score`, `report`; `instance.sh`: the same on a vast.ai GPU.
 - `results/raw/`: one line per question (log-probability of each option, picks, gold, source id), sha256 in
   `SHA256SUMS`.
