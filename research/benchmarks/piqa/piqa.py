@@ -368,6 +368,9 @@ def render(o, metas):
               f"{f3(bf['majority'])} on the full split (n {bf['n']}) and {f3(bp['majority'])} on the panel (n {bp['n']}).",
               f"Panel: {o['n_panel']} questions by SHA-256 as in METHOD.md (source id: SHA-256 of the canonical row), "
               f"digest of the source ids `{o['panel_source_ids_sha256']}`.",
+              "The Space has no T06 value for any model, so the panel is not checked against the Space.",
+              "The Space marks T06 for Slayer 1.06 as `contamination: flagged`. Without the training corpus we cannot "
+              "compute the hit-free value; all Slayer values here are on the full sample.",
               "", "## Control", "",
               "| metric | Pythia-1B v0, ours | published | difference, pts | tolerance, pts | within |",
               "|---|---:|---:|---:|---:|---|"]
@@ -377,8 +380,8 @@ def render(o, metas):
                      f"{p1(k['tolerance_pts'])} | {'yes' if k['within'] else 'no'} |")
     d = c["discriminates"]
     lines += ["",
-              f"The published value lies {p1(d['z_over_random'])} SE over the random baseline and "
-              f"{p1(d['z_over_majority'])} SE over the majority baseline (SE {f3(d['se_published'])}), so the control "
+              f"The published acc_norm lies {p1(d['z_over_random'])} standard errors over the random baseline and "
+              f"{p1(d['z_over_majority'])} over the majority baseline (standard error {f3(d['se_published'])}), so the control "
               f"tells working code from guessing. Control passed: {'yes' if c['passed'] else 'no'}.",
               "", "## Comparisons (verdict: |z| ≥ 3 pewne, 2–3 prawdopodobne, < 2 szum)", "",
               "| comparison | split | difference, pts | z | verdict |", "|---|---|---:|---:|---|"]
