@@ -49,8 +49,15 @@
      ]
     },
     "bpb_correct": 1.1222778412313135,
+    "bpb_correct_pooled": 0.9486904520652516,
     "share_pick_sol1_acc_norm": 0.49183895538628947,
     "share_most_frequent_prediction": 0.5081610446137106,
+    "ties_acc": 0,
+    "ties_acc_norm": 0,
+    "n_unequal_length": 1627,
+    "share_pick_longer_acc_norm": 0.5642286416717885,
+    "share_pick_longer_acc": 0.3441917639827904,
+    "share_gold_longer": 0.47203441917639827,
     "n": 1838
    },
    "panel": {
@@ -73,8 +80,15 @@
      ]
     },
     "bpb_correct": 1.0648579317714977,
+    "bpb_correct_pooled": 0.9221361308510049,
     "share_pick_sol1_acc_norm": 0.51,
     "share_most_frequent_prediction": 0.51,
+    "ties_acc": 0,
+    "ties_acc_norm": 0,
+    "n_unequal_length": 179,
+    "share_pick_longer_acc_norm": 0.5586592178770949,
+    "share_pick_longer_acc": 0.39106145251396646,
+    "share_gold_longer": 0.5251396648044693,
     "n": 200
    },
    "meta": {
@@ -86,7 +100,8 @@
     "transformers": "4.57.6",
     "batch": "1",
     "dtype": "float32"
-   }
+   },
+   "panel_minus_full_pts": 2.053318824809569
   },
   "slayer-1.06": {
    "full": {
@@ -109,8 +124,15 @@
      ]
     },
     "bpb_correct": 1.306644632750544,
+    "bpb_correct_pooled": 1.1121692102337568,
     "share_pick_sol1_acc_norm": 0.49782372143634385,
     "share_most_frequent_prediction": 0.5021762785636561,
+    "ties_acc": 0,
+    "ties_acc_norm": 0,
+    "n_unequal_length": 1627,
+    "share_pick_longer_acc_norm": 0.5759065765212047,
+    "share_pick_longer_acc": 0.32329440688383526,
+    "share_gold_longer": 0.47203441917639827,
     "n": 1838
    },
    "panel": {
@@ -133,8 +155,15 @@
      ]
     },
     "bpb_correct": 1.2533311396801559,
+    "bpb_correct_pooled": 1.0884788301590016,
     "share_pick_sol1_acc_norm": 0.46,
     "share_most_frequent_prediction": 0.54,
+    "ties_acc": 0,
+    "ties_acc_norm": 0,
+    "n_unequal_length": 179,
+    "share_pick_longer_acc_norm": 0.5139664804469274,
+    "share_pick_longer_acc": 0.3407821229050279,
+    "share_gold_longer": 0.5251396648044693,
     "n": 200
    },
    "meta": {
@@ -146,7 +175,8 @@
     "transformers": "4.57.6",
     "batch": "1",
     "dtype": "float32"
-   }
+   },
+   "panel_minus_full_pts": 3.8541893362350477
   }
  },
  "control": {
