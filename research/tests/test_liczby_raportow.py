@@ -307,7 +307,7 @@ class _WindowsLikeRel(type(KORZEN)):
         return super().__str__().replace("/", "\\")
 
     def as_posix(self):
-        return super().__str__()
+        return super().__str__().replace("\\", "/")
 
 
 class _WindowsLikeRoot(type(KORZEN)):
