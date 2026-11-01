@@ -1,6 +1,6 @@
 # Protokół: SNR i baza większościowa ARC-Easy (karta oryginału)
 
-Plik roboczy, usuwany przed PR. Ustalony przed jakimkolwiek liczeniem.
+Ustalony przed jakimkolwiek liczeniem; karta odsyła tu po korektę po wyniku.
 
 **Pytanie.** Jaki jest SNR ARC-Easy z opublikowanych wyników jednej rodziny modeli i jaka jest baza większościowa
 (udział najczęstszej pozycji poprawnej odpowiedzi) na teście?
