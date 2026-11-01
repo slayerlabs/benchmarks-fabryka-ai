@@ -5,7 +5,7 @@ dwa tygodnie ma odtworzyć ten sam wynik. Czego nie zapisano, wpisz jako „niez
 
 ## <model>
 
-- Commit kodu: <sha>
+- Commit kodu: commit z `main`, od którego wychodzi gałąź PR, plus kod z tego PR (hash z gałęzi roboczej znika po spłaszczeniu historii)
 - Środowisko: `common/requirements.lock.txt`; transformers <wersja>@<commit, jeśli z gita>; lm-eval <wersja albo commit>
 - Model: <repo HF>@<rewizja>
 - Zbiór: <repo HF albo plik>@<rewizja albo sha256>

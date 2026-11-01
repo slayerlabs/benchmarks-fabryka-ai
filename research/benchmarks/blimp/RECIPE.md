@@ -83,12 +83,8 @@ Bez wag `blimp.json` odbudujesz z zapisanych plików per para:
 
 ## Wynik 4: BLiMP po checkpointach treningu i uśrednianie wag (`results/CHECKPOINTS.md`)
 
-- Commit kodu: pomiar liczony kodem z gałęzi `research/bench-blimp` w dawnym układzie `research/slayer-1b/`
-  (commity lokalne, nie było ich na GitHubie; ten PR przenosi je w obecny układ). Kolejność: protokół i progi
-  `8effddf` (2026-10-31 14:08 CET), kod pomiaru i testy `be98bc9` (14:27), poprawka 1 protokołu, cięcie zakresu
-  przed odczytem trafności `bf8aa50` (15:01), wyniki `ba557c7` (15:46), dwie rundy poprawek po weryfikacji
-  `cd583e0` (16:21) i `0935e13` (16:38). Pliki per para i held-out przeniesione bez zmian (te same sha256, zapisane
-  w `results/checkpoints.json`, pole `sha256_surowych`).
+- Commit kodu: `3c8ca13` (scalenie #62). Pliki per para i held-out mają sha256 w `results/checkpoints.json`, pole
+  `sha256_surowych`.
 - Protokół i progi zapisane przed pomiarem: [`results/CHECKPOINTS_THRESHOLDS.md`](results/CHECKPOINTS_THRESHOLDS.md).
 - Ocena: jak w wyniku 1 (`common/hipoteza_formatu.py licz --zadania blimp`), float32, TF32 wyłączone
   (`NVIDIA_TF32_OVERRIDE=0`), batch 64 z dopełnieniem z prawej, `--device cuda`.
