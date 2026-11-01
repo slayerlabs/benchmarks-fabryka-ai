@@ -55,16 +55,21 @@ def canonical(row):
     return json.dumps(row, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
 
 
-def source_id(index, row):
-    """Source id in the panel hash (PROTOCOL.md, "Panel"): PIQA rows have no native id, so the row index in the split."""
-    return str(index)
+def source_id(row):
+    """Source id in the panel hash (PROTOCOL.md, "Panel"): PIQA rows have no native id, so METHOD.md section 3 takes
+    the SHA-256 of the canonical document (sorted-key compact JSON, the reading that reproduced the BLiMP panel).
+    The validation split has no byte-identical rows, so no ordinal is needed."""
+    return hashlib.sha256(canonical(row).encode()).hexdigest()
 
 
-def panel_indices(rows, n=PANEL_N):
-    """min(n, N) indices, ascending SHA-256 of `20261028|benchmark_id|member_task|source_id` (METHOD.md)."""
+def panel_indices(source_ids, n=PANEL_N):
+    """min(n, N) indices, ascending SHA-256 of `20261028|benchmark_id|member_task|source_id` (METHOD.md section 3)."""
+    if len(set(source_ids)) != len(source_ids):
+        raise ValueError("duplicate source ids: METHOD.md section 8 needs an ordinal, not implemented")
+
     def key(i):
-        return hashlib.sha256(f"{SEED}|{BENCHMARK_ID}|{MEMBER_TASK}|{source_id(i, rows[i])}".encode()).hexdigest()
-    return sorted(sorted(range(len(rows)), key=key)[:min(n, len(rows))])
+        return hashlib.sha256(f"{SEED}|{BENCHMARK_ID}|{MEMBER_TASK}|{source_ids[i]}".encode()).hexdigest()
+    return sorted(sorted(range(len(source_ids)), key=key)[:min(n, len(source_ids))])
 
 
 # ---------------------------------------------------------------- fetch
@@ -132,8 +137,7 @@ def question_row(sample, row_index, row):
     gold = int(sample["target"])
     pick = max(range(2), key=lambda i: lls[i])
     pick_norm = max(range(2), key=lambda i: lls[i] / chars[i])
-    return {"idx": row_index, "source_id": source_id(row_index, row),
-            "row_sha256": hashlib.sha256(canonical(row).encode()).hexdigest(),
+    return {"idx": row_index, "source_id": source_id(row),
             "gold": gold, "logprob": lls, "greedy": greedy, "chars": chars,
             "bytes_cont": [len(c.encode("utf-8")) for c in conts],
             "pick_acc": pick, "pick_acc_norm": pick_norm,
@@ -268,9 +272,10 @@ def report(args):
     for k, lines in data.items():
         if [r["idx"] for r in lines] != list(range(len(lines))):
             sys.exit(f"{k}: rows are not the full split in order")
-    panel = panel_indices([{"idx": r["idx"]} for r in slayer])
-    if [r["gold"] for r in slayer] != [r["gold"] for r in pythia]:
-        sys.exit("gold differs between models")
+    panel = panel_indices([r["source_id"] for r in slayer])
+    for k, lines in data.items():
+        if [(r["source_id"], r["gold"]) for r in lines] != [(r["source_id"], r["gold"]) for r in slayer]:
+            sys.exit(f"{k}: questions or gold differ from slayer-1.06")
 
     out = {"protocol": "benchmarks/piqa/PROTOCOL.md", "n_full": len(slayer), "n_panel": len(panel),
            "panel_source_ids_sha256": hashlib.sha256("\n".join(slayer[i]["source_id"] for i in panel).encode()).hexdigest(),
@@ -360,7 +365,7 @@ def render(o, metas):
     lines += ["",
               f"Baselines: random {f3(bf['random'])}; majority (share of the most frequent correct option) "
               f"{f3(bf['majority'])} on the full split (n {bf['n']}) and {f3(bp['majority'])} on the panel (n {bp['n']}).",
-              f"Panel: {o['n_panel']} questions by SHA-256 as in METHOD.md (source id: row index), "
+              f"Panel: {o['n_panel']} questions by SHA-256 as in METHOD.md (source id: SHA-256 of the canonical row), "
               f"digest of the source ids `{o['panel_source_ids_sha256']}`.",
               "", "## Control", "",
               "| metric | Pythia-1B v0, ours | published | difference, pts | tolerance, pts | within |",
