@@ -19,7 +19,9 @@ import math
 import os
 import platform
 import re
+import shutil
 import statistics
+import subprocess
 import sys
 import urllib.request
 from collections import Counter
@@ -242,8 +244,18 @@ def read_result(blobs, rel, cache):
     return cache[rel]
 
 
+def fetch_tree():
+    """Git tree of the Pythia commit; `gh api` (authenticated, higher rate limit) when available."""
+    endpoint = f"repos/{PYTHIA_REPO}/git/trees/{PYTHIA_COMMIT}?recursive=1"
+    if shutil.which("gh"):
+        r = subprocess.run(["gh", "api", endpoint], capture_output=True, text=True)
+        if r.returncode == 0:
+            return json.loads(r.stdout)
+    return json.loads(fetch(f"https://api.github.com/{endpoint}"))
+
+
 def pythia_inputs():
-    tree = json.loads(fetch(f"https://api.github.com/repos/{PYTHIA_REPO}/git/trees/{PYTHIA_COMMIT}?recursive=1"))
+    tree = fetch_tree()
     if tree.get("truncated"):
         sys.exit("GitHub tree truncated")
     prefix = PYTHIA_DIR + "/"

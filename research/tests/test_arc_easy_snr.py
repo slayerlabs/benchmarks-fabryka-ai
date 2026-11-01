@@ -13,7 +13,10 @@ import json
 import math
 import os
 import re
+import shutil
 import statistics
+import subprocess
+import tempfile
 import urllib.request
 from collections import Counter
 from pathlib import Path
@@ -91,6 +94,21 @@ def test_literal_label_variant_uses_labels_not_indices(m):
     assert var["letter_labels_only"]["n"] == 7
 
 
+def test_share_beyond_tolerance_with_same_top_falsifies(m):
+    """Same most frequent position, but the share moves by more than 0.01: the value falls (addendum item 5)."""
+    rows = [(["A", "B", "C", "D"], "C")] * 6 + [(["1", "2", "3", "4"], "1")] * 5
+    main, var = m.majority_variants(rows)
+    v = var["letter_labels_only"]
+    assert main["top"] == [2] and v["top"] == [2] and v["same_top_as_main"]
+    assert v["share_diff"] == pytest.approx(1 - 6 / 11) and v["falsifies"]
+
+
+@pytest.mark.parametrize("z,expected", [(0.0, "szum"), (1.999, "szum"), (2.0, "prawdopodobne"), (-2.0, "prawdopodobne"),
+                                        (2.999, "prawdopodobne"), (3.0, "pewne"), (-3.5, "pewne")])
+def test_verdict_boundaries(m, z, expected):
+    assert m.verdict(z) == expected
+
+
 def test_four_options_variant_excludes_three_and_five(m):
     """Mutation: variant (a) as len >= 4."""
     rows = [(["A", "B", "C", "D"], "A")] * 4 + [(["A", "B", "C", "D", "E"], "B")] * 3 + [(["A", "B", "C"], "B")] * 2
@@ -142,10 +160,8 @@ def test_github_blob_mismatch_exits(m, monkeypatch):
     good = json.dumps({"results": {"arc_easy": {"acc": 0.5, "acc_stderr": 0.01}}}).encode()
     tree = {"truncated": False, "tree": [{"type": "blob", "path": f"{m.PYTHIA_DIR}/{rel}", "sha": m.git_blob_sha(good)}]}
 
-    def fake_fetch(url):
-        return json.dumps(tree).encode() if "api.github.com" in url else good.replace(b"0.5", b"0.9")
-
-    monkeypatch.setattr(m, "fetch", fake_fetch)
+    monkeypatch.setattr(m, "fetch_tree", lambda: tree)
+    monkeypatch.setattr(m, "fetch", lambda url: good.replace(b"0.5", b"0.9"))
     with pytest.raises(SystemExit):
         m.pythia_inputs()
 
@@ -199,6 +215,35 @@ def test_card_row_numbers_bound_to_json_keys(label):
     assert _card_numbers(label) == expected
 
 
+def _row(label):
+    return next(l for l in CARD.read_text().splitlines() if l.startswith(f"| {label} |"))
+
+
+def _text_bindings(d):
+    """Words and integers of the card bound to JSON: model counts, checkpoint steps, verdict."""
+    s = d["snr"]
+    steps = s["checkpoints"]["steps"]
+    diff = s["near_1b"]["diff_1_4b_minus_1b"]
+    return {
+        "SNR: źródło": [f"modele: {s['main']['k']} rozmiarów bez `-deduped`"],
+        "SNR: rozrzut": [f"między {s['main']['k']} rozmiarami",
+                         f"między {s['checkpoints']['k']} ostatnimi checkpointami `{s['checkpoints']['model']}` "
+                         f"(kroki {steps[0]}–{steps[-1]})"],
+        "SNR: iloraz": [f"pierwotnej reguły kroku, {s['original_protocol_step143000_only']['k']} rozmiarów",
+                        f"minimum z {len(s['grid'])} wariantów",
+                        f"iloraz {_fmt(diff['ratio'], 2).replace('.', ',')}, {diff['verdict']}."],
+    }
+
+
+@pytest.mark.skipif(not RESULT.exists(), reason="run the script first")
+@pytest.mark.parametrize("label", ["SNR: źródło", "SNR: rozrzut", "SNR: iloraz"])
+def test_card_row_words_bound_to_json(label):
+    d = json.loads(RESULT.read_text())
+    row = _row(label)
+    for phrase in _text_bindings(d)[label]:
+        assert phrase in row, phrase
+
+
 # ---------- independent recompute from raw sources (no import of the script) ----------
 
 def _parquet_or_skip(d):
@@ -226,8 +271,12 @@ def test_baselines_recomputed_from_parquet():
     card = _card_numbers("Bazy")
     assert card[:3] == [f"{rnd:.4f}", f"{max(c.values()) / n:.4f}", str(n)]
     assert card[3:8] == [f"{c[i] / n:.4f}" for i in range(5)]
+    top = max(c.values()) / n
     literal = Counter(r["answerKey"] for r in table)
-    assert f"{max(literal.values()) / n - max(c.values()) / n:.4f}" == card[8]
+    four = Counter(p for p, r in zip(pos, table) if len(r["choices"]["label"]) == 4)
+    letters = Counter(p for p, r in zip(pos, table) if not any(x.isdigit() for x in r["choices"]["label"]))
+    diffs = sorted(max(x.values()) / sum(x.values()) - top for x in (literal, four, letters))
+    assert card[8:] == [f"{diffs[0]:.4f}", f"{diffs[-1]:.4f}"]
 
 
 def _github(url):
@@ -238,37 +287,89 @@ def _github(url):
         return r.read()
 
 
+def _tree(commit):
+    """Git tree of the Pythia commit via `gh api` (authenticated), else the public API."""
+    endpoint = f"repos/EleutherAI/pythia/git/trees/{commit}?recursive=1"
+    if shutil.which("gh"):
+        r = subprocess.run(["gh", "api", endpoint], capture_output=True, text=True)
+        if r.returncode == 0:
+            return json.loads(r.stdout)
+    return json.loads(_github(f"https://api.github.com/{endpoint}"))
+
+
+def _blob(commit, path, sha):
+    """Raw file by commit sha, cached by blob sha in the temp dir; the blob sha is checked on every read."""
+    cache = Path(tempfile.gettempdir()) / "arc-easy-pythia-blobs" / sha
+    data = cache.read_bytes() if cache.exists() else _github(
+        f"https://raw.githubusercontent.com/EleutherAI/pythia/{commit}/{path}")
+    assert hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest() == sha, path
+    cache.parent.mkdir(exist_ok=True)
+    cache.write_bytes(data)
+    return json.loads(data)["results"]["arc_easy"]
+
+
+def _se(accs, n=2376):
+    p = statistics.fmean(accs)
+    return math.sqrt(p * (1 - p) / n)
+
+
 @pytest.mark.skipif(not RESULT.exists(), reason="run the script first")
 def test_snr_recomputed_from_github():
-    d = json.loads(RESULT.read_text())
-    commit = d["inputs"]["pythia"]["commit"]
+    """Every SNR number of the card from the raw Pythia files, with its own file selection (no script import)."""
+    commit = json.loads(RESULT.read_text())["inputs"]["pythia"]["commit"]
     try:
-        tree = json.loads(_github(f"https://api.github.com/repos/EleutherAI/pythia/git/trees/{commit}?recursive=1"))
+        tree = _tree(commit)
     except Exception as e:  # noqa: BLE001
         pytest.skip(f"GitHub unavailable: {e}")
-    final = {"160m": 71500, "410m": 71500, "1.4b": 71500}
-    pick = {}
+    name = re.compile(r"evals/pythia-v0/pythia-([0-9.]+[mb](?:-deduped)?)/zero-shot/pythia-\1-0shot-global_step(\d+)_+"
+                      r"eval_results_(\d\d)-(\d\d)-(\d{4})-(\d\d-\d\d-\d\d)\.json")
+    latest = {}  # (size, step) -> (stamp, path, sha)
     for e in tree["tree"]:
-        mt = re.fullmatch(r"evals/pythia-v0/pythia-(\w+?|\d\.\d+b)/zero-shot/pythia-\1-0shot-global_step(\d+)_+eval_results_"
-                          r"(\d\d)-(\d\d)-(\d{4})-(\d\d-\d\d-\d\d)\.json", e["path"])
-        if not mt or mt.group(1).endswith("deduped"):
-            continue
-        size, step = mt.group(1), int(mt.group(2))
-        stamp = (mt.group(5), mt.group(3), mt.group(4), mt.group(6))
-        if step == final.get(size, 143000) and (size not in pick or stamp > pick[size][0]):
-            pick[size] = (stamp, e["path"], e["sha"])
-    acc = {}
-    for size, (_, path, sha) in pick.items():
-        data = _github(f"https://raw.githubusercontent.com/EleutherAI/pythia/{commit}/{path}")
-        assert hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest() == sha
-        acc[size] = json.loads(data)["results"]["arc_easy"]
-    assert sorted(acc) == sorted(["70m", "160m", "410m", "1b", "1.4b", "2.8b", "6.9b", "12b"])
-    a = [v["acc"] for v in acc.values()]
-    se = math.sqrt(statistics.fmean(a) * (1 - statistics.fmean(a)) / 2376)
-    sd = statistics.stdev(a)
-    pair = statistics.stdev([acc["1b"]["acc"], acc["1.4b"]["acc"]])
-    pse = math.sqrt(statistics.fmean([acc["1b"]["acc"], acc["1.4b"]["acc"]]) * (1 - statistics.fmean([acc["1b"]["acc"], acc["1.4b"]["acc"]])) / 2376)
-    assert _card_numbers("SNR: rozrzut")[0] == f"{sd:.4f}"
-    assert _card_numbers("SNR: SE")[0] == f"{se:.4f}"
-    il = _card_numbers("SNR: iloraz")
-    assert il[0] == f"{sd / se:.2f}" and il[4] == f"{pair / pse:.2f}"
+        mt = name.fullmatch(e["path"])
+        if mt:
+            key = (mt.group(1), int(mt.group(2)))
+            stamp = (mt.group(5), mt.group(3), mt.group(4), mt.group(6))
+            if key not in latest or stamp > latest[key][0]:
+                latest[key] = (stamp, e["path"], e["sha"])
+    get = lambda key: _blob(commit, latest[key][1], latest[key][2])  # noqa: E731
+
+    def final(size):
+        return 71500 if size.split("-")[0] in ("160m", "410m", "1.4b") else 143000
+
+    sizes = sorted({s for s, _ in latest})
+    fam = {dd: {s: get((s, final(s))) for s in sizes if s.endswith("-deduped") == dd and (s, final(s)) in latest}
+           for dd in (False, True)}
+    nd = fam[False]
+    assert sorted(nd) == sorted(["70m", "160m", "410m", "1b", "1.4b", "2.8b", "6.9b", "12b"]) and len(fam[True]) == 8
+    acc = [v["acc"] for v in nd.values()]
+    sd, sd0, se = statistics.stdev(acc), statistics.pstdev(acc), _se(acc)
+    median = statistics.median(v["acc_stderr"] for v in nd.values())
+    grid = []
+    for f in fam.values():
+        a = [v["acc"] for v in f.values()]
+        for spread in (statistics.stdev(a), statistics.pstdev(a)):
+            for s in (_se(a), statistics.median(v["acc_stderr"] for v in f.values())):
+                grid.append(spread / s)
+    orig = [get((s, 143000))["acc"] for s in sizes if not s.endswith("-deduped") and (s, 143000) in latest]
+    norm = [v["acc_norm"] for v in nd.values()]
+    pair = [nd["1b"]["acc"], nd["1.4b"]["acc"]]
+    triple = [nd["410m"]["acc"], nd["1b"]["acc"], nd["1.4b"]["acc"]]
+    steps = sorted(st for s, st in latest if s == "1b")[-5:]
+    ck = [get(("1b", st))["acc"] for st in steps]
+    diff = nd["1.4b"]["acc"] - nd["1b"]["acc"]
+    se_diff = math.sqrt(nd["1.4b"]["acc_stderr"] ** 2 + nd["1b"]["acc_stderr"] ** 2)
+    ratio = diff / se_diff
+    word = "pewne" if abs(ratio) >= 3 else "prawdopodobne" if abs(ratio) >= 2 else "szum"
+
+    assert len(orig) == 5 and steps == [103000, 113000, 123000, 133000, 143000]
+    assert _card_numbers("SNR: rozrzut") == [f"{sd:.4f}", f"{sd0:.4f}", f"{statistics.stdev(ck):.4f}"]
+    assert _card_numbers("SNR: SE") == [f"{se:.4f}", f"{statistics.fmean(acc):.4f}", "2376", f"{median:.4f}"]
+    assert _card_numbers("SNR: iloraz") == [
+        f"{sd / se:.2f}", f"{statistics.stdev(norm) / _se(norm):.2f}", f"{statistics.stdev(orig) / _se(orig):.2f}",
+        f"{min(grid):.2f}", f"{statistics.stdev(pair) / _se(pair):.2f}", f"{statistics.stdev(triple) / _se(triple):.2f}",
+        f"{statistics.stdev(ck) / _se(ck):.2f}", f"{diff:.4f}", f"{se_diff:.4f}", f"{ratio:.2f}"]
+    il = _row("SNR: iloraz")
+    assert f"iloraz {ratio:.2f}".replace(".", ",") + f", {word}." in il and f"minimum z {len(grid)} wariantów" in il
+    assert f"modele: {len(nd)} rozmiarów" in _row("SNR: źródło")
+    assert f"między {len(nd)} rozmiarami" in _row("SNR: rozrzut")
+    assert f"(kroki {steps[0]}–{steps[-1]})" in _row("SNR: rozrzut")
