@@ -234,8 +234,8 @@ def test_bramka_f_rozne_tokenizery_bez_wyniku_na_token():
 def test_dokumenty_repo_zgodne_z_liczbami():
     liczby, zb = dane()
     wszystkie = []
-    for p in S.pliki_md(KORZEN):
-        wszystkie += S.sprawdz_tekst(str(p.relative_to(KORZEN)), p.read_text(encoding="utf-8").splitlines(), liczby, zb)
+    for rel, p in S.pliki_md(KORZEN):
+        wszystkie += S.sprawdz_tekst(rel, p.read_text(encoding="utf-8").splitlines(), liczby, zb)
     assert wszystkie == [], wszystkie
 
 
