@@ -102,7 +102,10 @@ def fetch_items(token, org, number):
                            {"query": QUERY, "variables": {"org": org, "number": number, "after": after}})
         if payload.get("errors"):
             raise RuntimeError(json.dumps(payload["errors"]))
-        items = payload["data"]["organization"]["projectV2"]["items"]
+        project = (payload.get("data") or {}).get("organization", {}).get("projectV2")
+        if project is None:
+            raise RuntimeError(f"project {org}/{number} not visible: the token needs the 'project' scope")
+        items = project["items"]
         yield from items["nodes"]
         if not items["pageInfo"]["hasNextPage"]:
             return
@@ -141,15 +144,19 @@ def main(argv=None):
         print("PROJECT_TOKEN is not set: skipping (add a PAT with project + repo scopes as a repo secret).")
         return 0
 
-    count = 0
+    count = failed = 0
     for repo, number, url, status, logins in plan(fetch_items(token, args.org, args.project)):
         count += 1
         prefix = "[dry-run] would unassign" if args.dry_run else "unassign"
         print(f"{prefix} {', '.join(logins)} from {url} ({status})")
         if not args.dry_run:
-            _request(token, "DELETE", f"{API}/repos/{repo}/issues/{number}/assignees", {"assignees": logins})
-    print(f"issues to change: {count}")
-    return 0
+            try:
+                _request(token, "DELETE", f"{API}/repos/{repo}/issues/{number}/assignees", {"assignees": logins})
+            except urllib.error.HTTPError as err:
+                failed += 1
+                print(f"  failed: HTTP {err.code} for {url}", file=sys.stderr)
+    print(f"issues to change: {count}, failed: {failed}")
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":
