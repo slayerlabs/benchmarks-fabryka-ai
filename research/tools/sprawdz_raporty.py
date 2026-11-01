@@ -446,7 +446,7 @@ def bramka_generatora(meta, liczby, korzen=None):
     bledy = []
     for nazwa, tresc in sorted(oczekiwane.items()):
         p = katalog / nazwa
-        rel = str(p.relative_to(korzen))
+        rel = p.relative_to(korzen).as_posix()
         if not p.exists():
             bledy.append((rel, 0, f"(g) brak pliku generowanego przez {gen['modul']}"))
             continue
@@ -468,9 +468,10 @@ def linie_html(tekst):
 
 def pliki_md(korzen):
     for p in sorted(korzen.rglob("*.md")):
-        katalogi = p.relative_to(korzen).parts[:-1]
+        rel = p.relative_to(korzen)
+        katalogi = rel.parts[:-1]
         if not POMIN_KATALOGI & set(katalogi) and not any(k.startswith(".") for k in katalogi):
-            yield p
+            yield rel.as_posix(), p
 
 
 def main(argv=None):
@@ -481,8 +482,7 @@ def main(argv=None):
         return 2
     liczby = json.loads(sciezka_liczb.read_text())
     zb = zbiory(liczby)
-    cele = [(str(p.relative_to(KORZEN)), p) for p in pliki_md(KORZEN)]
-    cele += [(a, Path(a)) for a in argv]
+    cele = list(pliki_md(KORZEN)) + [(a, Path(a)) for a in argv]
     bledy = []
     for nazwa, p in cele:
         tekst = p.read_text(encoding="utf-8")

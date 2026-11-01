@@ -222,7 +222,7 @@ def benchmarki(korzen=KORZEN):
         wartosci = {}
         for p in raporty:
             splaszcz(json.loads(p.read_text()), f"{nazwa}/{p.stem}", wartosci, tuple(u.get("pomin", ())))
-        out[nazwa] = {"zrodla": [str(p.relative_to(korzen)) for p in raporty], "aliasy": u.get("aliasy", [nazwa]),
+        out[nazwa] = {"zrodla": [p.relative_to(korzen).as_posix() for p in raporty], "aliasy": u.get("aliasy", [nazwa]),
                       "pliki": [f"benchmarks/{nazwa}/"], "skala": u.get("skala", 1),
                       "with_global": u.get("with_global", False), "wartosci": wartosci}
     return out
@@ -427,7 +427,7 @@ def zbuduj(korzen=KORZEN):
     wartosci["pochodne/3xZ2_13800_13848"] = 3 * h["Z2_13800_13848"]
     porownania = porownania_formatu(raport) + porownania_wygaszania(por)
     zrodla = [FORMAT, f"{WYGASZANIE}/porownanie.json"] + \
-             [str(p.relative_to(korzen)) for p in heldouty]
+             [p.relative_to(korzen).as_posix() for p in heldouty]
     plik_blimp = korzen / BLIMP
     raporty = []  # reports with metadata for the gates of sprawdz_raporty.py (older reports have none)
     if plik_blimp.exists():
