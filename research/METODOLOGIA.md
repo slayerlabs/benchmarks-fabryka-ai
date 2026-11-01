@@ -269,7 +269,7 @@ Każdy benchmark porównuje mierzony model z pięcioma modelami, zawsze w tych r
 
 Każdy benchmark ma `RECIPE.md` z wpisem dla każdego wyniku. Wpis podaje:
 
-- commit kodu;
+- commit kodu z `main` (hash z gałęzi roboczej znika po spłaszczeniu historii);
 - lockfile środowiska, z przypiętą wersją transformers;
 - rewizje modelu i zbioru;
 - dokładną komendę;
