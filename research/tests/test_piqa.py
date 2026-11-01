@@ -162,7 +162,7 @@ def test_headline_and_panel_gap(d):
 
 
 def test_deviations_stated(d):
-    has(d["text"], "`instrument: lm_eval_0.4.8`")
+    has(d["text"], "`instrument: lm_eval_0.4.8`, and METHOD.md section 2 pins the English tasks to lm-eval commit `6d2abda4`")
     has(d["text"], "ran on lm-eval 0.4.9.1")
     has(d["text"], "as the `slayer` wrapper from #44")
     assert "(as in the Space)" not in d["text"]

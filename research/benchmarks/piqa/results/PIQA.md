@@ -47,7 +47,7 @@ The Space has no T06 value and no `source_id_digest` for any model, so the panel
 | acc_norm | 0,7095 | 0,7051 | 0,44 | 2,13 | yes |
 
 Tolerance = max(2 pts, 2 × published SE).
-Harness version: tasks_50.json gives T06 `instrument: lm_eval_0.4.8` (commit `6d2abda4`); this measurement ran on lm-eval 0.4.9.1. Only the task directory (`piqa.yaml`, `README.md`) was compared between the two, not the harness code; see METODOLOGIA.md, section „Wersja lm-eval”.
+Harness version: tasks_50.json gives T06 `instrument: lm_eval_0.4.8`, and METHOD.md section 2 pins the English tasks to lm-eval commit `6d2abda4`; this measurement ran on lm-eval 0.4.9.1. Only the task directory (`piqa.yaml`, `README.md`) was compared between the two, not the harness code; see METODOLOGIA.md, section „Wersja lm-eval”.
 The published acc_norm lies 19,28 standard errors over the random baseline and 18,82 over the majority baseline (standard error 0,0106), so the control tells working code from guessing. Control passed: yes.
 
 BOS differs between the models: Slayer gets one BOS before every request, as the `slayer` wrapper from #44 does (METHOD.md ties the BOS to the tokenizer's `add_bos_token`, and Slayer has no tokenizer_config.json), Pythia none (its tokenizer convention and the 2022 harness of the published value). Effect of a BOS on Pythia, and so on the Slayer − Pythia comparison: NOT RUN (it needs a second Pythia run with a BOS; the control itself is computed as the published value was).

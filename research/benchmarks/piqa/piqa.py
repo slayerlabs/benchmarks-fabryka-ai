@@ -454,7 +454,8 @@ def render(o):
     d = c["discriminates"]
     lines += ["",
               "Tolerance = max(2 pts, 2 × published SE).",
-              "Harness version: tasks_50.json gives T06 `instrument: lm_eval_0.4.8` (commit `6d2abda4`); this measurement "
+              "Harness version: tasks_50.json gives T06 `instrument: lm_eval_0.4.8`, and METHOD.md section 2 pins the English "
+              "tasks to lm-eval commit `6d2abda4`; this measurement "
               "ran on lm-eval 0.4.9.1. Only the task directory (`piqa.yaml`, `README.md`) was compared between the two, not "
               "the harness code; see METODOLOGIA.md, section „Wersja lm-eval”.",
               f"The published acc_norm lies {p1(d['z_over_random'])} standard errors over the random baseline and "
