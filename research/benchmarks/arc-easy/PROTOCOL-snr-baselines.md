@@ -58,3 +58,22 @@ i nic z wartości `acc`. Ustala to, czego protokół wyżej nie ustala.
    trafia do karty.
 8. **Zapis w karcie**: udziały, SE i rozrzut z 4 miejscami po przecinku, iloraz SNR z 2 miejscami; wszystkie z
    `results/snr_baselines.json` (pula `arc-easy` w `results/LICZBY.json`).
+
+## Korekta po wyniku (2026-11-01, po pierwszym liczeniu, commit 1815d33)
+
+Zapisane PO wyniku, na znalezisko obalającego. Sekcje wyżej zostają bez zmian, a wynik według nich stoi dalej
+w `results/snr_baselines.json` (`snr.original_protocol_step143000_only`).
+
+1. **Protokół był zły w regule kroku.** „Plik z `global_step143000`” miał wybrać koniec treningu, a dla v0
+   rozmiarów 160m, 410m i 1.4b koniec treningu to `global_step71500`. README Pythii @ `a19eecb`: te modele
+   trenowano batchem 4M tokenów przez 71500 kroków. Reguła wykluczyła 3 z 8 rozmiarów, w tym 1.4b, rozmiar
+   najbliższy modelom ok. 1B. Wariant główny od tej korekty: końcowy checkpoint każdego rozmiaru
+   (`global_step71500` dla 160m, 410m, 1.4b, także `-deduped`; `global_step143000` dla reszty). Siatka 8 wariantów
+   (punkt 6 uzupełnienia) liczy się na tym wyborze. Próg SNR ≥ 2 bez zmian.
+2. **SNR dla modeli ok. 1B (analiza dodana po wyniku, eksploracyjna).** SNR samego rozrzutu rozmiarów 70M–12B nie
+   mówi, czy test odróżnia modele bliskiej wielkości. Dodane: SNR pary 1b/1.4b i trójki 410m/1b/1.4b (ddof=1, SE ze
+   wzoru); różnica `acc` 1.4b − 1b z SE niezależnym √(SE₁² + SE₂²) z `acc_stderr` plików (ostrożne) i werdykt
+   (|iloraz| ≥ 3 „pewne”, 2–3 „prawdopodobne”, < 2 „szum”); odchylenie std. `acc` 5 ostatnich checkpointów
+   `pythia-1b` (ddof=1) i jego iloraz do SE ze wzoru. Pomocniczo SNR wariantu głównego na `acc_norm`.
+3. **Werdykt w karcie** podaje osobno „reguła protokołu” (SNR ≥ 2) i „pytanie merytoryczne” dla modeli ok. 1B.
+4. W wyniku zapisana data odczytu plików (`read_date`).
