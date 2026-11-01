@@ -52,6 +52,16 @@ Jest zgodny z paperem EWoK (Ivanova i in. 2024, [arXiv:2405.09605](https://arxiv
 
   Aster nie ma osobnego modelu bazowego, a domyślne `logits_to_keep=1` zwraca logity tylko ostatniej
   pozycji, dlatego liczymy dla niego pełne logity z `logits_to_keep=0, use_cache=False`.
+- **Czy modele są dobrze załadowane** (sprawdzone 2.11.2026):
+  - **Slayer:** nasz forward (`slayer_model.py`) porównany z referencją z repo modelu (`load_slayer.py` +
+    `train_gpt_ref_r23.py`) dla 1.00 i 1.06. Max |Δ logit| = 1,6e-5, a na 120 rekordach EWoK-PL max
+    |Δ loglik| = 6e-5 i żaden rekord nie dostał innej oceny.
+  - **Aster:** brak brakujących i nieoczekiwanych kluczy przy ładowaniu. Bufory RoPE z checkpointu są
+    identyczne ze świeżo policzonymi (Δ = 0), a `lm_head` jest związany z embeddingami. Wagi fp32 i główne
+    bf16 dają tę samą perplexity. Na krótkich tekstach Aster ma po polsku 0,48–0,81 bita na bajt
+    (Bielik 0,52–1,11, Slayer 1.06 0,55–0,86) i generuje spójny polski tekst. Po angielsku ma 2,17 bita
+    na bajt (Bielik 0,92), co pasuje do jego losowego wyniku na EWoK EN. Słaby angielski Astera to więc
+    cecha modelu, a nie błąd ładowania.
 - **Niepewność:** CI95 z bootstrapu (10 000 powtórzeń, seed 20261028). Kontrasty liczymy sparowanym
   testem permutacyjnym.
   - **Po szablonach:** każdą wielkość podajemy po rekordach i po szablonach, miarodajna jest ta druga.
