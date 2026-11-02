@@ -1,0 +1,77 @@
+"""tools/przebieg_centralny.sh: model list vs METODOLOGIA.md, task dirs vs common/zadania.py ZADANIA.
+Runs the script's `lista`, `katalogi` and `plan` stages in a temporary workspace (no GPU, no network)."""
+import ast
+import os
+import re
+import subprocess
+import tempfile
+from pathlib import Path
+
+KORZEN = Path(__file__).resolve().parent.parent
+SKRYPT = KORZEN / "tools" / "przebieg_centralny.sh"
+POMINIETE = {"speakleash/Bielik-1.5B-v3"}  # gated repo, left out of v1
+
+
+def uruchom(*args, ws=None):
+    env = {**os.environ, "WS": ws or tempfile.mkdtemp(), "K": str(KORZEN)}
+    return subprocess.run(["bash", str(SKRYPT), *args], capture_output=True, text=True, check=True, env=env).stdout
+
+
+def modele_skryptu():
+    return [l.split("|") for l in uruchom("lista").splitlines()]
+
+
+def tabela_metodologii():
+    tekst = (KORZEN / "METODOLOGIA.md").read_text(encoding="utf-8")
+    sekcja = tekst.split("### Pięć modeli odniesienia", 1)[1].split("\n### ", 1)[0]
+    return dict(re.findall(r"^\| `([^`]+)` \| `([0-9a-f]{40})` \|", sekcja, re.MULTILINE))
+
+
+def slayer_metodologii():
+    tekst = (KORZEN / "METODOLOGIA.md").read_text(encoding="utf-8")
+    return re.search(r"`(SlayerLab/Slayer1B-1\.06)` @ `([0-9a-f]{40})`", tekst).groups()
+
+
+def klucze_zadan():
+    drzewo = ast.parse((KORZEN / "common" / "zadania.py").read_text(encoding="utf-8"))
+    for w in drzewo.body:
+        if isinstance(w, ast.Assign) and any(getattr(t, "id", None) == "ZADANIA" for t in w.targets):
+            return [k.value for k in w.value.keys]
+    raise AssertionError("ZADANIA not found in common/zadania.py")
+
+
+def test_reference_models_match_methodology_without_bielik():
+    tabela = tabela_metodologii()
+    assert len(tabela) == 5 and POMINIETE <= set(tabela)
+    odniesienia = {repo: rev for _, repo, rev, _, _ in modele_skryptu() if not repo.startswith("SlayerLab/")}
+    assert odniesienia == {r: v for r, v in tabela.items() if r not in POMINIETE}
+
+
+def test_slayer_revision_matches_methodology():
+    slayery = [(repo, rev, loader) for _, repo, rev, loader, _ in modele_skryptu() if repo.startswith("SlayerLab/")]
+    assert slayery == [(*slayer_metodologii(), "slayer")]
+
+
+def test_labels_unique_and_fields_valid():
+    modele = modele_skryptu()
+    assert len({m[0] for m in modele}) == len(modele)
+    assert all(m[3] in ("slayer", "hf", "hf-trust") and m[4] in ("lock", "new") for m in modele)
+
+
+def test_task_dirs_cover_exactly_zadania():
+    pary = [l.split() for l in uruchom("katalogi").splitlines()]
+    assert [t for t, _ in pary] == klucze_zadan()
+    assert len({k for _, k in pary}) == len(pary)
+
+
+def test_plan_runs_full_set_for_every_model_and_task():
+    ws = tempfile.mkdtemp()
+    linie = uruchom("plan", ws=ws).splitlines()
+    modele, zadania = modele_skryptu(), klucze_zadan()
+    assert len(linie) == len(modele) * len(zadania)
+    for l in linie:
+        assert "--probka pelna" in l and f"{KORZEN}/common/ewaluuj.py" in l
+    lfm3 = [l for l in linie if "LiquidAI/LFM3" in l]
+    assert lfm3 and all("--trust_remote_code" in l for l in lfm3)
+    slayer = [l for l in linie if "SlayerLab/" in l]
+    assert slayer and all("--model slayer" in l and f"--model_path {ws}/modele/" in l for l in slayer)
