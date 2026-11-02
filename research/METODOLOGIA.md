@@ -405,6 +405,46 @@ albo przebiegów i kontroli. Tak jest z wynikiem wysyłanym do Space i porównyw
 długiego treningu w `slayer-1b/wygaszanie/` i ze zmianą protokołu, np. wersji lm-eval albo formatu odpowiedzi. Gdy
 nie wiesz, do której grupy należy decyzja, traktuj ją jak drogą.
 
+## Meta-ocena i leaderboard
+
+Leaderboard pokazuje wiele modeli na wielu benchmarkach i jedną ocenę na model (meta-ocenę). Rusza po przebiegu
+centralnym („Kto liczy które modele”), bo warunki niżej potrzebują wyników modeli odniesienia. Meta-ocenę liczymy z
+wyników per pytanie zapisanych przez runnery. Wynik wpisany ręcznie albo zgłoszony przez autora modelu bez naszego
+przeliczenia do niej nie wchodzi.
+
+**Plik zestawu.** Przed pierwszym rankingiem w `results/` leży plik zestawu z wersją. Podaje listę testów, kategorię
+każdego testu i wagi kategorii, minimalną liczbę testów w kategorii, próg SNR i źródło szumu użyte do SNR (seedy albo
+checkpointy), najwyższą dopuszczalną bazę b oraz hash zbioru i konfiguracji ewaluacji każdego testu. Zmiana
+czegokolwiek z tej listy daje nową wersję rankingu, a stara zostaje bez zmian.
+
+**Który test wchodzi.** Test wchodzi do meta-oceny, gdy:
+
+- przeszedł etap B, a benchmark bez oryginału przeszedł kontrole karty zbioru;
+- co najmniej 2 z 5 modeli odniesienia leżą ponad 2 SE nad bazą b;
+- jego SNR jest powyżej progu z pliku zestawu, a b nie przekracza najwyższej dopuszczalnej bazy (przy wysokim b
+  dzielnik 1 − b mnoży SE testu, więc jeden test przejąłby zmienność całej oceny).
+
+Jeden zbiór to jedna pozycja, nawet gdy ma kilka metryk albo wariantów promptu. Test, który nie spełnia warunków,
+zostaje w tabeli jako kolumna informacyjna. Modele odniesienia, na których dobrano testy, są w tabeli oznaczone i nie
+dostają miejsca w rankingu.
+
+**Skala.** b to wyższa z baz: losowej i większościowej. Wynik testu to 100 · (x − b) / (1 − b). Test z podtestami o
+różnych bazach centrujesz w każdym podteście jego własnym b, a dopiero potem uśredniasz. Wyniku poniżej bazy nie
+obcinasz do zera, bo obcięcie zawyża modele przy poziomie losowym. Perpleksja i BPB nie wchodzą do średniej, stoją w
+osobnej kolumnie.
+
+**Wzór.** Najpierw średnia testów w kategorii, potem średnia kategorii z wagami z pliku zestawu. PL i EN liczysz
+osobno. Brak wyniku (także `not_run`) to „N/A”, nigdy zero. Model bez kompletu testów danej wersji dostaje wyniki
+cząstkowe, a meta-oceny i miejsca nie dostaje.
+
+**Niepewność i miejsce.** Przy meta-ocenie podajesz SE, a przy porównaniu modeli SE różnicy, oba z bootstrapu
+parowanego po pytaniach (README, „SE i werdykt”). Miejsce w rankingu to 1 plus liczba modeli lepszych o więcej niż
+2 SE różnicy, więc modele bez takiej różnicy dzielą miejsce. Wrażliwość na wybór testów (bootstrap po testach, wynik
+bez każdego testu po kolei) podajesz obok rankingu. Do reguły miejsca nie wchodzi, bo nie jest błędem pomiaru.
+
+**Wydajność.** Ocena na parametr albo na FLOP to osobna kolumna, nigdy mnożnik meta-oceny. Liczbę parametrów liczysz
+z wag, nie bierzesz z deklaracji autora.
+
 ## Kamienie bez terminu
 
 Kamień [#6](https://github.com/slayerlabs/benchmarks-fabryka-ai/milestone/6) dotyczy opisu zbiorów (baza, format, n,

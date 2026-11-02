@@ -152,6 +152,10 @@ to co innego niż warunek odtworzenia z etapu B metodologii.
 - **Test złożony z wielu grup** (paradygmaty, domeny, kategorie, szablony): pozycje w jednej grupie nie są niezależne.
   Werdykt porównania podajesz też po grupach: różnice średnich grup, t przy df = k−1 (k grup) i progi p takie jak dla
   |z| = 3 i |z| = 2. Gdy porównujesz wiele grup naraz i nazywasz najlepsze albo najgorsze, poprawiasz p metodą Holma.
+- **SE meta-oceny (bootstrap parowany po pytaniach):** w każdym powtórzeniu losujesz ze zwracaniem pytania każdego
+  testu osobno, te same indeksy dla wszystkich modeli. W teście z grupami losujesz grupy. Z każdego powtórzenia
+  liczysz meta-ocenę każdego modelu i różnicę każdej pary. SE to odchylenie standardowe tych wartości po
+  powtórzeniach.
 
 ## Bazy: losowa i większościowa
 
