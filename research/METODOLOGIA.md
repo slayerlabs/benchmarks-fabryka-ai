@@ -52,16 +52,16 @@ przeszukanych miejsc.
 | Metryka decyzyjna | **jedna** metryka, po której porównujesz modele i podejmujesz decyzje; pozostałe to metryki pomocnicze |
 | Agregacja | średnia po pytaniach czy po kategoriach/paradygmatach, wagi |
 | Bazy | baza losowa i większościowa, dokładne wartości ze splitu (sekcja „Bazy: losowa i większościowa” w [`README.md`](README.md#bazy-losowa-i-większościowa)) |
-| SNR | stosunek sygnału do szumu (Słowniczek): rozrzut wyników między modelami albo checkpointami, SE pomiaru, iloraz i na jakich modelach. Gdy istnieją opublikowane wyniki kilku modeli, liczysz SNR z nich, bez własnego pomiaru. Przykłady: tabela w pracy, katalog `evals/pythia-v0` w repo `EleutherAI/pythia` z kilkoma rozmiarami Pythii. Wszystkie modele bierzesz z jednego źródła, a SE liczysz dla n pełnego splitu z tego źródła. „Nieustalone” wpisujesz tylko z listą przeszukanych miejsc |
+| SNR | stosunek sygnału do szumu (Słowniczek): rozrzut wyników między modelami albo checkpointami, SE pomiaru, iloraz i na jakich modelach. Gdy istnieją opublikowane wyniki kilku modeli, liczysz SNR z nich, bez własnego pomiaru. Przykłady: tabela w pracy, katalog `evals/pythia-v0` w repo `EleutherAI/pythia` z kilkoma rozmiarami Pythii. Wszystkie modele bierzesz z jednego źródła, a SE liczysz dla n pełnego splitu z tego źródła. Modele bierzesz z końca ich treningu (nie z jednego numeru kroku dla wszystkich) i podajesz SNR także dla modeli w skali porównania, nie tylko z całego zakresu rozmiarów. „Nieustalone” wpisujesz tylko z listą przeszukanych miejsc |
 | Wyniki referencyjne | co najmniej jeden opublikowany wynik modelu, który da się pobrać (model, liczba, tabela w pracy albo plik wyników), jako snapshot z datą odczytu; gdy takiego wyniku nie ma: „brak” i miejsca, w których szukano (etap B idzie wtedy jako „bez kontroli”) |
 | Train policy | `eval_only` (domyślnie, dla wszystkich splitów benchmarku: żaden split nie trafia do treningu) albo `train_allowed` (wyjątek tylko decyzją zapisaną w issue: wymień splity, które wolno trenować, i podaj numer issue). Dekontaminacja dotyczy każdego benchmarku niezależnie od tego pola (sekcja „Czystość benchmarku”) |
 | Decyzja treningowa | co oznacza słaby wynik: jakie dane albo jaka metoda treningu z niego wynika, a czego nie wolno z niego wnioskować |
-| Znane rozbieżności | czym różnią się popularne implementacje (np. zadanie lm-eval) od kodu autorów, znane błędy w danych, kontaminacja |
+| Znane rozbieżności | czym różnią się popularne implementacje (np. zadanie lm-eval) od kodu autorów, znane błędy w danych, kontaminacja. Gdy zadania nie ma w lm-eval, napisz to; porównujesz wtedy tylko z kodem autorów |
 
 Każdą liczbę spoza `results/LICZBY.json`, w każdym polu karty (n, bazy, SNR, wyniki referencyjne), oznaczasz na
 końcu jej linii znacznikiem `<!-- liczba-spoza-wynikow: skąd jest liczba -->`. Jedna linia niesie jeden wynik. Pole z
 kilkoma wynikami rozpisz na kilka wierszy tabeli albo na listę, jedna pozycja na linię, każda ze swoim znacznikiem.
-Wzór jest w `benchmarks/wikitext-2/ORIGINAL.md`.
+Wzór jest w `benchmarks/arc-easy/ORIGINAL.md`.
 
 ## B. Odtworzenie wyniku oryginalnym kodem (REPRODUCTION.md)
 
@@ -236,7 +236,8 @@ Kontrolę liczysz tym samym kodem co mierzony model. Jeśli wynik kontroli odbie
 ewaluacji, nie w mierzonym modelu.
 
 **Kontrola musi odróżniać działający kod od zepsutego.** Opublikowany wynik modelu kontrolnego ma leżeć ponad 2 SE nad
-bazą losową i nad bazą większościową (udział najczęstszej poprawnej odpowiedzi). SE to tu √(p(1−p)/n), gdzie p to
+bazą losową i nad bazą większościową (udział najczęstszej poprawnej odpowiedzi; przy parach zdań tylko nad bazą
+losową, bo większościowa jest tam pełna). SE to tu √(p(1−p)/n), gdzie p to
 wynik kontroli, a n to liczba pytań w źródle tego wyniku. Inaczej ten sam wynik da też kod, który
 zgaduje albo zawsze wybiera jedną odpowiedź. Wtedy bierzesz następny model z listy. Przykład: Pythia v0 na
 ARC-Challenge i LogiQA leży przy poziomie losowym, a na BoolQ znany wynik 1B leży pod bazą większościową.

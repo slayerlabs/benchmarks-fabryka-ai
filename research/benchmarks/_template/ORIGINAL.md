@@ -8,7 +8,7 @@ pliku ani `REPRODUCTION.md`. Usuń oba i wypełnij `DATASET.md` (sekcja „Bench
 Każdą liczbę spoza `results/LICZBY.json`, w każdym polu (n, bazy, SNR, wyniki referencyjne), oznacz na końcu jej
 linii znacznikiem `<!-- liczba-spoza-wynikow: skąd jest liczba -->`, inaczej bramka liczb
 (`tools/sprawdz_raporty.py`) ją odrzuci. Jedna linia niesie jeden wynik. Pole z kilkoma wynikami rozpisz na kilka
-wierszy tabeli albo na listę, jedna pozycja na linię. Przykład: `benchmarks/wikitext-2/ORIGINAL.md`.
+wierszy tabeli albo na listę, jedna pozycja na linię. Przykład: `benchmarks/arc-easy/ORIGINAL.md`.
 
 | pole | wartość |
 |---|---|

@@ -147,13 +147,20 @@ to co innego niż warunek odtworzenia z etapu B metodologii.
   pytania, SE różnicy jest parowane. Inaczej SE różnicy to √(SE₁² + SE₂²), co zawyża szum.
 - **Werdykt** (jak w `tools/liczby.py`): |z| ≥ 3 „pewne”, 2–3 „prawdopodobne”, poniżej 2 „szum”. „Szum” znaczy, że
   pomiar nie rozstrzyga. Nie znaczy, że różnicy nie ma.
+- **SE dla perpleksji i BPB:** wzór dla trafności tu nie działa. SE liczysz bootstrapem po dokumentach (losujesz
+  dokumenty ze zwracaniem i liczysz metrykę od nowa).
+- **Test złożony z wielu grup** (paradygmaty, domeny, kategorie, szablony): pozycje w jednej grupie nie są niezależne.
+  Werdykt porównania podajesz też po grupach: różnice średnich grup, t przy df = k−1 (k grup) i progi p takie jak dla
+  |z| = 3 i |z| = 2. Gdy porównujesz wiele grup naraz i nazywasz najlepsze albo najgorsze, poprawiasz p metodą Holma.
 
 ## Bazy: losowa i większościowa
 
 - **Baza losowa:** wynik zgadywania (1/k przy k opcjach, połowa przy parach zdań).
 - **Baza większościowa:** udział najczęstszej poprawnej odpowiedzi, czyli wynik stałej odpowiedzi, np. zawsze „tak”
   w BoolQ. Przy wyborze odpowiedzi liczysz ją po pozycji opcji, bo lm-eval punktuje indeks odpowiedzi. Podajesz
-  dokładną wartość ze splitu (np. ze statystyk HF datasets-server), nie zaokrągloną z abstraktu.
+  dokładną wartość ze splitu (np. ze statystyk HF datasets-server), nie zaokrągloną z abstraktu. Przy parach zdań
+  (BLiMP i podobne) poprawne zdanie stoi zawsze na tej samej pozycji, więc baza większościowa jest pełna i nie ma
+  znaczenia: podajesz i sprawdzasz tylko bazę losową.
 - **Udział najczęstszej predykcji:** jaki odsetek odpowiedzi modelu to ta sama opcja. Małe modele w testach z literami
   często wybierają w kółko jedną literę. Wynik podany bez tych liczb wprowadza w błąd.
 
