@@ -21,13 +21,15 @@ Znaczenie pól opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „A. Kart
 | Metryka decyzyjna | `acc_norm` (metryka T05 w Space) |
 | Agregacja | Średnia po pytaniach, bez wag. Bez podziału na in-domain / zero-shot i ActivityNet / WikiHow, który podaje praca. |
 | Bazy: losowa | 25% <!-- liczba-spoza-wynikow: 1/k przy k=4 --> |
-| Bazy: większościowa | 25,7% (zawsze pozycja 2: 2584 z 10042; rozkład 0/1/2/3: 2515/2485/2584/2458) <!-- liczba-spoza-wynikow: policzone z Rowan/hellaswag validation, refs/convert/parquet -->  |
+| Bazy: większościowa | 25,7% (zawsze pozycja 2: 2584 z 10042; rozkład 0/1/2/3: 2515/2485/2584/2458) <!-- liczba-spoza-wynikow: policzone z Rowan/hellaswag validation, refs/convert/parquet --> |
 | SNR: źródło | Praca Mamba (Gu, Dao 2023, [arXiv:2312.00752v2](https://arxiv.org/html/2312.00752v2), tabela 1, 0-shot acc_norm): 8 modeli 0,8–1,5B (Pythia-1B, Mamba-790M, GPT-Neo 1.3B, H3-1.3B, OPT-1.3B, Pythia-1.4B, RWKV-1.5B, Mamba-1.4B) |
 | SNR: rozrzut | odchylenie std. ok. 3,6 pkt proc. <!-- liczba-spoza-wynikow: wyliczone z tabeli 1 pracy Mamba --> |
-| SNR: SE | ok. 0,5 pkt proc. dla pełnej walidacji (√(p(1−p)/n) przy p ok. 0,53) <!-- liczba-spoza-wynikow: wyliczone, n z karty HF --> |
-| SNR: iloraz | ok. 7 <!-- liczba-spoza-wynikow: rozrzut / SE, wyliczone --> |
-| Wynik referencyjny: EuroLLM-1.7B (kontrola etapu B) | 0,4760, HellaSwag po angielsku, `utter-project/EuroLLM-1.7B` @ `c730cd9b616799ace3c65e927d63191446f59374`, karta modelu <!-- liczba-spoza-wynikow: karta modelu EuroLLM-1.7B --> |
-| EuroLLM: shoty i metryka | Karta ich nie podaje. Ustalone pośrednio: 10-shot (praca EuroLLM, [arXiv:2409.16235](https://arxiv.org/abs/2409.16235), rys. 6; ten sam protokół ma leaderboard Okapi) i `acc_norm` (standard tego protokołu). Space liczy 0-shot, więc to nie jest ten sam przebieg. |
+| SNR: SE pełna walidacja | ok. 0,5 pkt proc. (√(p(1−p)/n), n = 10042, p ok. 0,53) <!-- liczba-spoza-wynikow: wyliczone, n z karty HF --> |
+| SNR: iloraz pełna walidacja | ok. 7 <!-- liczba-spoza-wynikow: rozrzut / SE, wyliczone --> |
+| SNR: SE panel 200 | ok. 3,5 pkt proc. (√(p(1−p)/n), n = 200, p ok. 0,53) <!-- liczba-spoza-wynikow: wyliczone --> |
+| SNR: iloraz panel 200 | ok. 1: na panelu 200 Space (T05) SE jest tego samego rzędu co rozrzut między modelami ~1B, więc T05 słabo je rozróżnia <!-- liczba-spoza-wynikow: rozrzut / SE panelu 200, wyliczone --> |
+| Wynik referencyjny: EuroLLM-1.7B (kontrola etapu B) | 0,6057, HellaSwag po angielsku, `utter-project/EuroLLM-1.7B` @ `c730cd9b616799ace3c65e927d63191446f59374`, karta modelu <!-- liczba-spoza-wynikow: karta modelu EuroLLM-1.7B --> |
+| EuroLLM: shoty i metryka | 10-shot (praca EuroLLM, [arXiv:2409.16235](https://arxiv.org/abs/2409.16235), rys. 6). Metryka (prawdopodobnie `acc_norm`) i protokół Okapi: nieustalone, bo karta modelu ich nie podaje. Space liczy T05 0-shot. |
 | Wynik informacyjny: Pythia-1B | 47,2 (0-shot, acc_norm, wagi v1; praca Mamba, tabela 1 i dodatek E.2.3) <!-- liczba-spoza-wynikow: Gu i Dao 2023, tabela 1 --> |
 | Wynik informacyjny: ludzie | 95,6% (praca) <!-- liczba-spoza-wynikow: Zellers i in. 2019 --> |
 | Train policy | `eval_only` dla wszystkich splitów |
