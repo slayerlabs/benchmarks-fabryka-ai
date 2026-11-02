@@ -62,7 +62,8 @@ sygnał do sprawdzenia, nie wynik). BPB poprawnej odpowiedzi: A lepsze od B w AR
 (+0,053), MedMCQA MC (+0,016), Social IQa cloze (+0,018) i PubMedQA (+0,177), więc podział cloze/litery
 nie wyznacza kierunku. Obie gałęzie pogarszają BPB poprawnej w formatach literowych
 wobec 1.06 (A / B: ARC-C MC +0,39 / +0,34, Social IQa MC +0,56 / +0,61): kroki na pack-07 przesuwają rozkład liter niezależnie
-od LR. WikiText-2: A 1,8921 byte-ppl (1.06 1,8925, B 1,9205).
+od LR. WikiText-2: A 1,8459 byte-ppl (1.06 1,8463, B 1,8725), mianownik z oryginalnego tekstu jak w lm-eval
+(przeliczone, `benchmarks/wikitext-2/README.md`).
 
 Zgodnie z „Ryzykiem interpretacji" w PROGI.md: niższy loss po wygaszeniu nie przełożył się na trafność
 benchmarków. Wynik dotyczy wygaszenia krótkiego (150 kroków, 157 M tokenów).

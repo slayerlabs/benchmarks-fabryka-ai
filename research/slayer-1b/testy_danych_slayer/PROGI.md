@@ -86,7 +86,7 @@ próbka). Szum = max(Z2, Zk) na danym agregacie.
 **Próg loss:** „spadek”/„wzrost”, gdy |Δ| > 2·SE(Δ) ORAZ |Δ| ≥ max(3·szum, 1% BPB kontroli). Inaczej
 „nierozstrzygnięte” (nie „brak efektu”).
 
-**Benchmarki** (`ewal_ramion.py`, scorer `slayer_eval/hipoteza_formatu.py`, wiersz na pytanie). Metryka
+**Benchmarki** (`ewal_ramion.py`, scorer `common/hipoteza_formatu.py`, wiersz na pytanie). Metryka
 decydująca to **BPB poprawnej odpowiedzi** (−loglik poprawnej / (ln 2 · bajty), niżej = lepiej): przy
 1B trafność stoi w miejscu, gdy model wyraźnie się poprawia (1.03 → 1.06 na ARC-C cloze: acc_norm
 Δ = +0,0017, SE 0,0106; BPB poprawnej Δ = −0,084, SE 0,0056). Trafność (acc_norm, dla liter i par acc)

@@ -17,7 +17,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "slayer_eval"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "common"))
 from slayer_model import Slayer  # noqa: E402
 
 

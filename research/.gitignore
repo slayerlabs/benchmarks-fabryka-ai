@@ -1,0 +1,35 @@
+# checkpointy i wagi
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.bin
+*.gguf
+models/
+# dane treningowe i zbiory
+*.parquet
+*.arrow
+*.npy
+# paczka dla testerów idzie osobno, poza repo
+*.zip
+slayer-1b/paczka_testerzy/dane/
+# wyniki per pytanie (kopia w slayer-1b/wygaszanie/wyniki/pelne_wyniki.tgz)
+slayer-1b/wygaszanie/wyniki/*/*.jsonl
+slayer-1b/wygaszanie/wyniki/*/trace/
+# klucze
+*.pem
+vastkey*
+.env*
+# python
+__pycache__/
+*.pyc
+.venv*/
+.pytest_cache/
+# benchmarki: surowe wyniki per rekord zostają lokalnie (raporty w results/*.json i *.md idą do repo;
+# skompresowane *.jsonl.gz do ~10 MB na plik wolno commitować, AGENTS.md)
+benchmarks/*/results/*/*.jsonl
+# BLiMP po checkpointach: metadane przebiegu (czasy, konwersje, skład średnich), nie wyniki per rekord
+!benchmarks/blimp/results/checkpoints/*.jsonl
+analyses/*/results/*/*.jsonl
+analyses/*/results/*/trace/
+_smoke_*

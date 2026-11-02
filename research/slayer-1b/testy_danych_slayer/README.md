@@ -12,7 +12,7 @@ z `ramie.sh` działającego przebiegu wygaszania (instancja 58351985, odczyt 30.
 | `ewal_ramion.py` | testy główne albo szuflada (`--szuflada`), zapisuje krok modelu w `zrodla.json` |
 | `porownaj_ramion.py` | Z2, Zk, bootstrap i 95% CI, werdykty; odmawia przy złym kroku modelu; `--szuflada` dopiero po `werdykt_glowny.json` |
 | `na_instancji.sh` | etapy na instancji (przygotuj, dane, ewaluuj, trenuj, konwertuj_koniec, stan, pakuj), długie w tle |
-| `../tests/test_testy_danych_slayer.py` | 22 testy: czyste funkcje, `zbuduj_pule`, `_filtr_hq`, `main` na fiksturze parquet (rozłączność heldoutu) |
+| `../../tests/test_testy_danych_slayer.py` | 22 testy: czyste funkcje, `zbuduj_pule`, `_filtr_hq`, `main` na fiksturze parquet (rozłączność heldoutu) |
 
 ## Instancja i koszt
 
@@ -47,7 +47,7 @@ Kontrola na instancji przed rundą 1: `statystyki.json` → `en_komponenty` (czy
 Kod z zacommitowanego stanu gałęzi (jedno archiwum, bez `.venv`, `data/` i checkpointów):
 
 ```
-git -C <worktree> archive -o $TMPDIR/kod.tar.gz HEAD slayer_eval wygaszanie testy_danych_slayer tests
+git -C <worktree> archive -o $TMPDIR/kod.tar.gz HEAD:research common slayer-1b/wygaszanie slayer-1b/testy_danych_slayer tests
 scp -i <klucz> -P <port> $TMPDIR/kod.tar.gz root@sshN.vast.ai:/workspace/
 ssh -i <klucz> -p <port> root@sshN.vast.ai 'mkdir -p /workspace/kod && tar -xzf /workspace/kod.tar.gz -C /workspace/kod'
 ```
@@ -93,7 +93,7 @@ Na komputerze lokalnym: rozpakuj `glowne_koniec.tar.gz` do `<wyniki>`, `python t
 ## Próby lokalne (30.10.2026, CPU)
 
 - `python -m py_compile` wszystkich skryptów i `bash -n na_instancji.sh`: OK.
-- `python tests/test_testy_danych_slayer.py`: kod wyjścia 0, 22/22 (w tym `zbuduj_pule` deterministyczna
+- `python tests/test_testy_danych_slayer.py` (w `research/`): kod wyjścia 0, 22/22 (w tym `zbuduj_pule` deterministyczna
   i z heldoutem rozłącznym z pulą, `_filtr_hq` rozróżnia duplikat/dekontaminację/krótki/nowy,
   `main` na fiksturze: cztery ramiona równej długości, heldout rozłączny z każdym `train.bin`, C2 ≠ C,
   dedup działa, `en_komponenty` z `source_id`).

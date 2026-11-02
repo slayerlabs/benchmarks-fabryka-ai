@@ -1,34 +1,108 @@
-# Fabryka Benchmarks
+# benchmarks-fabryka-ai
 
-An isolated React 19 / TypeScript / Vite / React Router frontend for Fabryka Benchmarks. Phase 1 adds Leaderboard, AutoEval, Benchmarks and About / Methodology views. All displayed models and measurements are explicitly labeled **synthetic test data**. AutoEval is a disconnected prototype; no backend, credentials, production API, database, training jobs or deployment.
+Budujemy otwarte modele językowe dla ludzi, z publicznymi wagami, danymi i kodem.
 
-See [Phase 1 UI architecture, verification and screenshots](docs/phase1-product-ui.md) for the display registry, version-aware provenance contract, limitations and stacked-PR dependency.
+Mierzymy modele językowe na benchmarkach odtworzonych zgodnie z oryginałem. Budujemy też polskie benchmarki. Dziś
+mierzymy polsko-angielski **Slayer 1B** i pięć modeli odniesienia, a później każdy następny model. Przyda się każda
+pomoc, nawet 2 godziny pracy.
 
-## Local development
+## Jak dołączyć
 
-Use Node 24 (see `.nvmrc`) and npm:
+**1. Dołącz do Discorda.** Nasz kanał to **#bench-team**: https://discord.gg/HnTkVR4c5T. Napisz tam do LoIlita albo
+Elwenora i podaj swój login GitHub. Dodadzą Cię do zespołu Benchmark Team. Od tej chwili możesz brać zadania,
+przesuwać karty na tablicy i pushować gałęzie do repo. Na Discordzie zadajesz też pytania i piszesz, gdy coś nie
+działa.
 
-```sh
-npm ci
-npm run dev
+**2. Weź pierwsze zadanie** według [`CONTRIBUTING.md`, „Pierwsze zadanie”](CONTRIBUTING.md#pierwsze-zadanie).
+
+**3. Przygotuj komputer** według sekcji [„Przygotowanie (raz)”](research/README.md#przygotowanie-raz) w
+`research/README.md`.
+
+**4. Przeczytaj metodologię** w [`research/METODOLOGIA.md`](research/METODOLOGIA.md). Opisuje, w jakiej kolejności
+powstaje benchmark i co trafia do każdego pliku.
+
+**5. Otwórz PR do `main`** według [`CONTRIBUTING.md`](CONTRIBUTING.md). W opisie PR wpisz `Refs #N` z numerem
+zadania.
+
+```mermaid
+flowchart LR
+  A[Discord #bench-team: dostęp od LoIlita albo Elwenora] --> B[Pierwsze zadanie: CONTRIBUTING.md]
+  B --> C[Przypisz się i przestaw zadanie na In Progress]
+  C --> D[PR do main + Refs #N]
+  D --> E[Testy autora PR, potem recenzja] --> F[Merge]
 ```
 
-Open the local Vite address printed by the command; the app routes to `/models`. No environment variables or external services are needed. Fixtures are bundled locally; no fetch occurs. All fonts and styles are local.
+Gdy przestawiasz zadanie z In Progress na Review albo Independent Check, automat
+[`board-unassign.yml`](.github/workflows/board-unassign.yml) w ciągu kilkunastu minut zdejmuje przypisanie z issue.
+Wtedy wszyscy widzą, że zadanie jest do wzięcia. Recenzent, który przypisze się sam już w Review, zostaje
+przypisany. Status Done zamyka issue.
 
-```sh
-npm run check
-npm run lint
-npm test
-npx playwright install chromium
-npm run test:ui
-npm run build
-npm run preview
+Przydatne linki:
+
+- Zadania: https://github.com/slayerlabs/benchmarks-fabryka-ai/issues
+- Tablica zadań: https://github.com/orgs/slayerlabs/projects/10
+- Kamienie: https://github.com/slayerlabs/benchmarks-fabryka-ai/milestones
+- Wyniki Slayera 1B w Space: https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks
+- Organizacje: https://github.com/slayerlabs, https://huggingface.co/SlayerLab
+
+## Kto jest kim
+
+- **LoIlita i Elwenor** koordynują zespół. Dodają nowe osoby do zespołu Benchmark Team, co daje dostęp do zadań,
+  tablicy i repo. Piszesz do nich na Discordzie, na kanale #bench-team.
+- **Arek** jest właścicielem modelu Slayer i Space z wynikami. Wgrywa wyniki do Space.
+
+## Definicja „zrobione”
+
+Benchmark jest zrobiony, gdy PR do `main` zawiera katalog `research/benchmarks/<name>/` założony z
+[`research/benchmarks/_template/`](research/benchmarks/_template/README.md). Zamiast jednego PR może być kilka, po
+jednym na etap. W katalogu musi być:
+
+1. `ORIGINAL.md` (etap A) i `REPRODUCTION.md` (etap B) ze spełnionym warunkiem odtworzenia. Benchmark bez oryginału
+   ma zamiast nich `DATASET.md` i kontrolę na modelu, który zna polski. Wersja polska leży w osobnym katalogu
+   `research/benchmarks/<name>-pl/` i ma `POLISH.md` (etap D).
+2. Kod liczący wynik (etap C). To wywołanie kodu z etapu B albo własna implementacja z testem zgodności
+   `research/tests/test_<name>_zgodnosc.py`.
+3. Test kodu `research/tests/test_<name>.py` z próbką danych. Test przechodzi bez sieci i bez wag.
+4. Wynik mierzonego modelu (dziś Slayer 1.06) z n i SE. Obok niego wynik modelu kontrolnego, liczony tym samym
+   kodem. Oba wyniki liczy autor PR. Dla benchmarku z oryginałem modelem kontrolnym jest pierwszy dostępny model z
+   listy w sekcji [„Model kontrolny etapu B”](research/METODOLOGIA.md#model-kontrolny-etapu-b). Dla benchmarku
+   polskiego i bez oryginału jest nim model, który zna polski (`speakleash/Bielik-1.5B-v3` albo
+   `utter-project/EuroLLM-1.7B`).
+5. Porównanie z modelem kontrolnym jako różnica w SE z werdyktem. Testy z wyborem odpowiedzi mają też bazę losową,
+   bazę większościową i udział najczęstszej predykcji.
+6. `RECIPE.md` z wpisem dla każdego wyniku.
+7. Komendy z sekcji [„Przed PR”](#przed-pr) zakończone kodem 0.
+8. `Refs #N` zadania w opisie PR.
+
+Autor PR nie liczy pięciu modeli odniesienia. Policzy je przebieg centralny, który jest jeszcze w budowie (kamień
+[„Przebieg centralny: 5 modeli odniesienia”](https://github.com/slayerlabs/benchmarks-fabryka-ai/milestone/8)).
+Każdy punkt wyjaśnia [`research/METODOLOGIA.md`](research/METODOLOGIA.md).
+
+## Przed PR
+
+Przed otwarciem PR uruchom w katalogu `research/` komendy niżej. To testy zmienionego benchmarku,
+`tests/test_liczby_raportow.py` i bramka liczb. Każda komenda musi zakończyć się kodem 0. Katalog `research/` nie ma
+CI, więc uruchamiasz je sam.
+
+```bash
+.venv-eval/bin/python tools/liczby.py && .venv-eval/bin/python tools/sprawdz_raporty.py
+.venv-eval/bin/python tests/test_<name>.py
+.venv-eval/bin/python tests/test_<name>_zgodnosc.py   # tylko gdy benchmark ma własną implementację
+.venv-eval/bin/python tests/test_liczby_raportow.py
 ```
 
-Unit tests use Node's built-in runner. Playwright exercises the actual UI and blocks nonlocal requests. Both use local fixtures only. CI runs checks, lint, tests and build on pull requests and main pushes; there is no deployment workflow. To reuse an installed Chromium locally, set CHROMIUM_PATH to its executable path when running npm run test:ui.
+**Sama karta.** PR z samą kartą oryginału (etap A) wymaga tylko bramki liczb z kodem 0, bez testów benchmarku:
 
-## Working together
+```bash
+.venv-eval/bin/python tools/liczby.py && .venv-eval/bin/python tools/sprawdz_raporty.py
+```
 
-Keep `main` stable. Create `feature/*`, `fix/*` or `experiment/*` branches and open a PR. Describe behavior, test results, screenshots for UI changes and any scoring/provenance impact. Request team review before merging. Never modify `slayerlabs/fabryka-track` or production infrastructure. Never configure production API access, credentials, SSH or autodeploy here.
+Recenzent takiego PR nie odtwarza `RECIPE.md`. Sprawdza u źródła prompt, ocenę, wynik referencyjny i bazy, a przy
+„brak” albo „nieustalone” listę przeszukanych miejsc.
 
-See [architecture and source attribution](docs/architecture.md) for responsibilities, exact calculation semantics and the future read-only adapter boundary. See [AGENTS.md](AGENTS.md) for agent instructions.
+## Co jest w repo
+
+- [`research/`](research/README.md): benchmarki, analizy, kod wspólny, bramka liczb, testy.
+- [`AGENTS.md`](AGENTS.md): krótki opis układu repo. Mówi też, gdzie dodać nowe pliki i co musi przejść przed PR.
+- [`frontend-beta/`](frontend-beta/README.md): prototyp tablicy wyników w React, na danych syntetycznych. Dziś
+  nieużywany.

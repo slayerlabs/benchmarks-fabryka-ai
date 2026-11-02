@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="460" viewBox="0 0 900 460" font-family="system-ui, sans-serif" font-size="12">
+<rect width="900" height="460" fill="#fcfcfb"/>
+<text x="80" y="24" font-size="15" fill="#0b0b0b">BLiMP accuracy over training (n = 67 000 pairs per point, CI95)</text>
+<text x="80" y="42" fill="#52514e">x: billions of training tokens (step x 2^20); open circles: side-branch ends</text>
+<line x1="80" x2="860" y1="400.0" y2="400.0" stroke="#e4e3df"/>
+<text x="72" y="404.0" text-anchor="end" fill="#52514e">0.72</text>
+<line x1="80" x2="860" y1="371.7" y2="371.7" stroke="#e4e3df"/>
+<text x="72" y="375.7" text-anchor="end" fill="#52514e">0.73</text>
+<line x1="80" x2="860" y1="343.3" y2="343.3" stroke="#e4e3df"/>
+<text x="72" y="347.3" text-anchor="end" fill="#52514e">0.74</text>
+<line x1="80" x2="860" y1="315.0" y2="315.0" stroke="#e4e3df"/>
+<text x="72" y="319.0" text-anchor="end" fill="#52514e">0.75</text>
+<line x1="80" x2="860" y1="286.7" y2="286.7" stroke="#e4e3df"/>
+<text x="72" y="290.7" text-anchor="end" fill="#52514e">0.76</text>
+<line x1="80" x2="860" y1="258.3" y2="258.3" stroke="#e4e3df"/>
+<text x="72" y="262.3" text-anchor="end" fill="#52514e">0.77</text>
+<line x1="80" x2="860" y1="230.0" y2="230.0" stroke="#e4e3df"/>
+<text x="72" y="234.0" text-anchor="end" fill="#52514e">0.78</text>
+<line x1="80" x2="860" y1="201.7" y2="201.7" stroke="#e4e3df"/>
+<text x="72" y="205.7" text-anchor="end" fill="#52514e">0.79</text>
+<line x1="80" x2="860" y1="173.3" y2="173.3" stroke="#e4e3df"/>
+<text x="72" y="177.3" text-anchor="end" fill="#52514e">0.80</text>
+<line x1="80" x2="860" y1="145.0" y2="145.0" stroke="#e4e3df"/>
+<text x="72" y="149.0" text-anchor="end" fill="#52514e">0.81</text>
+<line x1="80" x2="860" y1="116.7" y2="116.7" stroke="#e4e3df"/>
+<text x="72" y="120.7" text-anchor="end" fill="#52514e">0.82</text>
+<line x1="80" x2="860" y1="88.3" y2="88.3" stroke="#e4e3df"/>
+<text x="72" y="92.3" text-anchor="end" fill="#52514e">0.83</text>
+<line x1="80" x2="860" y1="60.0" y2="60.0" stroke="#e4e3df"/>
+<text x="72" y="64.0" text-anchor="end" fill="#52514e">0.84</text>
+<text x="80.0" y="418" text-anchor="middle" fill="#52514e">0</text>
+<text x="177.5" y="418" text-anchor="middle" fill="#52514e">2</text>
+<text x="275.0" y="418" text-anchor="middle" fill="#52514e">4</text>
+<text x="372.5" y="418" text-anchor="middle" fill="#52514e">6</text>
+<text x="470.0" y="418" text-anchor="middle" fill="#52514e">8</text>
+<text x="567.5" y="418" text-anchor="middle" fill="#52514e">10</text>
+<text x="665.0" y="418" text-anchor="middle" fill="#52514e">12</text>
+<text x="762.5" y="418" text-anchor="middle" fill="#52514e">14</text>
+<text x="860.0" y="418" text-anchor="middle" fill="#52514e">16</text>
+<line x1="80" x2="860" y1="114.6" y2="114.6" stroke="#eb6834" stroke-dasharray="6 4" stroke-width="1.5"/>
+<text x="860" y="108.6" text-anchor="end" fill="#eb6834">Pythia-1B 0.8207</text>
+<polyline fill="none" stroke="#2a78d6" stroke-width="1.5" points="445.5,246.2 519.6,239.6 591.7,256.3 787.9,195.8"/>
+<line x1="153.1" x2="153.1" y1="356.9" y2="340.3" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="153.1" cy="348.5" r="4.5" fill="#fcfcfb" stroke="#2a78d6" stroke-width="2"/>
+<text x="153.1" y="372.9" text-anchor="middle" fill="#52514e" font-size="10">1430</text>
+<line x1="226.2" x2="226.2" y1="290.3" y2="273.8" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="226.2" cy="282.0" r="4.5" fill="#fcfcfb" stroke="#2a78d6" stroke-width="2"/>
+<text x="226.2" y="306.3" text-anchor="middle" fill="#52514e" font-size="10">2860</text>
+<line x1="445.5" x2="445.5" y1="254.3" y2="238.1" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="445.5" cy="246.2" r="4.5" fill="#2a78d6" stroke="#2a78d6" stroke-width="2"/>
+<text x="445.5" y="270.3" text-anchor="middle" fill="#52514e" font-size="10">7150</text>
+<line x1="519.6" x2="519.6" y1="247.6" y2="231.7" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="519.6" cy="239.6" r="4.5" fill="#2a78d6" stroke="#2a78d6" stroke-width="2"/>
+<text x="519.6" y="263.6" text-anchor="middle" fill="#52514e" font-size="10">8600</text>
+<line x1="591.7" x2="591.7" y1="264.6" y2="248.4" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="591.7" cy="256.3" r="4.5" fill="#2a78d6" stroke="#2a78d6" stroke-width="2"/>
+<text x="591.7" y="280.6" text-anchor="middle" fill="#52514e" font-size="10">10010</text>
+<line x1="787.9" x2="787.9" y1="203.9" y2="187.8" stroke="#2a78d6" stroke-width="1.5"/>
+<circle cx="787.9" cy="195.8" r="4.5" fill="#2a78d6" stroke="#2a78d6" stroke-width="2"/>
+<text x="787.9" y="219.9" text-anchor="middle" fill="#52514e" font-size="10">13848</text>
+<path d="M797.9,178.6 L802.9,183.6 L797.9,188.6 L792.9,183.6 Z" fill="#1b9e77"/>
+<path d="M806.9,168.5 L811.9,173.5 L806.9,178.5 L801.9,173.5 Z" fill="#1b9e77"/>
+<path d="M815.9,159.9 L820.9,164.9 L815.9,169.9 L810.9,164.9 Z" fill="#1b9e77"/>
+<text x="860" y="448" text-anchor="end" fill="#1b9e77">diamonds right of 13848: avg3, avg5, avg10 (weight averages)</text>
+</svg>
