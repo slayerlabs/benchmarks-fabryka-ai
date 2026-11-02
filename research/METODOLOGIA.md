@@ -407,8 +407,9 @@ nie wiesz, do której grupy należy decyzja, traktuj ją jak drogą.
 
 ## Meta-ocena i leaderboard
 
-Leaderboard pokazuje wiele modeli na wielu benchmarkach i jedną ocenę na model (meta-ocenę). Rusza po przebiegu
-centralnym („Kto liczy które modele”), bo warunki niżej potrzebują wyników modeli odniesienia. Meta-ocenę liczymy z
+Leaderboard pokazuje wiele modeli na wielu benchmarkach i jedną ocenę na model (meta-ocenę). W rankingu stoją
+mierzone modele i pięć modeli odniesienia („Pięć modeli odniesienia”), więc rusza po przebiegu centralnym („Kto liczy
+które modele”). Meta-ocenę liczymy z
 wyników per pytanie zapisanych przez runnery. Wynik wpisany ręcznie albo zgłoszony przez autora modelu bez naszego
 przeliczenia do niej nie wchodzi.
 
@@ -420,13 +421,13 @@ czegokolwiek z tej listy daje nową wersję rankingu, a stara zostaje bez zmian.
 **Który test wchodzi.** Test wchodzi do meta-oceny, gdy:
 
 - przeszedł etap B, a benchmark bez oryginału przeszedł kontrole karty zbioru;
-- co najmniej 2 z 5 modeli odniesienia leżą ponad 2 SE nad bazą b;
 - jego SNR jest powyżej progu z pliku zestawu, a b nie przekracza najwyższej dopuszczalnej bazy (przy wysokim b
   dzielnik 1 − b mnoży SE testu, więc jeden test przejąłby zmienność całej oceny).
 
+SNR i próg liczysz z opublikowanych wyników modeli spoza rankingu (np. kilku rozmiarów Pythii v0, jak w polu SNR
+karty, a dla testów polskich innych rozmiarów polskich modeli), nie z modeli, które ranking porządkuje. Test dobrany na wynikach modeli z rankingu faworyzowałby te modele.
 Jeden zbiór to jedna pozycja, nawet gdy ma kilka metryk albo wariantów promptu. Test, który nie spełnia warunków,
-zostaje w tabeli jako kolumna informacyjna. Modele odniesienia, na których dobrano testy, są w tabeli oznaczone i nie
-dostają miejsca w rankingu.
+zostaje w tabeli jako kolumna informacyjna.
 
 **Skala.** b to wyższa z baz: losowej i większościowej. Wynik testu to 100 · (x − b) / (1 − b). Test z podtestami o
 różnych bazach centrujesz w każdym podteście jego własnym b, a dopiero potem uśredniasz. Wyniku poniżej bazy nie
