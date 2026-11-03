@@ -35,7 +35,8 @@ for ax, (tid, d, name, k) in zip(axes.flat, T):
     vals = [wynik(d, m, k) for m, _ in M]
     ok = [(i, v) for i, v in enumerate(vals) if v]
     low = k == "byte_perplexity"
-    best = (min if low else max)([x for x in ok if x[0]], key=lambda x: x[1][0])[0]
+    best = (min if low else max)(ok, key=lambda x: x[1][0])[0]  # Slayer included: when it wins, it is the one marked
+    slayer_leads = best == 0
     top = max(v[0] + v[1] for _, v in ok)
     for i, (m, label) in enumerate(M):
         y = len(M) - 1 - i
@@ -53,13 +54,14 @@ for ax, (tid, d, name, k) in zip(axes.flat, T):
     for i, t in enumerate(ax.get_yticklabels()[::-1]):
         t.set_fontweight("bold" if i in (0, best) else "normal")
     ax.set_xlim(0, top * 1.25)
-    ax.set_title(f"{tid} {name}", fontsize=9.5, color=INK, loc="left")
+    ax.set_title(f"{tid} {name}" + ("  ★ best" if slayer_leads else ""), fontsize=9.5,
+                 color=SLAYER if slayer_leads else INK, loc="left", fontweight="bold" if slayer_leads else "normal")
     ax.grid(axis="x", color="#e8e7e2", lw=0.6); ax.set_axisbelow(True)
     for s in ("top", "right"):
         ax.spines[s].set_visible(False)
     ax.tick_params(colors=MUTED, length=0)
 ax = axes.flat[-1]; ax.axis("off")
-for y, (c, t) in enumerate([(SLAYER, "Slayer 1B (ours)"), (BEST, "best other = score to beat"), (REST, "other models")]):
+for y, (c, t) in enumerate([(SLAYER, "Slayer 1B (ours)"), (BEST, "best other model"), (REST, "other models")]):
     ax.barh(2 - y, 0.12, left=0.02, height=0.5, color=c)
     ax.text(0.18, 2 - y, t, va="center", fontsize=9.5, color=INK)
 ax.text(0.02, -0.9, "accuracy in %, error bar = ±1 SE\nfull sets, lm-eval", fontsize=8.5, color=MUTED, va="top")
