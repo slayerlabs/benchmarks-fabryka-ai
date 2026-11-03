@@ -78,3 +78,16 @@ def test_plan_runs_full_set_for_every_model_and_task():
     assert not [l for l in linie if "--max_length" in l and "--zadania T03 " not in l]
     slayer = [l for l in linie if "SlayerLab/" in l]
     assert slayer and all("--model slayer" in l and f"--model_path {ws}/modele/" in l for l in slayer)
+    assert all("--device cuda" in l for l in linie)
+
+
+def test_proba_cpu_two_questions_per_pair_on_cpu_in_chosen_env():
+    ws = tempfile.mkdtemp()
+    env = {**os.environ, "WS": ws, "K": str(KORZEN), "SUCHO": "1", "ENV_OVERRIDE": "new"}
+    linie = subprocess.run(["bash", str(SKRYPT), "proba_cpu"], capture_output=True, text=True, check=True,
+                           env=env).stdout.splitlines()
+    assert len(linie) == len(modele_skryptu()) * len(klucze_zadan())
+    for l in linie:
+        assert l.startswith(f"{ws}/venv-new/bin/python ")
+        assert "--device cpu" in l and "--probka 2 " in l and "--batch 1 " in l
+        assert f"--wyjscie {ws}/proba_cpu/" in l

@@ -9,6 +9,8 @@
 #   licz "LABEL ..."       in the background: per model download weights, every task, delete weights
 # ENV_OVERRIDE=new WYNIKI=$WS/wyniki_nowe on licz: same models in the other venv, for the environment check.
 #   ponow                  in the background: every (model, task) whose latest run failed, e.g. with BATCH=1 after an OOM
+#   straznik               idle guard (also started by przygotuj): tools/straznik_bezczynnosci.py
+#   proba_cpu ["LABEL ..."] PROBA_N (2) questions per model x task on CPU, then tools/kontrola_sensu.py
 #   pakuj                  wyniki.tgz to copy back
 #   stan                   state files, last log lines, GPU
 # Instance files map to the repo as: wyniki/<benchmark>/<label>/ -> benchmarks/<benchmark>/results/<label>/,
@@ -71,7 +73,7 @@ polecenie() {  # polecenie LABEL TASK_ID -> ewaluuj.py command line
   local L=$1 T=$2
   model "$L"
   local args=(--model "$([[ $LOADER == slayer ]] && echo slayer || echo hf)" --repo "$REPO" --revision "$REV"
-              --model_path "$WS/modele/$L" --zadania "$T" --probka pelna --device cuda --batch "$BATCH"
+              --model_path "$WS/modele/$L" --zadania "$T" --probka "${PROBKA:-pelna}" --device "${DEVICE:-cuda}" --batch "$BATCH"
               --eval_gpu "$(gpu_nazwa)" --etykieta "$L" --wyjscie "${WYNIKI:-$WS/wyniki}/$(katalog "$T")/$L")
   [[ $LOADER == hf-trust ]] && args+=(--trust_remote_code)
   [[ $T == T03 && $LOADER != slayer ]] && args+=(--max_length "$OKNO_ROLLING")
@@ -112,6 +114,7 @@ case "$etap" in
     LIMIT=${2:?safety limit in seconds}
     mkdir -p "$ST" "$WS/wyniki" "$WS/logi" "$WS/modele"
     nohup python3 $K/slayer-1b/wygaszanie/bezpiecznik.py po "$LIMIT" > $WS/logi/bezpiecznik.log 2>&1 &
+    bash "$0" straznik
     python3 $K/slayer-1b/wygaszanie/bezpiecznik.py sprawdz
     t=$(teraz)
     curl -sL -r 0-1073741823 -o /dev/null -w '%{speed_download}\n' \
@@ -153,6 +156,23 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
     [[ -n $PARY ]] && w_tle ponow "set -e; source $K/tools/przebieg_centralny.sh _funkcje; \
       for p in $PARY; do L=\${p%%:*}; ZADANIA_ID=\"\${p#*:}\"; ZADANIA_ID=\${ZADANIA_ID//,/ }; licz_model \$L; done"
     ;;
+  straznik)  # idle guard: GPU < 5% with no evaluation for STRAZNIK_OKNO s -> pack, copy to $WS/wyjscie, destroy
+    mkdir -p "$WS/logi"
+    nohup python3 $K/tools/straznik_bezczynnosci.py --wyjscie "$WS/wyjscie" --okno "${STRAZNIK_OKNO:-600}" \
+      --archiwum "$WS/wyniki.tgz" > $WS/logi/straznik.log 2>&1 &
+    echo "idle guard pid $!"
+    ;;
+  proba_cpu)  # PROBA_N questions per model x task on CPU in the model's env (or ENV_OVERRIDE), then sanity check
+    export DEVICE=cpu PROBKA=${PROBA_N:-2} BATCH=1 WYNIKI=$WS/proba_cpu
+    LISTA=${2:-$(printf '%s\n' "${MODELE[@]}" | cut -d'|' -f1)}
+    if [[ ${SUCHO:-0} == 1 ]]; then
+      for L in $LISTA; do for T in $ZADANIA_ID; do polecenie "$L" "$T"; done; done
+      exit 0
+    fi
+    mkdir -p "$ST" "$WS/logi" "$WS/modele"
+    for L in $LISTA; do licz_model "$L"; done
+    python3 $K/tools/kontrola_sensu.py $(for L in $LISTA; do for T in $ZADANIA_ID; do echo "$WYNIKI/$(katalog "$T")/$L"; done; done)
+    ;;
   pakuj)  # wyniki.tgz for the repo: per-question files gzipped, podsumowanie.md left out (number gate reads *.md)
     find $WS/wyniki* -name '*.jsonl' -exec gzip -f {} +
     tar czf $WS/wyniki.tgz -C $WS --exclude podsumowanie.md $(cd $WS && ls -d wyniki*/) czasy.jsonl srodowisko.json logi/freeze_lock.txt logi/freeze_new.txt
@@ -164,6 +184,6 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
     ;;
   _funkcje) ;;  # sourced: functions only
   *)
-    echo "stages: lista | katalogi | plan 'LABEL ...' | przygotuj LIMIT_S | licz 'LABEL ...' | ponow | pakuj | stan"; exit 2
+    echo "stages: lista | katalogi | plan 'LABEL ...' | przygotuj LIMIT_S | licz 'LABEL ...' | ponow | straznik | proba_cpu ['LABEL ...'] | pakuj | stan"; exit 2
     ;;
 esac
