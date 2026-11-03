@@ -73,5 +73,8 @@ def test_plan_runs_full_set_for_every_model_and_task():
         assert "--probka pelna" in l and f"{KORZEN}/common/ewaluuj.py" in l
     lfm3 = [l for l in linie if "LiquidAI/LFM3" in l]
     assert lfm3 and all("--trust_remote_code" in l for l in lfm3)
+    wikitext_hf = [l for l in linie if "--zadania T03 " in l and "SlayerLab/" not in l]
+    assert wikitext_hf and all("--max_length 4096" in l for l in wikitext_hf)
+    assert not [l for l in linie if "--max_length" in l and "--zadania T03 " not in l]
     slayer = [l for l in linie if "SlayerLab/" in l]
     assert slayer and all("--model slayer" in l and f"--model_path {ws}/modele/" in l for l in slayer)

@@ -45,7 +45,8 @@ def zbuduj_model(a):
     else:
         from lm_eval.models.huggingface import HFLM
         lm = HFLM(pretrained=weights_path, revision=None if a.model_path else a.revision,
-                  dtype="float32", batch_size=a.batch, device=a.device, trust_remote_code=a.trust_remote_code)
+                  dtype="float32", batch_size=a.batch, device=a.device, trust_remote_code=a.trust_remote_code,
+                  max_length=a.max_length)
     return lm, a.repo or Path(a.model_path).resolve().name, a.revision
 
 
@@ -153,6 +154,8 @@ def main():
     p.add_argument("--device", default="cpu")
     p.add_argument("--batch", default="1")
     p.add_argument("--trust_remote_code", action="store_true")
+    p.add_argument("--max_length", type=int, help="token window of the model (rolling perplexity: window size); "
+                   "default from the model config, which for 128k-262k context models does not fit a 24 GB GPU in float32")
     p.add_argument("--model_path", help="lokalny katalog wag zamiast pobierania z HF; przy --model slayer wymagany")
     p.add_argument("--etykieta", help="kolumna model w scores-history.csv, np. 1.06")
     p.add_argument("--step", type=int)
@@ -257,7 +260,7 @@ def main():
     (wyj / "results_rozszerzone.json").write_text(
         json.dumps({**wyniki, "observations": rozszerzone, "ewaluator": "niezależny (slayer_eval)",
                     "lm_eval": __import__("lm_eval").__version__, "dane": a.dane, "probka": a.probka,
-                    "eval_gpu": a.eval_gpu, "sprzet": sprzet},
+                    "eval_gpu": a.eval_gpu, "sprzet": sprzet, "max_length": getattr(lm, "max_length", None)},
                    ensure_ascii=False, indent=1))
     (wyj / "podsumowanie.md").write_text(M.tabela_md(rozszerzone))
     tokens = a.tokens if a.tokens is not None else (a.step * 2 ** 20 if a.step is not None else None)

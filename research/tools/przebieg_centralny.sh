@@ -19,6 +19,9 @@ WS=${WS:-/workspace}
 ST=$WS/stan
 CZ=$WS/czasy.jsonl
 BATCH=${BATCH:-auto}
+# WikiText-2 window for HF models: the config default (128k-262k tokens for Qwen3.5 and LFM) puts a whole
+# document in one float32 forward and ends in CUDA OOM on 24 GB even at batch 1. EuroLLM's own is 4096.
+OKNO_ROLLING=${OKNO_ROLLING:-4096}
 # transformers 4.57.6 from the lock has no qwen3_5, and the LFM3 remote code imports
 # use_kernel_func_from_hub_with_fallback (missing in 5.12.1). transformers 5 breaks lm_eval 0.4.9.1
 # (AutoModelForVision2Seq) and peft 0.17.1 (HybridCache), so the "new" env moves those too.
@@ -71,6 +74,7 @@ polecenie() {  # polecenie LABEL TASK_ID -> ewaluuj.py command line
               --model_path "$WS/modele/$L" --zadania "$T" --probka pelna --device cuda --batch "$BATCH"
               --eval_gpu "$(gpu_nazwa)" --etykieta "$L" --wyjscie "${WYNIKI:-$WS/wyniki}/$(katalog "$T")/$L")
   [[ $LOADER == hf-trust ]] && args+=(--trust_remote_code)
+  [[ $T == T03 && $LOADER != slayer ]] && args+=(--max_length "$OKNO_ROLLING")
   echo "$WS/venv-$ENV/bin/python $K/common/ewaluuj.py ${args[*]}"
 }
 
