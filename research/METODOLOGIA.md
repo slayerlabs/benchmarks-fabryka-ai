@@ -421,7 +421,7 @@ czegokolwiek z tej listy daje nową wersję rankingu, a stara zostaje bez zmian.
 **Który test wchodzi.** Test wchodzi do meta-oceny, gdy:
 
 - przeszedł etap B, a benchmark bez oryginału przeszedł kontrole karty zbioru;
-- jego SNR jest powyżej progu z pliku zestawu, a b nie przekracza najwyższej dopuszczalnej bazy (przy wysokim b
+- jego SNR jest powyżej progu z pliku zestawu, a b (akapit „Skala”) nie przekracza najwyższej dopuszczalnej bazy (przy wysokim b
   dzielnik 1 − b mnoży SE testu, więc jeden test przejąłby zmienność całej oceny).
 
 SNR i próg liczysz z opublikowanych wyników modeli spoza rankingu (np. kilku rozmiarów Pythii v0, jak w polu SNR
@@ -429,7 +429,10 @@ karty, a dla testów polskich innych rozmiarów polskich modeli), nie z modeli, 
 Jeden zbiór to jedna pozycja, nawet gdy ma kilka metryk albo wariantów promptu. Test, który nie spełnia warunków,
 zostaje w tabeli jako kolumna informacyjna.
 
-**Skala.** b to wyższa z baz: losowej i większościowej. Wynik testu to 100 · (x − b) / (1 − b). Test z podtestami o
+**Skala.** b to wyższa z baz: losowej i większościowej (README, „Bazy: losowa i większościowa”). Gdy poprawna
+odpowiedź stoi zawsze na tej samej pozycji, baza większościowa jest pełna (1) i nie ma znaczenia, więc b to baza
+losowa. Tak jest przy parach zdań (BLiMP i podobne) i w implementacji, która stawia poprawną opcję zawsze na tym samym
+miejscu (SciQ w lm-eval). Wynik testu to 100 · (x − b) / (1 − b). Test z podtestami o
 różnych bazach centrujesz w każdym podteście jego własnym b, a dopiero potem uśredniasz. Wyniku poniżej bazy nie
 obcinasz do zera, bo obcięcie zawyża modele przy poziomie losowym. Perpleksja i BPB nie wchodzą do średniej, stoją w
 osobnej kolumnie.
@@ -439,8 +442,10 @@ osobno. Brak wyniku (także `not_run`) to „N/A”, nigdy zero. Model bez kompl
 cząstkowe, a meta-oceny i miejsca nie dostaje.
 
 **Niepewność i miejsce.** Przy meta-ocenie podajesz SE, a przy porównaniu modeli SE różnicy, oba z bootstrapu
-parowanego po pytaniach (README, „SE i werdykt”). Miejsce w rankingu to 1 plus liczba modeli lepszych o więcej niż
-2 SE różnicy, więc modele bez takiej różnicy dzielą miejsce. Wrażliwość na wybór testów (bootstrap po testach, wynik
+parowanego po pytaniach (README, „SE i werdykt”). Dla każdej pary modeli liczysz z = różnica / SE różnicy i p
+dwustronne, a p poprawiasz metodą Holma po wszystkich parach rankingu (README, „SE i werdykt”), z progiem p takim jak
+dla |z| = 2. Miejsce w rankingu to 1 plus liczba modeli lepszych z różnicą istotną po tej poprawce, więc modele bez
+takiej różnicy dzielą miejsce. Wrażliwość na wybór testów (bootstrap po testach, wynik
 bez każdego testu po kolei) podajesz obok rankingu. Do reguły miejsca nie wchodzi, bo nie jest błędem pomiaru.
 
 **Wydajność.** Ocena na parametr albo na FLOP to osobna kolumna, nigdy mnożnik meta-oceny. Liczbę parametrów liczysz
