@@ -14,4 +14,5 @@ dwa tygodnie ma odtworzyć ten sam wynik. Czego nie zapisano, wpisz jako „niez
 - Precyzja: <float32 / bfloat16>
 - Sprzęt: <CPU / GPU, model>
 - Data: <RRRR-MM-DD>
+- Smoke test: <id 5–10 przykładów przeczytanych ręcznie przed pełnym przebiegiem: prompt, opcje, cel, odpowiedź albo logprob; co się zgadzało>
 - Wynik: `results/<plik>.json`, klucz <klucz>
