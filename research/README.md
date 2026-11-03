@@ -116,6 +116,8 @@ Testy działają bez sieci i bez wag. Każdy kończy się kodem 0:
 .venv-eval/bin/python tests/test_lm_eval_slayer.py
 .venv-eval/bin/python tests/test_testy_danych_slayer.py
 .venv-eval/bin/python tests/test_ewok_pl.py
+.venv-eval/bin/python tests/test_ewok.py
+.venv-eval/bin/python tests/test_ewok_zgodnosc.py
 .venv-eval/bin/python tests/test_blimp.py
 .venv-eval/bin/python tests/test_blimp_checkpoints.py
 .venv-eval/bin/python tests/test_blimp_checkpoints_independent.py
@@ -174,4 +176,5 @@ Slayer 1.06 to checkpoint w trakcie treningu (ok. jednej ósmej, bez wygaszania 
 - BLiMP, pełny zbiór, Slayer 1.06 i Pythia-1B: [`benchmarks/blimp/`](benchmarks/blimp/README.md).
 - WikiText-2. Po poprawce mianownika byte_ppl z tego repo jest zgodny ze Space: [`benchmarks/wikitext-2/`](benchmarks/wikitext-2/README.md).
 - EWoK po polsku i angielsku, Slayer 1.00–1.06, Bielik 1.5B i LFM3 1.7B: [`benchmarks/ewok-pl/`](benchmarks/ewok-pl/README.md).
+- EWoK, oryginał angielski metodą autorów: gpt2-xl odtworzony kodem autorów, Slayer 1.06 i pięć modeli odniesienia: [`benchmarks/ewok/`](benchmarks/ewok/README.md).
 - Wygaszanie LR obniża loss o 0,047 nat bez zmiany trafności: [`slayer-1b/wygaszanie/README.md`](slayer-1b/wygaszanie/README.md).
