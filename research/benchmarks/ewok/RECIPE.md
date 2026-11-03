@@ -62,7 +62,8 @@ python tools/liczby.py && python tools/sprawdz_raporty.py
 ```
 
 Bez wag: `report` czyta `results/<model>/ewok.jsonl.gz`, gdy nie ma surowego `ewok.jsonl`. Potrzebny jest tylko
-zbiór z HF.
+zbiór z HF. `--rule` (domyślnie `authors`) wpisuje do `protocol` regułę, którą policzono pliki per rekord. Dla
+`results/ewok_plain.json` to `--rule plain`.
 
 ## Etap B: kod autorów (`authors_bf16` i `authors_fp32`)
 

@@ -1,7 +1,8 @@
 {
  "protocol": {
   "dataset": "ewok-core/ewok-core-1.0@34d912a608066c92e2990a0328ffc3bd9a716042",
-  "mode": "no BOS, C + ' ' + T, float32",
+  "rule": "authors",
+  "mode": "tokenizer's special tokens (BOS where the tokenizer adds it), pad masked, C + ' ' + T, float32",
   "chance": 0.5,
   "n_templates": 843,
   "bootstrap": {

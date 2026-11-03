@@ -10,7 +10,7 @@ publikować ich jawnym tekstem (TERMS_OF_USE). Ta karta nie cytuje więc żadneg
 | pole | wartość |
 |---|---|
 | Co mierzy | Podstawową wiedzę o świecie: czy model rozpoznaje, które zdanie pasuje do opisanej sytuacji. Autorzy mówią o „basic world knowledge” z 11 domen poznania (np. właściwości agentów, relacje przestrzenne, interakcje społeczne, dynamika materiałów) |
-| Źródła | praca: Ivanova, Sathe, Lipkin i in. 2024, *Elements of World Knowledge (EWoK)*, [arXiv:2405.09605](https://arxiv.org/abs/2405.09605); repo autorów: [`ewok-core/ewok-paper`](https://github.com/ewok-core/ewok-paper/tree/9e40d30e242925866ee50448f80a13bcdf971318) @ `9e40d30e242925866ee50448f80a13bcdf971318` (kod ewaluacji `ewok/evaluate/`, analiza `analyses/scripts/inspect_results.Rmd`, wyniki w `analyses/data.zip`); generator zbioru: [`ewok-core/ewok`](https://github.com/ewok-core/ewok/tree/c4602f486da4ed765577b44485fa8977bf29b945) @ `c4602f486da4ed765577b44485fa8977bf29b945`; zbiór HF: [`ewok-core/ewok-core-1.0`](https://huggingface.co/datasets/ewok-core/ewok-core-1.0/tree/34d912a608066c92e2990a0328ffc3bd9a716042) @ `34d912a608066c92e2990a0328ffc3bd9a716042`, plik `data/test/ewok-core-1.0.parquet` |
+| Źródła | praca: Ivanova, Sathe, Lipkin i in. 2024, *Elements of World Knowledge (EWoK)*, [arXiv:2405.09605](https://arxiv.org/abs/2405.09605) (v1 z 15.05.2024, v2 z 3.07.2025; tabela wyników to Tabela A); repo autorów: [`ewok-core/ewok-paper`](https://github.com/ewok-core/ewok-paper/tree/9e40d30e242925866ee50448f80a13bcdf971318) @ `9e40d30e242925866ee50448f80a13bcdf971318` (kod ewaluacji `ewok/evaluate/`, analiza `analyses/scripts/inspect_results.Rmd`, wyniki w `analyses/data.zip`); generator zbioru: [`ewok-core/ewok`](https://github.com/ewok-core/ewok/tree/c4602f486da4ed765577b44485fa8977bf29b945) @ `c4602f486da4ed765577b44485fa8977bf29b945`; zbiór HF: [`ewok-core/ewok-core-1.0`](https://huggingface.co/datasets/ewok-core/ewok-core-1.0/tree/34d912a608066c92e2990a0328ffc3bd9a716042) @ `34d912a608066c92e2990a0328ffc3bd9a716042`, plik `data/test/ewok-core-1.0.parquet` |
 | Dane: split w pracy | split: `test` (jedyny). Praca liczy 5 wersji zbioru (`vers=0…4`, te same szablony z innymi wypełnieniami: imionami, obiektami). Każda wersja ma 911 rekordów przed filtrami autorów <!-- liczba-spoza-wynikow: data.zip, outputs_20240429/dataset/ewok1.0/*__vers=*/testsuite-*.csv, policzone 2026-11-03 --> |
 | Dane: n po filtrach (`ewok-core-1.0`) | 4374 rekordy (875 na wersję, w jednej 874), czyli 4357 różnych czwórek (C1, C2, T1, T2) <!-- liczba-spoza-wynikow: ewok-core-1.0.parquet @ 34d912a6 i data.zip, policzone 2026-11-03 --> |
 | Dane: split w Space/repo | split: `test`; n: 4374, pełny zbiór, nie panel 200 (`benchmarks/ewok/ewok.py score`). Space nie liczy EWoK <!-- liczba-spoza-wynikow: ewok-core-1.0.parquet @ 34d912a6 --> |
@@ -23,8 +23,8 @@ publikować ich jawnym tekstem (TERMS_OF_USE). Ta karta nie cytuje więc żadneg
 | Bazy | losowa: 0,5. Większościowa: nie dotyczy, bo nie ma opcji do wybrania. Model, który zawsze woli ten sam kontekst albo to samo zdanie, dostaje dokładnie 0,5 (s1 + s2 = 1) |
 | SNR: źródło | tabela 20 modeli z pracy, `analyses/tables/ 20240429 _mean_accuracy_allmodels.tex` (bez wiersza `human`) |
 | SNR: rozrzut | odchylenie std. średniej trafności 20 modeli: 0,063 <!-- liczba-spoza-wynikow: policzone z tabeli pracy, 20 modeli --> |
-| SNR: SE | √(0,7·0,3/n). Dla n = 4374 rekordów wychodzi 0,0069. Rekordy jednego szablonu nie są niezależne (5 wersji to te same szablony), więc uczciwsze jest n ≈ 875 szablonów: 0,0155 <!-- liczba-spoza-wynikow: wzór z METODOLOGIA.md dla p = 0,7 --> |
-| SNR: iloraz | 9,2 po rekordach i 4,1 po szablonach <!-- liczba-spoza-wynikow: 0,063 / 0,0069 i 0,063 / 0,0155 --> |
+| SNR: SE | √(0,7·0,3/n). Dla n = 4374 rekordów wychodzi 0,0069. Rekordy jednego szablonu nie są niezależne (5 wersji to te same szablony), więc uczciwsze jest n = 843 szablony (`ewok.templates`, `README.md`): 0,0158 <!-- liczba-spoza-wynikow: wzór z METODOLOGIA.md dla p = 0,7 --> |
+| SNR: iloraz | 9,2 po rekordach i 4,0 po szablonach <!-- liczba-spoza-wynikow: 0,063 / 0,0069 i 0,063 / 0,0158 --> |
 | Wyniki referencyjne (odczyt 2026-11-03) | lista niżej, jedna pozycja na linię |
 | Train policy | `eval_only` dla całego zbioru. TERMS_OF_USE wymaga też jawnego zgłoszenia każdego użycia EWoK w treningu |
 | Decyzja treningowa | Słaby wynik w domenie mówi, że model nie wiąże opisu sytuacji z jej konsekwencją w tej domenie (np. przestrzeń, materiały, relacje społeczne). Wskazuje na braki w danych z prostymi opisami świata fizycznego i społecznego. Nie wolno trenować na szablonach ani rekordach EWoK ani pisać danych „w ich stylu”. Wynik bliski 0,5 przy słabym modelu nie odróżnia braku wiedzy od zbyt słabego modelu języka |
@@ -32,15 +32,20 @@ publikować ich jawnym tekstem (TERMS_OF_USE). Ta karta nie cytuje więc żadneg
 
 ## Wyniki referencyjne
 
-Tabela pracy (średnia z 5 wersji, w nawiasie zakres między wersjami), modele do pobrania z HF:
+Tabela z repo autorów, `analyses/tables/ 20240429 _mean_accuracy_allmodels.tex` @ `9e40d30e` (średnia z 5 wersji, w
+nawiasie zakres między wersjami), modele do pobrania z HF:
 
-- `gpt2-xl` (dziś `openai-community/gpt2-xl`): 0,656 (0,646–0,663) <!-- liczba-spoza-wynikow: tabela pracy, mean_accuracy_allmodels.tex -->
-- `microsoft/phi-1_5`: 0,728 (0,687–0,757) <!-- liczba-spoza-wynikow: tabela pracy, mean_accuracy_allmodels.tex -->
-- `microsoft/phi-2`: 0,720 (0,698–0,773) <!-- liczba-spoza-wynikow: tabela pracy, mean_accuracy_allmodels.tex -->
-- `google/gemma-2b`: 0,678 (0,658–0,706) <!-- liczba-spoza-wynikow: tabela pracy, mean_accuracy_allmodels.tex -->
-- `mistralai/Mistral-7B-v0.1`: 0,777 (0,770–0,784) <!-- liczba-spoza-wynikow: tabela pracy, mean_accuracy_allmodels.tex -->
-- `meta-llama/Meta-Llama-3-8B`: 0,746 (0,742–0,757) <!-- liczba-spoza-wynikow: tabela pracy, mean_accuracy_allmodels.tex -->
-- ludzie (nie model): 0,954 <!-- liczba-spoza-wynikow: tabela pracy, mean_accuracy_allmodels.tex -->
+- `gpt2-xl` (dziś `openai-community/gpt2-xl`): 0,656 (0,646–0,663) <!-- liczba-spoza-wynikow: tabela w repo autorów @ 9e40d30e, mean_accuracy_allmodels.tex -->
+- `microsoft/phi-1_5`: 0,728 (0,687–0,757) <!-- liczba-spoza-wynikow: tabela w repo autorów @ 9e40d30e, mean_accuracy_allmodels.tex -->
+- `microsoft/phi-2`: 0,720 (0,698–0,773) <!-- liczba-spoza-wynikow: tabela w repo autorów @ 9e40d30e, mean_accuracy_allmodels.tex -->
+- `google/gemma-2b`: 0,678 (0,658–0,706) <!-- liczba-spoza-wynikow: tabela w repo autorów @ 9e40d30e, mean_accuracy_allmodels.tex -->
+- `mistralai/Mistral-7B-v0.1`: 0,777 (0,770–0,784) <!-- liczba-spoza-wynikow: tabela w repo autorów @ 9e40d30e, mean_accuracy_allmodels.tex -->
+- `meta-llama/Meta-Llama-3-8B`: 0,746 (0,742–0,757) <!-- liczba-spoza-wynikow: tabela w repo autorów @ 9e40d30e, mean_accuracy_allmodels.tex -->
+- ludzie (nie model): 0,954 <!-- liczba-spoza-wynikow: tabela w repo autorów @ 9e40d30e, mean_accuracy_allmodels.tex -->
+
+Tabela A w pracy na arXiv (źródła TeX v1 i v2, w obu te same liczby) różni się od pliku w repo o 0,001–0,003. Dla <!-- liczba-spoza-wynikow: arXiv 2405.09605 v1 i v2, Tabela A, wobec mean_accuracy_allmodels.tex -->
+modelu kontrolnego i ludzi: gpt2-xl 0,655 (0,645–0,662) zamiast 0,656, ludzie 0,951 zamiast 0,954. Na werdykt <!-- liczba-spoza-wynikow: arXiv 2405.09605 v1 i v2, Tabela A (tab:results-mean), odczyt 2026-11-03 -->
+etapu B to nie wpływa (`REPRODUCTION.md`).
 
 Na liście modeli kontrolnych z METODOLOGIA.md Pythia v0 i EuroLLM nie mają wyniku EWoK (plik wyników Pythii v0 nie
 ma tego zadania, karta EuroLLM-1.7B też nie). Model kontrolny etapu B to więc `gpt2-xl` z tabeli pracy (punkt 3

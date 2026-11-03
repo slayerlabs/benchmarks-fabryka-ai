@@ -98,6 +98,9 @@ class HFModel:
 
 
 RULES = ("authors", "plain", "bos")
+MODES = {"authors": "tokenizer's special tokens (BOS where the tokenizer adds it), pad masked, C + ' ' + T, float32",
+         "plain": "no special tokens, no pad mask, C + ' ' + T, float32",
+         "bos": "one BOS before the context, C + ' ' + T, float32"}
 
 
 def build_model(path, device, rule="authors"):
@@ -379,7 +382,7 @@ def cmd_report(a):
     tmpl = templates(recs)
     models = a.models.split(",")
     rows = {m: read_rows(Path(a.results) / m / "ewok.jsonl") for m in models}
-    report = {"protocol": {"dataset": f"{DATASET_REPO}@{DATASET_REV}", "mode": "no BOS, C + ' ' + T, float32",
+    report = {"protocol": {"dataset": f"{DATASET_REPO}@{DATASET_REV}", "rule": a.rule, "mode": MODES[a.rule],
                            "chance": 0.5, "n_templates": len(set(tmpl.values())),
                            "bootstrap": {"reps": POWTORZENIA, "seed": SEED}}, "models": {}, "contrasts": []}
     scores = {}
@@ -418,6 +421,8 @@ def main():
     r.add_argument("--models", required=True)
     r.add_argument("--measured", help="model compared with every other one, e.g. Slayer1B-1.06")
     r.add_argument("--out", default=str(HERE / "results" / "ewok.json"))
+    r.add_argument("--rule", choices=RULES, default="authors",
+                   help="the rule the per-record files were scored with; only labels the report")
     a = p.parse_args()
     {"score": cmd_score, "report": cmd_report}[a.cmd](a)
 

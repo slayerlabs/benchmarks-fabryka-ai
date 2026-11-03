@@ -56,7 +56,10 @@ razem 8748.
   różne: to porównania, w których kontekst prawie nie zmienia log P.
 - **Dla innych modeli reguła ma znaczenie.** Tokenizery Bielika, EuroLLM i LFM2.5 doklejają BOS, więc kod autorów
   daje im BOS, a `plain` nie. Zmienia to 17–44% ich decyzji (`README.md`, „Poprzednia reguła”). Na gpt2-xl tej
-  różnicy nie widać, dlatego etap B jej nie złapał.
+  różnicy nie widać, dlatego etap B jej nie złapał. Etap C (zgodność decyzji) sprawdzono tylko na gpt2-xl, którego
+  tokenizer nie dokleja BOS, więc Slayer − LFM2.5 według reguły autorów stoi dla tokenizerów z BOS na analogii:
+  LFM2.5 i EuroLLM BOS doklejają (`tokenizer_config.json` i `tokenizer.json` na przypiętych rewizjach), a tokenizera
+  Bielika nie sprawdzono (repo z bramką zgody, 403).
 - **BOS dla każdego modelu.** Tryb `bos` daje BOS także modelom, którym tokenizer go nie dokleja. Na gpt2-xl wpływa to
   na trafność słabo: 66,02% wobec 65,47% u autorów, w granicach ±2 pkt. Zmienia jednak 15% pojedynczych decyzji
   (|Δ log P| średnio 1,49).

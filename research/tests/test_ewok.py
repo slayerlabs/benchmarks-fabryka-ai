@@ -143,6 +143,35 @@ def test_maska_pad_jak_surprisal():
         assert n == len(t) and abs(v - ref) < 1e-4
 
 
+def test_p_studenta_znane_wartosci():
+    # tables of Student's t: two-sided p = 0.05 at t = 2.228, df = 10; for df = 2, p = 1 - t / sqrt(t^2 + 2)
+    assert abs(E.p_student(2.228, 10) - 0.05) < 1e-4
+    assert abs(E.p_student(3.0, 2) - (1 - 3.0 / (9.0 + 2) ** 0.5)) < 1e-9
+
+
+def test_domeny_jako_klastry():
+    # 3 domains: sd with ddof = 1 is 1, SE = 1/sqrt(3), t = 3.46 at df = 2, p = 0.074: noise, although |t| >= 3
+    g = E.domain_clusters([1.0, 2.0, 3.0])
+    assert g["k"] == 3 and g["df"] == 2 and g["value"] == 2.0
+    assert abs(g["se"] - 3 ** -0.5) < 1e-12 and abs(g["t"] - 2 * 3 ** 0.5) < 1e-12
+    assert abs(g["p"] - (1 - g["t"] / (g["t"] ** 2 + 2) ** 0.5)) < 1e-9
+    assert g["verdict"] == "szum"
+
+
+def test_zapis_odczyt_ocena():
+    # pairs in the order of `record_pairs`: (C1,T1), (C1,T2), (C2,T1), (C2,T2), T1 and T2 without context
+    recs = [{"id": "ewok-en-0000", "source_id": 0}, {"id": "ewok-en-0001", "source_id": 1}]
+    ll = [(-1.0, 3), (-5.0, 4), (-3.0, 3), (-2.0, 4), (-9.0, 3), (-8.0, 4),
+          (-1.0, 2), (-2.0, 5), (-3.0, 2), (-4.0, 5), (-7.0, 2), (-6.0, 5)]
+    with tempfile.TemporaryDirectory() as d:
+        E.write_rows(Path(d) / "ewok.jsonl", recs, ll)
+        got = E.read_rows(Path(d) / "ewok.jsonl")
+    assert got["ewok-en-0000"]["ll"] == [[-1.0, -5.0], [-3.0, -2.0]]
+    assert got["ewok-en-0000"]["bezw"] == [-9.0, -8.0] and got["ewok-en-0000"]["ntok"] == [3, 4]
+    assert E.evaluate(got["ewok-en-0000"]) == {"ewok": 1.0, "both": 1.0, "constant_target": 0.0}
+    assert E.evaluate(got["ewok-en-0001"]) == {"ewok": 0.5, "both": 0.0, "constant_target": 1.0}
+
+
 def test_wyniki_z_pliku_gz():
     rows = [{"id": f"ewok-en-{i:04d}", "source_id": i, "ll": r["ll"], "bezw": [-9.0, -9.0], "ntok": [3, 3]}
             for i, r in enumerate(SAMPLE)]

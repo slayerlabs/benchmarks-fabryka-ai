@@ -67,10 +67,13 @@ Slayer 1.06 minus model, różnica w parach na tych samych rekordach, w dwóch o
 
 - **Odczyt po szablonach.** Na tych rekordach Slayer 1.06 jest wyraźnie (pewne) słabszy od modelu kontrolnego i od
   wszystkich pięciu modeli odniesienia. Wobec LFM2.5 werdykt pewny leży na samym progu (z = −3,06).
+- **Stan treningu.** Slayer 1.06 to checkpoint z ok. 1/8 treningu, bez wygaszania LR. Wszystkie modele, z którymi
+  go tu porównujemy, są po pełnym treningu, więc różnice mówią o tym checkpoincie, nie o gotowym Slayerze.
 - **Odczyt po domenach.** Różnica do gpt2-xl jest tylko prawdopodobna (t = −3,03, p = 0,0126). Opiera się na kilku
   domenach z dużą różnicą, głównie społecznych (tabela niżej). Różnica do LFM2.5 to po domenach szum.
 - **Stały target.** Slayer ma najwyższy udział stałego targetu (74,5%). Częściej niż inne modele wybiera to samo
-  zdanie niezależnie od kontekstu, czyli idzie za priorem zdania, a nie za kontekstem.
+  zdanie niezależnie od kontekstu, czyli idzie za priorem zdania, a nie za kontekstem. Bez porównania z wcześniejszymi
+  checkpointami to hipoteza, nie wniosek.
 - **Liczenie lokalne.** Pięć modeli odniesienia ma liczyć przebieg centralny. Te liczby policzyliśmy lokalnie, tym
   samym kodem, dla orientacji. Przebieg centralny ich nie zastępuje.
 
@@ -95,6 +98,10 @@ SE po szablonach wewnątrz domeny. Werdykt per domena z z = różnica / SE, bez 
 Różnice z werdyktem pewnym: social-relations, social-properties i material-dynamics. W czterech domenach
 (material-properties, physical-dynamics, physical-interactions, spatial-relations) różnica to szum, a Slayer ma w
 nich wynik równy albo wyższy. Domeny są nierówne: od 75 do 1120 rekordów.
+
+Z poprawką Holma na 11 porównań (p z |z|, progi p jak wyżej) trzy werdykty pewne zostają. Prawdopodobne zostaje
+tylko social-interactions, na samym progu. Agent-properties, quantitative-properties i physical-relations przechodzą
+w szum.
 
 ### Poprzednia reguła: bez tokenów specjalnych
 
