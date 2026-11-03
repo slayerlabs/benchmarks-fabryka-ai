@@ -16,7 +16,7 @@ dopisek „niezapisane”.
     przebiegi z 2026-10-30 i 2026-11-02, `--batch 32`.
 - Środowisko: **nie** `common/requirements.lock.txt`. Python 3.12.2, `torch 2.10.0+cu130`,
   `transformers 5.19.0`, `tokenizers 0.23.3`, `numpy 2.5.3` (lokalne `.venv-gpu`). lm-eval nie jest używany:
-  scorer reguły autorów to `authors_pair` i `logliks` z `benchmarks/ewok/ewok.py`; tryb `bos` używa `para` i `licz_logliki` z `common/hipoteza_formatu.py`. Przebieg w środowisku z locka: niezapisane.
+  scorer reguły autorów to `authors_pair` i `logliks` z `benchmarks/ewok/ewok.py`; tryb `bos` używa `para` i `licz_logliki` z `common/hipoteza_formatu.py`. Przebieg w środowisku z locka: niezapisane. Pełnego środowiska przebiegu wersji 5 (lista pakietów `.venv-gpu`) nie zapisano, znane są tylko wersje podane wyżej.
 - Zbiory:
   - EN: `ewok-core/ewok-core-1.0` @ `34d912a608066c92e2990a0328ffc3bd9a716042`, plik
     `data/test/ewok-core-1.0.parquet`, 4374 rekordy (repo z bramką zgody na HF);

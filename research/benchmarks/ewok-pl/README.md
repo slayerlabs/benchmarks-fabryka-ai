@@ -25,7 +25,8 @@ Bielik-1.5B-v3, LFM3-1.7B-Base i Aster-0.5B(fp32). Zestaw polski to 625 roboczyc
 | Slayer1B-1.06 | 54,0 | 59,0 |
 
 Wynik EWoK w %, losowo 50, reguła autorów. Pozostałe wersje Slayera, przedziały i werdykty (po szablonach, po parach
-pojęć i po domenach) są w `WYNIKI.md`.
+pojęć i po domenach) są w `WYNIKI.md`. Slayer 1.06 to checkpoint z ok. 1/8 treningu, bez wygaszania LR, a pozostałe
+modele w tabeli są po pełnym treningu, więc różnice mówią o tym checkpoincie, nie o gotowym Slayerze.
 
 ## Pliki
 
@@ -35,9 +36,9 @@ pojęć i po domenach) są w `WYNIKI.md`.
 | `POLISH.md` | etap D: tłumaczenie czy od zera, mapowanie metody, dwie kontrole |
 | `WYNIKI.md` | podsumowanie dla zespołu i Arka |
 | `results/raport_ewok.{json,md}` | pełny raport, reguła autorów (w repo) |
-| `results/raport_ewok_bos.{json,md}` | raport wersji 4, tryb BOS dla każdego modelu (w repo, do porównania) |
+| `results/raport_ewok_bos.{json,md}` | archiwalny raport wersji 4, tryb BOS dla każdego modelu (w repo, do porównania). Nie jest bieżącym wynikiem; jak `../ewok/results/ewok_plain.json` zostaje w puli bramki liczb, a każda liczba z niego w tekście ma znacznik `liczba-spoza-wynikow` |
 | `results/<model>/{pl,en}.jsonl.gz` | logliki per rekord, bez tekstu (w repo; surowe `.jsonl` lokalnie, `.gitignore`). `analiza` czyta `.gz`, gdy nie ma surowego pliku |
-| `research/tests/test_ewok_pl.py` | 15 testów czystych funkcji, bez wag i bez danych |
+| `research/tests/test_ewok_pl.py` | 17 testów czystych funkcji, bez wag i bez danych |
 
 ## Protokół
 

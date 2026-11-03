@@ -116,6 +116,45 @@ def test_pary_pojec_jako_klastry():
     assert m["metryka"] == "margines" and abs(m["roznica"]["value"] - 2 * k["roznica"]["value"]) < 1e-12
 
 
+def test_para_pojec_to_oba_pojecia():
+    # believe / doubt i believe / imagine to dwie pary: klucz z samego ConceptA skleiłby je w jedną (k = 3 zamiast 4)
+    o = lambda v: {"ewok": v}
+    a = {i: o(1.0) for i in range(8)}
+    b = {i: o(0.0) for i in range(8)}
+    pary = [("believe", "doubt"), ("believe", "imagine"), ("choose", "-"), ("hear", "not hear")]
+    meta = {f"ewok-en-{i:04d}": {"ConceptA": pary[i // 2][0], "ConceptB": pary[i // 2][1], "Domain": "agent-properties"}
+            for i in range(8)}
+    k = E.kontrast(a, b, "a", "b", meta=meta)
+    assert k["po_parach"]["k"] == 4
+
+
+def test_licz_domyslnie_regula_autorow():
+    # `licz` bez --regula liczy regułą autorów z ../ewok (build_model(rule="authors")), nie trybem BOS
+    import tempfile
+    wywolania = []
+
+    class EN:
+        def build_model(self, model, device, rule):
+            wywolania.append(("autorow", rule))
+            return object()
+
+        def score(self, model, recs, plik, batch):
+            pass
+
+    stare = (E.ewok_en, E.rekordy, E.zbuduj_model, E.licz, sys.argv)
+    E.ewok_en = lambda: EN()
+    E.rekordy = lambda nazwa, zip_sciezka=None: []
+    E.zbuduj_model = lambda katalog, device: wywolania.append(("bos", None))
+    E.licz = lambda *a, **kw: None
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            sys.argv = ["ewok.py", "licz", "--model", "m", "--wyjscie", tmp, "--dane", "pl", "--device", "cpu"]
+            E.main()
+    finally:
+        E.ewok_en, E.rekordy, E.zbuduj_model, E.licz, sys.argv = stare
+    assert wywolania == [("autorow", "authors")]
+
+
 def test_zaokraglenie_polowek_w_gore():
     assert E.zaokr(0.575 * 100, 0) == "58" and E.zaokr(0.5225 * 100) == "52.3" and E.zaokr(0.05, znak=True) == "+0.1"
 

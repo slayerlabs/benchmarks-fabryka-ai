@@ -10,9 +10,11 @@
 > - Na polskim EWoK-PL zmiana wynosi **−0,1 pkt** (54,1 → 54,0, SE 2,2 pkt, szum). Na tych samych 625 rekordach po
 >   angielsku jest +3,8 pkt (SE 2,0 pkt, szum), więc brak postępu po polsku nie jest rozstrzygnięty.
 > - **Bielik-1.5B-v3** ma po polsku **66,0%**, +12,0 pkt nad Slayerem 1.06: pewne po szablonach, ale po 9 parach
->   pojęć szum (t = 2,26, p = 0,053).
+>   pojęć szum (t = 2,26, p = 0,053 przed Holmem, po Holmie 1,0).
 > - LFM3-1.7B-Base ma po polsku 57,4%, Aster-0.5B(fp32) 54,6%. Żadna różnica PL − EN nie wychodzi poza szum.
 > - EWoK-PL obejmuje na razie tylko domenę `agent-properties`.
+> - Slayer 1.06 to checkpoint z ok. 1/8 treningu, bez wygaszania LR. Bielik, LFM3 i Aster są po pełnym treningu,
+>   więc różnice do nich mówią o tym checkpoincie, nie o gotowym Slayerze.
 
 Metoda, rewizje modeli i polecenia: [`README.md`](README.md). Wszystkie tabele: [`results/raport_ewok.md`](results/raport_ewok.md).
 Poprzedni tryb (BOS dla każdego modelu) został w [`results/raport_ewok_bos.md`](results/raport_ewok_bos.md).
@@ -21,8 +23,9 @@ Poprzedni tryb (BOS dla każdego modelu) został w [`results/raport_ewok_bos.md`
 - **Reguła liczenia.** Liczymy regułą autorów. U Bielika to nic nie zmienia, bo jego tokenizer sam dokleja BOS
   (0 zmienionych decyzji). U Slayera, LFM3 i Astera zmienia się 10–25% decyzji. Średnia PL u LFM3 i Astera wychodzi
   taka sama jak przed zmianą, a EN625 u LFM3 spada z 66,6 do 59,3%. <!-- liczba-spoza-wynikow: raport_ewok_bos.json (tryb BOS) i porównanie plików per rekord -->
-- **Wniosek, który upadł.** Spadek LFM3 z EN na PL, wcześniej −9,3 pkt i pewny, to teraz −1,8 pkt, szum. Był skutkiem <!-- liczba-spoza-wynikow: raport_ewok_bos.json, kontrast PL vs EN LFM3 w trybie BOS -->
-  BOS dodanego LFM3 po angielsku.
+- **Wniosek, który upadł.** Spadek LFM3 z EN na PL, wcześniej −9,3 pkt i pewny, to teraz −1,8 pkt, szum. Zniknął po <!-- liczba-spoza-wynikow: raport_ewok_bos.json, kontrast PL vs EN LFM3 w trybie BOS -->
+  zmianie reguły. Tryb BOS dodawał LFM3 BOS w obu językach, ale przesunął tylko wynik angielski. Dlaczego, nie
+  sprawdziliśmy.
 - **Nowe pola w raporcie.** Doszły odczyty po parach pojęć i po domenach z Holmem, liczba remisów (0 we wszystkich
   przebiegach float32) i baza większościowa („nie dotyczy”, sekcja 1).
 - **Kalibracja z pracą.** Zdjęliśmy zastrzeżenie „bez kalibracji z paperem”. Wynik gpt2-xl z pracy odtworzono kodem
@@ -87,6 +90,9 @@ Każdy wniosek ma trzy odczyty:
 Holm idzie na wszystkich 23 kontrastach trafności naraz. Werdykty w kolumnach „po parach” i „po domenach” są po
 Holmie.
 
+Slayer 1.06 to checkpoint z ok. 1/8 treningu, bez wygaszania LR, a Bielik, LFM3 i Aster są po pełnym treningu.
+Porównania z nimi mówią o tym checkpoincie, nie o gotowym Slayerze.
+
 | twierdzenie | różnica | SE (szablony) | po szablonach | po parach | po domenach |
 |---|---:|---:|---|---|---|
 | Slayer 1.06 − 1.00, EN pełny | +6,0 pkt | 0,8 | z = 7,78, pewne | t = 7,06, pewne | t = 4,58, pewne |
@@ -107,14 +113,17 @@ Holmie.
    - Na EN625 rośnie o 0,116 nat (SE 0,066 nat, z = 1,75, szum).
    - Po parach pojęć oba przyrosty to też szum (t = 1,92 i t = 2,34, df = 8).
    Wcześniejsze zdanie „postęp widoczny także po polsku” nie miało SE i werdyktu. Z nimi to szum, więc je zdejmujemy.
-3. **Bielik wygrywa po polsku, ale nie równo na wszystkich parach pojęć.** Ma +12,0 pkt nad Slayerem 1.06 (CI po
-   szablonach +8,0…+16,1, pewne). Po 9 parach pojęć jako klastrach to szum (p = 0,053), więc przewaga opiera się na
-   części par. Obie pary porównań Bielik trafia w 42% rekordów, Slayer w 19–23%.
+3. **Bielik jest przed Slayerem po szablonach, po parach pojęć to szum.** Ma +12,0 pkt nad Slayerem 1.06 (CI po
+   szablonach +8,0…+16,1, pewne). Jest wyżej w 8 z 9 par pojęć, ale po 9 parach jako klastrach to szum (p = 0,053
+   przed Holmem, po Holmie 1,0). Szum bierze się z małego k = 9 i ze średniej nieważonej: para „believe / imagine”
+   (10 rekordów, Bielik 15 pkt niżej) waży tyle co para z 220 rekordami. Obie pary porównań Bielik trafia w 42% <!-- liczba-spoza-wynikow: raport_ewok.json, grupy wg_ConceptA (bramka pomija grupy EWoK) -->
+   rekordów, Slayer w 19–23%.
 4. **LFM3 po polsku nie odstaje od swojego angielskiego.** PL − EN625 = −1,8 pkt (szum). W trybie BOS wychodziło
-   −9,3 pkt, ale tamten wynik brał się z BOS dodanego LFM3 po angielsku. Jego tokenizer sam BOS nie dokleja. U żadnego <!-- liczba-spoza-wynikow: raport_ewok_bos.json, kontrast PL vs EN LFM3 w trybie BOS -->
-   modelu różnica PL − EN nie wychodzi poza szum w żadnym odczycie.
+   −9,3 pkt. Tamten tryb dodawał LFM3 BOS w obu językach (jego tokenizer sam BOS nie dokleja), a przesunął tylko EN625 <!-- liczba-spoza-wynikow: raport_ewok_bos.json, kontrast PL vs EN LFM3 w trybie BOS -->
+   (z 59,3 do 66,6%), PL prawie wcale (57,4%). Przyczyny tej asymetrii nie sprawdziliśmy. U żadnego modelu różnica <!-- liczba-spoza-wynikow: raport_ewok_bos.json, LFM3 en625 i pl w trybie BOS -->
+   PL − EN nie wychodzi poza szum w żadnym odczycie.
 5. **Slayera ciągną w dół dwie pary pojęć**: „make more / less effort” (220 rekordów, PL 50) i „choose” (165, PL 49). <!-- liczba-spoza-wynikow: raport_ewok.json, grupy wg_* (bramka pomija grupy EWoK) -->
-   Bez nich Slayer 1.06 ma po polsku 61,2%. Na parze effort Bielik (57) i LFM3 (56) są niewiele powyżej losowego. <!-- liczba-spoza-wynikow: średnia ważona 7 pozostałych par z wg_ConceptA i grupy wg_* (raport_ewok.json) -->
+   Bez nich Slayer 1.06 ma po polsku 61,3%. Na parze effort Bielik (57) i LFM3 (56) są niewiele powyżej losowego. <!-- liczba-spoza-wynikow: średnia ważona 7 pozostałych par z wg_ConceptA i grupy wg_* (raport_ewok.json) -->
    To opis bez werdyktu: odczyt po parach w sekcji 3 nie pokazuje różnicy między parami.
 6. **Slayer mocno trzyma się prioru zdania.** Przy dwóch zdaniach w tym samym kontekście Slayer po polsku w 81–86%
    rekordów wybiera to samo zdanie, cokolwiek mówi kontekst. Bielik robi tak w 75%, LFM3 w 81%, a Aster w 85%. <!-- liczba-spoza-wynikow: raport_ewok.json, staly_target per model -->
