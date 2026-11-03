@@ -413,10 +413,18 @@ które modele”). Meta-ocenę liczymy z
 wyników per pytanie zapisanych przez runnery. Wynik wpisany ręcznie albo zgłoszony przez autora modelu bez naszego
 przeliczenia do niej nie wchodzi.
 
-**Plik zestawu.** Przed pierwszym rankingiem w `results/` leży plik zestawu z wersją. Podaje listę testów, kategorię
-każdego testu i wagi kategorii, minimalną liczbę testów w kategorii, próg SNR i źródło szumu użyte do SNR (seedy albo
-checkpointy), najwyższą dopuszczalną bazę b oraz hash zbioru i konfiguracji ewaluacji każdego testu. Zmiana
-czegokolwiek z tej listy daje nową wersję rankingu, a stara zostaje bez zmian.
+**Plik zestawu.** Przed pierwszym rankingiem w `results/` leży plik zestawu z numerem wersji zestawu (to wersja
+zestawu testów, nie wersja Slayera). Podaje:
+
+- listę testów, kategorię każdego testu i wagi kategorii (sumują się do 1), minimalną liczbę testów w kategorii;
+- metrykę decyzyjną każdego testu (pole „Metryka decyzyjna” karty), bo zmiana metryki, np. acc na acc_norm w PIQA,
+  przesuwa wynik modelu o kilka SE;
+- split, z którego liczysz b każdego testu, bo baza z panelu Space i baza ze splitu potrafią się różnić (WSC273);
+- próg SNR i źródło szumu użyte do SNR (modele albo checkpointy), najwyższą dopuszczalną bazę b;
+- liczbę powtórzeń bootstrapu i seed;
+- hash zbioru i konfiguracji ewaluacji każdego testu.
+
+Zmiana czegokolwiek z tej listy daje nową wersję zestawu i nowy ranking, a stary zostaje bez zmian.
 
 **Który test wchodzi.** Test wchodzi do meta-oceny, gdy:
 
@@ -432,20 +440,23 @@ zostaje w tabeli jako kolumna informacyjna.
 **Skala.** b to wyższa z baz: losowej i większościowej (README, „Bazy: losowa i większościowa”). Gdy poprawna
 odpowiedź stoi zawsze na tej samej pozycji, baza większościowa jest pełna (1) i nie ma znaczenia, więc b to baza
 losowa. Tak jest przy parach zdań (BLiMP i podobne) i w implementacji, która stawia poprawną opcję zawsze na tym samym
-miejscu (SciQ w lm-eval). Wynik testu to 100 · (x − b) / (1 − b). Test z podtestami o
+miejscu (SciQ w lm-eval). Tak samo, gdy baza większościowa nie dotyczy testu (EWoK,
+[`benchmarks/ewok-pl/README.md`](benchmarks/ewok-pl/README.md)). Wynik testu to 100 · (x − b) / (1 − b). Test z podtestami o
 różnych bazach centrujesz w każdym podteście jego własnym b, a dopiero potem uśredniasz. Wyniku poniżej bazy nie
 obcinasz do zera, bo obcięcie zawyża modele przy poziomie losowym. Perpleksja i BPB nie wchodzą do średniej, stoją w
 osobnej kolumnie.
 
-**Wzór.** Najpierw średnia testów w kategorii, potem średnia kategorii z wagami z pliku zestawu. PL i EN liczysz
-osobno. Brak wyniku (także `not_run`) to „N/A”, nigdy zero. Model bez kompletu testów danej wersji dostaje wyniki
-cząstkowe, a meta-oceny i miejsca nie dostaje.
+**Wzór.** Najpierw średnia testów w kategorii, potem średnia kategorii z wagami z pliku zestawu. Kategoria z mniejszą
+liczbą testów niż minimum z pliku zestawu daje meta-ocenę „N/A”. PL i EN liczysz osobno i każdy język ma własny
+ranking; wspólnej oceny z obu języków nie liczysz. Brak wyniku (także `not_run`) to „N/A”, nigdy zero. Model bez
+kompletu testów danej wersji zestawu dostaje wyniki cząstkowe, a meta-oceny i miejsca nie dostaje.
 
 **Niepewność i miejsce.** Przy meta-ocenie podajesz SE, a przy porównaniu modeli SE różnicy, oba z bootstrapu
 parowanego po pytaniach (README, „SE i werdykt”). Dla każdej pary modeli liczysz z = różnica / SE różnicy i p
 dwustronne, a p poprawiasz metodą Holma po wszystkich parach rankingu (README, „SE i werdykt”), z progiem p takim jak
 dla |z| = 2. Miejsce w rankingu to 1 plus liczba modeli lepszych z różnicą istotną po tej poprawce, więc modele bez
-takiej różnicy dzielą miejsce. Wrażliwość na wybór testów (bootstrap po testach, wynik
+takiej różnicy dzielą miejsce. Miejsce obowiązuje dla zbioru modeli z podanego dnia, a dopisanie modelu zmienia
+liczbę par w poprawce Holma, więc wtedy liczysz miejsca od nowa. Wrażliwość na wybór testów (bootstrap po testach, wynik
 bez każdego testu po kolei) podajesz obok rankingu. Do reguły miejsca nie wchodzi, bo nie jest błędem pomiaru.
 
 **Wydajność.** Ocena na parametr albo na FLOP to osobna kolumna, nigdy mnożnik meta-oceny. Liczbę parametrów liczysz
