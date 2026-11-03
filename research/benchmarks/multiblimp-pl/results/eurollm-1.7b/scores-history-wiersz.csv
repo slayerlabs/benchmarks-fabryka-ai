@@ -1,0 +1,2 @@
+model,step,tokens,checkpoint_sha256,arc_easy,blimp,wikitext2_token_ppl,wikitext2_byte_ppl,eff,multiblimp_pl,arc_easy_pl,eval_gpu
+eurollm-1.7b,,,bfe9be53d19031a71d013ded9939747ae8e0c5dd7f07b9173cfa25521d7a9bc8,,,,,,93.86,,NVIDIA_GeForce_RTX_4090

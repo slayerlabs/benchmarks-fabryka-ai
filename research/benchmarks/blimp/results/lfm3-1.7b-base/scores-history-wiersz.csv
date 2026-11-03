@@ -1,0 +1,2 @@
+model,step,tokens,checkpoint_sha256,arc_easy,blimp,wikitext2_token_ppl,wikitext2_byte_ppl,eff,multiblimp_pl,arc_easy_pl,eval_gpu
+lfm3-1.7b-base,,,61a3f541d65b03a2180d08964bf0d55e349463a2706032814d455ae046bc8b59,,,,,,,,NVIDIA_GeForce_RTX_4090

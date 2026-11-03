@@ -1,0 +1,289 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-Qwen_Qwen3.5-0.8B-Base-dc7cdfe2-20261103T002753Z",
+ "models": [
+  {
+   "model_id": "Qwen/Qwen3.5-0.8B-Base",
+   "repo": "Qwen/Qwen3.5-0.8B-Base",
+   "revision": "dc7cdfe2ee4154fa7e30f5b51ca41bfa40174e68",
+   "weights_sha256": "c2b1e5a17d9c1e27685d92ed9b382911ebb99955ecd89052d1721241adfbab6c"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T02",
+   "task": "arc_challenge",
+   "family": "science_qa",
+   "language": "EN",
+   "split": "test"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T02",
+   "model_id": "Qwen/Qwen3.5-0.8B-Base",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc_norm,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 1172,
+   "n_selected": 1172,
+   "n_scored": 1172,
+   "state": "ok",
+   "value": 0.4044368600682594,
+   "ci95": {
+    "lower": 0.3762585324232082,
+    "upper": 0.4325938566552901,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "e27b72037814d2c6c1e5e9eba2706103cd4b35834bb3fac12b9254c5890da01a",
+   "results_sha256": "ddac3649b75ac4763fdc71a56ccdfc22cacaf323aaa69279f293a08fff5c4fa2",
+   "runner_sha256": "b620cf0382ebcace8d43ba95aa2f104d0ae056c77104a79e90b506b14edeadc1",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.2501564277588168,
+    "majority_value": 0.26535836177474403,
+    "majority_prediction_share": 0.2883959044368601,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.3848122866894198,
+      "n": 1172,
+      "se": 0.014218371065251156,
+      "ci95": [
+       0.35665529010238906,
+       0.4121160409556314
+      ]
+     },
+     "acc_norm": {
+      "value": 0.4044368600682594,
+      "n": 1172,
+      "se": 0.014342036483436283,
+      "ci95": [
+       0.3762585324232082,
+       0.4325938566552901
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.44112627986348124,
+      "n": 1172,
+      "se": 0.014509747749064826,
+      "ci95": [
+       0.4129692832764505,
+       0.46928327645051193
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 0.9980855134214353,
+      "n": 1172,
+      "se": 0.017521741780984066,
+      "ci95": [
+       0.9639929283046859,
+       1.0334366643586217
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.2501564277588168,
+      "majority_value": 0.26535836177474403,
+      "majority_prediction_share": 0.2883959044368601,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.2883959044368601,
+     "rozklad_wyborow": {
+      "n": 1172,
+      "poprawne_pozycje": {
+       "A": 266,
+       "B": 311,
+       "C": 310,
+       "D": 285
+      },
+      "poprawna_najkrotsza": 0.19197952218430034,
+      "poprawna_najdluzsza": 0.2721843003412969,
+      "reguly": {
+       "acc": {
+        "trafnosc": 0.3848122866894198,
+        "pozycje": {
+         "A": 397,
+         "B": 309,
+         "C": 261,
+         "D": 203,
+         "E": 2
+        },
+        "najkrotsza": 0.363481228668942,
+        "najdluzsza": 0.1697952218430034
+       },
+       "acc_norm": {
+        "trafnosc": 0.4044368600682594,
+        "pozycje": {
+         "A": 252,
+         "B": 280,
+         "C": 302,
+         "D": 338
+        },
+        "najkrotsza": 0.12798634812286688,
+        "najdluzsza": 0.4112627986348123
+       },
+       "bpb": {
+        "trafnosc": 0.4069965870307167,
+        "pozycje": {
+         "A": 259,
+         "B": 280,
+         "C": 302,
+         "D": 331
+        },
+        "najkrotsza": 0.1356655290102389,
+        "najdluzsza": 0.3993174061433447
+       },
+       "pmi": {
+        "trafnosc": 0.44112627986348124,
+        "pozycje": {
+         "A": 268,
+         "B": 267,
+         "C": 302,
+         "D": 335
+        },
+        "najkrotsza": 0.181740614334471,
+        "najdluzsza": 0.3310580204778157
+       }
+      }
+     }
+    },
+    "mc": {
+     "acc": {
+      "value": 0.7047781569965871,
+      "n": 1172,
+      "se": 0.013329750293382441,
+      "ci95": [
+       0.6783276450511946,
+       0.7312286689419796
+      ]
+     },
+     "acc_norm": {
+      "value": 0.7047781569965871,
+      "n": 1172,
+      "se": 0.013329750293382441,
+      "ci95": [
+       0.6783276450511946,
+       0.7312286689419796
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.6186006825938567,
+      "n": 1172,
+      "se": 0.014194389086685315,
+      "ci95": [
+       0.590443686006826,
+       0.6467576791808873
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 0.5651802831193828,
+      "n": 1172,
+      "se": 0.01729208953315655,
+      "ci95": [
+       0.531073341048859,
+       0.5992498705465819
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.2501564277588168,
+      "majority_value": 0.26535836177474403,
+      "majority_prediction_share": 0.27559726962457337,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.27559726962457337,
+     "rozklad_wyborow": {
+      "n": 1172,
+      "poprawne_pozycje": {
+       "A": 266,
+       "B": 311,
+       "C": 310,
+       "D": 285
+      },
+      "poprawna_najkrotsza": 0.22696245733788395,
+      "poprawna_najdluzsza": 0.22696245733788395,
+      "reguly": {
+       "acc": {
+        "trafnosc": 0.7047781569965871,
+        "pozycje": {
+         "A": 238,
+         "B": 301,
+         "C": 310,
+         "D": 323
+        },
+        "najkrotsza": 0.2030716723549488,
+        "najdluzsza": 0.2030716723549488
+       },
+       "acc_norm": {
+        "trafnosc": 0.7047781569965871,
+        "pozycje": {
+         "A": 238,
+         "B": 301,
+         "C": 310,
+         "D": 323
+        },
+        "najkrotsza": 0.2030716723549488,
+        "najdluzsza": 0.2030716723549488
+       },
+       "bpb": {
+        "trafnosc": 0.7047781569965871,
+        "pozycje": {
+         "A": 238,
+         "B": 301,
+         "C": 310,
+         "D": 323
+        },
+        "najkrotsza": 0.2030716723549488,
+        "najdluzsza": 0.2030716723549488
+       },
+       "pmi": {
+        "trafnosc": 0.6186006825938567,
+        "pozycje": {
+         "A": 42,
+         "B": 304,
+         "C": 379,
+         "D": 446,
+         "E": 1
+        },
+        "najkrotsza": 0.03583617747440273,
+        "najdluzsza": 0.03583617747440273
+       }
+      }
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "allenai/ai2_arc",
+    "rewizja": "210d026faf9955653af8916fad021475a3f00453",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "041795175bedc3e647a736fed09a3c7f54b73b1c",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-Qwen_Qwen3.5-0.8B-Base-dc7cdfe2-20261103T002753Z",
+    "results_sha256": "ddac3649b75ac4763fdc71a56ccdfc22cacaf323aaa69279f293a08fff5c4fa2"
+   }
+  ],
+  "qualification_sha256": "6da45831a5d18389d19b47e13965a8830f7d37dc089757ff39132c3dca403ad1",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "e7476a2252ce263bae5b55551b2d130f02b8b14dc276ef3df8b184875a103887"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.13",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_4090",
+ "sprzet": "NVIDIA GeForce RTX 4090"
+}
