@@ -418,7 +418,7 @@ zestawu testów, nie wersja Slayera). Podaje:
 
 - listę testów, kategorię każdego testu i wagi kategorii (sumują się do 1), minimalną liczbę testów w kategorii;
 - metrykę decyzyjną każdego testu (pole „Metryka decyzyjna” karty), bo zmiana metryki, np. acc na acc_norm w PIQA,
-  przesuwa wynik modelu o kilka SE;
+  przesuwa wynik modelu o ok. 1–3 SE;
 - split, z którego liczysz b każdego testu, bo baza z panelu Space i baza ze splitu potrafią się różnić (WSC273);
 - próg SNR i źródło szumu użyte do SNR (modele albo checkpointy), najwyższą dopuszczalną bazę b;
 - liczbę powtórzeń bootstrapu i seed;
