@@ -102,6 +102,20 @@ def test_roznica_roznic():
     assert k["roznica"]["value"] == -0.5 and k["n"] == 2 and "p_po_szablonach" in k
 
 
+def test_pary_pojec_jako_klastry():
+    # 4 pary pojęć po 2 rekordy, różnica 1 w każdej: odczyt po parach ma k = 4 i średnią 1; domena jedna, więc brak
+    o = lambda v: {"ewok": v, "margines": 2 * v}
+    a = {i: o(1.0) for i in range(8)}
+    b = {i: o(0.0) for i in range(8)}
+    b[0] = o(0.5)
+    meta = {f"ewok-en-{i:04d}": {"ConceptA": f"c{i // 2}", "ConceptB": "x", "Domain": "agent-properties"} for i in range(8)}
+    k = E.kontrast(a, b, "a", "b", szabl={i: i // 2 for i in range(8)}, meta=meta)
+    assert k["po_parach"]["k"] == 4 and abs(k["po_parach"]["value"] - (0.75 + 3) / 4) < 1e-12
+    assert k["po_domenach"] is None
+    m = E.kontrast(a, b, "a", "b", szabl={i: i // 2 for i in range(8)}, meta=meta, metryka="margines")
+    assert m["metryka"] == "margines" and abs(m["roznica"]["value"] - 2 * k["roznica"]["value"]) < 1e-12
+
+
 def test_zaokraglenie_polowek_w_gore():
     assert E.zaokr(0.575 * 100, 0) == "58" and E.zaokr(0.5225 * 100) == "52.3" and E.zaokr(0.05, znak=True) == "+0.1"
 
