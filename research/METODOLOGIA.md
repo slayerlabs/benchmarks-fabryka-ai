@@ -66,8 +66,8 @@ końcu jej linii znacznikiem `<!-- liczba-spoza-wynikow: skąd jest liczba -->`.
 kilkoma wynikami rozpisz na kilka wierszy tabeli albo na listę, jedna pozycja na linię, każda ze swoim znacznikiem.
 Wzór jest w `benchmarks/arc-easy/ORIGINAL.md`.
 
-Gdy implementacja Space i lm-eval mierzy co innego niż praca, w polu „Co mierzy” karty i w opisie testu w raporcie
-podajesz to, co mierzy implementacja, a rozbieżność z kategorią testu w Space (pole `domain` w `tasks_50.json`)
+Gdy implementacja Space i lm-eval mierzy co innego niż praca, w polu „Znane rozbieżności” karty i w opisie testu w
+raporcie podajesz to, co mierzy implementacja, a rozbieżność z kategorią testu w Space (pole `domain` w `tasks_50.json`)
 zgłaszasz w zadaniu. Przykład: SciQ (T09) ma w Space `domain` `science_knowledge`, a prompt lm-eval zawiera akapit z
 odpowiedzią, więc test mierzy czytanie ze zrozumieniem (`benchmarks/sciq/ORIGINAL.md`, pola „Prompt” i „Znane
 rozbieżności: akapit”, [#90](https://github.com/slayerlabs/benchmarks-fabryka-ai/pull/90)).
