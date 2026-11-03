@@ -104,6 +104,14 @@ def zbuduj_zadania(cfgs):
     return wynik
 
 
+def z_pmi(cfg):
+    """Whether lm-eval logged unconditional logliks (second half of filtered_resps) for this config.
+
+    GOTCHA: BLiMP scores `acc` only; reading its two choices as one choice + PMI gave acc 1.000.
+    """
+    return any(m["metric"] == "acc_mutual_info" for m in cfg.get("metric_list", []))
+
+
 def wybor_probki(zad, meta, tryb):
     """(indeksy albo None = całość, n_population, source_ids wybranych)."""
     docs = list(zad.eval_docs)
@@ -205,7 +213,7 @@ def main():
                 glowna = pp["byte_perplexity"] if wariant == "space" else glowna
                 continue
             klucz = meta.get("klucz", "acc")
-            mc = M.podsumuj_mc(probki, meta.get("klasy_stale", False), klucz=klucz)
+            mc = M.podsumuj_mc(probki, meta.get("klasy_stale", False), z_pmi=z_pmi(cfg), klucz=klucz)
             dodatkowe[wariant] = mc
             if wariant == "space":
                 glowna, bazy = mc[klucz], mc["bazy"]

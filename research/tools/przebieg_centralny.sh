@@ -7,6 +7,7 @@
 #   plan "LABEL ..."       ewaluuj.py commands that `licz` would run, without running them
 #   przygotuj LIMIT_S      safety destroy after LIMIT_S, both venvs, HF download speed test
 #   licz "LABEL ..."       in the background: per model download weights, every task, delete weights
+#   pakuj                  wyniki.tgz to copy back
 #   stan                   state files, last log lines, GPU
 # Instance files map to the repo as: wyniki/<benchmark>/<label>/ -> benchmarks/<benchmark>/results/<label>/,
 # czasy.jsonl -> results/central-run/times_<gpu>.jsonl.
@@ -16,8 +17,10 @@ WS=${WS:-/workspace}
 ST=$WS/stan
 CZ=$WS/czasy.jsonl
 BATCH=${BATCH:-auto}
-# transformers 4.57.6 from the lock has neither qwen3_5 nor the LFM3 remote code base (written for 5.12.1)
-TRANSFORMERS_NEW=5.12.1
+# transformers 4.57.6 from the lock has no qwen3_5, and the LFM3 remote code imports
+# use_kernel_func_from_hub_with_fallback (missing in 5.12.1). transformers 5 breaks lm_eval 0.4.9.1
+# (AutoModelForVision2Seq) and peft 0.17.1 (HybridCache), so the "new" env moves those too.
+NEW_ENV_PINS=(transformers==5.22.1 lm_eval==0.4.13 peft==0.21.2)
 
 # One list for the run; tests/test_przebieg_centralny.py checks it against METODOLOGIA.md ("Pięć modeli
 # odniesienia" without Bielik, gated repo) and the Slayer revision named there.
@@ -112,7 +115,7 @@ case "$etap" in
       # --system-site-packages: torch 2.8.0 of the image is the locked one
       python3 -m venv --system-site-packages "$WS/venv-$E"
       "$WS/venv-$E/bin/pip" install -q -r $K/common/requirements.lock.txt
-      [[ $E == new ]] && "$WS/venv-$E/bin/pip" install -q "transformers==$TRANSFORMERS_NEW"
+      [[ $E == new ]] && "$WS/venv-$E/bin/pip" install -q "${NEW_ENV_PINS[@]}"
       "$WS/venv-$E/bin/pip" freeze > "$WS/logi/freeze_$E.txt"
       zapisz_czas "pip_$E" "$t"
     done
@@ -125,12 +128,17 @@ case "$etap" in
     w_tle "licz_${LISTA// /_}" "set -e; source $K/tools/przebieg_centralny.sh _funkcje; \
       for L in $LISTA; do t=\$(teraz); licz_model \$L; zapisz_czas model \$t \"{\\\"model\\\": \\\"\$L\\\"}\"; done"
     ;;
+  pakuj)  # wyniki.tgz for the repo: per-question files gzipped, podsumowanie.md left out (number gate reads *.md)
+    find $WS/wyniki -name '*.jsonl' -exec gzip -f {} +
+    tar czf $WS/wyniki.tgz -C $WS --exclude podsumowanie.md wyniki czasy.jsonl srodowisko.json logi/freeze_lock.txt logi/freeze_new.txt
+    ls -la $WS/wyniki.tgz
+    ;;
   stan)
     ls -la $ST; for f in $WS/logi/*.log; do echo "== $f"; tail -n 2 "$f"; done; tail -n 5 $CZ 2>/dev/null
     nvidia-smi --query-gpu=utilization.gpu,memory.used --format=csv; df -h $WS | tail -1
     ;;
   _funkcje) ;;  # sourced: functions only
   *)
-    echo "stages: lista | plan 'LABEL ...' | przygotuj LIMIT_S | licz 'LABEL ...' | stan"; exit 2
+    echo "stages: lista | katalogi | plan 'LABEL ...' | przygotuj LIMIT_S | licz 'LABEL ...' | pakuj | stan"; exit 2
     ;;
 esac
