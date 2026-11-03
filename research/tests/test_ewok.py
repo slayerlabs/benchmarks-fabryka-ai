@@ -91,6 +91,58 @@ def test_werdykt_jak_bramka_liczb():
     assert E.verdict(3.0) == "pewne" and E.verdict(-2.0) == "prawdopodobne" and E.verdict(1.99) == "szum"
 
 
+class _WordModel:
+    """Word-level stand-in for a tokenizer; `bos` like a tokenizer whose add_special_tokens=True prepends BOS."""
+
+    def __init__(self, bos):
+        self.vocab, self.bos = {}, bos
+
+    def encode_special(self, s):
+        ids = [self.vocab.setdefault(w, len(self.vocab) + 10) for w in s.split()]
+        return ([1] if self.bos else []) + ids
+
+
+def test_para_autorow_bierze_bos_od_tokenizera():
+    for bos in (False, True):
+        m = _WordModel(bos)
+        ctx, tgt = E.authors_pair(m, "Ann is hungry.", "Ann eats lunch.")
+        assert ctx == m.encode_special("Ann is hungry.") and len(tgt) == 3
+        assert (ctx[0] == 1) == bos
+
+
+def test_maska_pad_jak_surprisal():
+    # tiny random GPT-2 on CPU, no weights from the network: `authors` masks the pad logit before the softmax
+    import torch
+    from transformers import GPT2Config, GPT2LMHeadModel
+
+    class Tiny:
+        def __init__(self):
+            torch.manual_seed(0)
+            self.m = GPT2LMHeadModel(GPT2Config(n_layer=2, n_embd=32, n_head=2, vocab_size=50, n_positions=32,
+                                                    bos_token_id=1, eos_token_id=1)).eval()
+            self.device, self.pad, self.max_len, self.rule = "cpu", 0, 32, "authors"
+            self.masked_id = lambda: 7
+
+        def ukryte(self, ids):
+            with torch.no_grad():
+                return self.m.transformer(ids).last_hidden_state
+
+        def glowa(self, h):
+            with torch.no_grad():
+                return self.m.lm_head(h).float()
+
+    m = Tiny()
+    pairs = [([3, 4, 5], [6, 8]), ([9, 2], [11, 12, 13])]
+    got = E.logliks(m, pairs, batch=2)
+    for (c, t), (v, n) in zip(pairs, got):
+        with torch.no_grad():
+            lg = m.m(torch.tensor([c + t])).logits[0].float()
+        lg[:, 7] = -float("inf")
+        lp = torch.log_softmax(lg, -1)
+        ref = sum(lp[len(c) - 1 + i, tok].item() for i, tok in enumerate(t))
+        assert n == len(t) and abs(v - ref) < 1e-4
+
+
 def test_wyniki_z_pliku_gz():
     rows = [{"id": f"ewok-en-{i:04d}", "source_id": i, "ll": r["ll"], "bezw": [-9.0, -9.0], "ntok": [3, 3]}
             for i, r in enumerate(SAMPLE)]

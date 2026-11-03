@@ -20,8 +20,9 @@ def main():
     p.add_argument("--model", required=True)
     p.add_argument("--out", required=True)
     p.add_argument("--batch", type=int, default=1)  # the authors' code: Evaluator(batch_size=1)
+    p.add_argument("--rule", choices=E.RULES, default="authors")
     a = p.parse_args()
-    model = E.build_model(a.model, "cuda" if torch.cuda.is_available() else "cpu")
+    model = E.build_model(a.model, "cuda" if torch.cuda.is_available() else "cpu", rule=a.rule)
     model.m = model.m.to(torch.bfloat16)  # the authors' default hf_precision="bf16"
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)

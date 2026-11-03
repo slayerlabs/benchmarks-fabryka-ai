@@ -1,7 +1,7 @@
 """Etap C (METODOLOGIA.md): nasz kod EWoK (benchmarks/ewok/ewok.py) a kod autorów EWoK, gpt2-xl, 16 rekordów.
 
 Plik `common/tests/data/ewok_zgodnosc.json` trzyma tylko numery wierszy `ewok-core-1.0` i log P per (kontekst,
-zdanie) z kodu autorów (fp32) i z naszego kodu. Tekstu rekordów nie ma (TERMS_OF_USE EWoK). Wylosowane seedem
+zdanie) z kodu autorów (fp32) i z naszego kodu (reguła `authors`). Tekstu rekordów nie ma (TERMS_OF_USE EWoK). Wylosowane seedem
 20261103 przez `benchmarks/ewok/reference/compare.py`.
 
 - test_decyzje_z_pliku: bez sieci i bez wag, sprawdza zgodność decyzji i ocen zapisanych liczb (≥ 99%).
@@ -82,17 +82,17 @@ def test_przeliczenie_naszym_kodem():
         print("pominięto test_przeliczenie_naszym_kodem: brak gpt2-xl albo ewok-core-1.0 w lokalnym cache HF")
         return
     import torch
-    from hipoteza_formatu import licz_logliki, para
     path, recs = local
-    m = E.build_model(path, "cuda" if torch.cuda.is_available() else "cpu")
+    m = E.build_model(path, "cuda" if torch.cuda.is_available() else "cpu")  # rule "authors", as `ewok.py score`
     r = SAMPLE["records"]
-    pairs = [para(m, recs[x["hf_row"]][c], " " + recs[x["hf_row"]][t])
+    pairs = [E.authors_pair(m, recs[x["hf_row"]][c], recs[x["hf_row"]][t])
              for x in r for c in ("Context1", "Context2") for t in ("Target1", "Target2")]
-    ll = [v for v, _ in licz_logliki(m, pairs, batch=8)]
+    ll = [v for v, _ in E.logliks(m, pairs, batch=8)]
     new = [ll[4 * i:4 * i + 4] for i in range(len(r))]
     assert agreement([x["authors"] for x in r], new) >= THRESHOLD
-    # the same code gives the numbers in the file (differences only from the order of operations on GPU/CPU)
+    # the same code gives the numbers in the file, and the authors' code within float noise of batch padding
     assert max(abs(a - b) for x, n in zip(r, new) for a, b in zip(x["ours"], n)) < 1e-2
+    assert max(abs(a - b) for x, n in zip(r, new) for a, b in zip(x["authors"], n)) < 1e-2
 
 
 if __name__ == "__main__":

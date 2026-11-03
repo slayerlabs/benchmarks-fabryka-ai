@@ -16,7 +16,7 @@ publikować ich jawnym tekstem (TERMS_OF_USE). Ta karta nie cytuje więc żadneg
 | Dane: split w Space/repo | split: `test`; n: 4374, pełny zbiór, nie panel 200 (`benchmarks/ewok/ewok.py score`). Space nie liczy EWoK <!-- liczba-spoza-wynikow: ewok-core-1.0.parquet @ 34d912a6 --> |
 | Dane: licencja | licencja autorów: CC BY 4.0 (`LICENSE.txt` w repo i zbiorze) plus TERMS_OF_USE (bez jawnego tekstu w sieci, zgłaszanie użycia w treningu); tag HF: `cc-by-4.0`, repo z bramką zgody; ukryte odpowiedzi w teście: nie (T1 zawsze pasuje do C1, T2 do C2) |
 | Format zadania | para minimalna 2×2: dwa konteksty C1, C2 i dwa zdania docelowe T1, T2. T1 pasuje do C1, T2 do C2 |
-| Prompt | brak promptu w trybie głównym (LOGPROBS). Kod autorów (`ewok/evaluate/model.py`, `Model._score`) skleja `f"{context} {target}"` (jedna spacja), liczy surprisal paczką [`surprisal`](https://github.com/benlipkin/surprisal/tree/366b074e3efb1e4d83ae8242013880c5e15851da) @ `366b074` z `use_bos_token=False` i sumuje go po tokenach od `len(tokenize(context))` do `len(tokenize(query))`. Bez BOS, 0-shot. Domyślnie bf16 i batch 1 (`ewok/evaluate/args.py`). Tryby pomocnicze `choice` i `likert` mają szablony promptów w `ewok/evaluate/util.py`. Nie przenosimy ich |
+| Prompt | brak promptu w trybie głównym (LOGPROBS). Kod autorów (`ewok/evaluate/model.py`, `Model._score`) skleja `f"{context} {target}"` (jedna spacja), liczy surprisal paczką [`surprisal`](https://github.com/benlipkin/surprisal/tree/366b074e3efb1e4d83ae8242013880c5e15851da) @ `366b074` z `use_bos_token=False` i sumuje go po tokenach od `len(tokenize(context))` do `len(tokenize(query))`. `tokenize` woła tokenizer z `add_special_tokens=True`, więc BOS jest wtedy, gdy tokenizer sam go dokleja (np. Bielik, EuroLLM, LFM2.5), a `surprisal` nic nie dodaje. Przed softmaxem logit tokenu pad (albo EOS, gdy tokenizer nie ma pad) to −inf. 0-shot. Domyślnie bf16 i batch 1 (`ewok/evaluate/args.py`). Tryby pomocnicze `choice` i `likert` mają szablony promptów w `ewok/evaluate/util.py`. Nie przenosimy ich |
 | Ocena | trafność. Dla rekordu `s1 = [log P(T1\|C1) > log P(T1\|C2)]`, `s2 = [log P(T2\|C2) > log P(T2\|C1)]`, wynik rekordu = (s1 + s2) / 2. Remis liczy się jako 0,5 (`count_equal_as_half = TRUE` w `inspect_results.Rmd`). Bez normalizacji długości: po obu stronach porównania jest ten sam napis T |
 | Metryka decyzyjna | trafność LOGPROBS (wynik rekordu wyżej) |
 | Agregacja | średnia po rekordach (każdy rekord to dwa porównania o równej wadze) w każdej z 5 wersji, potem średnia z 5 wersji. Przed tym `inspect_results.Rmd` usuwa duplikaty, rekordy bez danych ludzi, szablony oflagowane po badaniu z ludźmi i 5 szablonów z wersji 0.9. Odwraca też T1 i T2 w szablonach oflagowanych jako odwrócone. Wynik tych filtrów to `ewok-core-1.0` z HF. Bez wag domen |
@@ -51,9 +51,10 @@ per rekord (`analyses/data.zip`, `eval=logprobs/model=gpt2_xl`). Etap B porównu
 
 - **Remis.** Kod autorów liczy remis log P jako 0,5. Nasz `benchmarks/ewok/ewok.py` liczy go jako pudło. Remis
   zdarza się, gdy kontekst nie zmienia rozkładu po sobie, czyli praktycznie tylko przy niskiej precyzji.
-- **BOS i precyzja.** Kod autorów nie daje BOS i liczy w bf16. Nasz kod też nie daje BOS, ale liczy w float32.
-  `benchmarks/ewok-pl` liczył dotąd z jednym BOS przed kontekstem (METHOD.md Space), czyli trybem `ewok.py --bos`.
-  Wpływ obu różnic na decyzje mierzy `REPRODUCTION.md`.
+- **BOS i precyzja.** Kod autorów daje BOS tylko wtedy, gdy dokleja go tokenizer (`add_special_tokens=True`), i
+  liczy w bf16. Nasz kod domyślnie robi to samo z tokenami (reguła `authors`), ale liczy w float32. Pierwsze przebiegi
+  tego katalogu nie dawały BOS nigdy (`--rule plain`), a `benchmarks/ewok-pl` daje BOS każdemu modelowi
+  (`--rule bos`). Wpływ na decyzje mierzy `REPRODUCTION.md`.
 - **Granica kontekstu.** Kod autorów tnie zapytanie na tokenach `tokenize(context)`. Gdy tokenizer skleja spację z
   następnym słowem inaczej w zapytaniu niż w samym kontekście, granica może się przesunąć o token. Nasz kod koduje
   parę jak lm-eval: całość raz, a długość kontekstu z osobnego kodowania.

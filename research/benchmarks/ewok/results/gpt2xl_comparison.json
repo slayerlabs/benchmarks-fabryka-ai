@@ -70,6 +70,27 @@
    "records": {
     "value": 0.6536351165980796,
     "n": 4374,
+    "se": 0.004542928512576431
+   },
+   "ties_as_0": {
+    "value": 0.6536351165980796,
+    "n": 4374,
+    "se": 0.004542928512576431
+   },
+   "mean_of_versions": 0.6536362562009222,
+   "versions": [
+    0.658675799086758,
+    0.6485714285714286,
+    0.6586483390607102,
+    0.6582857142857143,
+    0.644
+   ],
+   "ties": 0
+  },
+  "ours_plain": {
+   "records": {
+    "value": 0.6536351165980796,
+    "n": 4374,
     "se": 0.004540050561316011
    },
    "ties_as_0": {
@@ -162,6 +183,18 @@
    "diff": {
     "value": 0.002286236854138089,
     "n": 4374,
+    "se": 0.0013474273739438423
+   },
+   "max_abs_logp_diff": 0.32149505615234375,
+   "mean_abs_logp_diff": 0.048452419535885895
+  },
+  "authors_data_zip vs ours_plain": {
+   "decision_agreement": 0.9839963420210334,
+   "n_decisions": 8748,
+   "disagreements": 140,
+   "diff": {
+    "value": 0.002286236854138089,
+    "n": 4374,
     "se": 0.001347427373943842
    },
    "max_abs_logp_diff": 0.32696533203125,
@@ -210,6 +243,18 @@
    "diff": {
     "value": 0.0010859625057155922,
     "n": 4374,
+    "se": 0.0012971186171649527
+   },
+   "max_abs_logp_diff": 0.3316211700439453,
+   "mean_abs_logp_diff": 0.0468410949866195
+  },
+  "authors_bf16 vs ours_plain": {
+   "decision_agreement": 0.9852537722908093,
+   "n_decisions": 8748,
+   "disagreements": 129,
+   "diff": {
+    "value": 0.0010859625057155922,
+    "n": 4374,
     "se": 0.001297118617164953
    },
    "max_abs_logp_diff": 0.3340797424316406,
@@ -240,6 +285,18 @@
    "mean_abs_logp_diff": 0.051451470653488596
   },
   "authors_fp32 vs ours": {
+   "decision_agreement": 1.0,
+   "n_decisions": 8748,
+   "disagreements": 0,
+   "diff": {
+    "value": 0.0,
+    "n": 4374,
+    "se": 0.0
+   },
+   "max_abs_logp_diff": 6.416812539100647e-05,
+   "mean_abs_logp_diff": 7.773778894462342e-06
+  },
+  "authors_fp32 vs ours_plain": {
    "decision_agreement": 0.9997713763145862,
    "n_decisions": 8748,
    "disagreements": 2,
@@ -275,7 +332,43 @@
    "max_abs_logp_diff": 0.2926413491368294,
    "mean_abs_logp_diff": 0.04415713969982319
   },
+  "ours vs ours_plain": {
+   "decision_agreement": 0.9997713763145862,
+   "n_decisions": 8748,
+   "disagreements": 2,
+   "diff": {
+    "value": 0.0,
+    "n": 4374,
+    "se": 0.0001616798412730207
+   },
+   "max_abs_logp_diff": 0.04351806640625,
+   "mean_abs_logp_diff": 0.00412805624404998
+  },
   "ours vs ours_bos": {
+   "decision_agreement": 0.8544810242341107,
+   "n_decisions": 8748,
+   "disagreements": 1273,
+   "diff": {
+    "value": -0.006515775034293553,
+    "n": 4374,
+    "se": 0.0037226010184401295
+   },
+   "max_abs_logp_diff": 8.670072555541992,
+   "mean_abs_logp_diff": 1.4879994334071316
+  },
+  "ours vs ours_bf16": {
+   "decision_agreement": 0.9869684499314129,
+   "n_decisions": 8748,
+   "disagreements": 114,
+   "diff": {
+    "value": -0.0011431184270690445,
+    "n": 4374,
+    "se": 0.0011879735782419922
+   },
+   "max_abs_logp_diff": 0.2926521301269531,
+   "mean_abs_logp_diff": 0.0441571224973144
+  },
+  "ours_plain vs ours_bos": {
    "decision_agreement": 0.8542524005486969,
    "n_decisions": 8748,
    "disagreements": 1275,
@@ -287,7 +380,7 @@
    "max_abs_logp_diff": 8.672904968261719,
    "mean_abs_logp_diff": 1.4896424888310826
   },
-  "ours vs ours_bf16": {
+  "ours_plain vs ours_bf16": {
    "decision_agreement": 0.9869684499314129,
    "n_decisions": 8748,
    "disagreements": 114,

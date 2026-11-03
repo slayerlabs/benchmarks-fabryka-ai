@@ -35,37 +35,47 @@ sprawdzamy w float32, wobec kodu autorów w fp32.
 
 ## Etap C: nasz kod (`ewok.py`) a kod autorów
 
-Nasz kod to własna implementacja. `common/hipoteza_formatu.py` koduje parę jak lm-eval, a regułę ma `ewok.evaluate`.
+Nasz kod to własna implementacja. Regułę autorów mają `ewok.authors_pair` (tokeny) i `ewok.logliks` (maska pad).
+Tryby `plain` i `bos` kodują parę jak lm-eval przez `common/hipoteza_formatu.py`. Ocenę rekordu ma `ewok.evaluate`.
 Zgodnie z METODOLOGIA.md wolno go używać po teście zgodności: ten sam model i te same rekordy, wynik w granicach SE,
 ≥ 99% zgodnych decyzji. Decyzja to znak log P(T1|C1) − log P(T1|C2) i log P(T2|C2) − log P(T2|C1), po dwie na rekord,
 razem 8748.
 
 | nasz tryb (`ewok.py score`) | trafność (SE) | różnica do kodu autorów fp32 | zgodne decyzje z kodem autorów fp32 | z kodem autorów bf16 (nasz GPU) | z `data.zip` |
 |---|---|---|---|---|---|
-| domyślny: bez BOS, float32 (jak kod autorów) | 65,36% (0,45) | 0,00 pkt (SE 0,02 pkt, szum) | **99,98%** (2 z 8748 różne) | 98,53% | 98,40% |
-| `--bos`: BOS przed kontekstem, float32 (tak liczy `ewok-pl`) | 66,02% (0,46) | autorzy − nasz: −0,65 pkt (SE 0,37 pkt, szum) | 85,45% (1273 z 8748 różne) | 85,20% | 84,89% |
-| bez BOS, bf16, batch 1 (`reference/ours_bf16.py`, ustawienia autorów) | 65,48% (0,45) | autorzy − nasz: −0,11 pkt (SE 0,12 pkt, szum) | 98,70% | 98,30% | 97,98% |
+| domyślny `--rule authors`: tokeny specjalne tokenizera, maska pad, float32 | 65,36% (0,45) | 0,00 pkt (SE 0,00 pkt, szum) | **100,00%** (0 z 8748 różne) | 98,53% | 98,40% |
+| `--rule plain`: bez tokenów specjalnych i bez maski pad, float32 (pierwsze przebiegi) | 65,36% (0,45) | 0,00 pkt (SE 0,02 pkt, szum) | 99,98% (2 z 8748 różne) | 98,53% | 98,40% |
+| `--rule bos`: BOS przed kontekstem, float32 (tak liczy `ewok-pl`) | 66,02% (0,46) | autorzy − nasz: −0,65 pkt (SE 0,37 pkt, szum) | 85,45% (1273 z 8748 różne) | 85,20% | 84,89% |
+| `plain`, bf16, batch 1 (`reference/ours_bf16.py --rule plain`, ustawienia autorów) | 65,48% (0,45) | autorzy − nasz: −0,11 pkt (SE 0,12 pkt, szum) | 98,70% | 98,30% | 97,98% |
 
-- **Bez BOS.** Tryb domyślny w float32 daje prawie te same log P co kod autorów w fp32: |Δ log P| średnio 0,004 i
-  najwyżej 0,044. Tyle wnosi inna wersja transformers i batch z paddingiem zamiast batcha 1. Dwie różne decyzje to
-  porównania, w których kontekst prawie nie zmienia log P.
-- **BOS.** Kod autorów nie daje BOS (`use_bos_token=False`). Pierwszy token kontekstu nie ma więc niczego przed
-  sobą, a reszta kontekstu jest warunkowana inaczej niż w trybie `--bos`. Na trafność wpływa to słabo: 66,02% wobec
-  65,47% u autorów, w granicach ±2 pkt. Zmienia jednak 15% pojedynczych decyzji (|Δ log P| średnio 1,49).
-- **bf16.** Nasz kod w ustawieniach autorów (bez BOS, bf16, batch 1) ma 65,48% wobec 65,47% kodu autorów w bf16 i
-  98,30% zgodnych decyzji. To ten sam szum bf16 co między kodem autorów u nas a ich `data.zip` (98,15%). Liczymy więc
-  w fp32, gdzie zgodność jest pełna.
+- **Reguła autorów.** `surprisal` tokenizuje zapytanie i kontekst z `add_special_tokens=True` i nie dokleja niczego
+  sam (`use_bos_token=False`). BOS jest więc wtedy, gdy dokleja go tokenizer. Przed softmaxem `surprisal` ustawia
+  logit tokenu pad na −inf, a `Model._prep_tokenizer` bierze za pad EOS, gdy tokenizer nie ma pad. Tokenizer gpt2-xl
+  nie dokleja tokenów specjalnych, więc dla niego reguła różni się od `plain` tylko maską pad. Z maską |Δ log P| wobec
+  kodu autorów w fp32 to średnio 0,00001, najwyżej 0,00006. Bez niej średnio 0,004, najwyżej 0,044, i dwie decyzje
+  różne: to porównania, w których kontekst prawie nie zmienia log P.
+- **Dla innych modeli reguła ma znaczenie.** Tokenizery Bielika, EuroLLM i LFM2.5 doklejają BOS, więc kod autorów
+  daje im BOS, a `plain` nie. Zmienia to 17–44% ich decyzji (`README.md`, „Poprzednia reguła”). Na gpt2-xl tej
+  różnicy nie widać, dlatego etap B jej nie złapał.
+- **BOS dla każdego modelu.** Tryb `bos` daje BOS także modelom, którym tokenizer go nie dokleja. Na gpt2-xl wpływa to
+  na trafność słabo: 66,02% wobec 65,47% u autorów, w granicach ±2 pkt. Zmienia jednak 15% pojedynczych decyzji
+  (|Δ log P| średnio 1,49).
+- **bf16.** Nasz kod w ustawieniach autorów (bf16, batch 1, reguła `plain`) ma 65,48% wobec 65,47% kodu autorów w bf16
+  i 98,30% zgodnych decyzji. To ten sam szum bf16 co między kodem autorów u nas a ich `data.zip` (98,15%). Liczymy
+  więc w fp32, gdzie zgodność jest pełna.
 - **Remisy.** W float32 żaden tryb nie miał remisu. Kod autorów w bf16 miał 3 remisy, `data.zip` 4. Remis to jedyne
   miejsce, gdzie reguły się różnią: u autorów 0,5, u nas 0.
 - **Test zgodności:** [`../../tests/test_ewok_zgodnosc.py`](../../tests/test_ewok_zgodnosc.py), 16 rekordów
   wylosowanych seedem 20261103. Plik `common/tests/data/ewok_zgodnosc.json` trzyma numery wierszy i log P z kodu
-  autorów (fp32) oraz z trybu domyślnego, bez tekstu. Część z przeliczeniem modelu uruchamia się, gdy gpt2-xl i zbiór
-  są w lokalnym cache HF.
+  autorów (fp32) oraz z reguły autorów, bez tekstu. Część z przeliczeniem modelu uruchamia się, gdy gpt2-xl i zbiór
+  są w lokalnym cache HF. [`../../tests/test_ewok.py`](../../tests/test_ewok.py) sprawdza BOS z tokenizera i maskę
+  pad na małym losowym modelu.
 
-| warunek etapu C | tryb domyślny (bez BOS) | tryb `--bos` |
-|---|---|---|
-| wynik w granicach SE od kodu autorów | tak (0,00 pkt) | nie (0,65 pkt > SE 0,45 pkt) |
-| ≥ 99% zgodnych decyzji | tak (99,98%) | nie (85,45%) |
-| werdykt | **spełniony**: wolno liczyć EWoK naszym kodem | **niespełniony**: to „dodatkowy sposób liczenia”, nie metoda oryginału |
+| warunek etapu C | reguła autorów (domyślna) | `plain` | `bos` |
+|---|---|---|---|
+| wynik w granicach SE od kodu autorów | tak (0,00 pkt) | tak (0,00 pkt) | nie (0,65 pkt > SE 0,45 pkt) |
+| ≥ 99% zgodnych decyzji | tak (100,00%) | tak na gpt2-xl (99,98%), ale nie jest regułą autorów dla tokenizerów z BOS | nie (85,45%) |
+| werdykt | **spełniony**: wolno liczyć EWoK naszym kodem | dodatkowy sposób liczenia | **niespełniony**: dodatkowy sposób liczenia |
 
-Wyniki `ewok-pl` policzono z BOS, czyli trybem `--bos`. Metodą autorów trzeba je przeliczyć bez BOS (etap D).
+Wyniki `ewok-pl` policzono z BOS dla każdego modelu, czyli trybem `bos`. Regułą autorów trzeba je przeliczyć
+(etap D).
