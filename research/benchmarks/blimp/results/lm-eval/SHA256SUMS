@@ -1,0 +1,9 @@
+8061fa1c4c75c41e49979e9d219f8acc4b9ac03a54d98c6f3040b95c45c472b1  lm-eval/env.json
+34b55fdb12a00afd502db8b90046f7e4de052b57c995fc0803c7e9507fbf66db  gpu-check/slayer-1.06.jsonl.gz
+0ee3fdb39202b442c530f8a2711cb15c646b03722724c33460df5134b459e24e  lm-eval/raw/pythia-1b-v0.tar.gz
+6bb60955257384247b6b31f962eba6f2e65ce77076ebb9587f99729a2b29b64b  lm-eval/raw/slayer-1.06.tar.gz
+e9ee1242fc0d4dd0e500ccd5cdf33c5b7c06db02b5cb3e3c86039b83ab679a0a  lm-eval/pythia-1b-v0.jsonl.gz
+d86057c5ff62682d504388805de58fbe7082332537be9df1a1b876d3cf7dd045  lm-eval/slayer-1.06.jsonl.gz
+cfe5a1eb51aebc2c266c98ed254ead8fcde83f8dbcfd001d9b3bd37da0f6a97b  pythia-1b-v0/blimp.jsonl.gz
+ca93c7f2affb0e6b212e6a67bd5ef0e975218f77c710fada0a5c5efad18d4edf  lm-eval/times.jsonl
+185287fcf9a3c32980b0d877d3c0ca669cefc7dac55ba3cd6b66af88081d6737  lm-eval/weights.sha256
