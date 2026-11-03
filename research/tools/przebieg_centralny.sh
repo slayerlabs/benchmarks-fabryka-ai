@@ -7,6 +7,7 @@
 #   plan "LABEL ..."       ewaluuj.py commands that `licz` would run, without running them
 #   przygotuj LIMIT_S      safety destroy after LIMIT_S, both venvs, HF download speed test
 #   licz "LABEL ..."       in the background: per model download weights, every task, delete weights
+# ENV_OVERRIDE=new WYNIKI=$WS/wyniki_nowe on licz: same models in the other venv, for the environment check.
 #   ponow                  in the background: every (model, task) whose latest run failed, e.g. with BATCH=1 after an OOM
 #   pakuj                  wyniki.tgz to copy back
 #   stan                   state files, last log lines, GPU
@@ -57,7 +58,7 @@ model() {  # model LABEL -> sets REPO REV LOADER ENV
   local m
   for m in "${MODELE[@]}"; do
     IFS='|' read -r l REPO REV LOADER ENV <<< "$m"
-    [[ $l == "$1" ]] && return 0
+    [[ $l == "$1" ]] && { ENV=${ENV_OVERRIDE:-$ENV}; return 0; }
   done
   echo "unknown model: $1" >&2
   return 1
@@ -68,7 +69,7 @@ polecenie() {  # polecenie LABEL TASK_ID -> ewaluuj.py command line
   model "$L"
   local args=(--model "$([[ $LOADER == slayer ]] && echo slayer || echo hf)" --repo "$REPO" --revision "$REV"
               --model_path "$WS/modele/$L" --zadania "$T" --probka pelna --device cuda --batch "$BATCH"
-              --eval_gpu "$(gpu_nazwa)" --etykieta "$L" --wyjscie "$WS/wyniki/$(katalog "$T")/$L")
+              --eval_gpu "$(gpu_nazwa)" --etykieta "$L" --wyjscie "${WYNIKI:-$WS/wyniki}/$(katalog "$T")/$L")
   [[ $LOADER == hf-trust ]] && args+=(--trust_remote_code)
   echo "$WS/venv-$ENV/bin/python $K/common/ewaluuj.py ${args[*]}"
 }
@@ -84,8 +85,8 @@ licz_model() {  # licz_model LABEL: download, every task, delete weights; a fail
   for T in $ZADANIA_ID; do
     t=$(teraz)
     kod=0
-    $(polecenie "$L" "$T") > "$WS/logi/${L}_$T.log" 2>&1 || kod=$?
-    zapisz_czas ewaluacja "$t" "{\"model\": \"$L\", \"zadanie\": \"$T\", \"kod\": $kod, \"gpu\": \"$(gpu_nazwa)\", \"batch\": \"$BATCH\"}"
+    $(polecenie "$L" "$T") > "$WS/logi/${L}_${T}_$ENV.log" 2>&1 || kod=$?
+    zapisz_czas ewaluacja "$t" "{\"model\": \"$L\", \"zadanie\": \"$T\", \"kod\": $kod, \"gpu\": \"$(gpu_nazwa)\", \"batch\": \"$BATCH\", \"env\": \"$ENV\", \"wyniki\": \"${WYNIKI:-$WS/wyniki}\"}"
   done
   rm -rf "$WS/modele/$L"
 }
@@ -139,18 +140,18 @@ case "$etap" in
     PARY=$(python3 -c "import json,sys; d={}
 for l in open(sys.argv[1]):
     r=json.loads(l)
-    if r['etap']=='ewaluacja': d[(r['model'],r['zadanie'])]=r['kod']
+    if r['etap']=='ewaluacja' and r.get('wyniki', sys.argv[2])==sys.argv[2]: d[(r['model'],r['zadanie'])]=r['kod']
 m={}
 for (l,t),k in d.items():
     if k: m.setdefault(l,[]).append(t)
-print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ")
+print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wyniki}")
     echo "again: ${PARY:-nothing} (batch $BATCH)"
     [[ -n $PARY ]] && w_tle ponow "set -e; source $K/tools/przebieg_centralny.sh _funkcje; \
       for p in $PARY; do L=\${p%%:*}; ZADANIA_ID=\"\${p#*:}\"; ZADANIA_ID=\${ZADANIA_ID//,/ }; licz_model \$L; done"
     ;;
   pakuj)  # wyniki.tgz for the repo: per-question files gzipped, podsumowanie.md left out (number gate reads *.md)
-    find $WS/wyniki -name '*.jsonl' -exec gzip -f {} +
-    tar czf $WS/wyniki.tgz -C $WS --exclude podsumowanie.md wyniki czasy.jsonl srodowisko.json logi/freeze_lock.txt logi/freeze_new.txt
+    find $WS/wyniki* -name '*.jsonl' -exec gzip -f {} +
+    tar czf $WS/wyniki.tgz -C $WS --exclude podsumowanie.md $(cd $WS && ls -d wyniki*/) czasy.jsonl srodowisko.json logi/freeze_lock.txt logi/freeze_new.txt
     ls -la $WS/wyniki.tgz
     ;;
   stan)
