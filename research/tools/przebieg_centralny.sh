@@ -48,7 +48,9 @@ KATALOGI="T01:blimp T02:arc-challenge T03:wikitext-2 T04:multiblimp-pl T44:pubme
 ZADANIA_ID=${ZADANIA_ID:-$(for p in $KATALOGI; do printf '%s ' "${p%%:*}"; done)}
 katalog() { local p; for p in $KATALOGI; do [[ ${p%%:*} == "$1" ]] && echo "${p#*:}" && return 0; done; return 1; }
 
-teraz() { date +%s.%N; }
+# python, not `date +%N` / `du -b`: proba_cpu also runs on macOS (BSD date and du)
+teraz() { python3 -c 'import time; print(time.time())'; }
+bajty() { python3 -c 'import os, sys; print(sum(os.path.getsize(os.path.join(d, f)) for d, _, fs in os.walk(sys.argv[1]) for f in fs))' "$1"; }
 zapisz_czas() {  # zapisz_czas STAGE START [JSON-fields]
   python3 -c "import json,sys,time; d={'etap':sys.argv[1],'s':round(time.time()-float(sys.argv[2]),1)}; d.update(json.loads(sys.argv[3] if len(sys.argv)>3 else '{}')); print(json.dumps(d))" "$@" >> "$CZ"
 }
@@ -88,14 +90,15 @@ licz_model() {  # licz_model LABEL: download, every task, delete weights; a fail
   model "$L"
   t=$(teraz)
   "$WS/venv-$ENV/bin/python" -c "from huggingface_hub import snapshot_download as s; s('$REPO', revision='$REV', local_dir='$WS/modele/$L')"
-  zapisz_czas pobranie "$t" "{\"model\": \"$L\", \"bajty\": $(du -sb "$WS/modele/$L" | cut -f1)}"
+  zapisz_czas pobranie "$t" "{\"model\": \"$L\", \"bajty\": $(bajty "$WS/modele/$L")}"
   for T in $ZADANIA_ID; do
     t=$(teraz)
     kod=0
     $(polecenie "$L" "$T") > "$WS/logi/${L}_${T}_$ENV.log" 2>&1 || kod=$?
     zapisz_czas ewaluacja "$t" "{\"model\": \"$L\", \"zadanie\": \"$T\", \"kod\": $kod, \"gpu\": \"$(gpu_nazwa)\", \"batch\": \"$BATCH\", \"env\": \"$ENV\", \"wyniki\": \"${WYNIKI:-$WS/wyniki}\"}"
   done
-  rm -rf "$WS/modele/$L"
+  # ZOSTAW_WAGI=1: proba_cpu followed by licz on the same instance downloads each model once
+  [[ ${ZOSTAW_WAGI:-0} == 1 ]] || rm -rf "$WS/modele/$L"
 }
 
 etap=${1:-}
