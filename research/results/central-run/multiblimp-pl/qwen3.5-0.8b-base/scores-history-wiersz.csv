@@ -1,0 +1,2 @@
+model,step,tokens,checkpoint_sha256,arc_easy,blimp,wikitext2_token_ppl,wikitext2_byte_ppl,eff,multiblimp_pl,arc_easy_pl,eval_gpu
+qwen3.5-0.8b-base,,,c2b1e5a17d9c1e27685d92ed9b382911ebb99955ecd89052d1721241adfbab6c,,,,,,84.50,,NVIDIA_GeForce_RTX_4090

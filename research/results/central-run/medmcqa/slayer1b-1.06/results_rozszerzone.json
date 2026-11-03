@@ -1,0 +1,173 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-SlayerLab_Slayer1B-1.06-ef81be58-20261103T000905Z",
+ "models": [
+  {
+   "model_id": "SlayerLab/Slayer1B-1.06",
+   "repo": "SlayerLab/Slayer1B-1.06",
+   "revision": "ef81be58742544ad32e1afab38db011fec209609",
+   "weights_sha256": "e10df6d50101d8424ff7338c97373ab9e151e359a6fcb23108023ac4a6400214"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T45",
+   "task": "medmcqa",
+   "family": "biomedical_qa",
+   "language": "EN",
+   "split": "validation"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T45",
+   "model_id": "SlayerLab/Slayer1B-1.06",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 4183,
+   "n_selected": 4183,
+   "n_scored": 4183,
+   "state": "ok",
+   "value": 0.3160411188142481,
+   "ci95": {
+    "lower": 0.3019364092756395,
+    "upper": 0.3299067654793211,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "2526d854e044f18477dd4464917e26b796e6b6ab6102fe8d6a9711385203cf7a",
+   "results_sha256": "c6ee5c9ce3b181b2e4e2b00519cfd2a4b0ae2632a19783093092706cd7bf8b79",
+   "runner_sha256": "9ab4214efb82a3965ad6d68bdfa9fd313e957706c813859f53ad2fce36b9d6d4",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.25,
+    "majority_value": 0.3222567535261774,
+    "majority_prediction_share": 0.9330623954099928,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.3160411188142481,
+      "n": 4183,
+      "se": 0.0071894352659677314,
+      "ci95": [
+       0.3019364092756395,
+       0.3299067654793211
+      ]
+     },
+     "acc_norm": {
+      "value": 0.3160411188142481,
+      "n": 4183,
+      "se": 0.0071894352659677314,
+      "ci95": [
+       0.3019364092756395,
+       0.3299067654793211
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.2954817116901745,
+      "n": 4183,
+      "se": 0.007055363995313435,
+      "ci95": [
+       0.28137700215156586,
+       0.3093473583552474
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 2.0730808574114477,
+      "n": 4183,
+      "se": 0.01306740064572438,
+      "ci95": [
+       2.048109267420573,
+       2.0985980233478347
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.25,
+      "majority_value": 0.3222567535261774,
+      "majority_prediction_share": 0.9330623954099928,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.9330623954099928
+    },
+    "cloze": {
+     "acc": {
+      "value": 0.22495816399713126,
+      "n": 4183,
+      "se": 0.006456861013549488,
+      "ci95": [
+       0.2120487688262013,
+       0.23810662204159694
+      ]
+     },
+     "acc_norm": {
+      "value": 0.271097298589529,
+      "n": 4183,
+      "se": 0.006873934042609066,
+      "ci95": [
+       0.25794884054506334,
+       0.284962945254602
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.2577097776715276,
+      "n": 4183,
+      "se": 0.0067633257265780344,
+      "ci95": [
+       0.24456131962706193,
+       0.271097298589529
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 1.8849344471586553,
+      "n": 4183,
+      "se": 0.01585294264634917,
+      "ci95": [
+       1.8536421474524951,
+       1.916833164662681
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.25,
+      "majority_value": 0.3222567535261774,
+      "majority_prediction_share": 0.2773129333014583,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.2773129333014583
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "openlifescienceai/medmcqa",
+    "rewizja": "91c6572c454088bf71b679ad90aa8dffcd0d5868",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "e787dea1ff5b6836d4f51cbcb6e9bbead7992c06",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-SlayerLab_Slayer1B-1.06-ef81be58-20261103T000905Z",
+    "results_sha256": "c6ee5c9ce3b181b2e4e2b00519cfd2a4b0ae2632a19783093092706cd7bf8b79"
+   }
+  ],
+  "qualification_sha256": "883bdd4d21f871db9f51892ac27dd694ff9f14ab4c332a61a9dcb535ef587628",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "fdcc6350d6f8b88258a2a755fc71a707954495ebcffaab1975d7529590c668b8"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_4090",
+ "sprzet": "NVIDIA GeForce RTX 4090"
+}

@@ -116,12 +116,21 @@ Testy działają bez sieci i bez wag. Każdy kończy się kodem 0:
 .venv-eval/bin/python tests/test_lm_eval_slayer.py
 .venv-eval/bin/python tests/test_testy_danych_slayer.py
 .venv-eval/bin/python tests/test_ewok_pl.py
+.venv-eval/bin/python tests/test_ewok.py
+.venv-eval/bin/python tests/test_ewok_zgodnosc.py
 .venv-eval/bin/python tests/test_blimp.py
 .venv-eval/bin/python tests/test_blimp_checkpoints.py
 .venv-eval/bin/python tests/test_blimp_checkpoints_independent.py
+.venv-eval/bin/python tests/test_blimp_zgodnosc.py
 .venv-eval/bin/python tests/test_wikitext_mianownik.py
+.venv-eval/bin/python -m pytest tests/test_wsc273.py
+.venv-eval/bin/python -m pytest tests/test_piqa.py
 .venv-eval/bin/python tests/test_liczby_raportow.py
 ```
+
+Testy BLiMP to `tests/test_blimp*.py` oraz `tests/test_lm_eval_slayer.py`. Testy BLiMP podmieniają model, więc błąd w
+`common/slayer_model.py` łapie dopiero `test_lm_eval_slayer.py`: `test_forward_matches_official_reference` łapie
+forward (wariant RoPE, skala logitów), a testy `loglikelihood` łapią dodatkowy token w `encode`.
 
 Przed PR nie uruchamiasz wszystkich testów. Listę komend ma README repo, sekcja [„Przed PR”](../README.md#przed-pr).
 To testy zmienionego benchmarku, `tests/test_liczby_raportow.py` i bramka liczb.
@@ -175,5 +184,6 @@ Slayer 1.06 to checkpoint w trakcie treningu (ok. jednej ósmej, bez wygaszania 
 - Litery A/B/C/D a losowość. Dlaczego Slayer 1.06 wypada losowo w testach z literami i co widać po treści odpowiedzi: [`analyses/answer-format/`](analyses/answer-format/README.md).
 - BLiMP, pełny zbiór, Slayer 1.06 i Pythia-1B: [`benchmarks/blimp/`](benchmarks/blimp/README.md).
 - WikiText-2. Po poprawce mianownika byte_ppl z tego repo jest zgodny ze Space: [`benchmarks/wikitext-2/`](benchmarks/wikitext-2/README.md).
-- EWoK po polsku i angielsku, Slayer 1.00–1.06, Bielik 1.5B i LFM3 1.7B: [`benchmarks/ewok-pl/`](benchmarks/ewok-pl/README.md).
+- EWoK po polsku i angielsku, Slayer 1.00–1.06, Bielik 1.5B, LFM3 1.7B i Aster-0.5B(fp32): [`benchmarks/ewok-pl/`](benchmarks/ewok-pl/README.md).
+- EWoK, oryginał angielski metodą autorów: gpt2-xl odtworzony kodem autorów, Slayer 1.06 i pięć modeli odniesienia: [`benchmarks/ewok/`](benchmarks/ewok/README.md).
 - Wygaszanie LR obniża loss o 0,047 nat bez zmiany trafności: [`slayer-1b/wygaszanie/README.md`](slayer-1b/wygaszanie/README.md).

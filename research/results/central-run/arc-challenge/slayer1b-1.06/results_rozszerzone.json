@@ -1,0 +1,291 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-SlayerLab_Slayer1B-1.06-ef81be58-20261103T000329Z",
+ "models": [
+  {
+   "model_id": "SlayerLab/Slayer1B-1.06",
+   "repo": "SlayerLab/Slayer1B-1.06",
+   "revision": "ef81be58742544ad32e1afab38db011fec209609",
+   "weights_sha256": "e10df6d50101d8424ff7338c97373ab9e151e359a6fcb23108023ac4a6400214"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T02",
+   "task": "arc_challenge",
+   "family": "science_qa",
+   "language": "EN",
+   "split": "test"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T02",
+   "model_id": "SlayerLab/Slayer1B-1.06",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc_norm,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 1172,
+   "n_selected": 1172,
+   "n_scored": 1172,
+   "state": "ok",
+   "value": 0.257679180887372,
+   "ci95": {
+    "lower": 0.23293515358361774,
+    "upper": 0.2832764505119454,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "e27b72037814d2c6c1e5e9eba2706103cd4b35834bb3fac12b9254c5890da01a",
+   "results_sha256": "9b2a16d7f2a983f3ab7ac1755d34be3c91e0a7bcdcc44234a37586dd76d85ef6",
+   "runner_sha256": "9ab4214efb82a3965ad6d68bdfa9fd313e957706c813859f53ad2fce36b9d6d4",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.2501564277588168,
+    "majority_value": 0.26535836177474403,
+    "majority_prediction_share": 0.30716723549488056,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.23208191126279865,
+      "n": 1172,
+      "se": 0.012336718284948816,
+      "ci95": [
+       0.20819112627986347,
+       0.2568259385665529
+      ]
+     },
+     "acc_norm": {
+      "value": 0.257679180887372,
+      "n": 1172,
+      "se": 0.012780770562768334,
+      "ci95": [
+       0.23293515358361774,
+       0.2832764505119454
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.2977815699658703,
+      "n": 1172,
+      "se": 0.013363080107244426,
+      "ci95": [
+       0.2721843003412969,
+       0.3242320819112628
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 1.4620996551180145,
+      "n": 1172,
+      "se": 0.02367571125555997,
+      "ci95": [
+       1.4157901203549725,
+       1.5095037975050063
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.2501564277588168,
+      "majority_value": 0.26535836177474403,
+      "majority_prediction_share": 0.30716723549488056,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.30716723549488056,
+     "rozklad_wyborow": {
+      "n": 1172,
+      "poprawne_pozycje": {
+       "A": 266,
+       "B": 311,
+       "C": 310,
+       "D": 285
+      },
+      "poprawna_najkrotsza": 0.19197952218430034,
+      "poprawna_najdluzsza": 0.2721843003412969,
+      "reguly": {
+       "acc": {
+        "trafnosc": 0.23208191126279865,
+        "pozycje": {
+         "A": 419,
+         "B": 330,
+         "C": 219,
+         "D": 201,
+         "E": 3
+        },
+        "najkrotsza": 0.4197952218430034,
+        "najdluzsza": 0.14419795221843004
+       },
+       "acc_norm": {
+        "trafnosc": 0.257679180887372,
+        "pozycje": {
+         "A": 239,
+         "B": 278,
+         "C": 294,
+         "D": 360,
+         "E": 1
+        },
+        "najkrotsza": 0.09812286689419795,
+        "najdluzsza": 0.45819112627986347
+       },
+       "bpb": {
+        "trafnosc": 0.2568259385665529,
+        "pozycje": {
+         "A": 244,
+         "B": 278,
+         "C": 296,
+         "D": 353,
+         "E": 1
+        },
+        "najkrotsza": 0.1083617747440273,
+        "najdluzsza": 0.44368600682593856
+       },
+       "pmi": {
+        "trafnosc": 0.2977815699658703,
+        "pozycje": {
+         "A": 247,
+         "B": 299,
+         "C": 324,
+         "D": 301,
+         "E": 1
+        },
+        "najkrotsza": 0.19965870307167236,
+        "najdluzsza": 0.3046075085324232
+       }
+      }
+     }
+    },
+    "mc": {
+     "acc": {
+      "value": 0.23037542662116042,
+      "n": 1172,
+      "se": 0.01230492841874762,
+      "ci95": [
+       0.20563139931740615,
+       0.25426621160409557
+      ]
+     },
+     "acc_norm": {
+      "value": 0.23037542662116042,
+      "n": 1172,
+      "se": 0.01230492841874762,
+      "ci95": [
+       0.20563139931740615,
+       0.25426621160409557
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.24232081911262798,
+      "n": 1172,
+      "se": 0.012521593295800071,
+      "ci95": [
+       0.2175767918088737,
+       0.26706484641638223
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 2.312687994654278,
+      "n": 1172,
+      "se": 0.02720972248074903,
+      "ci95": [
+       2.2584972509710983,
+       2.3672001503142903
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.2501564277588168,
+      "majority_value": 0.26535836177474403,
+      "majority_prediction_share": 0.9197952218430034,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.9197952218430034,
+     "rozklad_wyborow": {
+      "n": 1172,
+      "poprawne_pozycje": {
+       "A": 266,
+       "B": 311,
+       "C": 310,
+       "D": 285
+      },
+      "poprawna_najkrotsza": 0.22696245733788395,
+      "poprawna_najdluzsza": 0.22696245733788395,
+      "reguly": {
+       "acc": {
+        "trafnosc": 0.23037542662116042,
+        "pozycje": {
+         "A": 1078,
+         "B": 55,
+         "C": 28,
+         "D": 11
+        },
+        "najkrotsza": 0.9197952218430034,
+        "najdluzsza": 0.9197952218430034
+       },
+       "acc_norm": {
+        "trafnosc": 0.23037542662116042,
+        "pozycje": {
+         "A": 1078,
+         "B": 55,
+         "C": 28,
+         "D": 11
+        },
+        "najkrotsza": 0.9197952218430034,
+        "najdluzsza": 0.9197952218430034
+       },
+       "bpb": {
+        "trafnosc": 0.23037542662116042,
+        "pozycje": {
+         "A": 1078,
+         "B": 55,
+         "C": 28,
+         "D": 11
+        },
+        "najkrotsza": 0.9197952218430034,
+        "najdluzsza": 0.9197952218430034
+       },
+       "pmi": {
+        "trafnosc": 0.24232081911262798,
+        "pozycje": {
+         "A": 609,
+         "B": 59,
+         "C": 499,
+         "D": 5
+        },
+        "najkrotsza": 0.5196245733788396,
+        "najdluzsza": 0.5196245733788396
+       }
+      }
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "allenai/ai2_arc",
+    "rewizja": "210d026faf9955653af8916fad021475a3f00453",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "e787dea1ff5b6836d4f51cbcb6e9bbead7992c06",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-SlayerLab_Slayer1B-1.06-ef81be58-20261103T000329Z",
+    "results_sha256": "9b2a16d7f2a983f3ab7ac1755d34be3c91e0a7bcdcc44234a37586dd76d85ef6"
+   }
+  ],
+  "qualification_sha256": "883bdd4d21f871db9f51892ac27dd694ff9f14ab4c332a61a9dcb535ef587628",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "56a5898020d220ae1cf3a03ed2c015cec4494338b5008180f754bfd04a7f6b85"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_4090",
+ "sprzet": "NVIDIA GeForce RTX 4090"
+}

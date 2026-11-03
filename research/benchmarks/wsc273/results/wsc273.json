@@ -1,0 +1,119 @@
+{
+ "kontrola": {
+  "value": 0.6227106227106227,
+  "n": 273,
+  "se": 0.029389755560222004,
+  "ci95": [
+   0.5641025641025641,
+   0.6813186813186813
+  ],
+  "opublikowana": 0.6666666666666666,
+  "se_opublikowane": 0.028583097523751506,
+  "porownanie": {
+   "roznica": -0.04395604395604391,
+   "se": 0.028583097523751506,
+   "z": -1.5378334667723836,
+   "werdykt": "szum"
+  }
+ },
+ "slayer_panel200": {
+  "value": 0.605,
+  "n": 200,
+  "se": 0.034653706828922715,
+  "ci95": [
+   0.535,
+   0.675
+  ],
+  "bazy": {
+   "chance_value": 0.5,
+   "majority_value": 0.52,
+   "majority_prediction_share": 0.555,
+   "constant_prediction": false
+  },
+  "baza_wiekszosciowa_split": 0.5018315018315018,
+  "wobec_losowej": {
+   "roznica": 0.10499999999999998,
+   "se": 0.034653706828922715,
+   "z": 3.0299788856170724,
+   "werdykt": "pewne"
+  },
+  "wobec_wiekszosciowej": {
+   "roznica": 0.08499999999999996,
+   "se": 0.0469028183786358,
+   "z": 1.8122578330754937,
+   "werdykt": "szum"
+  }
+ },
+ "slayer_pelny": {
+  "value": 0.5897435897435898,
+  "n": 273,
+  "se": 0.029824615283989726,
+  "ci95": [
+   0.5274725274725275,
+   0.6483516483516484
+  ],
+  "bazy": {
+   "chance_value": 0.5,
+   "majority_value": 0.5018315018315018,
+   "majority_prediction_share": 0.5347985347985348,
+   "constant_prediction": false
+  },
+  "baza_wiekszosciowa_split": 0.5018315018315018,
+  "wobec_losowej": {
+   "roznica": 0.08974358974358976,
+   "se": 0.029824615283989726,
+   "z": 3.0090443376738336,
+   "werdykt": "pewne"
+  },
+  "wobec_wiekszosciowej": {
+   "roznica": 0.08791208791208793,
+   "se": 0.044019965373240516,
+   "z": 1.9970957988424314,
+   "werdykt": "szum"
+  }
+ },
+ "zgodnosc_panel_pelny": {
+  "max_roznica_loglik": 0.0,
+  "rozne_acc": 0
+ },
+ "warianty_tozsamosci": {
+  "indeks_wiersza": {
+   "value": 0.565,
+   "n": 200,
+   "se": 0.03514328173714403
+  },
+  "przed_process_docs": {
+   "value": 0.57,
+   "n": 200,
+   "se": 0.03509498954918332
+  },
+  "po_process_docs": {
+   "value": 0.605,
+   "n": 200,
+   "se": 0.034653706828922715
+  },
+  "przed_process_docs_bez_sort_keys": {
+   "value": 0.61,
+   "n": 200,
+   "se": 0.03457567623250011
+  },
+  "po_process_docs_bez_sort_keys": {
+   "value": 0.57,
+   "n": 200,
+   "se": 0.03509498954918332
+  },
+  "pola_tresci": {
+   "value": 0.575,
+   "n": 200,
+   "se": 0.03504304603451139
+  }
+ },
+ "rozstep_wariantow": 0.04500000000000004,
+ "podzbiory_pol": {
+  "n": 63,
+  "min": 0.55,
+  "mediana": 0.59,
+  "max": 0.63
+ },
+ "sd_podproby_200": 0.01801860988106096
+}

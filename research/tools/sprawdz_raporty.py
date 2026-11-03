@@ -8,7 +8,9 @@ Kod wyjścia 1, gdy:
  (b) zdanie z oceną różnicy (lepszy, gorszy, luka, przewaga, poprawa, pogorszenie, istotny, prawdziwy)
      w akapicie z liczbami nie ma SE, z ani werdyktu (szum / prawdopodobne / pewne / w granicach);
  (c) słowo werdyktu („pewne”, „prawdopodobna”) stoi przy teście, którego żadne porównanie z tej
-     rodziny nie ma w LICZBY.json tak mocnego werdyktu.
+     rodziny nie ma w LICZBY.json tak mocnego werdyktu;
+ (h) werdykt obok z nie zgadza się z |z| (progi z liczby.werdykt, nie powtórzone tutaj):
+     „z 1,23 → szum, w tekście: pewne”.
  (d)-(f) bramki raportów z metadanymi w LICZBY.json "raporty" (bramki_raportu): werdykt na zbiorze
      wieloparadygmatowym bez SE klastrowanego / Holma, werdykt grupy < 3 członków, różne tokenizery bez
      wyniku na token.
@@ -22,6 +24,8 @@ import json
 import re
 import sys
 from pathlib import Path
+
+import liczby
 
 KORZEN = Path(__file__).resolve().parent.parent
 SILA = {"nierozstrzygalne": 0, "szum": 0, "prawdopodobne": 1, "pewne": 2}
@@ -143,8 +147,10 @@ def zbiory(liczby):
         skalowane = [x * b.get("skala", 1) for x in v]
         # "with_global": the benchmark's own values plus all global ones (its numbers live in both places)
         g = listy if b.get("with_global") else {"surowa": [], "skalowana": [], "z": []}
+        zety_wlasne = [x for sciezka, x in b["wartosci"].items() if sciezka.endswith("/z")]
         wynik[KLUCZ_BENCHMARKU + nazwa] = {"surowa": Zbior(v + skalowane + g["surowa"]),
-                                         "skalowana": Zbior([x * 100 for x in v] + g["skalowana"]), "z": Zbior(g["z"])}
+                                         "skalowana": Zbior([x * 100 for x in v] + g["skalowana"]),
+                                         "z": Zbior(zety_wlasne + g["z"])}
     return wynik
 
 
@@ -168,8 +174,8 @@ def benchmarki_w_tekscie(tekst, liczby):
 
 
 def werdykt_z(z):
-    a = abs(z)
-    return "pewne" if a >= 3 else "prawdopodobne" if a >= 2 else "szum"
+    """Werdykt z |z|. Progi są w liczby.py i tylko tam."""
+    return liczby.werdykt(z)
 
 
 def ocena_bez_dowodu(zdanie, kontekst=""):
@@ -183,6 +189,118 @@ def zadeklarowany_werdykt(tekst):
         if wz.search(tekst):
             return nazwa
     return None
+
+
+# Para „z + werdykt” w jednej linii. Progi zostają w liczby.werdykt.
+# Tylko formy przymiotnika. „pewność” i „prawdopodobnie” to nie werdykt.
+_SLOWO_Z = (
+    r"pewne|pewna|pewny|prawdopodobne|prawdopodobna|prawdopodobny"
+    r"|certain|probable|likely|noise|szum"
+)
+_NAZWA_SLOWA_Z = (
+    ("pewne", re.compile(r"pewne|pewna|pewny|certain", re.IGNORECASE)),
+    ("prawdopodobne", re.compile(
+        r"prawdopodobne|prawdopodobna|prawdopodobny|probable|likely", re.IGNORECASE)),
+    ("szum", re.compile(r"szum|noise", re.IGNORECASE)),
+)
+_Z_EQ = re.compile(rf"(?<![\w])z\s*=\s*([−-]?)(\d+)(?:([.,])(\d+))?", re.IGNORECASE)
+_Z_BEZ_ROWNA = re.compile(
+    rf"(?<![\w])z\s+([−-]?)(\d+)([.,])(\d+)\s*,\s*({_SLOWO_Z})\b", re.IGNORECASE)
+_Z_PRZYKLEJONY = re.compile(rf"\s*(?:,|\||:|\()\s*[\"„«']?({_SLOWO_Z})\b", re.IGNORECASE)
+_Z_SLASH = re.compile(rf"\b({_SLOWO_Z})\b\s*/\s*\b({_SLOWO_Z})\b", re.IGNORECASE)
+_Z_JAKIEKOLWIEK = re.compile(rf"\b(?:{_SLOWO_Z})\b", re.IGNORECASE)
+_T_EQ = re.compile(r"(?<![\w])t\s*=", re.IGNORECASE)
+
+
+def _nazwa_werdyktu(slowo):
+    for nazwa, wz in _NAZWA_SLOWA_Z:
+        if wz.fullmatch(slowo):
+            return nazwa
+    raise ValueError(slowo)
+
+
+def _wartosc_z(znak, calosc, ulamek):
+    x = float(f"{calosc}.{ulamek}") if ulamek is not None else float(calosc)
+    return -x if znak else x
+
+
+def _zapis_z(znak, calosc, sep, ulamek):
+    return f"{znak or ''}{calosc}{sep or ''}{ulamek or ''}"
+
+
+def z_verdict_pairs(linia):
+    """Pary (zapis, wartość, werdykt kanoniczny, słowo z tekstu) w jednej linii.
+
+    Werdykt przyklejony zaraz po liczbie (`z = 3,57, pewne`, `z = 1.23 (noise)`),
+    kształt bez równości (`z 1,23, szum`), słowo przed nawiasem
+    (`prawdopodobna w elipsie (z = -2,68)`) albo pierwsze słowo układu
+    `werdykt / werdykt` stojącego za `t =`. Słowo musi być formą przymiotnika
+    (pewne/pewna/pewny, prawdopodobne/prawdopodobna/prawdopodobny, certain,
+    probable, likely, noise, szum). „pewność”, „prawdopodobnie” i werdykt
+    oddalony od liczby (`z = 2,5, ale to szum`) nie tworzą pary. Samo z, iloraz,
+    SNR i werdykt przy t też nie.
+    """
+    linia = bez_kodu(linia)
+    spany = [(m.start(), m.end(), m, "eq") for m in _Z_EQ.finditer(linia)]
+    for m in _Z_BEZ_ROWNA.finditer(linia):
+        if any(s <= m.start() < e for s, e, _, _ in spany):
+            continue
+        spany.append((m.start(), m.end(), m, "bez"))
+    spany.sort()
+    pary = []
+    for i, (start, koniec, m, rodzaj) in enumerate(spany):
+        nastepny = spany[i + 1][0] if i + 1 < len(spany) else len(linia)
+        if rodzaj == "bez":
+            slowo = m.group(5)
+            pary.append((_zapis_z(m.group(1), m.group(2), m.group(3), m.group(4)),
+                         _wartosc_z(m.group(1), m.group(2), m.group(4)),
+                         _nazwa_werdyktu(slowo), slowo))
+            continue
+        zapis = _zapis_z(m.group(1), m.group(2), m.group(3), m.group(4))
+        wartosc = _wartosc_z(m.group(1), m.group(2), m.group(4))
+        przy = _Z_PRZYKLEJONY.match(linia, koniec)
+        if przy and przy.start() < nastepny:
+            pary.append((zapis, wartosc, _nazwa_werdyktu(przy.group(1)), przy.group(1)))
+            continue
+        okno = linia[koniec:nastepny]
+        t = _T_EQ.search(okno)
+        slowo_po = _Z_JAKIEKOLWIEK.search(okno)
+        if t and (slowo_po is None or t.start() < slowo_po.start()):
+            slash = _Z_SLASH.search(okno, t.end())
+            if slash:
+                pary.append((zapis, wartosc, _nazwa_werdyktu(slash.group(1)), slash.group(1)))
+            continue
+        wczesniej = spany[i - 1][1] if i else 0
+        region = linia[wczesniej:start]
+        ciecie = max(region.rfind(". "), region.rfind("; "))
+        od = wczesniej + ciecie + 2 if ciecie >= 0 else wczesniej
+        znalezione = ([*_Z_JAKIEKOLWIEK.finditer(linia, od, start)] or [None])[-1]
+        if znalezione and "(" in linia[znalezione.end():start]:
+            slowo = znalezione.group(0)
+            pary.append((zapis, wartosc, _nazwa_werdyktu(slowo), slowo))
+    return pary
+
+
+def z_verdict_problems(linia):
+    """Komunikaty (h), gdy słowo przy z nie jest werdyktem z liczby.werdykt."""
+    problemy = []
+    for zapis, wartosc, deklaracja, slowo in z_verdict_pairs(linia):
+        oczekiwany = liczby.werdykt(wartosc)
+        if deklaracja != oczekiwany:
+            problemy.append(f"(h) z {zapis} → {oczekiwany}, w tekście: {slowo}")
+    return problemy
+
+
+def count_z_verdict_pairs(linie):
+    """Ile par z+werdykt widać w tekście. Blok ``` pomijamy, jak przy innych regułach."""
+    n, w_kodzie = 0, False
+    for linia in linie:
+        if linia.strip().startswith("```"):
+            w_kodzie = not w_kodzie
+            continue
+        if not w_kodzie:
+            n += len(z_verdict_pairs(linia))
+    return n
 
 
 def rodzaj_liczby(linia, start, koniec, kropka=False):
@@ -334,14 +452,18 @@ def sprawdz_tekst(plik, linie, liczby, zb):
         if l.strip().startswith("```"):
             w_kodzie = not w_kodzie
             continue
-        if w_kodzie or WYJATEK_A in l or wylaczone(plik, sekcje[nr], "a"):
+        if w_kodzie:
             continue
-        bench = benchmarki_w_tekscie(bez_kodu(l), liczby) | ({bench_pliku} if bench_pliku else set())
-        kropka, test_domyslny = file_number_format(plik)
-        for tekst, rodzaj in niepasujace_liczby(l, zb, liczby["aliasy"], sorted(bench), kropka=kropka,
-                                                test_domyslny=test_domyslny):
-            opis = {"z": "jako z (×SE)", "skalowana": "jako pkt/% (×100)", "surowa": "jako wartość"}[rodzaj]
-            bledy.append((plik, nr, f"(a) {tekst} nie odpowiada żadnej liczbie z LICZBY.json {opis}"))
+        # Wyjątek i wyłączenia dotyczą liczb spoza LICZBY.json. Werdykt wobec |z| w tej linii zostaje.
+        if WYJATEK_A not in l and not wylaczone(plik, sekcje[nr], "a"):
+            bench = benchmarki_w_tekscie(bez_kodu(l), liczby) | ({bench_pliku} if bench_pliku else set())
+            kropka, test_domyslny = file_number_format(plik)
+            for tekst, rodzaj in niepasujace_liczby(l, zb, liczby["aliasy"], sorted(bench), kropka=kropka,
+                                                    test_domyslny=test_domyslny):
+                opis = {"z": "jako z (×SE)", "skalowana": "jako pkt/% (×100)", "surowa": "jako wartość"}[rodzaj]
+                bledy.append((plik, nr, f"(a) {tekst} nie odpowiada żadnej liczbie z LICZBY.json {opis}"))
+        for problem in z_verdict_problems(l):
+            bledy.append((plik, nr, problem))
     for akapit in jednostki(linie):
         nr0 = akapit[0][0]
         tekst_akapitu = " ".join(bez_kodu(l) for _, l in akapit)
@@ -483,11 +605,12 @@ def main(argv=None):
     liczby = json.loads(sciezka_liczb.read_text())
     zb = zbiory(liczby)
     cele = list(pliki_md(KORZEN)) + [(a, Path(a)) for a in argv]
-    bledy = []
+    bledy, pary = [], 0
     for nazwa, p in cele:
         tekst = p.read_text(encoding="utf-8")
         linie = linie_html(tekst) if p.suffix.lower() in (".html", ".htm") else tekst.splitlines()
         bledy += sprawdz_tekst(nazwa, linie, liczby, zb)
+        pary += count_z_verdict_pairs(linie)
     for meta in liczby.get("raporty", []):
         p = KORZEN / meta["plik"]
         if not p.exists():
@@ -497,7 +620,7 @@ def main(argv=None):
         bledy += bramka_generatora(meta, liczby)
     for plik, nr, powod in bledy:
         print(f"{plik}:{nr}: {powod}")
-    print(f"{len(cele)} plików, {len(bledy)} problemów")
+    print(f"{len(cele)} plików, {len(bledy)} problemów, {pary} par z+werdykt")
     return 1 if bledy else 0
 
 

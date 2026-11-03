@@ -1,0 +1,128 @@
+{
+ "protocol": "benchmarks/blimp/LM_EVAL_PROTOCOL.md",
+ "n_docs": 67000,
+ "partial": false,
+ "inputs_sha256": {
+  "pythia-1b-v0/blimp.jsonl.gz": "cfe5a1eb51aebc2c266c98ed254ead8fcde83f8dbcfd001d9b3bd37da0f6a97b",
+  "lm-eval/pythia-1b-v0.jsonl.gz": "e9ee1242fc0d4dd0e500ccd5cdf33c5b7c06db02b5cb3e3c86039b83ab679a0a",
+  "lm-eval/slayer-1.06.jsonl.gz": "d86057c5ff62682d504388805de58fbe7082332537be9df1a1b876d3cf7dd045",
+  "gpu-check/slayer-1.06.jsonl.gz": "34b55fdb12a00afd502db8b90046f7e4de052b57c995fc0803c7e9507fbf66db",
+  "benchmarks/blimp/results/1.06/blimp.jsonl.gz": "6ea83bfd01acbb19465ef294a6e857c773fb1c410c97fc8303af9e5241d5beaf"
+ },
+ "a": {
+  "lm_eval": {
+   "published": 0.8234328358208955,
+   "acc": 0.8243880597014925,
+   "se": 0.0013169955131169108,
+   "diff": 0.0009552238805969893,
+   "threshold": 0.02,
+   "pass": true
+  },
+  "ours_info": {
+   "published": 0.8234328358208955,
+   "acc": 0.8243582089552238,
+   "se": 0.0013171067497000592,
+   "diff": 0.0009253731343282778,
+   "threshold": 0.02,
+   "pass": true
+  }
+ },
+ "b": {
+  "n": 67000,
+  "agree": 66998,
+  "share": 0.9999701492537313,
+  "acc_ours": 0.8243582089552238,
+  "se_ours": 0.0013171067497000592,
+  "acc_lm_eval": 0.8243880597014925,
+  "se_lm_eval": 0.0013169955131169108,
+  "diff": -2.9850746268711426e-05,
+  "max_abs_dll": 0.00048828125,
+  "mean_abs_dll": 3.6406502794863575e-05,
+  "disagreements": [
+   {
+    "id": "blimp_npi_present_1/445",
+    "ours": 0,
+    "lm_eval": 1,
+    "ll_ours": [
+     -83.18815612792969,
+     -83.1880874633789
+    ],
+    "ll_lm_eval": [
+     -83.18812561035156,
+     -83.18812561035156
+    ],
+    "margin_ours": -6.866455078125e-05,
+    "margin_lm_eval": 0.0,
+    "identical_sentences": false
+   },
+   {
+    "id": "blimp_wh_vs_that_no_gap/990",
+    "ours": 0,
+    "lm_eval": 1,
+    "ll_ours": [
+     -89.87120056152344,
+     -89.87117004394531
+    ],
+    "ll_lm_eval": [
+     -89.87108612060547,
+     -89.87112426757812
+    ],
+    "margin_ours": -3.0517578125e-05,
+    "margin_lm_eval": 3.814697265625e-05,
+    "identical_sentences": false
+   }
+  ],
+  "share_ok": true,
+  "within_1_se": true,
+  "pass": true
+ },
+ "c": {
+  "n": 67000,
+  "agree": 67000,
+  "share": 1.0,
+  "acc_ours": 0.7920597014925372,
+  "se_ours": 0.0014411821339948277,
+  "acc_lm_eval": 0.7920597014925372,
+  "se_lm_eval": 0.0014411821339948277,
+  "diff": 0.0,
+  "max_abs_dll": 0.0001373291015625,
+  "mean_abs_dll": 1.7098085204167152e-05,
+  "disagreements": [],
+  "share_ok": true,
+  "within_1_se": true,
+  "pass": true
+ },
+ "d": {
+  "gpu_ours_vs_lm_eval": {
+   "n": 67000,
+   "agree": 67000,
+   "share": 1.0,
+   "acc_ours": 0.7920597014925372,
+   "se_ours": 0.0014411821339948277,
+   "acc_lm_eval": 0.7920597014925372,
+   "se_lm_eval": 0.0014411821339948277,
+   "diff": 0.0,
+   "max_abs_dll": 0.0001373291015625,
+   "mean_abs_dll": 1.5108578240693505e-05,
+   "disagreements": []
+  },
+  "gpu_ours_vs_repo_mps": {
+   "n": 67000,
+   "agree": 67000,
+   "share": 1.0,
+   "acc_ours": 0.7920597014925372,
+   "se_ours": 0.0014411821339948277,
+   "acc_lm_eval": 0.7920597014925372,
+   "se_lm_eval": 0.0014411821339948277,
+   "diff": 0.0,
+   "max_abs_dll": 0.000152587890625,
+   "mean_abs_dll": 1.8570287903743004e-05,
+   "disagreements": []
+  }
+ },
+ "sense": {
+  "pythia_v0_lm_eval": true,
+  "pythia_v0_ours": true,
+  "slayer_lm_eval": true
+ }
+}

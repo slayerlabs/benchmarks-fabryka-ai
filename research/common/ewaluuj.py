@@ -45,7 +45,8 @@ def zbuduj_model(a):
     else:
         from lm_eval.models.huggingface import HFLM
         lm = HFLM(pretrained=weights_path, revision=None if a.model_path else a.revision,
-                  dtype="float32", batch_size=a.batch, device=a.device, trust_remote_code=a.trust_remote_code)
+                  dtype="float32", batch_size=a.batch, device=a.device, trust_remote_code=a.trust_remote_code,
+                  max_length=a.max_length)
     return lm, a.repo or Path(a.model_path).resolve().name, a.revision
 
 
@@ -104,11 +105,23 @@ def zbuduj_zadania(cfgs):
     return wynik
 
 
+def z_pmi(cfg):
+    """Whether lm-eval logged unconditional logliks (second half of filtered_resps) for this config.
+
+    GOTCHA: BLiMP scores `acc` only; reading its two choices as one choice + PMI gave acc 1.000.
+    """
+    return any(m["metric"] == "acc_mutual_info" for m in cfg.get("metric_list", []))
+
+
 def wybor_probki(zad, meta, tryb):
     """(indeksy albo None = całość, n_population, source_ids wybranych)."""
     docs = list(zad.eval_docs)
     pole = meta.get("pole_id")
     ids = [d.get(pole, i) if pole else i for i, d in enumerate(docs)]
+    if meta.get("probkowanie") is False and tryb.isdigit():
+        # unsampled task (WikiText-2) cut to its first documents: a load test, not a panel
+        idx = list(range(min(int(tryb), len(docs))))
+        return idx, len(docs), [ids[i] for i in idx]
     if tryb == "pelna" or meta.get("probkowanie") is False:
         return None, len(docs), ids
     n = 200 if tryb == "panel200" else int(tryb)
@@ -145,6 +158,8 @@ def main():
     p.add_argument("--device", default="cpu")
     p.add_argument("--batch", default="1")
     p.add_argument("--trust_remote_code", action="store_true")
+    p.add_argument("--max_length", type=int, help="token window of the model (rolling perplexity: window size); "
+                   "default from the model config, which for 128k-262k context models does not fit a 24 GB GPU in float32")
     p.add_argument("--model_path", help="lokalny katalog wag zamiast pobierania z HF; przy --model slayer wymagany")
     p.add_argument("--etykieta", help="kolumna model w scores-history.csv, np. 1.06")
     p.add_argument("--step", type=int)
@@ -205,7 +220,7 @@ def main():
                 glowna = pp["byte_perplexity"] if wariant == "space" else glowna
                 continue
             klucz = meta.get("klucz", "acc")
-            mc = M.podsumuj_mc(probki, meta.get("klasy_stale", False), klucz=klucz)
+            mc = M.podsumuj_mc(probki, meta.get("klasy_stale", False), z_pmi=z_pmi(cfg), klucz=klucz)
             dodatkowe[wariant] = mc
             if wariant == "space":
                 glowna, bazy = mc[klucz], mc["bazy"]
@@ -249,7 +264,7 @@ def main():
     (wyj / "results_rozszerzone.json").write_text(
         json.dumps({**wyniki, "observations": rozszerzone, "ewaluator": "niezależny (slayer_eval)",
                     "lm_eval": __import__("lm_eval").__version__, "dane": a.dane, "probka": a.probka,
-                    "eval_gpu": a.eval_gpu, "sprzet": sprzet},
+                    "eval_gpu": a.eval_gpu, "sprzet": sprzet, "max_length": getattr(lm, "max_length", None)},
                    ensure_ascii=False, indent=1))
     (wyj / "podsumowanie.md").write_text(M.tabela_md(rozszerzone))
     tokens = a.tokens if a.tokens is not None else (a.step * 2 ** 20 if a.step is not None else None)

@@ -1,0 +1,2 @@
+model,step,tokens,checkpoint_sha256,arc_easy,blimp,wikitext2_token_ppl,wikitext2_byte_ppl,eff,multiblimp_pl,arc_easy_pl,eval_gpu
+lfm2.5-1.2b-base,,,7678ab9546a0c51c1fca161876b1efc4f0906277f170b5822045f40fdaf9eeff,,,,,,,,Apple_M5_Pro_mps

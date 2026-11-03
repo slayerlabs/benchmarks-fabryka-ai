@@ -1,0 +1,70 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-LiquidAI_LFM2.5-1.2B-Base-7453bca9-20261103T030952Z",
+ "models": [
+  {
+   "model_id": "LiquidAI/LFM2.5-1.2B-Base",
+   "repo": "LiquidAI/LFM2.5-1.2B-Base",
+   "revision": "7453bca97ca1e67754c4035a4b4c584e1c9dd725",
+   "weights_sha256": "7678ab9546a0c51c1fca161876b1efc4f0906277f170b5822045f40fdaf9eeff"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T45",
+   "task": "medmcqa",
+   "family": "biomedical_qa",
+   "language": "EN",
+   "split": "validation"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T45",
+   "model_id": "LiquidAI/LFM2.5-1.2B-Base",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 4183,
+   "n_selected": 4183,
+   "n_scored": 4183,
+   "state": "ok",
+   "value": 0.4059287592636863,
+   "ci95": {
+    "lower": 0.39110686110447046,
+    "upper": 0.42075065742290224,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "2526d854e044f18477dd4464917e26b796e6b6ab6102fe8d6a9711385203cf7a",
+   "results_sha256": "622837fc9e6ce16509c7c212b41a6cfc360e3fff0248ff83fbe88836545b951f",
+   "runner_sha256": "63541137e6b6337e56028be211fd5bd85430e77254f52a508e84554a0b67a84a",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.25,
+    "majority_value": 0.3222567535261774,
+    "majority_prediction_share": 0.29978484341381784,
+    "constant_prediction": false
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "2e0572d159b33473ab4de0bf9ca5703d5478bef1",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-LiquidAI_LFM2.5-1.2B-Base-7453bca9-20261103T030952Z",
+    "results_sha256": "622837fc9e6ce16509c7c212b41a6cfc360e3fff0248ff83fbe88836545b951f"
+   }
+  ],
+  "qualification_sha256": "be968ef2ff2ebccf631241a2c2b1abc056fbaa63086ff0a2fd8f52b613c50078",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "777bce54d1615a4cbf7234033f54ba7afa36f91b2583724a516fd54e1f4b97b5"
+ }
+}

@@ -1,0 +1,70 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-LiquidAI_LFM3-1.7B-Base-545fc8f4-20261103T013404Z",
+ "models": [
+  {
+   "model_id": "LiquidAI/LFM3-1.7B-Base",
+   "repo": "LiquidAI/LFM3-1.7B-Base",
+   "revision": "545fc8f4c7b5fa9f405105274cd29c4f8f44b526",
+   "weights_sha256": "61a3f541d65b03a2180d08964bf0d55e349463a2706032814d455ae046bc8b59"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T46",
+   "task": "social_iqa",
+   "family": "commonsense",
+   "language": "EN",
+   "split": "validation"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T46",
+   "model_id": "LiquidAI/LFM3-1.7B-Base",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 1954,
+   "n_selected": 1954,
+   "n_scored": 1954,
+   "state": "ok",
+   "value": 0.45445240532241554,
+   "ci95": {
+    "lower": 0.43244626407369496,
+    "upper": 0.47697031729785055,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "e92365ff54129c93eb518df4c5544bb39847ea762c2b5c970cef0ad5afeef808",
+   "results_sha256": "5877a2a8941fef2c3abc06b27ce82b7b12313d000d45da108ad92949be2cc294",
+   "runner_sha256": "b620cf0382ebcace8d43ba95aa2f104d0ae056c77104a79e90b506b14edeadc1",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.3333333333333354,
+    "majority_value": null,
+    "majority_prediction_share": null,
+    "constant_prediction": null
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "4c6c98381122eaae05a75ccbabd6c69d43c830dd",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-LiquidAI_LFM3-1.7B-Base-545fc8f4-20261103T013404Z",
+    "results_sha256": "5877a2a8941fef2c3abc06b27ce82b7b12313d000d45da108ad92949be2cc294"
+   }
+  ],
+  "qualification_sha256": "6da45831a5d18389d19b47e13965a8830f7d37dc089757ff39132c3dca403ad1",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "33df0d3885f5c922128ac901a44bb2c5369d2e82420f3f5d9b42c6e96e236434"
+ }
+}

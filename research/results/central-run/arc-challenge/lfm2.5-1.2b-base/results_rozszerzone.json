@@ -1,0 +1,295 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-LiquidAI_LFM2.5-1.2B-Base-7453bca9-20261103T030323Z",
+ "models": [
+  {
+   "model_id": "LiquidAI/LFM2.5-1.2B-Base",
+   "repo": "LiquidAI/LFM2.5-1.2B-Base",
+   "revision": "7453bca97ca1e67754c4035a4b4c584e1c9dd725",
+   "weights_sha256": "7678ab9546a0c51c1fca161876b1efc4f0906277f170b5822045f40fdaf9eeff"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T02",
+   "task": "arc_challenge",
+   "family": "science_qa",
+   "language": "EN",
+   "split": "test"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T02",
+   "model_id": "LiquidAI/LFM2.5-1.2B-Base",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc_norm,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 1172,
+   "n_selected": 1172,
+   "n_scored": 1172,
+   "state": "ok",
+   "value": 0.5093856655290102,
+   "ci95": {
+    "lower": 0.4812286689419795,
+    "upper": 0.537542662116041,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "e27b72037814d2c6c1e5e9eba2706103cd4b35834bb3fac12b9254c5890da01a",
+   "results_sha256": "223f144a6ac173ecf3333581256516e0051458075f6577f82f955c19d113033f",
+   "runner_sha256": "63541137e6b6337e56028be211fd5bd85430e77254f52a508e84554a0b67a84a",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.25015642775881686,
+    "majority_value": 0.26535836177474403,
+    "majority_prediction_share": 0.2713310580204778,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.4786689419795222,
+      "n": 1172,
+      "se": 0.014598087973127125,
+      "ci95": [
+       0.4496587030716723,
+       0.5068259385665529
+      ]
+     },
+     "acc_norm": {
+      "value": 0.5093856655290102,
+      "n": 1172,
+      "se": 0.014608816322065038,
+      "ci95": [
+       0.4812286689419795,
+       0.537542662116041
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.4948805460750853,
+      "n": 1172,
+      "se": 0.014610624890309135,
+      "ci95": [
+       0.4658703071672355,
+       0.523037542662116
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 0.8229272338654011,
+      "n": 1172,
+      "se": 0.015351084952383975,
+      "ci95": [
+       0.7933694864877899,
+       0.8536248827657683
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.25015642775881686,
+      "majority_value": 0.26535836177474403,
+      "majority_prediction_share": 0.2713310580204778,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.2713310580204778,
+     "rozklad_wyborow": {
+      "n": 1172,
+      "poprawne_pozycje": {
+       "A": 266,
+       "B": 311,
+       "C": 310,
+       "D": 285
+      },
+      "poprawna_najkrotsza": 0.19197952218430034,
+      "poprawna_najdluzsza": 0.2721843003412969,
+      "reguly": {
+       "acc": {
+        "trafnosc": 0.4786689419795222,
+        "pozycje": {
+         "A": 374,
+         "B": 318,
+         "C": 263,
+         "D": 215,
+         "E": 2
+        },
+        "najkrotsza": 0.34897610921501704,
+        "najdluzsza": 0.18088737201365188
+       },
+       "acc_norm": {
+        "trafnosc": 0.5093856655290102,
+        "pozycje": {
+         "A": 261,
+         "B": 293,
+         "C": 299,
+         "D": 318,
+         "E": 1
+        },
+        "najkrotsza": 0.16552901023890784,
+        "najdluzsza": 0.3609215017064846
+       },
+       "bpb": {
+        "trafnosc": 0.5059726962457338,
+        "pozycje": {
+         "A": 265,
+         "B": 293,
+         "C": 298,
+         "D": 315,
+         "E": 1
+        },
+        "najkrotsza": 0.17150170648464164,
+        "najdluzsza": 0.35580204778157
+       },
+       "pmi": {
+        "trafnosc": 0.4948805460750853,
+        "pozycje": {
+         "A": 259,
+         "B": 285,
+         "C": 326,
+         "D": 302
+        },
+        "najkrotsza": 0.19368600682593856,
+        "najdluzsza": 0.32337883959044367
+       }
+      }
+     }
+    },
+    "mc": {
+     "acc": {
+      "value": 0.7218430034129693,
+      "n": 1172,
+      "se": 0.0130944699195389,
+      "ci95": [
+       0.6962457337883959,
+       0.7474402730375427
+      ]
+     },
+     "acc_norm": {
+      "value": 0.7218430034129693,
+      "n": 1172,
+      "se": 0.0130944699195389,
+      "ci95": [
+       0.6962457337883959,
+       0.7474402730375427
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.6100682593856656,
+      "n": 1172,
+      "se": 0.014252959848892797,
+      "ci95": [
+       0.5819112627986348,
+       0.6382252559726962
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 0.5287719320883882,
+      "n": 1172,
+      "se": 0.020205873139080812,
+      "ci95": [
+       0.489883311800477,
+       0.5688392750193425
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.25015642775881686,
+      "majority_value": 0.26535836177474403,
+      "majority_prediction_share": 0.29180887372013653,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.29180887372013653,
+     "rozklad_wyborow": {
+      "n": 1172,
+      "poprawne_pozycje": {
+       "A": 266,
+       "B": 311,
+       "C": 310,
+       "D": 285
+      },
+      "poprawna_najkrotsza": 0.22696245733788395,
+      "poprawna_najdluzsza": 0.22696245733788395,
+      "reguly": {
+       "acc": {
+        "trafnosc": 0.7218430034129693,
+        "pozycje": {
+         "A": 267,
+         "B": 302,
+         "C": 342,
+         "D": 260,
+         "E": 1
+        },
+        "najkrotsza": 0.22781569965870307,
+        "najdluzsza": 0.22781569965870307
+       },
+       "acc_norm": {
+        "trafnosc": 0.7218430034129693,
+        "pozycje": {
+         "A": 267,
+         "B": 302,
+         "C": 342,
+         "D": 260,
+         "E": 1
+        },
+        "najkrotsza": 0.22781569965870307,
+        "najdluzsza": 0.22781569965870307
+       },
+       "bpb": {
+        "trafnosc": 0.7218430034129693,
+        "pozycje": {
+         "A": 267,
+         "B": 302,
+         "C": 342,
+         "D": 260,
+         "E": 1
+        },
+        "najkrotsza": 0.22781569965870307,
+        "najdluzsza": 0.22781569965870307
+       },
+       "pmi": {
+        "trafnosc": 0.6100682593856656,
+        "pozycje": {
+         "A": 29,
+         "B": 525,
+         "C": 419,
+         "D": 198,
+         "E": 1
+        },
+        "najkrotsza": 0.024744027303754267,
+        "najdluzsza": 0.024744027303754267
+       }
+      }
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "allenai/ai2_arc",
+    "rewizja": "210d026faf9955653af8916fad021475a3f00453",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "2e0572d159b33473ab4de0bf9ca5703d5478bef1",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-LiquidAI_LFM2.5-1.2B-Base-7453bca9-20261103T030323Z",
+    "results_sha256": "223f144a6ac173ecf3333581256516e0051458075f6577f82f955c19d113033f"
+   }
+  ],
+  "qualification_sha256": "be968ef2ff2ebccf631241a2c2b1abc056fbaa63086ff0a2fd8f52b613c50078",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "8a06c0d58ad3a303528689fdbda5219e738c404dede27f16523e5d756a802557"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.13",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "Apple_M5_Pro_mps",
+ "sprzet": "mps",
+ "max_length": 128000
+}

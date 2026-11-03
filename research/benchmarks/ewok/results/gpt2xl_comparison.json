@@ -1,0 +1,408 @@
+{
+ "dataset": "ewok-core/ewok-core-1.0@34d912a608066c92e2990a0328ffc3bd9a716042",
+ "n": 4374,
+ "model": "openai-community/gpt2-xl",
+ "accuracy": {
+  "authors_data_zip": {
+   "records": {
+    "value": 0.6559213534522177,
+    "n": 4374,
+    "se": 0.004526525293865822
+   },
+   "ties_as_0": {
+    "value": 0.6556927297668038,
+    "n": 4374,
+    "se": 0.004526881096958979
+   },
+   "mean_of_versions": 0.655921512968978,
+   "versions": [
+    0.6595319634703196,
+    0.6528571428571428,
+    0.6580756013745704,
+    0.6634285714285715,
+    0.6457142857142857
+   ],
+   "ties": 4
+  },
+  "authors_bf16": {
+   "records": {
+    "value": 0.6547210791037952,
+    "n": 4374,
+    "se": 0.004524031989734309
+   },
+   "ties_as_0": {
+    "value": 0.6545496113397348,
+    "n": 4374,
+    "se": 0.004527176808119653
+   },
+   "mean_of_versions": 0.6547213195158965,
+   "versions": [
+    0.66324200913242,
+    0.6497142857142857,
+    0.6595074455899198,
+    0.6571428571428571,
+    0.644
+   ],
+   "ties": 3
+  },
+  "authors_fp32": {
+   "records": {
+    "value": 0.6536351165980796,
+    "n": 4374,
+    "se": 0.004542928512576431
+   },
+   "ties_as_0": {
+    "value": 0.6536351165980796,
+    "n": 4374,
+    "se": 0.004542928512576431
+   },
+   "mean_of_versions": 0.6536362562009222,
+   "versions": [
+    0.658675799086758,
+    0.6485714285714286,
+    0.6586483390607102,
+    0.6582857142857143,
+    0.644
+   ],
+   "ties": 0
+  },
+  "ours": {
+   "records": {
+    "value": 0.6536351165980796,
+    "n": 4374,
+    "se": 0.004542928512576431
+   },
+   "ties_as_0": {
+    "value": 0.6536351165980796,
+    "n": 4374,
+    "se": 0.004542928512576431
+   },
+   "mean_of_versions": 0.6536362562009222,
+   "versions": [
+    0.658675799086758,
+    0.6485714285714286,
+    0.6586483390607102,
+    0.6582857142857143,
+    0.644
+   ],
+   "ties": 0
+  },
+  "ours_plain": {
+   "records": {
+    "value": 0.6536351165980796,
+    "n": 4374,
+    "se": 0.004540050561316011
+   },
+   "ties_as_0": {
+    "value": 0.6536351165980796,
+    "n": 4374,
+    "se": 0.004540050561316011
+   },
+   "mean_of_versions": 0.65363599437798,
+   "versions": [
+    0.658675799086758,
+    0.6491428571428571,
+    0.6580756013745704,
+    0.6582857142857143,
+    0.644
+   ],
+   "ties": 0
+  },
+  "ours_bos": {
+   "records": {
+    "value": 0.6601508916323731,
+    "n": 4374,
+    "se": 0.0046498869396459554
+   },
+   "ties_as_0": {
+    "value": 0.6601508916323731,
+    "n": 4374,
+    "se": 0.0046498869396459554
+   },
+   "mean_of_versions": 0.66015485975212,
+   "versions": [
+    0.6558219178082192,
+    0.6554285714285715,
+    0.6666666666666666,
+    0.6491428571428571,
+    0.6737142857142857
+   ],
+   "ties": 0
+  },
+  "ours_bf16": {
+   "records": {
+    "value": 0.6547782350251486,
+    "n": 4374,
+    "se": 0.0045167174861152435
+   },
+   "ties_as_0": {
+    "value": 0.6547782350251486,
+    "n": 4374,
+    "se": 0.0045167174861152435
+   },
+   "mean_of_versions": 0.6547797683494619,
+   "versions": [
+    0.6592465753424658,
+    0.652,
+    0.6603665521191294,
+    0.6582857142857143,
+    0.644
+   ],
+   "ties": 0
+  }
+ },
+ "pairs": {
+  "authors_data_zip vs authors_bf16": {
+   "decision_agreement": 0.9814814814814815,
+   "n_decisions": 8748,
+   "disagreements": 162,
+   "diff": {
+    "value": 0.0012002743484224967,
+    "n": 4374,
+    "se": 0.0014220695369351977
+   },
+   "max_abs_logp_diff": 0.39892578125,
+   "mean_abs_logp_diff": 0.05568192045493489
+  },
+  "authors_data_zip vs authors_fp32": {
+   "decision_agreement": 0.9839963420210334,
+   "n_decisions": 8748,
+   "disagreements": 140,
+   "diff": {
+    "value": 0.002286236854138089,
+    "n": 4374,
+    "se": 0.0013474273739438423
+   },
+   "max_abs_logp_diff": 0.3214661255478859,
+   "mean_abs_logp_diff": 0.048452211166338896
+  },
+  "authors_data_zip vs ours": {
+   "decision_agreement": 0.9839963420210334,
+   "n_decisions": 8748,
+   "disagreements": 140,
+   "diff": {
+    "value": 0.002286236854138089,
+    "n": 4374,
+    "se": 0.0013474273739438423
+   },
+   "max_abs_logp_diff": 0.32149505615234375,
+   "mean_abs_logp_diff": 0.048452419535885895
+  },
+  "authors_data_zip vs ours_plain": {
+   "decision_agreement": 0.9839963420210334,
+   "n_decisions": 8748,
+   "disagreements": 140,
+   "diff": {
+    "value": 0.002286236854138089,
+    "n": 4374,
+    "se": 0.001347427373943842
+   },
+   "max_abs_logp_diff": 0.32696533203125,
+   "mean_abs_logp_diff": 0.04886729593521174
+  },
+  "authors_data_zip vs ours_bos": {
+   "decision_agreement": 0.8488797439414724,
+   "n_decisions": 8748,
+   "disagreements": 1322,
+   "diff": {
+    "value": -0.004229538180155464,
+    "n": 4374,
+    "se": 0.003775643208527149
+   },
+   "max_abs_logp_diff": 8.759078979492188,
+   "mean_abs_logp_diff": 1.4866444788460977
+  },
+  "authors_data_zip vs ours_bf16": {
+   "decision_agreement": 0.9797668038408779,
+   "n_decisions": 8748,
+   "disagreements": 177,
+   "diff": {
+    "value": 0.0011431184270690445,
+    "n": 4374,
+    "se": 0.0014905142488071783
+   },
+   "max_abs_logp_diff": 0.3171348571777344,
+   "mean_abs_logp_diff": 0.05410047685603982
+  },
+  "authors_bf16 vs authors_fp32": {
+   "decision_agreement": 0.9852537722908093,
+   "n_decisions": 8748,
+   "disagreements": 129,
+   "diff": {
+    "value": 0.0010859625057155922,
+    "n": 4374,
+    "se": 0.0012971186171649527
+   },
+   "max_abs_logp_diff": 0.3316253423690796,
+   "mean_abs_logp_diff": 0.04684104872341032
+  },
+  "authors_bf16 vs ours": {
+   "decision_agreement": 0.9852537722908093,
+   "n_decisions": 8748,
+   "disagreements": 129,
+   "diff": {
+    "value": 0.0010859625057155922,
+    "n": 4374,
+    "se": 0.0012971186171649527
+   },
+   "max_abs_logp_diff": 0.3316211700439453,
+   "mean_abs_logp_diff": 0.0468410949866195
+  },
+  "authors_bf16 vs ours_plain": {
+   "decision_agreement": 0.9852537722908093,
+   "n_decisions": 8748,
+   "disagreements": 129,
+   "diff": {
+    "value": 0.0010859625057155922,
+    "n": 4374,
+    "se": 0.001297118617164953
+   },
+   "max_abs_logp_diff": 0.3340797424316406,
+   "mean_abs_logp_diff": 0.047256649085578174
+  },
+  "authors_bf16 vs ours_bos": {
+   "decision_agreement": 0.8519661636945588,
+   "n_decisions": 8748,
+   "disagreements": 1295,
+   "diff": {
+    "value": -0.005429812528577961,
+    "n": 4374,
+    "se": 0.0037278234725625697
+   },
+   "max_abs_logp_diff": 8.716598510742188,
+   "mean_abs_logp_diff": 1.4873553088499523
+  },
+  "authors_bf16 vs ours_bf16": {
+   "decision_agreement": 0.9829675354366713,
+   "n_decisions": 8748,
+   "disagreements": 149,
+   "diff": {
+    "value": -5.7155921353452216e-05,
+    "n": 4374,
+    "se": 0.0013943419062752854
+   },
+   "max_abs_logp_diff": 0.3276519775390625,
+   "mean_abs_logp_diff": 0.051451470653488596
+  },
+  "authors_fp32 vs ours": {
+   "decision_agreement": 1.0,
+   "n_decisions": 8748,
+   "disagreements": 0,
+   "diff": {
+    "value": 0.0,
+    "n": 4374,
+    "se": 0.0
+   },
+   "max_abs_logp_diff": 6.416812539100647e-05,
+   "mean_abs_logp_diff": 7.773778894462342e-06
+  },
+  "authors_fp32 vs ours_plain": {
+   "decision_agreement": 0.9997713763145862,
+   "n_decisions": 8748,
+   "disagreements": 2,
+   "diff": {
+    "value": 0.0,
+    "n": 4374,
+    "se": 0.0001616798412730207
+   },
+   "max_abs_logp_diff": 0.04353759437799809,
+   "mean_abs_logp_diff": 0.004127723211392351
+  },
+  "authors_fp32 vs ours_bos": {
+   "decision_agreement": 0.8544810242341107,
+   "n_decisions": 8748,
+   "disagreements": 1273,
+   "diff": {
+    "value": -0.006515775034293553,
+    "n": 4374,
+    "se": 0.0037226010184401295
+   },
+   "max_abs_logp_diff": 8.670067638158798,
+   "mean_abs_logp_diff": 1.4879996979043737
+  },
+  "authors_fp32 vs ours_bf16": {
+   "decision_agreement": 0.9869684499314129,
+   "n_decisions": 8748,
+   "disagreements": 114,
+   "diff": {
+    "value": -0.0011431184270690445,
+    "n": 4374,
+    "se": 0.0011879735782419922
+   },
+   "max_abs_logp_diff": 0.2926413491368294,
+   "mean_abs_logp_diff": 0.04415713969982319
+  },
+  "ours vs ours_plain": {
+   "decision_agreement": 0.9997713763145862,
+   "n_decisions": 8748,
+   "disagreements": 2,
+   "diff": {
+    "value": 0.0,
+    "n": 4374,
+    "se": 0.0001616798412730207
+   },
+   "max_abs_logp_diff": 0.04351806640625,
+   "mean_abs_logp_diff": 0.00412805624404998
+  },
+  "ours vs ours_bos": {
+   "decision_agreement": 0.8544810242341107,
+   "n_decisions": 8748,
+   "disagreements": 1273,
+   "diff": {
+    "value": -0.006515775034293553,
+    "n": 4374,
+    "se": 0.0037226010184401295
+   },
+   "max_abs_logp_diff": 8.670072555541992,
+   "mean_abs_logp_diff": 1.4879994334071316
+  },
+  "ours vs ours_bf16": {
+   "decision_agreement": 0.9869684499314129,
+   "n_decisions": 8748,
+   "disagreements": 114,
+   "diff": {
+    "value": -0.0011431184270690445,
+    "n": 4374,
+    "se": 0.0011879735782419922
+   },
+   "max_abs_logp_diff": 0.2926521301269531,
+   "mean_abs_logp_diff": 0.0441571224973144
+  },
+  "ours_plain vs ours_bos": {
+   "decision_agreement": 0.8542524005486969,
+   "n_decisions": 8748,
+   "disagreements": 1275,
+   "diff": {
+    "value": -0.006515775034293553,
+    "n": 4374,
+    "se": 0.0037261104000774798
+   },
+   "max_abs_logp_diff": 8.672904968261719,
+   "mean_abs_logp_diff": 1.4896424888310826
+  },
+  "ours_plain vs ours_bf16": {
+   "decision_agreement": 0.9869684499314129,
+   "n_decisions": 8748,
+   "disagreements": 114,
+   "diff": {
+    "value": -0.0011431184270690445,
+    "n": 4374,
+    "se": 0.0011879735782419922
+   },
+   "max_abs_logp_diff": 0.300140380859375,
+   "mean_abs_logp_diff": 0.04414967128987393
+  },
+  "ours_bos vs ours_bf16": {
+   "decision_agreement": 0.8521947873799726,
+   "n_decisions": 8748,
+   "disagreements": 1293,
+   "diff": {
+    "value": 0.0053726566072245085,
+    "n": 4374,
+    "se": 0.00373003307824282
+   },
+   "max_abs_logp_diff": 8.714384078979492,
+   "mean_abs_logp_diff": 1.48891021690796
+  }
+ }
+}

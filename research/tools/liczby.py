@@ -47,6 +47,10 @@ USTAWIENIA_BENCHMARKOW = {
                 "pomin": ["protokol", "do_przegladu", "n", "wg_Domain", "wg_ConceptA", "wg_ContextType",
                           "wg_ContextDiff", "wg_TargetDiff", "wg_flaga",
                           "kontekst_staly", "kontekst_staly_pmi", "staly_target", "margines"]},
+    # EWoK (English original): ewok.json and gpt2xl_comparison.json hold fractions, the reports write %. Domains and
+    # counts are left out for the same reason as in ewok-pl.
+    "ewok": {"aliasy": ["EWoK EN"], "skala": 100,
+             "pomin": ["protocol", "n", "by_domain", "ties", "n_decisions", "disagreements", "a_better", "b_better"]},
     # BLiMP: comparisons with SE and verdicts come from porownania_blimp (test "blimp"); the pool adds the
     # remaining values of blimp.json and kontrola_forward.json. Reports write 0.792 and "-2.87 pts".
     "blimp": {"aliasy": ["BLiMP"], "skala": 1,
@@ -55,11 +59,13 @@ USTAWIENIA_BENCHMARKOW = {
     # global values (wygaszanie, raport_formatu), so `with_global` lets the benchmark files use them too.
     "wikitext-2": {"aliasy": ["WikiText"], "skala": 100, "with_global": True,
                    "pomin": ["per_doc_bajty_page_detok"]},
+    "wsc273": {"aliasy": ["WSC273"], "skala": 1, "pomin": []},
 }
 WYGASZANIE = "slayer-1b/wygaszanie/wyniki"
 BLIMP = "benchmarks/blimp/results/blimp.json"
 KRZYWA = "benchmarks/blimp/results/checkpoints.json"  # BLiMP over checkpoints and weight averaging
 FORMAT = "analyses/answer-format/results/raport_formatu.json"
+PIQA = "benchmarks/piqa/results/piqa.json"
 
 
 def werdykt(z):
@@ -409,6 +415,15 @@ def raporty_blimp(bl):
              "porownanie_na_token": "slayer_vs_pythia/blimp_na_token/acc"}]
 
 
+def raporty_piqa(korzen):
+    """PIQA.md for gate (g): the report must equal what benchmarks/piqa/piqa.py renders from piqa.json."""
+    if not (korzen / PIQA).exists():
+        return []
+    return [{"plik": "benchmarks/piqa/results/PIQA.md", "test": "piqa", "wieloparadygmatowy": False, "grupy": [],
+             "generator": {"modul": "benchmarks/piqa/piqa.py", "funkcja": "pliki", "wejscie": PIQA,
+                           "komenda": "python benchmarks/piqa/piqa.py report"}}]
+
+
 def zbuduj(korzen=KORZEN):
     raport = json.loads((korzen / FORMAT).read_text())
     por = json.loads((korzen / WYGASZANIE / "porownanie.json").read_text())
@@ -443,6 +458,7 @@ def zbuduj(korzen=KORZEN):
         splaszcz(kr, "blimp_krzywa", wartosci, pomin=("paradygmaty",))
         porownania += porownania_krzywej(kr)
         raporty += raporty_krzywej(kr)
+    raporty += raporty_piqa(korzen)
     bench = benchmarki(korzen)
     return {"zrodla": zrodla + [z for b in bench.values() for z in b["zrodla"]],
             "benchmarki": bench, "raporty": raporty,

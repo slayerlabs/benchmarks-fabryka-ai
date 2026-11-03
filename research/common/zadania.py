@@ -81,7 +81,7 @@ ZADANIA = {
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="bigbio/pubmed_qa", rewizja="15578e80ef02c2c9636d33fdd7eb6b05b987ba60",
                 nazwa_hf="pubmed_qa_labeled_fold0_source", split="test", rodzaj="mc", klasy_stale=True,
-                parquet=True),
+                parquet=True, rewizja_parquet="13a7d15476092370cbabb6475390e7e69b74d2f2"),
     "T45": dict(benchmark_id="medmcqa", task="medmcqa", family="biomedical_qa", language="EN",
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="openlifescienceai/medmcqa", rewizja="91c6572c454088bf71b679ad90aa8dffcd0d5868",
@@ -119,6 +119,12 @@ def _zrodlo(task_id, meta, zrodlo):
     if zrodlo != "hf":
         raise ValueError(f"nieznane źródło danych: {zrodlo}")
     kw = {"revision": meta["rewizja"]}
+    if meta.get("rewizja_parquet"):
+        # GOTCHA: datasets 3.6 sees only the "default" config on refs/convert/parquet, so a named
+        # config is read from its parquet files at the pinned commit of that ref.
+        sciezka = f"hf://datasets/{meta['repo']}@{meta['rewizja_parquet']}/{meta['nazwa_hf']}/{meta['split']}/*.parquet"
+        return {"dataset_path": "parquet", "dataset_name": None,
+                "dataset_kwargs": {"data_files": {"test": sciezka}}, "test_split": "test"}
     if meta.get("parquet"):
         # Repo z loading scriptem: Space czyta przypiętą konwersję parquet (METHOD.md);
         # gałąź refs/convert/parquet nie ma przypiętego SHA, więc rewizja idzie do raportu.

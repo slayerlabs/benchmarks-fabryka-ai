@@ -1,0 +1,2 @@
+model,step,tokens,checkpoint_sha256,arc_easy,blimp,wikitext2_token_ppl,wikitext2_byte_ppl,eff,multiblimp_pl,arc_easy_pl,eval_gpu
+slayer1b-1.06,,,e10df6d50101d8424ff7338c97373ab9e151e359a6fcb23108023ac4a6400214,,,,,,,,NVIDIA_GeForce_RTX_4090

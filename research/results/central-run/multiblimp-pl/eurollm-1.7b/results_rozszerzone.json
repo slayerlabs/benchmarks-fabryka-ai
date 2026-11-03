@@ -1,0 +1,119 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-utter-project_EuroLLM-1.7B-c730cd9b-20261103T014826Z",
+ "models": [
+  {
+   "model_id": "utter-project/EuroLLM-1.7B",
+   "repo": "utter-project/EuroLLM-1.7B",
+   "revision": "c730cd9b616799ace3c65e927d63191446f59374",
+   "weights_sha256": "bfe9be53d19031a71d013ded9939747ae8e0c5dd7f07b9173cfa25521d7a9bc8"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T04",
+   "task": "multiblimp_pl",
+   "family": "grammar",
+   "language": "PL",
+   "split": "pol/data.tsv"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T04",
+   "model_id": "utter-project/EuroLLM-1.7B",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "accuracy",
+   "unit": "percent",
+   "higher_is_better": true,
+   "n_population": 3272,
+   "n_selected": 3272,
+   "n_scored": 3272,
+   "state": "ok",
+   "value": 93.85696821515891,
+   "ci95": {
+    "lower": 93.03178484107579,
+    "upper": 94.68215158924205,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "f2362db0257006d02ff68f4a1c9743d5419cb844dcdf10b9c23623a906fc6ec3",
+   "results_sha256": "74e8cb263b667b52738ede516b1032decc7235bf234aa5c84f39a433adf9d07d",
+   "runner_sha256": "b620cf0382ebcace8d43ba95aa2f104d0ae056c77104a79e90b506b14edeadc1",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 50.0,
+    "majority_value": null,
+    "majority_prediction_share": null,
+    "constant_prediction": null
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.9385696821515892,
+      "n": 3272,
+      "se": 0.004198405379886435,
+      "ci95": [
+       0.9303178484107579,
+       0.9468215158924206
+      ]
+     },
+     "acc_norm": {
+      "value": 0.9061735941320294,
+      "n": 3272,
+      "se": 0.005098330315452601,
+      "ci95": [
+       0.8960880195599022,
+       0.9159535452322738
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 1.8397360345985811,
+      "n": 3272,
+      "se": 0.012689319772753341,
+      "ci95": [
+       1.8151418647623783,
+       1.8653147356101676
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.5,
+      "majority_value": null,
+      "majority_prediction_share": null,
+      "constant_prediction": null
+     },
+     "udzial_najczestszej_predykcji": 0.9385696821515892
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "jumelet/multiblimp",
+    "rewizja": "de923efa8d2483d6b13364ee68e65308e990a991",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "4c6c98381122eaae05a75ccbabd6c69d43c830dd",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-utter-project_EuroLLM-1.7B-c730cd9b-20261103T014826Z",
+    "results_sha256": "74e8cb263b667b52738ede516b1032decc7235bf234aa5c84f39a433adf9d07d"
+   }
+  ],
+  "qualification_sha256": "b2c51ba63d5955c849fc6640ae0ecde7424212213b4c6275bc955d45f2604583",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "f761b2a2bb570ed447dc0570c7eceb226e40e29e63c1fb87844820c456b5f4f7"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_4090",
+ "sprzet": "NVIDIA GeForce RTX 4090"
+}

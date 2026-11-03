@@ -1,0 +1,129 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-LiquidAI_LFM2.5-1.2B-Base-7453bca9-20261103T034339Z",
+ "models": [
+  {
+   "model_id": "LiquidAI/LFM2.5-1.2B-Base",
+   "repo": "LiquidAI/LFM2.5-1.2B-Base",
+   "revision": "7453bca97ca1e67754c4035a4b4c584e1c9dd725",
+   "weights_sha256": "7678ab9546a0c51c1fca161876b1efc4f0906277f170b5822045f40fdaf9eeff"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T46",
+   "task": "social_iqa",
+   "family": "commonsense",
+   "language": "EN",
+   "split": "validation"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T46",
+   "model_id": "LiquidAI/LFM2.5-1.2B-Base",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 1954,
+   "n_selected": 1954,
+   "n_scored": 1954,
+   "state": "ok",
+   "value": 0.42835209825997955,
+   "ci95": {
+    "lower": 0.406345957011259,
+    "upper": 0.4508700102354145,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "e92365ff54129c93eb518df4c5544bb39847ea762c2b5c970cef0ad5afeef808",
+   "results_sha256": "0fb419ce4826ee4d72eb59b0f9c014e9d57935ca8dcac3d84993df95c026e2e0",
+   "runner_sha256": "63541137e6b6337e56028be211fd5bd85430e77254f52a508e84554a0b67a84a",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.3333333333333333,
+    "majority_value": null,
+    "majority_prediction_share": null,
+    "constant_prediction": null
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.42835209825997955,
+      "n": 1954,
+      "se": 0.01119730826260625,
+      "ci95": [
+       0.406345957011259,
+       0.4508700102354145
+      ]
+     },
+     "acc_norm": {
+      "value": 0.45752302968270214,
+      "n": 1954,
+      "se": 0.01127316882592059,
+      "ci95": [
+       0.43500511770726713,
+       0.4795291709314227
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.4032753326509724,
+      "n": 1954,
+      "se": 0.011100350776719448,
+      "ci95": [
+       0.38178096212896623,
+       0.4242579324462641
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 1.4263436555945381,
+      "n": 1954,
+      "se": 0.01404175180137998,
+      "ci95": [
+       1.3987814644502685,
+       1.4540884827774496
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.3333333333333333,
+      "majority_value": null,
+      "majority_prediction_share": null,
+      "constant_prediction": null
+     },
+     "udzial_najczestszej_predykcji": 0.3413510747185261
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "allenai/social_i_qa",
+    "rewizja": "8835ceb9141d7896d9d968634a9b21ae440e3ec5",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "b1383a2da9b69d2dd8996d9d4450ae97cdf9d5c4",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-LiquidAI_LFM2.5-1.2B-Base-7453bca9-20261103T034339Z",
+    "results_sha256": "0fb419ce4826ee4d72eb59b0f9c014e9d57935ca8dcac3d84993df95c026e2e0"
+   }
+  ],
+  "qualification_sha256": "50dae1959fb48766b876985389858814efc1ea5c2fdff49be53218ae924d5ef0",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "b01d27f40a38a181aa0a50cead7a7f67be0c17b29c0a3e4389c3856e0bcaca34"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.13",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "Apple_M5_Pro_mps",
+ "sprzet": "mps",
+ "max_length": 128000
+}

@@ -1,0 +1,120 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-LiquidAI_LFM2.5-1.2B-Base-7453bca9-20261103T034023Z",
+ "models": [
+  {
+   "model_id": "LiquidAI/LFM2.5-1.2B-Base",
+   "repo": "LiquidAI/LFM2.5-1.2B-Base",
+   "revision": "7453bca97ca1e67754c4035a4b4c584e1c9dd725",
+   "weights_sha256": "7678ab9546a0c51c1fca161876b1efc4f0906277f170b5822045f40fdaf9eeff"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T04",
+   "task": "multiblimp_pl",
+   "family": "grammar",
+   "language": "PL",
+   "split": "pol/data.tsv"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T04",
+   "model_id": "LiquidAI/LFM2.5-1.2B-Base",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "accuracy",
+   "unit": "percent",
+   "higher_is_better": true,
+   "n_population": 3272,
+   "n_selected": 3272,
+   "n_scored": 3272,
+   "state": "ok",
+   "value": 82.94621026894865,
+   "ci95": {
+    "lower": 81.63202933985329,
+    "upper": 84.22982885085575,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "f2362db0257006d02ff68f4a1c9743d5419cb844dcdf10b9c23623a906fc6ec3",
+   "results_sha256": "751e224ba9072ac8231599a7be7d3909ffb127b58ab6c1d3952819d3bce27205",
+   "runner_sha256": "63541137e6b6337e56028be211fd5bd85430e77254f52a508e84554a0b67a84a",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 50.0,
+    "majority_value": null,
+    "majority_prediction_share": null,
+    "constant_prediction": null
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.8294621026894865,
+      "n": 3272,
+      "se": 0.006576100686725467,
+      "ci95": [
+       0.816320293398533,
+       0.8422982885085575
+      ]
+     },
+     "acc_norm": {
+      "value": 0.7851466992665037,
+      "n": 3272,
+      "se": 0.007181350892500392,
+      "ci95": [
+       0.7707823960880196,
+       0.7995110024449877
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 2.3735908987198675,
+      "n": 3272,
+      "se": 0.01442371716972253,
+      "ci95": [
+       2.345124141224841,
+       2.4028499742096443
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.5,
+      "majority_value": null,
+      "majority_prediction_share": null,
+      "constant_prediction": null
+     },
+     "udzial_najczestszej_predykcji": 0.8294621026894865
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "jumelet/multiblimp",
+    "rewizja": "de923efa8d2483d6b13364ee68e65308e990a991",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "b1383a2da9b69d2dd8996d9d4450ae97cdf9d5c4",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-LiquidAI_LFM2.5-1.2B-Base-7453bca9-20261103T034023Z",
+    "results_sha256": "751e224ba9072ac8231599a7be7d3909ffb127b58ab6c1d3952819d3bce27205"
+   }
+  ],
+  "qualification_sha256": "50dae1959fb48766b876985389858814efc1ea5c2fdff49be53218ae924d5ef0",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "f761b2a2bb570ed447dc0570c7eceb226e40e29e63c1fb87844820c456b5f4f7"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.13",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "Apple_M5_Pro_mps",
+ "sprzet": "mps",
+ "max_length": 128000
+}

@@ -1,0 +1,82 @@
+{"etap": "siec_1GB", "s": 24.5, "bajty_na_s": 43856937}
+{"etap": "pip_lock", "s": 84.9}
+{"etap": "pip_new", "s": 65.2}
+{"etap": "pobranie", "s": 97.9, "model": "slayer1b-1.06", "bajty": 4298113022}
+{"etap": "ewaluacja", "s": 380.4, "model": "slayer1b-1.06", "zadanie": "T01", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 66.4, "model": "slayer1b-1.06", "zadanie": "T02", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 128.0, "model": "slayer1b-1.06", "zadanie": "T03", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 50.7, "model": "slayer1b-1.06", "zadanie": "T04", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 23.8, "model": "slayer1b-1.06", "zadanie": "T44", "kod": 3, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 134.1, "model": "slayer1b-1.06", "zadanie": "T45", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 61.3, "model": "slayer1b-1.06", "zadanie": "T46", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "model", "s": 942.9, "model": "slayer1b-1.06"}
+{"etap": "pobranie", "s": 66.6, "model": "slayer1b-1.06", "bajty": 4298113024}
+{"etap": "ewaluacja", "s": 318.2, "model": "slayer1b-1.06", "zadanie": "T01", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 61.9, "model": "slayer1b-1.06", "zadanie": "T44", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "model", "s": 447.3, "model": "slayer1b-1.06"}
+{"etap": "pobranie", "s": 26.2, "model": "qwen3.5-0.8b-base", "bajty": 1769925294}
+{"etap": "ewaluacja", "s": 436.0, "model": "qwen3.5-0.8b-base", "zadanie": "T01", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 91.3, "model": "qwen3.5-0.8b-base", "zadanie": "T02", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 44.3, "model": "qwen3.5-0.8b-base", "zadanie": "T03", "kod": 3, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 32.2, "model": "qwen3.5-0.8b-base", "zadanie": "T04", "kod": 3, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 77.7, "model": "qwen3.5-0.8b-base", "zadanie": "T44", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 178.1, "model": "qwen3.5-0.8b-base", "zadanie": "T45", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 69.1, "model": "qwen3.5-0.8b-base", "zadanie": "T46", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "model", "s": 955.2, "model": "qwen3.5-0.8b-base"}
+{"etap": "pobranie", "s": 174.8, "model": "lfm2.5-1.2b-base", "bajty": 2345555853}
+{"etap": "ewaluacja", "s": 301.0, "model": "lfm2.5-1.2b-base", "zadanie": "T01", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 59.6, "model": "lfm2.5-1.2b-base", "zadanie": "T02", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 28.6, "model": "lfm2.5-1.2b-base", "zadanie": "T03", "kod": 3, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 50.7, "model": "lfm2.5-1.2b-base", "zadanie": "T04", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 68.8, "model": "lfm2.5-1.2b-base", "zadanie": "T44", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 116.7, "model": "lfm2.5-1.2b-base", "zadanie": "T45", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 52.7, "model": "lfm2.5-1.2b-base", "zadanie": "T46", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "model", "s": 853.1, "model": "lfm2.5-1.2b-base"}
+{"etap": "pobranie", "s": 260.0, "model": "lfm3-1.7b-base", "bajty": 3475720927}
+{"etap": "ewaluacja", "s": 139.9, "model": "lfm3-1.7b-base", "zadanie": "T01", "kod": 3, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 42.9, "model": "lfm3-1.7b-base", "zadanie": "T02", "kod": 3, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 44.1, "model": "lfm3-1.7b-base", "zadanie": "T03", "kod": 3, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 42.3, "model": "lfm3-1.7b-base", "zadanie": "T04", "kod": 3, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 39.4, "model": "lfm3-1.7b-base", "zadanie": "T44", "kod": 3, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 51.5, "model": "lfm3-1.7b-base", "zadanie": "T45", "kod": 3, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 43.9, "model": "lfm3-1.7b-base", "zadanie": "T46", "kod": 3, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "model", "s": 664.4, "model": "lfm3-1.7b-base"}
+{"etap": "pobranie", "s": 263.2, "model": "eurollm-1.7b", "bajty": 3324382006}
+{"etap": "ewaluacja", "s": 6.2, "model": "eurollm-1.7b", "zadanie": "T01", "kod": 1, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 6.2, "model": "eurollm-1.7b", "zadanie": "T02", "kod": 1, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 6.3, "model": "eurollm-1.7b", "zadanie": "T03", "kod": 1, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 6.3, "model": "eurollm-1.7b", "zadanie": "T04", "kod": 1, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 6.1, "model": "eurollm-1.7b", "zadanie": "T44", "kod": 1, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 6.2, "model": "eurollm-1.7b", "zadanie": "T45", "kod": 1, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 6.3, "model": "eurollm-1.7b", "zadanie": "T46", "kod": 1, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "model", "s": 307.0, "model": "eurollm-1.7b"}
+{"etap": "pobranie", "s": 134.5, "model": "qwen3.5-0.8b-base", "bajty": 1769925259}
+{"etap": "ewaluacja", "s": 45.4, "model": "qwen3.5-0.8b-base", "zadanie": "T03", "kod": 3, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 66.2, "model": "qwen3.5-0.8b-base", "zadanie": "T04", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "pobranie", "s": 175.8, "model": "lfm2.5-1.2b-base", "bajty": 2345555835}
+{"etap": "ewaluacja", "s": 29.0, "model": "lfm2.5-1.2b-base", "zadanie": "T03", "kod": 3, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "pobranie", "s": 279.5, "model": "lfm3-1.7b-base", "bajty": 3475728825}
+{"etap": "ewaluacja", "s": 406.5, "model": "lfm3-1.7b-base", "zadanie": "T01", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 95.6, "model": "lfm3-1.7b-base", "zadanie": "T02", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 49.4, "model": "lfm3-1.7b-base", "zadanie": "T03", "kod": 3, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 74.3, "model": "lfm3-1.7b-base", "zadanie": "T04", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 102.7, "model": "lfm3-1.7b-base", "zadanie": "T44", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 185.0, "model": "lfm3-1.7b-base", "zadanie": "T45", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 78.2, "model": "lfm3-1.7b-base", "zadanie": "T46", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "pobranie", "s": 249.0, "model": "eurollm-1.7b", "bajty": 3324382015}
+{"etap": "ewaluacja", "s": 354.1, "model": "eurollm-1.7b", "zadanie": "T01", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 83.4, "model": "eurollm-1.7b", "zadanie": "T02", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 118.9, "model": "eurollm-1.7b", "zadanie": "T03", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 55.9, "model": "eurollm-1.7b", "zadanie": "T04", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 85.2, "model": "eurollm-1.7b", "zadanie": "T44", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 158.3, "model": "eurollm-1.7b", "zadanie": "T45", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "ewaluacja", "s": 63.2, "model": "eurollm-1.7b", "zadanie": "T46", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto"}
+{"etap": "pobranie", "s": 133.4, "model": "qwen3.5-0.8b-base", "bajty": 1769925294}
+{"etap": "ewaluacja", "s": 39.3, "model": "qwen3.5-0.8b-base", "zadanie": "T03", "kod": 3, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "1"}
+{"etap": "pobranie", "s": 175.3, "model": "lfm2.5-1.2b-base", "bajty": 2345555855}
+{"etap": "ewaluacja", "s": 24.2, "model": "lfm2.5-1.2b-base", "zadanie": "T03", "kod": 3, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "1"}
+{"etap": "pobranie", "s": 260.0, "model": "lfm3-1.7b-base", "bajty": 3475720925}
+{"etap": "ewaluacja", "s": 42.7, "model": "lfm3-1.7b-base", "zadanie": "T03", "kod": 3, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "1"}
+{"etap": "pobranie", "s": 279.7, "model": "lfm2.5-1.2b-base", "bajty": 2345557419}
+{"etap": "ewaluacja", "s": 71.5, "model": "lfm2.5-1.2b-base", "zadanie": "T02", "kod": 0, "gpu": "NVIDIA_GeForce_RTX_4090", "batch": "auto", "env": "new", "wyniki": "/workspace/wyniki_nowe"}
+{"etap": "model", "s": 351.5, "model": "lfm2.5-1.2b-base"}

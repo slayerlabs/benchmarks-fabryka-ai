@@ -137,7 +137,8 @@ def test_bramki_przechodza_na_raporcie_blimp():
     # older reports have no metadata; CHECKPOINTS.md (BLiMP over checkpoints) has, when checkpoints.json exists
     assert [m["plik"] for m in liczby["raporty"]][0] == "benchmarks/blimp/results/BLIMP.md"
     assert set(m["plik"] for m in liczby["raporty"]) <= {"benchmarks/blimp/results/BLIMP.md",
-                                                         "benchmarks/blimp/results/CHECKPOINTS.md"}
+                                                         "benchmarks/blimp/results/CHECKPOINTS.md",
+                                                         "benchmarks/piqa/results/PIQA.md"}
 
 
 def test_bramka_d_werdykt_bez_se_klastrowego():
@@ -256,6 +257,12 @@ def test_liczby_benchmarku_sprawdzane_w_jego_plikach_i_nie_wyciekaja():
     assert [p for _, _, p in bledy("Bielik ma 63,4%.") if "63,4" in p]
 
 
+def test_wlasne_z_benchmarku_sprawdzane_w_jego_plikach():
+    # results/wsc273.json: Slayer 1.06 na panelu 200 wobec bazy losowej, z = 3,03
+    assert not bledy("| panel 200 | losowa | z = 3,03 | pewne |", "benchmarks/wsc273/README.md")
+    assert [p for _, _, p in bledy("| panel 200 | losowa | z = 3,77 | pewne |", "benchmarks/wsc273/README.md") if "3,77" in p]
+
+
 def test_number_format_by_path_prefix():
     assert S.file_number_format("benchmarks/blimp/results/BLIMP.md") == (True, "blimp")  # generated English report
     assert S.file_number_format("benchmarks/blimp/README.md") == (False, "blimp")       # Polish docs, BLiMP numbers
@@ -322,6 +329,103 @@ def test_path_keys_use_forward_slashes_when_str_gives_backslashes():
     rel = [r for r, _ in S.pliki_md(korzen)]
     zrodla = L.zbuduj(korzen)["zrodla"]
     assert rel and zrodla and all("\\" not in k for k in rel + zrodla), [k for k in rel + zrodla if "\\" in k][:3]
+
+
+_WYJATEK_WERDYKTU = " <!-- liczba-spoza-wynikow: test werdyktu, liczba nie musi być w LICZBY.json -->"
+
+
+def _problemy_werdyktu(tekst):
+    return [p for _, _, p in bledy(tekst + _WYJATEK_WERDYKTU) if "(h)" in p]
+
+
+def test_werdykt_pewne_przy_z_123_daje_kod_1():
+    # |z| = 1,23 to szum; „pewne” obok poprawnej liczby ma paść
+    b = _problemy_werdyktu("z = 1,23, pewne")
+    assert b == ["(h) z 1,23 → szum, w tekście: pewne"], b
+    assert not any("(a)" in p for _, _, p in bledy("z = 1,23, pewne" + _WYJATEK_WERDYKTU))
+
+
+def test_werdykt_szum_przy_z_123_daje_kod_0():
+    assert _problemy_werdyktu("z = 1,23, szum") == []
+    assert bledy("z = 1,23, szum" + _WYJATEK_WERDYKTU) == []
+
+
+def test_werdykt_prawdopodobne_przy_z_250_daje_kod_0():
+    assert bledy("z = 2,50, prawdopodobne" + _WYJATEK_WERDYKTU) == []
+
+
+def test_werdykt_pewne_przy_z_250_daje_kod_1():
+    assert _problemy_werdyktu("z = 2,50, pewne") == ["(h) z 2,50 → prawdopodobne, w tekście: pewne"]
+
+
+def test_werdykt_ujemne_z_minus_typograficzny_daje_kod_0():
+    assert bledy("z = −3,20, pewne" + _WYJATEK_WERDYKTU) == []
+
+
+def test_dwie_pary_w_linii_druga_bledna_daje_kod_1():
+    tekst = "avg5 (z = 8,62, pewne), avg10 (z = 10,81, szum)"
+    b = _problemy_werdyktu(tekst)
+    assert b == ["(h) z 10,81 → pewne, w tekście: szum"], b
+
+
+def test_progi_brzegowe_2_i_3_daja_kod_0():
+    assert bledy("z = 2,00, prawdopodobne; z = 3,00, pewne" + _WYJATEK_WERDYKTU) == []
+
+
+def test_przecinek_i_kropka_dziesietna_daja_kod_0():
+    assert bledy("z = 1,23, szum oraz z = 1.23 (noise)" + _WYJATEK_WERDYKTU) == []
+    assert bledy("z = 2.50 (probable) i z = 3.00: certain" + _WYJATEK_WERDYKTU) == []
+
+
+def test_zly_werdykt_daje_kod_wyjscia_1(tmp_path):
+    p = tmp_path / "raport.md"
+    p.write_text("z = 1,23, pewne <!-- liczba-spoza-wynikow: test werdyktu -->\n", encoding="utf-8")
+    assert S.main([str(p)]) == 1
+
+
+def test_z_bez_werdyktu_zostaje_w_spokoju():
+    assert bledy("SE 0,02 pkt, z = 12,55; po 67 paradygmatach t = 3,34." + _WYJATEK_WERDYKTU) == []
+    assert bledy("z = 4,26." + _WYJATEK_WERDYKTU) == []
+
+
+def test_iloraz_snr_i_przyimek_z_to_nie_statystyka():
+    tekst = ("iloraz 1,11, szum. (|iloraz| ≥ 3 „pewne”, < 2 „szum”). "
+             "Spada z 1,5757 do 1,4621.")
+    assert bledy(tekst + _WYJATEK_WERDYKTU) == []
+
+
+def test_werdykt_przed_nawiasem_nie_bierze_slowa_nastepnego_z():
+    # blimp/README.md: „szum” po z = -2,68 należy do efektów wysp, nie do elipsy
+    tekst = ("prawdopodobna w elipsie (z = -2,68) i szum w efektach wysp (z = -1,17) "
+             "oraz kwantyfikatorach (z = 1,89).")
+    assert bledy(tekst + _WYJATEK_WERDYKTU) == []
+
+
+def test_werdykt_przed_nawiasem_bierze_slowo_najblizsze_z():
+    # „pewne” dotyczy wyników wobec bazy, a werdyktem z = 0,40 jest „szum” tuż przed nawiasem
+    tekst = "Oba wyniki są pewne wobec bazy, ale różnica między nimi to szum (z = 0,40)."
+    assert bledy(tekst + _WYJATEK_WERDYKTU) == []
+    zly = "Oba wyniki to szum wobec bazy, ale różnica między nimi jest pewna (z = 0,40)."
+    assert _problemy_werdyktu(zly) == ["(h) z 0,40 → szum, w tekście: pewna"]
+
+
+def test_werdykt_po_t_nie_jest_werdyktem_z():
+    assert bledy("z = 10.81 | certain | t = 3.07 | probable" + _WYJATEK_WERDYKTU) == []
+    assert bledy("z = -7,11 | t = -3,79 | pewne / prawdopodobne" + _WYJATEK_WERDYKTU) == []
+    assert _problemy_werdyktu("z = -7,11 | t = -3,79 | szum / pewne") == [
+        "(h) z -7,11 → pewne, w tekście: szum"]
+
+
+def test_pewnosc_i_prawdopodobnie_nie_sa_werdyktem():
+    # rzeczownik i przysłówek to nie przymiotnik werdyktu: kod 0, bez alarmu (h)
+    assert bledy("z = 1,5, pewność niska" + _WYJATEK_WERDYKTU) == []
+    assert bledy("z = 1,2, prawdopodobnie przez szum" + _WYJATEK_WERDYKTU) == []
+    assert bledy("z = 1,2 (prawdopodobnie przypadek)" + _WYJATEK_WERDYKTU) == []
+
+
+def test_z_bez_rownania_jak_w_piqa():
+    assert bledy("(z 1,23, szum)" + _WYJATEK_WERDYKTU) == []
+    assert _problemy_werdyktu("(z 1,23, pewne)") == ["(h) z 1,23 → szum, w tekście: pewne"]
 
 
 def test_generator_gate_reports_forward_slashes_when_str_gives_backslashes(tmp_path):

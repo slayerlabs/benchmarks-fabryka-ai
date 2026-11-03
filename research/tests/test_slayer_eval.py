@@ -137,6 +137,24 @@ def test_mcnemar_dokladny():
     assert T.mcnemar_dokladny(3, 3) == 1.0
 
 
+def test_blimp_without_pmi_keeps_both_sentences():
+    import ewaluuj
+    import zadania as Z
+    cfg_blimp = Z.konfiguracje("T01", "lokalne")[0][1]
+    assert not ewaluuj.z_pmi(cfg_blimp) and ewaluuj.z_pmi(Z.konfiguracje("T02", "lokalne")[0][1])
+    para = [probka([-9.0, -5.0], 0, konty=(" good.", " bad."), ctx="")]
+    assert M.podsumuj_mc(para, False, z_pmi=ewaluuj.z_pmi(cfg_blimp))["acc"]["value"] == 0.0
+
+
+def test_unsampled_task_cut_only_by_a_number():
+    import ewaluuj
+    zad = type("Z", (), {"eval_docs": [{"t": i} for i in range(5)]})()
+    meta = {"probkowanie": False, "benchmark_id": "wikitext2", "task": "wikitext"}
+    assert ewaluuj.wybor_probki(zad, meta, "1") == ([0], 5, [0])
+    assert ewaluuj.wybor_probki(zad, meta, "panel200") == (None, 5, list(range(5)))
+    assert ewaluuj.wybor_probki(zad, meta, "pelna") == (None, 5, list(range(5)))
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

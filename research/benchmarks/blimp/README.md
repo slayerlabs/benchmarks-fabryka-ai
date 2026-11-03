@@ -9,7 +9,7 @@ trafiona, gdy model daje zdaniu poprawnemu wyższe log-prawdopodobieństwo. Pozi
 test (T01) na panelu 200 par; tutaj oba modele liczone są na wszystkich 67 000.
 
 - Karta oryginału (etap A): [`ORIGINAL.md`](ORIGINAL.md)
-- Odtworzenie (etap B, nie zrobione kodem autorów): [`REPRODUCTION.md`](REPRODUCTION.md)
+- Odtworzenie (etap B lm-eval na Pythii-1B v0, bez kodu autorów): [`REPRODUCTION.md`](REPRODUCTION.md)
 - Przepis (commity, modele, komendy, sprzęt): [`RECIPE.md`](RECIPE.md)
 - Pełny raport ze wszystkimi tabelami (generowany, nie edytować; po angielsku): [`results/BLIMP.md`](results/BLIMP.md)
 - Progi zapisane przed pomiarem: [`THRESHOLDS.md`](THRESHOLDS.md)
@@ -23,6 +23,10 @@ test (T01) na panelu 200 par; tutaj oba modele liczone są na wszystkich 67 000.
 |---|---:|---:|---:|---|
 | Slayer 1.06 | 0,7921 | 67000 | 0,0014 | 0,7892-0,7949 |
 | Pythia-1B | 0,8207 | 67000 | 0,0013 | 0,8181-0,8233 |
+| Pythia-1B v0 (model kontrolny) | 0,8244 | 67000 | 0,0013 | 0,8218-0,8269 |
+
+„Pythia-1B” bez dopisku to wagi v1 (`EleutherAI/pythia-1b`), model porównawczy tego raportu. Kontrolą kodu oceny
+jest v0 (sekcja „Kontrola” niżej).
 
 Slayer 1.06 minus Pythia-1B, trzy odczyty:
 
@@ -59,6 +63,17 @@ poprawka Holma zostawia 37 różnic. Największe pewne różnice na korzyść Sl
 (-16,5 pkt, z = -12,10) i principle_A_domain_3 (-15,0 pkt, z = -7,32). Kolejność zależy od miary (korelacja
 Spearmana 0,77 między różnicami sumowanymi a liczonymi na token), patrz pełny raport.
 
+Kolejność paradygmatów zależy też od wag Pythii. Wobec v0 Slayer prowadzi z werdyktem pewnym w 6 paradygmatach,
+Pythia w 35, a ogółem Slayer minus v0 to -3,23 pkt (SE 0,16 pkt, z = -20,51). Po poprawce Holma (67 paradygmatów,
+5% na całą rodzinę) zostaje wobec v0 Slayer 5 i Pythia 34. Pewne i istotne po Holmie wobec obu wag, z tym samym znakiem,
+są 3 przewagi Slayera: sentential_subject_island (25,3 pkt, z = 13,27), principle_A_reconstruction (12,2 pkt,
+z = 7,20) i only_npi_scope (15,4 pkt, z = 8,65). tough_vs_raising_2 jest wobec v0 pewne (z = 3,08), ale nie
+przechodzi Holma. superlative_quantifiers_2, coordinate_structure_constraint_complex_left_branch i wh_vs_that_with_gap
+wobec v0 to szum. O tych czterech nie ma więc wniosku. Z przewag Pythii zostaje 23, w tym tough_vs_raising_1
+(-15,6 pkt, z = -11,03) i principle_A_domain_3 (-12,9 pkt, z = -6,14). Twierdzenie o paradygmacie trzyma się tylko
+wtedy, gdy trzyma się wobec obu wag; tabela: [`results/BLIMP.md`](results/BLIMP.md), sekcja „Against the control
+model Pythia-1B v0”.
+
 Przewaga Pythii leży w parach, które różnią się słowem albo jego formą: z od -18,12 do -23,18 (pewne) we
 wszystkich trzech odczytach „tych samych słów”. Odczyt to sposób rozstrzygania, czy zdanie poprawne i błędne
 składają się z tych samych słów (tylko w innej kolejności): małe litery bez interpunkcji, surowy tekst dzielony na
@@ -78,11 +93,18 @@ sekcja „Agreement with the Space (panel of 200)”. To panel szczęśliwy: tyl
 paneli o tym samym podziale daje Slayerowi tę wartość albo wyższą. Wartość z pełnego zbioru 0,7921 leży poza
 CI95 Space. Używaj pełnego zbioru.
 
-### Pythia-1B wobec opublikowanej wartości (nie kontrola etapu B)
+### Kontrola: Pythia-1B v0, lm-eval i wartość opublikowana
 
-Nasza Pythia-1B 0,8207 wobec 0,8234 opublikowanego dla `EleutherAI/pythia-1b-v0` @ `step143000`: różnica
--0,27 pkt, w granicach +-2 pkt. Inne wagi i starszy harness, więc to zakres kontrolny, nie odtworzenie
-([`REPRODUCTION.md`](REPRODUCTION.md)).
+Na `EleutherAI/pythia-1b-v0` @ `step143000` lm-eval 0.4.9.1 daje 0,8244, nasz kod 0,8244, a opublikowana wartość to
+0,8234: lm-eval różni się o 0,10 pkt, w granicach +-2 pkt. Nasz kod podejmuje tę samą decyzję co lm-eval w 66998 z
+67000 par Pythii v0 (dwie różne leżą w granicach szumu liczb zmiennoprzecinkowych: jedna to remis tylko w lm-eval,
+druga to zmiana znaku minimalnego marginesu) i w 67000 z 67000 par Slayera 1.06. Dla Slayera ta zgodność
+nie sprawdza forwardu: lm-eval liczy go przez `common/slayer_lm.py`, czyli tym samym `slayer_model.Slayer` i tą samą
+regułą jednego BOS co nasz kod. Niezależne są tam tylko liczenie wyniku w HFLM i obiekt tokenizera. Forward wobec
+oficjalnego kodu sprawdzają osobno `kontrola_forward.py` (0 z 200 par zmienionych) i
+`tests/test_lm_eval_slayer.py::test_forward_matches_official_reference`. Protokół zapisany przed
+przebiegiem: [`LM_EVAL_PROTOCOL.md`](LM_EVAL_PROTOCOL.md), szczegóły: [`REPRODUCTION.md`](REPRODUCTION.md). Wagi v1
+dają 0,8207 wobec tej samej wartości opublikowanej; to tylko informacja, bo wartość dotyczy v0.
 
 ## Po checkpointach treningu i uśrednianie wag
 
@@ -111,7 +133,10 @@ kontrole i odchylenia od protokołu: [`results/CHECKPOINTS.md`](results/CHECKPOI
 - Pytanie 2 (uśrednianie wag zamiast wygaszania LR): potwierdzone na avg3 i avg5. Zmiana straty na held-out wobec 1.06
   to -0,0290 nat (SE 0,0005, z = -63,54) dla avg3 i -0,0381 nat (SE 0,0007, z = -57,68) dla avg5, czyli 0,575 i
   0,756 zysku z wygaszania. Średnia z 10 checkpointów (avg10, dodana po odczycie BLiMP avg3 i avg5) wobec ramienia
-  wygaszonego: 0,0028 nat, SE 0,0023, z = 1,23 (szum).
+  wygaszonego: 0,0028 nat, SE 0,0023, z = 1,23 (szum). To nie znaczy, że avg10 zyskuje tyle co wygaszanie: na
+  komponentach danych różnice mają przeciwne znaki i się znoszą (avg10 niżej na web, legal i en, wyżej na core;
+  tabela w [`results/CHECKPOINTS.md`](results/CHECKPOINTS.md)). SE w tym punkcie traktuje okna held-out jako
+  niezależne; sąsiednie okna są skorelowane, więc SE jest za małe, a werdykty avgK wobec wygaszania za mocne.
 - Uśrednianie podnosi też BLiMP na tych parach wobec kroku 13848: avg3 0,7964 (0,43 pkt, SE 0,08 pkt, z = 5,15, pewne), avg5
   0,8000 (0,79 pkt, SE 0,09 pkt, z = 8,62, pewne), avg10 0,8030 (1,09 pkt, SE 0,10 pkt, z = 10,81, pewne).
   Protokół nie przewidywał zmiany BLiMP, więc to obserwacja, nie teza.
@@ -129,11 +154,6 @@ kontrole i odchylenia od protokołu: [`results/CHECKPOINTS.md`](results/CHECKPOI
 Lista tego, czego ta praca jeszcze nie spełnia według [`METODOLOGIA.md`](../../METODOLOGIA.md); każdy punkt to osobne
 zadanie do wzięcia.
 
-- [ ] Etap B z kodem referencyjnym: lm-eval `blimp` @ `6d2abda4fd171e68a8789330c4149e37c1ca0bda` (albo skrypty
-      jiant autorów) i nasz kod oceny na tych samych wagach, `EleutherAI/pythia-1b-v0` @ `step143000`,
-      porównane z opublikowaną wartością Pythii v0; dziś kontrola porównuje wagi v1 z wagami v0.
-- [ ] Test zgodności `tests/test_blimp_zgodnosc.py`: 10-20 par z zapisanymi wynikami kodu referencyjnego,
-      zgodność per para >= 99%, bez sieci (dziś `tests/test_blimp.py` testuje tylko czyste funkcje).
 - [ ] Pięć modeli odniesienia (`Qwen/Qwen3.5-0.8B-Base`, `LiquidAI/LFM2.5-1.2B-Base`,
       `speakleash/Bielik-1.5B-v3`, `LiquidAI/LFM3-1.7B-Base`, `utter-project/EuroLLM-1.7B`) na pełnym zbiorze.
 - [ ] Brakujące pola przepisu: dokładny sprzęt (chip), wersja Pythona w głównym przebiegu, sha256 plików zbioru,
