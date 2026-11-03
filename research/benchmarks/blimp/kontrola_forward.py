@@ -107,6 +107,20 @@ def ll_zdania(model, encode, zdanie, wejscie, sumy):
     return {s: (lp.sum().item() if s == "float32" else sum(v.item() for v in lp)) for s in sumy}
 
 
+def porownaj_panel(panel, nasze, ll_pary, sumy):
+    """Official log-likelihoods of each panel pair (ll_pary(doc) -> {sum dtype: [ll good, ll bad]}) against ours:
+    -> ({sum dtype: |difference| per sentence}, {sum dtype: pairs whose hit differs from ours})."""
+    roz = {s: [] for s in sumy}
+    przest = {s: 0 for s in sumy}
+    for d in panel:
+        ll = ll_pary(d)
+        n = nasze[d["id"]]["ll"]
+        for s in sumy:
+            roz[s] += [abs(ll[s][0] - n[0]), abs(ll[s][1] - n[1])]
+            przest[s] += B.trafienie_pary(d, {"ll": ll[s]}) != B.trafienie_pary(d, nasze[d["id"]])
+    return roz, przest
+
+
 def przebieg(roznice, przestawione, watki, wejscie, suma):
     """One run: |our ll - official ll| per sentence -> summary row."""
     return {"watki_cpu": watki, "wejscie": wejscie, "suma": suma, "max_abs_roznica_ll": max(roznice),
@@ -151,18 +165,11 @@ def main(argv=None):
             torch.set_num_threads(watki)
             for wejscie in a.wejscia:
                 t0 = time.time()
-                roz = {s: [] for s in a.sumy}
-                przest = {s: 0 for s in a.sumy}
-                for d in panel:
-                    ll = {s: [] for s in a.sumy}
-                    for zd in d["opcje"]:
-                        wart = ll_zdania(model, encode, zd, wejscie, a.sumy)
-                        for s in a.sumy:
-                            ll[s].append(wart[s])
-                    n = nasze[d["id"]]["ll"]
-                    for s in a.sumy:
-                        roz[s] += [abs(ll[s][0] - n[0]), abs(ll[s][1] - n[1])]
-                        przest[s] += B.trafienie_pary(d, {"ll": ll[s]}) != B.trafienie_pary(d, nasze[d["id"]])
+
+                def ll_pary(d):
+                    wart = [ll_zdania(model, encode, zd, wejscie, a.sumy) for zd in d["opcje"]]
+                    return {s: [w[s] for w in wart] for s in a.sumy}
+                roz, przest = porownaj_panel(panel, nasze, ll_pary, a.sumy)
                 for s in a.sumy:
                     przebiegi.append(przebieg(roz[s], przest[s], watki, wejscie, s))
                 print(f"threads {watki}, {wejscie}: {time.time() - t0:.0f}s", przebiegi[-len(a.sumy):], flush=True)
