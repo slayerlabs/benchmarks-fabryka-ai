@@ -83,7 +83,11 @@ polecenie() {  # polecenie LABEL TASK_ID -> ewaluuj.py command line
   echo "$WS/venv-$ENV/bin/python $K/common/ewaluuj.py ${args[*]}"
 }
 
-gpu_nazwa() { nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null | head -1 | tr ' ' '_' || echo cpu; }
+gpu_nazwa() {  # NVIDIA name, otherwise "<cpu brand> <device>", e.g. Apple_M5_Pro_mps
+    local n; n=$(nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null | head -1)
+    [ -n "$n" ] || n="$(sysctl -n machdep.cpu.brand_string 2>/dev/null || uname -m) ${DEVICE:-cpu}"
+    echo "$n" | tr ' ' '_'
+}
 
 licz_model() {  # licz_model LABEL: download, every task, delete weights; a failed task does not stop the rest
   local L=$1 t T kod

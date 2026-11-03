@@ -1,7 +1,7 @@
 {
  "schema_version": 2,
  "protocol_id": "bench50-v0.3.1-fullB",
- "run_id": "niezalezny-LiquidAI_LFM2.5-1.2B-Base-7453bca9-20261103T004753Z",
+ "run_id": "niezalezny-LiquidAI_LFM2.5-1.2B-Base-7453bca9-20261103T030952Z",
  "models": [
   {
    "model_id": "LiquidAI/LFM2.5-1.2B-Base",
@@ -31,116 +31,116 @@
    "n_selected": 4183,
    "n_scored": 4183,
    "state": "ok",
-   "value": 0.26081759502749224,
+   "value": 0.4059287592636863,
    "ci95": {
-    "lower": 0.2474300741094908,
-    "upper": 0.2742051159454937,
+    "lower": 0.39110686110447046,
+    "upper": 0.42075065742290224,
     "level": 0.95,
     "method": "paired_bootstrap",
     "replicates": 10000,
     "seed": 20261028
    },
    "source_id_digest": "2526d854e044f18477dd4464917e26b796e6b6ab6102fe8d6a9711385203cf7a",
-   "results_sha256": "1bb9c1ded730c25b95f2afbd608585a98672a5d0c7e258511f32c6f848ce4b69",
-   "runner_sha256": "b620cf0382ebcace8d43ba95aa2f104d0ae056c77104a79e90b506b14edeadc1",
+   "results_sha256": "622837fc9e6ce16509c7c212b41a6cfc360e3fff0248ff83fbe88836545b951f",
+   "runner_sha256": "63541137e6b6337e56028be211fd5bd85430e77254f52a508e84554a0b67a84a",
    "contamination": "unscanned",
    "contamination_receipt_sha256": null,
    "reference": {
     "chance_value": 0.25,
     "majority_value": 0.3222567535261774,
-    "majority_prediction_share": 0.43748505857040404,
+    "majority_prediction_share": 0.29978484341381784,
     "constant_prediction": false
    },
    "dodatkowe": {
     "space": {
      "acc": {
-      "value": 0.26081759502749224,
+      "value": 0.4059287592636863,
       "n": 4183,
-      "se": 0.00678972585076475,
+      "se": 0.007593677705610341,
       "ci95": [
-       0.2474300741094908,
-       0.2742051159454937
+       0.39110686110447046,
+       0.42075065742290224
       ]
      },
      "acc_norm": {
-      "value": 0.26081759502749224,
+      "value": 0.4059287592636863,
       "n": 4183,
-      "se": 0.00678972585076475,
+      "se": 0.007593677705610341,
       "ci95": [
-       0.2474300741094908,
-       0.2742051159454937
+       0.39110686110447046,
+       0.42075065742290224
       ]
      },
      "acc_pmi": {
-      "value": 0.2634472866363854,
+      "value": 0.3432942863973225,
       "n": 4183,
-      "se": 0.006811719684474289,
+      "se": 0.007342207783909632,
       "ci95": [
-       0.25029882859191965,
-       0.27683480755438683
+       0.32918957685871386,
+       0.3578771216830026
       ]
      },
      "bpb_poprawnej": {
-      "value": 2.123761208344843,
+      "value": 1.0144787097049779,
       "n": 4183,
-      "se": 0.016867013843578832,
+      "se": 0.01161520263504944,
       "ci95": [
-       2.090696640932565,
-       2.156391042006303
+       0.9920592822972195,
+       1.0375330645726932
       ]
      },
      "bazy": {
       "chance_value": 0.25,
       "majority_value": 0.3222567535261774,
-      "majority_prediction_share": 0.43748505857040404,
+      "majority_prediction_share": 0.29978484341381784,
       "constant_prediction": false
      },
-     "udzial_najczestszej_predykcji": 0.43748505857040404
+     "udzial_najczestszej_predykcji": 0.29978484341381784
     },
     "cloze": {
      "acc": {
-      "value": 0.20870188859670094,
+      "value": 0.27994262491035143,
       "n": 4183,
-      "se": 0.006284073267202065,
+      "se": 0.0069426624814330744,
       "ci95": [
-       0.19627061917284247,
-       0.22137222089409514
+       0.26655510399235,
+       0.2933361224001912
       ]
      },
      "acc_norm": {
-      "value": 0.2522113315802056,
+      "value": 0.3045661008845326,
       "n": 4183,
-      "se": 0.006715521180494361,
+      "se": 0.007116667832752383,
       "ci95": [
-       0.2390628735357399,
-       0.26512072675113557
+       0.2911785799665312,
+       0.31867081042314127
       ]
      },
      "acc_pmi": {
-      "value": 0.2216112837676309,
+      "value": 0.295959837437246,
       "n": 4183,
-      "se": 0.006422471509133171,
+      "se": 0.007058673485017775,
       "ci95": [
-       0.20894095147023667,
-       0.2342816160650251
+       0.2823332536457088,
+       0.31006454697585467
       ]
      },
      "bpb_poprawnej": {
-      "value": 3.37168412285145,
+      "value": 1.4568567815969233,
       "n": 4183,
-      "se": 0.022807867571098775,
+      "se": 0.016203116614181244,
       "ci95": [
-       3.3270284850715757,
-       3.416678805240028
+       1.4252937680185904,
+       1.488690314670836
       ]
      },
      "bazy": {
       "chance_value": 0.25,
       "majority_value": 0.3222567535261774,
-      "majority_prediction_share": 0.28424575663399476,
+      "majority_prediction_share": 0.28591919674874494,
       "constant_prediction": false
      },
-     "udzial_najczestszej_predykcji": 0.28424575663399476
+     "udzial_najczestszej_predykcji": 0.28591919674874494
     }
    },
    "zrodlo_danych": {
@@ -152,22 +152,23 @@
  ],
  "contrasts": [],
  "provenance": {
-  "inventory_commit": "c9a2b6c17c4a8de8988bd92da16f244bec2e5cc2",
+  "inventory_commit": "2e0572d159b33473ab4de0bf9ca5703d5478bef1",
   "kind": "measurement",
   "sources": [
    {
-    "run_id": "niezalezny-LiquidAI_LFM2.5-1.2B-Base-7453bca9-20261103T004753Z",
-    "results_sha256": "1bb9c1ded730c25b95f2afbd608585a98672a5d0c7e258511f32c6f848ce4b69"
+    "run_id": "niezalezny-LiquidAI_LFM2.5-1.2B-Base-7453bca9-20261103T030952Z",
+    "results_sha256": "622837fc9e6ce16509c7c212b41a6cfc360e3fff0248ff83fbe88836545b951f"
    }
   ],
-  "qualification_sha256": "883bdd4d21f871db9f51892ac27dd694ff9f14ab4c332a61a9dcb535ef587628",
+  "qualification_sha256": "be968ef2ff2ebccf631241a2c2b1abc056fbaa63086ff0a2fd8f52b613c50078",
   "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
-  "references_sha256": "3c22957f11d6c00fa9d1235b7fc1deb7c87e09ef4ef0e92687c1ff47533a18f2"
+  "references_sha256": "777bce54d1615a4cbf7234033f54ba7afa36f91b2583724a516fd54e1f4b97b5"
  },
  "ewaluator": "niezależny (slayer_eval)",
- "lm_eval": "0.4.9.1",
+ "lm_eval": "0.4.13",
  "dane": "hf",
  "probka": "pelna",
- "eval_gpu": "NVIDIA_GeForce_RTX_4090",
- "sprzet": "NVIDIA GeForce RTX 4090"
+ "eval_gpu": "Apple_M5_Pro_mps",
+ "sprzet": "mps",
+ "max_length": 128000
 }
