@@ -22,6 +22,8 @@ BATCH=${BATCH:-auto}
 # use_kernel_func_from_hub_with_fallback (missing in 5.12.1). transformers 5 breaks lm_eval 0.4.9.1
 # (AutoModelForVision2Seq) and peft 0.17.1 (HybridCache), so the "new" env moves those too.
 NEW_ENV_PINS=(transformers==5.22.1 lm_eval==0.4.13 peft==0.21.2)
+# EuroLLM's tokenizer load needs protobuf, which the lock does not carry
+LOCK_ENV_PINS=(protobuf==7.36.2 sentencepiece==0.2.2)
 
 # One list for the run; tests/test_przebieg_centralny.py checks it against METODOLOGIA.md ("Pięć modeli
 # odniesienia" without Bielik, gated repo) and the Slayer revision named there.
@@ -118,7 +120,8 @@ case "$etap" in
       # --system-site-packages: torch 2.8.0 of the image is the locked one
       python3 -m venv --system-site-packages "$WS/venv-$E"
       "$WS/venv-$E/bin/pip" install -q -r $K/common/requirements.lock.txt
-      [[ $E == new ]] && "$WS/venv-$E/bin/pip" install -q "${NEW_ENV_PINS[@]}"
+      if [[ $E == new ]]; then "$WS/venv-$E/bin/pip" install -q "${NEW_ENV_PINS[@]}"
+      else "$WS/venv-$E/bin/pip" install -q "${LOCK_ENV_PINS[@]}"; fi
       "$WS/venv-$E/bin/pip" freeze > "$WS/logi/freeze_$E.txt"
       zapisz_czas "pip_$E" "$t"
     done
