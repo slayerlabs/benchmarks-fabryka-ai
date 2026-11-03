@@ -205,6 +205,21 @@ def test_lm_eval_compare_sprawdza_sha256_wejsc_przed_liczeniem(tmp_path):
         C.check_inputs(tmp_path, manifest, repo, rh)
 
 
+def test_lm_eval_compare_konczy_sie_na_podmienionym_wejsciu(tmp_path):
+    """compare itself (not only check_inputs) stops on an input swapped after the measurement: the repo results
+    copied, the lm-eval file of Pythia v0 replaced by the Slayer one; the comparison would otherwise run."""
+    import shutil
+    import lm_eval_compare as C
+    R = KORZEN / "benchmarks" / "blimp" / "results"
+    for n in (*C.INPUTS, *C.OPTIONAL_INPUTS, C.MANIFEST):
+        (tmp_path / n).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(R / n, tmp_path / n)
+    C.compare(tmp_path, dokumenty(), C.SLAYER_REPO, partial=True)  # untouched copy: runs
+    shutil.copyfile(R / "lm-eval/slayer-1.06.jsonl.gz", tmp_path / "lm-eval/pythia-1b-v0.jsonl.gz")
+    with pytest.raises(SystemExit, match="lm-eval/pythia-1b-v0.jsonl.gz: sha256"):
+        C.compare(tmp_path, dokumenty(), C.SLAYER_REPO, partial=True)
+
+
 def test_lm_eval_compare_manifest_w_repo_pasuje_do_plikow():
     """The committed inputs of results/lm_eval_agreement.json match results/lm-eval/SHA256SUMS and the pinned
     sha256 of the Slayer 1.06 repo file."""
@@ -239,21 +254,24 @@ def test_wzgledem_referencji_v0():
     certain and Holm-significant against both weights with the same sign."""
     def e(z, w="pewne"):
         return {"roznica": z / 100, "z": z, "werdykt": w}
-    v1 = {"paradygmaty": {"a": e(10.0), "b": e(9.0), "c": e(-12.0), "d": e(1.0, "szum"), "e": e(3.1)}}
+    v1 = {"paradygmaty": {"a": e(10.0), "b": e(9.0), "c": e(-12.0), "d": e(1.0, "szum"), "e": e(3.1), "f": e(8.0)}}
     v0 = {"ogolem": e(-3.0),
-          "paradygmaty": {"a": e(11.0), "b": e(0.0, "szum"), "c": e(-10.0), "d": e(20.0), "e": e(3.08)}}
-    for v in (v1, v0):  # 65 paradigms: Holm needs p <= 0.05 / 62 at the 4th rank, z = 3.08 (p = 0.0021) fails it
+          "paradygmaty": {"a": e(11.0), "b": e(0.0, "szum"), "c": e(-10.0), "d": e(20.0), "e": e(3.08), "f": e(3.05)}}
+    for v in (v1, v0):  # 66 paradigms: Holm needs p <= 0.05 / 63 at the 4th rank, z = 3.08 (p = 0.0021) fails it
         v["paradygmaty"].update({f"n{i}": e(0.5, "szum") for i in range(60)})
     r = B.wzgledem_referencji(v1, v0)
-    assert set(r["pewne_v1"]) == {"a", "b", "c", "e"}
+    assert set(r["pewne_v1"]) == {"a", "b", "c", "e", "f"}
     assert r["pewne_v1"]["a"]["zostaje"] and not r["pewne_v1"]["b"]["zostaje"]
     assert r["pewne_v1"]["e"]["v0"]["werdykt"] == "pewne" and not r["pewne_v1"]["e"]["v0"]["holm"]
     assert not r["pewne_v1"]["e"]["zostaje"]  # certain against both, not Holm: does not stay
+    # f: Holm against v1, certain but not Holm against v0 (tough_vs_raising_2 in blimp.json): does not stay
+    assert r["pewne_v1"]["f"]["v1"]["holm"] and r["pewne_v1"]["f"]["v0"]["werdykt"] == "pewne"
+    assert not r["pewne_v1"]["f"]["v0"]["holm"] and not r["pewne_v1"]["f"]["zostaje"]
     assert r["pewne_v1"]["c"] == {"v1": {"roznica": -0.12, "z": -12.0, "holm": True},
                                   "v0": {"roznica": -0.10, "z": -10.0, "werdykt": "pewne", "holm": True},
                                   "zostaje": True}
-    assert r["liczby"] == {"slayer_pewne_v1": 3, "pythia_pewne_v1": 1, "slayer_pewne_v0": 3, "pythia_pewne_v0": 1,
-                           "slayer_holm_v1": 2, "pythia_holm_v1": 1, "slayer_holm_v0": 2, "pythia_holm_v0": 1,
+    assert r["liczby"] == {"slayer_pewne_v1": 4, "pythia_pewne_v1": 1, "slayer_pewne_v0": 4, "pythia_pewne_v0": 1,
+                           "slayer_holm_v1": 3, "pythia_holm_v1": 1, "slayer_holm_v0": 2, "pythia_holm_v0": 1,
                            "slayer_zostaje": 1, "pythia_zostaje": 1}
     v0["paradygmaty"]["a"] = e(-11.0)  # certain, but the other sign: does not stay
     assert not B.wzgledem_referencji(v1, v0)["pewne_v1"]["a"]["zostaje"]
