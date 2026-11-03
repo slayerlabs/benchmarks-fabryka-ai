@@ -96,7 +96,9 @@ bash benchmarks/blimp/lm_eval_instance.sh state          # stan kolejki
 
 Lokalnie, z plików w repo (bez wag). Krok porównania na instancji przerwano (pętla O(n^2), poprawiona w `bbaedc9`),
 więc `lm_eval_agreement.json` policzono tą komendą lokalnie z pobranych plików (sha256 zgodne z
-`results/lm-eval/SHA256SUMS`):
+`results/lm-eval/SHA256SUMS`). `compare` sprawdza sha256 wejść przed liczeniem: pliki P1-P4 wobec
+`results/lm-eval/SHA256SUMS`, a plik Slayera 1.06 z repo wobec sha256 przypiętego w `lm_eval_compare.py`; przy
+różnicy kończy się błędem i nic nie liczy:
 
 ```bash
 python benchmarks/blimp/lm_eval_compare.py compare --results benchmarks/blimp/results \

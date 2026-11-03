@@ -30,8 +30,17 @@ Plik referencyjny: [`EleutherAI/pythia` `evals/pythia-v0/pythia-1b/zero-shot/pyt
 |---|---|---|---|
 | (a) lm-eval na v0 wobec wartości opublikowanej | 0,10 pkt | +-2 pkt | spełniony |
 | (b) nasz kod wobec lm-eval, Pythia v0, ta sama decyzja na parze | 66998 z 67000 (99,997%), różnica trafności -0,003 pkt | >= 99% i <= 1 SE | spełniony |
-| (c) nasz kod (plik w repo, MPS) wobec lm-eval, Slayer 1.06 | 67000 z 67000, różnica 0 | >= 99% i <= 1 SE | spełniony |
+| (c) nasz kod (plik w repo, MPS) wobec lm-eval, Slayer 1.06 (ten sam forward, patrz niżej) | 67000 z 67000, różnica 0 | >= 99% i <= 1 SE | spełniony |
 | (d) nasz kod na GPU wobec lm-eval i wobec przebiegu MPS, Slayer 1.06 | 67000 z 67000 w obu | informacyjnie | - |
+
+**(c) nie jest niezależną kontrolą forwardu Slayera.** Przebieg lm-eval P3 idzie przez `common/slayer_lm.py`, który
+używa tego samego forwardu `slayer_model.Slayer` i tej samej reguły „zawsze jeden BOS” co nasz kod. Niezależne od
+naszego kodu są tam tylko liczenie wyniku w HFLM (podział kontekst/ciąg dalszy, suma log-prawdopodobieństw, decyzja
+`acc`) i obiekt tokenizera. (c) mówi więc, że nasze liczenie pary zgadza się z lm-eval na tym samym forwardzie.
+Forward wobec oficjalnej klasy GPT z repo Slayera sprawdzają osobno `kontrola_forward.py` (sekcja niżej) i
+`tests/test_lm_eval_slayer.py::test_forward_matches_official_reference` (zamrożone logity oficjalnego kodu na małym
+losowym checkpoincie, bez wag i sieci). Dla nowej wersji Slayera ze zmienioną architekturą te logity trzeba
+przed pomiarem zamrozić ponownie z jej kodu: `tests/make_slayer_reference.py`, pliki `*.py` i `config.json` z repo HF.
 
 Dwie niezgodne pary w (b) to remisy co do szumu liczb zmiennoprzecinkowych: `npi_present_1/445` (lm-eval daje
 obu zdaniom tę samą sumę) i `wh_vs_that_no_gap/990`. Największa |różnica| log-prawdopodobieństwa zdania między naszym
@@ -79,7 +88,8 @@ wypisanych cyfr, więc to prawdopodobnie panel Space (wniosek z jednej wartości
 | kontrola | werdykt |
 |---|---|
 | etap B: lm-eval na `pythia-1b-v0` wobec wartości opublikowanej (a) | spełniony, 0,10 pkt |
-| zgodność naszego kodu z lm-eval na parach, Pythia v0 (b) i Slayer 1.06 (c) | spełniona, 99,997% i 100% |
+| zgodność naszego kodu z lm-eval na parach, Pythia v0 (b) | spełniona, 99,997% |
+| zgodność liczenia pary z lm-eval na tym samym forwardzie Slayera 1.06 (c, bez kontroli forwardu) | spełniona, 100% |
 | etap B kodem autorów (jiant) | nie zrobiony |
 | nasz forward Slayera wobec oficjalnego | 0 zmienionych par z 200 |
 | panel Space | nie odtworzony (odczyt z protokołu); odczyt SHA-256 równy |

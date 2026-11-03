@@ -128,6 +128,11 @@ setup() {
   (cd $SLAYER_DIR && sha256sum -c SHA256SUMS) >> $OUT/weights.sha256
 }
 
+inputs_manifest() {  # $OUT/lm-eval/SHA256SUMS: sha256 of the P1-P4 files, paths relative to $OUT
+  (cd $OUT && sha pythia-1b-v0/blimp.jsonl.gz lm-eval/pythia-1b-v0.jsonl.gz lm-eval/slayer-1.06.jsonl.gz \
+     $(ls gpu-check/slayer-1.06.jsonl.gz 2> /dev/null) > lm-eval/SHA256SUMS)
+}
+
 queue() {
   rm -f $ST/ok $ST/error $ST/end
   [[ -n ${SKIP_SETUP:-} ]] || step setup setup
@@ -139,6 +144,8 @@ queue() {
   step p2_lm_eval_pythia_v0 lm_eval_run pythia-1b-v0 hf "pretrained=$PYTHIA_DIR,dtype=float32"
   step p3_lm_eval_slayer lm_eval_run slayer-1.06 slayer "pretrained=$SLAYER_DIR,dtype=float32"
   step environment environment
+  # manifest of the inputs before compare reads them (lm_eval_compare.check_inputs)
+  step inputs_sha256 inputs_manifest
   step compare $PY $R/benchmarks/blimp/lm_eval_compare.py compare --results $OUT --out $OUT/lm_eval_agreement.json ${LIMIT:+--partial}
   cp $LOGS/*.log $OUT/ 2>/dev/null || true
   (cd $OUT && find . -type f ! -name SHA256SUMS | sort | while read -r f; do sha "$f"; done > SHA256SUMS) || true

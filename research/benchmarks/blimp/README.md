@@ -64,13 +64,15 @@ poprawka Holma zostawia 37 różnic. Największe pewne różnice na korzyść Sl
 Spearmana 0,77 między różnicami sumowanymi a liczonymi na token), patrz pełny raport.
 
 Kolejność paradygmatów zależy też od wag Pythii. Wobec v0 Slayer prowadzi z werdyktem pewnym w 6 paradygmatach,
-Pythia w 35, a ogółem Slayer minus v0 to -3,23 pkt (SE 0,16 pkt, z = -20,51). Z 7 pewnych przewag Slayera wobec v1
-wobec v0 zostają pewne 4: sentential_subject_island (25,3 pkt, z = 13,27), principle_A_reconstruction (12,2 pkt,
-z = 7,20), only_npi_scope (15,4 pkt, z = 8,65) i tough_vs_raising_2 (3,8 pkt, z = 3,08). superlative_quantifiers_2,
-coordinate_structure_constraint_complex_left_branch i wh_vs_that_with_gap wobec v0 to szum, więc o nich nie ma
-wniosku. Z 34 pewnych przewag Pythii zostają 24, w tym tough_vs_raising_1 (-15,6 pkt, z = -11,03) i
-principle_A_domain_3 (-12,9 pkt, z = -6,14). Twierdzenie o paradygmacie trzyma się tylko wtedy, gdy trzyma się
-wobec obu wag; tabela: [`results/BLIMP.md`](results/BLIMP.md), sekcja „Against the control model Pythia-1B v0”.
+Pythia w 35, a ogółem Slayer minus v0 to -3,23 pkt (SE 0,16 pkt, z = -20,51). Po poprawce Holma (67 paradygmatów,
+5% na całą rodzinę) zostaje wobec v0 Slayer 5 i Pythia 34. Pewne i istotne po Holmie wobec obu wag, z tym samym znakiem,
+są 3 przewagi Slayera: sentential_subject_island (25,3 pkt, z = 13,27), principle_A_reconstruction (12,2 pkt,
+z = 7,20) i only_npi_scope (15,4 pkt, z = 8,65). tough_vs_raising_2 jest wobec v0 pewne (z = 3,08), ale nie
+przechodzi Holma. superlative_quantifiers_2, coordinate_structure_constraint_complex_left_branch i wh_vs_that_with_gap
+wobec v0 to szum. O tych czterech nie ma więc wniosku. Z przewag Pythii zostaje 23, w tym tough_vs_raising_1
+(-15,6 pkt, z = -11,03) i principle_A_domain_3 (-12,9 pkt, z = -6,14). Twierdzenie o paradygmacie trzyma się tylko
+wtedy, gdy trzyma się wobec obu wag; tabela: [`results/BLIMP.md`](results/BLIMP.md), sekcja „Against the control
+model Pythia-1B v0”.
 
 Przewaga Pythii leży w parach, które różnią się słowem albo jego formą: z od -18,12 do -23,18 (pewne) we
 wszystkich trzech odczytach „tych samych słów”. Odczyt to sposób rozstrzygania, czy zdanie poprawne i błędne
@@ -95,7 +97,11 @@ CI95 Space. Używaj pełnego zbioru.
 
 Na `EleutherAI/pythia-1b-v0` @ `step143000` lm-eval 0.4.9.1 daje 0,8244, nasz kod 0,8244, a opublikowana wartość to
 0,8234: lm-eval różni się o 0,10 pkt, w granicach +-2 pkt. Nasz kod podejmuje tę samą decyzję co lm-eval w 66998 z
-67000 par Pythii v0 (dwie różne to remisy co do szumu) i w 67000 z 67000 par Slayera 1.06. Protokół zapisany przed
+67000 par Pythii v0 (dwie różne to remisy co do szumu) i w 67000 z 67000 par Slayera 1.06. Dla Slayera ta zgodność
+nie sprawdza forwardu: lm-eval liczy go przez `common/slayer_lm.py`, czyli tym samym `slayer_model.Slayer` i tą samą
+regułą jednego BOS co nasz kod. Niezależne są tam tylko liczenie wyniku w HFLM i obiekt tokenizera. Forward wobec
+oficjalnego kodu sprawdzają osobno `kontrola_forward.py` (0 z 200 par zmienionych) i
+`tests/test_lm_eval_slayer.py::test_forward_matches_official_reference`. Protokół zapisany przed
 przebiegiem: [`LM_EVAL_PROTOCOL.md`](LM_EVAL_PROTOCOL.md), szczegóły: [`REPRODUCTION.md`](REPRODUCTION.md). Wagi v1
 dają 0,8207 wobec tej samej wartości opublikowanej; to tylko informacja, bo wartość dotyczy v0.
 

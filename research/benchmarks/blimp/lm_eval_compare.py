@@ -25,6 +25,10 @@ POINTS_2 = 0.02
 MIN_AGREEMENT = 0.99
 SENSE_MIN = 0.45
 SLAYER_REPO = B.KORZEN / "benchmarks/blimp/results/1.06/blimp.jsonl.gz"
+SLAYER_REPO_SHA256 = "6ea83bfd01acbb19465ef294a6e857c773fb1c410c97fc8303af9e5241d5beaf"  # file of PR #9 (14af2c8)
+MANIFEST = "lm-eval/SHA256SUMS"  # under --results: written on the instance before `compare`
+INPUTS = ("pythia-1b-v0/blimp.jsonl.gz", "lm-eval/pythia-1b-v0.jsonl.gz", "lm-eval/slayer-1.06.jsonl.gz")
+OPTIONAL_INPUTS = ("gpu-check/slayer-1.06.jsonl.gz",)
 
 
 def sample_row(s):
@@ -118,13 +122,58 @@ def sense(acc):
     return SENSE_MIN <= acc < 1.0
 
 
-def compare(results, docs, slayer_repo=SLAYER_REPO, partial=False):
+def read_manifest(path):
+    """sha256sum-format file -> {relative path (without a leading ./): sha256}."""
+    out = {}
+    for line in Path(path).read_text().splitlines():
+        if line.strip():
+            h, name = line.split(maxsplit=1)
+            name = name.strip().lstrip("*")
+            out[name[2:] if name.startswith("./") else name] = h.lower()
+    return out
+
+
+def check_inputs(results, manifest, slayer_repo=SLAYER_REPO, slayer_repo_sha256=SLAYER_REPO_SHA256):
+    """Before anything is computed: every input of `compare` has the sha256 of the manifest written at measurement
+    time (inputs under `results`) or the pinned sha256 (our repo result of Slayer 1.06). SystemExit naming each
+    file that is missing, not listed or different; -> {path: sha256} of the checked files."""
+    import hashlib
+
+    def sha(p):
+        h = hashlib.sha256()
+        with open(p, "rb") as f:
+            for blok in iter(lambda: f.read(1 << 20), b""):
+                h.update(blok)
+        return h.hexdigest()
+    R, pinned = Path(results), read_manifest(manifest)
+    errors, checked = [], {}
+    names = list(INPUTS) + [n for n in OPTIONAL_INPUTS if (R / n).exists()]
+    for name, path, want in [(n, R / n, pinned.get(n)) for n in names] + [(str(slayer_repo), Path(slayer_repo),
+                                                                          slayer_repo_sha256)]:
+        if want is None:
+            errors.append(f"{name}: not listed in {manifest}")
+        elif not path.exists():
+            errors.append(f"{path}: missing")
+        else:
+            got = sha(path)
+            if got != want:
+                errors.append(f"{path}: sha256 {got} != {want}")
+            checked[name] = got
+    if errors:
+        raise SystemExit("inputs do not match the manifest, nothing computed:\n  " + "\n  ".join(errors))
+    return checked
+
+
+def compare(results, docs, slayer_repo=SLAYER_REPO, partial=False, manifest=None,
+            slayer_repo_sha256=SLAYER_REPO_SHA256):
     R = Path(results)
+    out_sha = check_inputs(R, manifest or R / MANIFEST, slayer_repo, slayer_repo_sha256)
     p1 = read_rows(R / "pythia-1b-v0/blimp.jsonl.gz")
     p2 = read_rows(R / "lm-eval/pythia-1b-v0.jsonl.gz")
     p3 = read_rows(R / "lm-eval/slayer-1.06.jsonl.gz")
     s_repo = read_rows(slayer_repo)
-    out = {"protocol": "benchmarks/blimp/LM_EVAL_PROTOCOL.md", "n_docs": len(docs), "partial": partial}
+    out = {"protocol": "benchmarks/blimp/LM_EVAL_PROTOCOL.md", "n_docs": len(docs), "partial": partial,
+           "inputs_sha256": out_sha}
     lm_v0 = accuracy(ref_hits(p2), [d for d in docs if d["id"] in p2])
     our_v0 = accuracy(our_hits(p1, docs), [d for d in docs if d["id"] in p1])
     out["a"] = {"lm_eval": verdict_published(lm_v0["acc"], lm_v0["se"]),
@@ -249,7 +298,7 @@ def cmd_extract(a):
 
 def cmd_compare(a):
     docs = B.wczytaj(a.dane)
-    out = compare(a.results, docs, Path(a.slayer_repo), a.partial)
+    out = compare(a.results, docs, Path(a.slayer_repo), a.partial, a.manifest, a.slayer_repo_sha256)
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps(out, indent=1) + "\n")
     print(json.dumps({"a": out["a"]["lm_eval"]["pass"], "b": out["b"]["pass"], "c": out["c"]["pass"],
@@ -270,6 +319,8 @@ def main(argv=None):
     c.add_argument("--slayer-repo", default=str(SLAYER_REPO))
     c.add_argument("--dane")
     c.add_argument("--partial", action="store_true", help="smoke test on a subset: compare the pairs present in both")
+    c.add_argument("--manifest", help=f"sha256sum file of the inputs (default: <results>/{MANIFEST})")
+    c.add_argument("--slayer-repo-sha256", default=SLAYER_REPO_SHA256, help="sha256 of --slayer-repo")
     s = sub.add_parser("sample")
     s.add_argument("--results", required=True)
     s.add_argument("--out", required=True)

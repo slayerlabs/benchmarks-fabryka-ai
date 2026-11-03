@@ -166,6 +166,53 @@ def test_lm_eval_compare_wiersz_i_zgodnosc():
         C.agreement(ours, ref, dokumenty(), partial=False)
 
 
+def test_lm_eval_compare_trafnosc_srednia_paradygmatow_przy_roznej_liczbie_par():
+    """accuracy and agreement: equal weight per paradigm (group `blimp`, weight_by_size False), also when the
+    paradigms have different numbers of pairs (a --partial run, a paradigm cut short). Pair-weighted: 0.25."""
+    import lm_eval_compare as C
+    d = ([{"id": "blimp_a/0", "grupa": "a", "opcje": ["x", "y"]}]
+         + [{"id": f"blimp_b/{i}", "grupa": "b", "opcje": ["x", "y"]} for i in range(3)])
+    hits = {"blimp_a/0": 1, "blimp_b/0": 0, "blimp_b/1": 0, "blimp_b/2": 0}
+    assert math.isclose(C.accuracy(hits, d)["acc"], 0.5)
+    ours = {x["id"]: {"ll": [-1.0, -2.0] if hits[x["id"]] else [-2.0, -1.0]} for x in d}
+    ref = {x["id"]: {**ours[x["id"]], "acc": hits[x["id"]]} for x in d}
+    ag = C.agreement(ours, ref, d, partial=True)
+    assert ag["agree"] == 4 and math.isclose(ag["acc_ours"], 0.5) and math.isclose(ag["acc_lm_eval"], 0.5)
+
+
+def test_lm_eval_compare_sprawdza_sha256_wejsc_przed_liczeniem(tmp_path):
+    """check_inputs: a changed, missing or unlisted input stops compare before anything is computed."""
+    import hashlib
+    import lm_eval_compare as C
+    for n in C.INPUTS:
+        (tmp_path / n).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / n).write_bytes(n.encode())
+    repo = tmp_path / "repo.jsonl.gz"
+    repo.write_bytes(b"repo")
+    h = {n: hashlib.sha256(n.encode()).hexdigest() for n in C.INPUTS}
+    manifest = tmp_path / C.MANIFEST
+    manifest.write_text("".join(f"{v}  ./{n}\n" for n, v in h.items()))
+    rh = hashlib.sha256(b"repo").hexdigest()
+    assert C.check_inputs(tmp_path, manifest, repo, rh) == {**h, str(repo): rh}
+    with pytest.raises(SystemExit, match="repo.jsonl.gz: sha256"):
+        C.check_inputs(tmp_path, manifest, repo, "0" * 64)
+    (tmp_path / C.INPUTS[1]).write_bytes(b"changed after the measurement")
+    with pytest.raises(SystemExit, match=C.INPUTS[1]):
+        C.check_inputs(tmp_path, manifest, repo, rh)
+    (tmp_path / C.OPTIONAL_INPUTS[0]).parent.mkdir(parents=True, exist_ok=True)
+    (tmp_path / C.OPTIONAL_INPUTS[0]).write_bytes(b"p4")
+    with pytest.raises(SystemExit, match="not listed"):
+        C.check_inputs(tmp_path, manifest, repo, rh)
+
+
+def test_lm_eval_compare_manifest_w_repo_pasuje_do_plikow():
+    """The committed inputs of results/lm_eval_agreement.json match results/lm-eval/SHA256SUMS and the pinned
+    sha256 of the Slayer 1.06 repo file."""
+    import lm_eval_compare as C
+    R = KORZEN / "benchmarks" / "blimp" / "results"
+    assert set(C.check_inputs(R, R / C.MANIFEST)) == {*C.INPUTS, *C.OPTIONAL_INPUTS, str(C.SLAYER_REPO)}
+
+
 def test_lm_eval_compare_warunki_protokolu():
     """(a) +-2 points or 2 SE when larger; (b)/(c) >= 99% same decisions and |difference| <= 1 SE of lm-eval."""
     import lm_eval_compare as C
@@ -180,19 +227,27 @@ def test_lm_eval_compare_warunki_protokolu():
 
 
 def test_wzgledem_referencji_v0():
-    """blimp.wzgledem_referencji: paradigms certain against v1, re-read against v0 (verdict and sign must both hold)."""
-    def e(r, w):
-        return {"roznica": r, "z": r * 100, "werdykt": w}
-    v1 = {"paradygmaty": {"a": e(0.10, "pewne"), "b": e(0.09, "pewne"), "c": e(-0.12, "pewne"), "d": e(0.01, "szum")}}
-    v0 = {"ogolem": e(-0.03, "pewne"),
-          "paradygmaty": {"a": e(0.11, "pewne"), "b": e(0.0, "szum"), "c": e(-0.10, "pewne"), "d": e(0.2, "pewne")}}
+    """blimp.wzgledem_referencji: paradigms certain against v1, re-read against v0; a paradigm stays when it is
+    certain and Holm-significant against both weights with the same sign."""
+    def e(z, w="pewne"):
+        return {"roznica": z / 100, "z": z, "werdykt": w}
+    v1 = {"paradygmaty": {"a": e(10.0), "b": e(9.0), "c": e(-12.0), "d": e(1.0, "szum"), "e": e(3.1)}}
+    v0 = {"ogolem": e(-3.0),
+          "paradygmaty": {"a": e(11.0), "b": e(0.0, "szum"), "c": e(-10.0), "d": e(20.0), "e": e(3.08)}}
+    for v in (v1, v0):  # 65 paradigms: Holm needs p <= 0.05 / 62 at the 4th rank, z = 3.08 (p = 0.0021) fails it
+        v["paradygmaty"].update({f"n{i}": e(0.5, "szum") for i in range(60)})
     r = B.wzgledem_referencji(v1, v0)
-    assert set(r["pewne_v1"]) == {"a", "b", "c"} and r["pewne_v1"]["a"]["zostaje"] and not r["pewne_v1"]["b"]["zostaje"]
-    assert r["pewne_v1"]["c"] == {"v1": {"roznica": -0.12, "z": -12.0}, "v0": {"roznica": -0.10, "z": -10.0,
-                                                                               "werdykt": "pewne"}, "zostaje": True}
-    assert r["liczby"] == {"slayer_pewne_v1": 2, "pythia_pewne_v1": 1, "slayer_pewne_v0": 2, "pythia_pewne_v0": 1,
-                           "slayer_pewne_v1_zostaje": 1, "pythia_pewne_v1_zostaje": 1}
-    v0["paradygmaty"]["a"] = e(-0.11, "pewne")  # certain, but the other sign: does not stay
+    assert set(r["pewne_v1"]) == {"a", "b", "c", "e"}
+    assert r["pewne_v1"]["a"]["zostaje"] and not r["pewne_v1"]["b"]["zostaje"]
+    assert r["pewne_v1"]["e"]["v0"]["werdykt"] == "pewne" and not r["pewne_v1"]["e"]["v0"]["holm"]
+    assert not r["pewne_v1"]["e"]["zostaje"]  # certain against both, not Holm: does not stay
+    assert r["pewne_v1"]["c"] == {"v1": {"roznica": -0.12, "z": -12.0, "holm": True},
+                                  "v0": {"roznica": -0.10, "z": -10.0, "werdykt": "pewne", "holm": True},
+                                  "zostaje": True}
+    assert r["liczby"] == {"slayer_pewne_v1": 3, "pythia_pewne_v1": 1, "slayer_pewne_v0": 3, "pythia_pewne_v0": 1,
+                           "slayer_holm_v1": 2, "pythia_holm_v1": 1, "slayer_holm_v0": 2, "pythia_holm_v0": 1,
+                           "slayer_zostaje": 1, "pythia_zostaje": 1}
+    v0["paradygmaty"]["a"] = e(-11.0)  # certain, but the other sign: does not stay
     assert not B.wzgledem_referencji(v1, v0)["pewne_v1"]["a"]["zostaje"]
     k = B.kontrola_wobec_opublikowanej(B.REFERENCJA_PYTHIA["wartosc"] + 0.001)
     assert k["w_progu"] and math.isclose(k["roznica"], 0.001)

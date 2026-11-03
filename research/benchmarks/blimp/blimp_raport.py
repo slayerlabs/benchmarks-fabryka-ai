@@ -147,6 +147,12 @@ def sekcja_kontroli(w, bl, kp):
                      f"({f(w[f'{p}/{k}/share'] * 100, 2)}%), accuracy difference {pkt(w[f'{p}/{k}/diff'], 3)}, "
                      f"max abs log-lik difference {f(w[f'{p}/{k}/max_abs_dll'], 5)} | >= 99% and <= 1 SE "
                      f"({pkt(w[f'{p}/{k}/se_lm_eval'], 3)}) | {'pass' if kl[k]['pass'] else 'FAIL'} |")
+    if kl:
+        L += ["", "(c) is not an independent check of the Slayer forward: lm-eval runs Slayer through "
+                  "`common/slayer_lm.py`, i.e. the same `slayer_model.Slayer` forward and the same one-BOS rule as our "
+                  "code; only the HFLM scoring and the tokenizer object are independent. The forward against the "
+                  "official code is checked by `kontrola_forward.py` (section Controls) and "
+                  "`tests/test_lm_eval_slayer.py::test_forward_matches_official_reference`."]
     L += ["", f"The v1 weights (`EleutherAI/pythia-1b`, the comparison model of this report) give "
               f"{f(w['blimp/kontrola_pythia_v1/nasza'], 4)} against the same published value; that is information "
               "only, the published value belongs to v0.", ""]
@@ -165,20 +171,24 @@ def sekcja_v0(w, bl):
          f"{pkt(w[p + '/ogolem/se'])}, z = {f(w[p + '/ogolem/z'], 2)}: {WERDYKT_EN[og['werdykt']]}. Per paradigm the "
          f"ranking depends on which Pythia weights are the reference: against v1 Slayer is certainly ahead in "
          f"{int(w[p + '/liczby/slayer_pewne_v1'])} paradigms and Pythia in {int(w[p + '/liczby/pythia_pewne_v1'])}; "
-         f"against v0 in {int(w[p + '/liczby/slayer_pewne_v0'])} and {int(w[p + '/liczby/pythia_pewne_v0'])}. Of the "
-         f"{int(w[p + '/liczby/slayer_pewne_v1'])} certain Slayer advantages against v1, "
-         f"{int(w[p + '/liczby/slayer_pewne_v1_zostaje'])} stay certain against v0; of the "
-         f"{int(w[p + '/liczby/pythia_pewne_v1'])} certain Pythia advantages, "
-         f"{int(w[p + '/liczby/pythia_pewne_v1_zostaje'])} stay. A per-paradigm statement about Slayer holds only "
-         "when it holds against both. Rows: every paradigm certain against v1 in Slayer's favour.", "",
-         "| paradigm | difference vs v1 | z vs v1 | difference vs v0 | z vs v0 | verdict vs v0 | stays |",
-         "|---|---:|---:|---:|---:|---|---|"]
+         f"against v0 in {int(w[p + '/liczby/slayer_pewne_v0'])} and {int(w[p + '/liczby/pythia_pewne_v0'])}. After "
+         f"a Holm correction over the 67 paradigms (family-wise 5%) against v1: Slayer "
+         f"{int(w[p + '/liczby/slayer_holm_v1'])}, Pythia {int(w[p + '/liczby/pythia_holm_v1'])}; against v0: Slayer "
+         f"{int(w[p + '/liczby/slayer_holm_v0'])}, Pythia {int(w[p + '/liczby/pythia_holm_v0'])}. Certain and "
+         f"Holm-significant against both weights with the same sign: {int(w[p + '/liczby/slayer_zostaje'])} Slayer "
+         f"advantages and {int(w[p + '/liczby/pythia_zostaje'])} Pythia advantages. A per-paradigm statement about "
+         "Slayer holds only for those. Rows: every paradigm certain against v1 in Slayer's favour.", "",
+         "| paradigm | difference vs v1 | z vs v1 | Holm vs v1 | difference vs v0 | z vs v0 | verdict vs v0 | Holm vs v0 "
+         "| stays |",
+         "|---|---:|---:|---|---:|---:|---|---|---|"]
     for g, e in sorted(bl["wzgledem_v0"]["pewne_v1"].items(), key=lambda kv: -kv[1]["v1"]["roznica"]):
         if e["v1"]["roznica"] <= 0:
             continue
         q = f"{p}/pewne_v1/{g}"
-        L.append(f"| {g} | {pkt(w[q + '/v1/roznica'], 1)} | z = {f(w[q + '/v1/z'], 2)} | {pkt(w[q + '/v0/roznica'], 1)} | "
-                 f"z = {f(w[q + '/v0/z'], 2)} | {WERDYKT_EN[e['v0']['werdykt']]} | {'yes' if e['zostaje'] else 'no'} |")
+        L.append(f"| {g} | {pkt(w[q + '/v1/roznica'], 1)} | z = {f(w[q + '/v1/z'], 2)} | "
+                 f"{'yes' if e['v1']['holm'] else 'no'} | {pkt(w[q + '/v0/roznica'], 1)} | "
+                 f"z = {f(w[q + '/v0/z'], 2)} | {WERDYKT_EN[e['v0']['werdykt']]} | "
+                 f"{'yes' if e['v0']['holm'] else 'no'} | {'yes' if e['zostaje'] else 'no'} |")
     return L + [""]
 
 

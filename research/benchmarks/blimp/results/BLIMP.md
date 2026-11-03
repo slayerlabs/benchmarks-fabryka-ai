@@ -30,6 +30,8 @@ Control model of METODOLOGIA.md: `EleutherAI/pythia-1b-v0` @ `step143000`, score
 | our code vs lm-eval, Pythia-1B v0, same decision per pair (b) | 66998 of 67000 (100.00%), accuracy difference -0.003 pts, max abs log-lik difference 0.00049 | >= 99% and <= 1 SE (0.132 pts) | pass |
 | our code (repo file, MPS) vs lm-eval, Slayer 1.06, same decision per pair (c) | 67000 of 67000 (100.00%), accuracy difference 0.000 pts, max abs log-lik difference 0.00014 | >= 99% and <= 1 SE (0.144 pts) | pass |
 
+(c) is not an independent check of the Slayer forward: lm-eval runs Slayer through `common/slayer_lm.py`, i.e. the same `slayer_model.Slayer` forward and the same one-BOS rule as our code; only the HFLM scoring and the tokenizer object are independent. The forward against the official code is checked by `kontrola_forward.py` (section Controls) and `tests/test_lm_eval_slayer.py::test_forward_matches_official_reference`.
+
 The v1 weights (`EleutherAI/pythia-1b`, the comparison model of this report) give 0.8207 against the same published value; that is information only, the published value belongs to v0.
 
 ## Agreement with the Space (panel of 200)
@@ -150,17 +152,17 @@ The order of the gaps depends on the measure: Spearman rank correlation between 
 
 ## Against the control model Pythia-1B v0
 
-Slayer 1.06 minus Pythia-1B v0 on the same 67 000 pairs: -3.23 pts, paired SE 0.16 pts, z = -20.51: certain. Per paradigm the ranking depends on which Pythia weights are the reference: against v1 Slayer is certainly ahead in 7 paradigms and Pythia in 34; against v0 in 6 and 35. Of the 7 certain Slayer advantages against v1, 4 stay certain against v0; of the 34 certain Pythia advantages, 24 stay. A per-paradigm statement about Slayer holds only when it holds against both. Rows: every paradigm certain against v1 in Slayer's favour.
+Slayer 1.06 minus Pythia-1B v0 on the same 67 000 pairs: -3.23 pts, paired SE 0.16 pts, z = -20.51: certain. Per paradigm the ranking depends on which Pythia weights are the reference: against v1 Slayer is certainly ahead in 7 paradigms and Pythia in 34; against v0 in 6 and 35. After a Holm correction over the 67 paradigms (family-wise 5%) against v1: Slayer 7, Pythia 30; against v0: Slayer 5, Pythia 34. Certain and Holm-significant against both weights with the same sign: 3 Slayer advantages and 23 Pythia advantages. A per-paradigm statement about Slayer holds only for those. Rows: every paradigm certain against v1 in Slayer's favour.
 
-| paradigm | difference vs v1 | z vs v1 | difference vs v0 | z vs v0 | verdict vs v0 | stays |
-|---|---:|---:|---:|---:|---|---|
-| sentential_subject_island | 23.7 pts | z = 11.63 | 25.3 pts | z = 13.27 | certain | yes |
-| principle_A_reconstruction | 15.7 pts | z = 9.44 | 12.2 pts | z = 7.20 | certain | yes |
-| only_npi_scope | 13.9 pts | z = 8.31 | 15.4 pts | z = 8.65 | certain | yes |
-| superlative_quantifiers_2 | 11.6 pts | z = 8.53 | -0.5 pts | z = -0.42 | noise | no |
-| coordinate_structure_constraint_complex_left_branch | 11.4 pts | z = 7.14 | -1.5 pts | z = -0.99 | noise | no |
-| wh_vs_that_with_gap | 9.5 pts | z = 5.72 | 2.6 pts | z = 1.55 | noise | no |
-| tough_vs_raising_2 | 4.0 pts | z = 3.45 | 3.8 pts | z = 3.08 | certain | yes |
+| paradigm | difference vs v1 | z vs v1 | Holm vs v1 | difference vs v0 | z vs v0 | verdict vs v0 | Holm vs v0 | stays |
+|---|---:|---:|---|---:|---:|---|---|---|
+| sentential_subject_island | 23.7 pts | z = 11.63 | yes | 25.3 pts | z = 13.27 | certain | yes | yes |
+| principle_A_reconstruction | 15.7 pts | z = 9.44 | yes | 12.2 pts | z = 7.20 | certain | yes | yes |
+| only_npi_scope | 13.9 pts | z = 8.31 | yes | 15.4 pts | z = 8.65 | certain | yes | yes |
+| superlative_quantifiers_2 | 11.6 pts | z = 8.53 | yes | -0.5 pts | z = -0.42 | noise | no | no |
+| coordinate_structure_constraint_complex_left_branch | 11.4 pts | z = 7.14 | yes | -1.5 pts | z = -0.99 | noise | no | no |
+| wh_vs_that_with_gap | 9.5 pts | z = 5.72 | yes | 2.6 pts | z = 1.55 | noise | no | no |
+| tough_vs_raising_2 | 4.0 pts | z = 3.45 | yes | 3.8 pts | z = 3.08 | certain | no | no |
 
 ## What the gap measures: tokenizer and vocabulary
 

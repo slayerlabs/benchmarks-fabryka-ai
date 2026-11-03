@@ -3655,492 +3655,574 @@
    "adjunct_island": {
     "v1": {
      "roznica": -0.085,
-     "z": -6.266982098032425
+     "z": -6.266982098032425,
+     "holm": true
     },
     "v0": {
      "roznica": -0.093,
      "z": -6.7730101666828535,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "anaphor_gender_agreement": {
     "v1": {
      "roznica": -0.013,
-     "z": -3.373967376246745
+     "z": -3.373967376246745,
+     "holm": true
     },
     "v0": {
      "roznica": -0.01,
      "z": -2.3624152019897307,
-     "werdykt": "prawdopodobne"
+     "werdykt": "prawdopodobne",
+     "holm": false
     },
     "zostaje": false
    },
    "animate_subject_passive": {
     "v1": {
      "roznica": -0.079,
-     "z": -6.189240075926399
+     "z": -6.189240075926399,
+     "holm": true
     },
     "v0": {
      "roznica": -0.056,
      "z": -4.413075315221325,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "animate_subject_trans": {
     "v1": {
      "roznica": -0.09,
-     "z": -7.551514416251773
+     "z": -7.551514416251773,
+     "holm": true
     },
     "v0": {
      "roznica": -0.086,
      "z": -7.4088740586404835,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "causative": {
     "v1": {
      "roznica": -0.108,
-     "z": -6.79542920601561
+     "z": -6.79542920601561,
+     "holm": true
     },
     "v0": {
      "roznica": -0.067,
      "z": -4.248002252329536,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "complex_NP_island": {
     "v1": {
      "roznica": -0.084,
-     "z": -4.6864868165704285
+     "z": -4.6864868165704285,
+     "holm": true
     },
     "v0": {
      "roznica": -0.006,
      "z": -0.3214895325457795,
-     "werdykt": "szum"
+     "werdykt": "szum",
+     "holm": false
     },
     "zostaje": false
    },
    "coordinate_structure_constraint_complex_left_branch": {
     "v1": {
      "roznica": 0.114,
-     "z": 7.135330583937773
+     "z": 7.135330583937773,
+     "holm": true
     },
     "v0": {
      "roznica": -0.015,
      "z": -0.9912192351183599,
-     "werdykt": "szum"
+     "werdykt": "szum",
+     "holm": false
     },
     "zostaje": false
    },
    "coordinate_structure_constraint_object_extraction": {
     "v1": {
      "roznica": -0.063,
-     "z": -4.759549046753435
+     "z": -4.759549046753435,
+     "holm": true
     },
     "v0": {
      "roznica": -0.025,
      "z": -1.9032051893446404,
-     "werdykt": "szum"
+     "werdykt": "szum",
+     "holm": false
     },
     "zostaje": false
    },
    "determiner_noun_agreement_irregular_1": {
     "v1": {
      "roznica": -0.05,
-     "z": -5.1138862385404105
+     "z": -5.1138862385404105,
+     "holm": true
     },
     "v0": {
      "roznica": -0.026,
      "z": -2.7809250336668208,
-     "werdykt": "prawdopodobne"
+     "werdykt": "prawdopodobne",
+     "holm": false
     },
     "zostaje": false
    },
    "determiner_noun_agreement_irregular_2": {
     "v1": {
      "roznica": -0.024,
-     "z": -3.111809804355244
+     "z": -3.111809804355244,
+     "holm": false
     },
     "v0": {
      "roznica": -0.019,
      "z": -2.47995081392674,
-     "werdykt": "prawdopodobne"
+     "werdykt": "prawdopodobne",
+     "holm": false
     },
     "zostaje": false
    },
    "determiner_noun_agreement_with_adjective_1": {
     "v1": {
      "roznica": -0.029,
-     "z": -4.013433891787689
+     "z": -4.013433891787689,
+     "holm": true
     },
     "v0": {
      "roznica": -0.036,
      "z": -5.381607905698819,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "distractor_agreement_relational_noun": {
     "v1": {
      "roznica": -0.064,
-     "z": -4.717013621433068
+     "z": -4.717013621433068,
+     "holm": true
     },
     "v0": {
      "roznica": -0.062,
      "z": -4.493858743031684,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "drop_argument": {
     "v1": {
      "roznica": -0.043,
-     "z": -3.3855926040448145
+     "z": -3.3855926040448145,
+     "holm": true
     },
     "v0": {
      "roznica": -0.029,
      "z": -2.1130912120448784,
-     "werdykt": "prawdopodobne"
+     "werdykt": "prawdopodobne",
+     "holm": false
     },
     "zostaje": false
    },
    "existential_there_object_raising": {
     "v1": {
      "roznica": -0.084,
-     "z": -6.537230059832305
+     "z": -6.537230059832305,
+     "holm": true
     },
     "v0": {
      "roznica": -0.005,
      "z": -0.377802430355259,
-     "werdykt": "szum"
+     "werdykt": "szum",
+     "holm": false
     },
     "zostaje": false
    },
    "existential_there_subject_raising": {
     "v1": {
      "roznica": -0.076,
-     "z": -6.606039874744799
+     "z": -6.606039874744799,
+     "holm": true
     },
     "v0": {
      "roznica": -0.078,
      "z": -6.893105280161455,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "intransitive": {
     "v1": {
      "roznica": -0.054,
-     "z": -3.9460099907671795
+     "z": -3.9460099907671795,
+     "holm": true
     },
     "v0": {
      "roznica": -0.05,
      "z": -3.772369180073609,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "irregular_past_participle_verbs": {
     "v1": {
      "roznica": -0.131,
-     "z": -9.874075352456664
+     "z": -9.874075352456664,
+     "holm": true
     },
     "v0": {
      "roznica": -0.136,
      "z": -9.980332565759879,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "irregular_plural_subject_verb_agreement_1": {
     "v1": {
      "roznica": -0.04,
-     "z": -3.528257095343411
+     "z": -3.528257095343411,
+     "holm": true
     },
     "v0": {
      "roznica": -0.04,
      "z": -3.584532688938788,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "left_branch_island_echo_question": {
     "v1": {
      "roznica": -0.092,
-     "z": -5.034996968594911
+     "z": -5.034996968594911,
+     "holm": true
     },
     "v0": {
      "roznica": -0.236,
      "z": -13.703326008318713,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "matrix_question_npi_licensor_present": {
     "v1": {
      "roznica": -0.135,
-     "z": -6.988647298798068
+     "z": -6.988647298798068,
+     "holm": true
     },
     "v0": {
      "roznica": -0.125,
      "z": -7.035243366587299,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "npi_present_1": {
     "v1": {
      "roznica": -0.125,
-     "z": -7.501689760075513
+     "z": -7.501689760075513,
+     "holm": true
     },
     "v0": {
      "roznica": -0.093,
      "z": -5.399611257776309,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "npi_present_2": {
     "v1": {
      "roznica": -0.051,
-     "z": -3.08851820616009
+     "z": -3.08851820616009,
+     "holm": false
     },
     "v0": {
      "roznica": -0.023,
      "z": -1.3726714427595448,
-     "werdykt": "szum"
+     "werdykt": "szum",
+     "holm": false
     },
     "zostaje": false
    },
    "only_npi_scope": {
     "v1": {
      "roznica": 0.139,
-     "z": 8.307447689867011
+     "z": 8.307447689867011,
+     "holm": true
     },
     "v0": {
      "roznica": 0.154,
      "z": 8.654955786447672,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "principle_A_c_command": {
     "v1": {
      "roznica": -0.048,
-     "z": -3.429517371872245
+     "z": -3.429517371872245,
+     "holm": true
     },
     "v0": {
      "roznica": -0.05,
      "z": -3.520588152983538,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "principle_A_domain_1": {
     "v1": {
      "roznica": -0.033,
-     "z": -5.664040963011171
+     "z": -5.664040963011171,
+     "holm": true
     },
     "v0": {
      "roznica": -0.029,
      "z": -5.11127766457743,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "principle_A_domain_3": {
     "v1": {
      "roznica": -0.15,
-     "z": -7.319948416160886
+     "z": -7.319948416160886,
+     "holm": true
     },
     "v0": {
      "roznica": -0.129,
      "z": -6.144251950234383,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "principle_A_reconstruction": {
     "v1": {
      "roznica": 0.157,
-     "z": 9.439562717118484
+     "z": 9.439562717118484,
+     "holm": true
     },
     "v0": {
      "roznica": 0.122,
      "z": 7.196376510582849,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "regular_plural_subject_verb_agreement_1": {
     "v1": {
      "roznica": -0.06,
-     "z": -5.813841404759786
+     "z": -5.813841404759786,
+     "holm": true
     },
     "v0": {
      "roznica": -0.068,
      "z": -6.620957532841108,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "regular_plural_subject_verb_agreement_2": {
     "v1": {
      "roznica": -0.028,
-     "z": -3.0316579715277
+     "z": -3.0316579715277,
+     "holm": false
     },
     "v0": {
      "roznica": -0.027,
      "z": -3.174420654711792,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
-    "zostaje": true
+    "zostaje": false
    },
    "sentential_negation_npi_licensor_present": {
     "v1": {
      "roznica": -0.015,
-     "z": -3.141556033869319
+     "z": -3.141556033869319,
+     "holm": false
     },
     "v0": {
      "roznica": -0.003,
      "z": -0.5771577228213598,
-     "werdykt": "szum"
+     "werdykt": "szum",
+     "holm": false
     },
     "zostaje": false
    },
    "sentential_negation_npi_scope": {
     "v1": {
      "roznica": -0.05,
-     "z": -3.31330982222037
+     "z": -3.31330982222037,
+     "holm": true
     },
     "v0": {
      "roznica": -0.063,
      "z": -4.235422108805369,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "sentential_subject_island": {
     "v1": {
      "roznica": 0.237,
-     "z": 11.630422412182636
+     "z": 11.630422412182636,
+     "holm": true
     },
     "v0": {
      "roznica": 0.253,
      "z": 13.27257953968309,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "superlative_quantifiers_1": {
     "v1": {
      "roznica": -0.118,
-     "z": -6.9248257928711965
+     "z": -6.9248257928711965,
+     "holm": true
     },
     "v0": {
      "roznica": -0.171,
      "z": -10.110645788609741,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "superlative_quantifiers_2": {
     "v1": {
      "roznica": 0.116,
-     "z": 8.534749296392965
+     "z": 8.534749296392965,
+     "holm": true
     },
     "v0": {
      "roznica": -0.005,
      "z": -0.4239204886296231,
-     "werdykt": "szum"
+     "werdykt": "szum",
+     "holm": false
     },
     "zostaje": false
    },
    "tough_vs_raising_1": {
     "v1": {
      "roznica": -0.165,
-     "z": -12.099656838089068
+     "z": -12.099656838089068,
+     "holm": true
     },
     "v0": {
      "roznica": -0.156,
      "z": -11.034621952797348,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "tough_vs_raising_2": {
     "v1": {
      "roznica": 0.04,
-     "z": 3.4486022013066604
+     "z": 3.4486022013066604,
+     "holm": true
     },
     "v0": {
      "roznica": 0.038,
      "z": 3.0750465479284004,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": false
     },
-    "zostaje": true
+    "zostaje": false
    },
    "wh_island": {
     "v1": {
      "roznica": -0.079,
-     "z": -5.26685412338039
+     "z": -5.26685412338039,
+     "holm": true
     },
     "v0": {
      "roznica": 0.025,
      "z": 1.5605759728824427,
-     "werdykt": "szum"
+     "werdykt": "szum",
+     "holm": false
     },
     "zostaje": false
    },
    "wh_questions_object_gap": {
     "v1": {
      "roznica": -0.118,
-     "z": -7.741937058021432
+     "z": -7.741937058021432,
+     "holm": true
     },
     "v0": {
      "roznica": -0.095,
      "z": -5.95814221113685,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "wh_questions_subject_gap": {
     "v1": {
      "roznica": -0.073,
-     "z": -5.963988180180208
+     "z": -5.963988180180208,
+     "holm": true
     },
     "v0": {
      "roznica": -0.089,
      "z": -7.436777750133959,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    },
    "wh_vs_that_with_gap": {
     "v1": {
      "roznica": 0.095,
-     "z": 5.7157270127249005
+     "z": 5.7157270127249005,
+     "holm": true
     },
     "v0": {
      "roznica": 0.026,
      "z": 1.5548982177576862,
-     "werdykt": "szum"
+     "werdykt": "szum",
+     "holm": false
     },
     "zostaje": false
    },
    "wh_vs_that_with_gap_long_distance": {
     "v1": {
      "roznica": -0.087,
-     "z": -5.220649094022745
+     "z": -5.220649094022745,
+     "holm": true
     },
     "v0": {
      "roznica": -0.13,
      "z": -7.8915322856102215,
-     "werdykt": "pewne"
+     "werdykt": "pewne",
+     "holm": true
     },
     "zostaje": true
    }
@@ -4150,8 +4232,12 @@
    "pythia_pewne_v1": 34,
    "slayer_pewne_v0": 6,
    "pythia_pewne_v0": 35,
-   "slayer_pewne_v1_zostaje": 4,
-   "pythia_pewne_v1_zostaje": 24
+   "slayer_holm_v1": 7,
+   "pythia_holm_v1": 30,
+   "slayer_holm_v0": 5,
+   "pythia_holm_v0": 34,
+   "slayer_zostaje": 3,
+   "pythia_zostaje": 23
   }
  },
  "kontrola_lm_eval": {

@@ -292,24 +292,32 @@ def porownanie_parowane(wa, wb, docs):
 
 def wzgledem_referencji(por_v1, por_v0):
     """Slayer - Pythia per paradigm against the two Pythia weights: every paradigm "certain" against v1 with its
-    difference against v0 (the control model), and whether it stays certain with the same sign.
-    -> {"ogolem": v0 overall entry, "pewne_v1": {paradigm: {"v1": {roznica, z}, "v0": {roznica, z, werdykt},
-    "zostaje"}}, "liczby": counts per side}; z sits under a key "z" so that LICZBY.json pools it as a z value"""
+    difference against v0 (the control model), and whether it stays: certain and Holm-significant (67 paradigms,
+    family-wise 5%, as the v1 ranking of BLIMP.md) against both weights, with the same sign.
+    -> {"ogolem": v0 overall entry, "pewne_v1": {paradigm: {"v1": {roznica, z, holm}, "v0": {roznica, z, werdykt,
+    holm}, "zostaje"}}, "liczby": counts per side}; z sits under a key "z" so that LICZBY.json pools it as a z value"""
+    from blimp_analiza import holm, p_z  # blimp_analiza imports this module
+    h1 = holm({g: p_z(e["z"]) for g, e in por_v1["paradygmaty"].items()})
+    h0 = holm({g: p_z(e["z"]) for g, e in por_v0["paradygmaty"].items()})
     pewne = {}
     for g, a in por_v1["paradygmaty"].items():
         if a["werdykt"] != "pewne":
             continue
         b = por_v0["paradygmaty"][g]
-        pewne[g] = {"v1": {"roznica": a["roznica"], "z": a["z"]},
-                    "v0": {"roznica": b["roznica"], "z": b["z"], "werdykt": b["werdykt"]},
-                    "zostaje": b["werdykt"] == "pewne" and (a["roznica"] > 0) == (b["roznica"] > 0)}
+        pewne[g] = {"v1": {"roznica": a["roznica"], "z": a["z"], "holm": h1[g]},
+                    "v0": {"roznica": b["roznica"], "z": b["z"], "werdykt": b["werdykt"], "holm": h0[g]},
+                    "zostaje": (h1[g] and h0[g] and b["werdykt"] == "pewne"
+                                and (a["roznica"] > 0) == (b["roznica"] > 0))}
 
-    def licz(por, znak):
-        return sum(1 for e in por["paradygmaty"].values() if e["werdykt"] == "pewne" and (e["roznica"] > 0) == znak)
+    def licz(por, znak, h=None):
+        return sum(1 for g, e in por["paradygmaty"].items()
+                   if e["werdykt"] == "pewne" and (e["roznica"] > 0) == znak and (h is None or h[g]))
     liczby = {"slayer_pewne_v1": licz(por_v1, True), "pythia_pewne_v1": licz(por_v1, False),
               "slayer_pewne_v0": licz(por_v0, True), "pythia_pewne_v0": licz(por_v0, False),
-              "slayer_pewne_v1_zostaje": sum(1 for e in pewne.values() if e["zostaje"] and e["v1"]["roznica"] > 0),
-              "pythia_pewne_v1_zostaje": sum(1 for e in pewne.values() if e["zostaje"] and e["v1"]["roznica"] < 0)}
+              "slayer_holm_v1": licz(por_v1, True, h1), "pythia_holm_v1": licz(por_v1, False, h1),
+              "slayer_holm_v0": licz(por_v0, True, h0), "pythia_holm_v0": licz(por_v0, False, h0),
+              "slayer_zostaje": sum(1 for e in pewne.values() if e["zostaje"] and e["v1"]["roznica"] > 0),
+              "pythia_zostaje": sum(1 for e in pewne.values() if e["zostaje"] and e["v1"]["roznica"] < 0)}
     return {"ogolem": por_v0["ogolem"], "pewne_v1": pewne, "liczby": liczby}
 
 
