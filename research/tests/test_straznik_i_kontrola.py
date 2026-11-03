@@ -58,6 +58,12 @@ def test_sanity_flags_one_choice_per_question_and_failed_task():
     assert KS.bledy_obserwacji({"task_id": "T03", "state": "failed", "reason": "OOM"})
 
 
+def test_load_test_mode_checks_only_that_the_task_finished():
+    assert KS.bledy_obserwacji(obs("T02", "acc_norm,none", 1.0, 0.25), tylko_stan=True) == []
+    assert KS.bledy_obserwacji(obs("T02", "acc_norm,none", 0.0, 0.25), tylko_stan=True) == []
+    assert KS.bledy_obserwacji(obs("T02", "acc_norm,none", 0.0, 0.25, state="failed"), tylko_stan=True)
+
+
 def test_sanity_perplexity_and_exit_code():
     d = Path(tempfile.mkdtemp())
     ok = {"task_id": "T03", "metric": "byte_perplexity,none", "state": "ok",

@@ -118,6 +118,10 @@ def wybor_probki(zad, meta, tryb):
     docs = list(zad.eval_docs)
     pole = meta.get("pole_id")
     ids = [d.get(pole, i) if pole else i for i, d in enumerate(docs)]
+    if meta.get("probkowanie") is False and tryb.isdigit():
+        # unsampled task (WikiText-2) cut to its first documents: a load test, not a panel
+        idx = list(range(min(int(tryb), len(docs))))
+        return idx, len(docs), [ids[i] for i in idx]
     if tryb == "pelna" or meta.get("probkowanie") is False:
         return None, len(docs), ids
     n = 200 if tryb == "panel200" else int(tryb)

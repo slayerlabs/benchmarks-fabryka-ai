@@ -1,9 +1,10 @@
-"""Sanity check of ewaluuj.py outputs (stage proba_cpu of przebieg_centralny.sh).
+"""Sanity check of ewaluuj.py outputs (end of a full run in przebieg_centralny.sh).
 
 An error is: a task that did not finish, a main score of exactly 1.000, a score below the random
 baseline minus 5 points, a random baseline of 1.000 (only one choice read per question), or a
 perplexity that is not finite and above 1.
-  python tools/kontrola_sensu.py DIR...   (each DIR holds results_rozszerzone.json; exit 1 on any error)
+  python tools/kontrola_sensu.py [--tylko-stan] DIR...   (each DIR holds results_rozszerzone.json; exit 1 on any error)
+--tylko-stan: only "the task finished" (stage proba_cpu: a few questions say nothing about the score).
 """
 import json
 import math
@@ -13,11 +14,13 @@ from pathlib import Path
 MARGINES = 0.05
 
 
-def bledy_obserwacji(obs):
+def bledy_obserwacji(obs, tylko_stan=False):
     """Error messages for one observation of results_rozszerzone.json (fractions, not percent)."""
     zadanie = obs.get("task_id")
     if obs.get("state") != "ok":
         return [f"{zadanie}: {obs.get('state')} {obs.get('reason', '')[:120]}"]
+    if tylko_stan:
+        return []
     space = (obs.get("dodatkowe") or {}).get("space") or {}
     if "byte_perplexity" in space:
         v = space["byte_perplexity"]["value"]
@@ -36,7 +39,9 @@ def bledy_obserwacji(obs):
 
 
 def main(argv=None):
-    katalogi = argv if argv is not None else sys.argv[1:]
+    katalogi = list(argv if argv is not None else sys.argv[1:])
+    tylko_stan = "--tylko-stan" in katalogi
+    katalogi = [k for k in katalogi if k != "--tylko-stan"]
     wszystkie = []
     for k in katalogi:
         plik = Path(k) / "results_rozszerzone.json"
@@ -44,7 +49,7 @@ def main(argv=None):
             wszystkie.append(f"{k}: no results_rozszerzone.json")
             continue
         for obs in json.loads(plik.read_text())["observations"]:
-            wszystkie += [f"{k} {b}" for b in bledy_obserwacji(obs)]
+            wszystkie += [f"{k} {b}" for b in bledy_obserwacji(obs, tylko_stan)]
     print("\n".join(wszystkie) if wszystkie else f"sanity OK: {len(katalogi)} outputs")
     return 1 if wszystkie else 0
 

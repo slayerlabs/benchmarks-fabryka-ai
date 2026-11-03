@@ -1,6 +1,7 @@
 """tools/przebieg_centralny.sh: model list vs METODOLOGIA.md, task dirs vs common/zadania.py ZADANIA.
 Runs the script's `lista`, `katalogi` and `plan` stages in a temporary workspace (no GPU, no network)."""
 import ast
+import json
 import os
 import re
 import subprocess
@@ -89,5 +90,18 @@ def test_proba_cpu_two_questions_per_pair_on_cpu_in_chosen_env():
     assert len(linie) == len(modele_skryptu()) * len(klucze_zadan())
     for l in linie:
         assert l.startswith(f"{ws}/venv-new/bin/python ")
-        assert "--device cpu" in l and "--probka 2 " in l and "--batch 1 " in l
-        assert f"--wyjscie {ws}/proba_cpu/" in l
+        assert "--device cpu" in l and "--batch 1 " in l and f"--wyjscie {ws}/proba_cpu/" in l
+        assert ("--probka 1 " if "--zadania T03 " in l else "--probka 2 ") in l
+
+
+def test_kontrola_stage_flags_bad_full_results():
+    ws = Path(tempfile.mkdtemp())
+    for nazwa, wartosc in (("ok", 0.4), ("zly", 1.0)):
+        d = ws / "wyniki" / "arc-challenge" / nazwa
+        d.mkdir(parents=True)
+        obs = {"task_id": "T02", "metric": "acc_norm,none", "state": "ok", "dodatkowe": {"space": {
+            "acc_norm": {"value": wartosc}, "bazy": {"chance_value": 0.25}}}}
+        (d / "results_rozszerzone.json").write_text(json.dumps({"observations": [obs]}))
+    env = {**os.environ, "WS": str(ws), "K": str(KORZEN)}
+    wynik = subprocess.run(["bash", str(SKRYPT), "kontrola"], capture_output=True, text=True, env=env)
+    assert wynik.returncode == 1 and "zly" in wynik.stdout and "/ok" not in wynik.stdout

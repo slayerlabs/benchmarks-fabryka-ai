@@ -10,7 +10,8 @@
 # ENV_OVERRIDE=new WYNIKI=$WS/wyniki_nowe on licz: same models in the other venv, for the environment check.
 #   ponow                  in the background: every (model, task) whose latest run failed, e.g. with BATCH=1 after an OOM
 #   straznik               idle guard (also started by przygotuj): tools/straznik_bezczynnosci.py
-#   proba_cpu ["LABEL ..."] PROBA_N (2) questions per model x task on CPU, then tools/kontrola_sensu.py
+#   proba_cpu ["LABEL ..."] load test on CPU: PROBA_N (2) questions, WikiText-2 1 document; every pair must finish
+#   kontrola               sanity check of the full results (tools/kontrola_sensu.py); licz runs it at its end
 #   pakuj                  wyniki.tgz to copy back
 #   stan                   state files, last log lines, GPU
 # Instance files map to the repo as: wyniki/<benchmark>/<label>/ -> benchmarks/<benchmark>/results/<label>/,
@@ -73,7 +74,7 @@ polecenie() {  # polecenie LABEL TASK_ID -> ewaluuj.py command line
   local L=$1 T=$2
   model "$L"
   local args=(--model "$([[ $LOADER == slayer ]] && echo slayer || echo hf)" --repo "$REPO" --revision "$REV"
-              --model_path "$WS/modele/$L" --zadania "$T" --probka "${PROBKA:-pelna}" --device "${DEVICE:-cuda}" --batch "$BATCH"
+              --model_path "$WS/modele/$L" --zadania "$T" --probka "$([[ $T == T03 && -n ${PROBKA_ROLLING:-} ]] && echo "$PROBKA_ROLLING" || echo "${PROBKA:-pelna}")" --device "${DEVICE:-cuda}" --batch "$BATCH"
               --eval_gpu "$(gpu_nazwa)" --etykieta "$L" --wyjscie "${WYNIKI:-$WS/wyniki}/$(katalog "$T")/$L")
   [[ $LOADER == hf-trust ]] && args+=(--trust_remote_code)
   [[ $T == T03 && $LOADER != slayer ]] && args+=(--max_length "$OKNO_ROLLING")
@@ -140,7 +141,8 @@ case "$etap" in
     LISTA=${2:?model labels}
     export PYTHONUNBUFFERED=1 NVIDIA_TF32_OVERRIDE=0 HF_HUB_DISABLE_PROGRESS_BARS=1
     w_tle "licz_${LISTA// /_}" "set -e; source $K/tools/przebieg_centralny.sh _funkcje; \
-      for L in $LISTA; do t=\$(teraz); licz_model \$L; zapisz_czas model \$t \"{\\\"model\\\": \\\"\$L\\\"}\"; done"
+      for L in $LISTA; do t=\$(teraz); licz_model \$L; zapisz_czas model \$t \"{\\\"model\\\": \\\"\$L\\\"}\"; done; \
+      bash $K/tools/przebieg_centralny.sh kontrola || true"
     ;;
   ponow)  # in the background: (model, task) pairs whose latest czasy.jsonl entry has kod != 0, again
     export PYTHONUNBUFFERED=1 NVIDIA_TF32_OVERRIDE=0 HF_HUB_DISABLE_PROGRESS_BARS=1
@@ -162,8 +164,8 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
       --archiwum "$WS/wyniki.tgz" > $WS/logi/straznik.log 2>&1 &
     echo "idle guard pid $!"
     ;;
-  proba_cpu)  # PROBA_N questions per model x task on CPU in the model's env (or ENV_OVERRIDE), then sanity check
-    export DEVICE=cpu PROBKA=${PROBA_N:-2} BATCH=1 WYNIKI=$WS/proba_cpu
+  proba_cpu)  # load test: PROBA_N questions (WikiText-2: 1 document) per model x task on CPU, every pair must finish
+    export DEVICE=cpu PROBKA=${PROBA_N:-2} PROBKA_ROLLING=1 BATCH=1 WYNIKI=$WS/proba_cpu
     LISTA=${2:-$(printf '%s\n' "${MODELE[@]}" | cut -d'|' -f1)}
     if [[ ${SUCHO:-0} == 1 ]]; then
       for L in $LISTA; do for T in $ZADANIA_ID; do polecenie "$L" "$T"; done; done
@@ -171,7 +173,12 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
     fi
     mkdir -p "$ST" "$WS/logi" "$WS/modele"
     for L in $LISTA; do licz_model "$L"; done
-    python3 $K/tools/kontrola_sensu.py $(for L in $LISTA; do for T in $ZADANIA_ID; do echo "$WYNIKI/$(katalog "$T")/$L"; done; done)
+    python3 $K/tools/kontrola_sensu.py --tylko-stan $(for L in $LISTA; do for T in $ZADANIA_ID; do echo "$WYNIKI/$(katalog "$T")/$L"; done; done)
+    ;;
+  kontrola)  # sanity of full results (score 1.000, below random - 5 points, ...): $WS/logi/kontrola_sensu.txt
+    mkdir -p "$WS/logi"
+    python3 $K/tools/kontrola_sensu.py "${WYNIKI:-$WS/wyniki}"/*/*/ > $WS/logi/kontrola_sensu.txt && kod=0 || kod=$?
+    cat $WS/logi/kontrola_sensu.txt; exit $kod
     ;;
   pakuj)  # wyniki.tgz for the repo: per-question files gzipped, podsumowanie.md left out (number gate reads *.md)
     find $WS/wyniki* -name '*.jsonl' -exec gzip -f {} +
@@ -184,6 +191,6 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
     ;;
   _funkcje) ;;  # sourced: functions only
   *)
-    echo "stages: lista | katalogi | plan 'LABEL ...' | przygotuj LIMIT_S | licz 'LABEL ...' | ponow | straznik | proba_cpu ['LABEL ...'] | pakuj | stan"; exit 2
+    echo "stages: lista | katalogi | plan 'LABEL ...' | przygotuj LIMIT_S | licz 'LABEL ...' | ponow | straznik | proba_cpu ['LABEL ...'] | kontrola | pakuj | stan"; exit 2
     ;;
 esac

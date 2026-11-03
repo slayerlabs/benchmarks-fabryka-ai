@@ -146,6 +146,15 @@ def test_blimp_without_pmi_keeps_both_sentences():
     assert M.podsumuj_mc(para, False, z_pmi=ewaluuj.z_pmi(cfg_blimp))["acc"]["value"] == 0.0
 
 
+def test_unsampled_task_cut_only_by_a_number():
+    import ewaluuj
+    zad = type("Z", (), {"eval_docs": [{"t": i} for i in range(5)]})()
+    meta = {"probkowanie": False, "benchmark_id": "wikitext2", "task": "wikitext"}
+    assert ewaluuj.wybor_probki(zad, meta, "1") == ([0], 5, [0])
+    assert ewaluuj.wybor_probki(zad, meta, "panel200") == (None, 5, list(range(5)))
+    assert ewaluuj.wybor_probki(zad, meta, "pelna") == (None, 5, list(range(5)))
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
