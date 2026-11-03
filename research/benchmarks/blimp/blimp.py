@@ -37,7 +37,11 @@ REFERENCJA_PYTHIA = {"wartosc": 0.8234328358208955, "prog": 0.02,
 # SHA-256 of tokenizer.json at the pinned revisions; different values = different tokenizers, so the
 # report must also show a length-normalised (per token) comparison (sprawdz_raporty.py gate)
 TOKENIZERY = {"1.06": "0640d3bd3674d7a6e59c540d945a2ad275a12e1bcaeb6007c37a90751f9815dd",
-              "pythia-1b": "c24618a1b3e6a38167beff1c72cffd126c3a66254347304b50547d12c5f25624"}
+              "pythia-1b": "c24618a1b3e6a38167beff1c72cffd126c3a66254347304b50547d12c5f25624",
+              "pythia-1b-v0": "c24618a1b3e6a38167beff1c72cffd126c3a66254347304b50547d12c5f25624"}
+# Control model of METODOLOGIA.md (etap B): EleutherAI/pythia-1b-v0 @ step143000 (LM_EVAL_PROTOCOL.md). The v1 weights
+# (pythia-1b) were the first comparison model and stay in the report as information.
+KONTROLA = "pythia-1b-v0"
 # Space SlayerLab/Slayer1B-Benchmarks, results.json, T01 observation of SlayerLab/Slayer1B-1.06
 SPACE_T01 = {"wartosc": 0.8407960199004975, "ci95": [0.8059701492537314, 0.8756218905472644], "n": 200,
              "source_id_digest": "9d6d5c8b444b57a4043af8030c77daca572418a54ace83cd6c16ebe8945faf67"}
@@ -286,6 +290,59 @@ def porownanie_parowane(wa, wb, docs):
     return out
 
 
+def wzgledem_referencji(por_v1, por_v0):
+    """Slayer - Pythia per paradigm against the two Pythia weights: every paradigm "certain" against v1 with its
+    difference against v0 (the control model), and whether it stays: certain and Holm-significant (67 paradigms,
+    family-wise 5%, as the v1 ranking of BLIMP.md) against both weights, with the same sign.
+    -> {"ogolem": v0 overall entry, "pewne_v1": {paradigm: {"v1": {roznica, z, holm}, "v0": {roznica, z, werdykt,
+    holm}, "zostaje"}}, "liczby": counts per side}; z sits under a key "z" so that LICZBY.json pools it as a z value"""
+    from blimp_analiza import holm, p_z  # blimp_analiza imports this module
+    h1 = holm({g: p_z(e["z"]) for g, e in por_v1["paradygmaty"].items()})
+    h0 = holm({g: p_z(e["z"]) for g, e in por_v0["paradygmaty"].items()})
+    pewne = {}
+    for g, a in por_v1["paradygmaty"].items():
+        if a["werdykt"] != "pewne":
+            continue
+        b = por_v0["paradygmaty"][g]
+        pewne[g] = {"v1": {"roznica": a["roznica"], "z": a["z"], "holm": h1[g]},
+                    "v0": {"roznica": b["roznica"], "z": b["z"], "werdykt": b["werdykt"], "holm": h0[g]},
+                    "zostaje": (h1[g] and h0[g] and b["werdykt"] == "pewne"
+                                and (a["roznica"] > 0) == (b["roznica"] > 0))}
+
+    def licz(por, znak, h=None):
+        return sum(1 for g, e in por["paradygmaty"].items()
+                   if e["werdykt"] == "pewne" and (e["roznica"] > 0) == znak and (h is None or h[g]))
+    liczby = {"slayer_pewne_v1": licz(por_v1, True), "pythia_pewne_v1": licz(por_v1, False),
+              "slayer_pewne_v0": licz(por_v0, True), "pythia_pewne_v0": licz(por_v0, False),
+              "slayer_holm_v1": licz(por_v1, True, h1), "pythia_holm_v1": licz(por_v1, False, h1),
+              "slayer_holm_v0": licz(por_v0, True, h0), "pythia_holm_v0": licz(por_v0, False, h0),
+              "slayer_zostaje": sum(1 for e in pewne.values() if e["zostaje"] and e["v1"]["roznica"] > 0),
+              "pythia_zostaje": sum(1 for e in pewne.values() if e["zostaje"] and e["v1"]["roznica"] < 0)}
+    return {"ogolem": por_v0["ogolem"], "pewne_v1": pewne, "liczby": liczby}
+
+
+def kontrola_wobec_opublikowanej(acc):
+    """Our accuracy against the published Pythia-1B v0 value, threshold +-2 points (THRESHOLDS.md, METODOLOGIA etap B)."""
+    return {**REFERENCJA_PYTHIA, "nasza": acc, "roznica": acc - REFERENCJA_PYTHIA["wartosc"],
+            "w_progu": abs(acc - REFERENCJA_PYTHIA["wartosc"]) <= REFERENCJA_PYTHIA["prog"]}
+
+
+def podsumowanie_lm_eval(z):
+    """lm_eval_agreement.json (lm_eval_compare.py compare) -> the numbers the report cites, without the pair lists."""
+    out = {"pythia_v0_lm_eval": {k: z["a"]["lm_eval"][k] for k in ("acc", "se", "diff", "threshold", "pass")}}
+    for klucz, nazwa in (("b", "pythia_v0_nasz_vs_lm_eval"), ("c", "slayer_nasz_vs_lm_eval")):
+        out[nazwa] = {k: z[klucz][k] for k in ("n", "agree", "share", "acc_ours", "acc_lm_eval", "se_lm_eval", "diff",
+                                               "max_abs_dll", "mean_abs_dll", "pass")}
+        out[nazwa]["niezgodne"] = len(z[klucz]["disagreements"])
+    if "d" in z:
+        for klucz, nazwa in (("gpu_ours_vs_lm_eval", "slayer_gpu_nasz_vs_lm_eval"),
+                             ("gpu_ours_vs_repo_mps", "slayer_gpu_nasz_vs_mps_nasz")):
+            e = z["d"][klucz]
+            out[nazwa] = {"n": e["n"], "agree": e["agree"], "share": e["share"], "max_abs_dll": e["max_abs_dll"],
+                          "niezgodne": len(e["disagreements"])}
+    return out
+
+
 # ---------------------------------------------------------------- commands
 
 def cmd_zbierz(a):
@@ -334,10 +391,18 @@ def cmd_zbierz(a):
     kf = KORZEN / "benchmarks/blimp/results/kontrola_forward.json"
     if kf.exists():
         out["kontrola_forward"] = json.loads(kf.read_text())
-    if "pythia-1b" in out["modele"]:
-        nasza = out["modele"]["pythia-1b"]["acc"]
-        out["kontrola_pythia"] = {**REFERENCJA_PYTHIA, "nasza": nasza, "roznica": nasza - REFERENCJA_PYTHIA["wartosc"],
-                                  "w_progu": abs(nasza - REFERENCJA_PYTHIA["wartosc"]) <= REFERENCJA_PYTHIA["prog"]}
+    if KONTROLA in out["modele"]:
+        out["kontrola_pythia"] = kontrola_wobec_opublikowanej(out["modele"][KONTROLA]["acc"])
+        if "pythia-1b" in out["modele"]:
+            out["kontrola_pythia_v1"] = kontrola_wobec_opublikowanej(out["modele"]["pythia-1b"]["acc"])
+        if "1.06" in modele and b_ != KONTROLA:
+            out["wzgledem_v0"] = wzgledem_referencji(out["porownanie"],
+                                                     porownanie_parowane(modele["1.06"], modele[KONTROLA], docs))
+    elif "pythia-1b" in out["modele"]:
+        out["kontrola_pythia"] = kontrola_wobec_opublikowanej(out["modele"]["pythia-1b"]["acc"])
+    kl = KORZEN / "benchmarks/blimp/results/lm_eval_agreement.json"
+    if kl.exists():
+        out["kontrola_lm_eval"] = podsumowanie_lm_eval(json.loads(kl.read_text()))
     if "1.06" in out["modele"]:
         out["space"] = {"wartosc": SPACE_T01["wartosc"], "ci95": SPACE_T01["ci95"], "n": SPACE_T01["n"],
                         "digest_odtworzony": False,
@@ -361,7 +426,8 @@ def main(argv=None):
     sub = p.add_subparsers(dest="cmd", required=True)
     z = sub.add_parser("zbierz")
     z.add_argument("--wyniki", required=True)
-    z.add_argument("--modele", default="1.06,pythia-1b")
+    z.add_argument("--modele", default="1.06,pythia-1b,pythia-1b-v0",
+                   help="the first two are compared in full; pythia-1b-v0 is the control model")
     z.add_argument("--dane")
     z.add_argument("--wyjscie", default=str(KORZEN / "benchmarks/blimp/results/blimp.json"))
     r = sub.add_parser("raport")

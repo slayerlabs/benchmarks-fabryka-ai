@@ -121,11 +121,16 @@ Testy działają bez sieci i bez wag. Każdy kończy się kodem 0:
 .venv-eval/bin/python tests/test_blimp.py
 .venv-eval/bin/python tests/test_blimp_checkpoints.py
 .venv-eval/bin/python tests/test_blimp_checkpoints_independent.py
+.venv-eval/bin/python tests/test_blimp_zgodnosc.py
 .venv-eval/bin/python tests/test_wikitext_mianownik.py
 .venv-eval/bin/python -m pytest tests/test_wsc273.py
 .venv-eval/bin/python -m pytest tests/test_piqa.py
 .venv-eval/bin/python tests/test_liczby_raportow.py
 ```
+
+Testy BLiMP to `tests/test_blimp*.py` oraz `tests/test_lm_eval_slayer.py`. Testy BLiMP podmieniają model, więc błąd w
+`common/slayer_model.py` łapie dopiero `test_lm_eval_slayer.py`: `test_forward_matches_official_reference` łapie
+forward (wariant RoPE, skala logitów), a testy `loglikelihood` łapią dodatkowy token w `encode`.
 
 Przed PR nie uruchamiasz wszystkich testów. Listę komend ma README repo, sekcja [„Przed PR”](../README.md#przed-pr).
 To testy zmienionego benchmarku, `tests/test_liczby_raportow.py` i bramka liczb.

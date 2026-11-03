@@ -17,11 +17,22 @@ THRESHOLDS.md fixed, before any result was seen: the pair-level comparison and i
 |---|---:|---:|---:|---|---:|---|
 | Slayer 1.06 | 0.7921 | 67000 | 0.0014 | 0.7892-0.7949 | 0.5 | n/a (gold always first by construction) |
 | Pythia-1B | 0.8207 | 67000 | 0.0013 | 0.8181-0.8233 | 0.5 | n/a (gold always first by construction) |
+| Pythia-1B v0 (control) | 0.8244 | 67000 | 0.0013 | 0.8218-0.8269 | 0.5 | n/a (gold always first by construction) |
 
-## Control: Pythia-1B against the published value
+## Control: Pythia-1B v0 against the published value and lm-eval
 
-Our Pythia-1B 0.8207 vs reference 0.8234: difference -0.27 pts, threshold +-2 points: **within**.
-The reference is the mean of the 67 `blimp_*` values in the EleutherAI/pythia repo file `evals/pythia-v0/pythia-1b/zero-shot/pythia-1b-0shot-global_step143000_eval_results_11-28-2022-15-14-35.json`. It is the v0 model (weights before the Pythia re-train) scored by the old harness without the leading space; the v1 eval folders of that repo have no BLiMP and no other published BLiMP value for `EleutherAI/pythia-1b` was found. It is a sanity range, not an exact reference.
+Control model of METODOLOGIA.md: `EleutherAI/pythia-1b-v0` @ `step143000`, scored by our code and by lm-eval 0.4.9.1 (task `blimp`) on the same GPU; protocol and conditions written before the run: [`LM_EVAL_PROTOCOL.md`](../LM_EVAL_PROTOCOL.md). The published value is the mean of the 67 `blimp_*` values in the EleutherAI/pythia repo file `evals/pythia-v0/pythia-1b/zero-shot/pythia-1b-0shot-global_step143000_eval_results_11-28-2022-15-14-35.json` (commit `a19eecb`), computed in 2022 by an older lm-eval that scores the sentence without the leading space.
+
+| check | value | threshold | result |
+|---|---|---|---|
+| our code, Pythia-1B v0 | 0.8244 (difference 0.09 pts) | +-2 pts | within |
+| lm-eval, Pythia-1B v0 (condition a) | 0.8244 (difference 0.10 pts) | +-2 pts | pass |
+| our code vs lm-eval, Pythia-1B v0, same decision per pair (b) | 66998 of 67000 (100.00%), accuracy difference -0.003 pts, max abs log-lik difference 0.00049 | >= 99% and <= 1 SE (0.132 pts) | pass |
+| our code (repo file, MPS) vs lm-eval, Slayer 1.06, same decision per pair (c) | 67000 of 67000 (100.00%), accuracy difference 0.000 pts, max abs log-lik difference 0.00014 | >= 99% and <= 1 SE (0.144 pts) | pass |
+
+(c) is not an independent check of the Slayer forward: lm-eval runs Slayer through `common/slayer_lm.py`, i.e. the same `slayer_model.Slayer` forward and the same one-BOS rule as our code; only the HFLM scoring and the tokenizer object are independent. The forward against the official code is checked by `kontrola_forward.py` (section Controls) and `tests/test_lm_eval_slayer.py::test_forward_matches_official_reference`.
+
+The v1 weights (`EleutherAI/pythia-1b`, the comparison model of this report) give 0.8207 against the same published value; that is information only, the published value belongs to v0.
 
 ## Agreement with the Space (panel of 200)
 
@@ -56,7 +67,7 @@ Two verdicts per phenomenon. *Pairs* (fixed in THRESHOLDS.md): paired SE over th
 | irregular forms | 2 | 2000 | 0.865 | 0.939 | -7.4 pts | 0.73 pts | z = -10.14 | certain | 5.65 pts | t = -1.32 | 1 | 0.4131 | undetermined (k < 3) |
 | island effects | 8 | 8000 | 0.666 | 0.673 | -0.7 pts | 0.58 pts | z = -1.17 | noise | 4.26 pts | t = -0.16 | 7 | 0.8787 | noise |
 | npi licensing | 7 | 7000 | 0.740 | 0.776 | -3.5 pts | 0.56 pts | z = -6.26 | certain | 3.45 pts | t = -1.02 | 6 | 0.3474 | noise |
-| quantifiers | 4 | 4000 | 0.735 | 0.721 | 1.4 pts | 0.71 pts | z = 1.89 | noise | 4.94 pts | t = 0.27 | 3 | 0.8023 | noise |
+| quantifiers | 4 | 4000 | 0.735 | 0.722 | 1.4 pts | 0.71 pts | z = 1.89 | noise | 4.94 pts | t = 0.27 | 3 | 0.8023 | noise |
 | subject verb agreement | 6 | 6000 | 0.844 | 0.883 | -3.9 pts | 0.51 pts | z = -7.64 | certain | 0.79 pts | t = -4.91 | 5 | 0.0044 | probable |
 
 ![BLiMP overall and phenomena](blimp_phenomena.svg)
@@ -138,6 +149,20 @@ The order of the gaps depends on the measure: Spearman rank correlation between 
 | sentential_subject_island | 0.550 | 0.313 | 23.7 pts | 2.04 pts | z = 11.63 | certain | 23.7 pts | 23.7 pts (1000) |
 
 ![BLiMP paradigms](blimp_paradigms.svg)
+
+## Against the control model Pythia-1B v0
+
+Slayer 1.06 minus Pythia-1B v0 on the same 67 000 pairs: -3.23 pts, paired SE 0.16 pts, z = -20.51: certain. Per paradigm the ranking depends on which Pythia weights are the reference: against v1 Slayer is certainly ahead in 7 paradigms and Pythia in 34; against v0 in 6 and 35. After a Holm correction over the 67 paradigms (family-wise 5%) against v1: Slayer 7, Pythia 30; against v0: Slayer 5, Pythia 34. Certain and Holm-significant against both weights with the same sign: 3 Slayer advantages and 23 Pythia advantages. A per-paradigm statement about Slayer holds only for those. Rows: every paradigm certain against v1 in Slayer's favour.
+
+| paradigm | difference vs v1 | z vs v1 | Holm vs v1 | difference vs v0 | z vs v0 | verdict vs v0 | Holm vs v0 | stays |
+|---|---:|---:|---|---:|---:|---|---|---|
+| sentential_subject_island | 23.7 pts | z = 11.63 | yes | 25.3 pts | z = 13.27 | certain | yes | yes |
+| principle_A_reconstruction | 15.7 pts | z = 9.44 | yes | 12.2 pts | z = 7.20 | certain | yes | yes |
+| only_npi_scope | 13.9 pts | z = 8.31 | yes | 15.4 pts | z = 8.65 | certain | yes | yes |
+| superlative_quantifiers_2 | 11.6 pts | z = 8.53 | yes | -0.5 pts | z = -0.42 | noise | no | no |
+| coordinate_structure_constraint_complex_left_branch | 11.4 pts | z = 7.14 | yes | -1.5 pts | z = -0.99 | noise | no | no |
+| wh_vs_that_with_gap | 9.5 pts | z = 5.72 | yes | 2.6 pts | z = 1.55 | noise | no | no |
+| tough_vs_raising_2 | 4.0 pts | z = 3.45 | yes | 3.8 pts | z = 3.08 | certain | no | no |
 
 ## What the gap measures: tokenizer and vocabulary
 
