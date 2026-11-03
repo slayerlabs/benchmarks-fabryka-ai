@@ -136,7 +136,9 @@ def read_manifest(path):
 def check_inputs(results, manifest, slayer_repo=SLAYER_REPO, slayer_repo_sha256=SLAYER_REPO_SHA256):
     """Before anything is computed: every input of `compare` has the sha256 of the manifest written at measurement
     time (inputs under `results`) or the pinned sha256 (our repo result of Slayer 1.06). SystemExit naming each
-    file that is missing, not listed or different; -> {path: sha256} of the checked files."""
+    file that is missing, not listed or different; -> {path: sha256} of the checked files, every path relative
+    (inputs: to `results`; the Slayer repo file: to research/, or its file name when it lies outside research/), so
+    the output does not depend on the checkout location."""
     import hashlib
 
     def sha(p):
@@ -148,8 +150,9 @@ def check_inputs(results, manifest, slayer_repo=SLAYER_REPO, slayer_repo_sha256=
     R, pinned = Path(results), read_manifest(manifest)
     errors, checked = [], {}
     names = list(INPUTS) + [n for n in OPTIONAL_INPUTS if (R / n).exists()]
-    for name, path, want in [(n, R / n, pinned.get(n)) for n in names] + [(str(slayer_repo), Path(slayer_repo),
-                                                                          slayer_repo_sha256)]:
+    repo = Path(slayer_repo).resolve()
+    repo_key = repo.relative_to(B.KORZEN).as_posix() if repo.is_relative_to(B.KORZEN) else repo.name
+    for name, path, want in [(n, R / n, pinned.get(n)) for n in names] + [(repo_key, repo, slayer_repo_sha256)]:
         if want is None:
             errors.append(f"{name}: not listed in {manifest}")
         elif not path.exists():

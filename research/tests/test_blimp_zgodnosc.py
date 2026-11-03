@@ -193,7 +193,7 @@ def test_lm_eval_compare_sprawdza_sha256_wejsc_przed_liczeniem(tmp_path):
     manifest = tmp_path / C.MANIFEST
     manifest.write_text("".join(f"{v}  ./{n}\n" for n, v in h.items()))
     rh = hashlib.sha256(b"repo").hexdigest()
-    assert C.check_inputs(tmp_path, manifest, repo, rh) == {**h, str(repo): rh}
+    assert C.check_inputs(tmp_path, manifest, repo, rh) == {**h, "repo.jsonl.gz": rh}
     with pytest.raises(SystemExit, match="repo.jsonl.gz: sha256"):
         C.check_inputs(tmp_path, manifest, repo, "0" * 64)
     (tmp_path / C.INPUTS[1]).write_bytes(b"changed after the measurement")
@@ -210,7 +210,15 @@ def test_lm_eval_compare_manifest_w_repo_pasuje_do_plikow():
     sha256 of the Slayer 1.06 repo file."""
     import lm_eval_compare as C
     R = KORZEN / "benchmarks" / "blimp" / "results"
-    assert set(C.check_inputs(R, R / C.MANIFEST)) == {*C.INPUTS, *C.OPTIONAL_INPUTS, str(C.SLAYER_REPO)}
+    assert set(C.check_inputs(R, R / C.MANIFEST)) == {*C.INPUTS, *C.OPTIONAL_INPUTS,
+                                                       "benchmarks/blimp/results/1.06/blimp.jsonl.gz"}
+
+
+def test_lm_eval_agreement_bez_sciezek_bezwzglednych():
+    """The committed lm_eval_agreement.json names its inputs by paths relative to the repo, not to a checkout."""
+    zapis = json.loads((KORZEN / "benchmarks" / "blimp" / "results" / "lm_eval_agreement.json").read_text())
+    klucze = list(zapis["inputs_sha256"])
+    assert len(klucze) == 5 and not [k for k in klucze if Path(k).is_absolute() or ".." in Path(k).parts], klucze
 
 
 def test_lm_eval_compare_warunki_protokolu():
