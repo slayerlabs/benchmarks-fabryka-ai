@@ -47,6 +47,10 @@ USTAWIENIA_BENCHMARKOW = {
                 "pomin": ["protokol", "do_przegladu", "n", "wg_Domain", "wg_ConceptA", "wg_ContextType",
                           "wg_ContextDiff", "wg_TargetDiff", "wg_flaga",
                           "kontekst_staly", "kontekst_staly_pmi", "staly_target", "margines"]},
+    # EWoK (English original): ewok.json and gpt2xl_comparison.json hold fractions, the reports write %. Domains and
+    # counts are left out for the same reason as in ewok-pl.
+    "ewok": {"aliasy": ["EWoK EN"], "skala": 100,
+             "pomin": ["protocol", "n", "by_domain", "ties", "n_decisions", "disagreements", "a_better", "b_better"]},
     # BLiMP: comparisons with SE and verdicts come from porownania_blimp (test "blimp"); the pool adds the
     # remaining values of blimp.json and kontrola_forward.json. Reports write 0.792 and "-2.87 pts".
     "blimp": {"aliasy": ["BLiMP"], "skala": 1,
