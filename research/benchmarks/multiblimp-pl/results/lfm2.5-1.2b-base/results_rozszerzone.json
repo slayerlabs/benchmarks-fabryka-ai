@@ -1,7 +1,7 @@
 {
  "schema_version": 2,
  "protocol_id": "bench50-v0.3.1-fullB",
- "run_id": "niezalezny-LiquidAI_LFM2.5-1.2B-Base-7453bca9-20261103T004448Z",
+ "run_id": "niezalezny-LiquidAI_LFM2.5-1.2B-Base-7453bca9-20261103T034023Z",
  "models": [
   {
    "model_id": "LiquidAI/LFM2.5-1.2B-Base",
@@ -41,8 +41,8 @@
     "seed": 20261028
    },
    "source_id_digest": "f2362db0257006d02ff68f4a1c9743d5419cb844dcdf10b9c23623a906fc6ec3",
-   "results_sha256": "ecf107fe822ea51079454240d0f2bccda537ffae7bfe94d497288a302e83c506",
-   "runner_sha256": "b620cf0382ebcace8d43ba95aa2f104d0ae056c77104a79e90b506b14edeadc1",
+   "results_sha256": "751e224ba9072ac8231599a7be7d3909ffb127b58ab6c1d3952819d3bce27205",
+   "runner_sha256": "63541137e6b6337e56028be211fd5bd85430e77254f52a508e84554a0b67a84a",
    "contamination": "unscanned",
    "contamination_receipt_sha256": null,
    "reference": {
@@ -72,12 +72,12 @@
       ]
      },
      "bpb_poprawnej": {
-      "value": 2.37359117455861,
+      "value": 2.3735908987198675,
       "n": 3272,
-      "se": 0.01442372575074806,
+      "se": 0.01442371716972253,
       "ci95": [
-       2.345124408018247,
-       2.40285023905077
+       2.345124141224841,
+       2.4028499742096443
       ]
      },
      "bazy": {
@@ -98,22 +98,23 @@
  ],
  "contrasts": [],
  "provenance": {
-  "inventory_commit": "c9a2b6c17c4a8de8988bd92da16f244bec2e5cc2",
+  "inventory_commit": "b1383a2da9b69d2dd8996d9d4450ae97cdf9d5c4",
   "kind": "measurement",
   "sources": [
    {
-    "run_id": "niezalezny-LiquidAI_LFM2.5-1.2B-Base-7453bca9-20261103T004448Z",
-    "results_sha256": "ecf107fe822ea51079454240d0f2bccda537ffae7bfe94d497288a302e83c506"
+    "run_id": "niezalezny-LiquidAI_LFM2.5-1.2B-Base-7453bca9-20261103T034023Z",
+    "results_sha256": "751e224ba9072ac8231599a7be7d3909ffb127b58ab6c1d3952819d3bce27205"
    }
   ],
-  "qualification_sha256": "883bdd4d21f871db9f51892ac27dd694ff9f14ab4c332a61a9dcb535ef587628",
+  "qualification_sha256": "50dae1959fb48766b876985389858814efc1ea5c2fdff49be53218ae924d5ef0",
   "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
   "references_sha256": "f761b2a2bb570ed447dc0570c7eceb226e40e29e63c1fb87844820c456b5f4f7"
  },
  "ewaluator": "niezależny (slayer_eval)",
- "lm_eval": "0.4.9.1",
+ "lm_eval": "0.4.13",
  "dane": "hf",
  "probka": "pelna",
- "eval_gpu": "NVIDIA_GeForce_RTX_4090",
- "sprzet": "NVIDIA GeForce RTX 4090"
+ "eval_gpu": "Apple_M5_Pro_mps",
+ "sprzet": "mps",
+ "max_length": 128000
 }

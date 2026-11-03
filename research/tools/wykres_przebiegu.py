@@ -65,7 +65,6 @@ for y, (c, t) in enumerate([(SLAYER, "Slayer 1B (ours)"), (BEST, "best other = s
 ax.text(0.02, -0.9, "accuracy in %, error bar = ±1 SE\nfull sets, lm-eval", fontsize=8.5, color=MUTED, va="top")
 ax.set_xlim(0, 1); ax.set_ylim(-2, 3)
 fig.tight_layout(rect=(0, 0.05, 1, 1))
-fig.text(0.01, 0.01, "LFM2.5: T02 and T45 come from the new environment on Apple MPS. Its other scores come from the lock "
-         "environment, which put LFM2.5 about 20 SE too low on T02 and T45, so they are likely too low as well.",
+fig.text(0.01, 0.01, "LFM2.5: every task from the new environment on Apple M5 Pro (MPS, float32); other models on an RTX 4090 (CUDA).",
          fontsize=8.5, color=MUTED)
 fig.savefig(OUT, dpi=150, facecolor="white")
