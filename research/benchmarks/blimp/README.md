@@ -97,7 +97,8 @@ CI95 Space. Używaj pełnego zbioru.
 
 Na `EleutherAI/pythia-1b-v0` @ `step143000` lm-eval 0.4.9.1 daje 0,8244, nasz kod 0,8244, a opublikowana wartość to
 0,8234: lm-eval różni się o 0,10 pkt, w granicach +-2 pkt. Nasz kod podejmuje tę samą decyzję co lm-eval w 66998 z
-67000 par Pythii v0 (dwie różne to remisy co do szumu) i w 67000 z 67000 par Slayera 1.06. Dla Slayera ta zgodność
+67000 par Pythii v0 (dwie różne leżą w granicach szumu liczb zmiennoprzecinkowych: jedna to remis tylko w lm-eval,
+druga to zmiana znaku minimalnego marginesu) i w 67000 z 67000 par Slayera 1.06. Dla Slayera ta zgodność
 nie sprawdza forwardu: lm-eval liczy go przez `common/slayer_lm.py`, czyli tym samym `slayer_model.Slayer` i tą samą
 regułą jednego BOS co nasz kod. Niezależne są tam tylko liczenie wyniku w HFLM i obiekt tokenizera. Forward wobec
 oficjalnego kodu sprawdzają osobno `kontrola_forward.py` (0 z 200 par zmienionych) i

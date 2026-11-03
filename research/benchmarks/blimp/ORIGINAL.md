@@ -99,7 +99,12 @@ repo Pythii nie mają BLiMP.
   ocenia zdanie bez niej. Przy tokenizerze BPE zmienia to pierwszy token.
 - **Token startowy.** lm-eval warunkuje na jednym tokenie BOS/EOT. Jak to było w pracy: nieustalone.
 - **Rewizja zbioru.** lm-eval wczytuje `dataset_path: blimp` bez przypiętej rewizji; my przypinamy
-  `nyu-mll/blimp` @ `877fba0`.
+  `nyu-mll/blimp` @ `877fba0`. Przebiegi lm-eval P2 i P3 (`LM_EVAL_PROTOCOL.md`) pobrały tę samą rewizję `877fba0`
+  (67 konfiguracji, `results/lm-eval/env.json`, pola `hf_dataset_snapshots` i `lm_eval_dataset_revisions`).
+- **Wersja lm-eval.** Space podaje lm-eval `6d2abda4` (0.4.8), my liczymy 0.4.9.1. Katalog `lm_eval/tasks/blimp`
+  jest w obu wersjach identyczny: 71 plików, ten sam hash każdego blobu i całego drzewa (`6fd38df`):
+  `gh api 'repos/EleutherAI/lm-evaluation-harness/contents/lm_eval/tasks/blimp?ref=<tag>' --jq '.[] | "\(.sha) \(.name)"'`
+  z `ref=6d2abda4fd171e68a8789330c4149e37c1ca0bda` i `ref=v0.4.9.1`.
 - **Etykiety zjawisk.** `linguistics_term` na Hugging Face ma wartość `s-selection`; 12 zjawisk w pracy włącza
   ją do struktury argumentowej (Tabela 4). Nasza tabela zjawisk robi tak samo.
 - **Pary zdegenerowane.** 7 par ma identyczne zdanie poprawne i błędne (paradygmaty `passive_1`,

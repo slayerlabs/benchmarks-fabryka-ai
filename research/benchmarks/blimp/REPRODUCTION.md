@@ -42,8 +42,10 @@ Forward wobec oficjalnej klasy GPT z repo Slayera sprawdzają osobno `kontrola_f
 losowym checkpoincie, bez wag i sieci). Dla nowej wersji Slayera ze zmienioną architekturą te logity trzeba
 przed pomiarem zamrozić ponownie z jej kodu: `tests/make_slayer_reference.py`, pliki `*.py` i `config.json` z repo HF.
 
-Dwie niezgodne pary w (b) to remisy co do szumu liczb zmiennoprzecinkowych: `npi_present_1/445` (lm-eval daje
-obu zdaniom tę samą sumę) i `wh_vs_that_no_gap/990`. Największa |różnica| log-prawdopodobieństwa zdania między naszym
+Dwie niezgodne pary w (b) różnią się w granicach szumu liczb zmiennoprzecinkowych. `npi_present_1/445` to remis
+tylko w lm-eval: daje obu zdaniom tę samą sumę, a remis liczy się jako trafienie; u nas zdanie błędne ma minimalnie
+wyższą sumę. `wh_vs_that_no_gap/990` to nie remis, tylko zmiana znaku marginesu: u nas margines jest minimalnie
+ujemny, w lm-eval minimalnie dodatni (marginesy: `results/lm_eval_agreement.json`, `b.disagreements`). Największa |różnica| log-prawdopodobieństwa zdania między naszym
 kodem a lm-eval to 0,00049 (Pythia) i 0,00014 (Slayer). Wszystkie liczby: `results/lm_eval_agreement.json`; surowe
 wyjścia lm-eval z sumami SHA-256: `results/lm-eval/`.
 

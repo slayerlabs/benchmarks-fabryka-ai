@@ -3,7 +3,7 @@
   python benchmarks/blimp/lm_eval_compare.py extract --samples <lm-eval --output_path dir> --out <model>.jsonl.gz
   python benchmarks/blimp/lm_eval_compare.py compare --results <dir> --out benchmarks/blimp/results/lm_eval_agreement.json
   python benchmarks/blimp/lm_eval_compare.py sample --results <dir> --pythia <tokenizer dir> --slayer <tokenizer dir> \
-      --out tests/dane/blimp_zgodnosc.json   # sample of tests/test_blimp_zgodnosc.py
+      --out common/tests/data/blimp_zgodnosc.json   # sample of tests/test_blimp_zgodnosc.py
 
 <dir> holds pythia-1b-v0/blimp.jsonl.gz (P1, our code), lm-eval/pythia-1b-v0.jsonl.gz (P2),
 lm-eval/slayer-1.06.jsonl.gz (P3) and optionally gpu-check/slayer-1.06.jsonl.gz (P4, our code on the same GPU).

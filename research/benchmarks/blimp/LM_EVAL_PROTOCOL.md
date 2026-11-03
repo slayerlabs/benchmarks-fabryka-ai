@@ -62,6 +62,6 @@ rozstrzygnąć, i dopiero po zgodzie.
 
 ## Test zgodności (etap C)
 
-`tests/test_blimp_zgodnosc.py` z próbką `tests/dane/blimp_zgodnosc.json` (pary o indeksach 0 i 500 z każdego z 67
+`tests/test_blimp_zgodnosc.py` z próbką `common/tests/data/blimp_zgodnosc.json` (pary o indeksach 0 i 500 z każdego z 67
 paradygmatów i 7 par z identycznymi zdaniami, dla Pythii v0 i Slayera 1.06): log-prawdopodobieństwa i decyzje lm-eval
 z P2 i P3, nasze z P1 i z pliku Slayera w repo, tokeny wejścia lm-eval. Test działa bez sieci i bez wag.
