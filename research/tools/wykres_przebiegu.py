@@ -5,7 +5,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-B = Path(sys.argv[1])  # research/benchmarks
+B = Path(sys.argv[1])  # research/results/central-run
 OUT = Path(sys.argv[2])
 T = [("T01", "blimp", "BLiMP", "acc"), ("T02", "arc-challenge", "ARC-Challenge", "acc_norm"),
      ("T03", "wikitext-2", "WikiText-2 (byte ppl, lower = better)", "byte_perplexity"),
@@ -18,7 +18,7 @@ INK, MUTED = "#1f1f1e", "#6b6a64"
 
 
 def wynik(d, m, k):
-    f = B / d / "results" / m / "results_rozszerzone.json"
+    f = B / d / m / "results_rozszerzone.json"
     if not f.exists():
         return None
     o = json.loads(f.read_text())["observations"][0]

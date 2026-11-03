@@ -14,8 +14,8 @@
 #   kontrola               sanity check of the full results (tools/kontrola_sensu.py); licz runs it at its end
 #   pakuj                  wyniki.tgz to copy back
 #   stan                   state files, last log lines, GPU
-# Instance files map to the repo as: wyniki/<benchmark>/<label>/ -> benchmarks/<benchmark>/results/<label>/,
-# czasy.jsonl -> results/central-run/times_<gpu>.jsonl.
+# Instance files map to the repo as: wyniki/<benchmark>/<label>/ -> results/central-run/<benchmark>/<label>/,
+# czasy.jsonl -> results/central-run/times_<gpu>.jsonl. A run never writes under benchmarks/.
 set -euo pipefail
 K=${K:-/workspace/kod}
 WS=${WS:-/workspace}
@@ -43,7 +43,7 @@ MODELE=(
   "eurollm-1.7b|utter-project/EuroLLM-1.7B|c730cd9b616799ace3c65e927d63191446f59374|hf|lock"
 )
 
-# Task id -> benchmarks/<dir>; the test checks that ZADANIA_ID equals the keys of ZADANIA.
+# Task id -> <benchmark> directory name under wyniki/ and results/central-run/; the test checks that ZADANIA_ID equals the keys of ZADANIA.
 KATALOGI="T01:blimp T02:arc-challenge T03:wikitext-2 T04:multiblimp-pl T44:pubmedqa T45:medmcqa T46:social-iqa"
 ZADANIA_ID=${ZADANIA_ID:-$(for p in $KATALOGI; do printf '%s ' "${p%%:*}"; done)}
 katalog() { local p; for p in $KATALOGI; do [[ ${p%%:*} == "$1" ]] && echo "${p#*:}" && return 0; done; return 1; }
