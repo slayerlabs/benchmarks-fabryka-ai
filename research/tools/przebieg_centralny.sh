@@ -7,6 +7,7 @@
 #   plan "LABEL ..."       ewaluuj.py commands that `licz` would run, without running them
 #   przygotuj LIMIT_S      safety destroy after LIMIT_S, both venvs, HF download speed test
 #   licz "LABEL ..."       in the background: per model download weights, every task, delete weights
+#   ponow                  in the background: every (model, task) whose latest run failed, e.g. with BATCH=1 after an OOM
 #   pakuj                  wyniki.tgz to copy back
 #   stan                   state files, last log lines, GPU
 # Instance files map to the repo as: wyniki/<benchmark>/<label>/ -> benchmarks/<benchmark>/results/<label>/,
@@ -128,6 +129,20 @@ case "$etap" in
     w_tle "licz_${LISTA// /_}" "set -e; source $K/tools/przebieg_centralny.sh _funkcje; \
       for L in $LISTA; do t=\$(teraz); licz_model \$L; zapisz_czas model \$t \"{\\\"model\\\": \\\"\$L\\\"}\"; done"
     ;;
+  ponow)  # in the background: (model, task) pairs whose latest czasy.jsonl entry has kod != 0, again
+    export PYTHONUNBUFFERED=1 NVIDIA_TF32_OVERRIDE=0 HF_HUB_DISABLE_PROGRESS_BARS=1
+    PARY=$(python3 -c "import json,sys; d={}
+for l in open(sys.argv[1]):
+    r=json.loads(l)
+    if r['etap']=='ewaluacja': d[(r['model'],r['zadanie'])]=r['kod']
+m={}
+for (l,t),k in d.items():
+    if k: m.setdefault(l,[]).append(t)
+print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ")
+    echo "again: ${PARY:-nothing} (batch $BATCH)"
+    [[ -n $PARY ]] && w_tle ponow "set -e; source $K/tools/przebieg_centralny.sh _funkcje; \
+      for p in $PARY; do L=\${p%%:*}; ZADANIA_ID=\"\${p#*:}\"; ZADANIA_ID=\${ZADANIA_ID//,/ }; licz_model \$L; done"
+    ;;
   pakuj)  # wyniki.tgz for the repo: per-question files gzipped, podsumowanie.md left out (number gate reads *.md)
     find $WS/wyniki -name '*.jsonl' -exec gzip -f {} +
     tar czf $WS/wyniki.tgz -C $WS --exclude podsumowanie.md wyniki czasy.jsonl srodowisko.json logi/freeze_lock.txt logi/freeze_new.txt
@@ -139,6 +154,6 @@ case "$etap" in
     ;;
   _funkcje) ;;  # sourced: functions only
   *)
-    echo "stages: lista | katalogi | plan 'LABEL ...' | przygotuj LIMIT_S | licz 'LABEL ...' | pakuj | stan"; exit 2
+    echo "stages: lista | katalogi | plan 'LABEL ...' | przygotuj LIMIT_S | licz 'LABEL ...' | ponow | pakuj | stan"; exit 2
     ;;
 esac
