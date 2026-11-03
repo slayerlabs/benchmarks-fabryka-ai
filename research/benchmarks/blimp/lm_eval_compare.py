@@ -77,10 +77,10 @@ def ref_hits(rows):
 
 def agreement(ours, ref, docs, partial=False):
     """Our decisions (blimp.trafienie_pary) against lm-eval decisions (`acc`) on the same pairs."""
-    ids = [d["id"] for d in docs if d["id"] in ours and d["id"] in ref]
+    sel = [d for d in docs if d["id"] in ours and d["id"] in ref]
+    ids = [d["id"] for d in sel]
     if not partial and len(ids) != len(docs):
         raise SystemExit(f"only {len(ids)} of {len(docs)} pairs in both results")
-    sel = [d for d in docs if d["id"] in set(ids)]
     h_o, h_r = our_hits(ours, sel), ref_hits({i: ref[i] for i in ids})
     a_o, a_r = accuracy(h_o, sel), accuracy(h_r, sel)
     disagree = []
