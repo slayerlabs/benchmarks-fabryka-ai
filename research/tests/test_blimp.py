@@ -145,6 +145,65 @@ def test_licz_zadanie_zapisuje_odrzucone_i_liczy_dalej(monkeypatch, tmp_path):
     assert H.n_odrzuconych(plik) == len(odrzucone) and len(plik.read_text().splitlines()) == len(zapisane)
 
 
+def test_model_hf_pusty_kontekst_jak_lm_eval_z_tokenizera(monkeypatch):
+    """ModelHF (Pythia, the control model) takes the empty-context token from the tokenizer as lm-eval HFLM does:
+    BOS when the tokenizer has one, else EOS. Stub tokenizer with ids that no hard-coded prefix would hit."""
+    import pytest
+    pytest.importorskip("torch")
+    transformers = pytest.importorskip("transformers")
+    import hipoteza_formatu as H
+
+    class Tok:
+        def __init__(self, bos, eos):
+            self.bos_token_id, self.eos_token_id = bos, eos
+
+        def __call__(self, s, add_special_tokens=True):
+            return type("Enc", (), {"input_ids": ([self.bos_token_id] if add_special_tokens else []) + [ord(c) for c in s]})
+
+    class BezWag:
+        config = type("C", (), {"max_position_embeddings": 2048})()
+
+        def to(self, *_):
+            return self
+
+        def eval(self):
+            return self
+
+    monkeypatch.setattr(transformers.AutoModelForCausalLM, "from_pretrained", staticmethod(lambda *a, **k: BezWag()))
+    try:
+        from lm_eval.models.huggingface import HFLM
+    except ImportError:
+        HFLM = None
+    for bos, eos, oczek in ((5, 7, 5), (None, 7, 7)):
+        tok = Tok(bos, eos)
+        monkeypatch.setattr(transformers.AutoTokenizer, "from_pretrained", staticmethod(lambda *a, **k: tok))
+        m = H.ModelHF("brak", "cpu")
+        assert m.prefiks_pusty == [oczek] and m.prefiks == [] and m.pad == eos
+        assert H.para(m, "", " x") == ([oczek], [ord(" "), ord("x")])
+        if HFLM is not None:  # the rule itself, read from lm-eval 0.4.9.1
+            ref = object.__new__(HFLM)
+            ref.tokenizer, ref.custom_prefix_token_id = tok, None
+            assert ref.prefix_token_id == m.prefiks_pusty[0]
+
+
+def test_kontrola_forward_porownaj_panel_liczy_przestawione():
+    """porownaj_panel counts pairs whose hit differs from ours (not the ones that agree) and |difference| per sentence."""
+    import kontrola_forward as K
+    d = docs()
+    nasze = {x["id"]: {"ll": [-1.0, -2.0]} for x in d}  # every pair a hit for us
+    odwrocone = {d[1]["id"], d[4]["id"]}  # the official forward flips these two (both non-identical sentences)
+    assert all(d[i]["opcje"][0] != d[i]["opcje"][1] for i in (1, 4))
+
+    def ll_pary(doc):
+        ll = [-2.5, -1.0] if doc["id"] in odwrocone else [-1.25, -2.0]
+        return {"float32": ll, "float64": ll}
+    roz, przest = K.porownaj_panel(d, nasze, ll_pary, ["float32", "float64"])
+    assert przest == {"float32": 2, "float64": 2}
+    assert len(roz["float32"]) == 2 * len(d) and max(roz["float32"]) == 1.5 and min(roz["float32"]) == 0.0
+    roz, przest = K.porownaj_panel(d, nasze, lambda doc: {"float32": [-1.0, -2.0]}, ["float32"])
+    assert przest == {"float32": 0} and max(roz["float32"]) == 0.0
+
+
 SLAYER_TOKENIZER_SHA = "0640d3bd3674d7a6e59c540d945a2ad275a12e1bcaeb6007c37a90751f9815dd"
 
 

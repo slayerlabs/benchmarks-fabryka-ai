@@ -1,0 +1,9 @@
+92589a02cfd745884f8473b0a975a93cea4cdaacf8333b0c047dab41623396b2  /workspace/pythia-1b-v0/pytorch_model.bin
+c24618a1b3e6a38167beff1c72cffd126c3a66254347304b50547d12c5f25624  /workspace/pythia-1b-v0/tokenizer.json
+e10df6d50101d8424ff7338c97373ab9e151e359a6fcb23108023ac4a6400214  /workspace/slayer-1.06/model.safetensors
+0640d3bd3674d7a6e59c540d945a2ad275a12e1bcaeb6007c37a90751f9815dd  /workspace/slayer-1.06/tokenizer.json
+config.json: OK
+load_slayer.py: OK
+model.safetensors: OK
+tokenizer.json: OK
+train_gpt_ref_r23.py: OK

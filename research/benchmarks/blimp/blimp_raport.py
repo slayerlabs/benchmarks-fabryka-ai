@@ -14,6 +14,7 @@ from pathlib import Path
 WERDYKT_EN = {"pewne": "certain", "prawdopodobne": "probable", "szum": "noise", "nierozstrzygalne": "undetermined",
               None: "-"}
 MODELE = [("1.06", "Slayer 1.06", "#2a78d6", "circle"), ("pythia-1b", "Pythia-1B", "#eb6834", "square")]
+KONTROLA = "pythia-1b-v0"  # control model (METODOLOGIA etap B, LM_EVAL_PROTOCOL.md); "Pythia-1B" above = v1 weights
 TEKST, TEKST2, SIATKA, TLO = "#0b0b0b", "#52514e", "#e4e3df", "#fcfcfb"
 EKSPL = "*[Added after the measurement: exploratory, not in THRESHOLDS.md.]*"
 
@@ -110,6 +111,87 @@ def raport(sciezka_liczb, katalog):
     print(f"{katalog / 'BLIMP.md'}, 2 SVG")
 
 
+def model_z(w, m):
+    return {"acc": w[f"blimp/modele/{m}/acc"], "se": w[f"blimp/modele/{m}/se"], "n": int(w[f"blimp/modele/{m}/n"]),
+            "ci": (w[f"blimp/modele/{m}/ci95/0"], w[f"blimp/modele/{m}/ci95/1"])}
+
+
+def sekcja_kontroli(w, bl, kp):
+    """Control (METODOLOGIA etap B and C): Pythia-1B v0 by our code and by lm-eval against the published value,
+    decisions per pair of both codes on Pythia v0 and Slayer 1.06; the v1 weights against the same value as information."""
+    zrodlo = ("The published value is the mean of the 67 `blimp_*` values in the EleutherAI/pythia repo file "
+              "`evals/pythia-v0/pythia-1b/zero-shot/pythia-1b-0shot-global_step143000_eval_results_11-28-2022-15-14-35.json` "
+              "(commit `a19eecb`), computed in 2022 by an older lm-eval that scores the sentence without the leading space.")
+    if KONTROLA not in bl["modele"]:
+        return ["", "## Control: Pythia-1B against the published value", "",
+                f"Our Pythia-1B {f(kp['nasza'], 4)} vs reference {f(kp['wartosc'], 4)}: difference "
+                f"{pkt(kp['roznica'])}, threshold +-2 points: "
+                f"**{'within' if abs(kp['roznica']) <= kp['prog'] else 'outside, control not confirmed'}**.", zrodlo, ""]
+    L = ["", "## Control: Pythia-1B v0 against the published value and lm-eval", "",
+         "Control model of METODOLOGIA.md: `EleutherAI/pythia-1b-v0` @ `step143000`, scored by our code and by lm-eval "
+         "0.4.9.1 (task `blimp`) on the same GPU; protocol and conditions written before the run: "
+         "[`LM_EVAL_PROTOCOL.md`](../LM_EVAL_PROTOCOL.md). " + zrodlo, "",
+         "| check | value | threshold | result |", "|---|---|---|---|",
+         f"| our code, Pythia-1B v0 | {f(kp['nasza'], 4)} (difference {pkt(kp['roznica'])}) | +-2 pts | "
+         f"{'within' if abs(kp['roznica']) <= kp['prog'] else 'outside'} |"]
+    kl = bl.get("kontrola_lm_eval")
+    if kl:
+        p = "blimp/kontrola_lm_eval"
+        a = kl["pythia_v0_lm_eval"]
+        L.append(f"| lm-eval, Pythia-1B v0 (condition a) | {f(w[p + '/pythia_v0_lm_eval/acc'], 4)} (difference "
+                 f"{pkt(w[p + '/pythia_v0_lm_eval/diff'])}) | +-2 pts | {'pass' if a['pass'] else 'FAIL'} |")
+        for k, opis in (("pythia_v0_nasz_vs_lm_eval", "our code vs lm-eval, Pythia-1B v0, same decision per pair (b)"),
+                        ("slayer_nasz_vs_lm_eval", "our code (repo file, MPS) vs lm-eval, Slayer 1.06, same decision "
+                                                   "per pair (c)")):
+            L.append(f"| {opis} | {int(w[f'{p}/{k}/agree'])} of {int(w[f'{p}/{k}/n'])} "
+                     f"({f(w[f'{p}/{k}/share'] * 100, 2)}%), accuracy difference {pkt(w[f'{p}/{k}/diff'], 3)}, "
+                     f"max abs log-lik difference {f(w[f'{p}/{k}/max_abs_dll'], 5)} | >= 99% and <= 1 SE "
+                     f"({pkt(w[f'{p}/{k}/se_lm_eval'], 3)}) | {'pass' if kl[k]['pass'] else 'FAIL'} |")
+    if kl:
+        L += ["", "(c) is not an independent check of the Slayer forward: lm-eval runs Slayer through "
+                  "`common/slayer_lm.py`, i.e. the same `slayer_model.Slayer` forward and the same one-BOS rule as our "
+                  "code; only the HFLM scoring and the tokenizer object are independent. The forward against the "
+                  "official code is checked by `kontrola_forward.py` (section Controls) and "
+                  "`tests/test_lm_eval_slayer.py::test_forward_matches_official_reference`."]
+    L += ["", f"The v1 weights (`EleutherAI/pythia-1b`, the comparison model of this report) give "
+              f"{f(w['blimp/kontrola_pythia_v1/nasza'], 4)} against the same published value; that is information "
+              "only, the published value belongs to v0.", ""]
+    return L
+
+
+def sekcja_v0(w, bl):
+    """Slayer 1.06 against the control model Pythia-1B v0: overall, and the paradigms certain against v1 re-read."""
+    if "wzgledem_v0" not in bl:
+        return []
+    p = "blimp/wzgledem_v0"
+    og = bl["wzgledem_v0"]["ogolem"]
+    lz = bl["wzgledem_v0"]["liczby"]
+    L = ["## Against the control model Pythia-1B v0", "",
+         f"Slayer 1.06 minus Pythia-1B v0 on the same 67 000 pairs: {pkt(w[p + '/ogolem/roznica'])}, paired SE "
+         f"{pkt(w[p + '/ogolem/se'])}, z = {f(w[p + '/ogolem/z'], 2)}: {WERDYKT_EN[og['werdykt']]}. Per paradigm the "
+         f"ranking depends on which Pythia weights are the reference: against v1 Slayer is certainly ahead in "
+         f"{int(w[p + '/liczby/slayer_pewne_v1'])} paradigms and Pythia in {int(w[p + '/liczby/pythia_pewne_v1'])}; "
+         f"against v0 in {int(w[p + '/liczby/slayer_pewne_v0'])} and {int(w[p + '/liczby/pythia_pewne_v0'])}. After "
+         f"a Holm correction over the 67 paradigms (family-wise 5%) against v1: Slayer "
+         f"{int(w[p + '/liczby/slayer_holm_v1'])}, Pythia {int(w[p + '/liczby/pythia_holm_v1'])}; against v0: Slayer "
+         f"{int(w[p + '/liczby/slayer_holm_v0'])}, Pythia {int(w[p + '/liczby/pythia_holm_v0'])}. Certain and "
+         f"Holm-significant against both weights with the same sign: {int(w[p + '/liczby/slayer_zostaje'])} Slayer "
+         f"advantages and {int(w[p + '/liczby/pythia_zostaje'])} Pythia advantages. A per-paradigm statement about "
+         "Slayer holds only for those. Rows: every paradigm certain against v1 in Slayer's favour.", "",
+         "| paradigm | difference vs v1 | z vs v1 | Holm vs v1 | difference vs v0 | z vs v0 | verdict vs v0 | Holm vs v0 "
+         "| stays |",
+         "|---|---:|---:|---|---:|---:|---|---|---|"]
+    for g, e in sorted(bl["wzgledem_v0"]["pewne_v1"].items(), key=lambda kv: -kv[1]["v1"]["roznica"]):
+        if e["v1"]["roznica"] <= 0:
+            continue
+        q = f"{p}/pewne_v1/{g}"
+        L.append(f"| {g} | {pkt(w[q + '/v1/roznica'], 1)} | z = {f(w[q + '/v1/z'], 2)} | "
+                 f"{'yes' if e['v1']['holm'] else 'no'} | {pkt(w[q + '/v0/roznica'], 1)} | "
+                 f"z = {f(w[q + '/v0/z'], 2)} | {WERDYKT_EN[e['v0']['werdykt']]} | "
+                 f"{'yes' if e['v0']['holm'] else 'no'} | {'yes' if e['zostaje'] else 'no'} |")
+    return L + [""]
+
+
 def pliki(liczby, bl):
     """{file name: text} of the report and both charts. Numbers from LICZBY.json; yes/no flags and names
     (not numbers, so not in LICZBY) from blimp.json."""
@@ -173,19 +255,11 @@ def pliki(liczby, bl):
          "## Overall", "",
          "| model | accuracy | n | SE | CI95 (bootstrap, stratified) | chance | majority |",
          "|---|---:|---:|---:|---|---:|---|"]
-    for m, nazwa, *_ in MODELE:
-        x = mod[m]
+    for m, nazwa, *_ in MODELE + ([(KONTROLA, "Pythia-1B v0 (control)")] if KONTROLA in bl["modele"] else []):
+        x = mod[m] if m in mod else model_z(w, m)
         L.append(f"| {nazwa} | {f(x['acc'], 4)} | {x['n']} | {f(x['se'], 4)} | {f(x['ci'][0], 4)}-{f(x['ci'][1], 4)} | "
                  f"0.5 | n/a (gold always first by construction) |")
-    L += ["", "## Control: Pythia-1B against the published value", "",
-          f"Our Pythia-1B {f(kp['nasza'], 4)} vs reference {f(kp['wartosc'], 4)}: difference "
-          f"{pkt(kp['roznica'])}, threshold +-2 points: "
-          f"**{'within' if abs(kp['roznica']) <= kp['prog'] else 'outside, control not confirmed'}**.",
-          "The reference is the mean of the 67 `blimp_*` values in the EleutherAI/pythia repo file "
-          "`evals/pythia-v0/pythia-1b/zero-shot/pythia-1b-0shot-global_step143000_eval_results_11-28-2022-15-14-35.json`. "
-          "It is the v0 model (weights before the Pythia re-train) scored by the old harness without the leading "
-          "space; the v1 eval folders of that repo have no BLiMP and no other published BLiMP value for "
-          "`EleutherAI/pythia-1b` was found. It is a sanity range, not an exact reference.", ""]
+    L += sekcja_kontroli(w, bl, kp)
     L += sekcja_space(w, pan, sl)
     L += ["## 12 phenomena", "",
           "Two verdicts per phenomenon. *Pairs* (fixed in THRESHOLDS.md): paired SE over the pairs of the "
@@ -234,6 +308,7 @@ def pliki(liczby, bl):
                  f"z = {f(p['z'], 2)} | {wer} | {pkt(d['roznica_na_token'], 1)} | "
                  f"{pkt(d.get('roznica_ta_sama_tokenizacja'), 1)} ({int(d['n_ta_sama_tokenizacja'])}) |")
     L += ["", "![BLiMP paradigms](blimp_paradigms.svg)", ""]
+    L += sekcja_v0(w, bl)
     L += sekcja_tokenizacji(w, por, bl)
     L += sekcja_odstepstw(w, bl)
     L += ["## How to reproduce", "",

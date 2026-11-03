@@ -72,6 +72,8 @@ def test_porownanie_klastrowe():
     r = K.porownanie_klastrowe(Ha, Hb)
     assert math.isclose(r["roznica"], 0.25) and r["df"] == 2 and r["k"] == 3
     assert math.isclose(r["se_klastr"], math.sqrt(((0.25) ** 2 + 0.25 ** 2 + 0) / 2) / math.sqrt(3))
+    # t = sqrt(3) at df = k - 1 = 2; Student t with 2 df has the closed form p = 1 - |t| / sqrt(t^2 + 2)
+    assert math.isclose(r["t"], math.sqrt(3)) and math.isclose(r["p_klastr"], 1 - math.sqrt(3) / math.sqrt(5), rel_tol=1e-6)
     assert K.porownanie_klastrowe({"a": [1], "b": [0]}, {"a": [0], "b": [0]})["werdykt_klastr"] == "nierozstrzygalne"
 
 

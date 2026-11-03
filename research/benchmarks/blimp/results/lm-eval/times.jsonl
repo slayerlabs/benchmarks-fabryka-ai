@@ -1,0 +1,14 @@
+{"step": "venv", "s": 2.7, "exit": 0}
+{"step": "pip_hub", "s": 2.1, "exit": 0}
+{"step": "data_blimp", "s": 5.7, "exit": 0}
+{"step": "pip", "s": 75.4, "exit": 0}
+{"step": "weights_pythia", "s": 115.9, "exit": 0}
+{"step": "weights_slayer", "s": 159.0, "exit": 0}
+{"step": "setup", "s": 207.1, "exit": 0}
+{"step": "prewarm", "s": 76.4, "exit": 0}
+{"step": "p1_ours_pythia_v0", "s": 217.2, "exit": 0}
+{"step": "p4_ours_slayer", "s": 229.6, "exit": 0}
+{"step": "p2_lm_eval_pythia_v0", "s": 243.9, "exit": 0}
+{"step": "p3_lm_eval_slayer", "s": 289.6, "exit": 0}
+{"step": "environment", "s": 2.7, "exit": 0}
+{"step": "compare", "s": 305.5, "exit": 143}
