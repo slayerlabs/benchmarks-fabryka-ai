@@ -187,12 +187,29 @@ def pliki(liczby, kr):
               f"loss gain of averaging is at least half the gain of annealing ({'; '.join(czesci)}).", ""]
         if "avg10" in s and "vs_wygaszanie" in s["avg10"]:
             pa = por["avg10_vs_A/heldout_srednia_vs_wygaszanie/loss"]
-            L += [f"Reading: on the held-out loss, the mean of the last 10 checkpoints gains about as much as the 150-step "
-                  f"annealing: avg10 - annealed arm = {f(pa['roznica'], 4)} nat, SE {f(pa['se'], 4)}, z = {f(pa['z'], 2)} "
-                  f"({wer(pa['werdykt'])}); annealed - constant-LR arm = {f(W('heldout', 'wygaszanie_vs_staly'), 4)} nat. "
-                  "The gain is spread differently over the data components (table below), and BLiMP of the annealed model, "
-                  "as well as avg10 on the other tests of the annealing run, are not measured, so this is a statement about "
-                  "the held-out loss only, not that averaging replaces annealing.", ""]
+
+            def kom(m, c):
+                return W("heldout", "komponenty", m, c, "roznica")
+            komp = [c for c in ("web", "core", "legal", "en") if kom("A", c) is not None and kom("avg10", c) is not None]
+            roz = {c: kom("avg10", c) - kom("A", c) for c in komp}
+            nizej = [c for c in komp if roz[c] < 0]
+            wyzej = [c for c in komp if roz[c] > 0]
+
+            def para(c):  # the two table values (both in LICZBY.json), not their difference
+                return f"{c} ({f(kom('avg10', c), 4)} vs {f(kom('A', c), 4)})"
+            L += [f"Reading: avg10 - annealed arm = {f(pa['roznica'], 4)} nat, SE {f(pa['se'], 4)}, z = {f(pa['z'], 2)} "
+                  f"({wer(pa['werdykt'])}) on all windows; annealed - constant-LR arm = "
+                  f"{f(W('heldout', 'wygaszanie_vs_staly'), 4)} nat. The near-zero total is not 'avg10 gains as much as "
+                  "annealing': it is opposite differences cancelling over the data components (table below, avg10 - "
+                  "annealed per component, avg10 vs annealed A, each minus Slayer 1.06): avg10 is lower on "
+                  + ", ".join(para(c) for c in nizej) + " and higher on " + ", ".join(para(c) for c in wyzej)
+                  + ". The annealed arm's lead "
+                  f"on core is also in the constant-LR arm B ({f(kom('B', 'core'), 4)} on core), so it comes with the "
+                  "data of the annealing run, not with the LR schedule. The SEs of this section treat the held-out windows "
+                  "as independent; neighbouring windows are correlated, so these SEs are too small and the avgK - annealed "
+                  "verdicts too strong (a block bootstrap is not computed here). BLiMP of the annealed model and avg10 on "
+                  "the other tests of the annealing run are not measured, so none of this says that averaging replaces "
+                  "annealing.", ""]
 
     # ---- controls
     L += ["## Controls", ""]

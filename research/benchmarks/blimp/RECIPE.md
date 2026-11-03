@@ -71,6 +71,39 @@ BLIMP_DIR=<snapshot> python benchmarks/blimp/kontrola_forward.py --model <slayer
   --wyniki <out>/1.06/blimp.jsonl --watki 1,6 --sumy float32,float64
 ```
 
+## Wynik 5: kontrola Pythia-1B v0 i zgodność z lm-eval (`results/lm_eval_agreement.json`)
+
+- Protokół z warunkami (a)-(d), zapisany przed przebiegiem: [`LM_EVAL_PROTOCOL.md`](LM_EVAL_PROTOCOL.md), commit
+  `2f6c012`; skrypty instancji i porównania: `8887295`; surowe wyniki: `43dc652`; poprawka porównania i jego
+  wynik: `bbaedc9`.
+- Modele: [`EleutherAI/pythia-1b-v0` @ `step143000`](https://huggingface.co/EleutherAI/pythia-1b-v0/tree/step143000)
+  (`pytorch_model.bin` sha256 w `results/lm-eval/weights.sha256`) i Slayer 1.06 @ `ef81be58` (pliki zgodne z
+  `SHA256SUMS` repo HF).
+- Przebiegi: P1 nasz kod na v0, P2 lm-eval na v0, P3 lm-eval na Slayerze 1.06 (`common/slayer_lm.py`), P4 nasz kod
+  na Slayerze 1.06 na GPU. lm-eval 0.4.9.1, zadanie `blimp`, `--log_samples`; zbiór załadowany przez lm-eval to
+  `blimp` @ `877fba0801ffb7cbd8c39c1ff314a46f053f6036` (67 konfiguracji, `results/lm-eval/env.json`).
+- Sprzęt i środowisko: jedna instancja vast.ai, NVIDIA GeForce RTX 4090, sterownik 580.178.04, CUDA 12.8, Python
+  3.11.13, torch `2.8.0+cu128`, transformers `4.57.6`, datasets `3.6.0`, float32, `NVIDIA_TF32_OVERRIDE=0`, batch
+  64. Czasy etapów: `results/lm-eval/times.jsonl`.
+- Seed: ocena deterministyczna (bez losowania).
+- Data: 2026-11-03.
+
+```bash
+bash benchmarks/blimp/lm_eval_instance.sh hf_test        # prędkość pobierania z HF (pierwszy 1 GB wag v0)
+bash benchmarks/blimp/lm_eval_instance.sh start <limit_s>  # bezpiecznik, potem w tle: venv, pobrania, P1, P4, P2, P3
+bash benchmarks/blimp/lm_eval_instance.sh state          # stan kolejki
+```
+
+Lokalnie, z plików w repo (bez wag). Krok porównania na instancji przerwano (pętla O(n^2), poprawiona w `bbaedc9`),
+więc `lm_eval_agreement.json` policzono tą komendą lokalnie z pobranych plików (sha256 zgodne z
+`results/lm-eval/SHA256SUMS`):
+
+```bash
+python benchmarks/blimp/lm_eval_compare.py compare --results benchmarks/blimp/results \
+  --out benchmarks/blimp/results/lm_eval_agreement.json --dane <snapshot>
+python tests/test_blimp_zgodnosc.py
+```
+
 ## Agregaty i raport
 
 ```bash
