@@ -111,6 +111,8 @@ case "$etap" in
       "https://huggingface.co/SlayerLab/Slayer1B-1.06/resolve/ef81be58742544ad32e1afab38db011fec209609/model.safetensors" \
       > $WS/logi/siec.txt
     zapisz_czas siec_1GB "$t" "{\"bajty_na_s\": $(cat $WS/logi/siec.txt)}"
+    # the LFM3 remote code compiles a Triton conv kernel on CUDA; pytorch runtime images ship no C compiler
+    command -v cc > /dev/null || { apt-get update -qq && apt-get install -y -qq gcc > /dev/null; }
     for E in lock new; do
       t=$(teraz)
       # --system-site-packages: torch 2.8.0 of the image is the locked one
