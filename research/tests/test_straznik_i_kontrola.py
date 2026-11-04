@@ -74,3 +74,9 @@ def test_sanity_perplexity_and_exit_code():
     (d / "results_rozszerzone.json").write_text(json.dumps({"observations": [ok]}))
     assert KS.main([str(d)]) == 1
     assert KS.main([str(d / "brak")]) == 1
+
+
+if __name__ == "__main__":
+    import pytest
+
+    raise SystemExit(pytest.main([__file__]))

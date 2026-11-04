@@ -24,7 +24,7 @@ Wszystkie komendy niżej uruchamiasz w katalogu `research/`.
 | `tools/` | bramka liczb (`liczby.py`, `sprawdz_raporty.py`), przebieg centralny (`przebieg_centralny.sh`, `kontrola_sensu.py`) |
 | `results/` | `LICZBY.json` i `LICZBY.md`: wszystkie liczby raportów, wygenerowane przez bramkę liczb; `central-run/`: wyniki przebiegu centralnego |
 | `tests/` | testy kodu, bez sieci i bez wag |
-| `slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami: `dane/`, `testy_danych_slayer/`, `wygaszanie/`, `tokenizer/`, `lab/`, `paczka_testerzy/` (komendy w ich README uruchamiasz w `research/slayer-1b/`) |
+| `slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami: `dane/` (spis zbiorów: [`REJESTR_DATASETOW.md`](slayer-1b/dane/REJESTR_DATASETOW.md)), `testy_danych_slayer/`, `wygaszanie/`, `tokenizer/`, `lab/`, `paczka_testerzy/` (komendy w ich README uruchamiasz w `research/slayer-1b/`) |
 
 Jest też jedna analiza: [`analyses/answer-format/`](analyses/answer-format/README.md). Testy z listy Space liczy kod
 w `common/`, opisany w [`common/README.md`](common/README.md).
@@ -166,6 +166,11 @@ Testy działają bez sieci i bez wag. Każdy kończy się kodem 0:
 .venv-eval/bin/python -m pytest tests/test_piqa.py
 .venv-eval/bin/python -m pytest tests/test_przebieg_centralny.py
 .venv-eval/bin/python tests/test_liczby_raportow.py
+.venv-eval/bin/python tests/test_statystyka.py
+.venv-eval/bin/python tests/test_straznik_i_kontrola.py
+.venv-eval/bin/python tests/test_arc_easy_snr.py
+.venv-eval/bin/python tests/test_winogrande.py
+.venv-eval/bin/python tests/test_winogrande_przelicz.py
 ```
 
 Testy BLiMP to `tests/test_blimp*.py` oraz `tests/test_lm_eval_slayer.py`. Testy BLiMP podmieniają model, więc błąd w

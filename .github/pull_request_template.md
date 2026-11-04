@@ -14,5 +14,3 @@ Refs #
 - [ ] `RECIPE.md` z wpisem dla każdego wyniku w tym PR
 - [ ] Każdy wynik ma n i SE, każde porównanie różnicę w SE i werdykt
 - [ ] Bez wag modeli, zbiorów i plików powyżej 10 MB w commitach
-
-Zmiany w `frontend-beta/`: komendy sprawdzające są w [`frontend-beta/README.md`](../frontend-beta/README.md).

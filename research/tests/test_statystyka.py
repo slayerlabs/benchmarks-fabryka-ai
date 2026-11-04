@@ -104,3 +104,9 @@ def test_po_holmie_wiersz_bez_p_poza_rodzina():
     w = S.po_holmie([None, 0.02, 0.01])  # rodzina m = 2, nie 3
     assert w[0] == {"p_holm": None, "werdykt_holm": S.NIEROZSTRZYGALNE, "po_holmie": "nie"}
     assert math.isclose(w[2]["p_holm"], 0.02) and math.isclose(w[1]["p_holm"], 0.02)
+
+
+if __name__ == "__main__":
+    import pytest
+
+    raise SystemExit(pytest.main([__file__]))

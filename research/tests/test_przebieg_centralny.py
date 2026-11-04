@@ -105,3 +105,9 @@ def test_kontrola_stage_flags_bad_full_results():
     env = {**os.environ, "WS": str(ws), "K": str(KORZEN)}
     wynik = subprocess.run(["bash", str(SKRYPT), "kontrola"], capture_output=True, text=True, env=env)
     assert wynik.returncode == 1 and "zly" in wynik.stdout and "/ok" not in wynik.stdout
+
+
+if __name__ == "__main__":
+    import pytest
+
+    raise SystemExit(pytest.main([__file__]))

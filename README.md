@@ -1,55 +1,54 @@
 # benchmarks-fabryka-ai
 
-Budujemy otwarte modele językowe dla ludzi, z publicznymi wagami, danymi i kodem.
+Mierzymy otwarte modele językowe, dziś polsko-angielskiego **Slayer 1B**, na benchmarkach odtworzonych zgodnie z
+oryginałem, i budujemy polskie benchmarki.
 
-Mierzymy modele językowe na benchmarkach odtworzonych zgodnie z oryginałem. Budujemy też polskie benchmarki. Dziś
-mierzymy polsko-angielski **Slayer 1B** i pięć modeli odniesienia, a później każdy następny model. Przyda się każda
-pomoc, nawet 2 godziny pracy.
+<p align="center">
+  <a href="https://discord.gg/HnTkVR4c5T"><img src="docs/img/discord.svg" alt="Discord" height="36"></a>
+  <a href="https://github.com/orgs/slayerlabs/projects/10"><img src="docs/img/tablica.svg" alt="Tablica" height="36"></a>
+  <a href="https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22"><img src="docs/img/zadania-na-start.svg" alt="Zadania na start" height="36"></a>
+  <a href="CONTRIBUTING.md"><img src="docs/img/jak-dolaczyc.svg" alt="Jak dołączyć" height="36"></a>
+  <a href="research/README.md#przygotowanie-raz"><img src="docs/img/przygotowanie.svg" alt="Przygotowanie" height="36"></a>
+  <a href="research/METODOLOGIA.md"><img src="docs/img/metodologia.svg" alt="Metodologia" height="36"></a>
+  <a href="research/benchmarks/_template"><img src="docs/img/nowy-test.svg" alt="Nowy test" height="36"></a>
+  <a href="https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks"><img src="docs/img/wyniki-na-hf.svg" alt="Wyniki na HF" height="36"></a>
+</p>
 
-## Jak dołączyć
+[Discord](https://discord.gg/HnTkVR4c5T) · [Tablica](https://github.com/orgs/slayerlabs/projects/10) ·
+[Zadania na start](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22) ·
+[Jak dołączyć](CONTRIBUTING.md) · [Przygotowanie](research/README.md#przygotowanie-raz) ·
+[Metodologia](research/METODOLOGIA.md) · [Nowy test](research/benchmarks/_template) ·
+[Wyniki na HF](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks)
 
-**1. Dołącz do Discorda.** Nasz kanał to **#bench-team**: https://discord.gg/HnTkVR4c5T. Napisz tam do LoIlita albo
-Elwenora i podaj swój login GitHub. Dodadzą Cię do zespołu Benchmark Team. Od tej chwili możesz brać zadania,
-przesuwać karty na tablicy i pushować gałęzie do repo. Na Discordzie zadajesz też pytania i piszesz, gdy coś nie
-działa.
+## Gdzie co jest
 
-**2. Weź pierwsze zadanie** według [`CONTRIBUTING.md`, „Pierwsze zadanie”](CONTRIBUTING.md#pierwsze-zadanie).
+| katalog albo plik | co tam jest |
+|---|---|
+| `research/benchmarks/` | jeden katalog na benchmark; wzór nowego w `_template/` |
+| `research/METODOLOGIA.md` | jak powstaje benchmark: etapy A–D, typy testów, SE i werdykt |
+| `research/common/` | kod wspólny: ładowanie modeli, ewaluacja przez lm-eval |
+| `research/tools/` | bramka liczb i przebieg centralny |
+| `research/tests/` | testy kodu, bez sieci i bez wag |
+| `research/results/` | `LICZBY.json`: wszystkie liczby raportów |
+| `research/slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami |
+| `CONTRIBUTING.md`, `AGENTS.md` | zasady pracy w repo; krótki opis dla piszących kod |
 
-**3. Przygotuj komputer** według sekcji [„Przygotowanie (raz)”](research/README.md#przygotowanie-raz) w
-`research/README.md`.
+Pełny układ: [`research/README.md`, „Układ”](research/README.md#układ).
 
-**4. Przeczytaj metodologię** w [`research/METODOLOGIA.md`](research/METODOLOGIA.md). Opisuje, w jakiej kolejności
-powstaje benchmark i co trafia do każdego pliku.
+## Pierwsze kroki
 
-**5. Otwórz PR do `main`** według [`CONTRIBUTING.md`](CONTRIBUTING.md). W opisie PR wpisz `Refs #N` z numerem
-zadania.
+1. **Dołącz.** Napisz na Discordzie według [`CONTRIBUTING.md`, „Kontakt”](CONTRIBUTING.md#kontakt).
+2. **Weź zadanie** z kolumny Ready na [tablicy](https://github.com/orgs/slayerlabs/projects/10) albo z etykietą
+   [`good first issue`](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22).
+   Przypisz się i przestaw je na In Progress ([„Pierwsze zadanie”](CONTRIBUTING.md#pierwsze-zadanie)).
+3. **Przygotuj środowisko** według [„Przygotowanie (raz)”](research/README.md#przygotowanie-raz).
+4. **Uruchom jeden test** w katalogu `research/`. Kod 0 znaczy, że środowisko działa:
 
-```mermaid
-flowchart LR
-  A[Discord #bench-team: dostęp od LoIlita albo Elwenora] --> B[Pierwsze zadanie: CONTRIBUTING.md]
-  B --> C[Przypisz się i przestaw zadanie na In Progress]
-  C --> D[PR do main + Refs #N]
-  D --> E[Testy autora PR, potem recenzja] --> F[Merge]
-```
+   ```bash
+   .venv-eval/bin/python tests/test_statystyka.py
+   ```
 
-Gdy przestawiasz zadanie z In Progress na Review albo Independent Check, automat
-[`board-unassign.yml`](.github/workflows/board-unassign.yml) w ciągu kilkunastu minut zdejmuje przypisanie z issue.
-Wtedy wszyscy widzą, że zadanie jest do wzięcia. Recenzent, który przypisze się sam już w Review, zostaje
-przypisany. Status Done zamyka issue.
-
-Przydatne linki:
-
-- Zadania: https://github.com/slayerlabs/benchmarks-fabryka-ai/issues
-- Tablica zadań: https://github.com/orgs/slayerlabs/projects/10
-- Kamienie: https://github.com/slayerlabs/benchmarks-fabryka-ai/milestones
-- Wyniki Slayera 1B w Space: https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks
-- Organizacje: https://github.com/slayerlabs, https://huggingface.co/SlayerLab
-
-## Kto jest kim
-
-- **LoIlita i Elwenor** koordynują zespół. Dodają nowe osoby do zespołu Benchmark Team, co daje dostęp do zadań,
-  tablicy i repo. Piszesz do nich na Discordzie, na kanale #bench-team.
-- **Arek** jest właścicielem modelu Slayer i Space z wynikami. Wgrywa wyniki do Space.
+5. **Otwórz PR do `main`** z `Refs #N` w opisie, według [`CONTRIBUTING.md`, „PR”](CONTRIBUTING.md#pr).
 
 ## Definicja „zrobione”
 
@@ -99,10 +98,3 @@ CI, więc uruchamiasz je sam.
 
 Recenzent takiego PR nie odtwarza `RECIPE.md`. Sprawdza u źródła prompt, ocenę, wynik referencyjny i bazy, a przy
 „brak” albo „nieustalone” listę przeszukanych miejsc.
-
-## Co jest w repo
-
-- [`research/`](research/README.md): benchmarki, analizy, kod wspólny, bramka liczb, testy.
-- [`AGENTS.md`](AGENTS.md): krótki opis układu repo. Mówi też, gdzie dodać nowe pliki i co musi przejść przed PR.
-- [`frontend-beta/`](frontend-beta/README.md): prototyp tablicy wyników w React, na danych syntetycznych. Dziś
-  nieużywany.

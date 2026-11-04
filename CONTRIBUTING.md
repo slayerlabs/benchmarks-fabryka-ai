@@ -7,8 +7,14 @@ albo Elwenora i podaj swój login GitHub. Dodadzą Cię do zespołu Benchmark Te
 karty na tablicy i pushować gałęzie.
 
 Na tym samym kanale zadajesz pytania. Tam też piszesz, gdy coś nie działa albo w dokumentacji czegoś brakuje. Podaj
-krok, w którym utknąłeś, i czego zabrakło. Wystarczy jedno zdanie. Opiekunowie to osoby z sekcji
-[„Kto jest kim”](README.md#kto-jest-kim) w README.
+krok, w którym utknąłeś, i czego zabrakło. Wystarczy jedno zdanie.
+
+### Kto jest kim
+
+- **LoIlita i Elwenor** koordynują zespół. Dodają nowe osoby do zespołu Benchmark Team, co daje dostęp do zadań,
+  tablicy i repo.
+- **Arek** jest właścicielem modelu Slayer i [Space z wynikami](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks).
+  Wgrywa wyniki do Space.
 
 ## Pierwsze zadanie
 
@@ -65,6 +71,11 @@ Status w tej kolejności:
 5. **Independent Check**: drugie, niezależne sprawdzenie.
 6. **Done**: zrobione.
 
+Gdy przestawiasz zadanie z In Progress na Review albo Independent Check, automat
+[`board-unassign.yml`](.github/workflows/board-unassign.yml) w ciągu kilkunastu minut zdejmuje przypisanie z issue.
+Wtedy wszyscy widzą, że zadanie jest do wzięcia. Recenzent, który przypisze się sam już w Review, zostaje
+przypisany. Status Done zamyka issue.
+
 Pola zadania:
 
 - **Czas**: ile pracy zajmie zadanie. Wartości to „do 2 h”, „do 1 dnia” albo „kilka dni”.
@@ -99,8 +110,11 @@ autora.
 
 ## Pliki w repo
 
+Układ katalogów opisuje [`research/README.md`, „Układ”](research/README.md#układ).
+
 - Dokumenty piszesz po polsku. Nazwy katalogów, plików i kod piszesz po angielsku.
 - Nie commitujesz wag modeli (`*.safetensors`, `*.bin`, `*.pt`, katalog `models/`), zbiorów danych (`*.parquet`,
-  `*.arrow`), archiwów `*.zip` ani żadnego pliku powyżej 10 MB.
+  `*.arrow`), archiwów `*.zip` ani żadnego pliku powyżej 10 MB. Listę wykluczeń ma `research/.gitignore`.
 - Wyniki per pytanie wolno commitować skompresowane, jako `results/<model>/<zadanie>.jsonl.gz`, do około 10 MB na
-  plik. Surowe `*.jsonl` zostają na Twoim komputerze, bo wyklucza je `.gitignore`.
+  plik. Potrzebuje ich test zgodności i recenzent, który odtwarza wynik. Surowe `*.jsonl` zostają na Twoim
+  komputerze, bo wyklucza je `.gitignore`.
