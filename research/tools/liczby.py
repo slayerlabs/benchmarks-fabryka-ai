@@ -16,9 +16,9 @@ import sys
 from pathlib import Path
 
 KORZEN = Path(__file__).resolve().parent.parent
-
-PROG_PEWNE = 3.0
-PROG_PRAWDOPODOBNE = 2.0
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # statystyka.py obok, także przy ładowaniu po ścieżce
+from statystyka import (P_PRAWDOPODOBNE, PROG_PEWNE, PROG_PRAWDOPODOBNE, holm, klastrowe_wazone,  # noqa: E402,F401
+                        p_t, werdykt, werdykt_p, werdykt_t)
 SILA = {"szum": 0, "prawdopodobne": 1, "pewne": 2}
 
 # nazwy testów, pod którymi dokumenty je przywołują (do dopasowania słów werdyktu w sprawdz_raporty.py)
@@ -66,74 +66,6 @@ BLIMP = "benchmarks/blimp/results/blimp.json"
 KRZYWA = "benchmarks/blimp/results/checkpoints.json"  # BLiMP over checkpoints and weight averaging
 FORMAT = "analyses/answer-format/results/raport_formatu.json"
 PIQA = "benchmarks/piqa/results/piqa.json"
-
-
-def werdykt(z):
-    """Werdykt z |z|: >= 3 pewne, 2-3 prawdopodobne, < 2 szum; None, gdy z nieznane."""
-    if z is None or (isinstance(z, float) and math.isnan(z)):
-        return None
-    a = abs(z)
-    if a >= PROG_PEWNE:
-        return "pewne"
-    if a >= PROG_PRAWDOPODOBNE:
-        return "prawdopodobne"
-    return "szum"
-
-
-def _beta_cf(a, b, x):
-    """Ułamek łańcuchowy niekompletnej funkcji beta (Numerical Recipes, betacf)."""
-    qab, qap, qam = a + b, a + 1, a - 1
-    c, d = 1.0, 1 - qab * x / qap
-    d = 1 / (d if abs(d) > 1e-300 else 1e-300)
-    h = d
-    for m in range(1, 300):
-        m2 = 2 * m
-        for aa in (m * (b - m) * x / ((qam + m2) * (a + m2)), -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2))):
-            d = 1 + aa * d
-            d = 1 / (d if abs(d) > 1e-300 else 1e-300)
-            c = 1 + aa / c
-            c = c if abs(c) > 1e-300 else 1e-300
-            h *= d * c
-        if abs(d * c - 1) < 1e-14:
-            break
-    return h
-
-
-def p_t(t, df):
-    """Dwustronne p rozkładu t Studenta z df stopniami swobody."""
-    if t == 0:
-        return 1.0
-    x = df / (df + t * t)
-    if x <= 0:
-        return 0.0
-    a, b = df / 2, 0.5
-    ln = math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b) + a * math.log(x) + b * math.log1p(-x)
-    if x < (a + 1) / (a + b + 2):
-        return math.exp(ln) * _beta_cf(a, b, x) / a
-    return 1.0 - math.exp(ln) * _beta_cf(b, a, 1 - x) / b
-
-
-def werdykt_t(t, df):
-    """Werdykt t z df: te same progi co z, czytane jako dwustronne p (p <= p(|z| = 3) pewne, <= p(|z| = 2)
-    prawdopodobne), żeby t z małą liczbą klastrów nie dostało werdyktu mocniejszego niż jego p."""
-    p = p_t(t, df)
-    if p <= math.erfc(PROG_PEWNE / math.sqrt(2)):
-        return "pewne"
-    if p <= math.erfc(PROG_PRAWDOPODOBNE / math.sqrt(2)):
-        return "prawdopodobne"
-    return "szum"
-
-
-def klastrowe_wazone(grupy):
-    """grupy: [(n, różnica w grupie)]. Średnia ważona n i SE po grupach (klastrowe, z poprawką G/(G-1));
-    t = różnica / SE, df = G - 1."""
-    N, G = sum(n for n, _ in grupy), len(grupy)
-    m = sum(n * d for n, d in grupy) / N
-    se = math.sqrt(sum((n * (d - m)) ** 2 for n, d in grupy) * G / (G - 1)) / N
-    if se == 0:  # every group the same: no spread to read a t from
-        return {"roznica": m, "se": se, "t": None, "df": G - 1, "p_t": None, "werdykt": None, "k": G}
-    t = m / se
-    return {"roznica": m, "se": se, "t": t, "df": G - 1, "p_t": p_t(t, G - 1), "werdykt": werdykt_t(t, G - 1), "k": G}
 
 
 def se_niezalezne(se_a, se_b):
@@ -311,14 +243,21 @@ def porownania_blimp(bl):
         out.append(porownanie(f"slayer_vs_pythia/{zadanie}/acc", "slayer_vs_pythia", zadanie, "acc", a, b,
                               wa, sa, wb, sb, se_par=r["se"], zrodlo_par=zrodlo, roznica=r["roznica"]))
 
+    def holm(p, r, sufiks=""):
+        # Holm over the 12-phenomena table (blimp_analiza.zjawiska_po_holmie), one family per level
+        if r and f"p_holm{sufiks}" in r:
+            p.update({k: r[f"{k}{sufiks}"] for k in ("p_holm", "werdykt_holm", "po_holmie")})
+        return p
+
+    an = bl.get("analiza")
     dodaj("blimp", mod[a]["acc"], mod[a]["se"], mod[b]["acc"], mod[b]["se"], por["ogolem"])
     for z, r in por["zjawiska"].items():
         x, y = mod[a]["zjawiska"][z], mod[b]["zjawiska"][z]
         dodaj(f"blimp_zjawisko_{z}", x["acc"], x["se"], y["acc"], y["se"], r)
+        holm(out[-1], (an or {}).get("zjawiska_klastrowe", {}).get(z), "_pary")
     for g, r in por["paradygmaty"].items():
         x, y = mod[a]["paradygmaty"][g], mod[b]["paradygmaty"][g]
         dodaj(f"blimp_{g}", x["acc"], x["se"], y["acc"], y["se"], r)
-    an = bl.get("analiza")
     if not an:
         return out
     # paradigms as clusters: SE over the 67 paradigm differences (generalisation to paradigms)
@@ -342,6 +281,7 @@ def porownania_blimp(bl):
                           "acc", a, b, None, None, None, None, se_par=r["se"],
                           zrodlo_par=f"clustered by paradigm (k = {r['k']})", roznica=r["roznica"]),
                r["df"], r["p_t"], r["werdykt"])  # k < 3: "nierozstrzygalne", whatever t says
+        holm(out[-1], r)
     worek = an["ten_sam_worek_slow"]
     for df, strony in worek.get("wrazliwosc", {}).items():  # three readings of "same words"
         for s, r in strony.items():
@@ -387,23 +327,33 @@ def porownania_krzywej(kr):
     out = []
     par = "paired by minimal pair, stratified by paradigm"
 
-    def dodaj(pid, rodzina, zadanie, a, b, r, metryka="acc", se_key="se", zrodlo=par):
-        out.append(porownanie(pid, rodzina, zadanie, metryka, a, b, None, None, None, None,
-                              se_par=r[se_key], zrodlo_par=zrodlo, roznica=r.get("roznica", r.get("nachylenie"))))
+    def holm(p, r, sufiks=""):
+        # Holm of the row's table (checkpoints.holm_tabeli): adjusted p and the verdict read from it
+        if f"p_holm{sufiks}" in r:
+            p.update({k: r[f"{k}{sufiks}"] for k in ("p_holm", "werdykt_holm", "po_holmie")})
+        return p
 
-    def klastr(pid, rodzina, zadanie, a, b, r):
+    def dodaj(pid, rodzina, zadanie, a, b, r, metryka="acc", se_key="se", zrodlo=par):
+        out.append(holm(porownanie(pid, rodzina, zadanie, metryka, a, b, None, None, None, None,
+                                   se_par=r[se_key], zrodlo_par=zrodlo, roznica=r.get("roznica", r.get("nachylenie"))),
+                        r))
+
+    def klastr(pid, rodzina, zadanie, a, b, r, sufiks="_klastr"):
         if r.get("se_klastr") is None:
             return
         p = porownanie(pid, rodzina, zadanie, "acc", a, b, None, None, None, None, se_par=r["se_klastr"],
                        zrodlo_par=f"clustered by paradigm (k = {r['k']})", roznica=r.get("roznica", r.get("nachylenie")))
         w = r["werdykt_klastr"]
         p.update({"df": r["df"], "p_t": r["p_klastr"], "werdykt": w, "werdykt_parowane": w})
-        out.append(p)
+        out.append(holm(p, r, sufiks))
 
     for pt in kr.get("punkty", []):
         e = pt["etykieta"]
         dodaj(f"{e}_vs_pythia/blimp_krzywa_luka/acc", "slayer_ckpt_vs_pythia", f"blimp_krzywa_luka_{e}", e, "pythia-1b",
               pt["luka_pythia"])
+        if "luka_pythia_klastr" in pt:
+            klastr(f"{e}_vs_pythia/blimp_krzywa_luka_klastr/acc", "slayer_ckpt_vs_pythia", f"blimp_krzywa_luka_klastr_{e}",
+                   e, "pythia-1b", pt["luka_pythia_klastr"], sufiks="")
     if "nachylenie" in kr:
         n = kr["nachylenie"]
         dodaj("krzywa/blimp_krzywa_nachylenie/acc", "slayer_krzywa", "blimp_krzywa_nachylenie", "slope", "0", n,

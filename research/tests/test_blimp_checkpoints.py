@@ -360,6 +360,43 @@ def test_holm_step_down_stops_at_first_failure():
     assert R.holm([0.001, 0.06, 0.02], 0.05) == [True, False, True]  # .001 <= .05/3, .02 <= .05/2, .06 > .05
     assert R.holm([0.03, 0.001, 0.04], 0.05) == [False, True, False]  # .03 > .05/2 stops before .04
     assert R.holm([0.04, 0.04], 0.05) == [False, False]
+    assert R.holm([0.04, None, 0.001], 0.05) == [True, False, True]  # None outside the family: m = 2
+
+
+def test_holm_tabeli_dwa_poziomy_i_k_ponizej_3():
+    """Holm over the rows of one CHECKPOINTS table: pairs from z, paradigms from the clustered p (k < 3 outside);
+    the verdict after Holm is read from the adjusted p, so a raw 'certain' t can become 'probable'."""
+    from statystyka import p_t
+    wiersze = [{"z": 1.66, "p_klastr": p_t(0.54, 66), "k": 67}, {"z": -2.50, "p_klastr": p_t(-0.77, 66), "k": 67},
+               {"z": 12.03, "p_klastr": p_t(3.18, 66), "k": 67}, {"z": -4.28, "p_klastr": p_t(-1.34, 66), "k": 67},
+               {"z": 10.81, "p_klastr": p_t(3.07, 66), "k": 67}, {"z": 15.00, "p_klastr": p_t(3.86, 66), "k": 67}]
+    h = K.holm_tabeli(wiersze)
+    # the 6 changes of question 1: 7150 -> 13848 is certain raw (t = 3.18) and probable after Holm
+    assert K.werdykt_p(wiersze[2]["p_klastr"]) == "pewne" and h[2]["werdykt_holm_klastr"] == "prawdopodobne"
+    assert math.isclose(h[2]["p_holm_klastr"], 5 * wiersze[2]["p_klastr"], rel_tol=1e-12)  # rank 2 of 6
+    assert h[5]["werdykt_holm_klastr"] == "pewne" and h[0]["po_holmie_klastr"] == "nie"
+    assert h[1]["werdykt_holm"] == "prawdopodobne" and h[3]["werdykt_holm"] == "pewne"  # pair level
+    odwr = K.holm_tabeli(list(reversed(wiersze)))
+    assert odwr == list(reversed(h))
+    # a row with k < 3 or without a clustered p is outside the paradigm family and does not raise m
+    h2 = K.holm_tabeli([{"z": 3.5, "p_klastr": 0.001, "k": 2}, {"z": 3.5, "p_klastr": 0.02, "k": 9},
+                        {"z": 3.5, "p_klastr": None, "k": 9}])
+    assert h2[0]["p_holm_klastr"] is None and h2[2]["p_holm_klastr"] is None
+    assert math.isclose(h2[1]["p_holm_klastr"], 0.02) and h2[1]["werdykt_holm_klastr"] == "prawdopodobne"
+
+
+def test_liczby_luka_klastr_i_holm_krokow():
+    sys.path.insert(0, str(KORZEN / "tools"))
+    import liczby as Lz
+    h = {"p_holm": 0.01, "werdykt_holm": "prawdopodobne", "po_holmie": "tak"}
+    kr = {"punkty": [{"etykieta": "k13848", "luka_pythia": {"roznica": -0.03, "se": 0.0015, "p_holm": 1e-9,
+                                                            "werdykt_holm": "pewne", "po_holmie": "tak"},
+                      "luka_pythia_klastr": {"roznica": -0.03, "se_klastr": 0.009, "k": 67, "df": 66, "p_klastr": 0.0016,
+                                             "werdykt_klastr": "pewne", **h}}]}
+    por = {p["id"]: p for p in Lz.porownania_krzywej(kr)}
+    lk = por["k13848_vs_pythia/blimp_krzywa_luka_klastr/acc"]
+    assert lk["df"] == 66 and lk["werdykt"] == "pewne" and lk["p_holm"] == 0.01 and lk["werdykt_holm"] == "prawdopodobne"
+    assert por["k13848_vs_pythia/blimp_krzywa_luka/acc"]["werdykt_holm"] == "pewne"
 
 
 if __name__ == "__main__":

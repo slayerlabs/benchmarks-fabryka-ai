@@ -49,22 +49,22 @@ Space nie ma wartości T06 ani `source_id_digest` dla żadnego modelu, więc pan
 
 Tolerancja = max(2 pkt, 2 × opublikowane SE).
 Wersja harnessu: tasks_50.json podaje dla T06 `instrument: lm_eval_0.4.8`, a METHOD.md w sekcji 2 przypina zadania angielskie do commita lm-eval `6d2abda4`; ten pomiar szedł na lm-eval 0.4.9.1. Porównany był tylko katalog zadania (`piqa.yaml`, `README.md`), nie kod harnessu; zob. METODOLOGIA.md, sekcja „Wersja lm-eval”.
-Opublikowane acc_norm leży 19,28 błędów standardowych ponad bazą losową i 18,82 ponad bazą większościową (błąd standardowy 0,0106), więc kontrola odróżnia działający kod od zgadywania. Kontrola zaliczona: tak.
+Nasza Pythia-1B v0 wobec stałego predyktora (zawsze najczęstsza poprawna opcja, b = 0,5049), parowane per pytanie: pełny split 20,46 pkt (SE parowane 0,0157, z 13,07, pewne), panel 22,00 pkt (z 4,67, pewne); warunek z > 2 na pełnym splicie odróżnia działający kod od zgadywania. Kontrola zaliczona: tak. <!-- liczba-spoza-wynikow: pkt wprost z kluczy control.discriminates.*.difference_pts w piqa.json, linię trzyma bramka (g) -->
 
 BOS różni się między modelami: Slayer dostaje jeden BOS przed każdym żądaniem, tak jak robi to wrapper `slayer` z #44 (METHOD.md wiąże BOS z `add_bos_token` tokenizera, a Slayer nie ma tokenizer_config.json), Pythia żadnego (konwencja jej tokenizera i harness z 2022 roku, który dał opublikowaną wartość). Wpływ BOS na Pythię, a więc na porównanie Slayer − Pythia: NOT RUN (wymaga drugiego przebiegu Pythii z BOS; samą kontrolę liczymy tak, jak liczono opublikowaną wartość).
 
 ## Porównania (werdykt: |z| ≥ 3 pewne, 2–3 prawdopodobne, < 2 szum)
 
-| porównanie | split | różnica, pkt | z | werdykt |
-|---|---|---:|---:|---|
-| Slayer 1.06 − baza losowa | pełny | 14,15 | 12,64 | pewne |
-| Slayer 1.06 − baza większościowa | pełny | 13,66 | 12,20 | pewne |
-| Slayer 1.06 − Pythia-1B v0 (SE parowane) | pełny | −6,80 | −7,16 | pewne |
-| Slayer 1.06 − baza losowa | panel | 18,00 | 5,44 | pewne |
-| Slayer 1.06 − baza większościowa | panel | 17,00 | 5,14 | pewne |
-| Slayer 1.06 − Pythia-1B v0 (SE parowane) | panel | −5,00 | −1,84 | szum |
+| porównanie | split | różnica, pkt | z | werdykt | po Holmie |
+|---|---|---:|---:|---|---|
+| Slayer 1.06 − baza losowa | pełny | 14,15 | 12,64 | pewne | tak (pewne) |
+| Slayer 1.06 − stały predyktor (SE parowane) | pełny | 13,66 | 8,46 | pewne | tak (pewne) |
+| Slayer 1.06 − Pythia-1B v0 (SE parowane) | pełny | −6,80 | −7,16 | pewne | tak (pewne) |
+| Slayer 1.06 − baza losowa | panel | 18,00 | 5,44 | pewne | tak (pewne) |
+| Slayer 1.06 − stały predyktor (SE parowane) | panel | 17,00 | 3,35 | pewne | tak (pewne) |
+| Slayer 1.06 − Pythia-1B v0 (SE parowane) | panel | −5,00 | −1,84 | szum | nie (szum) |
 
-z wobec bazy = (wartość − baza) / SE wartości; Slayer − Pythia używa SE parowanego (odchylenie standardowe różnic per pytanie / sqrt n).
+z wobec bazy losowej = (wartość − baza losowa) / SE wartości. Stały predyktor zawsze wybiera najczęstszą poprawną opcję splitu; porównanie z nim i Slayer − Pythia używają SE parowanego (odchylenie standardowe różnic per pytanie / sqrt n). „Po Holmie”: p z |z| poprawione metodą Holma w rodzinie sześciu porównań tej tabeli, „tak” przy p Holma ≤ p dla |z| = 2, w nawiasie werdykt z p Holma (progi p jak dla |z| = 2 i 3).
 Pewna różnica między Slayerem a Pythią nie mówi o swojej przyczynie. Alternatywy: udział angielskiego w danych treningowych (około 10% dla Slayera, 100% dla Pythii) i etap treningu. Możliwe skażenie Slayera na PIQA działa w drugą stronę: podniosłoby wynik Slayera, więc bez niego różnica mogłaby być większa. Różnica BOS opisana wyżej nie jest zmierzona. <!-- ocena-bez-se: alternatywne przyczyny różnicy, której z jest w tabeli wyżej, bez nowego porównania -->
 
 ## Ten sam przebieg Pythii na innych GPU

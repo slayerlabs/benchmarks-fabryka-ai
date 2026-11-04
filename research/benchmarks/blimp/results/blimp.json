@@ -2766,10 +2766,10 @@
   "generalizacja": {
    "k": 67,
    "roznica": -0.028656716417910448,
-   "se_klastrowe": 0.008681628326123335,
-   "z_klastrowe": -3.3008458023573004,
+   "se_klastrowe": 0.008681628326123337,
+   "z_klastrowe": -3.3008458023573,
    "df": 66,
-   "p_t": 0.0015575586373863363,
+   "p_t": 0.0015575586373863485,
    "werdykt_klastrowy": "pewne",
    "ci95_bootstrap_paradygmatow": [
     -0.044985447761194036,
@@ -2786,7 +2786,7 @@
     "se": 0.00847725812544621,
     "t": -2.912770535816141,
     "df": 64,
-    "p_t": 0.00492779213958117,
+    "p_t": 0.0049277921395811585,
     "werdykt": "prawdopodobne"
    }
   },
@@ -2797,8 +2797,14 @@
     "se": 0.003999999999999999,
     "t": -2.2500000000000004,
     "df": 1,
-    "p_t": 0.2662498774953127,
-    "werdykt": "nierozstrzygalne"
+    "p_t": 0.26624987749531276,
+    "werdykt": "nierozstrzygalne",
+    "p_holm": null,
+    "werdykt_holm": "nierozstrzygalne",
+    "po_holmie": "nie",
+    "p_holm_pary": 0.0030754427284635354,
+    "werdykt_holm_pary": "prawdopodobne",
+    "po_holmie_pary": "tak"
    },
    "argument_structure": {
     "k": 9,
@@ -2807,7 +2813,13 @@
     "t": -4.675262632359112,
     "df": 8,
     "p_t": 0.0015916192728288943,
-    "werdykt": "pewne"
+    "werdykt": "pewne",
+    "p_holm": 0.014324573455460048,
+    "werdykt_holm": "prawdopodobne",
+    "po_holmie": "tak",
+    "p_holm_pary": 3.0543778791931028e-33,
+    "werdykt_holm_pary": "pewne",
+    "po_holmie_pary": "tak"
    },
    "binding": {
     "k": 7,
@@ -2816,16 +2828,28 @@
     "t": -0.49923497696210195,
     "df": 6,
     "p_t": 0.6353877412695011,
-    "werdykt": "szum"
+    "werdykt": "szum",
+    "p_holm": 1.0,
+    "werdykt_holm": "szum",
+    "po_holmie": "nie",
+    "p_holm_pary": 0.0030754427284635354,
+    "werdykt_holm_pary": "prawdopodobne",
+    "po_holmie_pary": "tak"
    },
    "control_raising": {
     "k": 5,
     "roznica": -0.055200000000000006,
-    "se": 0.036402472443503066,
-    "t": -1.5163805174407001,
+    "se": 0.03640247244350307,
+    "t": -1.5163805174407,
     "df": 4,
-    "p_t": 0.20401367095710846,
-    "werdykt": "szum"
+    "p_t": 0.20401367095710835,
+    "werdykt": "szum",
+    "p_holm": 1.0,
+    "werdykt_holm": "szum",
+    "po_holmie": "nie",
+    "p_holm_pary": 1.6570325152723037e-22,
+    "werdykt_holm_pary": "pewne",
+    "po_holmie_pary": "tak"
    },
    "determiner_noun_agreement": {
     "k": 8,
@@ -2834,25 +2858,43 @@
     "t": -3.7922378801920074,
     "df": 7,
     "p_t": 0.006783072390203207,
-    "werdykt": "prawdopodobne"
+    "werdykt": "prawdopodobne",
+    "p_holm": 0.04748150673142245,
+    "werdykt_holm": "szum",
+    "po_holmie": "nie",
+    "p_holm_pary": 9.583027589756495e-12,
+    "werdykt_holm_pary": "pewne",
+    "po_holmie_pary": "tak"
    },
    "ellipsis": {
     "k": 2,
     "roznica": -0.024,
-    "se": 0.005999999999999999,
-    "t": -4.000000000000001,
+    "se": 0.006,
+    "t": -4.0,
     "df": 1,
-    "p_t": 0.15595826075473845,
-    "werdykt": "nierozstrzygalne"
+    "p_t": 0.1559582607547385,
+    "werdykt": "nierozstrzygalne",
+    "p_holm": null,
+    "werdykt_holm": "nierozstrzygalne",
+    "po_holmie": "nie",
+    "p_holm_pary": 0.022172994362856052,
+    "werdykt_holm_pary": "prawdopodobne",
+    "po_holmie_pary": "tak"
    },
    "filler_gap_dependency": {
     "k": 7,
     "roznica": -0.027999999999999997,
-    "se": 0.027030846576951057,
+    "se": 0.02703084657695106,
     "t": -1.035853609700679,
     "df": 6,
     "p_t": 0.3402025808718011,
-    "werdykt": "szum"
+    "werdykt": "szum",
+    "p_holm": 1.0,
+    "werdykt_holm": "szum",
+    "po_holmie": "nie",
+    "p_holm_pary": 1.5852544646006608e-07,
+    "werdykt_holm_pary": "pewne",
+    "po_holmie_pary": "tak"
    },
    "irregular_forms": {
     "k": 2,
@@ -2860,8 +2902,14 @@
     "se": 0.0565,
     "t": -1.31858407079646,
     "df": 1,
-    "p_t": 0.4130698807568304,
-    "werdykt": "nierozstrzygalne"
+    "p_t": 0.4130698807568298,
+    "werdykt": "nierozstrzygalne",
+    "p_holm": null,
+    "werdykt_holm": "nierozstrzygalne",
+    "po_holmie": "nie",
+    "p_holm_pary": 3.856614577325389e-23,
+    "werdykt_holm_pary": "pewne",
+    "po_holmie_pary": "tak"
    },
    "island_effects": {
     "k": 8,
@@ -2870,7 +2918,13 @@
     "t": -0.15834716931787837,
     "df": 7,
     "p_t": 0.8786545822228619,
-    "werdykt": "szum"
+    "werdykt": "szum",
+    "p_holm": 1.0,
+    "werdykt_holm": "szum",
+    "po_holmie": "nie",
+    "p_holm_pary": 0.24374675063395868,
+    "werdykt_holm_pary": "szum",
+    "po_holmie_pary": "nie"
    },
    "npi_licensing": {
     "k": 7,
@@ -2879,7 +2933,13 @@
     "t": -1.019221329805948,
     "df": 6,
     "p_t": 0.3474217871217735,
-    "werdykt": "szum"
+    "werdykt": "szum",
+    "p_holm": 1.0,
+    "werdykt_holm": "szum",
+    "po_holmie": "nie",
+    "p_holm_pary": 2.6496878798487193e-09,
+    "werdykt_holm_pary": "pewne",
+    "po_holmie_pary": "tak"
    },
    "quantifiers": {
     "k": 4,
@@ -2888,16 +2948,28 @@
     "t": 0.27331351351093375,
     "df": 3,
     "p_t": 0.8023479931882211,
-    "werdykt": "szum"
+    "werdykt": "szum",
+    "p_holm": 1.0,
+    "werdykt_holm": "szum",
+    "po_holmie": "nie",
+    "p_holm_pary": 0.11642672854334936,
+    "werdykt_holm_pary": "szum",
+    "po_holmie_pary": "nie"
    },
    "subject_verb_agreement": {
     "k": 6,
     "roznica": -0.03883333333333334,
-    "se": 0.007901125095692246,
-    "t": -4.914911846479379,
+    "se": 0.007901125095692244,
+    "t": -4.91491184647938,
     "df": 5,
-    "p_t": 0.004416934373227907,
-    "werdykt": "prawdopodobne"
+    "p_t": 0.004416934373227909,
+    "werdykt": "prawdopodobne",
+    "p_holm": 0.03533547498582327,
+    "werdykt_holm": "prawdopodobne",
+    "po_holmie": "tak",
+    "p_holm_pary": 2.0131414415663457e-13,
+    "werdykt_holm_pary": "pewne",
+    "po_holmie_pary": "tak"
    }
   },
   "paradygmaty_dodatkowe": {
@@ -3460,7 +3532,7 @@
       "se_paradygmatow": 0.056422380027889116,
       "t_paradygmatow": -0.7590769482928535,
       "df_paradygmatow": 3,
-      "p_t_paradygmatow": 0.5030009135180339,
+      "p_t_paradygmatow": 0.5030009135180338,
       "werdykt_paradygmatow": "szum",
       "srednia_abs_paradygmatow": 0.09982892804698972
      },
@@ -3475,7 +3547,7 @@
       "se_paradygmatow": 0.008603962686372663,
       "t_paradygmatow": -3.5129137671432002,
       "df_paradygmatow": 64,
-      "p_t_paradygmatow": 0.0008188347392122078,
+      "p_t_paradygmatow": 0.000818834739212207,
       "werdykt_paradygmatow": "pewne",
       "srednia_abs_paradygmatow": 0.056532671280637235
      }
@@ -3504,8 +3576,8 @@
       "werdykt": "pewne",
       "k_paradygmatow": 59,
       "srednia_paradygmatow": -0.03672695623037315,
-      "se_paradygmatow": 0.007510073500891972,
-      "t_paradygmatow": -4.890359092492382,
+      "se_paradygmatow": 0.007510073500891971,
+      "t_paradygmatow": -4.890359092492383,
       "df_paradygmatow": 58,
       "p_t_paradygmatow": 8.343961930501622e-06,
       "werdykt_paradygmatow": "pewne",

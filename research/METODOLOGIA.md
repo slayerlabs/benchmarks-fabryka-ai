@@ -30,7 +30,8 @@ zamiast etapów A i B ma kartę zbioru. Każdy etap może iść osobnym PR. Kied
 
 Obowiązuje każdy test. Gdzie treść reguły zależy od typu, reguła odsyła do kolumny tabeli typów.
 
-1. **Protokół przed pomiarem.** Karta (`ORIGINAL.md`, `DATASET.md` albo `POLISH.md`) podaje typ testu, metrykę
+1. **Protokół przed pomiarem.** Wiersz testu w [README, „Benchmarki i typy”](README.md#benchmarki-i-typy) podaje
+   typ, a karta (`ORIGINAL.md`, `DATASET.md` albo `POLISH.md`) linkuje do niego i podaje metrykę
    decyzyjną, agregację, wiążący poziom werdyktu, MDE i progi, zanim policzysz wynik, który od nich zależy. Zmiana po
    pomiarze to nowy protokół; wynik policzony starym zostaje przy starym. *Recenzent:* `git log` pokazuje commit karty
    albo progu starszy niż commit wyniku.
@@ -80,8 +81,8 @@ to pozycje wygenerowane z jednego szablonu albo jednej gramatyki z podmianą sł
 bliźniacze) albo kilka pytań do tego samego tekstu w prompcie. **Warstwa** to podtest, po którym oryginał uśrednia
 wynik, a który nie jest pojedynczym szablonem; dopóki karta nie pokaże, że podtest to jeden szablon, jest warstwą.
 Typ każdego testu repo i Space podaje [README, „Benchmarki i typy”](README.md#benchmarki-i-typy).
-Typ nowego testu wpisujesz w karcie; test, który nie pasuje do żadnego wiersza, dostaje nowy wiersz w tym PR, a nie
-najbliższy istniejący.
+Typ nowego testu wpisujesz tylko tam, a karta do tego wiersza linkuje; test, który nie pasuje do żadnego wiersza
+tabeli typów, dostaje nowy wiersz w tym PR, a nie najbliższy istniejący.
 
 | typ | przykłady | skala | baza losowa | stała odpowiedź | SE | wiążący werdykt | kontrola | test zgodności (etap C) |
 |---|---|---|---|---|---|---|---|---|
@@ -122,9 +123,9 @@ Pojęcia z tabeli:
   √(k/(k−1) · Σ_c (Σ_{i∈c} (xᵢ − x̄))²) / n, gdzie k to liczba klastrów, a n liczba pozycji
   ([Miller 2024, §2.2, wzór 4](https://arxiv.org/abs/2411.00640), z czynnikiem k/(k−1)); przy porównaniu ten sam wzór
   na różnicach per pozycja. Przy klastrach równej wielkości to sd średnich klastrów / √k. Werdykt z testu t przy
-  df = k − 1, z progami p takimi jak dla |z| = 2 i |z| = 3; przy k < 3 werdykt „nierozstrzygalne” (tak liczy
-  `klastrowe_wazone` w `tools/liczby.py`, dochodzi w
-  [#99](https://github.com/slayerlabs/benchmarks-fabryka-ai/pull/99)). Metryka korpusowa (`f1-korpus`, `mcc`) z
+  df = k − 1, z progami p takimi jak dla |z| = 2 i |z| = 3; przy k < 3 werdykt „nierozstrzygalne”. Liczą to
+  `se_k` i `klastrowe_wazone` w `tools/statystyka.py`, porównanie ze stałym predyktorem `wobec_stalej`, a kolumnę
+  „po Holmie” `po_holmie`; nowe raporty nie liczą tego ręcznie. Metryka korpusowa (`f1-korpus`, `mcc`) z
   klastrami: SE B z bootstrapem losującym całe klastry. Bootstrap meta-oceny też losuje całe klastry.
 - **SE W (warstwowe):** √(Σ wᵢ² SEᵢ²), wᵢ to wagi podtestów z oryginału (sumują się do 1), SEᵢ metodą typu bazowego.
 - **Udział najczęstszej predykcji:** odsetek odpowiedzi modelu na tej samej opcji. Podajesz go przy każdym typie z
@@ -141,7 +142,7 @@ wpisujesz dopiero po przeczytaniu kodu przypiętej wersji (sekcja „Wersja lm-e
 | Co mierzy | umiejętność, jednym zdaniem, słowami autorów |
 | Źródła | praca, repo autorów z commitem, karta zbioru na HF z rewizją |
 | Dane | split i n w pracy; split i n w Space albo w repo (pełny split czy panel 200); licencja i to, czy test ma ukryte odpowiedzi |
-| Typ testu | kod z tabeli typów z modyfikatorami, np. `para +klastry` |
+| Typ testu | link do wiersza testu w [README, „Benchmarki i typy”](README.md#benchmarki-i-typy); typu nie powtarzasz w karcie |
 | Format zadania i prompt | dokładny szablon z pracy albo kodu (separatory, spacje, etykiety), liczba przykładów w prompcie; gdy praca nie ma promptu modelu językowego, szablon implementacji Space albo lm-eval z `target_delimiter` i pełnym tekstem jednej opcji |
 | Ocena | metryka i sposób liczenia: normalizacja długości (znaki, bajty, tokeny) i tekstu odpowiedzi |
 | Metryka decyzyjna | **jedna** metryka, po której porównujesz modele; pozostałe są pomocnicze |
@@ -256,7 +257,7 @@ sprawdzonymi ręcznie. Etap D i przepis zostają bez zmian.
 | pole | co wpisać |
 |---|---|
 | Co mierzy | umiejętność jednym zdaniem; metoda przejęta od benchmarku, jeśli jest |
-| Typ testu | jak w karcie oryginału |
+| Typ testu | link do wiersza testu w [README, „Benchmarki i typy”](README.md#benchmarki-i-typy) |
 | Jak powstał | źródło tekstów, daty, narzędzia, kryteria doboru, licencja |
 | Kto pisał i kto sprawdzał | nicki GitHub, co sprawdzał drugi człowiek i na ilu przykładach |
 | Jawna próbka | około 10% zbioru w repo, ta sama dla wszystkich |

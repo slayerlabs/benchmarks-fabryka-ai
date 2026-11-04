@@ -39,7 +39,9 @@ import torch
 
 KATALOG = Path(__file__).resolve().parent
 sys.path.insert(0, str(KATALOG.parents[1] / "common"))
+sys.path.insert(0, str(KATALOG.parents[1] / "tools"))
 
+from statystyka import holm, werdykt_p  # noqa: E402,F401  (wspólne z raportami innych testów)
 from hipoteza_formatu import ModelSlayer, licz_logliki, para  # noqa: E402
 from metryki import POWTORZENIA, SEED, srednia_z_niepewnoscia  # noqa: E402
 
@@ -264,15 +266,6 @@ def test_permutacyjny(roznice, seed=SEED, powtorzenia=POWTORZENIA, klastry=None)
     return float(((np.abs((znaki * d).mean(axis=1)) >= obs - 1e-12).sum() + 1) / (powtorzenia + 1))
 
 
-def holm(pv):
-    kol = sorted(range(len(pv)), key=lambda i: pv[i])
-    out, mx = [None] * len(pv), 0.0
-    for r, i in enumerate(kol):
-        mx = max(mx, min(1.0, (len(pv) - r) * pv[i]))
-        out[i] = mx
-    return out
-
-
 def podsumuj(oceny, meta, grupy=("Domain", "ConceptA", "ContextType", "ContextDiff", "TargetDiff"), szabl=None):
     wynik = {m: srednia_z_niepewnoscia([o[m] for o in oceny.values()])
              for m in ("ewok", "oba", "kontekst_staly", "kontekst_staly_pmi", "staly_target", "margines")}
@@ -323,6 +316,25 @@ def kontrast(a, b, nazwa_a, nazwa_b, szabl=None, a2=None, b2=None, meta=None, me
         out["po_parach"] = klastry_grup(d, [f"{x['ConceptA']} / {x['ConceptB']}" for x in mt])
         out["po_domenach"] = klastry_grup(d, [x["Domain"] for x in mt])
     return out
+
+
+def holm_kontrastow(kontrasty):
+    """Holm (tools/statystyka.py) na kontrastach raportu: w każdej rodzinie (`p_holm`, `p_holm_po_szablonach`),
+    na wszystkich kontrastach trafności naraz (`p_holm_wszystkie_po_szablonach`; margines osobno) i osobno dla
+    odczytu po parach i po domenach (`p_holm_wszystkie`, `werdykt_po_holmie` z p Holma)."""
+    for rodzina in {k["rodzina"] for k in kontrasty}:
+        ks = [k for k in kontrasty if k["rodzina"] == rodzina]
+        for k, p, ps in zip(ks, holm([k["p"] for k in ks]), holm([k["p_po_szablonach"] for k in ks])):
+            k["p_holm"], k["p_holm_po_szablonach"] = p, ps
+    traf = [k for k in kontrasty if k.get("metryka", "ewok") == "ewok"]
+    for k, p in zip(traf, holm([k["p_po_szablonach"] for k in traf])):
+        k["p_holm_wszystkie_po_szablonach"] = p
+    for odczyt in ("po_parach", "po_domenach"):
+        ks = [k for k in traf if k.get(odczyt)]
+        for k, p in zip(ks, holm([k[odczyt]["p"] for k in ks])):
+            k[odczyt]["p_holm_wszystkie"] = p
+            k[odczyt]["werdykt_po_holmie"] = werdykt_p(p)
+    return kontrasty
 
 
 def cmd_analiza(a):
@@ -379,20 +391,7 @@ def cmd_analiza(a):
     for m in modele:
         if m not in slayery and slayery:
             K("Inne vs Slayer 1.06 (pl)", oceny[m]["pl"], oceny[slayery[-1]]["pl"], m, slayery[-1])
-    for rodzina in {k["rodzina"] for k in raport["kontrasty"]}:
-        ks = [k for k in raport["kontrasty"] if k["rodzina"] == rodzina]
-        for k, p, ps in zip(ks, holm([k["p"] for k in ks]), holm([k["p_po_szablonach"] for k in ks])):
-            k["p_holm"], k["p_holm_po_szablonach"] = p, ps
-    # ostrożniej: Holm na wszystkich kontrastach trafności naraz (bez podziału na rodziny); margines osobno
-    traf = [k for k in raport["kontrasty"] if k.get("metryka", "ewok") == "ewok"]
-    for k, p in zip(traf, holm([k["p_po_szablonach"] for k in traf])):
-        k["p_holm_wszystkie_po_szablonach"] = p
-    for odczyt in ("po_parach", "po_domenach"):
-        ks = [k for k in traf if k.get(odczyt)]
-        for k, p in zip(ks, holm([k[odczyt]["p"] for k in ks])):
-            k[odczyt]["p_holm_wszystkie"] = p
-            k[odczyt]["werdykt_po_holmie"] = ("pewne" if p <= _EN().P_CERTAIN else "prawdopodobne" if p <= _EN().P_PROBABLE
-                                             else "szum")
+    holm_kontrastow(raport["kontrasty"])
     # kandydaci do przeglądu tłumaczenia, w obie strony. Odniesieniem są tylko modele, które po angielsku
     # wyraźnie coś umieją (dolna granica CI95 na pełnym EN > 60%): model losowy po angielsku tłumiłby sygnał.
     if pl:

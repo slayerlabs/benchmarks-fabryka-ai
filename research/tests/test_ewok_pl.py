@@ -43,6 +43,22 @@ def test_holm_monotoniczny_i_obciety():
     assert E.holm([0.9, 0.8]) == [1.0, 1.0]
 
 
+def test_holm_kontrastow_na_atrapie_bez_danych():
+    # ścieżka `analiza` po kontrastach, bez zbioru z bramką: wcześniej padała na usuniętym ewok.P_CERTAIN
+    ks = [{"rodzina": "a", "p": 0.001, "p_po_szablonach": 0.002, "po_parach": {"p": 0.002}, "po_domenach": {"p": 0.02}},
+          {"rodzina": "a", "p": 0.03, "p_po_szablonach": 0.04, "po_parach": {"p": 0.5}, "po_domenach": {"p": 0.01}},
+          {"rodzina": "b", "p": 0.2, "p_po_szablonach": 0.2, "metryka": "margines"}]
+    E.holm_kontrastow(ks)
+    assert ks[0]["p_holm_po_szablonach"] == 0.004 and ks[2]["p_holm"] == 0.2  # rodzina b ma jeden kontrast
+    assert "p_holm_wszystkie_po_szablonach" not in ks[2]  # margines poza rodziną trafności
+    assert ks[0]["po_parach"]["werdykt_po_holmie"] == "prawdopodobne"  # 2 · 0,002 = 0,004 > p(|z| = 3)
+    assert ks[1]["po_domenach"]["werdykt_po_holmie"] == "prawdopodobne" and ks[1]["po_domenach"]["p_holm_wszystkie"] == 0.02
+    odwr = [dict(k, po_parach=dict(k["po_parach"]), po_domenach=dict(k["po_domenach"])) if "po_parach" in k else dict(k)
+            for k in ks[::-1]]
+    E.holm_kontrastow(odwr)  # odwrócona kolejność kontrastów: te same wartości
+    assert odwr[2]["po_parach"]["werdykt_po_holmie"] == ks[0]["po_parach"]["werdykt_po_holmie"]
+
+
 def test_permutacja_bez_roznicy_daje_duze_p():
     assert E.test_permutacyjny([0.5, -0.5] * 50) > 0.9
     assert E.test_permutacyjny([0.5] * 60) < 0.001

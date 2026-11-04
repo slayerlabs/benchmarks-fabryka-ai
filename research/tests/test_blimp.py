@@ -323,8 +323,14 @@ def test_liczby_porownania_blimp_parowane():
 
 def test_analiza_funkcje_statystyczne():
     import blimp_analiza as A
-    m, se, t = A.t_klastrowe([0.1, 0.3])
-    assert math.isclose(m, 0.2) and math.isclose(se, 0.1) and math.isclose(t, 2.0)
+    k = A.klastry([0.1, 0.3])  # SE K with equal weights = sd / sqrt(k)
+    assert math.isclose(k["roznica"], 0.2) and math.isclose(k["se"], 0.1) and math.isclose(k["t"], 2.0)
+    assert k["df"] == 1 and k["werdykt"] == A.NIEROZSTRZYGALNE  # k = 2: t and p computed, no verdict
+    k3 = A.klastry([0.1, 0.3, 0.2])
+    assert k3["werdykt"] == A.werdykt_p(k3["p"]) and math.isclose(k3["p"], A.p_t(k3["t"], 2))
+    assert A.klastry(list(reversed([0.1, 0.3, 0.2]))) == k3  # order of paradigms does not matter
+    z0 = A.klastry([0.5, 0.5, 0.5])  # no spread: no t, no p, no verdict (not "noise")
+    assert z0["se"] == 0 and z0["t"] is None and z0["p"] is None and z0["werdykt"] is None
     assert A.werdykt_grupy([-0.1, -0.11]) == A.NIEROZSTRZYGALNE  # 2 members: no verdict, whatever t says
     assert A.werdykt_grupy([-0.10, -0.105, -0.11]) == "pewne"  # t = -36.4, df = 2: p 0.0008
     # t = -19.05 and -10.39 would be certain read as a z; at df = 2 their p (0.0027, 0.0091) is only probable
@@ -341,7 +347,6 @@ def test_p_t_rozklad_studenta():
     assert math.isclose(A.p_t(3.0, 10 ** 6), A.P_PEWNE, rel_tol=1e-4)  # large df -> normal
     assert math.isclose(A.p_t(2.0, 10 ** 6), A.P_PRAWDOPODOBNE, rel_tol=1e-4)
     assert math.isclose(A.p_t(2.228138851986, 10), 0.05, rel_tol=1e-7)  # t table, df = 10
-    assert A.p_t(None, 5) == 1.0
     # the report's cases: overall stays certain, a t near 4 at df 5-7 is only probable
     assert A.werdykt_p(A.p_t(-3.30, 66)) == "pewne"
     assert A.werdykt_p(A.p_t(-3.79, 7)) == "prawdopodobne" and A.werdykt_p(A.p_t(-4.91, 5)) == "prawdopodobne"
@@ -357,7 +362,9 @@ def test_ten_sam_worek_slow():
     assert not A.ten_sam_worek_slow("Susan revealed herself.", "Susan revealed themselves.")
     assert math.isclose(A.test_znakow(0, 5), 2 / 32) and A.test_znakow(3, 3) == 1.0
     odrz = A.holm({"a": 0.001, "b": 0.02, "c": 0.04})
-    assert odrz == {"a": True, "b": True, "c": True}  # 0.001<=0.05/3, 0.02<=0.05/2, 0.04<=0.05
+    assert odrz == {"a": True, "b": True, "c": True}  # 0.001<=0.0455/3, 0.02<=0.0455/2, 0.04<=0.0455
+    # default threshold is the repo's p of |z| = 2 (0.0455), not 0.05: p = 0.048 alone is not rejected
+    assert A.holm({"a": 0.048}) == {"a": False}
     assert A.holm({"a": 0.001, "b": 0.03, "c": 0.04}) == {"a": True, "b": False, "c": False}  # step-down stops
     assert math.isclose(A.spearman([1, 2, 3, 4], [10, 20, 30, 40]), 1.0)
     assert math.isclose(A.spearman([1, 2, 3, 4], [4, 3, 2, 1]), -1.0)
@@ -420,6 +427,98 @@ def test_odwrocenie_przewagi_na_token():
     por = {"adjunct_island": {"roznica": 1.0, "z": 9.0, "werdykt": "pewne"}}
     an = A.analiza(d, a, b, por)
     assert an["przewagi_a_pewne"] == 1 and an["przewagi_a_odwrocone_na_token"] == ["adjunct_island"]
+
+
+def test_holm_to_p_poprawione_nie_wieksze_od_alfa():
+    """blimp_analiza.holm is the shared Holm (tools/statystyka.py): rejected <=> adjusted p <= alfa; None is outside
+    the family (it does not count in m)."""
+    import blimp_analiza as A
+    ps = {"a": 0.001, "b": 0.02, "c": 0.04, "d": None}
+    adj = dict(zip(ps, A.holm_p(list(ps.values()))))
+    for alfa in (0.05, A.P_PRAWDOPODOBNE, 0.03, 0.003):
+        assert A.holm(ps, alfa) == {k: v is not None and v <= alfa for k, v in adj.items()}
+    # without "d" in the family m = 3: 0.04 <= 0.05 survives; counting None as a test (m = 4) would lose "b"
+    assert A.holm(ps) == {"a": True, "b": True, "c": True, "d": False}
+    odwr = dict(reversed(list(ps.items())))
+    assert A.holm(odwr) == A.holm(ps)
+
+
+def _zj_kl(k, p_t):
+    return {"k": k, "p_t": p_t}
+
+
+def test_zjawiska_po_holmie_rodzina_bez_k_ponizej_3():
+    """Holm over the phenomena table: paradigm level only over k >= 3 (k < 3 is outside, p_holm None), pair level
+    over all phenomena; the verdict after Holm comes from the adjusted p."""
+    import blimp_analiza as A
+    zj = {"arg": _zj_kl(9, 0.0016), "sva": _zj_kl(6, 0.0044), "det": _zj_kl(8, 0.0068), "isl": _zj_kl(8, 0.88),
+          "ana": _zj_kl(2, 0.0001), "ell": _zj_kl(2, 0.15)}
+    par = {"arg": {"z": -12.2}, "sva": {"z": -7.6}, "det": {"z": -7.1}, "isl": {"z": -1.2}, "ana": {"z": -3.41},
+           "ell": {"z": -2.68}}
+    h = A.zjawiska_po_holmie(zj, par)
+    # family of 4: 4 x 0.0016 = 0.0064 (probable, raw certain), 3 x 0.0044 = 0.0132, 2 x 0.0068 = 0.0136
+    assert math.isclose(h["arg"]["p_holm"], 4 * 0.0016) and h["arg"]["werdykt_holm"] == "prawdopodobne"
+    assert math.isclose(h["det"]["p_holm"], 2 * 0.0068) and h["det"]["po_holmie"] == "tak"
+    assert h["isl"]["werdykt_holm"] == "szum" and h["isl"]["po_holmie"] == "nie"
+    # k = 2 with a tiny p: outside the family, so it neither gets a verdict nor raises m for the others
+    assert h["ana"]["p_holm"] is None and h["ana"]["werdykt_holm"] == A.NIEROZSTRZYGALNE
+    # pairs: all 6 phenomena in one family
+    assert h["ell"]["werdykt_holm_pary"] == "prawdopodobne" and h["isl"]["werdykt_holm_pary"] == "szum"
+    ps = sorted(A.p_z(r["z"]) for r in par.values())
+    assert math.isclose(h["arg"]["p_holm_pary"], 6 * ps[0])
+    # reversed input order: the same numbers per phenomenon
+    odwr = A.zjawiska_po_holmie(dict(reversed(list(zj.items()))), dict(reversed(list(par.items()))))
+    assert odwr == h
+    assert "p_holm_pary" not in A.zjawiska_po_holmie(zj)["arg"]  # without pair entries: paradigm level only
+
+
+def test_analiza_dopisuje_holma_zjawiskom():
+    import blimp_analiza as A
+    d = docs()
+    ids = [x["id"] for x in d]
+    a = {i: {"ll": [-1.0, -2.0], "ntok": [3, 3]} for i in ids}
+    b = {i: {"ll": [-2.0, -1.0] if i.startswith("blimp_adjunct") else [-1.0, -2.0], "ntok": [3, 3]} for i in ids}
+    por = B.porownanie_parowane(a, b, d)
+    an = A.analiza(d, a, b, por["paradygmaty"], por["zjawiska"])
+    for z, r in an["zjawiska_klastrowe"].items():
+        assert {"p_holm", "werdykt_holm", "po_holmie", "p_holm_pary", "werdykt_holm_pary", "po_holmie_pary"} <= set(r)
+        assert r["k"] >= A.MIN_CZLONKOW or r["p_holm"] is None  # the sample has k <= 2 per phenomenon
+
+
+def test_raport_holm_pomocnicze():
+    import blimp_raport as R
+    assert R.fp(None) == "-" and R.fp(0.00001) == "< 10^-4" and R.fp(0.01117) == "0.0112"
+    assert R.po_holmie_opis({"p_holm": 0.01, "po_holmie": "tak", "werdykt_holm": "prawdopodobne"}) == "yes (probable)"
+    assert R.po_holmie_opis({"p_holm": 0.2, "po_holmie": "nie", "werdykt_holm": "szum"}) == "no (noise)"
+    assert R.po_holmie_opis({"p_holm": None, "po_holmie": "nie", "werdykt_holm": "nierozstrzygalne"}).startswith("outside")
+    assert R.po_holmie_opis({}) == "-"
+    zj = {"b_z": {"p_holm": 0.01, "werdykt_holm": "prawdopodobne"}, "a_z": {"p_holm": 0.001, "werdykt_holm": "pewne"},
+          "c_z": {"p_holm": None, "werdykt_holm": "nierozstrzygalne"}, "d_z": {"p_holm": 0.5, "werdykt_holm": "szum"}}
+    h, rodzina = R.liczby_holma(zj)
+    assert rodzina == ["a_z", "b_z", "d_z"] and h == {"pewne": ["a_z"], "prawdopodobne": ["b_z"], "szum": ["d_z"]}
+    assert R.liczby_holma(dict(reversed(list(zj.items())))) == (h, rodzina)
+    assert R.opis_holma(h) == "1 certain (a z), 1 probable (b z), 1 noise"
+    assert R.opis_holma({"pewne": [], "prawdopodobne": ["x"], "szum": []}) == "none certain, 1 probable (x), none noise"
+
+
+def test_liczby_porownania_blimp_niosa_holma_zjawisk():
+    """On the repo's blimp.json: every phenomenon entry of LICZBY carries the Holm of its level, and the paradigm
+    level of the 12-phenomena table has no certain phenomenon after Holm (argument structure: raw t = -4.68, df 8,
+    certain; Holm over the 9 phenomena with k >= 3: probable)."""
+    import json
+    sys.path.insert(0, str(KORZEN / "tools"))
+    import liczby as Lz
+    bl = json.loads((KAT / "results" / "blimp.json").read_text())
+    p = {x["id"]: x for x in Lz.porownania_blimp(bl)}
+    zk = bl["analiza"]["zjawiska_klastrowe"]
+    assert zk["argument_structure"]["werdykt"] == "pewne" and zk["argument_structure"]["werdykt_holm"] == "prawdopodobne"
+    assert sum(r["p_holm"] is not None for r in zk.values()) == sum(r["k"] >= 3 for r in zk.values()) == 9
+    assert not any(r["werdykt_holm"] == "pewne" for r in zk.values())
+    for z, r in bl["analiza"]["zjawiska_klastrowe"].items():
+        pp = p[f"slayer_vs_pythia/blimp_zjawisko_{z}/acc"]
+        assert pp["p_holm"] == r["p_holm_pary"] and pp["werdykt_holm"] == r["werdykt_holm_pary"]
+        pk = p[f"slayer_vs_pythia/blimp_zjawisko_klastr_{z}/acc"]
+        assert pk["p_holm"] == r["p_holm"] and pk["po_holmie"] == r["po_holmie"]
 
 
 def test_werdykt_progi():

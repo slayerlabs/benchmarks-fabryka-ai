@@ -24,6 +24,8 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 RESEARCH = HERE.parent.parent
 sys.path.insert(0, str(RESEARCH / "common"))
+sys.path.insert(0, str(RESEARCH / "tools"))
+from statystyka import p_z, po_holmie, wobec_stalej  # noqa: E402
 
 DATA_REPO = "ybisk/piqa"
 DATA_REVISION = "2e8ac2dffd59bac8c3c6714948f4c551a0848bb0"  # tasks_50.json; the loading script's commit
@@ -272,6 +274,22 @@ def against(value, se, base):
     return {"difference_pts": (value - base) * 100, "z": z, "verdict": verdict(z)}
 
 
+def against_majority(lines, metric="acc_norm", idx=None):
+    """Paired against the constant predictor (always the most frequent gold option), per question
+    (tools/statystyka.py wobec_stalej): b, difference, paired SE, z and verdict."""
+    sel = lines if idx is None else [lines[i] for i in idx]
+    r = wobec_stalej([q[metric] for q in sel], [q["gold"] for q in sel])
+    return {"base": r["b"], "constant": r["stala"], "difference_pts": r["roznica"] * 100, "se": r["se"],
+            "z": r["z"], "verdict": r["werdykt"], "n": r["n"]}
+
+
+def with_holm(comps):
+    """Adds the Holm column to every comparison of one table (family = the table)."""
+    for k, h in zip(comps, po_holmie([p_z(c["z"]) for c in comps.values()])):
+        comps[k]["holm"] = {"p": h["p_holm"], "verdict": h["werdykt_holm"], "flag": h["po_holmie"]}
+    return comps
+
+
 def report(args):
     res = HERE / "results"
     raw = res / "raw"
@@ -319,12 +337,10 @@ def report(args):
         diff = pf[m]["value"] - CONTROL[m]
         control["checks"][m] = {"ours": pf[m]["value"], "published": CONTROL[m], "difference_pts": diff * 100,
                                 "tolerance_pts": tol * 100, "within": abs(diff) <= tol}
-    maj = out["baselines"]["full"]["majority"]
-    se_pub = math.sqrt(CONTROL["acc_norm"] * (1 - CONTROL["acc_norm"]) / CONTROL["n"])
-    control["discriminates"] = {"se_published": se_pub,
-                                "z_over_random": (CONTROL["acc_norm"] - 0.5) / se_pub,
-                                "z_over_majority": (CONTROL["acc_norm"] - maj) / se_pub,
-                                "ok": CONTROL["acc_norm"] - max(0.5, maj) > 2 * se_pub}
+    # b = the constant predictor (majority > 1/2), so the control is paired with it per question (METODOLOGIA, "b")
+    disc = {part: against_majority(pythia, idx=idx) for part, idx in (("full", None), ("panel", panel))}
+    disc["ok"] = disc["full"]["z"] is not None and disc["full"]["z"] > 2
+    control["discriminates"] = disc
     control["passed"] = all(c["within"] for c in control["checks"].values()) and control["discriminates"]["ok"]
     out["control"] = control
 
@@ -334,9 +350,9 @@ def report(args):
         s = out["models"]["slayer-1.06"][part]["acc_norm"]
         b = out["baselines"][part]
         comps[f"slayer_vs_random_{part}"] = against(s["value"], s["se"], 0.5)
-        comps[f"slayer_vs_majority_{part}"] = against(s["value"], s["se"], b["majority"])
+        comps[f"slayer_vs_majority_{part}"] = against_majority(slayer, idx=idx)
         comps[f"slayer_minus_pythia_{part}"] = paired(slayer, pythia, "acc_norm", idx)
-    out["comparisons"] = comps
+    out["comparisons"] = with_holm(comps)
 
     # same Pythia run on other GPUs: per-question agreement with the main run
     repeats = {}
@@ -466,9 +482,14 @@ def render(o):
               "zadania angielskie do commita lm-eval `6d2abda4`; ten pomiar "
               "szedł na lm-eval 0.4.9.1. Porównany był tylko katalog zadania (`piqa.yaml`, `README.md`), nie kod "
               "harnessu; zob. METODOLOGIA.md, sekcja „Wersja lm-eval”.",
-              f"Opublikowane acc_norm leży {p1(d['z_over_random'])} błędów standardowych ponad bazą losową i "
-              f"{p1(d['z_over_majority'])} ponad bazą większościową (błąd standardowy {f3(d['se_published'])}), więc kontrola "
-              f"odróżnia działający kod od zgadywania. Kontrola zaliczona: {'tak' if c['passed'] else 'nie'}.",
+              f"Nasza Pythia-1B v0 wobec stałego predyktora (zawsze najczęstsza poprawna opcja, b = "
+              f"{f3(d['full']['base'])}), parowane per pytanie: pełny split {p1(d['full']['difference_pts'])} pkt "
+              f"(SE parowane {f3(d['full']['se'])}, z {p1(d['full']['z'])}, {d['full']['verdict']}), panel "
+              f"{p1(d['panel']['difference_pts'])} pkt (z {p1(d['panel']['z'])}, {d['panel']['verdict']}); warunek "
+              f"z > 2 na pełnym splicie odróżnia działający kod od zgadywania. Kontrola zaliczona: "
+              f"{'tak' if c['passed'] else 'nie'}. "
+              "<!-- liczba-spoza-wynikow: pkt wprost z kluczy control.discriminates.*.difference_pts w piqa.json, linię "
+              "trzyma bramka (g) -->",
               "",
               "BOS różni się między modelami: Slayer dostaje jeden BOS przed każdym żądaniem, tak jak robi to wrapper `slayer` z #44 "
               "(METHOD.md wiąże BOS z `add_bos_token` tokenizera, a Slayer nie ma tokenizer_config.json), "
@@ -477,17 +498,22 @@ def render(o):
               "liczymy tak, jak liczono opublikowaną wartość).",
               "",
               "## Porównania (werdykt: |z| ≥ 3 pewne, 2–3 prawdopodobne, < 2 szum)", "",
-              "| porównanie | split | różnica, pkt | z | werdykt |", "|---|---|---:|---:|---|"]
-    names = {"slayer_vs_random": "Slayer 1.06 − baza losowa", "slayer_vs_majority": "Slayer 1.06 − baza większościowa",
+              "| porównanie | split | różnica, pkt | z | werdykt | po Holmie |", "|---|---|---:|---:|---|---|"]
+    names = {"slayer_vs_random": "Slayer 1.06 − baza losowa",
+             "slayer_vs_majority": "Slayer 1.06 − stały predyktor (SE parowane)",
              "slayer_minus_pythia": "Slayer 1.06 − Pythia-1B v0 (SE parowane)"}
     part_labels = {"full": "pełny", "panel": "panel"}
     for part in ("full", "panel"):
         for key, label in names.items():
             k = o["comparisons"][f"{key}_{part}"]
-            lines.append(f"| {label} | {part_labels[part]} | {p1(k['difference_pts'])} | {p1(k['z'])} | {k['verdict']} |")
+            h = k["holm"]
+            lines.append(f"| {label} | {part_labels[part]} | {p1(k['difference_pts'])} | {p1(k['z'])} | {k['verdict']} | "
+                         f"{h['flag']} ({h['verdict']}) |")
     lines += ["",
-              "z wobec bazy = (wartość − baza) / SE wartości; Slayer − Pythia używa SE parowanego "
-              "(odchylenie standardowe różnic per pytanie / sqrt n).",
+              "z wobec bazy losowej = (wartość − baza losowa) / SE wartości. Stały predyktor zawsze wybiera najczęstszą poprawną "
+              "opcję splitu; porównanie z nim i Slayer − Pythia używają SE parowanego (odchylenie standardowe różnic per "
+              "pytanie / sqrt n). „Po Holmie”: p z |z| poprawione metodą Holma w rodzinie sześciu porównań tej tabeli, "
+              "„tak” przy p Holma ≤ p dla |z| = 2, w nawiasie werdykt z p Holma (progi p jak dla |z| = 2 i 3).",
               "Pewna różnica między Slayerem a Pythią nie mówi o swojej przyczynie. Alternatywy: udział angielskiego w danych "
               "treningowych (około 10% dla Slayera, 100% dla Pythii) i etap treningu. Możliwe skażenie Slayera na PIQA działa "
               "w drugą stronę: podniosłoby wynik Slayera, więc bez niego różnica mogłaby być większa. "

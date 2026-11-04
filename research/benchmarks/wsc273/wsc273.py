@@ -15,6 +15,8 @@ import sys
 
 KATALOG = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(KATALOG.parents[1] / "common"))
+sys.path.insert(0, str(KATALOG.parents[1] / "tools"))
+from statystyka import p_z, po_holmie, se_k, werdykt, wobec_stalej  # noqa: E402
 
 from metryki import bazy_mc, ranking_panel, srednia_z_niepewnoscia  # noqa: E402
 
@@ -145,16 +147,13 @@ def podsumuj(oceny, klasy_splitu):
 
 def porownanie(wartosc, se, baza):
     z = (wartosc - baza) / se
-    return {"roznica": wartosc - baza, "se": se, "z": z,
-            "werdykt": "pewne" if abs(z) >= 3 else "prawdopodobne" if abs(z) >= 2 else "szum"}
+    return {"roznica": wartosc - baza, "se": se, "z": z, "werdykt": werdykt(z)}
 
 
 def wobec_wiekszosciowej(oceny):
-    """Both predictors answer the same questions, so the SE of the difference is paired (research/README.md)."""
-    klasa = max((0, 1), key=lambda i: sum(o["gold"] == i for o in oceny))
-    reszty = [o["acc"] - (o["gold"] == klasa) for o in oceny]
-    return porownanie(statistics.fmean(o["acc"] for o in oceny), srednia_z_niepewnoscia(reszty)["se"],
-                      statistics.fmean(o["gold"] == klasa for o in oceny))
+    """Both predictors answer the same questions, so the SE of the difference is paired (tools/statystyka.py)."""
+    r = wobec_stalej([o["acc"] for o in oceny], [o["gold"] for o in oceny])
+    return {"roznica": r["roznica"], "se": r["se"], "z": r["z"], "werdykt": r["werdykt"]}
 
 
 PROG_SCHEMATU = 0.6  # Jaccard słów sąsiednich zdań; 0,5 i 0,7 dają ten sam werdykt (README)
@@ -180,36 +179,46 @@ def schematy(dokumenty, prog=PROG_SCHEMATU):
 
 
 def po_schematach(oceny, grupy, baza):
-    """Model minus baza z SE klastrowym po schematach (grupy[k] = id schematu wiersza k). Stała odpowiedź
-    trafia w schemacie o przeciwnych odpowiedziach mniej więcej raz na parę, więc wariancja różnicy siedzi w
-    schematach, a SE po pytaniach ją zawyża. `baza(o)` to trafienie bazy na pytaniu o."""
-    kl = {}
-    for o in oceny:
-        kl.setdefault(grupy[o["k"]], []).append(o["acc"] - baza(o))
-    n, g = len(oceny), len(kl)
-    m = statistics.fmean(x for p in kl.values() for x in p)
-    se = (sum(sum(x - m for x in p) ** 2 for p in kl.values()) * g / (g - 1)) ** 0.5 / n
-    b = statistics.fmean(baza(o) for o in oceny)
-    wynik = porownanie(m + b, se, b)
+    """Model minus baza z SE K po schematach (grupy[k] = id schematu wiersza k), t przy df = schematy − 1
+    (tools/statystyka.py se_k). Stała odpowiedź trafia w schemacie o przeciwnych odpowiedziach mniej więcej raz
+    na parę, więc wariancja różnicy siedzi w schematach, a SE po pytaniach ją zawyża. `baza(o)` to trafienie
+    bazy na pytaniu o."""
+    r = se_k([o["acc"] - baza(o) for o in oceny], [grupy[o["k"]] for o in oceny])
     rozmiary = {}
-    for p in kl.values():
-        rozmiary[str(len(p))] = rozmiary.get(str(len(p)), 0) + 1
-    wynik.update({"schematy": g, "rozmiary_schematow": dict(sorted(rozmiary.items())),
-                  "eksploracyjne": "jednostka wybrana po wyniku po pytaniach; nie w protokole"})
-    return wynik
+    for o in oceny:
+        rozmiary[grupy[o["k"]]] = rozmiary.get(grupy[o["k"]], 0) + 1
+    licz = {}
+    for v in rozmiary.values():
+        licz[str(v)] = licz.get(str(v), 0) + 1
+    return {"roznica": r["roznica"], "se": r["se"], "t": r["t"], "df": r["df"], "p": r["p_t"],
+            "werdykt": r["werdykt"], "schematy": r["k"], "rozmiary_schematow": dict(sorted(licz.items()))}
+
+
+def holm_bazy(raport):
+    """Holm na sześciu wierszach tabeli „Slayer 1.06 wobec baz” (rodzina = ta tabela); p z z, a po schematach z t."""
+    p, s = raport["slayer_panel200"], raport["slayer_pelny"]
+    wiersze = [("panel200", "losowa", p_z(p["wobec_losowej"]["z"])),
+               ("panel200", "wiekszosciowa", p_z(p["wobec_wiekszosciowej"]["z"])),
+               ("pelny", "losowa", p_z(s["wobec_losowej"]["z"])),
+               ("pelny", "wiekszosciowa", p_z(s["wobec_wiekszosciowej"]["z"])),
+               ("pelny_po_schematach", "losowa", s["wobec_losowej_po_schematach"]["p"]),
+               ("pelny_po_schematach", "wiekszosciowa", s["wobec_wiekszosciowej_po_schematach"]["p"])]
+    return [{"probka": a, "baza": b, **h} for (a, b, _), h in zip(wiersze, po_holmie([x for *_, x in wiersze]))]
 
 
 def po_schematach_pelny(pelny, docs, wynik_pelny):
-    """Odczyt po schematach (eksploracyjny) wobec obu baz, plus wrażliwość na próg grupowania."""
+    """Odczyt po schematach (eksploracyjny: jednostka wybrana po wyniku po pytaniach, poza protokołem pomiaru)
+    wobec obu baz, plus wrażliwość na próg grupowania."""
     klasa = max((0, 1), key=lambda i: sum(x["gold"] == i for x in pelny))
     losowa = lambda o: wynik_pelny["bazy"]["chance_value"]  # noqa: E731
     wieksz = lambda o: float(o["gold"] == klasa)  # noqa: E731
     grupy = schematy(docs)
-    return {"wobec_losowej_po_schematach": po_schematach(pelny, grupy, losowa),
-            "wobec_wiekszosciowej_po_schematach": po_schematach(pelny, grupy, wieksz),
+    eksp = {"eksploracyjne": "jednostka wybrana po wyniku po pytaniach; nie w protokole"}
+    return {"wobec_losowej_po_schematach": {**po_schematach(pelny, grupy, losowa), **eksp},
+            "wobec_wiekszosciowej_po_schematach": {**po_schematach(pelny, grupy, wieksz), **eksp},
             "po_schematach_wrazliwosc_progu": {
-                str(p): {"schematy": max(g) + 1, "z_losowa": po_schematach(pelny, g, losowa)["z"],
-                         "z_wiekszosciowa": po_schematach(pelny, g, wieksz)["z"]}
+                str(p): {"schematy": max(g) + 1, "t_losowa": po_schematach(pelny, g, losowa)["t"],
+                         "t_wiekszosciowa": po_schematach(pelny, g, wieksz)["t"]}
                 for p in (0.5, 0.7) for g in [schematy(docs, p)]}}
 
 
@@ -269,8 +278,8 @@ def cmd_report(_):
                                   "wobec_wiekszosciowej": wobec_wiekszosciowej(oceny)}
     warianty_wyniku = warianty(pelny, dokumenty_surowe(obiekt), docs)
     wartosci_wariantow = [w["value"] for w in warianty_wyniku.values()]
-    RAPORT.write_text(json.dumps({
-        "kontrola": {**wynik_kontroli, "opublikowana": KONTROLA["wartosc"], "se_opublikowane": KONTROLA["se"],
+    raport = {
+        "kontrola":{**wynik_kontroli, "opublikowana": KONTROLA["wartosc"], "se_opublikowane": KONTROLA["se"],
                      "porownanie": porownanie(wynik_kontroli["value"], KONTROLA["se"], KONTROLA["wartosc"])},
         "slayer_panel200": {**wynik_panel, **wobec_baz(wynik_panel, probka)},
         "slayer_pelny": {**wynik_pelny, **wobec_baz(wynik_pelny, pelny),
@@ -281,7 +290,9 @@ def cmd_report(_):
         "rozstep_wariantow": max(wartosci_wariantow) - min(wartosci_wariantow),
         "podzbiory_pol": podzbiory_pol(pelny, docs),
         "sd_podproby_200": sd_podproby(pelny),
-    }, indent=1, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
+    }
+    raport["holm_bazy"] = holm_bazy(raport)
+    RAPORT.write_text(json.dumps(raport, indent=1, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
 
 
 if __name__ == "__main__":
