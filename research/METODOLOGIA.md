@@ -20,30 +20,32 @@ zamiast etapów A i B ma kartę zbioru. Każdy etap może iść osobnym PR. Kied
 
 ## Definicja „zrobione”
 
-Benchmark jest zrobiony, gdy PR do `main` zawiera katalog `research/benchmarks/<name>/` założony z
-[`research/benchmarks/_template/`](benchmarks/_template/README.md). Zamiast jednego PR może być kilka, po
-jednym na etap. W katalogu musi być:
+**Benchmark jest zrobiony, gdy jest opisany, przygotowany i podpięty do przebiegu centralnego**
+(`research/tools/przebieg_centralny.sh`). Jedno uruchomienie przebiegu na wynajętej karcie liczy wtedy wszystkie
+benchmarki naraz, na Slayerze i modelach odniesienia. Autor PR niczego nie liczy na GPU. Stan każdego benchmarku:
+[`STATUS.md`](STATUS.md).
 
-1. `ORIGINAL.md` (etap A) i `REPRODUCTION.md` (etap B) ze spełnionym warunkiem odtworzenia. Benchmark bez oryginału
-   ma zamiast nich `DATASET.md` i kontrolę na modelu, który zna polski. Wersja polska leży w osobnym katalogu
-   `research/benchmarks/<name>-pl/` i ma `POLISH.md` (etap D).
-2. Kod liczący wynik (etap C). To wywołanie kodu z etapu B albo własna implementacja z testem zgodności
-   `research/tests/test_<name>_zgodnosc.py`.
-3. Test kodu `research/tests/test_<name>.py` z próbką danych. Test przechodzi bez sieci i bez wag.
-4. Wynik mierzonego modelu z n i SE, a obok wynik modelu kontrolnego
-   ([„Model kontrolny etapu B”](#model-kontrolny-etapu-b)) liczony tym samym kodem. Oba liczy
-   autor PR.
-5. Wiersz testu w [`research/README.md`, „Benchmarki i typy”](README.md#benchmarki-i-typy) (karta do niego linkuje), bazy i b według tabeli typów, porównanie z modelem kontrolnym jako różnica w SE z werdyktem
-   ([„Typy testów”](#typy-testów)).
-6. `RECIPE.md` z wpisem dla każdego wyniku.
-7. Benchmark liczony przez `research/common/ewaluuj.py`: wpis w `ZADANIA` (`research/common/zadania.py`) i w
-   `KATALOGI` przebiegu centralnego. Benchmark z własnym kodem: komenda w `RECIPE.md`, którą liczy się go ręcznie,
-   bo przebieg centralny woła tylko `ewaluuj.py`.
-8. Komendy z sekcji [„Przed PR”](../CONTRIBUTING.md#przed-pr) zakończone kodem 0.
-9. `Refs #N` zadania w opisie PR.
+PR do `main` (jeden albo kilka, po jednym na etap) zawiera katalog `research/benchmarks/<name>/` założony z
+[`research/benchmarks/_template/`](benchmarks/_template/README.md), a w nim:
 
-Autor PR nie liczy modeli odniesienia. Liczy je przebieg centralny `research/tools/przebieg_centralny.sh`, opisany w
-[„Następna wersja Slayera”](#następna-wersja-slayera).
+1. `ORIGINAL.md` (etap A) i `REPRODUCTION.md` (etap B) z wartością referencyjną, modelem kontrolnym i warunkiem
+   odtworzenia ustalonymi przed liczeniem. Gdy żaden model nie ma opublikowanego wyniku: „bez kontroli” z listą
+   przeszukanych miejsc ([„Bez kontroli”](#bez-kontroli)). Werdykt wpisujesz po przebiegu centralnym. Benchmark bez
+   oryginału ma zamiast nich `DATASET.md`. Wersja polska leży w `research/benchmarks/<name>-pl/` i ma `POLISH.md`
+   (etap D).
+2. **Podpięcie do przebiegu** (etap C): wpis w `ZADANIA` (`research/common/zadania.py`) i w `KATALOGI`
+   (`research/tools/przebieg_centralny.sh`). Benchmark z własnym kodem: przebieg woła jego komendę, a własna
+   implementacja ma test zgodności `research/tests/test_<name>_zgodnosc.py`.
+3. Test `research/tests/test_<name>.py` z próbką danych, bez sieci i bez wag. Sprawdza też, że wpis w `ZADANIA`
+   wskazuje zbiór, rewizję, split i metrykę z karty.
+4. Wiersz testu w [`research/README.md`, „Benchmarki i typy”](README.md#benchmarki-i-typy) z typem, bazami i b według
+   tabeli typów ([„Typy testów”](#typy-testów)).
+5. `RECIPE.md` z komendą, którą przebieg liczy benchmark.
+6. Komendy z sekcji [„Przed PR”](../CONTRIBUTING.md#przed-pr) zakończone kodem 0.
+7. `Refs #N` zadania w opisie PR.
+
+Wynik z n i SE, porównanie z modelem kontrolnym i werdykt powstają z przebiegu centralnego, opisanego w
+[„Następna wersja Slayera”](#następna-wersja-slayera), i trafiają do katalogu benchmarku osobnym PR.
 
 ## Wspólny rdzeń
 

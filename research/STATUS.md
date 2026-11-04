@@ -130,7 +130,7 @@ Nie idzie do tabeli, dopóki ktoś nie sprawdzi i nie przestawi wiersza.
 
 | co | problem | co zrobić | gdzie |
 |---|---|---|---|
-| **BLiMP** | wszystkie wyniki około 80%, checkpointy prawie płasko | druga osoba liczy od zera; per paradygmat: czy któryś stoi na 50% albo 100%; czy checkpointy nie czytają tych samych wag | [BLIMP](benchmarks/blimp/results/BLIMP.md) · [CHECKPOINTS](benchmarks/blimp/results/CHECKPOINTS.md) |
+| **BLiMP** | wszystkie 5 modeli [przebiegu](results/central-run/scores.png) około 80%, checkpointy Slayera prawie płasko | druga osoba liczy od zera; per paradygmat: czy któryś stoi na 50% albo 100%; czy checkpointy nie czytają tych samych wag | [BLIMP](benchmarks/blimp/results/BLIMP.md) · [CHECKPOINTS](benchmarks/blimp/results/CHECKPOINTS.md) |
 | **MultiBLiMP PL** | Slayer blisko 100% | sprawdzić, czy zbiór nie jest w danych treningowych | [analiza](analyses/answer-format/README.md) · #104 #36 |
 | **WSC273** | kontrola spoza listy, panel ≠ pełny split | kontrola z listy METODOLOGII | [REPRODUCTION](benchmarks/wsc273/REPRODUCTION.md) |
 | **WikiText-2** | werdykt B nierozstrzygalny | próg dla perpleksji | #41 #15 |
