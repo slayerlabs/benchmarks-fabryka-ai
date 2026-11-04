@@ -11,6 +11,13 @@ Kod wyjścia 1, gdy:
      rodziny nie ma w LICZBY.json tak mocnego werdyktu;
  (h) werdykt obok z nie zgadza się z |z| (progi z liczby.werdykt, nie powtórzone tutaj):
      „z 1,23 → szum, w tekście: pewne”.
+ (i) werdykt obok t nie zgadza się z p z t (rozkład t, df z tekstu: doklejka `df = …`, kolumna „df” tabeli,
+     akapit nad tabelą; bez df w tekście z porównania w LICZBY.json o tym t, gdy jest jednoznaczne):
+     „t -1,34 → szum, w tekście: pewne”;
+ (j) z i t stoją w jednym nawiasie lub klauzuli, ich werdykty się różnią, a przy t nie ma słowa werdyktu
+     (tekst niesie wtedy tylko werdykt par, np. „dołek: 1.55 pts (z = 10.81, t = 3.07)”);
+ (k) akapit podaje liczbę wyników istotnych po Holmie i opisuje t po paradygmatach, a liczby po paradygmatach
+     obok nie ma.
  (d)-(f) bramki raportów z metadanymi w LICZBY.json "raporty" (bramki_raportu): werdykt na zbiorze
      wieloparadygmatowym bez SE klastrowanego / Holma, werdykt grupy < 3 członków, różne tokenizery bez
      wyniku na token.
@@ -60,6 +67,8 @@ SKALOWANA = re.compile(r"\s*(pkt|%|p\.\s?p\.)")
 SKALOWANA_EN = re.compile(r"\s*(points?\b|pts?\b|%)")
 LISTA_SE = re.compile(r"((?:[−-]?\d+(?:,\d+)?\s*/\s*)*[−-]?\d+(?:,\d+)?)\s*SE\b")
 Z_ROWNA = re.compile(r"\bz\s*=\s*([−-]?\d+(?:,\d+)?)")
+# t klastrowe w LICZBY.json leży w polu z porównania, a w JSON-ach benchmarków jako wartość „t”: oba pule
+T_ROWNA = re.compile(r"\bt\s*=\s*([−-]?\d+(?:,\d+)?)")
 Z_ROWNA_EN = re.compile(r"\b[zt]\s*=\s*([−-]?\d+(?:\.\d+)?)")  # t = clustered z (mean / SE over paradigms)
 WERSJA_MODELU = re.compile(r"Slayer\s*$")  # "Slayer 1.06" is a model name, not a number
 # English reports (PLIKI_EN) use the same rules with English words: better/worse/gap/ahead/significant
@@ -291,6 +300,162 @@ def z_verdict_problems(linia):
     return problemy
 
 
+# ---------- (i) werdykt przy t, (j) dwa poziomy z jednym werdyktem, (k) liczba Holma bez poziomu paradygmatów ----------
+# t to średnia różnic po klastrach / SE po klastrach, df = k − 1. Werdykt czyta się z p rozkładu t
+# (liczby.werdykt_t), nie z |t| jak z: przy df = 2 t = 10 to tylko „prawdopodobne”.
+_T_LICZBA = re.compile(r"(?<![\w])t\s*=\s*([−-]?)(\d+)(?:([.,])(\d+))?", re.IGNORECASE)
+_DF = re.compile(r"\bdf\s*=\s*(\d+)\b", re.IGNORECASE)
+# po liczbie t: opcjonalnie „, df = 66”, „(df = 13,”, „, p = 0,0016”, „p < 10^-7”, „z rozkładu t”, komórka p
+# w tabeli, potem słowo werdyktu
+_T_DOKLEJKA = re.compile(r"(?:\s*[,;(]?\s*(?:df|p)\s*(?:<=|>=|[<≈=≤])\s*[<≈]?\s*[−-]?\d+(?:[.,]\d+)?"
+                         r"(?:\s*[x×]\s*10\^?[−-]?\d+|\^[−-]?\d+)?"
+                         r"|\s+(?:from the t[- ]distribution|z rozkładu t)"
+                         # „t = 1,60 bez wag (df = 13, szum)”: do trzech słów bez cyfr przed nawiasem z df
+                         r"|(?:\s+[^\W\d][\w-]*){1,3}(?=\s*\(\s*df\b)"
+                         r"|\s*\|\s*[<≈]?\s*\d+(?:[.,]\d+)?\s*(?=\|))*", re.IGNORECASE)
+_T_PRZYKLEJONY = re.compile(rf"\s*(?:,|;|\||:|\()\s*[\"„«']?({_SLOWO_Z})\b", re.IGNORECASE)
+_Z_PRZED_T = re.compile(r"(?<![\w])z\s*=\s*([−-]?)(\d+)(?:[.,](\d+))?", re.IGNORECASE)
+# (k): liczba wyników po Holmie w formach „17 of 36”, „17 phenomena of 36”, „17 out of 36”, „17 z 36”, „17/36”,
+# przed albo po „Holm”; licznik cyfrą albo słownie do dwudziestu (EN i PL, forma podstawowa)
+_SLOWNIE = ("one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|"
+            "seventeen|eighteen|nineteen|twenty|jeden|jedna|dwa|dwie|trzy|cztery|pięć|sześć|siedem|osiem|dziewięć|"
+            "dziesięć|jedenaście|dwanaście|trzynaście|czternaście|piętnaście|szesnaście|siedemnaście|osiemnaście|"
+            "dziewiętnaście|dwadzieścia")
+_ILE = rf"(?:\d+|{_SLOWNIE})"
+_LICZNIK = rf"(?:\b{_ILE}\s+(?:[^\W\d][\w-]*\s+)?(?:of|out of|z|spośród)\s+\d+\b|\b\d+\s*/\s*\d+\b)"
+_HOLM_LICZBA = re.compile(rf"Holm[\w-]*[^.;|]{{0,60}}?{_LICZNIK}|{_LICZNIK}[^.;|]{{0,60}}?Holm", re.IGNORECASE)
+_PARADYGMAT = re.compile(r"paradigm|paradygmat", re.IGNORECASE)
+# zdanie o paradygmatach, które coś twierdzi o odczycie (t, df, szum, werdykt, różnica, tabela z nim), a nie
+# tylko je liczy („zbiór ma 67 paradygmatów”)
+_TEZA = re.compile(r"\bt\b|\bdf\b|nois|szum|signif|istotn|verdict|werdykt|differ|różnic|odczyt|reading|level|"
+                   r"poziom|Holm|carr|przenos|shown|pokaza|tabel|table|column|kolumn|\bfall|spad|decreas",
+                   re.IGNORECASE)
+_LICZBA_POZIOMU = re.compile(rf"{_LICZNIK}|\b{_ILE}\s+(?:not noise|nie[- ]szum|tests?\b|testów|after Holm|po Holmie)",
+                             re.IGNORECASE)
+_NIE_SZUM_LICZBA = re.compile(rf"\b{_ILE}\s+(?:not noise|nie[- ]szum)", re.IGNORECASE)
+_OKNO_K = 2  # (k) patrzy na akapit i po dwa akapity (wiersz tabeli to akapit) przed nim i po nim, nie dalej
+
+
+def df_z_linii(linia):
+    """Jedno df zapisane w linii (`df = 66`) albo None, gdy go nie ma albo jest ich kilka różnych."""
+    dfs = {int(m.group(1)) for m in _DF.finditer(bez_kodu(linia))}
+    return dfs.pop() if len(dfs) == 1 else None
+
+
+def df_kontekstu(linie, i):
+    """df dla linii linie[i]: z niej samej, z kolumny „df” jej tabeli albo z akapitu tuż nad tabelą."""
+    df = df_z_linii(linie[i])
+    if df is not None or not linie[i].lstrip().startswith("|"):
+        return df
+    k = komorka_kolumny(linie, i, "df")
+    if k is not None and k.strip().isdigit():
+        return int(k)
+    j = i
+    while j > 0 and linie[j - 1].lstrip().startswith("|"):
+        j -= 1
+    while j > 0 and not linie[j - 1].strip():
+        j -= 1
+    opis = []
+    while j > 0 and linie[j - 1].strip() and not linie[j - 1].lstrip().startswith(("|", "#")):
+        opis.append(linie[j - 1])
+        j -= 1
+    return df_z_linii(" ".join(opis))
+
+
+def df_z_liczb(wartosc, cyfr, dane_liczb):
+    """Zbiór df porównań z LICZBY.json, których t (pole z porównania klastrowego) daje tę wartość po zaokrągleniu."""
+    if not dane_liczb:
+        return set()
+    return {p["df"] for p in dane_liczb.get("porownania", []) if p.get("df") is not None and p.get("z") is not None
+            and pasuje(wartosc, cyfr, p["z"])}
+
+
+def t_werdykty(linia, df=None, dane_liczb=None):
+    """[(zapis, wartość, oczekiwany werdykt albo None, słowo przy t albo None, start)] dla każdego `t = …` w linii.
+    df: z doklejki (`t = 3,3, df = 66`), z argumentu (kontekst linii), a bez nich z LICZBY.json, gdy wszystkie
+    porównania o tym t dają ten sam werdykt."""
+    linia = bez_kodu(linia)
+    out = []
+    for m in _T_LICZBA.finditer(linia):
+        zapis = _zapis_z(m.group(1), m.group(2), m.group(3), m.group(4))
+        wartosc = _wartosc_z(m.group(1), m.group(2), m.group(4))
+        cyfr = len(m.group(4) or "")
+        dokl = _T_DOKLEJKA.match(linia, m.end())
+        df_t = _DF.search(dokl.group(0)) if dokl else None
+        przy = _T_PRZYKLEJONY.match(linia, dokl.end() if dokl else m.end())
+        slowo = przy.group(1) if przy else None
+        # układ „pary / paradygmaty” (`t = -3,79 | pewne / prawdopodobne`): werdyktem t jest drugie słowo
+        po_ukosniku = re.compile(rf"\s*/\s*({_SLOWO_Z})\b", re.IGNORECASE).match(linia, przy.end()) if przy else None
+        if po_ukosniku:
+            slowo = po_ukosniku.group(1)
+        if df_t:
+            dfs = {int(df_t.group(1))}
+        elif df is not None:
+            dfs = {df}
+        else:
+            dfs = df_z_liczb(wartosc, cyfr, dane_liczb)
+        # zaokrąglone t: werdykt liczony na obu końcach przedziału zaokrąglenia; gdy próg leży w środku, bramka milczy
+        h = 0.5 * 10 ** (-cyfr)
+        werd = {liczby_werdykt_t(x, d) for d in dfs for x in (abs(wartosc) - h, abs(wartosc) + h)}
+        oczekiwany = werd.pop() if len(werd) == 1 else None
+        out.append((zapis, wartosc, oczekiwany, slowo, m.start()))
+    return out
+
+
+def liczby_werdykt_t(t, df):
+    return liczby.werdykt_t(t, df) if df > 0 else None
+
+
+def t_verdict_problems(linia, df=None, liczby_json=None):
+    """(i) słowo przy t nie zgadza się z p z t przy df; (j) z i t w jednym nawiasie lub klauzuli mają różne
+    werdykty, a przy t słowa nie ma (czytelnik bierze werdykt z za oba poziomy)."""
+    problemy = []
+    czysta = bez_kodu(linia)
+    for zapis, wartosc, oczekiwany, slowo, start in t_werdykty(linia, df, liczby_json):
+        if oczekiwany is None:
+            continue
+        if slowo is not None:
+            if _nazwa_werdyktu(slowo) != oczekiwany:
+                problemy.append(f"(i) t {zapis} → {oczekiwany}, w tekście: {slowo}")
+            continue
+        # granica klauzuli: koniec zdania, średnik, nawias, komórka tabeli (kropka dziesiętna nią nie jest)
+        poczatek = max(czysta.rfind(c, 0, start) for c in (". ", "; ", "(", "|"))
+        z = [*_Z_PRZED_T.finditer(czysta, poczatek + 1, start)]
+        if z:
+            zm = z[-1]
+            zw = liczby.werdykt(_wartosc_z(zm.group(1), zm.group(2), zm.group(3)))
+            if zw != oczekiwany:
+                problemy.append(f"(j) z {zm.group(0).split('=')[-1].strip()} → {zw}, t {zapis} → {oczekiwany}: "
+                                f"przy t brak słowa werdyktu, więc tekst niesie tylko werdykt par")
+    return problemy
+
+
+def _liczba_po_paradygmatach(tekst):
+    """Czy któreś zdanie mówiące o paradygmatach podaje własną liczbę (N z M, N/M, N nie-szum, N testów),
+    inną niż liczba Holma na parach."""
+    for zd in re.split(r"(?<=[.;])\s+", tekst):
+        if not _PARADYGMAT.search(zd):
+            continue
+        if _NIE_SZUM_LICZBA.search(zd):  # „4 of 27 not noise” to liczba poziomu, nawet gdy dalej stoi „Holm”
+            return True
+        holm = [(m.start(), m.end()) for m in _HOLM_LICZBA.finditer(zd)]
+        if any(not any(s <= m.start() < e for s, e in holm) for m in _LICZBA_POZIOMU.finditer(zd)):
+            return True
+    return False
+
+
+def holm_bez_paradygmatow(akapit_tekst, sasiedzi=""):
+    """(k) Akapit podaje liczbę wyników po Holmie, zdanie w nim albo w oknie `_OKNO_K` akapitów (`sasiedzi`,
+    np. nagłówek tabeli z kolumną paradygmatów) twierdzi coś o odczycie po paradygmatach (`_TEZA`), a liczby
+    na poziomie paradygmatów nie ma ani tu, ani obok: zdanie o zjawiskach stoi wtedy na samych parach.
+    Licznik słownie (k) zna do dwudziestu; dalej i poza oknem reguła nie sprawdza."""
+    if not _HOLM_LICZBA.search(akapit_tekst):
+        return False
+    razem = akapit_tekst + " " + sasiedzi
+    teza = any(_PARADYGMAT.search(zd) and _TEZA.search(zd) for zd in re.split(r"(?<=[.;])\s+", razem))
+    return teza and not _liczba_po_paradygmatach(razem)
+
+
 def count_z_verdict_pairs(linie):
     """Ile par z+werdykt widać w tekście. Blok ``` pomijamy, jak przy innych regułach."""
     n, w_kodzie = 0, False
@@ -312,6 +477,10 @@ def rodzaj_liczby(linia, start, koniec, kropka=False):
     for m in (Z_ROWNA_EN if kropka else Z_ROWNA).finditer(linia):
         if m.start(1) <= start < m.end(1):
             return "z"
+    if not kropka:
+        for m in T_ROWNA.finditer(linia):
+            if m.start(1) <= start < m.end(1):
+                return "t"
     if (SKALOWANA_EN if kropka else SKALOWANA).match(linia, koniec):
         return "skalowana"
     return "surowa"
@@ -340,7 +509,9 @@ def niepasujace_liczby(linia, zb, aliasy=None, benchmarki=(), kropka=False, test
             continue
         x, cyfr = parsuj_liczbe(m.group(0).replace(".", ",") if kropka else m.group(0))
         rodzaj = rodzaj_liczby(czysta, m.start(), m.end(), kropka)
-        kandydaci = ([zb[t][rodzaj] for t in testy] or ([] if pule else [zb["*"][rodzaj]])) + [p[rodzaj] for p in pule]
+        pola = ("z", "surowa") if rodzaj == "t" else (rodzaj,)
+        kandydaci = ([zb[t][r] for t in testy for r in pola] or ([] if pule else [zb["*"][r] for r in pola])) \
+            + [p[r] for p in pule for r in pola]
         if not any(k.zawiera(x, cyfr) for k in kandydaci):
             zle.append((m.group(0), rodzaj))
     return zle
@@ -460,14 +631,22 @@ def sprawdz_tekst(plik, linie, liczby, zb):
             kropka, test_domyslny = file_number_format(plik)
             for tekst, rodzaj in niepasujace_liczby(l, zb, liczby["aliasy"], sorted(bench), kropka=kropka,
                                                     test_domyslny=test_domyslny):
-                opis = {"z": "jako z (×SE)", "skalowana": "jako pkt/% (×100)", "surowa": "jako wartość"}[rodzaj]
+                opis = {"z": "jako z (×SE)", "t": "jako t (pole z porównania albo wartość)", "skalowana": "jako pkt/% (×100)", "surowa": "jako wartość"}[rodzaj]
                 bledy.append((plik, nr, f"(a) {tekst} nie odpowiada żadnej liczbie z LICZBY.json {opis}"))
         for problem in z_verdict_problems(l):
             bledy.append((plik, nr, problem))
-    for akapit in jednostki(linie):
+        for problem in t_verdict_problems(l, df_kontekstu(linie, nr - 1), liczby):
+            bledy.append((plik, nr, problem))
+    akapity = jednostki(linie)
+    teksty = [" ".join(bez_kodu(l) for _, l in a) for a in akapity]
+    for i, akapit in enumerate(akapity):
         nr0 = akapit[0][0]
-        tekst_akapitu = " ".join(bez_kodu(l) for _, l in akapit)
+        tekst_akapitu = teksty[i]
         surowy_akapit = " ".join(l for _, l in akapit)
+        sasiedzi = " ".join(teksty[j] for j in range(i - _OKNO_K, i + _OKNO_K + 1) if j != i and 0 <= j < len(teksty))
+        if holm_bez_paradygmatow(tekst_akapitu, sasiedzi):
+            bledy.append((plik, nr0, "(k) liczba wyników po Holmie bez liczby po paradygmatach, a ten albo sąsiedni "
+                                     "akapit opisuje odczyt po paradygmatach: zdanie o zjawiskach stoi na samych parach"))
         wstep = re.match(r"\s*(?:[-*]\s+|\d+\.\s+)?\*\*(.+?)\*\*", tekst_akapitu)
         wstep = wstep.group(1) if wstep else ""
         ma_liczby = bool(re.search(r"\d", tekst_akapitu))

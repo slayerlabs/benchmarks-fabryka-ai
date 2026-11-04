@@ -41,12 +41,25 @@ Slayer 1.06 wobec baz:
 | panel 200 | większościowa | +8,5 pkt | 0,0469 | z = 1,81 | szum |
 | pełny split | losowa | +9,0 pkt | 0,0298 | z = 3,01 | pewne |
 | pełny split | większościowa | +8,8 pkt | 0,0440 | z = 1,997 | szum |
+| pełny split, SE po schematach (eksploracyjne) | losowa | +9,0 pkt | 0,0201 | z = 4,47 | pewne |
+| pełny split, SE po schematach (eksploracyjne) | większościowa | +8,8 pkt | 0,0201 | z = 4,38 | pewne |
 
 Model i stała odpowiedź odpowiadają na te same pytania, więc SE różnicy wobec bazy większościowej jest parowane
 (`research/README.md`, „SE i werdykt”). Wobec bazy losowej, czyli stałej, SE to SE trafności.
 
-Nad bazą losową Slayer 1.06 leży tuż nad progiem „pewne” (|z| ≥ 3). Różnica wobec bazy większościowej to szum, na <!-- ocena-bez-se: opis progu werdyktu, SE w tabeli powyżej -->
-obu próbkach.
+**Odczyt po schematach jest eksploracyjny.** Jednostkę wybraliśmy po zobaczeniu wyniku po pytaniach i to ona
+przesuwa werdykt wobec bazy większościowej z „szum” na „pewne”; protokół jej nie przewidywał. Uzasadnienie:
+WSC273 składa się ze schematów, czyli kolejnych zdań różniących się jednym-dwoma słowami, zwykle z przeciwnymi
+odpowiedziami. Stała odpowiedź trafia w takim schemacie mniej więcej raz na parę, więc wariancja różnicy siedzi
+w schematach, a SE po pytaniach ją zawyża. Zbiór nie ma id schematu. Schematy wyznaczamy z tekstu zdań
+(`schematy` w `wsc273.py`): kolejne zdanie należy do schematu poprzedniego, gdy zbiory ich słów pokrywają się
+w co najmniej 60% (Jaccard). Wychodzi 135 schematów: 133 pary, jeden schemat z 3 zdaniami (George, wiersze <!-- liczba-spoza-wynikow: próg grupowania, stała PROG_SCHEMATU -->
+252-254) i jeden z 4 (Madonna, 267-270). Podział po kolejności wierszy (k // 2) rozjeżdża się na tych dwóch
+schematach i dalej, więc go nie używamy. Wynik zależy od grupowania tylko w drugim miejscu: przy progu 50%
+(134 schematy) i 70% (140) z wobec bazy większościowej to 4,40 i 4,13, czyli zawsze pewne. <!-- liczba-spoza-wynikow: progi grupowania; z z po_schematach_wrazliwosc_progu w results/wsc273.json -->
+
+Panelu 200 nie przeliczamy po schematach: panel losuje pojedyncze zdania, więc część schematów jest w nim
+niepełna i ani SE po pytaniach, ani SE po schematach nie opisuje go czysto; jego werdykty w tabeli są po pytaniach.
 
 Przebieg próbki zgadza się z podzbiorem przebiegu pełnego: największa różnica logliku to 0,0, liczba różnych `acc` to 0. <!-- liczba-spoza-wynikow: zgodność przebiegów z results/wsc273.json -->
 Najdłuższe żądanie ma 48 tokenów, więc nic nie zostało obcięte. <!-- liczba-spoza-wynikow: wyjście evaluate -->

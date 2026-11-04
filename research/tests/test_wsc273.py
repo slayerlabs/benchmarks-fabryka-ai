@@ -83,6 +83,41 @@ def test_majority_comparison_uses_the_paired_se(m):
     assert wynik["se"] == pytest.approx(mean_se([0.0, 0.0, -1.0, 1.0, 1.0])[1])
 
 
+def test_schema_se_sees_that_a_constant_answer_hits_once_per_twin_pair(m):
+    # mutation: SE over questions leaves the within-schema cancellation in the SE
+    # schemas (0,1), (2,3)...: gold 0 then 1; model right on 7 of 8 schemas, wrong on both rows of the last one
+    rows = [{"k": k, "acc": float(k < 14), "gold": k % 2} for k in range(16)]
+    baza = lambda o: float(o["gold"] == 0)  # noqa: E731
+    wynik = m.po_schematach(rows, [k // 2 for k in range(16)], baza)
+    assert wynik["roznica"] == pytest.approx(14 / 16 - 0.5) and wynik["schematy"] == 8
+    _, se_pytania = mean_se([r["acc"] - baza(r) for r in rows])
+    assert wynik["se"] < se_pytania  # the constant answer's +1/-1 inside a schema cancels; per question it does not
+    # cluster-robust SE with the small-sample factor G/(G-1): sqrt(G/(G-1) * sum_g (sum_i (d_i - mean))^2) / n
+    d = [r["acc"] - baza(r) for r in rows]
+    srednia = sum(d) / 16
+    reszty = [(d[2 * g] - srednia) + (d[2 * g + 1] - srednia) for g in range(8)]
+    assert wynik["se"] == pytest.approx((8 / 7 * sum(x * x for x in reszty)) ** 0.5 / 16, rel=1e-12)
+
+
+def test_schemas_follow_the_text_not_the_row_parity(m):
+    # mutation: k // 2 pairs a 3-sentence schema's last row with the next schema's first
+    docs = [{"text": t} for t in (
+        "George got free tickets to the play, but he gave them to Eric, even though he was eager to see it.",
+        "George got free tickets to the play, but he gave them to Eric, because he was eager to see it.",
+        "George got free tickets to the play, but he gave them to Eric, because he was particularly eager to see it.",
+        "Jane gave Joan candy because she wasn't hungry.",
+        "Jane gave Joan candy because she was hungry.")]
+    assert m.schematy(docs) == [0, 0, 0, 1, 1]
+
+
+def test_schema_reading_recomputes_from_the_per_question_files(report):
+    # mutation: a report that kept the question-level SE, or grouped schemas by k // 2 (137 groups)
+    wiersz = report["slayer_pelny"]["wobec_wiekszosciowej_po_schematach"]
+    assert wiersz["schematy"] == 135 and wiersz["rozmiary_schematow"] == {"2": 133, "3": 1, "4": 1}
+    assert wiersz["werdykt"] == "pewne" and "eksploracyjne" in wiersz
+    assert all(v["z_wiekszosciowa"] >= 3 for v in report["slayer_pelny"]["po_schematach_wrazliwosc_progu"].values())
+
+
 def test_field_subsets_are_the_strict_ones_that_keep_text_and_options(m):
     # mutation: a wrong range counts the full document twice or drops the two-field subset
     docs = [{"text": str(i), "options": "o", "a": i % 2, "b": 0} for i in range(250)]
