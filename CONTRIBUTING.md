@@ -21,12 +21,10 @@ Wybierz zadanie, przypisz się do niego (Assignees → Assign yourself) i przest
 Bierzesz jedno zadanie naraz. Jeśli zaczynasz, weź
 [good first issue](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22).
 
-Recenzję cudzej karty możesz wziąć, gdy masz już za sobą jedną własną kartę.
-
-Wszystkie zadania są pod adresem https://github.com/slayerlabs/benchmarks-fabryka-ai/issues. Tablica jest pod
-adresem https://github.com/orgs/slayerlabs/projects/10. Jak przygotować komputer, opisuje
-[`research/README.md`, „Przygotowanie (raz)”](research/README.md#przygotowanie-raz). Procedurę pracy opisuje
-[`research/METODOLOGIA.md`](research/METODOLOGIA.md).
+<a href="https://github.com/slayerlabs/benchmarks-fabryka-ai/issues"><img src="docs/img/wszystkie-zadania.svg" alt="Wszystkie zadania" height="36"></a>
+<a href="https://github.com/orgs/slayerlabs/projects/10"><img src="docs/img/tablica.svg" alt="Tablica" height="36"></a>
+<a href="research/README.md#przygotowanie-raz"><img src="docs/img/przygotowanie.svg" alt="Przygotowanie komputera" height="36"></a>
+<a href="research/METODOLOGIA.md"><img src="docs/img/metodologia.svg" alt="Metodologia" height="36"></a>
 
 ## PR
 

@@ -11,15 +11,7 @@ nowej.
 
 ## Etapy pracy
 
-```mermaid
-flowchart LR
-  A[A. Karta oryginału] --> B[B. Odtworzenie wyniku oryginalnym kodem]
-  B -->|warunek spełniony| C[C. Kod w repo]
-  B -->|niespełniony| X[Stop: komentarz w zadaniu]
-  B -->|bez kontroli, kod autorów zgodny z repo| C
-  B -->|bez kontroli, kod niezgodny| X
-  C --> D[D. Wersja polska tą samą metodą]
-```
+<img src="../docs/img/droga-testu.svg" alt="1. Opis testu, 2. sprawdzenie na modelu autorów, 3. kod w repo, 4. liczenie, 5. publikacja na CodeSOTA. Po polsku: test tłumaczony idzie tą samą drogą, własny test zamiast kroków 1–2 ma opis zbioru." width="960">
 
 Każdy etap kończy się plikiem w `benchmarks/<name>/`, wzory są w
 [`benchmarks/_template/`](benchmarks/_template/README.md). Benchmark bez oryginału (zbiór pisany od zera, held-out)

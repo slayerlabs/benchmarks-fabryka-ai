@@ -28,6 +28,8 @@ oryginałem, i budujemy polskie benchmarki.
 
 5. **Otwórz PR do `main`** z `Refs #N` w opisie, według [`CONTRIBUTING.md`, „PR”](CONTRIBUTING.md#pr).
 
+Jak powstaje test: [METODOLOGIA, „Etapy pracy”](research/METODOLOGIA.md#etapy-pracy).
+
 Kiedy test jest skończony: [METODOLOGIA, „Definicja „zrobione””](research/METODOLOGIA.md#definicja-zrobione).
 
 Przed PR: [CONTRIBUTING, „Przed PR”](CONTRIBUTING.md#przed-pr).
