@@ -11,7 +11,7 @@ Procedurę opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworze
 | zbiór @ rewizja, split, n | `allenai/winogrande`, `winogrande_xl` @ `01e74176c63542e6b0bcb004dcdea22d94fb67b5`, `validation`, n = 1267 |
 | wynik (SE) | `acc` 0,5446 (690 z 1267), SE K 0,012548 po klastrach (k = 983: 284 pary bliźniacze i 699 pojedynczych zdań, typ `mc +klastry`). SE A 0,013996 informacyjnie |
 | wartość referencyjna i źródło | 0,5375. Plik Pythii v0 @ `a19eecb`, odczyt w karcie `ORIGINAL.md` |
-| różnica | +0,007094, czyli +0,71 pkt. SE K 0,012548, t = 0,565 (df = 982), szum |
+| różnica | +0,007094, czyli +0,71 pkt. SE różnicy wobec niezależnej wartości opublikowanej √(SE K² + 0,014²) = 0,018800 (SE K naszego wyniku 0,012548, SE z karty 0,014), t = 0,377 (df = 982), szum |
 | kontrola odróżnia działający kod od zepsutego (kolumna „kontrola” typu): b, wynik − b w SE, dodatkowy przebieg, jeśli typ go wymaga | b = 0,5043, stała odpowiedź „zawsze opcja 2” (639 z 1267). Pythia minus ten predyktor, parowane po pytaniach: +4,03 pkt, SE K 0,015915, t = 2,529 (df = 982), prawdopodobne, czyli wynik > b + 2 SE. SE A informacyjnie: 0,019129, z = 2,104. Slayer minus ten sam predyktor: +1,74 pkt, SE K 0,016249, t = 1,069 (df = 982), szum; SE A 0,019812, z = 0,876 |
 | warunek odtworzenia | ±2 pkt, a gdy 2 SE > 2 pkt, ±2 SE. SE z karty 0,0140, więc 2 SE = 0,0280. Furtka 0,5095–0,5655 |
 | werdykt | spełniony |

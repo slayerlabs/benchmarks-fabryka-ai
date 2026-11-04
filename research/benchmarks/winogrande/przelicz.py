@@ -14,6 +14,7 @@ import math
 import re
 import sys
 from pathlib import Path
+from statistics import NormalDist
 
 TU = Path(__file__).resolve().parent
 sys.path.insert(0, str(TU.parent.parent / "tools"))
@@ -25,10 +26,25 @@ YAML = TU / "lm_eval_tasks" / "winogrande" / "default.yaml"
 MODELE = {"pythia": "pythia-1b-v0", "pythia_bos": "pythia-1b-v0-bos", "slayer": "slayer-1.06"}
 POROWNANIA = [("slayer", "pythia"), ("pythia_bos", "pythia"), ("slayer", "pythia_bos")]
 P_PRAWDOPODOBNE = math.erfc(2 / math.sqrt(2))  # p for |z| = 2, the Holm threshold
+# sha256 of the inputs; a regenerated klastry.json or a new run changes these on purpose
+SHA_PARQUET = "f9d914d1818c0aba98cabdf8af2bc4bd943c462b9c5e7062647e05c2ce3315d1"
+SHA_WEJSC = {
+    "results/pythia-1b-v0/winogrande.jsonl.gz": "c05f2202f5053e88da1f41b572323dc9a12e615544bbd9a7e8b2563c92e794c3",
+    "results/pythia-1b-v0-bos/winogrande.jsonl.gz": "1a2500d3a918acc25c58b9214654a17eb02e57254ac6c510a8f883dfccf8ac17",
+    "results/slayer-1.06/winogrande.jsonl.gz": "07ca6989f6362323727b9c87be982431a6d4f6d2e2d2cb05f4dfb514f5f49288",
+    "klastry.json": "612d0a0608af6a636bea11bfe23a42b9fd2e88bfa8ed080f943bd4d047245134",
+}
+ROZMIAR_PANELU = 200
 # thresholds written in RECIPE.md before the runs
 PROG = {"opublikowane": 0.5375, "se_karty": 0.014, "dwa_se": 0.028, "furtka_dol": 0.5095, "furtka_gora": 0.5655,
         "pasmo_2pkt_dol": 0.5175, "pasmo_2pkt_gora": 0.5575, "pasmo_slayer_dol": 0.505, "pasmo_slayer_gora": 0.584,
         "pythia_skrot": 0.5446, "se_roznicy_niezaleznej": 0.0198}
+
+
+def sprawdz_sha(plik, oczekiwane):
+    jest = hashlib.sha256(Path(plik).read_bytes()).hexdigest()
+    if jest != oczekiwane:
+        sys.exit(f"{plik}: sha256 {jest}, oczekiwane {oczekiwane}")
 
 
 def rewizja():
@@ -56,6 +72,7 @@ def cmd_klastry():
     rev = rewizja()
     plik = hf_hub_download("allenai/winogrande", "winogrande_xl/validation-00000-of-00001.parquet",
                            repo_type="dataset", revision=rev)
+    sprawdz_sha(plik, SHA_PARQUET)
     wiersze = pq.read_table(plik).to_pylist()
     ids = klastry_z_opcji([(r["option1"], r["option2"]) for r in wiersze])
     rozmiary = [ids.count(c) for c in range(ids[-1] + 1)]
@@ -109,7 +126,11 @@ def holm(wyniki):
 
 
 def main():
+    for sciezka, sha in SHA_WEJSC.items():
+        sprawdz_sha(TU / sciezka, sha)
     kl = json.loads(KLASTRY.read_text())
+    if kl["sha256_parquet"] != SHA_PARQUET:
+        sys.exit(f"klastry.json: sha256_parquet {kl['sha256_parquet']}, oczekiwane {SHA_PARQUET}")
     klaster, zloto = kl["klaster"], kl["zloto"]
     out, acc = {}, {}
     for klucz, katalog in MODELE.items():
@@ -134,10 +155,18 @@ def main():
     out.update(porownania)
     for klucz in ("pythia", "slayer"):
         out[f"{klucz}_wobec_b"] = roznica(acc[klucz], stala, klaster)
+    # the published value is an independent measurement: SE of the difference = hypot(our SE K, SE of the card)
     d = out["pythia"]["acc"] - PROG["opublikowane"]
-    out["pythia_wobec_opublikowanego"] = {"roznica": d, "se_k": out["pythia"]["se_k"],
-                                          "t": d / out["pythia"]["se_k"], "df": kl["k"] - 1,
-                                          "werdykt": werdykt_t(d / out["pythia"]["se_k"], kl["k"] - 1)}
+    se = math.hypot(out["pythia"]["se_k"], PROG["se_karty"])
+    out["pythia_wobec_opublikowanego"] = {"roznica": d, "se_k_naszego": out["pythia"]["se_k"],
+                                          "se_opublikowanego": PROG["se_karty"], "se": se, "t": d / se,
+                                          "df": kl["k"] - 1, "werdykt": werdykt_t(d / se, kl["k"] - 1)}
+    # MDE (METODOLOGIA, core point 5) from the binding SE K of the paired Slayer - Pythia difference
+    se_par = out["slayer_minus_pythia"]["se_k"]
+    z_holm = NormalDist().inv_cdf(1 - P_PRAWDOPODOBNE / len(POROWNANIA) / 2)
+    out["mde"] = {"se_roznicy_k": se_par, "zrodlo_se": "slayer_minus_pythia", "z_holm_m3": z_holm,
+                  "pelny": (2 + 0.84) * se_par, "pelny_holm_m3": (z_holm + 0.84) * se_par,
+                  "panel200": (2 + 0.84) * se_par * math.sqrt(n / ROZMIAR_PANELU)}
     (WYNIKI / "winogrande.json").write_text(json.dumps(out, indent=2, ensure_ascii=False) + "\n")
     for nazwa in list(porownania) + ["pythia_wobec_b", "slayer_wobec_b"]:
         r = out[nazwa]

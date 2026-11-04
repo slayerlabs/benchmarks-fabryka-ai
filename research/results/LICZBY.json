@@ -6328,9 +6328,16 @@
     "winogrande/winogrande/slayer_wobec_b/se_a": 0.019812232041888776,
     "winogrande/winogrande/slayer_wobec_b/z": 0.8764207678005725,
     "winogrande/winogrande/pythia_wobec_opublikowanego/roznica": 0.007093528018942363,
-    "winogrande/winogrande/pythia_wobec_opublikowanego/se_k": 0.012547695078394582,
-    "winogrande/winogrande/pythia_wobec_opublikowanego/t": 0.5653251832008932,
-    "winogrande/winogrande/pythia_wobec_opublikowanego/df": 982
+    "winogrande/winogrande/pythia_wobec_opublikowanego/se_k_naszego": 0.012547695078394582,
+    "winogrande/winogrande/pythia_wobec_opublikowanego/se_opublikowanego": 0.014,
+    "winogrande/winogrande/pythia_wobec_opublikowanego/se": 0.018800123717155896,
+    "winogrande/winogrande/pythia_wobec_opublikowanego/t": 0.3773128371740035,
+    "winogrande/winogrande/pythia_wobec_opublikowanego/df": 982,
+    "winogrande/winogrande/mde/se_roznicy_k": 0.01595394703123889,
+    "winogrande/winogrande/mde/z_holm_m3": 2.4283725526104103,
+    "winogrande/winogrande/mde/pelny": 0.04530920956871844,
+    "winogrande/winogrande/mde/pelny_holm_m3": 0.052143442582701524,
+    "winogrande/winogrande/mde/panel200": 0.11404067927053865
    }
   },
   "wsc273": {

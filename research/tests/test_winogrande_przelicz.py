@@ -6,6 +6,7 @@ HF split), recounts acc, correct, SE K and the paired differences, and compares 
 Run: python tests/test_winogrande_przelicz.py
 """
 import gzip
+import hashlib
 import json
 import math
 import sys
@@ -50,7 +51,31 @@ def werdykt_t(t, df):
     return "prawdopodobne" if p <= 2 * stats.norm.sf(2) else "szum"
 
 
+SHA = {
+    "pythia-1b-v0": "c05f2202f5053e88da1f41b572323dc9a12e615544bbd9a7e8b2563c92e794c3",
+    "pythia-1b-v0-bos": "1a2500d3a918acc25c58b9214654a17eb02e57254ac6c510a8f883dfccf8ac17",
+    "slayer-1.06": "07ca6989f6362323727b9c87be982431a6d4f6d2e2d2cb05f4dfb514f5f49288",
+}
+SE_KARTY = 0.014  # SE of the published 0.5375 in ORIGINAL.md
+
+
+def se_analityczne(x):
+    """s / sqrt(n) with the sample s (ddof = 1)."""
+    m = math.fsum(x) / len(x)
+    return math.sqrt(math.fsum((v - m) ** 2 for v in x) / (len(x) - 1) / len(x))
+
+
+def p_t(t, df):
+    return 2 * stats.t.sf(abs(t), df)
+
+
 TR = {m: trafienia(k) for m, k in KATALOGI.items()}
+
+
+def test_inputs_have_the_committed_sha256():
+    for katalog, sha in SHA.items():
+        assert hashlib.sha256((WG / "results" / katalog / "winogrande.jsonl.gz").read_bytes()).hexdigest() == sha, katalog
+    assert KL["sha256_parquet"] == "f9d914d1818c0aba98cabdf8af2bc4bd943c462b9c5e7062647e05c2ce3315d1"
 
 
 def test_twin_pairs_are_adjacent_and_counted():
@@ -71,6 +96,7 @@ def test_each_model_acc_correct_and_se_k():
         assert JSON[m]["correct"] == int(sum(x)), m
         assert abs(JSON[m]["acc"] - sum(x) / len(x)) < TOL, m
         assert abs(JSON[m]["se_k"] - se) < TOL, m
+        assert abs(JSON[m]["se_a"] - se_analityczne(x)) < TOL, m
         assert JSON[m]["k"] == k == 983, m
 
 
@@ -85,6 +111,31 @@ def test_paired_differences_se_k_t_and_verdict():
         assert abs(r["t"] - diff / se) < 1e-6, a + b
         assert r["df"] == k - 1
         assert r["werdykt"] == werdykt_t(diff / se, k - 1), a + b
+        assert abs(r["se_a"] - se_analityczne(d)) < TOL, a + b
+
+
+def test_holm_over_the_three_comparisons():
+    klucze = ["slayer_minus_pythia", "pythia_bos_minus_pythia", "slayer_minus_pythia_bos"]
+    p = {c: p_t(JSON[c]["t"], JSON[c]["df"]) for c in klucze}
+    kolejne = sorted(klucze, key=p.get)
+    poprawione, najwyzsze = {}, 0.0
+    for i, c in enumerate(kolejne):
+        najwyzsze = max(najwyzsze, min(1.0, (len(kolejne) - i) * p[c]))
+        poprawione[c] = najwyzsze
+    for c in klucze:
+        assert abs(JSON[c]["p_holm"] - poprawione[c]) < 1e-6, c
+        assert JSON[c]["po_holmie"] == ("tak" if poprawione[c] <= 2 * stats.norm.sf(2) else "nie"), c
+
+
+def test_gap_to_published_uses_se_of_an_independent_value():
+    se_k, _ = se_klastrowe(TR["pythia"])
+    d = math.fsum(TR["pythia"]) / len(TR["pythia"]) - 0.5375
+    se = math.sqrt(se_k ** 2 + SE_KARTY ** 2)
+    r = JSON["pythia_wobec_opublikowanego"]
+    assert abs(r["roznica"] - d) < TOL
+    assert abs(r["se"] - se) < TOL
+    assert abs(r["t"] - d / se) < 1e-6
+    assert r["werdykt"] == werdykt_t(d / se, r["df"])
 
 
 def test_control_is_paired_with_always_option_2():
