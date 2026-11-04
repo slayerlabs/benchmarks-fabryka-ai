@@ -47,7 +47,7 @@ lm_eval --model hf \
 
 - Data przebiegu: 2026-11-04, około 01:02 czasu lokalnego. Czas liczenia żądań: 57 s po załadowaniu modelu.
 - Rewizja wag: lokalny katalog nie ma pola `model_sha` w wyjściu lm-eval (wpisane `main` i pusty sha, bo ścieżka jest lokalna). Commit pliku wag z metadanych pobrania: `f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0`. To jest `step143000` według API HF.
-- Wynik: `acc` 0,5445935280189423 (690 z 1267), SE 0,013996485037729782. Plik: `benchmarks/winogrande/results/pythia-1b-v0/D__models__pythia-1b-v0/results_2026-11-04T01-02-51.185008.json`, klucz `results.winogrande.acc,none`. Per pytanie: `samples_winogrande_2026-11-04T01-02-51.185008.jsonl`, pole `doc_id`.
+- Wynik: `acc` 0,5445935280189423 (690 z 1267), SE 0,013996485037729782. Plik: `benchmarks/winogrande/results/pythia-1b-v0/D__models__pythia-1b-v0/results_2026-11-04T01-02-51.185008.json`, klucz `results.winogrande.acc,none`. Per pytanie: `results/pythia-1b-v0/winogrande.jsonl.gz` (`doc_id`, `gold`, `logliki`, `pred`, `acc`, bez tekstu zdań).
 - Różnica wobec 0,5375: +0,007094 (0,71 pkt). W paśmie ±2 pkt (0,5175–0,5575) i w paśmie ±2 SE (0,5095–0,5655). Werdykt słowny: w `REPRODUCTION.md`.
 
 ## Wynik 2: Slayer 1.06, pełny validation
@@ -74,7 +74,7 @@ lm_eval --model slayer \
   --output_path benchmarks/winogrande/results/slayer-1.06
 ```
 
-- Wynik: `acc` 0,5217048145224941 (661 z 1267), SE 0,01403923921648463. Plik: `benchmarks/winogrande/results/slayer-1.06/D__models__slayer-1.06/results_2026-11-04T01-35-01.855277.json`, klucz `results.winogrande.acc,none`. Per pytanie: `samples_winogrande_2026-11-04T01-35-01.855277.jsonl`.
+- Wynik: `acc` 0,5217048145224941 (661 z 1267), SE 0,01403923921648463. Plik: `benchmarks/winogrande/results/slayer-1.06/D__models__slayer-1.06/results_2026-11-04T01-35-01.855277.json`, klucz `results.winogrande.acc,none`. Per pytanie: `results/slayer-1.06/winogrande.jsonl.gz`.
 - Data przebiegu: 2026-11-04, około 01:35. Czas liczenia żądań: 80 s po załadowaniu modelu. Wyjście lm-eval: `tokenizer_bos_token` `<|endoftext|>`, id 0.
 - Wobec Pythii, te same 1267 zdań: różnica acc Slayer minus Pythia = −0,022889, SE sparowane 0,017767, z = −1,288. Werdykt słowny: niezapisane, pisze go Grzegorz.
 
@@ -91,7 +91,7 @@ python benchmarks/winogrande/pythia_bos.py --check
 python benchmarks/winogrande/pythia_bos.py
 ```
 
-- Wynik: `acc` 0,5438042620363063 (689 z 1267), SE 0,013998453610924324. Plik: `benchmarks/winogrande/results/pythia-1b-v0-bos/results.json`, klucz `results.winogrande.acc,none`. Per pytanie: `samples_winogrande.jsonl`.
+- Wynik: `acc` 0,5438042620363063 (689 z 1267), SE 0,013998453610924324. Plik: `benchmarks/winogrande/results/pythia-1b-v0-bos/results.json`, klucz `results.winogrande.acc,none`. Per pytanie: `results/pythia-1b-v0-bos/winogrande.jsonl.gz`.
 - Wobec Pythii bez BOS, te same 1267: różnica −0,000789, SE sparowane 0,011194, z = −0,071, flipów decyzji 201. Wobec Slayera: różnica Slayer minus ta Pythia = −0,022099, SE sparowane 0,017179, z = −1,286.
 - Werdykt Grzegorza, 2026-11-04. W pliku jedna poprawka: „trafilem” → „trafiłem”. Reszta bez zmian. „Nie trafiłem z predykcją. BOS nie tłumaczy luki do Slayera.” <!-- ocena-bez-se: z tego przebiegu jest w linii wyżej, z = −0,071 -->
 
