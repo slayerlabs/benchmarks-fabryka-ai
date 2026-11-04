@@ -102,8 +102,8 @@ def zbuduj_zadania(cfgs):
     from lm_eval.tasks import TaskManager, get_task_dict
     tm, wynik = TaskManager(), []
     for cfg in cfgs:
-        if "class" in cfg:  # legacy task class (SQuAD 2.0): built directly, not through the task index
-            zad = cfg["class"]()
+        if (cfg.get("metadata") or {}).get("klasa") == "squadv2":  # legacy task class, built directly
+            zad = Z.squad2_klasa(cfg)()
         else:
             zad = list(get_task_dict([copy.deepcopy(cfg)], tm).values())[0]
         zad.config.task = cfg["task"]
@@ -153,7 +153,7 @@ def rodzaj(meta):
 
 
 def metryka(meta):
-    return meta.get("metryka") or meta.get("klucz", "acc")
+    return meta.get("klucz", "acc")
 
 
 def przydzialy(space, meta, tryb):

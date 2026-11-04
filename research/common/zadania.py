@@ -95,7 +95,7 @@ ZADANIA = {
                 repo="allenai/social_i_qa", rewizja="8835ceb9141d7896d9d968634a9b21ae440e3ec5",
                 split="validation", rodzaj="mc", klasy_stale=False, parquet=True),
     # --- (c): config from the installed lm-eval YAML (`lm_eval` / `grupa`), dataset pinned as in tasks_50.json.
-    # rodzaj: mc = own MC metrics from logliks; proba = lm-eval per-question metric `metryka` of filter `filtr`;
+    # rodzaj: mc = own MC metrics from logliks; proba = lm-eval per-question metric `klucz` of filter `filtr`;
     # korpus = corpus metric over (gold, pred) pairs. baza: how the constant-answer baseline is computed
     # (ewaluuj.bazy_proby). shots > 0 with a separate few-shot split: demonstrations from the hash-selected
     # disjoint bank (METHOD.md §4, ewaluuj.uzyj_banku); fixed source shots (BBH) stay as published.
@@ -111,7 +111,7 @@ ZADANIA = {
     "T17": dict(benchmark_id="lambada", task="lambada_openai", family="lambada", language="EN",
                 metric="acc,none", unit="score", higher_is_better=True, lm_eval="lambada_openai",
                 repo="EleutherAI/lambada_openai", rewizja="900124bf3b8235c6daf21033af9948b3f07346c4",
-                nazwa_hf="default", split="test", rodzaj="proba", metryka="acc", baza="cloze"),
+                nazwa_hf="default", split="test", rodzaj="proba", klucz="acc", baza="cloze"),
     "T32": dict(benchmark_id="mmlu", task="mmlu", family="mmlu", language="EN",
                 metric="acc,none", unit="score", higher_is_better=True, grupa="mmlu",
                 repo="hails/mmlu_no_train", rewizja="b2e1ec9aa795adafe68e8e983248dbd4b52a1c60",
@@ -119,55 +119,55 @@ ZADANIA = {
     "T33": dict(benchmark_id="gsm8k", task="gsm8k", family="gsm8k", language="EN",
                 metric="exact_match,strict-match", unit="score", higher_is_better=True, lm_eval="gsm8k",
                 repo="openai/gsm8k", rewizja="740312add88f781978c0658806c59bc2815b9866",
-                nazwa_hf="main", split="test", rodzaj="proba", metryka="exact_match", filtr="strict-match",
+                nazwa_hf="main", split="test", rodzaj="proba", klucz="exact_match", filtr="strict-match",
                 baza="gen", shots=5),
     "T34": dict(benchmark_id="math", task="hendrycks_math", family="math", language="EN",
                 metric="exact_match,none", unit="score", higher_is_better=True, grupa="hendrycks_math",
                 repo="EleutherAI/hendrycks_math", rewizja="21a5633873b6a120296cce3e2df9d5550074f4a3",
-                split="test", rodzaj="proba", metryka="exact_match", baza="gen"),
+                split="test", rodzaj="proba", klucz="exact_match", baza="gen"),
     "T35": dict(benchmark_id="truthfulqa", task="truthfulqa_mc2", family="truthfulqa", language="EN",
                 metric="acc,none", unit="score", higher_is_better=True, lm_eval="truthfulqa_mc2",
                 repo="truthfulqa/truthful_qa", rewizja="741b8276f2d1982aa3d5b832d3ee81ed3b896490",
-                nazwa_hf="multiple_choice", split="validation", rodzaj="proba", metryka="acc", baza="masa"),
+                nazwa_hf="multiple_choice", split="validation", rodzaj="proba", klucz="acc", baza="masa"),
     "T36": dict(benchmark_id="ifeval", task="ifeval", family="ifeval", language="EN",
                 metric="prompt_level_strict_acc,none", unit="score", higher_is_better=True, lm_eval="ifeval",
                 repo="google/IFEval", rewizja="966cd89545d6b6acfd7638bc708b98261ca58e84",
-                split="train", rodzaj="proba", metryka="prompt_level_strict_acc", baza="pusta"),
+                split="train", rodzaj="proba", klucz="prompt_level_strict_acc", baza="pusta"),
     "T38": dict(benchmark_id="squad2", task="squadv2", family="squad2", language="EN",
                 metric="f1,none", unit="percent", higher_is_better=True,
                 repo="rajpurkar/squad_v2", rewizja="3ffb306f725f7d2ce8394bc1873b24868140c412",
-                nazwa_hf="squad_v2", split="validation", rodzaj="proba", metryka="f1", baza="gen",
+                nazwa_hf="squad_v2", split="validation", rodzaj="proba", klucz="f1", baza="gen",
                 podzbior="HasAns"),
     "T39": dict(benchmark_id="drop", task="drop", family="drop", language="EN",
                 metric="f1,none", unit="score", higher_is_better=True, lm_eval="drop",
                 repo="EleutherAI/drop", rewizja="619386fc7ffe6dace3cc6d3483c69b164ebf6bf3",
-                split="validation", rodzaj="proba", metryka="f1", baza="gen"),
+                split="validation", rodzaj="proba", klucz="f1", baza="gen"),
     "T41": dict(benchmark_id="coqa", task="coqa", family="coqa", language="EN",
                 metric="f1,none", unit="score", higher_is_better=True, lm_eval="coqa",
                 repo="EleutherAI/coqa", rewizja="82e11af842af6c1396f5e9a5c7de260107c50cf1",
-                split="validation", rodzaj="proba", metryka="f1", baza="gen"),
+                split="validation", rodzaj="proba", klucz="f1", baza="gen"),
     "T42": dict(benchmark_id="nq_open", task="nq_open", family="nq_open", language="EN",
                 metric="exact_match,remove_whitespace", unit="score", higher_is_better=True, lm_eval="nq_open",
                 repo="google-research-datasets/nq_open", rewizja="5dd9790a83002ad084ddeb7c420dc716852c6f28",
-                nazwa_hf="nq_open", split="validation", rodzaj="proba", metryka="exact_match",
+                nazwa_hf="nq_open", split="validation", rodzaj="proba", klucz="exact_match",
                 filtr="remove_whitespace", baza="gen"),
     "T43": dict(benchmark_id="triviaqa", task="triviaqa", family="triviaqa", language="EN",
                 metric="exact_match,remove_whitespace", unit="score", higher_is_better=True, lm_eval="triviaqa",
                 repo="mandarjoshi/trivia_qa", rewizja="0f7faf33a3908546c6fd5b73a660e0f8ff173c2f",
-                nazwa_hf="rc.nocontext", split="validation", rodzaj="proba", metryka="exact_match",
+                nazwa_hf="rc.nocontext", split="validation", rodzaj="proba", klucz="exact_match",
                 filtr="remove_whitespace", baza="gen"),
     "T47": dict(benchmark_id="bbh", task="bbh_fewshot", family="bbh", language="EN",
                 metric="exact_match,none", unit="score", higher_is_better=True, grupa="bbh_fewshot",
                 repo="lukaemon/bbh", rewizja="982bb89fd79532a8ac676a61fc42eb1aeec63f99",
-                split="test", rodzaj="proba", metryka="exact_match", baza="gen", shots=3, strip=True),
+                split="test", rodzaj="proba", klucz="exact_match", baza="gen", shots=3, strip=True),
     "T49": dict(benchmark_id="cola", task="cola", family="cola", language="EN",
                 metric="mcc,none", unit="score", higher_is_better=True, lm_eval="cola",
                 repo="nyu-mll/glue", rewizja="bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c",
-                nazwa_hf="cola", split="validation", rodzaj="korpus", metryka="mcc", baza="mcc"),
+                nazwa_hf="cola", split="validation", rodzaj="korpus", klucz="mcc", baza="mcc"),
     "T50": dict(benchmark_id="record", task="record", family="record", language="EN",
                 metric="f1,none", unit="score", higher_is_better=True, lm_eval="record",
                 repo="aps/super_glue", rewizja="3de24cf8022e94f4ee4b9d55a6f539891524d646",
-                nazwa_hf="record", split="validation", rodzaj="proba", metryka="f1", baza="wybor_losowy"),
+                nazwa_hf="record", split="validation", rodzaj="proba", klucz="f1", baza="wybor_losowy"),
 }
 
 # ARC-C pierwszy: priorytet zespołu (wynik dosłownie losowy, potrzebny trace per pytanie).
@@ -271,7 +271,7 @@ def mc2_wyniki(doc, results):
     return {"acc": M.mc2([r[0] for r in results], doc["mc2_targets"]["labels"])}
 
 
-def squad2_klasa(pola):
+def squad2_klasa(cfg):
     """SQuAD 2.0: legacy klasa lm-eval (prompt, żądania, `until: \\n`), jak każe tasks_50.json; podmienione są
     tylko zbiór (przypięty) i metryka: F1/EM squad_v2 per pytanie offline (metryki.squad_f1), średnia = f1 modułu
     `evaluate` przy progu no-answer 1,0, którego exp(logprob) nie przekracza."""
@@ -279,6 +279,7 @@ def squad2_klasa(pola):
     from lm_eval.api.task import ConfigurableTask
     baza = _modul_lm_eval("squadv2/task.py").SQuAD2
     klucze = ("f1", "exact", "HasAns")
+    pola = {k: cfg[k] for k in ("dataset_path", "dataset_name", "dataset_kwargs", "test_split")}
 
     class SlayerSQuAD2(baza):
         def __init__(self, config=None):
@@ -355,9 +356,11 @@ def _konfiguracje(task_id, zrodlo):
                            "target_delimiter": " ", "doc_to_choice": "{{[answerA, answerB, answerC]}}",
                            "doc_to_target": "{{ (label|int) - 1 }}"})]
     if t == "squadv2":
-        pola = _zrodlo(task_id, meta, zrodlo)
-        return [("space", {"task": "slayer_squadv2", "class": squad2_klasa(pola),
-                           "metadata": {"task_id": task_id, "czlonek": t}})]
+        # metadata.klasa: ewaluuj.zbuduj_zadania builds squad2_klasa(cfg); the dict stays a valid TaskConfig
+        return [("space", {"task": "slayer_squadv2", "output_type": "generate_until",
+                           "metric_list": [{"metric": "f1", "aggregation": "mean", "higher_is_better": True}],
+                           "metadata": {"task_id": task_id, "czlonek": t, "klasa": "squadv2"},
+                           **_zrodlo(task_id, meta, zrodlo)})]
     if t == "ifeval":
         from langdetect import DetectorFactory
         DetectorFactory.seed = 0  # METHOD.md §4: language instructions reproducible
