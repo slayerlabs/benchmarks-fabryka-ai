@@ -30,9 +30,10 @@ OKNO_ROLLING=${OKNO_ROLLING:-4096}
 # transformers 4.57.6 from the lock has no qwen3_5, and the LFM3 remote code imports
 # use_kernel_func_from_hub_with_fallback (missing in 5.12.1). transformers 5 breaks lm_eval 0.4.9.1
 # (AutoModelForVision2Seq) and peft 0.17.1 (HybridCache), so the "new" env moves those too.
-NEW_ENV_PINS=(transformers==5.22.1 lm_eval==0.4.13 peft==0.21.2)
+# Levenshtein (both envs): the PolQA/PoQuAD metric of the OpenPL fork (T30, T31) imports it; the lock lacks it.
+NEW_ENV_PINS=(transformers==5.22.1 lm_eval==0.4.13 peft==0.21.2 Levenshtein==0.27.5)
 # EuroLLM's tokenizer load needs protobuf, which the lock does not carry
-LOCK_ENV_PINS=(protobuf==7.36.2 sentencepiece==0.2.2)
+LOCK_ENV_PINS=(protobuf==7.36.2 sentencepiece==0.2.2 Levenshtein==0.27.5)
 
 # One list for the run; tests/test_przebieg_centralny.py checks it against METODOLOGIA.md ("Pięć modeli
 # odniesienia" without Bielik, gated repo) and the Slayer revision named there.
@@ -46,7 +47,10 @@ MODELE=(
 )
 
 # Task id -> <benchmark> directory name under wyniki/ and results/central-run/; the test checks that ZADANIA_ID equals the keys of ZADANIA.
-KATALOGI="T01:blimp T02:arc-challenge T03:wikitext-2 T04:multiblimp-pl T44:pubmedqa T45:medmcqa T46:social-iqa"
+KATALOGI="T01:blimp T02:arc-challenge T03:wikitext-2 T04:multiblimp-pl T05:hellaswag T06:piqa T08:openbookqa
+T09:sciq T10:boolq T11:copa T12:cb T13:wic T15:rte T16:anli-r3 T18:logiqa T19:mathqa T20:prost T21:sst2 T22:polemo2
+T23:8tags T24:belebele-pl T25:dyk T26:ppc T27:psc T28:cbd T29:klej-ner T30:polqa T31:poquad T40:race T44:pubmedqa
+T45:medmcqa T46:social-iqa T48:paws-en"
 ZADANIA_ID=${ZADANIA_ID:-$(for p in $KATALOGI; do printf '%s ' "${p%%:*}"; done)}
 katalog() { local p; for p in $KATALOGI; do [[ ${p%%:*} == "$1" ]] && echo "${p#*:}" && return 0; done; return 1; }
 

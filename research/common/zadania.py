@@ -15,6 +15,7 @@ from pathlib import Path
 import lm_eval
 
 KATALOG = Path(__file__).resolve().parent
+BENCHMARKI = KATALOG.parent / "benchmarks"
 DANE_TESTOWE = KATALOG / "tests" / "data"
 ZADANIA_LM_EVAL = Path(lm_eval.__file__).resolve().parent / "tasks"
 
@@ -32,6 +33,41 @@ def _modul_lm_eval(sciezka_wzgledna):
     modul = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(modul)
     return modul
+
+
+def funkcja_z_pliku(katalog, odwolanie):
+    """`!function modul.nazwa` of a task YAML, imported on first call.
+
+    GOTCHA: the PolQA/PoQuAD helpers import Levenshtein (pinned in tools/przebieg_centralny.sh, not in the lock),
+    so building the config must not import them. `__name__` stays the function's own name: lm-eval keys a
+    callable metric by it (`f1`, `levenshtein`).
+    """
+    nazwa_modulu, nazwa = odwolanie.rsplit(".", 1)
+    plik = Path(katalog) / f"{nazwa_modulu}.py"
+    zaladowana = []
+
+    def wywolaj(*args, **kwargs):
+        if not zaladowana:
+            spec = importlib.util.spec_from_file_location(f"{Path(katalog).name}_{nazwa_modulu}", plik)
+            modul = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(modul)
+            zaladowana.append(getattr(modul, nazwa))
+        return zaladowana[0](*args, **kwargs)
+
+    wywolaj.__name__ = nazwa
+    wywolaj.plik, wywolaj.nazwa = plik, nazwa
+    return wywolaj
+
+
+def wczytaj_yaml(sciezka):
+    """Task YAML from benchmarks/*/lm_eval_tasks/ as a dict, `!function` resolved against the YAML's directory."""
+    import yaml
+
+    class Ladowacz(yaml.SafeLoader):
+        pass
+
+    Ladowacz.add_constructor("!function", lambda l, n: funkcja_z_pliku(Path(sciezka).parent, l.construct_scalar(n)))
+    return yaml.load(Path(sciezka).read_text(encoding="utf-8"), Ladowacz)
 
 
 def medmcqa_cloze_text(doc):
@@ -77,7 +113,132 @@ ZADANIA = {
                 metric="accuracy", unit="percent", higher_is_better=True,
                 repo="jumelet/multiblimp", rewizja="de923efa8d2483d6b13364ee68e65308e990a991",
                 plik_hf="pol/data.tsv", split="pol/data.tsv", rodzaj="mc", klasy_stale=False),
-    "T44": dict(benchmark_id="pubmedqa", task="pubmedqa", family="biomedical_qa", language="EN",
+    "T05": dict(benchmark_id="hellaswag", task="hellaswag", family="hellaswag", language="EN",
+                metric="acc_norm,none", unit="score", higher_is_better=True, klucz="acc_norm",
+                repo="Rowan/hellaswag", rewizja="218ec52e09a7e7462a5400043bb9a69a41d06b76",
+                split="validation", rodzaj="mc", klasy_stale=False, pole_id="ind"),
+    "T06": dict(benchmark_id="piqa", task="piqa", family="piqa", language="EN",
+                metric="acc_norm,none", unit="score", higher_is_better=True, klucz="acc_norm",
+                repo="ybisk/piqa", rewizja="2e8ac2dffd59bac8c3c6714948f4c551a0848bb0",
+                nazwa_hf="plain_text", split="validation", rodzaj="mc", klasy_stale=False,
+                rewizja_parquet="142c51238b3ca2bc61e9a075913871b8b600e8e1"),
+    "T08": dict(benchmark_id="openbookqa", task="openbookqa", family="openbookqa", language="EN",
+                metric="acc_norm,none", unit="score", higher_is_better=True, klucz="acc_norm",
+                repo="allenai/openbookqa", rewizja="388097ea7776314e93a529163e0fea805b8a6454",
+                nazwa_hf="main", split="test", rodzaj="mc", klasy_stale=False, pole_id="id"),
+    "T09": dict(benchmark_id="sciq", task="sciq", family="sciq", language="EN",
+                metric="acc_norm,none", unit="score", higher_is_better=True, klucz="acc_norm",
+                repo="allenai/sciq", rewizja="2c94ad3e1aafab77146f384e23536f97a4849815",
+                split="test", rodzaj="mc", klasy_stale=False),
+    "T10": dict(benchmark_id="boolq", task="boolq", family="boolq", language="EN",
+                metric="acc,none", unit="score", higher_is_better=True,
+                repo="aps/super_glue", rewizja="3de24cf8022e94f4ee4b9d55a6f539891524d646",
+                nazwa_hf="boolq", split="validation", rodzaj="mc", klasy_stale=True, pole_id="idx"),
+    "T11": dict(benchmark_id="copa", task="copa", family="copa", language="EN",
+                metric="acc,none", unit="score", higher_is_better=True,
+                repo="aps/super_glue", rewizja="3de24cf8022e94f4ee4b9d55a6f539891524d646",
+                nazwa_hf="copa", split="validation", rodzaj="mc", klasy_stale=False, pole_id="idx"),
+    "T12": dict(benchmark_id="cb", task="cb", family="cb", language="EN",
+                metric="acc,none", unit="score", higher_is_better=True,
+                repo="aps/super_glue", rewizja="3de24cf8022e94f4ee4b9d55a6f539891524d646",
+                nazwa_hf="cb", split="validation", rodzaj="mc", klasy_stale=True, pole_id="idx"),
+    "T13": dict(benchmark_id="wic", task="wic", family="wic", language="EN",
+                metric="acc,none", unit="score", higher_is_better=True,
+                repo="aps/super_glue", rewizja="3de24cf8022e94f4ee4b9d55a6f539891524d646",
+                nazwa_hf="wic", split="validation", rodzaj="mc", klasy_stale=True, pole_id="idx"),
+    "T15": dict(benchmark_id="rte", task="sglue_rte", family="rte", language="EN",
+                metric="acc,none", unit="score", higher_is_better=True,
+                repo="aps/super_glue", rewizja="3de24cf8022e94f4ee4b9d55a6f539891524d646",
+                nazwa_hf="rte", split="validation", rodzaj="mc", klasy_stale=True, pole_id="idx"),
+    "T16": dict(benchmark_id="anli", task="anli_r3", family="anli", language="EN",
+                metric="acc,none", unit="score", higher_is_better=True,
+                repo="facebook/anli", rewizja="8e4813d81f46d313dac7892e1c28076917cfcdf9",
+                nazwa_hf="plain_text", split="test_r3", rodzaj="mc", klasy_stale=True, pole_id="uid"),
+    "T18": dict(benchmark_id="logiqa", task="logiqa", family="logiqa", language="EN",
+                metric="acc_norm,none", unit="score", higher_is_better=True, klucz="acc_norm",
+                repo="EleutherAI/logiqa", rewizja="c1eee1b2fd0ddc87777e36490f7ad54d0b97d141",
+                nazwa_hf="logiqa", split="test", rodzaj="mc", klasy_stale=False,
+                rewizja_parquet="fcd80241270118cd52c96dc517dc38804025f3f5"),
+    "T19": dict(benchmark_id="mathqa", task="mathqa", family="mathqa", language="EN",
+                metric="acc_norm,none", unit="score", higher_is_better=True, klucz="acc_norm",
+                repo="allenai/math_qa", rewizja="c4f1cc784c04c4957b50c97858f23893b633eea6",
+                nazwa_hf="default", split="test", rodzaj="mc", klasy_stale=False,
+                rewizja_parquet="fafb9f7ee5b9ec4da9499f9c4177a4c91389f2d6"),
+    "T20": dict(benchmark_id="prost", task="prost", family="prost", language="EN",
+                metric="acc_norm,none", unit="score", higher_is_better=True, klucz="acc_norm",
+                repo="corypaik/prost", rewizja="b3efebf08969fc19335ba894353316878b6fa493",
+                nazwa_hf="default", split="test", rodzaj="mc", klasy_stale=False,
+                rewizja_parquet="0e475b574d98e7d79de2064252dd2fb75bcaa0a8"),
+    "T21": dict(benchmark_id="sst2", task="sst2", family="sst2", language="EN",
+                metric="acc,none", unit="score", higher_is_better=True,
+                repo="nyu-mll/glue", rewizja="bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c",
+                nazwa_hf="sst2", split="validation", rodzaj="mc", klasy_stale=True, pole_id="idx"),
+    # Polish tasks (Space: OpenPL fork @ 21d0ea9c, 5-shot). The task YAML is a copy of the fork's file under
+    # benchmarks/<dir>/lm_eval_tasks/ (`yaml`, relative to benchmarks/); zadania.py pins the dataset revision.
+    # GOTCHA: lm-eval draws the 5 demonstrations with its own sampler (seed 1234) from the YAML's few-shot
+    # split; Space draws them from a disjoint bank chosen by hash (METHOD.md), so the shots differ from Space.
+    "T22": dict(benchmark_id="polemo2", task="polemo2_in_multiple_choice", family="polemo2", language="PL",
+                metric="acc,none", unit="score", higher_is_better=True,
+                repo="allegro/klej-polemo2-in", rewizja="9843af31facd613eb091deaa4141df4331d4f918",
+                split="test", rodzaj="mc", klasy_stale=True, shoty=5,
+                yaml="polemo2/lm_eval_tasks/polemo2/polemo2_in_mc.yaml"),
+    "T23": dict(benchmark_id="8tags", task="polish_8tags_multiple_choice", family="8tags", language="PL",
+                metric="acc,none", unit="score", higher_is_better=True,
+                repo="sdadas/8tags", rewizja="82ddf9c0d06ffc982aeccf2473b7ce31f2167adf",
+                split="test", rodzaj="mc", klasy_stale=True, shoty=5,
+                yaml="8tags/lm_eval_tasks/polish_8tags/8tags_mc.yaml"),
+    # Belebele has only a test split: the fork's YAML takes the first 5 test documents as shots (first_n)
+    "T24": dict(benchmark_id="belebele", task="polish_belebele_mc", family="belebele", language="PL",
+                metric="acc,none", unit="score", higher_is_better=True,
+                repo="facebook/belebele", rewizja="7899cdfa4e1e0d733fd77c848e2c273cb1d32be2",
+                nazwa_hf="pol_Latn", split="test", rodzaj="mc", klasy_stale=True, shoty=5,
+                yaml="belebele-pl/lm_eval_tasks/polish_belebele/belebele_mc.yaml"),
+    "T25": dict(benchmark_id="dyk", task="polish_dyk_multiple_choice", family="dyk", language="PL",
+                metric="f1,none", unit="score", higher_is_better=True, klucz="f1",
+                repo="allegro/klej-dyk", rewizja="dd7c3c3bb336738c853ea17c64b85d876e6714a9",
+                split="test", rodzaj="mc", klasy_stale=True, shoty=5,
+                yaml="dyk/lm_eval_tasks/polish_dyk/dyk_mc.yaml"),
+    "T26": dict(benchmark_id="ppc", task="polish_ppc_multiple_choice", family="ppc", language="PL",
+                metric="acc,none", unit="score", higher_is_better=True,
+                repo="sdadas/ppc", rewizja="073012dc81efb47b0fd66b0ab48bf06ddb62f528",
+                split="test", rodzaj="mc", klasy_stale=True, shoty=5,
+                yaml="ppc/lm_eval_tasks/polish_ppc/ppc_mc.yaml"),
+    "T27": dict(benchmark_id="psc", task="polish_psc_multiple_choice", family="psc", language="PL",
+                metric="f1,none", unit="score", higher_is_better=True, klucz="f1",
+                repo="allegro/klej-psc", rewizja="9585582aef37e7747ef174b0ec3b74855da8bad2",
+                split="test", rodzaj="mc", klasy_stale=True, shoty=5,
+                yaml="psc/lm_eval_tasks/polish_psc/psc_mc.yaml"),
+    "T28": dict(benchmark_id="cbd", task="polish_cbd_multiple_choice", family="cbd", language="PL",
+                metric="f1,none", unit="score", higher_is_better=True, klucz="f1",
+                repo="ptaszynski/PolishCyberbullyingDataset", rewizja="be3b1236598a02eff6db05ea7ac386afaabc33e8",
+                split="test", rodzaj="mc", klasy_stale=True, shoty=5,
+                yaml="cbd/lm_eval_tasks/polish_cbd/cbd_mc.yaml"),
+    "T29": dict(benchmark_id="klej_ner", task="polish_klej_ner_multiple_choice", family="klej_ner", language="PL",
+                metric="acc,none", unit="score", higher_is_better=True,
+                repo="allegro/klej-nkjp-ner", rewizja="bfae4047738b985bc2ad533d339dd89c3f7de00d",
+                split="test", rodzaj="mc", klasy_stale=True, shoty=5,
+                yaml="klej-ner/lm_eval_tasks/polish_klej_ner/klej_ner_mc.yaml"),
+    # PolQA and PoQuAD: loading-script repos, read from the pinned parquet conversion; `splity_dodatkowe` brings
+    # the train split along as the few-shot source (the YAML's training_split).
+    "T30": dict(benchmark_id="polqa", task="polish_polqa_open_book", family="polqa", language="PL",
+                metric="levenshtein,none", unit="score", higher_is_better=True, klucz="levenshtein",
+                repo="ipipan/polqa", rewizja="d78d036ef08ab3b9f4d85a2893f4d3a0c95a6f37",
+                nazwa_hf="pairs", split="test", rodzaj="gen", klasy_stale=False, shoty=5,
+                rewizja_parquet="0ba79f193fb3720dc0afa49d13c67abef786977f", splity_dodatkowe=("train",),
+                yaml="polqa/lm_eval_tasks/polish_polqa/polqa_open_book.yaml"),
+    "T31": dict(benchmark_id="poquad", task="polish_poquad_open_book", family="poquad", language="PL",
+                metric="levenshtein,none", unit="score", higher_is_better=True, klucz="levenshtein",
+                repo="clarin-pl/poquad", rewizja="a60f228d836fbbf990d11b4590c60b3e7f2aec2d",
+                nazwa_hf="poquad", split="validation", rodzaj="gen", klasy_stale=False, shoty=5,
+                rewizja_parquet="c76799436661006876ca3a2bf2ef2268b2179ac9", splity_dodatkowe=("train",),
+                yaml="poquad/lm_eval_tasks/polish_poquad/poquad_open_book.yaml"),
+    # T37 LLMzSzŁ is left out: the Space task file (tasks/llmzszl.yaml) is unpublished and METHOD.md and
+    # tasks_50.json give no prompt (benchmarks/llmzszl/README.md).
+    "T40": dict(benchmark_id="race", task="race", family="race", language="EN",
+                metric="acc,none", unit="score", higher_is_better=True,
+                repo="EleutherAI/race", rewizja="66ca2e6374282f5e35b11559e87185db911a6900",
+                nazwa_hf="high", split="test", rodzaj="mc", klasy_stale=False),
+    "T44":dict(benchmark_id="pubmedqa", task="pubmedqa", family="biomedical_qa", language="EN",
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="bigbio/pubmed_qa", rewizja="15578e80ef02c2c9636d33fdd7eb6b05b987ba60",
                 nazwa_hf="pubmed_qa_labeled_fold0_source", split="test", rodzaj="mc", klasy_stale=True,
@@ -90,6 +251,10 @@ ZADANIA = {
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="allenai/social_i_qa", rewizja="8835ceb9141d7896d9d968634a9b21ae440e3ec5",
                 split="validation", rodzaj="mc", klasy_stale=False, parquet=True),
+    "T48": dict(benchmark_id="paws", task="paws_en", family="paws", language="EN",
+                metric="acc,none", unit="score", higher_is_better=True,
+                repo="google-research-datasets/paws-x", rewizja="4cd8187c404bda33cb1f62b49b001115862acf37",
+                nazwa_hf="en", split="test", rodzaj="mc", klasy_stale=False, pole_id="id"),
 }
 
 # ARC-C pierwszy: priorytet zespołu (wynik dosłownie losowy, potrzebny trace per pytanie).
@@ -122,9 +287,11 @@ def _zrodlo(task_id, meta, zrodlo):
     if meta.get("rewizja_parquet"):
         # GOTCHA: datasets 3.6 sees only the "default" config on refs/convert/parquet, so a named
         # config is read from its parquet files at the pinned commit of that ref.
-        sciezka = f"hf://datasets/{meta['repo']}@{meta['rewizja_parquet']}/{meta['nazwa_hf']}/{meta['split']}/*.parquet"
+        def sciezka(split):
+            return f"hf://datasets/{meta['repo']}@{meta['rewizja_parquet']}/{meta['nazwa_hf']}/{split}/*.parquet"
+        pliki = {"test": sciezka(meta["split"]), **{s: sciezka(s) for s in meta.get("splity_dodatkowe", ())}}
         return {"dataset_path": "parquet", "dataset_name": None,
-                "dataset_kwargs": {"data_files": {"test": sciezka}}, "test_split": "test"}
+                "dataset_kwargs": {"data_files": pliki}, "test_split": "test"}
     if meta.get("parquet"):
         # Repo z loading scriptem: Space czyta przypiętą konwersję parquet (METHOD.md);
         # gałąź refs/convert/parquet nie ma przypiętego SHA, więc rewizja idzie do raportu.
@@ -155,6 +322,8 @@ def _konfiguracje(task_id, zrodlo):
     baza = {"output_type": "multiple_choice", "num_fewshot": 0, "metric_list": METRYKI_MC,
             "metadata": {"version": 1.0, "task_id": task_id}, **_zrodlo(task_id, meta, zrodlo)}
     t = meta["task"]
+    if meta.get("yaml"):
+        return [("space", _konfiguracja_yaml(meta, baza))]
     if t == "blimp":
         # lm-eval blimp: empty context, default delimiter " ", gold = good sentence; metric acc only
         return [("space", {**baza, "task": "slayer_blimp", "doc_to_text": "", "target_delimiter": " ",
@@ -191,4 +360,83 @@ def _konfiguracje(task_id, zrodlo):
         return [("space", {**baza, "task": "slayer_social_iqa", "doc_to_text": "Q: {{context}} {{question}}\nA:",
                            "target_delimiter": " ", "doc_to_choice": "{{[answerA, answerB, answerC]}}",
                            "doc_to_target": "{{ (label|int) - 1 }}"})]
+    # T05-T21, T40, T48: prompts of the lm-eval 6d2abda4 YAMLs the Space ran (fab_mapa50, section 6)
+    if t == "hellaswag":
+        hs = _modul_lm_eval("hellaswag/utils.py")
+        return [("space", {**baza, "task": "slayer_hellaswag", "process_docs": hs.process_docs,
+                           "doc_to_text": "{{query}}", "doc_to_target": "{{label}}", "doc_to_choice": "choices"})]
+    if t == "piqa":
+        return [("space", {**baza, "task": "slayer_piqa", "doc_to_text": "Question: {{goal}}\nAnswer:",
+                           "doc_to_target": "label", "doc_to_choice": "{{[sol1, sol2]}}"})]
+    if t == "openbookqa":
+        return [("space", {**baza, "task": "slayer_openbookqa", "doc_to_text": "question_stem",
+                           "doc_to_target": "{{choices.label.index(answerKey.lstrip())}}",
+                           "doc_to_choice": "{{choices.text}}"})]
+    if t == "sciq":
+        return [("space", {**baza, "task": "slayer_sciq",
+                           "doc_to_text": "{{support.lstrip()}}\nQuestion: {{question}}\nAnswer:",
+                           "doc_to_target": 3, "doc_to_choice": "{{[distractor1, distractor2, distractor3, correct_answer]}}"})]
+    if t == "boolq":
+        return [("space", {**baza, "task": "slayer_boolq", "doc_to_text": "{{passage}}\nQuestion: {{question}}?\nAnswer:",
+                           "doc_to_target": "label", "doc_to_choice": ["no", "yes"]})]
+    if t == "copa":
+        cp = _modul_lm_eval("super_glue/copa/utils.py")
+        return [("space", {**baza, "task": "slayer_copa", "doc_to_text": cp.doc_to_text,
+                           "doc_to_target": cp.doc_to_target, "doc_to_choice": cp.doc_to_choice})]
+    if t == "cb":
+        return [("space", {**baza, "task": "slayer_cb",
+                           "doc_to_text": "{{premise}}\nQuestion: {{hypothesis}}. True, False, or Neither?\nAnswer:",
+                           "doc_to_target": "label", "doc_to_choice": ["True", "False", "Neither"]})]
+    if t == "wic":
+        return [("space", {**baza, "task": "slayer_wic",
+                           "doc_to_text": "Sentence 1: {{sentence1}}\nSentence 2: {{sentence2}}\nQuestion: Is the word "
+                                          "'{{sentence1[start1:end1]}}' used in the same way in the two sentences above?\nAnswer:",
+                           "doc_to_target": "label", "doc_to_choice": ["no", "yes"]})]
+    if t == "sglue_rte":
+        return [("space", {**baza, "task": "slayer_rte",
+                           "doc_to_text": "{{premise}}\nQuestion: {{hypothesis}} True or False?\nAnswer:",
+                           "doc_to_target": "label", "doc_to_choice": ["True", "False"]})]
+    if t == "anli_r3":
+        return [("space", {**baza, "task": "slayer_anli_r3",
+                           "doc_to_text": "{{premise}}\nQuestion: {{hypothesis}} True, False, or Neither?\nAnswer:",
+                           "doc_to_target": "{{['True', 'Neither', 'False'][label]}}",
+                           "doc_to_choice": ["True", "Neither", "False"]})]
+    if t == "logiqa":
+        lq = _modul_lm_eval("logiqa/utils_logiqa.py")
+        return [("space", {**baza, "task": "slayer_logiqa", "doc_to_text": lq.doc_to_text,
+                           "doc_to_target": lq.doc_to_target, "doc_to_choice": "{{options}}"})]
+    if t == "mathqa":
+        mq = _modul_lm_eval("mathqa/utils.py")
+        return [("space", {**baza, "task": "slayer_mathqa", "doc_to_text": "Question: {{Problem}}\nAnswer:",
+                           "doc_to_target": "{{['a', 'b', 'c', 'd', 'e'].index(correct)}}",
+                           "doc_to_choice": mq.doc_to_choice})]
+    if t == "prost":
+        return [("space", {**baza, "task": "slayer_prost", "doc_to_text": "{{context}}\nQuestion: {{ex_question}}\nAnswer:",
+                           "doc_to_target": "label", "doc_to_choice": "{{[A, B, C, D]}}"})]
+    if t == "sst2":
+        return [("space", {**baza, "task": "slayer_sst2",
+                           "doc_to_text": "{{sentence}}\nQuestion: Is this sentence positive or negative?\nAnswer:",
+                           "doc_to_target": "label", "doc_to_choice": ["negative", "positive"]})]
+    if t == "race":
+        rc = _modul_lm_eval("race/preprocess_race.py")
+        return [("space", {**baza, "task": "slayer_race", "doc_to_text": rc.doc_to_text,
+                           "doc_to_target": rc.doc_to_target, "doc_to_choice": rc.doc_to_choice})]
+    if t == "paws_en":
+        # 6d2abda4: empty context, default " " delimiter, no process_docs; 0.4.9.1 adds
+        # process_docs_paraphrases and target_delimiter "", which changes the prompt
+        return [("space", {**baza, "task": "slayer_paws_en", "doc_to_text": "", "doc_to_target": "label",
+                           "doc_to_choice": '{{[sentence1+", right? No, "+sentence2, sentence1+", right? Yes, "+sentence2]}}'})]
     raise KeyError(task_id)
+
+
+def _konfiguracja_yaml(meta, baza):
+    """Config from a copied task YAML (T22-T31): its prompt and metrics, our pinned source and shot count."""
+    cfg = wczytaj_yaml(BENCHMARKI / meta["yaml"])
+    cfg.pop("group", None)  # polemo2 YAML: a group key would make lm-eval build a group, not one task
+    zrodlo = {k: v for k, v in baza.items() if k not in ("output_type", "metric_list", "num_fewshot")}
+    wynik = {**cfg, **zrodlo, "task": f"slayer_{meta['task']}", "num_fewshot": meta.get("shoty", 0)}
+    if cfg["output_type"] == "multiple_choice":
+        wynik["metric_list"] = cfg["metric_list"] + [m for m in METRYKI_MC if m["metric"] == "acc_mutual_info"]
+    if meta.get("rewizja_parquet"):
+        wynik["validation_split"] = None  # the parquet data_files carry only test and `splity_dodatkowe`
+    return wynik

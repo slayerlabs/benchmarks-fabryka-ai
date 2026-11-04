@@ -48,3 +48,18 @@ Wspólne dla wszystkich wpisów:
 
 - Ta sama komenda z etykietą `pythia-1b-v0_<gpu>`; sprzęt w nazwie pliku i w `<label>.meta.json`.
 - Wynik: `results/raw/pythia-1b-v0_<gpu>.jsonl.gz`; wartości w `results/piqa.json`, klucz `gpu_repeats`.
+
+## Przebieg centralny (T06, Slayer i modele odniesienia)
+
+Osobny od `piqa.py`: wspólny kod `common/ewaluuj.py`, prompt lm-eval `piqa` (`Question: {{goal}}\nAnswer:`), metryka
+`acc_norm`. Wyników jeszcze nie ma; wpis dostaje commit, sprzęt i datę po przebiegu.
+
+- Commit kodu, precyzja, sprzęt, data: niezapisane (przed przebiegiem)
+- Środowisko: `common/requirements.lock.txt` + piny `LOCK_ENV_PINS` / `NEW_ENV_PINS` z `tools/przebieg_centralny.sh`
+- Modele: lista `MODELE` w `tools/przebieg_centralny.sh`
+- Zbiór: `ybisk/piqa` @ `2e8ac2dffd59bac8c3c6714948f4c551a0848bb0`, czytany z `refs/convert/parquet` @
+  `142c51238b3ca2bc61e9a075913871b8b600e8e1`, `plain_text/validation` (wpis `T06` w `common/zadania.py`)
+- Komenda (w `research/`): `bash tools/przebieg_centralny.sh licz`; dla tego zadania `common/ewaluuj.py --zadania T06
+  --probka pelna --device cuda` (pełne linie: `bash tools/przebieg_centralny.sh plan | grep -- '--zadania T06 '`)
+- Seed: python 0, numpy 1234, torch 1234, fewshot 1234
+- Wynik: `results/central-run/piqa/<model>/results.json`
