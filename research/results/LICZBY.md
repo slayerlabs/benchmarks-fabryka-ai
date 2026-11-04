@@ -38,12 +38,15 @@ Slayer vs Pythia ma SE niezależne (hypot), czyli ostrożne.
 | mmlu_cloze/acc | 0,2666 | 0,2890 | −0,0224 (−2,2) | 0,0053 | −4,2 | — | — | pewne |
 | mmlu_cloze/acc_norm | 0,2813 | 0,2997 | −0,0184 (−1,8) | 0,0054 | −3,4 | — | — | pewne |
 | mmlu_cloze/bpb | 0,2818 | 0,2994 | −0,0176 (−1,8) | 0,0054 | −3,2 | — | — | pewne |
+| mmlu_cloze/acc_po_grupach | — | — | −0,0224 (−2,2) | — | — | 0,0041 | −5,4 | pewne |
 | mmlu_mc/acc | 0,2307 | 0,2314 | −0,0006 (−0,1) | 0,0050 | −0,1 | — | — | szum |
 | mmlu_mc/acc_norm | 0,2307 | 0,2314 | −0,0006 (−0,1) | 0,0050 | −0,1 | — | — | szum |
 | mmlu_mc/bpb | 0,2307 | 0,2314 | −0,0006 (−0,1) | 0,0050 | −0,1 | — | — | szum |
+| mmlu_mc/acc_po_grupach | — | — | −0,0006 (−0,1) | — | — | 0,0036 | −0,2 | szum |
 | multiblimp/acc | 0,9859 | 0,7735 | 0,2124 (21,2) | 0,0076 | 27,9 | — | — | pewne |
 | multiblimp/acc_norm | 0,9752 | 0,7213 | 0,2540 (25,4) | 0,0083 | 30,6 | — | — | pewne |
 | multiblimp/bpb | 0,9789 | 0,7332 | 0,2457 (24,6) | 0,0081 | 30,2 | — | — | pewne |
+| multiblimp/acc_po_grupach | — | — | 0,2124 (21,2) | — | — | 0,0475 | 4,5 | pewne |
 | siqa_cloze/acc | 0,3895 | 0,3987 | −0,0092 (−0,9) | 0,0156 | −0,6 | — | — | szum |
 | siqa_cloze/acc_norm | 0,4237 | 0,4396 | −0,0159 (−1,6) | 0,0158 | −1,0 | — | — | szum |
 | siqa_cloze/bpb | 0,4273 | 0,4427 | −0,0154 (−1,5) | 0,0159 | −1,0 | — | — | szum |
@@ -158,6 +161,8 @@ Slayer vs Pythia ma SE niezależne (hypot), czyli ostrożne.
 | blimp_rozna_tokenizacja/acc | — | — | −0,0569 (−5,7) | — | — | 0,0041 | −13,9 | pewne |
 | blimp_ten_sam_worek_slow/acc | — | — | 0,0052 (0,5) | — | — | 0,0047 | 1,1 | szum |
 | blimp_inny_worek_slow/acc | — | — | −0,0369 (−3,7) | — | — | 0,0016 | −23,2 | pewne |
+| blimp_ta_sama_tokenizacja_klastr/acc | — | — | −0,0239 (−2,4) | — | — | 0,0094 | −2,6 | prawdopodobne |
+| blimp_rozna_tokenizacja_klastr/acc | — | — | −0,0569 (−5,7) | — | — | 0,0120 | −4,7 | pewne |
 
 ## Wersje Slayera
 
