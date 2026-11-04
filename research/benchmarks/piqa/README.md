@@ -2,9 +2,11 @@
 
 > Praca idzie według [`METODOLOGIA.md`](../../METODOLOGIA.md).
 
-Slayer 1.06 na PIQA według protokołu Space, z kontrolą Pythia-1B v0 (zadanie #16). Karta oryginału (etap A) i
-etapy B–C idą w #57.
+Slayer 1.06 na PIQA według protokołu Space, z kontrolą Pythia-1B v0 (zadanie #16). Etapy A–C: #57.
 
+- [`ORIGINAL.md`](ORIGINAL.md): karta oryginału (etap A).
+- [`REPRODUCTION.md`](REPRODUCTION.md): odtworzenie (etap B), werdykt: spełniony. Pythia-1B v0 `acc_norm` 0,7095
+  wobec opublikowanego 0,7051, `acc` 0,7051 wobec 0,7040, oba w granicach 2 SE (2,13 pkt). <!-- liczba-spoza-wynikow: wartości z results/piqa.json, klucz control; 2,13 pkt to 2 × SE z pliku Pythii v0 -->
 - [`PROTOCOL.md`](PROTOCOL.md): wariant, panel, bazy, próg kontroli i tezy, zacommitowane przed pierwszym surowym
   wynikiem.
 - [`results/PIQA.md`](results/PIQA.md): raport wygenerowany z `results/piqa.json`.

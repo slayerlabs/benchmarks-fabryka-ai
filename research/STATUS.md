@@ -13,8 +13,8 @@ Stan na **4.11.2026**. Zmieniasz stan benchmarku? Przestaw jego wiersz w tym sam
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {'pie1': '#1a7f37', 'pie2': '#9a6700', 'pie3': '#bc4c00', 'pie4': '#0969da', 'pie5': '#8250df', 'pie6': '#6e7781', 'pie7': '#afb8c1', 'pieStrokeColor': '#ffffff', 'pieOuterStrokeWidth': '0px'}}}%%
 pie showData
-    "Gotowe" : 3
-    "Małe braki" : 5
+    "Gotowe" : 4
+    "Małe braki" : 4
     "Policzone, bez kontroli" : 5
     "Tylko karta" : 7
     "W toku" : 2
@@ -32,22 +32,22 @@ zgadza się z opublikowanym wynikiem.
 
 <a name="gotowe"></a>
 
-## ✅ Gotowe do tabeli CodeSOTA · 3
+## ✅ Gotowe do tabeli CodeSOTA · 4
 
 | benchmark | Space | A | B | C | wynik | uwaga |
 |---|---|---|---|---|---|---|
 | [BLiMP](benchmarks/blimp/README.md) | T01 | ✓ | ~ | ✓ | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia) |
 | [EWoK](benchmarks/ewok/README.md) | | ✓ | ✓ | ✓ | ✓ | |
-| [WinoGrande](benchmarks/winogrande/REPRODUCTION.md) | T07 | ✓ | ✓ | ✓ | ✓ | brak `README.md` |
+| [WinoGrande](benchmarks/winogrande/README.md) | T07 | ✓ | ✓ | ✓ | ✓ | |
+| [PIQA](benchmarks/piqa/README.md) | T06 | ✓ | ✓ | ✓ | ✓ | |
 
 <a name="male-braki"></a>
 
-## 🟡 Małe braki · 5
+## 🟡 Małe braki · 4
 
 | benchmark | Space | A | B | C | wynik | brakuje | zadanie |
 |---|---|---|---|---|---|---|---|
 | [EWoK-PL](benchmarks/ewok-pl/README.md) | | — | — | ✓ | ✓ | 10 z 11 domen, przegląd tłumaczenia | |
-| [PIQA](benchmarks/piqa/README.md) | T06 | ✗ | ✗ | ✓ | ✓ | karta, odtworzenie | #57 #97 |
 | [WSC273](benchmarks/wsc273/README.md) | T14 | ✗ | ~ | ✓ | ~ | karta, kontrola z listy | #108 #97 |
 | [WikiText-2](benchmarks/wikitext-2/README.md) | T03 | ✓ | ~ | ✓ | ~ | próg dla perpleksji | #15 #41 |
 | [ARC-Easy](benchmarks/arc-easy/ORIGINAL.md) | | ✓ | ✗ | ✗ | ✗ | odtworzenie, kod, wynik | #23 |
@@ -60,13 +60,15 @@ Wynik Slayera 1.06 i czterech modeli odniesienia jest w
 [przebiegu centralnym](results/central-run/README.md) (tam też BLiMP i WikiText-2). Brakuje etapu B, więc wynik nie
 idzie jeszcze do tabeli.
 
-| benchmark | Space | A | B | wynik | zadanie |
-|---|---|---|---|---|---|
-| [ARC-Challenge](benchmarks/arc-challenge/ORIGINAL.md) | T02 | ✓ | ✗ | [✓](results/central-run/arc-challenge) | #29 #49 |
-| MultiBLiMP PL | T04 | ✗ | ✗ | [✓](results/central-run/multiblimp-pl) ⚠️ | #104 |
-| PubMedQA | T44 | ✗ | ✗ | [✓](results/central-run/pubmedqa) | #20 #97 |
-| MedMCQA | T45 | ✗ | ✗ | [✓](results/central-run/medmcqa) | #134 |
-| Social IQa | T46 | ✗ | ✗ | [✓](results/central-run/social-iqa) | #17 #97 |
+Żaden model przebiegu nie ma opublikowanego wyniku 0-shot na tych zbiorach, więc kontrolę trzeba policzyć osobno.
+
+| benchmark | Space | A | B | wynik | kontrola do policzenia | zadanie |
+|---|---|---|---|---|---|---|
+| [ARC-Challenge](benchmarks/arc-challenge/ORIGINAL.md) | T02 | ✓ | ✗ | [✓](results/central-run/arc-challenge) | `pythia-2.8b-v0`, GPU | #29 #49 |
+| MultiBLiMP PL | T04 | ✗ | ✗ | [✓](results/central-run/multiblimp-pl) ⚠️ | Goldfish 125M (pol), wystarczy CPU ([arXiv 2504.02768](https://arxiv.org/abs/2504.02768)) | #104 |
+| PubMedQA | T44 | ✗ | ✗ | [✓](results/central-run/pubmedqa) | TinyLlama-1.1B 3T, GPU | #20 #97 |
+| MedMCQA | T45 | ✗ | ✗ | [✓](results/central-run/medmcqa) | Qwen1.5-7B, GPU | #134 |
+| Social IQa | T46 | ✗ | ✗ | [✓](results/central-run/social-iqa) | brak opublikowanego wyniku | #17 #97 |
 
 <a name="tylko-karta"></a>
 

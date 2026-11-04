@@ -5,8 +5,8 @@ Jeden wpis na każdy wynik. Protokół: [`PROTOCOL.md`](PROTOCOL.md). Raport: [`
 Wspólne dla wszystkich wpisów:
 
 - Kod: gałąź `research/piqa-slayer106` od `main` @ `53502fe`; liczone w commicie `f932e5e` (`benchmarks/piqa/piqa.py`,
-  `benchmarks/piqa/instance.sh`, `common/slayer_lm.py`, `common/slayer_model.py`). Commit squash na `main`: jeszcze
-  nieznany, uzupełniany po merge'u.
+  `benchmarks/piqa/instance.sh`, `common/slayer_lm.py`, `common/slayer_model.py`). Na `main` przez merge commit
+  `0e787f6` (PR #75), więc `f932e5e` jest w historii `main`.
 - Środowisko: `common/requirements.lock.txt` w venv z `--system-site-packages` na obrazie
   `pytorch/pytorch:2.8.0-cuda12.8-cudnn9-runtime` (torch 2.8.0+cu128, CUDA 12.8); transformers 4.57.6 (PyPI);
   lm-eval 0.4.9.1 (PyPI).

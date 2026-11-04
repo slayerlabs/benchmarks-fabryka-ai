@@ -50,7 +50,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`sciq`](benchmarks/sciq/ORIGINAL.md) | T09 | `poz` | | nie | tak |
 | [`uncheatable-eval`](benchmarks/uncheatable-eval/ORIGINAL.md) | | `ppl +warstwy` | kategorie, średnia bez wag | nie | nieustalone |
 | [`wikitext-2`](benchmarks/wikitext-2/README.md) | T03 | `ppl` | | T03 | nieustalone |
-| [`winogrande`](benchmarks/winogrande/ORIGINAL.md) | T07 | `mc +klastry` | klastry: pary bliźniacze | nie | nie |
+| [`winogrande`](benchmarks/winogrande/README.md) | T07 | `mc +klastry` | klastry: pary bliźniacze | nie | nie |
 | [`wsc273`](benchmarks/wsc273/README.md) | T14 | `mc +klastry` | klastry: pary schematów | nie, własny kod | nieustalone |
 
 Wczesny sygnał (kryterium w METODOLOGII) policzono z publicznych plików zero-shot 15 checkpointów
