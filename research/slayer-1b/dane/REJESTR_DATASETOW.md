@@ -19,7 +19,7 @@ karty). Licencje u źródła, rozbite na składniki, są w podsekcjach 1.1–1.5
 | nazwa HF/URL | licencja | status | powód | data |
 |---|---|---|---|---|
 | `SlayerLab/slayer-pl-8x3b` → `web` (HPLT v3 PL, top WDS, pakiety `pack-NN`) | wg karty zbioru CC0-1.0; u źródła CC0 HPLT obejmuje tylko opakowanie, nie teksty stron (1.2) | użyty | 63% tokenów Slayera 1.06; nakłada się z FineWeb2/FineWeb2-HQ pol, więc każdy kandydat z Common Crawl wymaga dedupu wobec HPLT | 2026-10-30 |
-| `SlayerLab/slayer-pl-8x3b` → `core` / `core_sa` (wikipedia, wikibooks, wikivoyage, wikisource, polqa, govpl, wolne_lektury) | CC-BY / CC-BY-SA (per źródło); w danych są też `polish_news`, `elka_pl_news` (apache-2.0, u źródła nieustalone), `poquad`, `wikinews`, `eltec_pol`, `1000_novels`, `biblioteka_nauki` (1.2) | użyty | 19%; polqa w rdzeniu kontaminuje test PolQA (7/200 pytań bez trafień); govpl może zawierać dane wrażliwe: karta [polish-dynaword](https://huggingface.co/datasets/SlayerLab/polish-dynaword) mówi, że filtry nie usuwają w pełni danych osobowych, a przebieg PII (NERGAL) dopiero w v0.2.7; do tego czasu obowiązują datasheety poszczególnych źródeł (do przeczytania) | 2026-10-30 |
+| `SlayerLab/slayer-pl-8x3b` → `core` / `core_sa` (wikipedia, wikibooks, wikivoyage, wikisource, polqa, wolne_lektury; `govpl` leży w `legal_sa`) | CC-BY / CC-BY-SA (per źródło); w danych są też `polish_news`, `elka_pl_news` (apache-2.0, u źródła nieustalone), `poquad`, `wikinews`, `eltec_pol`, `1000_novels`, `biblioteka_nauki` (1.2) | użyty | 19%; polqa w rdzeniu kontaminuje test PolQA (7/200 pytań bez trafień); govpl może zawierać dane wrażliwe: karta [polish-dynaword](https://huggingface.co/datasets/SlayerLab/polish-dynaword) mówi, że filtry nie usuwają w pełni danych osobowych, a przebieg PII (NERGAL) dopiero w v0.2.7; do tego czasu obowiązują datasheety poszczególnych źródeł (do przeczytania) | 2026-10-30 |
 | `SlayerLab/slayer-pl-8x3b` → `legal` / `legal_sa` (eurlex, parliamentary, dziennik_ustaw, govpl) | CC-BY-4.0 / PD / CC-BY-SA (govpl), wg `dataset.json`; u źródła eurlex to polityka ponownego wykorzystania KE, nie CC-BY-4.0 dla aktów (1.2) | użyty | 8%; dane wrażliwe jak przy `core` (brak przebiegu PII przed v0.2.7 polish-dynaword); wg karty eurlex ma licencję `LicenseRef-EU-Reuse-Policy` (nie CC-BY-4.0), a parliamentary zostawia tylko oficjalnych mówców, interpelacje wstrzymane do v0.2.7 | 2026-10-30 |
 | `SlayerLab/slayer-pl-8x3b` → `en` | ODC-BY (wg karty), u źródła potwierdzone dla fineweb-edu; finemath z `dataset.json` w danych nie ma (1.2) | użyty | 10%; wg `dataset.json` zbioru to fineweb-edu + finemath (ODC-BY), 2,40 mld tok.; dekontaminacja opisana tylko dla web i tylko wobec 8tags/polemo2; wobec ARC była, wobec MMLU niepewne, do sprawdzenia (zadanie A2) | 2026-10-30 |
 
@@ -107,7 +107,9 @@ Uwaga do `core` i `core_sa`: manifest pisze „tokeny rdzenia prorata po wiersza
 między te dwie partycje to szacunek producenta z liczby wierszy, nie pomiar. W `core` przeważają długie artykuły
 newsowe, w `core_sa` krótkie pasaże `polqa`, więc rzeczywisty podział może się różnić; do przeliczenia tiktokenem.
 
-Udział partycji share-alike (`core_sa` + `legal_sa`) w tokenach:
+Udział partycji share-alike (`core_sa` + `legal_sa`) w tokenach. To szacunek: tokeny `core_sa` producent zbioru
+dzieli od `core` proporcjonalnie do wierszy, a tokenów per źródło zbiór nie podaje. Dokładna liczba wymaga
+przeliczenia tokenów per źródło tiktokenem, jak wyżej:
 
 - fizycznie, w całym zbiorze: 15,61% <!-- liczba-spoza-wynikow: (3546606209+80666129)/23231160865, z manifestów -->
 - w treningu jednego pakietu: 18,49% <!-- liczba-spoza-wynikow: wagi 0,19 i 0,08 z pack-XX/manifest.json, podział wewnątrz grupy proporcjonalnie do tokenów partycji (założenie, nieustalone) -->
