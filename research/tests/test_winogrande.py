@@ -23,7 +23,8 @@ def test_continuation_is_the_suffix_after_the_blank():
 def test_both_options_share_that_continuation():
     left, right = score.contexts(DOC)
     assert left.endswith("Sarah") and right.endswith("Maria")
-    assert score.continuation(DOC) == score.continuation(DOC)
+    swapped = dict(DOC, option1="X", option2="Y")
+    assert score.continuation(swapped) == score.continuation(DOC)
 
 
 def test_tie_takes_the_earlier_option():
