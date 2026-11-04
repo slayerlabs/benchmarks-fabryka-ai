@@ -63,20 +63,20 @@ jednym na etap. W katalogu musi być:
 2. Kod liczący wynik (etap C). To wywołanie kodu z etapu B albo własna implementacja z testem zgodności
    `research/tests/test_<name>_zgodnosc.py`.
 3. Test kodu `research/tests/test_<name>.py` z próbką danych. Test przechodzi bez sieci i bez wag.
-4. Wynik mierzonego modelu (dziś Slayer 1.06) z n i SE. Obok niego wynik modelu kontrolnego, liczony tym samym
-   kodem. Oba wyniki liczy autor PR. Dla benchmarku z oryginałem modelem kontrolnym jest pierwszy dostępny model z
-   listy w sekcji [„Model kontrolny etapu B”](research/METODOLOGIA.md#model-kontrolny-etapu-b). Dla benchmarku
-   polskiego i bez oryginału jest nim model, który zna polski (`speakleash/Bielik-1.5B-v3` albo
-   `utter-project/EuroLLM-1.7B`).
-5. Porównanie z modelem kontrolnym jako różnica w SE z werdyktem. Testy z wyborem odpowiedzi mają też bazę losową,
-   bazę większościową i udział najczęstszej predykcji.
+4. Wynik mierzonego modelu z n i SE, a obok wynik modelu kontrolnego
+   ([„Model kontrolny etapu B”](research/METODOLOGIA.md#model-kontrolny-etapu-b)) liczony tym samym kodem. Oba liczy
+   autor PR.
+5. Typ testu w karcie, bazy i b według tabeli typów, porównanie z modelem kontrolnym jako różnica w SE z werdyktem
+   ([METODOLOGIA, „Typy testów”](research/METODOLOGIA.md#typy-testów)).
 6. `RECIPE.md` z wpisem dla każdego wyniku.
-7. Komendy z sekcji [„Przed PR”](#przed-pr) zakończone kodem 0.
-8. `Refs #N` zadania w opisie PR.
+7. Benchmark liczony przez `research/common/ewaluuj.py`: wpis w `ZADANIA` (`research/common/zadania.py`) i w
+   `KATALOGI` przebiegu centralnego. Benchmark z własnym kodem: komenda w `RECIPE.md`, którą liczy się go ręcznie,
+   bo przebieg centralny woła tylko `ewaluuj.py`.
+8. Komendy z sekcji [„Przed PR”](#przed-pr) zakończone kodem 0.
+9. `Refs #N` zadania w opisie PR.
 
-Autor PR nie liczy pięciu modeli odniesienia. Policzy je przebieg centralny, który jest jeszcze w budowie (kamień
-[„Przebieg centralny: 5 modeli odniesienia”](https://github.com/slayerlabs/benchmarks-fabryka-ai/milestone/8)).
-Każdy punkt wyjaśnia [`research/METODOLOGIA.md`](research/METODOLOGIA.md).
+Autor PR nie liczy modeli odniesienia. Liczy je przebieg centralny `research/tools/przebieg_centralny.sh`, opisany w
+[METODOLOGII, „Następna wersja Slayera”](research/METODOLOGIA.md#następna-wersja-slayera).
 
 ## Przed PR
 
