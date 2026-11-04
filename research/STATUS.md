@@ -4,24 +4,29 @@ Stan na **4.11.2026**. Zmieniasz stan benchmarku? Przestaw jego wiersz w tym sam
 
 <a href="#gotowe"><img src="../docs/img/stan/gotowe.svg" alt="Gotowe" height="36"></a>
 <a href="#male-braki"><img src="../docs/img/stan/male-braki.svg" alt="Małe braki" height="36"></a>
+<a href="#policzone"><img src="../docs/img/stan/policzone.svg" alt="Policzone" height="36"></a>
 <a href="#tylko-karta"><img src="../docs/img/stan/tylko-karta.svg" alt="Tylko karta" height="36"></a>
 <a href="#w-toku"><img src="../docs/img/stan/w-toku.svg" alt="W toku" height="36"></a>
 <a href="#niezaczete"><img src="../docs/img/stan/niezaczete.svg" alt="Niezaczęte" height="36"></a>
 <a href="#do-sprawdzenia"><img src="../docs/img/stan/do-sprawdzenia.svg" alt="Do sprawdzenia" height="36"></a>
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'pie1': '#1a7f37', 'pie2': '#9a6700', 'pie3': '#0969da', 'pie4': '#8250df', 'pie5': '#6e7781', 'pie6': '#afb8c1', 'pieStrokeColor': '#ffffff', 'pieOuterStrokeWidth': '0px'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'pie1': '#1a7f37', 'pie2': '#9a6700', 'pie3': '#bc4c00', 'pie4': '#0969da', 'pie5': '#8250df', 'pie6': '#6e7781', 'pie7': '#afb8c1', 'pieStrokeColor': '#ffffff', 'pieOuterStrokeWidth': '0px'}}}%%
 pie showData
     "Gotowe" : 3
     "Małe braki" : 5
-    "Tylko karta" : 8
+    "Policzone, bez kontroli" : 5
+    "Tylko karta" : 7
     "W toku" : 2
-    "Niezaczęte, z zadaniem" : 39
+    "Niezaczęte, z zadaniem" : 35
     "Niezaczęte, bez zadania" : 27
 ```
 
 **A** karta `ORIGINAL.md` · **B** odtworzenie `REPRODUCTION.md` · **C** kod i test · **wynik** Slayera 1.06 ·
 ✓ jest · ~ z zastrzeżeniem · ✗ brak
+
+Policzone ≠ gotowe: do tabeli wchodzi wynik ze sprawdzonym etapem B, czyli model kontrolny liczony tym samym kodem
+zgadza się z opublikowanym wynikiem.
 
 <a href="METODOLOGIA.md#definicja-zrobione"><img src="../docs/img/metodologia.svg" alt="Metodologia" height="36"></a><a href="https://github.com/orgs/slayerlabs/projects/10"><img src="../docs/img/tablica.svg" alt="Tablica" height="36"></a>
 
@@ -47,15 +52,30 @@ pie showData
 | [WikiText-2](benchmarks/wikitext-2/README.md) | T03 | ✓ | ~ | ✓ | ~ | próg dla perpleksji | #15 #41 |
 | [ARC-Easy](benchmarks/arc-easy/ORIGINAL.md) | | ✓ | ✗ | ✗ | ✗ | odtworzenie, kod, wynik | #23 |
 
+<a name="policzone"></a>
+
+## 🟠 Policzone, bez kontroli · 5
+
+Wynik Slayera 1.06 i czterech modeli odniesienia jest w
+[przebiegu centralnym](results/central-run/README.md) (tam też BLiMP i WikiText-2). Brakuje etapu B, więc wynik nie
+idzie jeszcze do tabeli.
+
+| benchmark | Space | A | B | wynik | zadanie |
+|---|---|---|---|---|---|
+| [ARC-Challenge](benchmarks/arc-challenge/ORIGINAL.md) | T02 | ✓ | ✗ | [✓](results/central-run/arc-challenge) | #29 #49 |
+| MultiBLiMP PL | T04 | ✗ | ✗ | [✓](results/central-run/multiblimp-pl) ⚠️ | #104 |
+| PubMedQA | T44 | ✗ | ✗ | [✓](results/central-run/pubmedqa) | #20 #97 |
+| MedMCQA | T45 | ✗ | ✗ | [✓](results/central-run/medmcqa) | #134 |
+| Social IQa | T46 | ✗ | ✗ | [✓](results/central-run/social-iqa) | #17 #97 |
+
 <a name="tylko-karta"></a>
 
-## 📄 Tylko karta · 8
+## 📄 Tylko karta · 7
 
 Następny krok: etap B.
 
 | benchmark | Space | zadanie |
 |---|---|---|
-| [ARC-Challenge](benchmarks/arc-challenge/ORIGINAL.md) | T02 | #29 #49 |
 | [BLiMP Supplement](benchmarks/blimp-supplement/ORIGINAL.md) | | #33 |
 | [BoolQ](benchmarks/boolq/ORIGINAL.md) | T10 | #26 |
 | [HellaSwag](benchmarks/hellaswag/ORIGINAL.md) | T05 | #24 |
@@ -75,17 +95,17 @@ Następny krok: etap B.
 
 <a name="niezaczete"></a>
 
-## ⬜ Niezaczęte · 66
+## ⬜ Niezaczęte · 62
 
 <a href="https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22"><img src="../docs/img/zadania-na-start.svg" alt="Zadania na start" height="36"></a>
 
-**Z zadaniem (39)**
+**Z zadaniem (35)**
 
 | co | zadania |
 |---|---|
-| karta, angielskie | COPA #105 · CommitmentBank #106 · WiC #107 · RTE #109 · ANLI #110 · PROST #111 · SST-2 #112 · MMLU #123 · GSM8K #124 · TruthfulQA #126 · SQuAD 2.0 #128 · DROP #129 · RACE #130 · CoQA #131 · NQ-Open #132 · TriviaQA #133 · MedMCQA #134 · BBH #135 · PAWS #136 · CoLA #137 · ReCoRD #138 |
-| karta, polskie | MultiBLiMP #104 · PolEmo 2.0 #113 · 8TAGS #114 · Belebele #115 · DYK #116 · PPC #117 · PSC #118 · CBD #119 · NKJP-NER #120 · PolQA #121 · PoQuAD #122 · LLMzSzŁ #127 |
-| Space bez wyniku | MathQA #28 · PubMedQA #20 · Social IQa #17 · IFEval #40 |
+| karta, angielskie | COPA #105 · CommitmentBank #106 · WiC #107 · RTE #109 · ANLI #110 · PROST #111 · SST-2 #112 · MMLU #123 · GSM8K #124 · TruthfulQA #126 · SQuAD 2.0 #128 · DROP #129 · RACE #130 · CoQA #131 · NQ-Open #132 · TriviaQA #133 · BBH #135 · PAWS #136 · CoLA #137 · ReCoRD #138 |
+| karta, polskie | PolEmo 2.0 #113 · 8TAGS #114 · Belebele #115 · DYK #116 · PPC #117 · PSC #118 · CBD #119 · NKJP-NER #120 · PolQA #121 · PoQuAD #122 · LLMzSzŁ #127 |
+| Space bez wyniku | MathQA #28 · IFEval #40 |
 | held-out | NLL EN/PL/kod #22 · kod źródłowy #42 |
 
 **Bez zadania (27)**: z [katalogu CodeSOTA](https://beta.codesota.com/api/sub1b/benchmarks). Zanim zaczniesz, załóż
