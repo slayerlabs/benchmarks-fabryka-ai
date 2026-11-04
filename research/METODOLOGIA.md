@@ -24,7 +24,34 @@ flowchart LR
 Każdy etap kończy się plikiem w `benchmarks/<name>/`, wzory są w
 [`benchmarks/_template/`](benchmarks/_template/README.md). Benchmark bez oryginału (zbiór pisany od zera, held-out)
 zamiast etapów A i B ma kartę zbioru. Każdy etap może iść osobnym PR. Kiedy benchmark jest skończony, mówi
-[README repo, „Definicja „zrobione””](../README.md#definicja-zrobione).
+[„Definicja „zrobione””](#definicja-zrobione) niżej.
+
+## Definicja „zrobione”
+
+Benchmark jest zrobiony, gdy PR do `main` zawiera katalog `research/benchmarks/<name>/` założony z
+[`research/benchmarks/_template/`](benchmarks/_template/README.md). Zamiast jednego PR może być kilka, po
+jednym na etap. W katalogu musi być:
+
+1. `ORIGINAL.md` (etap A) i `REPRODUCTION.md` (etap B) ze spełnionym warunkiem odtworzenia. Benchmark bez oryginału
+   ma zamiast nich `DATASET.md` i kontrolę na modelu, który zna polski. Wersja polska leży w osobnym katalogu
+   `research/benchmarks/<name>-pl/` i ma `POLISH.md` (etap D).
+2. Kod liczący wynik (etap C). To wywołanie kodu z etapu B albo własna implementacja z testem zgodności
+   `research/tests/test_<name>_zgodnosc.py`.
+3. Test kodu `research/tests/test_<name>.py` z próbką danych. Test przechodzi bez sieci i bez wag.
+4. Wynik mierzonego modelu z n i SE, a obok wynik modelu kontrolnego
+   ([„Model kontrolny etapu B”](#model-kontrolny-etapu-b)) liczony tym samym kodem. Oba liczy
+   autor PR.
+5. Wiersz testu w [`research/README.md`, „Benchmarki i typy”](README.md#benchmarki-i-typy) (karta do niego linkuje), bazy i b według tabeli typów, porównanie z modelem kontrolnym jako różnica w SE z werdyktem
+   ([„Typy testów”](#typy-testów)).
+6. `RECIPE.md` z wpisem dla każdego wyniku.
+7. Benchmark liczony przez `research/common/ewaluuj.py`: wpis w `ZADANIA` (`research/common/zadania.py`) i w
+   `KATALOGI` przebiegu centralnego. Benchmark z własnym kodem: komenda w `RECIPE.md`, którą liczy się go ręcznie,
+   bo przebieg centralny woła tylko `ewaluuj.py`.
+8. Komendy z sekcji [„Przed PR”](../CONTRIBUTING.md#przed-pr) zakończone kodem 0.
+9. `Refs #N` zadania w opisie PR.
+
+Autor PR nie liczy modeli odniesienia. Liczy je przebieg centralny `research/tools/przebieg_centralny.sh`, opisany w
+[„Następna wersja Slayera”](#następna-wersja-slayera).
 
 ## Wspólny rdzeń
 
@@ -67,7 +94,7 @@ Obowiązuje każdy test. Gdzie treść reguły zależy od typu, reguła odsyła 
 9. **Bramka liczb.** Każda liczba w raporcie `.md` pod `research/` stoi w `results/LICZBY.json` albo ma na końcu
    linii znacznik `<!-- liczba-spoza-wynikow: skąd jest liczba -->`, jedna linia na jeden wynik (wzór:
    `benchmarks/arc-easy/ORIGINAL.md`). Bramka sprawdza raporty, warunek odtworzenia z etapu B sprawdza kod; to dwie
-   różne rzeczy. *Recenzent:* komendy z [„Przed PR”](../README.md#przed-pr) kończą się kodem 0.
+   różne rzeczy. *Recenzent:* komendy z [„Przed PR”](../CONTRIBUTING.md#przed-pr) kończą się kodem 0.
 10. **Czystość i kontaminacja.** Pytania testu nie trafiają do treningu, a karta ma pole „Kontaminacja” (sekcja
     „Czystość benchmarku”). *Recenzent:* przy wartości „sprawdzona” jest metoda.
 
@@ -415,7 +442,7 @@ ponad b + 3 SE; bez danych „nieustalone”. Test bez wczesnego sygnału liczys
 ## Recenzja
 
 Recenzję w dwóch krokach i trzy ścieżki sprawdzenia opisuje [CONTRIBUTING](../CONTRIBUTING.md#pr); PR z samą kartą
-ma wariant „Sama karta” w [„Przed PR”](../README.md#przed-pr). Przeliczenie `needs-recheck` robi druga osoba od zera,
+ma wariant „Sama karta” w [„Przed PR”](../CONTRIBUTING.md#przed-pr). Przeliczenie `needs-recheck` robi druga osoba od zera,
 na innym sprzęcie (inne pole „Sprzęt” w `RECIPE.md`), i nie zagląda przy tym w liczby autora.
 
 ## Siła dowodu

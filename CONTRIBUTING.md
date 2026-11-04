@@ -35,7 +35,7 @@ adresem https://github.com/orgs/slayerlabs/projects/10. Jak przygotować kompute
 
 1. Załóż gałąź od `main`. Nazwij ją `research/<name>` (benchmark) albo `docs/<temat>`. Możesz też otworzyć PR z
    forka. Wtedy nie potrzebujesz prawa zapisu w repo.
-2. Uruchom komendy z sekcji [„Przed PR”](README.md#przed-pr) README. Katalog `research/` nie ma CI, więc robisz to
+2. Uruchom komendy z sekcji [„Przed PR”](#przed-pr) niżej. Katalog `research/` nie ma CI, więc robisz to
    sam, a każda komenda musi zakończyć się kodem 0.
 
 3. Otwórz PR do `main` i wypełnij checklistę z szablonu. W opisie wpisz `Refs #N` z numerem zadania z tego repo.
@@ -48,8 +48,27 @@ adresem https://github.com/orgs/slayerlabs/projects/10. Jak przygotować kompute
    zna ten kod, odtwarza co najmniej jeden wynik z `RECIPE.md`. Wynik z etykietą `needs-recheck` liczy od zera druga
    osoba, na innym sprzęcie.
 
-**PR z samą kartą (etap A)** ma krótszą drogę, opisaną w wariancie „Sama karta” sekcji
-[„Przed PR”](README.md#przed-pr).
+## Przed PR
+
+Przed otwarciem PR uruchom w katalogu `research/` komendy niżej. To testy zmienionego benchmarku,
+`tests/test_liczby_raportow.py` i bramka liczb. Każda komenda musi zakończyć się kodem 0. Katalog `research/` nie ma
+CI, więc uruchamiasz je sam.
+
+```bash
+.venv-eval/bin/python tools/liczby.py && .venv-eval/bin/python tools/sprawdz_raporty.py
+.venv-eval/bin/python tests/test_<name>.py
+.venv-eval/bin/python tests/test_<name>_zgodnosc.py   # tylko gdy benchmark ma własną implementację
+.venv-eval/bin/python tests/test_liczby_raportow.py
+```
+
+**Sama karta.** PR z samą kartą oryginału (etap A) wymaga tylko bramki liczb z kodem 0, bez testów benchmarku:
+
+```bash
+.venv-eval/bin/python tools/liczby.py && .venv-eval/bin/python tools/sprawdz_raporty.py
+```
+
+Recenzent takiego PR nie odtwarza `RECIPE.md`. Sprawdza u źródła prompt, ocenę, wynik referencyjny i bazy, a przy
+„brak” albo „nieustalone” listę przeszukanych miejsc.
 
 ## Etykiety
 

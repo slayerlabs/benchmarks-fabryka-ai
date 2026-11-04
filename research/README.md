@@ -7,7 +7,7 @@ dojdzie każdy następny model z Hugging Face. Rewizje i role modeli opisuje
 
 Każdy benchmark ma jeden katalog w `benchmarks/`. Kod wspólny dla wielu benchmarków leży w `common/`. Jak powstaje
 benchmark (karta oryginału, odtworzenie, kod, wersja polska), opisuje [`METODOLOGIA.md`](METODOLOGIA.md). Kiedy
-benchmark jest skończony, mówi sekcja [„Definicja „zrobione””](../README.md#definicja-zrobione) w README repo.
+benchmark jest skończony, mówi sekcja [„Definicja „zrobione””](METODOLOGIA.md#definicja-zrobione) w METODOLOGII.
 Wszystkie komendy niżej uruchamiasz w katalogu `research/`.
 
 ## Układ
@@ -182,7 +182,7 @@ Gdy sprawdzasz, czy test łapie celowo zepsuty kod ewaluacji (mutację), przed k
 zamiast zmienionego kodu i mutacja fałszywie „przeżywa” (`python -B` tylko nie zapisuje nowych `.pyc`, istniejące
 dalej czyta).
 
-Przed PR nie uruchamiasz wszystkich testów. Listę komend ma README repo, sekcja [„Przed PR”](../README.md#przed-pr).
+Przed PR nie uruchamiasz wszystkich testów. Listę komend ma CONTRIBUTING, sekcja [„Przed PR”](../CONTRIBUTING.md#przed-pr).
 To testy zmienionego benchmarku, `tests/test_liczby_raportow.py` i bramka liczb.
 
 ## Bramka liczb

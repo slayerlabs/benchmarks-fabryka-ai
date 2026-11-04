@@ -19,7 +19,7 @@ Układ katalogów opisuje [`research/README.md`, „Układ”](research/README.m
 
 ## Przed PR
 
-Komendy z sekcji [„Przed PR”](README.md#przed-pr) README kończą się kodem 0; katalog `research/` nie ma CI. Reguły,
+Komendy z sekcji [„Przed PR”](CONTRIBUTING.md#przed-pr) w CONTRIBUTING kończą się kodem 0; katalog `research/` nie ma CI. Reguły,
 które sprawdzają (bramka liczb, SE i werdykt przy każdym porównaniu), opisuje
 [`research/METODOLOGIA.md`](research/METODOLOGIA.md), „Wspólny rdzeń”.
 
