@@ -6,7 +6,7 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from stage_bc_after_card import card_catalog, decide, marker, stage_bc_body  # noqa: E402
+from stage_bc_after_card import card_catalog, decide, files_decision, marker, stage_bc_body  # noqa: E402
 
 REPO = "slayerlabs/benchmarks-fabryka-ai"
 
@@ -56,6 +56,22 @@ class Decide(unittest.TestCase):
         ]
         name, _ = decide(closed("Karta oryginału: BLiMP"), existing)
         self.assertEqual(name, "BLiMP")
+
+
+class FilesDecision(unittest.TestCase):
+    def test_reproduction_on_main_creates_nothing(self):
+        # WSC273 (#108): REPRODUCTION.md, RECIPE.md and code exist, only the card is missing.
+        self.assertEqual(files_decision("wsc273", False, True), (False, None))
+        self.assertEqual(files_decision("wsc273", True, True), (False, None))
+
+    def test_original_without_reproduction_links_catalog(self):
+        self.assertEqual(files_decision("copa", True, False), (True, "copa"))
+
+    def test_missing_original_links_only_card(self):
+        self.assertEqual(files_decision("copa", False, False), (True, None))
+
+    def test_unknown_catalog_unchanged(self):
+        self.assertEqual(files_decision(None, False, False), (True, None))
 
 
 class Catalog(unittest.TestCase):

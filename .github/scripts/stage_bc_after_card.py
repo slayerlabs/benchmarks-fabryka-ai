@@ -53,6 +53,19 @@ def card_catalog(card_body):
     return found.pop() if len(found) == 1 else None
 
 
+def files_decision(catalog, has_original, has_reproduction):
+    """Return (create, catalog to link) from what is on main for the card's directory.
+
+    REPRODUCTION.md on main means stage B is done, so nothing is created. ORIGINAL.md missing means the
+    issue links only the card. Without a known directory the issue is created and links only the card.
+    """
+    if not catalog:
+        return True, None
+    if has_reproduction:
+        return False, None
+    return True, catalog if has_original else None
+
+
 def marker(card_number):
     return f"<!-- stage-bc-card: #{card_number} -->"
 
@@ -211,9 +224,14 @@ def main(argv=None):
 
     card = event["issue"]
     catalog = card_catalog(card.get("body"))
-    if catalog and not file_exists(token, repo, f"research/benchmarks/{catalog}/ORIGINAL.md"):
-        print(f"research/benchmarks/{catalog}/ORIGINAL.md is not on main: linking only the card issue")
-        catalog = None
+    has = {}
+    if catalog:
+        for fname in ("REPRODUCTION.md", "ORIGINAL.md"):
+            has[fname] = file_exists(token, repo, f"research/benchmarks/{catalog}/{fname}")
+    create, catalog = files_decision(catalog, has.get("ORIGINAL.md", False), has.get("REPRODUCTION.md", False))
+    if not create:
+        print(f"nothing to do: research/benchmarks/{card_catalog(card.get('body'))}/REPRODUCTION.md is on main")
+        return 0
     body = stage_bc_body(repo, name, card["number"], catalog)
 
     if args.dry_run:
