@@ -40,7 +40,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`arc-easy`](benchmarks/arc-easy/ORIGINAL.md) | | `mc-k` | | nie | tak |
 | [`blimp`](benchmarks/blimp/README.md) | T01 | `para +klastry` | klastry: paradygmaty; zjawiska informacyjnie | T01 | tak |
 | [`blimp-supplement`](benchmarks/blimp-supplement/ORIGINAL.md) | | `para +warstwy` | warstwy: podzadania, średnia bez wag (karta nie pokazuje, że podzadanie to jeden szablon) | nie | nieustalone |
-| [`boolq`](benchmarks/boolq/ORIGINAL.md) | T10 | `mc` | karta nie podaje wspólnych ustępów; gdy je znajdzie, `+klastry` | nie | nieustalone |
+| [`boolq`](benchmarks/boolq/ORIGINAL.md) | T10 | `mc +klastry` | klastry: wspólny ustęp (3170 pytań, 2857 ustępów) | nie | nieustalone |
 | [`ewok`](benchmarks/ewok/README.md) | | `para +klastry` | klastry: szablony; domeny informacyjnie | nie, własny kod | nieustalone |
 | [`ewok-pl`](benchmarks/ewok-pl/README.md) | | `para +klastry +pl` | klastry: szablony; domeny informacyjnie | nie, własny kod | nieustalone |
 | [`hellaswag`](benchmarks/hellaswag/ORIGINAL.md) | T05 | `mc` | | nie | nieustalone |
@@ -71,11 +71,10 @@ Testy Space (`tasks_50.json`) według typu:
 | `ppl` | T03 WikiText-2 |
 | `gen` | T33 GSM8K, T34 MATH (`+warstwy`), T42 NQ, T43 TriviaQA, T47 BBH (`+warstwy`) |
 | `ifeval` | T36 IFEval |
-| `f1-korpus` | T25 DYK, T27 PSC, T28 CBD (wszystkie `+pl`) |
-| `ciagla` | T30 PolQA, T31 PoQuAD (Levenshtein, `+pl`), T35 TruthfulQA MC2, T38 SQuAD2 (`+proc`), T39 DROP, T41 CoQA, T50 ReCoRD |
+| `f1-korpus` | T25 DYK (`+klastry`: 1029 wierszy do 264 pytań), T27 PSC, T28 CBD (wszystkie `+pl`) |
+| `ciagla` | T30 PolQA, T31 PoQuAD (Levenshtein, `+pl`), T38 SQuAD2 (`+proc`, b i kontrola na HasAns), T39 DROP, T41 CoQA, T50 ReCoRD |
+| `masa` | T35 TruthfulQA MC2 |
 | `mcc` | T49 CoLA |
-
-Czy T35 TruthfulQA MC2 stawia poprawne opcje na stałych pozycjach (wtedy kontrola jak przy `poz`), ustala karta.
 
 ## Przygotowanie (raz)
 
@@ -205,14 +204,3 @@ warstwowe, po klastrach) kolumna „SE” w [„Typach testów”](METODOLOGIA.m
 
 Bazę losową, stałą odpowiedź (bazę większościową albo jej zamiennik), b i udział najczęstszej predykcji dla każdego
 typu testu definiuje [METODOLOGIA, „Typy testów”](METODOLOGIA.md#typy-testów).
-
-## Slayer 1B: wyniki testów (30.10.2026)
-
-Slayer 1.06 to checkpoint w trakcie treningu (ok. jednej ósmej, bez wygaszania LR), a porównania niżej śledzą postęp.
-
-- Litery A/B/C/D a losowość. Dlaczego Slayer 1.06 wypada losowo w testach z literami i co widać po treści odpowiedzi: [`analyses/answer-format/`](analyses/answer-format/README.md).
-- BLiMP, pełny zbiór, Slayer 1.06 i Pythia-1B: [`benchmarks/blimp/`](benchmarks/blimp/README.md).
-- WikiText-2. Po poprawce mianownika byte_ppl z tego repo jest zgodny ze Space: [`benchmarks/wikitext-2/`](benchmarks/wikitext-2/README.md).
-- EWoK po polsku i angielsku, Slayer 1.00–1.06, Bielik 1.5B, LFM3 1.7B i Aster-0.5B(fp32): [`benchmarks/ewok-pl/`](benchmarks/ewok-pl/README.md).
-- EWoK, oryginał angielski metodą autorów: gpt2-xl odtworzony kodem autorów, Slayer 1.06 i pięć modeli odniesienia: [`benchmarks/ewok/`](benchmarks/ewok/README.md).
-- Wygaszanie LR obniża loss o 0,047 nat bez zmiany trafności: [`slayer-1b/wygaszanie/README.md`](slayer-1b/wygaszanie/README.md).

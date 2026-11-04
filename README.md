@@ -69,8 +69,10 @@ jednym na etap. W katalogu musi być:
 5. Typ testu w karcie, bazy i b według tabeli typów, porównanie z modelem kontrolnym jako różnica w SE z werdyktem
    ([METODOLOGIA, „Typy testów”](research/METODOLOGIA.md#typy-testów)).
 6. `RECIPE.md` z wpisem dla każdego wyniku.
-7. Komendy z sekcji [„Przed PR”](#przed-pr) zakończone kodem 0.
-8. `Refs #N` zadania w opisie PR.
+7. Wpis w `ZADANIA` (`research/common/zadania.py`) i w `KATALOGI` przebiegu centralnego, a przy benchmarku z
+   własnym kodem komenda w `RECIPE.md`, którą przebieg wywoła.
+8. Komendy z sekcji [„Przed PR”](#przed-pr) zakończone kodem 0.
+9. `Refs #N` zadania w opisie PR.
 
 Autor PR nie liczy modeli odniesienia. Liczy je przebieg centralny `research/tools/przebieg_centralny.sh`, opisany w
 [METODOLOGII, „Następna wersja Slayera”](research/METODOLOGIA.md#następna-wersja-slayera).

@@ -18,6 +18,6 @@ Procedurę opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworze
 | różnica | |
 | kontrola odróżnia działający kod od zepsutego (kolumna „kontrola” typu): b, wynik − b w SE, dodatkowy przebieg, jeśli typ go wymaga | |
 | warunek odtworzenia | ±2 pkt w skali metryki; gdy 2 SE > 2 pkt, w granicach 2 SE; dla `ppl` próg zapisany tu przed pomiarem |
-| werdykt | spełniony / niespełniony / bez kontroli: kod zgodny / bez kontroli: kod niezgodny |
+| werdykt | spełniony / niespełniony / bez kontroli: kod zgodny / bez kontroli: kod niezgodny / bez kontroli: nierozstrzygnięte / nierozstrzygalny (`ppl` bez progu zapisanego przed pomiarem) |
 
 Komendę i środowisko zapisujesz w [`RECIPE.md`](RECIPE.md).

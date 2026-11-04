@@ -5,7 +5,7 @@ dwa tygodnie ma odtworzyć ten sam wynik. Czego nie zapisano, wpisz jako „niez
 
 ## <model>
 
-- Commit kodu: commit, na którym policzono wynik (gałąź PR scalana merge commitem zostaje w historii `main`)
+- Commit kodu: commit, na którym policzono wynik (PR z wynikiem scalasz merge commitem, squash usuwa ten hash z `main`)
 - Środowisko: `common/requirements.lock.txt`; transformers <wersja>@<commit, jeśli z gita>; lm-eval <wersja albo commit>
 - Model: <repo HF>@<rewizja>
 - Zbiór: <repo HF albo plik>@<rewizja albo sha256>

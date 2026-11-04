@@ -23,7 +23,7 @@ wierszy tabeli albo na listę, jedna pozycja na linię. Przykład: `benchmarks/a
 | Metryka decyzyjna | |
 | Agregacja i grupy | średnia po pytaniach czy po podtestach, wagi: ; poziomy grup i poziom, który wiąże werdykt: |
 | Bazy | losowa: ; stała odpowiedź (kolumna typu, dokładnie ze splitu): ; b: |
-| SNR: źródło | z opublikowanych wyników co najmniej 3 modeli z jednego źródła (np. tabela w pracy, `evals/pythia-v0` w repo `EleutherAI/pythia`); modele i źródło: |
+| SNR: źródło | opublikowane wyniki modeli od 400 mln do 3 mld parametrów, z końca treningu, z jednego źródła (np. tabela w pracy, `evals/pythia-v0` w repo `EleutherAI/pythia`), bez mierzonego modelu i modeli odniesienia, a gdy jest ich mniej niż 3, wszystkich modeli źródła; modele i źródło: |
 | SNR: rozrzut | odchylenie std. wyników między modelami: |
 | SNR: SE | SE jednego wyniku dla n pełnego splitu, metodą z kolumny „SE” typu: |
 | SNR: iloraz | rozrzut / SE: |
