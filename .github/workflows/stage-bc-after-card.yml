@@ -1,0 +1,25 @@
+name: Stage B+C after card
+# A "Karta oryginału: <benchmark>" issue closed as completed opens the stage B+C issue and puts it on the board as Ready.
+on:
+  issues:
+    types: [closed]
+permissions:
+  contents: read
+  issues: write
+concurrency:
+  group: stage-bc-${{ github.event.issue.number }}
+  cancel-in-progress: false
+jobs:
+  open-stage-bc:
+    if: "${{ startsWith(github.event.issue.title, 'Karta oryginału: ') && github.event.issue.state_reason == 'completed' }}"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Open stage B+C issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
+        run: python .github/scripts/stage_bc_after_card.py
