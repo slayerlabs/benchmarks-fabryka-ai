@@ -231,6 +231,10 @@ def pliki(liczby, bl):
          "Protocol and thresholds (written before the measurement): [`THRESHOLDS.md`](../THRESHOLDS.md).", "",
          f"**Slayer 1.06: {f(sl['acc'], 4)} (CI95 {f(sl['ci'][0], 4)}-{f(sl['ci'][1], 4)}), Pythia-1B: "
          f"{f(py['acc'], 4)} (CI95 {f(py['ci'][0], 4)}-{f(py['ci'][1], 4)}) on all {sl['n']} minimal pairs.**", "",
+         # without the training state a gap to a fully trained model reads as "Slayer is the worse model"
+         "Slayer 1.06 is a checkpoint from about 1/8 of the planned training, without LR annealing (per the model "
+         "author, statement of 1 November 2026); Pythia-1B is fully trained. The comparison is between this checkpoint "
+         "and a finished model, not between the two training recipes.", "",
          f"- **On these 67 000 pairs:** difference {pkt(og['roznica'])}, paired SE {pkt(og['se'])}, "
          f"z = {f(og['z'], 2)}: {WERDYKT_EN[og['werdykt']]}. This says the gap is real for these pairs. "
          "This is the comparison THRESHOLDS.md fixed before the measurement.",
@@ -370,15 +374,24 @@ def sekcja_tokenizacji(w, por, bl):
     an = "blimp/analiza/tokenizacja"
     wr = "blimp/analiza/ten_sam_worek_slow"
     ts, tr = por["blimp_ta_sama_tokenizacja"], por["blimp_rozna_tokenizacja"]
+    tsk, trk = por.get("blimp_ta_sama_tokenizacja_klastr"), por.get("blimp_rozna_tokenizacja_klastr")
+
+    def klastr(k):
+        # the pair z says "on these pairs"; the paradigm t (df = k - 1) is the reading for paradigms of this kind
+        return (f"; over paradigms t = {f(k['z'], 2)}, df = {k['df']}, p = {f(k['p_t'], 4)}: {WERDYKT_EN[k['werdykt']]}"
+                if k else "")
+
     return ["## What the gap measures: tokenizer and vocabulary", "", EKSPL, "",
             f"- Slayer's tokenizer cuts these English sentences into {f(w[an + '/stosunek_tokenow_a_do_b'], 2)}x as many "
             "tokens as Pythia's.",
             "- Accuracy depends on the token-length difference within a pair. On the "
             f"{int(w[an + '/ta_sama_roznica_tokenow/n'])} pairs where both tokenizers give the same token "
             f"difference between good and bad sentence the gap is {pkt(ts['roznica'])} (SE {pkt(ts['se'])}, "
-            f"z = {f(ts['z'], 2)}); on the {int(w[an + '/rozna_roznica_tokenow/n'])} other pairs {pkt(tr['roznica'])} "
-            f"(SE {pkt(tr['se'])}, z = {f(tr['z'], 2)}). About {pkt(-w[an + '/czesc_luki_od_tokenizacji'])} of the "
-            f"overall gap goes with the tokenizer difference.",
+            f"z = {f(ts['z'], 2)}, {WERDYKT_EN[ts['werdykt']]} on these pairs{klastr(tsk)}); on the "
+            f"{int(w[an + '/rozna_roznica_tokenow/n'])} other pairs {pkt(tr['roznica'])} "
+            f"(SE {pkt(tr['se'])}, z = {f(tr['z'], 2)}, {WERDYKT_EN[tr['werdykt']]} on these pairs{klastr(trk)}). "
+            f"About {pkt(-w[an + '/czesc_luki_od_tokenizacji'])} of the overall gap goes with the tokenizer difference "
+            "(a pair-level split; not tested over paradigms).",
             ] + sekcja_slow(w, bl) + [
             f"- The BLiMP flag `lexically_identical` does not mark this split: {int(w[wr + '/flaga_bez_tego_samego_worka'])} "
             f"of its {int(w[wr + '/flaga_lexically_identical_paradygmaty'])} paradigms have pairs with different word "

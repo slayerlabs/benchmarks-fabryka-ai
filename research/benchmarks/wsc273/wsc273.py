@@ -157,6 +157,62 @@ def wobec_wiekszosciowej(oceny):
                       statistics.fmean(o["gold"] == klasa for o in oceny))
 
 
+PROG_SCHEMATU = 0.6  # Jaccard słów sąsiednich zdań; 0,5 i 0,7 dają ten sam werdykt (README)
+
+
+def _slowa(tekst):
+    return set(tekst.lower().replace(".", " ").replace(",", " ").split())
+
+
+def schematy(dokumenty, prog=PROG_SCHEMATU):
+    """Id schematu dla każdego dokumentu. WSC273 nie ma id schematu, a schematy nie zawsze są parami
+    (George, wiersze 252-254, ma 3 zdania; Madonna, 267-270, 4), więc k // 2 je rozjeżdża. Zdania jednego
+    schematu stoją kolejno i różnią się jednym-dwoma słowami: kolejny dokument należy do schematu poprzedniego,
+    gdy Jaccard ich słów >= prog."""
+    out, g = [], 0
+    for i, d in enumerate(dokumenty):
+        if i:
+            a, b = _slowa(d["text"]), _slowa(dokumenty[i - 1]["text"])
+            if len(a & b) / len(a | b) < prog:
+                g += 1
+        out.append(g)
+    return out
+
+
+def po_schematach(oceny, grupy, baza):
+    """Model minus baza z SE klastrowym po schematach (grupy[k] = id schematu wiersza k). Stała odpowiedź
+    trafia w schemacie o przeciwnych odpowiedziach mniej więcej raz na parę, więc wariancja różnicy siedzi w
+    schematach, a SE po pytaniach ją zawyża. `baza(o)` to trafienie bazy na pytaniu o."""
+    kl = {}
+    for o in oceny:
+        kl.setdefault(grupy[o["k"]], []).append(o["acc"] - baza(o))
+    n, g = len(oceny), len(kl)
+    m = statistics.fmean(x for p in kl.values() for x in p)
+    se = (sum(sum(x - m for x in p) ** 2 for p in kl.values()) * g / (g - 1)) ** 0.5 / n
+    b = statistics.fmean(baza(o) for o in oceny)
+    wynik = porownanie(m + b, se, b)
+    rozmiary = {}
+    for p in kl.values():
+        rozmiary[str(len(p))] = rozmiary.get(str(len(p)), 0) + 1
+    wynik.update({"schematy": g, "rozmiary_schematow": dict(sorted(rozmiary.items())),
+                  "eksploracyjne": "jednostka wybrana po wyniku po pytaniach; nie w protokole"})
+    return wynik
+
+
+def po_schematach_pelny(pelny, docs, wynik_pelny):
+    """Odczyt po schematach (eksploracyjny) wobec obu baz, plus wrażliwość na próg grupowania."""
+    klasa = max((0, 1), key=lambda i: sum(x["gold"] == i for x in pelny))
+    losowa = lambda o: wynik_pelny["bazy"]["chance_value"]  # noqa: E731
+    wieksz = lambda o: float(o["gold"] == klasa)  # noqa: E731
+    grupy = schematy(docs)
+    return {"wobec_losowej_po_schematach": po_schematach(pelny, grupy, losowa),
+            "wobec_wiekszosciowej_po_schematach": po_schematach(pelny, grupy, wieksz),
+            "po_schematach_wrazliwosc_progu": {
+                str(p): {"schematy": max(g) + 1, "z_losowa": po_schematach(pelny, g, losowa)["z"],
+                         "z_wiekszosciowa": po_schematach(pelny, g, wieksz)["z"]}
+                for p in (0.5, 0.7) for g in [schematy(docs, p)]}}
+
+
 def pola(dokumenty, klucze):
     return [{k: d[k] for k in klucze} for d in dokumenty]
 
@@ -217,7 +273,9 @@ def cmd_report(_):
         "kontrola": {**wynik_kontroli, "opublikowana": KONTROLA["wartosc"], "se_opublikowane": KONTROLA["se"],
                      "porownanie": porownanie(wynik_kontroli["value"], KONTROLA["se"], KONTROLA["wartosc"])},
         "slayer_panel200": {**wynik_panel, **wobec_baz(wynik_panel, probka)},
-        "slayer_pelny": {**wynik_pelny, **wobec_baz(wynik_pelny, pelny)},
+        "slayer_pelny": {**wynik_pelny, **wobec_baz(wynik_pelny, pelny),
+                         # panel 200 has whole and broken schemas, so only the full split gets the schema reading
+                         **po_schematach_pelny(pelny, docs, wynik_pelny)},
         "zgodnosc_panel_pelny": {"max_roznica_loglik": roznica, "rozne_acc": rozne_acc},
         "warianty_tozsamosci": warianty_wyniku,
         "rozstep_wariantow": max(wartosci_wariantow) - min(wartosci_wariantow),

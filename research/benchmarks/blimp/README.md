@@ -28,6 +28,10 @@ test (T01) na panelu 200 par; tutaj oba modele liczone są na wszystkich 67 000.
 „Pythia-1B” bez dopisku to wagi v1 (`EleutherAI/pythia-1b`), model porównawczy tego raportu. Kontrolą kodu oceny
 jest v0 (sekcja „Kontrola” niżej).
 
+Slayer 1.06 to checkpoint z ok. 1/8 planowanego treningu, bez wygaszania LR (według autora modelu, stan z
+01.11.2026), a Pythia-1B jest po pełnym treningu. Różnice niżej porównują ten checkpoint z gotowym modelem, nie dwa
+przepisy treningu.
+
 Slayer 1.06 minus Pythia-1B, trzy odczyty:
 
 | odczyt | różnica | SE | test | werdykt | ustalone przed pomiarem |
@@ -125,9 +129,10 @@ kontrole i odchylenia od protokołu: [`results/CHECKPOINTS.md`](results/CHECKPOI
 - Pytanie 1 (czy różnica do Pythii-1B maleje w biegu końcowym). Czy luka maleje z tokenami: nierozstrzygnięte
   (z SE z reszt wokół prostej nachylenie to szum, p = 0,18). Reguła z protokołu jest spełniona (nachylenie po krokach 7150, 8600, 10010 i 13848 to 0,26 pkt na mld tokenów,
   SE 0,02 pkt, z = 12,55; po 67 paradygmatach t = 3,34), ale cały wzrost leży w odcinku po wznowieniu biegu.
-- Cały wzrost leży między 10010 a 13848: 2,14 pkt, z = 15,00 (pewne). Między 7150 a 10010 zmiana to -0,36 pkt,
-  z = -2,50 (prawdopodobne), a bez kroku 13848 nachylenie wynosi -0,12 pkt na mld tokenów, z = -2,38
-  (prawdopodobne).
+- Cały wzrost leży między 10010 a 13848: 2,14 pkt, z = 15,00 (pewne), po 67 paradygmatach t = 3,86 (pewne).
+  Między 7150 a 10010 zmiana to -0,36 pkt, na tych parach z = -2,50 (prawdopodobne), ale po paradygmatach
+  t = -0,77 (szum), a bez kroku 13848 nachylenie wynosi -0,12 pkt na mld tokenów, na parach z = -2,38
+  (prawdopodobne), po paradygmatach t = -0,76 (szum). Spadku przed 13848 nie wykazano poza tymi parami.
 - W przedziale 10010-13848 bieg wznowiono na innym sprzęcie, a z SE liczonym z rozrzutu czterech checkpointów wokół prostej
   (0,13 pkt) nachylenie to szum (p = 0,18). Trendu nie da się więc oddzielić od skoku między checkpointami.
 - Pytanie 2 (uśrednianie wag zamiast wygaszania LR): potwierdzone na avg3 i avg5. Zmiana straty na held-out wobec 1.06
@@ -139,7 +144,8 @@ kontrole i odchylenia od protokołu: [`results/CHECKPOINTS.md`](results/CHECKPOI
   niezależne; sąsiednie okna są skorelowane, więc SE jest za małe, a werdykty avgK wobec wygaszania za mocne.
 - Uśrednianie podnosi też BLiMP na tych parach wobec kroku 13848: avg3 0,7964 (0,43 pkt, SE 0,08 pkt, z = 5,15, pewne), avg5
   0,8000 (0,79 pkt, SE 0,09 pkt, z = 8,62, pewne), avg10 0,8030 (1,09 pkt, SE 0,10 pkt, z = 10,81, pewne).
-  Protokół nie przewidywał zmiany BLiMP, więc to obserwacja, nie teza.
+  Po 67 paradygmatach: avg3 t = 1,69 (szum), avg5 t = 2,82 (prawdopodobne), avg10 t = 3,53 (pewne), więc poza
+  tymi parami wzrost dla avg3 nie jest wykazany. Protokół nie przewidywał zmiany BLiMP, więc to obserwacja, nie teza.
 - Pulpit treningu liczy BLiMP innym protokołem: 76,1 przy kroku 13848 wobec 79,2 na pełnym BLiMP dla 1.06, więc tych liczb nie porównuje się wprost. <!-- liczba-spoza-wynikow: 76,1 to eval/blimp_acc pulpitu https://track.fabryka.ai/run/f056bb5c-f1da-56d5-9776-cc33063f10a5 przy kroku 13848; 79,2 to 0,7921 z tabeli wyżej w procentach -->
 
 ## Ograniczenia

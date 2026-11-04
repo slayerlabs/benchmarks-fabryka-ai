@@ -76,9 +76,14 @@ Wynik EWoK w %, losowo 50. Kolumna „CI95” to przedział po szablonach. Regu�
 | **Slayer1B-1.06** | **54,0** | [50,1; 58,0] | 56,5 | 59,0 |
 | Aster-0.5B(fp32) | 54,6 | [51,5; 57,8] | 51,7 | 50,8 |
 
-EN pełny dla Slayera 1.06, Bielika i LFM3 to te same pliki co w `../ewok/`. Ścieżka EN nie jest monotoniczna, ale
-żaden krok między kolejnymi wersjami nie wychodzi poza szum. CI obejmują tylko losowanie rekordów i szablonów, a
-nie zmienność samego treningu.
+EN pełny dla Slayera 1.06, Bielika i LFM3 to te same pliki co w `../ewok/`. Na EN pełnym (4374 rekordy) ścieżka
+Slayera jest monotoniczna, a krok 1.00 → 1.01 to +2,42 pkt: po rekordach SE 0,46 pkt, z = 5,29, po szablonach <!-- liczba-spoza-wynikow: kontrast 1.00 → 1.01 na EN pełnym przeliczony z results/Slayer1B-1.0x/en.jsonl.gz (SE parowane po rekordach); raport_ewok.json liczy kroki wersji tylko na PL -->
+szacunkowo z ≈ 3,7 (SE po rekordach razy 1,45, iloraz zmierzony dla 1.06 − 1.00 na EN pełnym); to szacunek, <!-- liczba-spoza-wynikow: jak wyżej; iloraz SE z raport_ewok.json -->
+po szablonach niesprawdzone (szablony odtwarza się z tekstu zbioru, który jest zamknięty i nie leży w repo).
+Pozostałe kroki na EN pełnym leżą po rekordach w |z| ≤ 2,36, a po szablonach (szacunek tym samym ilorazem) w szumie. <!-- liczba-spoza-wynikow: jak wyżej, krok 1.04 → 1.05 -->
+Werdykt po domenach dla tych kroków jest niesprawdzony: pliki per rekord nie niosą id szablonu ani domeny.
+Na EN625 (te same 625 rekordów co PL) ścieżka nie jest monotoniczna i żaden krok nie wychodzi poza szum. CI
+obejmują tylko losowanie rekordów i szablonów, a nie zmienność samego treningu.
 
 ## 3. Najważniejsze wnioski
 
