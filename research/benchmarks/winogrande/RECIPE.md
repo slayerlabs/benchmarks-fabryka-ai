@@ -76,7 +76,7 @@ lm_eval --model slayer \
 
 - Wynik: `acc` 0,5217048145224941 (661 z 1267), SE 0,01403923921648463. Plik: `benchmarks/winogrande/results/slayer-1.06/D__models__slayer-1.06/results_2026-11-04T01-35-01.855277.json`, klucz `results.winogrande.acc,none`. Per pytanie: `results/slayer-1.06/winogrande.jsonl.gz`.
 - Data przebiegu: 2026-11-04, około 01:35. Czas liczenia żądań: 80 s po załadowaniu modelu. Wyjście lm-eval: `tokenizer_bos_token` `<|endoftext|>`, id 0.
-- Wobec Pythii, te same 1267 zdań: różnica acc Slayer minus Pythia = −0,022889, SE sparowane 0,017767, z = −1,288. Werdykt słowny: niezapisane, pisze go Grzegorz.
+- Wobec Pythii, te same 1267 zdań: różnica acc Slayer minus Pythia = −0,022889, czyli −2,29 pkt, SE sparowane 0,017767, z = −1,288, werdykt szum. Przewidywanie, że acc wyjdzie ponad pasmo 0,505–0,584, nie trafiło.
 
 ## Wynik 3: Pythia z tym samym BOS co nakładka Slayera
 
