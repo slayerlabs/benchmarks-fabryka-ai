@@ -37,18 +37,40 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 
 | katalog | Space | typ | grupy | przebieg | wczesny sygnał (informacyjnie) |
 |---|---|---|---|---|---|
+| [`8tags`](benchmarks/8tags/README.md) | T23 | `mc +pl` | | T23 | nieustalone |
+| [`anli-r3`](benchmarks/anli-r3/README.md) | T16 | `mc` | | T16 | nieustalone |
 | [`arc-easy`](benchmarks/arc-easy/ORIGINAL.md) | | `mc-k` | | nie | tak |
+| [`belebele-pl`](benchmarks/belebele-pl/README.md) | T24 | `mc +pl` | | T24 | nieustalone |
 | [`blimp`](benchmarks/blimp/README.md) | T01 | `para +klastry` | klastry: paradygmaty; zjawiska informacyjnie | T01 | tak |
 | [`blimp-supplement`](benchmarks/blimp-supplement/ORIGINAL.md) | | `para +warstwy` | warstwy: podzadania, średnia bez wag (karta nie pokazuje, że podzadanie to jeden szablon) | nie | nieustalone |
-| [`boolq`](benchmarks/boolq/ORIGINAL.md) | T10 | `mc +klastry` | klastry: wspólny ustęp (3270 pytań, 2938 ustępów, 578 pytań dzieli ustęp, do 9 na ustęp) | nie | nieustalone |
+| [`boolq`](benchmarks/boolq/README.md) | T10 | `mc +klastry` | klastry: wspólny ustęp (3270 pytań, 2938 ustępów, 578 pytań dzieli ustęp, do 9 na ustęp) | T10 | nieustalone |
+| [`cb`](benchmarks/cb/README.md) | T12 | `mc` | | T12 | nieustalone |
+| [`cbd`](benchmarks/cbd/README.md) | T28 | `f1-korpus +pl` | | T28 | nieustalone |
+| [`copa`](benchmarks/copa/README.md) | T11 | `mc` | | T11 | nieustalone |
+| [`dyk`](benchmarks/dyk/README.md) | T25 | `f1-korpus +klastry +pl` | klastry: pytanie (1029 wierszy do 264 pytań) | T25 | nieustalone |
 | [`ewok`](benchmarks/ewok/README.md) | | `para +klastry` | klastry: szablony; domeny informacyjnie | nie, własny kod | nieustalone |
 | [`ewok-pl`](benchmarks/ewok-pl/README.md) | | `para +klastry +pl` | klastry: szablony; domeny informacyjnie | nie, własny kod | nieustalone |
-| [`hellaswag`](benchmarks/hellaswag/ORIGINAL.md) | T05 | `mc` | | nie | nieustalone |
+| [`hellaswag`](benchmarks/hellaswag/README.md) | T05 | `mc` | | T05 | nieustalone |
+| [`klej-ner`](benchmarks/klej-ner/README.md) | T29 | `mc +pl` | | T29 | nieustalone |
 | [`lambada`](benchmarks/lambada/ORIGINAL.md) | T17 | `cloze` | | T17 | tak |
-| [`openbookqa`](benchmarks/openbookqa/ORIGINAL.md) | T08 | `mc` | | nie | nieustalone |
-| [`piqa`](benchmarks/piqa/README.md) | T06 | `mc` | | nie, własny kod | tak |
-| [`sciq`](benchmarks/sciq/ORIGINAL.md) | T09 | `poz` | | nie | tak |
+| [`llmzszl`](benchmarks/llmzszl/README.md) | T37 | `mc +pl` | | nie, YAML Space nieopublikowany; kolumna informacyjna (brak licencji, kontaminacja) | nieustalone |
+| [`logiqa`](benchmarks/logiqa/README.md) | T18 | `mc` | | T18 | nieustalone |
+| [`mathqa`](benchmarks/mathqa/README.md) | T19 | `mc` | | T19 | nieustalone |
+| [`openbookqa`](benchmarks/openbookqa/README.md) | T08 | `mc` | | T08 | nieustalone |
+| [`paws-en`](benchmarks/paws-en/README.md) | T48 | `mc` | | T48 | nieustalone |
+| [`piqa`](benchmarks/piqa/README.md) | T06 | `mc` | | T06; też własny kod | tak |
+| [`polemo2`](benchmarks/polemo2/README.md) | T22 | `mc +pl` | | T22 | nieustalone |
+| [`polqa`](benchmarks/polqa/README.md) | T30 | `ciagla +pl` | | T30 | nieustalone |
+| [`poquad`](benchmarks/poquad/README.md) | T31 | `ciagla +pl` | | T31 | nieustalone |
+| [`ppc`](benchmarks/ppc/README.md) | T26 | `mc +pl` | | T26 | nieustalone |
+| [`prost`](benchmarks/prost/README.md) | T20 | `mc` | | T20 | nieustalone |
+| [`psc`](benchmarks/psc/README.md) | T27 | `f1-korpus +pl` | | T27 | nieustalone |
+| [`race`](benchmarks/race/README.md) | T40 | `mc` | | T40 | nieustalone |
+| [`rte`](benchmarks/rte/README.md) | T15 | `mc` | | T15 | nieustalone |
+| [`sciq`](benchmarks/sciq/README.md) | T09 | `poz` | | T09 | tak |
+| [`sst2`](benchmarks/sst2/README.md) | T21 | `mc` | | T21 | nieustalone |
 | [`uncheatable-eval`](benchmarks/uncheatable-eval/ORIGINAL.md) | | `ppl +warstwy` | kategorie, średnia bez wag | nie | nieustalone |
+| [`wic`](benchmarks/wic/README.md) | T13 | `mc` | | T13 | nieustalone |
 | [`wikitext-2`](benchmarks/wikitext-2/README.md) | T03 | `ppl` | | T03 | nieustalone |
 | [`winogrande`](benchmarks/winogrande/README.md) | T07 | `mc +klastry` | klastry: pary bliźniacze | T07 | nie |
 | [`wsc273`](benchmarks/wsc273/README.md) | T14 | `mc +klastry` | klastry: pary schematów | T14 | nieustalone |

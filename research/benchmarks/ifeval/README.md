@@ -13,5 +13,6 @@ Kartę oryginału i odtworzenie (`ORIGINAL.md`, `REPRODUCTION.md`) dopisuje osob
 
 - Budżet generacji z YAML-a: 1280 tokenów.
 - `langdetect` z seedem 0 (METHOD.md); `langdetect` i `immutabledict` są w locku.
-- lm-eval pobiera dane NLTK `punkt_tab` przy imporcie, więc instancja potrzebuje sieci; Space przygotowuje je offline.
+- Dane NLTK `punkt_tab` pobiera raz etap `przygotuj` przebiegu do `$WS/nltk_data` (`NLTK_DATA`), jak Space przed
+  ewaluacją; bez nich lm-eval pobiera je przy imporcie.
 - Kontekst najwyżej 4096 tokenów (METHOD.md §2, §4): gdy prompt z budżetem generacji się nie mieści, demonstracje schodzą od końca, a prompt za długi bez demonstracji kończy zadanie błędem (`ewaluuj.ogranicz_kontekst`).

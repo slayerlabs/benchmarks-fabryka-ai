@@ -99,6 +99,26 @@ def test_gsm8k_generation_strict_match_and_disjoint_bank(tmp_path, monkeypatch):
         assert ctx.count("What is 2+3?") == (1 if ctx.endswith("What is 2+3?\nAnswer:") else 0)
 
 
+def test_gsm8k_runs_on_a_tiny_slayer_with_kv_cache(tmp_path, monkeypatch):
+    """The generation path end to end on SlayerLM (random 2-layer model from test_lm_eval_slayer, block 512):
+    window limit from the model, its tokenizer counting tokens, greedy generation with the KV cache."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import test_lm_eval_slayer as base
+    (tmp_path / "model").mkdir()
+    lm = base._lm(base._model_dir(tmp_path / "model", base._questions()), 1)
+    katalog = tmp_path / "data"
+    katalog.mkdir()
+    for nazwa, docs in {"gsm8k": GSM_TEST, "gsm8k_demo": GSM_DEMO}.items():
+        (katalog / f"{nazwa}.jsonl").write_text("".join(json.dumps(d) + "\n" for d in docs))
+    monkeypatch.setattr(Z, "DANE_TESTOWE", katalog)
+    wyj = tmp_path / "wyj"
+    for podkatalog in ("probki", "trace"):
+        (wyj / podkatalog).mkdir(parents=True)
+    obs, roz, _, _ = E.ocen_zadanie(lm, "T33", "lokalne", "pelna", E.licznik_tokenow(lm), wyj, "0" * 64, "slayer", "p")
+    assert obs["state"] == "ok" and obs["n_scored"] == 3 and lm.max_length == 512
+    assert 0.0 <= roz["dodatkowe"]["space"]["glowna"]["value"] <= 1.0
+
+
 def test_context_limit_drops_demonstrations_from_the_end():
     class Stub:
         OUTPUT_TYPE = "generate_until"
@@ -280,12 +300,10 @@ def test_squad_f1_official_normalisation():
 # --- IFEval (T36) ---
 
 def test_ifeval_prompt_level_strict(tmp_path, monkeypatch):
-    nltk = pytest.importorskip("nltk")
-    try:
-        nltk.data.find("tokenizers/punkt_tab")
-    except LookupError:
-        pytest.skip("NLTK punkt_tab missing (IFEval downloads it on import, the test runs offline)")
-    pytest.importorskip("langdetect")
+    import nltk
+    # lm-eval's IFEval downloads punkt_tab on import when missing (the run stages it in `przygotuj`); the
+    # word-count rule tested here uses RegexpTokenizer, so the test blocks the download and stays offline
+    monkeypatch.setattr(nltk, "download", lambda *a, **k: True)
     docs = [{"key": i, "prompt": f"Write {i}", "instruction_id_list": ["length_constraints:number_words"],
              "kwargs": [{"relation": "at least", "num_words": 2}]} for i in range(2)]
     odp = {"Write 0": "hello world", "Write 1": "hello"}

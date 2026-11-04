@@ -30,9 +30,13 @@ OKNO_ROLLING=${OKNO_ROLLING:-4096}
 # transformers 4.57.6 from the lock has no qwen3_5, and the LFM3 remote code imports
 # use_kernel_func_from_hub_with_fallback (missing in 5.12.1). transformers 5 breaks lm_eval 0.4.9.1
 # (AutoModelForVision2Seq) and peft 0.17.1 (HybridCache), so the "new" env moves those too.
+# Levenshtein (PolQA/PoQuAD metric of the OpenPL fork, T30, T31) and langdetect (IFEval) come from the lock.
 NEW_ENV_PINS=(transformers==5.22.1 lm_eval==0.4.13 peft==0.21.2)
 # EuroLLM's tokenizer load needs protobuf, which the lock does not carry
 LOCK_ENV_PINS=(protobuf==7.36.2 sentencepiece==0.2.2)
+# IFEval (T36): lm-eval downloads NLTK punkt_tab on import when missing; przygotuj stages it once instead
+NLTK_DANE=${NLTK_DANE:-$WS/nltk_data}
+export NLTK_DATA=$NLTK_DANE
 
 # One list for the run; tests/test_przebieg_centralny.py checks it against METODOLOGIA.md ("Pięć modeli
 # odniesienia" without Bielik, gated repo) and the Slayer revision named there.
@@ -46,7 +50,10 @@ MODELE=(
 )
 
 # Task id -> <benchmark> directory name under wyniki/ and results/central-run/; the test checks that ZADANIA_ID equals the keys of ZADANIA.
-KATALOGI="T01:blimp T02:arc-challenge T03:wikitext-2 T04:multiblimp-pl T44:pubmedqa T45:medmcqa T46:social-iqa"
+KATALOGI="T01:blimp T02:arc-challenge T03:wikitext-2 T04:multiblimp-pl T05:hellaswag T06:piqa T08:openbookqa
+T09:sciq T10:boolq T11:copa T12:cb T13:wic T15:rte T16:anli-r3 T18:logiqa T19:mathqa T20:prost T21:sst2 T22:polemo2
+T23:8tags T24:belebele-pl T25:dyk T26:ppc T27:psc T28:cbd T29:klej-ner T30:polqa T31:poquad T40:race T44:pubmedqa
+T45:medmcqa T46:social-iqa T48:paws-en"
 # (c): generation, groups with weights, corpus metrics, multi-context gold
 KATALOGI+=" T07:winogrande T14:wsc273 T17:lambada T32:mmlu T33:gsm8k T34:math T35:truthfulqa T36:ifeval T38:squad2"
 KATALOGI+=" T39:drop T41:coqa T42:nq-open T43:triviaqa T47:bbh T49:cola T50:record"
@@ -183,6 +190,7 @@ case "$etap" in
       "$WS/venv-$E/bin/pip" freeze > "$WS/logi/freeze_$E.txt"
       zapisz_czas "pip_$E" "$t"
     done
+    "$WS/venv-lock/bin/python" -c "import nltk, sys; sys.exit(0 if nltk.download('punkt_tab', download_dir='$NLTK_DANE', quiet=True) else 1)"
     "$WS/venv-lock/bin/python" -c "import torch, json; print(json.dumps({'torch': torch.__version__, 'cuda': torch.version.cuda, 'gpu': torch.cuda.get_device_name(0)}))" | tee $WS/srodowisko.json
     nproc; free -g; df -h $WS; nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv
     ;;
