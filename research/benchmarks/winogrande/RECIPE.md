@@ -76,7 +76,7 @@ lm_eval --model slayer \
 
 - Wynik: `acc` 0,5217048145224941 (661 z 1267), SE 0,01403923921648463. Plik: `benchmarks/winogrande/results/slayer-1.06/D__models__slayer-1.06/results_2026-11-04T01-35-01.855277.json`, klucz `results.winogrande.acc,none`. Per pytanie: `results/slayer-1.06/winogrande.jsonl.gz`.
 - Data przebiegu: 2026-11-04, około 01:35. Czas liczenia żądań: 80 s po załadowaniu modelu. Wyjście lm-eval: `tokenizer_bos_token` `<|endoftext|>`, id 0.
-- Wobec Pythii, te same 1267 zdań: różnica acc Slayer minus Pythia = −0,022889, czyli −2,29 pkt, SE sparowane 0,017767, z = −1,288, werdykt szum. Przewidywanie, że acc wyjdzie ponad pasmo 0,505–0,584, nie trafiło.
+- Wobec Pythii, te same 1267 zdań: różnica acc Slayer minus Pythia = −0,022889, czyli −2,29 pkt, SE K 0,015954, t = −1,435 (df = 982), werdykt szum. SE A sparowane informacyjnie: 0,017767, z = −1,288. Przewidywanie, że acc wyjdzie ponad pasmo 0,505–0,584, nie trafiło.
 
 ## Wynik 3: Pythia z tym samym BOS co nakładka Slayera
 
@@ -92,12 +92,32 @@ python benchmarks/winogrande/pythia_bos.py
 ```
 
 - Wynik: `acc` 0,5438042620363063 (689 z 1267), SE 0,013998453610924324. Plik: `benchmarks/winogrande/results/pythia-1b-v0-bos/results.json`, klucz `results.winogrande.acc,none`. Per pytanie: `results/pythia-1b-v0-bos/winogrande.jsonl.gz`.
-- Wobec Pythii bez BOS, te same 1267: różnica −0,000789, SE sparowane 0,011194, z = −0,071, flipów decyzji 201. Wobec Slayera: różnica Slayer minus ta Pythia = −0,022099, SE sparowane 0,017179, z = −1,286.
-- Werdykt Grzegorza, 2026-11-04. W pliku jedna poprawka: „trafilem” → „trafiłem”. Reszta bez zmian. „Nie trafiłem z predykcją. BOS nie tłumaczy luki do Slayera.” <!-- ocena-bez-se: z tego przebiegu jest w linii wyżej, z = −0,071 -->
+- Wobec Pythii bez BOS, te same 1267: różnica −0,000789, SE K 0,010506, t = −0,075 (df = 982), szum, flipów decyzji 201. Wobec Slayera: różnica Slayer minus ta Pythia = −0,022099, SE K 0,015416, t = −1,434 (df = 982), szum. SE A sparowane informacyjnie: 0,011194 (z = −0,071) i 0,017179 (z = −1,286).
+- Werdykt Grzegorza, 2026-11-04. W pliku jedna poprawka: „trafilem” → „trafiłem”. Reszta bez zmian. „Nie trafiłem z predykcją. BOS nie tłumaczy luki do Slayera.” <!-- ocena-bez-se: z tego przebiegu jest w linii wyżej, t = −0,075 -->
+
+## Porównania modeli
+
+Trzy porównania na tych samych 1267 zdaniach, różnica parowana po pytaniach. Werdykt z surowego t; Holm na
+rodzinie tych trzech porównań, próg p jak dla |z| = 2. SE K samych wyników: Pythia 0,012548, Pythia z BOS
+0,012545, Slayer 0,012207 (SE A z lm-eval stoi przy wynikach 1–3 informacyjnie).
+
+| porównanie | różnica | SE K | t (df = 982) | werdykt | po Holmie: tak/nie | SE A (informacyjnie) | z A |
+|---|---|---|---|---|---|---|---|
+| Slayer − Pythia | −0,022889 | 0,015954 | −1,435 | szum | nie | 0,017767 | −1,288 |
+| Pythia z BOS − Pythia | −0,000789 | 0,010506 | −0,075 | szum | nie | 0,011194 | −0,071 |
+| Slayer − Pythia z BOS | −0,022099 | 0,015416 | −1,434 | szum | nie | 0,017179 | −1,286 |
 
 ## Bazy i predykcje
 
-Policzone z plików per pytanie tym samym kodem co w czacie (wyższy loglik wygrywa, remis bierze opcję 1). Baza większościowa jest ze splitu, nie z predykcji: 639 z 1267 = 0,5043409629044988, jak karta (tam zaokrąglone do 0,5043).
+Policzone z plików per pytanie (wyższy loglik wygrywa, remis bierze opcję 1) generatorem, w `research/`:
+
+```bash
+python benchmarks/winogrande/przelicz.py klastry   # raz: split HF @ rewizja z default.yaml -> klastry.json
+python benchmarks/winogrande/przelicz.py           # klastry.json + results/*/winogrande.jsonl.gz -> results/winogrande.json
+python tests/test_winogrande_przelicz.py           # niezależne przeliczenie, offline
+```
+
+Klastry to pary bliźniacze: sąsiednie zdania splitu z tym samym zbiorem opcji, 284 pary i 699 pojedynczych, k = 983. SE wiążące to SE K, werdykt z t przy df = 982; SE A stoi obok informacyjnie. Baza większościowa jest ze splitu, nie z predykcji: 639 z 1267 = 0,5043409629044988, jak karta (tam zaokrąglone do 0,5043).
 
 - Slayer: opcja 1 wygrała 630 razy, opcja 2 wygrała 637. Udział najczęstszej predykcji 0,5027624309392266.
 - Pythia bez BOS: 589 i 678. Udział 0,5351223362273086.
