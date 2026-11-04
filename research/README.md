@@ -132,6 +132,11 @@ Testy BLiMP to `tests/test_blimp*.py` oraz `tests/test_lm_eval_slayer.py`. Testy
 `common/slayer_model.py` łapie dopiero `test_lm_eval_slayer.py`: `test_forward_matches_official_reference` łapie
 forward (wariant RoPE, skala logitów), a testy `loglikelihood` łapią dodatkowy token w `encode`.
 
+Gdy sprawdzasz, czy test łapie celowo zepsuty kod ewaluacji (mutację), przed każdą mutacją usuwasz katalogi
+`__pycache__` albo ustawiasz `PYTHONPYCACHEPREFIX` na katalog tymczasowy, bo stary plik `.pyc` może zostać wczytany
+zamiast zmienionego kodu i mutacja fałszywie „przeżywa” (`python -B` tylko nie zapisuje nowych `.pyc`, istniejące
+dalej czyta).
+
 Przed PR nie uruchamiasz wszystkich testów. Listę komend ma README repo, sekcja [„Przed PR”](../README.md#przed-pr).
 To testy zmienionego benchmarku, `tests/test_liczby_raportow.py` i bramka liczb.
 
@@ -160,7 +165,11 @@ to co innego niż warunek odtworzenia z etapu B metodologii.
   dokumenty ze zwracaniem i liczysz metrykę od nowa).
 - **Test złożony z wielu grup** (paradygmaty, domeny, kategorie, szablony): pozycje w jednej grupie nie są niezależne.
   Werdykt porównania podajesz też po grupach: różnice średnich grup, t przy df = k−1 (k grup) i progi p takie jak dla
-  |z| = 3 i |z| = 2. Gdy porównujesz wiele grup naraz i nazywasz najlepsze albo najgorsze, poprawiasz p metodą Holma.
+  |z| = 3 i |z| = 2. Gdy porównujesz wiele grup naraz (domeny, paradygmaty, pary pojęć), tabela werdyktów podaje
+  domyślnie p poprawione metodą Holma, nie tylko wtedy, gdy nazywasz najlepsze albo najgorsze. Rodzina Holma to
+  wszystkie kontrasty z tabeli werdyktów, a obok p po poprawce stoi surowe p
+  ([#76](https://github.com/slayerlabs/benchmarks-fabryka-ai/pull/76),
+  [#92](https://github.com/slayerlabs/benchmarks-fabryka-ai/pull/92), [#93](https://github.com/slayerlabs/benchmarks-fabryka-ai/pull/93)).
 
 ## Bazy: losowa i większościowa
 
@@ -169,9 +178,14 @@ to co innego niż warunek odtworzenia z etapu B metodologii.
   w BoolQ. Przy wyborze odpowiedzi liczysz ją po pozycji opcji, bo lm-eval punktuje indeks odpowiedzi. Podajesz
   dokładną wartość ze splitu (np. ze statystyk HF datasets-server), nie zaokrągloną z abstraktu. Przy parach zdań
   (BLiMP i podobne) poprawne zdanie stoi zawsze na tej samej pozycji, więc baza większościowa jest pełna i nie ma
-  znaczenia: podajesz i sprawdzasz tylko bazę losową.
+  znaczenia: podajesz i sprawdzasz tylko bazę losową. Tak samo, gdy implementacja stawia poprawną opcję zawsze na
+  tej samej pozycji (SciQ w lm-eval, [#90](https://github.com/slayerlabs/benchmarks-fabryka-ai/pull/90)): wpisujesz
+  bazę większościową jako pełną z tym powodem. Wynik ponad bazą losową nie wyklucza wtedy kodu „zawsze ostatnia
+  opcja”, więc kontrola przechodzi też sprawdzenie pozycji (METODOLOGIA, „Model kontrolny etapu B”).
 - **Udział najczęstszej predykcji:** jaki odsetek odpowiedzi modelu to ta sama opcja. Małe modele w testach z literami
-  często wybierają w kółko jedną literę. Wynik podany bez tych liczb wprowadza w błąd.
+  często wybierają w kółko jedną literę. Wynik podany bez tych liczb wprowadza w błąd. Gdy poprawna opcja stoi zawsze
+  na tej samej pozycji, wysoki udział tej pozycji wygląda jak dobry wynik, więc udział podajesz z wyniku z
+  przemieszanymi opcjami.
 
 ## Slayer 1B: wyniki testów (30.10.2026)
 

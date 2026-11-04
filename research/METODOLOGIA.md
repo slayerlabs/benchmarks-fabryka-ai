@@ -39,7 +39,10 @@ sprawdza kartę i odtworzenie, zanim ktokolwiek policzy model.
 ## A. Karta oryginału (ORIGINAL.md)
 
 Przeczytaj pracę i kod autorów. Wypełnij każde pole. Gdy czegoś nie da się ustalić, wpisz „nieustalone” z listą
-przeszukanych miejsc.
+przeszukanych miejsc. Lista podaje wszystkie sprawdzone miejsca (np. `evals/pythia-v0` i `evals/pythia-v1`) i to,
+czego nie przeszukano, a „nieustalone” o zachowaniu lm-eval (prompt, tokenizacja, ocena) wpisujesz dopiero po
+przeczytaniu kodu przypiętej wersji (sekcja „Wersja lm-eval”)
+([#90](https://github.com/slayerlabs/benchmarks-fabryka-ai/pull/90), [#91](https://github.com/slayerlabs/benchmarks-fabryka-ai/pull/91)).
 
 | pole | co wpisać |
 |---|---|
@@ -62,6 +65,12 @@ Każdą liczbę spoza `results/LICZBY.json`, w każdym polu karty (n, bazy, SNR,
 końcu jej linii znacznikiem `<!-- liczba-spoza-wynikow: skąd jest liczba -->`. Jedna linia niesie jeden wynik. Pole z
 kilkoma wynikami rozpisz na kilka wierszy tabeli albo na listę, jedna pozycja na linię, każda ze swoim znacznikiem.
 Wzór jest w `benchmarks/arc-easy/ORIGINAL.md`.
+
+Gdy implementacja Space i lm-eval mierzy co innego niż praca, w polu „Znane rozbieżności” karty i w opisie testu w
+raporcie podajesz to, co mierzy implementacja, a rozbieżność z kategorią testu w Space (pole `domain` w `tasks_50.json`)
+zgłaszasz w zadaniu. Przykład: SciQ (T09) ma w Space `domain` `science_knowledge`, a prompt lm-eval zawiera akapit z
+odpowiedzią, więc test mierzy czytanie ze zrozumieniem (`benchmarks/sciq/ORIGINAL.md`, pola „Prompt” i „Znane
+rozbieżności: akapit”, [#90](https://github.com/slayerlabs/benchmarks-fabryka-ai/pull/90)).
 
 ## B. Odtworzenie wyniku oryginalnym kodem (REPRODUCTION.md)
 
@@ -112,6 +121,9 @@ Własna implementacja (np. klucz w `common/hipoteza_formatu.py`) jest dopuszczal
 - ten sam model i te same pytania co w etapie B;
 - wynik w granicach SE od wyniku oryginalnego kodu;
 - zgodność decyzji per pytanie co najmniej 99% (dla perpleksji: różnica per dokument poniżej 0,1%);
+- gdy któryś z porównywanych modeli ma tokenizer doklejający tokeny specjalne (BOS/EOS), test obejmuje też taki model,
+  nie tylko model bez nich ([#93](https://github.com/slayerlabs/benchmarks-fabryka-ai/pull/93): zgodność sprawdzona
+  tylko na gpt2-xl; [#76](https://github.com/slayerlabs/benchmarks-fabryka-ai/pull/76): Aster dokleja też EOS);
 - test zgodności zapisany jako `tests/test_<name>_zgodnosc.py` na próbce 10–20 pytań z wynikami oryginalnego kodu w
   pliku, bez sieci.
 
@@ -237,10 +249,15 @@ ewaluacji, nie w mierzonym modelu.
 
 **Kontrola musi odróżniać działający kod od zepsutego.** Opublikowany wynik modelu kontrolnego ma leżeć ponad 2 SE nad
 bazą losową i nad bazą większościową (udział najczęstszej poprawnej odpowiedzi; przy parach zdań tylko nad bazą
-losową, bo większościowa jest tam pełna). SE to tu √(p(1−p)/n), gdzie p to
-wynik kontroli, a n to liczba pytań w źródle tego wyniku. Inaczej ten sam wynik da też kod, który
-zgaduje albo zawsze wybiera jedną odpowiedź. Wtedy bierzesz następny model z listy. Przykład: Pythia v0 na
-ARC-Challenge i LogiQA leży przy poziomie losowym, a na BoolQ znany wynik 1B leży pod bazą większościową.
+losową, bo większościowa jest tam pełna). SE to tu √(p(1−p)/n), gdzie p to wynik kontroli, a n to liczba pytań w
+źródle tego wyniku. Inaczej ten sam wynik da też kod, który zgaduje albo zawsze wybiera jedną odpowiedź. Wtedy
+bierzesz następny model z listy. Przykład: Pythia v0 na ARC-Challenge i LogiQA leży przy poziomie losowym, a na BoolQ
+znany wynik 1B leży pod bazą większościową.
+
+Gdy implementacja stawia poprawną opcję zawsze na tej samej pozycji (SciQ w lm-eval, poprawna zawsze ostatnia), baza
+większościowa jest pełna, a kod „zawsze ostatnia opcja” trafia w każde pytanie, więc wynik ponad bazą losową go nie
+wyklucza. Kontrolę liczysz wtedy dodatkowo z przemieszanymi opcjami albo z poprawną opcją na innej pozycji i wynik
+ma zostać ponad 2 SE nad bazą losową.
 
 **Model kontrolny nie sprawdza ładowania Slayera.** Gdy Space ma wynik Slayera na tym teście, Slayer policzony Twoim
 kodem na tych samych pytaniach panelu Space ma się z nim zgadzać w granicach 2 SE. Wynik referencyjny nie może
@@ -287,7 +304,10 @@ Każdy benchmark ma `RECIPE.md` z wpisem dla każdego wyniku. Wpis podaje:
 - lockfile środowiska, z przypiętą wersją transformers;
 - rewizje modelu i zbioru;
 - dokładną komendę;
-- seed, precyzję, sprzęt i datę.
+- seed, precyzję, sprzęt i datę;
+- smoke test: przed pełnym przebiegiem czytasz ręcznie 5–10 pojedynczych przykładów (wyrenderowany prompt, opcje,
+  cel, odpowiedź albo logprob modelu) i oglądasz dane wejściowe (np. `pandas.read_parquet(...).head()`), a we wpisie
+  podajesz id obejrzanych przykładów i przy każdym sprawdzeniu, co sprawdziłeś i czy się zgadzało.
 
 Z samego przepisu ktoś inny za dwa tygodnie ma odtworzyć ten sam wynik. Czego nie zapisano, wpisz jako
 „niezapisane”. Nie zgaduj. Wzór to [`benchmarks/_template/RECIPE.md`](benchmarks/_template/RECIPE.md).
