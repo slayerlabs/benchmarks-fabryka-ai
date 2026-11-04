@@ -82,6 +82,40 @@ def test_plan_runs_full_set_for_every_model_and_task():
     assert all("--device cuda" in l for l in linie)
 
 
+def plan_na_gpu(liczba):
+    """`plan` with a stand-in nvidia-smi on PATH that lists `liczba` GPUs."""
+    ws = tempfile.mkdtemp()
+    bin_ = Path(tempfile.mkdtemp())
+    atrapa = bin_ / "nvidia-smi"
+    atrapa.write_text("#!/bin/sh\n[ \"$1\" = -L ] && { i=0; while [ $i -lt %d ]; do echo \"GPU $i: Atrapa (UUID: GPU-$i)\";"
+                      " i=$((i+1)); done; exit 0; }\necho Atrapa GPU\n" % liczba)
+    atrapa.chmod(0o755)
+    env = {**os.environ, "WS": ws, "K": str(KORZEN), "PATH": f"{bin_}:{os.environ['PATH']}"}
+    wynik = subprocess.run(["bash", str(SKRYPT), "plan"], capture_output=True, text=True, check=True, env=env).stdout
+    return wynik.replace(ws, "<WS>")
+
+
+def test_plan_four_gpus_gives_four_queues_each_pair_once():
+    linie = plan_na_gpu(4).splitlines()
+    naglowki = [l for l in linie if l.startswith("# GPU ")]
+    assert [l.split(":")[0] for l in naglowki] == [f"# GPU {i}" for i in range(4)]
+    komendy = [l for l in linie if not l.startswith("#")]
+    pary = [(re.search(r"--etykieta (\S+)", l)[1], re.search(r"--zadania (\S+)", l)[1]) for l in komendy]
+    modele = [m[0] for m in modele_skryptu()]
+    assert sorted(pary) == sorted((m, t) for m in modele for t in klucze_zadan())
+    kolejka = None
+    for l in linie:  # every model sits whole in the queue of its header, and its commands see only that GPU
+        if l.startswith("# GPU "):
+            kolejka, etykiety = l.split()[2].rstrip(":"), l.split(":", 1)[1].split()
+        else:
+            assert l.startswith(f"CUDA_VISIBLE_DEVICES={kolejka} ") and re.search(r"--etykieta (\S+)", l)[1] in etykiety
+
+
+def test_plan_one_gpu_same_as_without_gpu():
+    bez = plan_na_gpu(0)
+    assert plan_na_gpu(1) == bez and "CUDA_VISIBLE_DEVICES" not in bez and "#" not in bez
+
+
 def test_proba_cpu_two_questions_per_pair_on_cpu_in_chosen_env():
     ws = tempfile.mkdtemp()
     env = {**os.environ, "WS": ws, "K": str(KORZEN), "SUCHO": "1", "ENV_OVERRIDE": "new"}
