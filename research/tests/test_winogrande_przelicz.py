@@ -127,7 +127,19 @@ def test_holm_over_the_three_comparisons():
         assert JSON[c]["po_holmie"] == ("tak" if poprawione[c] <= 2 * stats.norm.sf(2) else "nie"), c
 
 
-def test_gap_to_published_uses_se_of_an_independent_value():
+def test_mde_from_the_binding_se_k_of_slayer_minus_pythia():
+    d = [u - v for u, v in zip(TR["slayer"], TR["pythia"])]
+    se, _ = se_klastrowe(d)
+    z_holm = stats.norm.isf(2 * stats.norm.sf(2) / 3 / 2)  # p for |z| = 2, split over m = 3 comparisons
+    r = JSON["mde"]
+    assert abs(r["se_roznicy_k"] - se) < TOL
+    assert abs(r["z_holm_m3"] - z_holm) < 1e-6
+    assert abs(r["pelny"] - (2 + 0.84) * se) < TOL
+    assert abs(r["pelny_holm_m3"] - (z_holm + 0.84) * se) < 1e-6
+    assert abs(r["panel200"] - (2 + 0.84) * se * math.sqrt(len(d) / 200)) < TOL
+
+
+def test_gap_to_published_uses_the_conservative_se():
     se_k, _ = se_klastrowe(TR["pythia"])
     d = math.fsum(TR["pythia"]) / len(TR["pythia"]) - 0.5375
     se = math.sqrt(se_k ** 2 + SE_KARTY ** 2)

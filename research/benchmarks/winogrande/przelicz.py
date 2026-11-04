@@ -35,6 +35,7 @@ SHA_WEJSC = {
     "klastry.json": "612d0a0608af6a636bea11bfe23a42b9fd2e88bfa8ed080f943bd4d047245134",
 }
 ROZMIAR_PANELU = 200
+Z_MOC = 0.84  # 80% power term of the MDE (METODOLOGIA, core point 5)
 # thresholds written in RECIPE.md before the runs
 PROG = {"opublikowane": 0.5375, "se_karty": 0.014, "dwa_se": 0.028, "furtka_dol": 0.5095, "furtka_gora": 0.5655,
         "pasmo_2pkt_dol": 0.5175, "pasmo_2pkt_gora": 0.5575, "pasmo_slayer_dol": 0.505, "pasmo_slayer_gora": 0.584,
@@ -155,7 +156,8 @@ def main():
     out.update(porownania)
     for klucz in ("pythia", "slayer"):
         out[f"{klucz}_wobec_b"] = roznica(acc[klucz], stala, klaster)
-    # the published value is an independent measurement: SE of the difference = hypot(our SE K, SE of the card)
+    # same model on the same questions, but no per-question results of the published run: hypot(our SE K, SE of the
+    # card) is a conservative SE, an upper bound
     d = out["pythia"]["acc"] - PROG["opublikowane"]
     se = math.hypot(out["pythia"]["se_k"], PROG["se_karty"])
     out["pythia_wobec_opublikowanego"] = {"roznica": d, "se_k_naszego": out["pythia"]["se_k"],
@@ -164,9 +166,9 @@ def main():
     # MDE (METODOLOGIA, core point 5) from the binding SE K of the paired Slayer - Pythia difference
     se_par = out["slayer_minus_pythia"]["se_k"]
     z_holm = NormalDist().inv_cdf(1 - P_PRAWDOPODOBNE / len(POROWNANIA) / 2)
-    out["mde"] = {"se_roznicy_k": se_par, "zrodlo_se": "slayer_minus_pythia", "z_holm_m3": z_holm,
-                  "pelny": (2 + 0.84) * se_par, "pelny_holm_m3": (z_holm + 0.84) * se_par,
-                  "panel200": (2 + 0.84) * se_par * math.sqrt(n / ROZMIAR_PANELU)}
+    out["mde"] = {"se_roznicy_k": se_par, "zrodlo_se": "slayer_minus_pythia", "z_moc": Z_MOC, "z_holm_m3": z_holm,
+                  "pelny": (2 + Z_MOC) * se_par, "pelny_holm_m3": (z_holm + Z_MOC) * se_par,
+                  "panel200": (2 + Z_MOC) * se_par * math.sqrt(n / ROZMIAR_PANELU)}
     (WYNIKI / "winogrande.json").write_text(json.dumps(out, indent=2, ensure_ascii=False) + "\n")
     for nazwa in list(porownania) + ["pythia_wobec_b", "slayer_wobec_b"]:
         r = out[nazwa]

@@ -50,7 +50,7 @@ lm_eval --model hf \
 - Data przebiegu: 2026-11-04, około 01:02 czasu lokalnego. Czas liczenia żądań: 57 s po załadowaniu modelu.
 - Rewizja wag: lokalny katalog nie ma pola `model_sha` w wyjściu lm-eval (wpisane `main` i pusty sha, bo ścieżka jest lokalna). Commit pliku wag z metadanych pobrania: `f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0`. To jest `step143000` według API HF.
 - Wynik: `acc` 0,5445935280189423 (690 z 1267), SE 0,013996485037729782. Wyjście lm-eval `results/pythia-1b-v0/D__models__pythia-1b-v0/results_2026-11-04T01-02-51.185008.json` (klucz `results.winogrande.acc,none`) nie jest zacommitowane, zostało na maszynie przebiegu. W repo jest plik per pytanie: `results/pythia-1b-v0/winogrande.jsonl.gz`, z którego `przelicz.py` liczy wynik od nowa. Pola: `doc_id`, `gold`, `logliki`, `pred`, `acc`, bez tekstu zdań.
-- Różnica wobec 0,5375: +0,007094 (0,71 pkt), SE różnicy wobec niezależnej wartości opublikowanej √(SE K² + 0,014²) = 0,018800, t = 0,377 (df = 982), szum. W paśmie ±2 pkt (0,5175–0,5575) i w paśmie ±2 SE (0,5095–0,5655). Werdykt słowny: w `REPRODUCTION.md`.
+- Różnica wobec 0,5375: +0,007094 (0,71 pkt), ostrożne SE (górna granica: te same pytania, brak wyników per pytanie) √(SE K² + 0,014²) = 0,018800, t = 0,377 (df = 982), szum. W paśmie ±2 pkt (0,5175–0,5575) i w paśmie ±2 SE (0,5095–0,5655). Werdykt słowny: w `REPRODUCTION.md`.
 
 ## Wynik 2: Slayer 1.06, pełny validation
 
