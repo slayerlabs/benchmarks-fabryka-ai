@@ -8,12 +8,12 @@ czegoś nie da się ustalić, wpis brzmi „nieustalone” i podaje, gdzie szuka
 | Co mierzy | Wiedzę medyczną na poziomie egzaminów wstępnych na studia podyplomowe w Indiach (AIIMS, NEET PG): pytania wielokrotnego wyboru z 21 przedmiotów medycznych i ok. 2,4 tys. tematów. <!-- liczba-spoza-wynikow: streszczenie arXiv 2203.14371 --> |
 | Źródła | praca: Pal, Umapathi, Sankarasubbu, „MedMCQA: A Large-scale Multi-Subject Multi-Choice Dataset for Medical domain Question Answering”, CHIL 2022, [arXiv:2203.14371](https://arxiv.org/abs/2203.14371); repo autorów: [`MedMCQA/MedMCQA` @ `c59ef14ca1990266c4107c7864b45a20fd93e5e0`](https://github.com/MedMCQA/MedMCQA/tree/c59ef14ca1990266c4107c7864b45a20fd93e5e0); zbiór HF: [`openlifescienceai/medmcqa` @ `91c6572c454088bf71b679ad90aa8dffcd0d5868`](https://huggingface.co/datasets/openlifescienceai/medmcqa/tree/91c6572c454088bf71b679ad90aa8dffcd0d5868) |
 | Dane: split w pracy | train, dev, test; n według karty HF @ `91c6572c`: train 182822, validation 4183, test 6150. |
-| Dane: split w Space/repo | split: `validation` (T45 w `tasks_50.json` Space @ `2d3d73f`; YAML lm-eval też ma `test_split: validation`); n: 4183; repo liczy pełny split (`results/central-run/medmcqa/`), Space panel 200. |
-| Dane: licencja | licencja autorów: MIT (repo `MedMCQA/MedMCQA`); tag HF: `license:apache-2.0` (`tasks_50.json` T45: `declared_tags: ["apache-2.0"]`); ukryte odpowiedzi w teście: tak (`analyses/answer-format/ORIGINAL.md`, tabela zbiorów). |
-| Typ testu | [README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy), tabela „Testy Space według typu”, wiersz `mc` (T45). Wiersza `medmcqa` w tabeli benchmarków README jeszcze nie ma. |
+| Dane: split w repo | split: `validation` (dev z pracy; test ma ukryte odpowiedzi; YAML lm-eval `medmcqa`: `test_split: validation`); n: 4183; przebieg centralny liczy pełny split (`results/central-run/medmcqa/`). Informacyjnie: Space liczy panel 200. |
+| Dane: licencja | licencja autorów: MIT (repo `MedMCQA/MedMCQA`); tag HF: `license:apache-2.0`; ukryte odpowiedzi w teście: tak (`analyses/answer-format/ORIGINAL.md`, tabela zbiorów). |
+| Typ testu | [README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy), wiersz `medmcqa` |
 | Format zadania i prompt | Wybór jednej z 4 opcji. Pola: `id`, `question`, `opa`–`opd`, `cop` (0–3), `choice_type`, `exp`, `subject_name`, `topic_name`. Praca nie ma promptu modelu językowego (modele dostrajane). lm-eval `medmcqa` (`utils_medmcqa.py`), 0-shot, format liter: kontekst `Question: {question}\nChoices:\nA. {opa}\nB. {opb}\nC. {opc}\nD. {opd}\nAnswer:`, kontynuacja to spacja i litera (` A`…` D`). Przykład (pierwszy wiersz `validation`, `cop` = 0): `Question: Which of the following is not true for myelinated nerve fibers:\nChoices:\nA. Impulse through myelinated fibers is slower than non-myelinated fibers\n…\nAnswer:`, kontynuacja ` A`. |
 | Ocena | lm-eval (`output_type: multiple_choice`): log-prawdopodobieństwo każdej litery, `acc` = argmax po sumie log P; `acc_norm` dzieli przez długość litery, więc przy jednoznakowych opcjach równa się `acc` (w `results_rozszerzone.json` obie wartości są identyczne). Bez normalizacji tekstu. |
-| Metryka decyzyjna | `acc` (`metric: acc,none` w `tasks_50.json` T45). Wariant cloze (`Question: {question}\nAnswer:` + treść opcji) repo liczy obok, informacyjnie. |
+| Metryka decyzyjna | `acc`: trafność, jak w pracy; pierwsza metryka YAML-a lm-eval `medmcqa` (`acc_norm` przy opcjach-literach jest jej równa). Wariant cloze (`Question: {question}\nAnswer:` + treść opcji) repo liczy obok, informacyjnie. |
 | Agregacja i grupy | średnia po pytaniach, bez wag; bez grup (przedmioty są polem, nie podtestem lm-eval). |
 | Bazy | losowa: 0,25; stała odpowiedź: zawsze `A`, 1348 z 4183 = 0,3223 (rozkład celu: A 1348, B 1085, C 925, D 825); b: 0,3223. <!-- liczba-spoza-wynikow: rozkład celu z results/central-run/medmcqa/*/probki --> |
 | SNR: źródło | Open Medical-LLM Leaderboard, pliki [`openlifescienceai/results` @ `62d7322cf11bf622399f7f54e5a7620ec6ef013d`](https://huggingface.co/datasets/openlifescienceai/results/tree/62d7322cf11bf622399f7f54e5a7620ec6ef013d/EleutherAI), 0-shot. Wzięto tylko Pythię bez `-deduped` (1b, 1.4b, 2.8b); innych modeli 0,4–3 mld z tego źródła nie wliczono. |
@@ -39,7 +39,7 @@ czegoś nie da się ustalić, wpis brzmi „nieustalone” i podaje, gdzie szuka
   trzech (`medmcqa.yaml` `8fb1c7cdba4983d8ccb509491f699d9be0afa17e`, `utils_medmcqa.py`
   `8ce7e6beece511dccdfe94790456711ee7e93eab`). Space deklaruje `instrument: lm_eval_0.4.8`.
 - **Źródło danych:** YAML ma `dataset_path: medmcqa` bez rewizji; repo czyta `openlifescienceai/medmcqa` @ `91c6572c`
-  (rewizja z `tasks_50.json`).
+  (rewizja przypięta w `common/zadania.py`).
 - **Praca a lm-eval:** praca ocenia modele dostrajane; lm-eval i Space liczą 0-shot przez literę odpowiedzi. Pytania
   z `choice_type: multi` mają w zbiorze jedną poprawną literę (`cop`), więc lm-eval ocenia je jak pytania z jedną
   odpowiedzią.

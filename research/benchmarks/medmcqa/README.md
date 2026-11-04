@@ -8,6 +8,7 @@ Pytania z egzaminów medycznych, 4 opcje, odpowiedź literą. lm-eval `0.4.9.1`,
 - [`ORIGINAL.md`](ORIGINAL.md): karta oryginału (etap A).
 - [`REPRODUCTION.md`](REPRODUCTION.md): etap B, werdykt: bez kontroli: nierozstrzygnięte. Slayer 1.06 wybiera
   `A` w prawie każdym pytaniu, więc jego wynik jest do sprawdzenia.
+- [`RECIPE.md`](RECIPE.md): przepis przebiegu centralnego.
 - Wyniki: [`results/central-run/medmcqa/`](../../results/central-run/medmcqa/) (przebieg centralny, RTX 4090).
 
 ## Wyniki

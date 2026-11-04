@@ -7,6 +7,7 @@ split `test` (PQA-L), metryka decyzyjna `acc`.
 
 - [`ORIGINAL.md`](ORIGINAL.md): karta oryginału (etap A).
 - [`REPRODUCTION.md`](REPRODUCTION.md): etap B, werdykt: bez kontroli: nierozstrzygnięte.
+- [`RECIPE.md`](RECIPE.md): przepis przebiegu centralnego.
 - Wyniki: [`results/central-run/pubmedqa/`](../../results/central-run/pubmedqa/) (przebieg centralny, RTX 4090).
 
 ## Wyniki

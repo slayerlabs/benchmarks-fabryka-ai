@@ -21,7 +21,7 @@ Procedurę opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworze
 | różnica | brak |
 | kontrola odróżnia działający kod od zepsutego (kolumna „kontrola” typu): b, wynik − b w SE, dodatkowy przebieg, jeśli typ go wymaga | b = 0,3223, stała odpowiedź „zawsze `A`”. Bez modelu kontrolnego; modele przebiegu centralnego wobec b (parowane) stoją w [`README.md`](README.md): Qwen3.5-0.8B-Base, LFM2.5-1.2B-Base i LFM3-1.7B-Base przechodzą b + 2 SE, Slayer 1.06 i EuroLLM-1.7B nie. |
 | warunek odtworzenia | ±2 pkt, a gdy 2 SE > 2 pkt, ±2 SE; nie ma wartości referencyjnej, do której go przyłożyć. |
-| werdykt | bez kontroli: nierozstrzygnięte. Wynik nie idzie do meta-oceny. MedMCQA nie należy do wyjątku z #97 (Space ma już wartość T45). |
+| werdykt | bez kontroli: nierozstrzygnięte. Wynik nie idzie do tabeli CodeSOTA ani do meta-oceny. |
 
 ## Slayer w Space (informacyjnie: nie kontrola ani wzorzec)
 
@@ -33,7 +33,7 @@ Space @ `2d3d73f5c0ee431df9d38bd9619ccb05a26bf9a9` ma T45 dla Slayera 1.06: 0,24
 - Pełny split repo minus panel Space: +7,10 pkt. 2 SE panelu (SE A 0,0304) to 6,08 pkt, więc różnica wychodzi poza próg, ale pytania są inne. Ostrożne SE √(SE² + SE_panel²) = 0,0312, z = 2,27, prawdopodobne. <!-- liczba-spoza-wynikow: SE panelu z wartości Space 0,245 i n 200; SE pełnego splitu z results_rozszerzone.json -->
 - Na panelu wybranym kodem repo Slayer ma 0,310 i wybiera `A` w 191 z 200 pytań; Space podaje udział najczęstszej predykcji 0,88, repo na pełnym splicie 0,9331. <!-- liczba-spoza-wynikow: panel repo przeliczony z probki/T45_space.jsonl.gz; 0,88 z results.json Space -->
 - Ten sam przebieg daje LFM2.5-1.2B-Base 0,4059 na pełnym splicie, wobec 0,405 w Space (różnica 0,09 pkt). <!-- liczba-spoza-wynikow: results/central-run/medmcqa/lfm2.5-1.2b-base/results.json; 0,405 z results.json Space -->
-- Podejrzany sam w sobie jest wynik Slayera, nie różnica wobec Space: na pełnym splicie Slayer wybiera `A` w 93,3% pytań, więc jego `acc` to w praktyce stała odpowiedź (sekcja „Wyniki przy bazie”). Do sprawdzenia przed wysłaniem wyniku T45 do Space. <!-- liczba-spoza-wynikow: probki Slayera w results/central-run/medmcqa -->
+- Podejrzany sam w sobie jest wynik Slayera, nie różnica wobec Space: na pełnym splicie Slayer wybiera `A` w 93,3% pytań, więc jego `acc` to w praktyce stała odpowiedź (sekcja „Wyniki przy bazie”). Do sprawdzenia przed publikacją wyniku T45. <!-- liczba-spoza-wynikow: probki Slayera w results/central-run/medmcqa -->
 
 ## Wyniki przy bazie
 

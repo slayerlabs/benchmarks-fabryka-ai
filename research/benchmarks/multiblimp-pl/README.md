@@ -6,7 +6,8 @@ zdaniu poprawnemu wyższe log-prawdopodobieństwo. Typ: [README, „Benchmarki i
 
 - Karta oryginału (etap A): [`ORIGINAL.md`](ORIGINAL.md)
 - Odtworzenie (etap B, bez kontroli: nierozstrzygnięte): [`REPRODUCTION.md`](REPRODUCTION.md)
-- Wyniki: `../../results/central-run/multiblimp-pl/` (przebieg centralny, pięć modeli)
+- Przepis przebiegu centralnego: [`RECIPE.md`](RECIPE.md)
+- Wyniki: `../../results/central-run/multiblimp-pl/` (przebieg centralny: Slayer i cztery modele odniesienia)
 
 Slayer 1.06 ma 98,59%. Podejrzenie, że zbiór jest w danych treningowych Slayera, jest do sprawdzenia w
 [#36](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/36). <!-- liczba-spoza-wynikow: results.json przebiegu centralnego, slayer1b-1.06 -->

@@ -18,7 +18,7 @@ Procedurę opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworze
 | różnica | nie dotyczy |
 | kontrola odróżnia działający kod od zepsutego | bez modelu kontrolnego nie ma kontroli. Informacyjnie niżej: cztery modele przebiegu leżą wysoko nad b, Slayer nie. |
 | warunek odtworzenia | ±2 pkt w skali metryki; gdy 2 SE > 2 pkt, w granicach 2 SE |
-| werdykt | bez kontroli: nierozstrzygnięte. Wynik T02 z przebiegu centralnego nie idzie do Space ani do meta-oceny, dopóki model kontrolny (Pythia-2.8b-v0 0-shot albo EuroLLM-1.7B 25-shot) nie zostanie policzony tym kodem. |
+| werdykt | bez kontroli: nierozstrzygnięte. Wynik T02 z przebiegu centralnego nie idzie do tabeli CodeSOTA ani do meta-oceny, dopóki model kontrolny (Pythia-2.8b-v0 0-shot albo EuroLLM-1.7B 25-shot) nie zostanie policzony tym kodem. |
 
 ## Modele przebiegu wobec bazy (informacyjnie, to nie jest kontrola)
 

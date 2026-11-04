@@ -18,7 +18,7 @@ Procedurę opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworze
 | różnica | nie dotyczy |
 | kontrola odróżnia działający kod od zepsutego | bez modelu kontrolnego nie ma kontroli typu. Informacyjnie niżej: wiersz `+pl` (model znający polski > b + 2 SE) i sprawdzenie zamiany kolejności. |
 | warunek odtworzenia | ±2 pkt; gdy 2 SE > 2 pkt, w granicach 2 SE |
-| werdykt | bez kontroli: nierozstrzygnięte. Wynik T04 z przebiegu centralnego nie idzie do Space ani do meta-oceny, dopóki model kontrolny (Goldfish 125M) nie zostanie policzony kodem autorów i kodem repo. |
+| werdykt | bez kontroli: nierozstrzygnięte. Wynik T04 z przebiegu centralnego nie idzie do tabeli CodeSOTA ani do meta-oceny, dopóki model kontrolny (Goldfish 125M) nie zostanie policzony kodem autorów i kodem repo. |
 
 ## Modele przebiegu wobec bazy (informacyjnie, to nie jest kontrola)
 
