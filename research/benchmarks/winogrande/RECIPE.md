@@ -45,4 +45,7 @@ lm_eval --model hf \
   --output_path benchmarks/winogrande/results/pythia-1b-v0
 ```
 
-- Wynik: niezapisane. Przebieg jeszcze nie poszedł.
+- Data przebiegu: 2026-11-04, około 01:02 czasu lokalnego. Czas liczenia żądań: 57 s po załadowaniu modelu.
+- Rewizja wag: lokalny katalog nie ma pola `model_sha` w wyjściu lm-eval (wpisane `main` i pusty sha, bo ścieżka jest lokalna). Commit pliku wag z metadanych pobrania: `f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0`. To jest `step143000` według API HF.
+- Wynik: `acc` 0,5445935280189423 (690 z 1267), SE 0,013996485037729782. Plik: `benchmarks/winogrande/results/pythia-1b-v0/D__models__pythia-1b-v0/results_2026-11-04T01-02-51.185008.json`, klucz `results.winogrande.acc,none`. Per pytanie: `samples_winogrande_2026-11-04T01-02-51.185008.jsonl`, pole `doc_id`.
+- Różnica wobec 0,5375: +0,007094 (0,71 pkt). W paśmie ±2 pkt (0,5175–0,5575) i w paśmie ±2 SE (0,5095–0,5655). Werdykt słowny: niezapisane, pisze go Grzegorz.
