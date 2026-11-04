@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 
 import blimp
-from blimp_analiza import P_PRAWDOPODOBNE, holm, p_t, p_z, werdykt_p
+from blimp_analiza import MIN_CZLONKOW, P_PRAWDOPODOBNE, holm, p_t, p_z, po_holmie, werdykt_p
 
 KORZEN = Path(__file__).resolve().parents[2]  # research/
 WYNIKI = KORZEN / "benchmarks/blimp/results"
@@ -170,6 +170,15 @@ def porownanie_klastrowe(H_a, H_b, grupy=None):
     p = p_t(t, k - 1) if t is not None else None
     return {"roznica": m, "k": k, "se_klastr": se, "t": t, "df": k - 1, "p_klastr": p,
             "werdykt_klastr": (werdykt_p(p) if k >= 3 else "nierozstrzygalne") if p is not None else None}
+
+
+def holm_tabeli(wiersze):
+    """Holm over the rows of one table (METODOLOGIA.md, core rule 4), separately per level. wiersze: [{"z",
+    "p_klastr", "k"}]; pairs: p from z, paradigms: p of the t (k < 3 or no variance: outside the family).
+    -> per row {"p_holm", "werdykt_holm", "po_holmie"} (pairs) and the same keys with suffix "_klastr"."""
+    pary = po_holmie([p_z(r.get("z")) for r in wiersze])
+    klastr = po_holmie([r.get("p_klastr") if (r.get("k") or 0) >= MIN_CZLONKOW else None for r in wiersze])
+    return [{**a, **{f"{k}_klastr": v for k, v in b.items()}} for a, b in zip(pary, klastr)]
 
 
 def zmiany_wynikow(docs, wa, wb):
@@ -351,15 +360,23 @@ def zbierz(surowe, dane=None, gpu=None, wygaszanie=None, kontrola_gpu_zapas=None
     out["przerwane"] = sorted(({"gpu": p.stem.removeprefix("points_"), **r} for p in Path(surowe).glob("points_*.log")
                                for r in przerwane_przebiegi(p.read_text())), key=lambda r: r["krok"])
     out["punkty"] = []
+    H_py = {g: v[0] for g, v in macierz_trafien(docs, [pythia]).items()}
     for r, s in PUNKTY:
         e = f"k{s}"
         if e not in modele:
             continue
         st = blimp.statystyki_modelu(modele[e], docs)
         por = blimp.porownanie_parowane(modele[e], pythia, docs)
+        H_e = {g: v[0] for g, v in macierz_trafien(docs, [modele[e]]).items()}
         out["punkty"].append({"etykieta": e, "repo": f"SlayerLab/Slayer1B-{r}-checkpoints", "krok": s, "mld": mld(s),
                               "glowny_bieg": s in GLOWNE, **st, "luka_pythia": por["ogolem"],
+                              "luka_pythia_klastr": porownanie_klastrowe(H_e, H_py),
                               "luka_pythia_zjawiska": por["zjawiska"]})
+    # Holm over the checkpoint-vs-Pythia table: pairs on the pair z, paradigms (binding) on the clustered t
+    for pt, h in zip(out["punkty"], holm_tabeli([{**pt["luka_pythia"], **pt["luka_pythia_klastr"]}
+                                                 for pt in out["punkty"]])):
+        pt["luka_pythia"].update({k: h[k] for k in ("p_holm", "werdykt_holm", "po_holmie")})
+        pt["luka_pythia_klastr"].update({k: h[f"{k}_klastr"] for k in ("p_holm", "werdykt_holm", "po_holmie")})
     gl = [s for s in GLOWNE if f"k{s}" in modele]
     zj = sorted({d["zjawisko"] for d in docs})
     gr_zj = {z: sorted({d["grupa"] for d in docs if d["zjawisko"] == z}) for z in zj}
@@ -402,6 +419,8 @@ def zbierz(surowe, dane=None, gpu=None, wygaszanie=None, kontrola_gpu_zapas=None
             Hb = {g: H[g][gl.index(a)] for g in H}
             out["kroki"].append({"od": a, "do": b, **por, **{k: v for k, v in porownanie_klastrowe(Ha, Hb).items() if k != "roznica"},
                                  "wklad_paradygmatow": wklad_paradygmatow(Ha, Hb)})
+        for r, h in zip(out["kroki"], holm_tabeli(out["kroki"])):  # the 6 changes are one table, one family
+            r.update(h)
     wsz = [s for _, s in PUNKTY if f"k{s}" in modele]
     if len(wsz) >= 3:
         H = macierz_trafien(docs, [modele[f"k{s}"] for s in wsz])
@@ -422,6 +441,8 @@ def zbierz(surowe, dane=None, gpu=None, wygaszanie=None, kontrola_gpu_zapas=None
             out["srednie"][e] = {**sk, "acc": blimp.statystyki_modelu(modele[e], docs, bootstrap=False)["acc"],
                                  "blimp": {**por["ogolem"], **{k: v for k, v in porownanie_klastrowe(Ha, H106).items() if k != "roznica"}},
                                  "blimp_zjawiska": por["zjawiska"]}
+        for r, h in zip(out["srednie"].values(), holm_tabeli([r["blimp"] for r in out["srednie"].values()])):
+            r["blimp"].update(h)  # the averages vs 1.06 are one table, one family
         ps = {f"{e}/{z}": r["p_z"] for e in out["srednie"] for z, r in
               ((z, {"p_z": p_z(r["z"]) if r["z"] is not None else 1.0}) for z, r in out["srednie"][e]["blimp_zjawiska"].items())}
         hz = holm(ps, alfa=P_PRAWDOPODOBNE)

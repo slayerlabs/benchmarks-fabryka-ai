@@ -66,7 +66,7 @@ jednym na etap. W katalogu musi być:
 4. Wynik mierzonego modelu z n i SE, a obok wynik modelu kontrolnego
    ([„Model kontrolny etapu B”](research/METODOLOGIA.md#model-kontrolny-etapu-b)) liczony tym samym kodem. Oba liczy
    autor PR.
-5. Typ testu w karcie, bazy i b według tabeli typów, porównanie z modelem kontrolnym jako różnica w SE z werdyktem
+5. Wiersz testu w [`research/README.md`, „Benchmarki i typy”](research/README.md#benchmarki-i-typy) (karta do niego linkuje), bazy i b według tabeli typów, porównanie z modelem kontrolnym jako różnica w SE z werdyktem
    ([METODOLOGIA, „Typy testów”](research/METODOLOGIA.md#typy-testów)).
 6. `RECIPE.md` z wpisem dla każdego wyniku.
 7. Benchmark liczony przez `research/common/ewaluuj.py`: wpis w `ZADANIA` (`research/common/zadania.py`) i w

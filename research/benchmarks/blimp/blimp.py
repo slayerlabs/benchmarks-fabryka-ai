@@ -24,8 +24,9 @@ REPO = "nyu-mll/blimp"
 REWIZJA = "877fba0801ffb7cbd8c39c1ff314a46f053f6036"
 SEED = 20261028
 BOOTSTRAP = 10000
-PROG_PEWNE, PROG_PRAWDOPODOBNE = 3.0, 2.0
 KORZEN = Path(__file__).resolve().parents[2]  # research/
+sys.path.insert(0, str(KORZEN / "tools"))
+from statystyka import PROG_PEWNE, PROG_PRAWDOPODOBNE, werdykt  # noqa: E402,F401  (verdict from |z|: one implementation)
 
 # Mean of the 67 blimp_* acc values in EleutherAI/pythia, evals/pythia-v0/pythia-1b/zero-shot/
 # pythia-1b-0shot-global_step143000_eval_results_11-28-2022-15-14-35.json (v0 weights, old harness
@@ -172,13 +173,6 @@ def rozklad_paneli(docs, wiersze, panel_docs, powtorzen=20000, seed=SEED):
         wart += rng.hypergeometric(k, n - k, m, size=powtorzen) / m
     wart /= len(rozm)
     return wart
-
-
-def werdykt(z):
-    if z is None:
-        return None
-    a = abs(z)
-    return "pewne" if a >= PROG_PEWNE else "prawdopodobne" if a >= PROG_PRAWDOPODOBNE else "szum"
 
 
 def wilson(k, n, z=1.959963984540054):
@@ -386,7 +380,8 @@ def cmd_zbierz(a):
                 ps[f"udzial_paneli_nie_nizszych_{m}"] = float((rozk >= ps[m] - 1e-9).mean())
                 ps[f"sd_paneli_{m}"] = float(rozk.std())
     import blimp_analiza
-    out["analiza"] = blimp_analiza.analiza(docs, modele[a_], modele[b_], out["porownanie"]["paradygmaty"])
+    out["analiza"] = blimp_analiza.analiza(docs, modele[a_], modele[b_], out["porownanie"]["paradygmaty"],
+                                           out["porownanie"]["zjawiska"])
     out["tokenizery_sha256"] = {m: TOKENIZERY[m] for m in modele if m in TOKENIZERY}
     kf = KORZEN / "benchmarks/blimp/results/kontrola_forward.json"
     if kf.exists():

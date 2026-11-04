@@ -83,7 +83,9 @@ Jest zgodny z paperem EWoK (Ivanova i in. 2024, [arXiv:2405.09605](https://arxiv
     niezależne. Szablon odtwarzamy z EN (`szablony()`): w obrębie (para pojęć, domena) słowa obecne
     w mniej niż 30% rekordów maskujemy jako wypełnienia. Daje to 130 szablonów na 625 rekordów PL,
     zwykle po 5. Bootstrap losuje całe szablony, a test permutacyjny zmienia znak różnicy dla
-    całego szablonu naraz.
+    całego szablonu naraz. SE po szablonach na 625 rekordach PL jest większe niż w oryginale na 4374
+    rekordach (`../ewok/README.md`), więc według wiersza `+pl` [tabeli typów](../../METODOLOGIA.md#typy-testów)
+    EWoK-PL wchodzi do meta-oceny jako kolumna informacyjna.
   - **Po parach pojęć i po domenach:** pary pojęć (9 w PL) i domeny (11 w EN) jako klastry: średnia z różnic
     grup, SE = sd / √k, t przy df = k − 1 (`po_parach`, `po_domenach`), jak paradygmaty w `../blimp/`.
   - **Korekta Holma:** w każdej rodzinie kontrastów (`p_holm_po_szablonach`), na wszystkich kontrastach

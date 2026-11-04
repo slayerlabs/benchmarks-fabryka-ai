@@ -51,27 +51,32 @@ udziału najczęstszej predykcji.
 
 Slayer 1.06 minus model, różnica w parach na tych samych rekordach, w dwóch odczytach:
 
-- **po szablonach:** te rekordy, SE z bootstrapu po 843 szablonach;
+- **po szablonach:** te rekordy, SE z bootstrapu po 843 szablonach (SE K po szablonach nie da się policzyć z repo:
+  id szablonu powstaje z tekstu rekordów, a tekstu EWoK nie publikujemy, TERMS_OF_USE);
 - **po domenach:** 11 domen jako klastry, czyli średnia z 11 różnic domen, SE = sd / √11, t przy df = 10 i werdykt
   z p (progi |z| = 3 i 2). Ten odczyt pyta, czy różnica trzyma się dla innych domen, a nie tylko dla tych rekordów.
   Działa tak jak paradygmaty w `../blimp/`.
+- **po Holmie:** p z wiersza (po szablonach z |z|, po domenach z t) poprawione metodą Holma w rodzinie sześciu
+  porównań jednej kolumny; „tak” przy p Holma nie większym niż p dla |z| = 2, w nawiasie werdykt z p Holma (klucze
+  `holm_by_template` i `holm_by_domain_clusters` w `results/ewok.json`, komenda `ewok.py holm`).
 
-| model | po szablonach | SE | z | werdykt | po domenach | SE | t (df = 10) | p | werdykt | ustalone przed pomiarem |
-|---|---:|---:|---:|---|---:|---:|---:|---:|---|---|
-| gpt2-xl (model kontrolny) | −6,39 pkt | 0,78 | −8,15 | pewne | −5,67 pkt | 1,87 | −3,03 | 0,0126 | prawdopodobne | nie (eksploracyjne) |
-| Bielik-1.5B-v3 | −10,48 pkt | 0,88 | −11,94 | pewne | −8,30 pkt | 1,96 | −4,23 | 0,0017 | pewne | nie (eksploracyjne) |
-| Qwen3.5-0.8B-Base | −8,60 pkt | 0,85 | −10,09 | pewne | −6,94 pkt | 1,71 | −4,05 | 0,0023 | pewne | nie (eksploracyjne) |
-| EuroLLM-1.7B | −7,24 pkt | 0,79 | −9,14 | pewne | −7,28 pkt | 1,63 | −4,47 | 0,0012 | pewne | nie (eksploracyjne) |
-| LFM3-1.7B-Base | −6,98 pkt | 0,84 | −8,28 | pewne | −5,65 pkt | 1,38 | −4,11 | 0,0021 | pewne | nie (eksploracyjne) |
-| LFM2.5-1.2B-Base | −2,32 pkt | 0,76 | −3,06 | pewne | −1,29 pkt | 1,21 | −1,06 | 0,3121 | szum | nie (eksploracyjne) |
+| model | po szablonach | SE | z | werdykt | po Holmie | po domenach | SE | t (df = 10) | p | werdykt | po Holmie | ustalone przed pomiarem |
+|---|---:|---:|---:|---|---|---:|---:|---:|---:|---|---|---|
+| gpt2-xl (model kontrolny) | −6,39 pkt | 0,78 | −8,15 | pewne | tak (pewne) | −5,67 pkt | 1,87 | −3,03 | 0,0126 | prawdopodobne | tak (prawdopodobne) | nie (eksploracyjne) |
+| Bielik-1.5B-v3 | −10,48 pkt | 0,88 | −11,94 | pewne | tak (pewne) | −8,30 pkt | 1,96 | −4,23 | 0,0017 | pewne | tak (prawdopodobne) | nie (eksploracyjne) |
+| Qwen3.5-0.8B-Base | −8,60 pkt | 0,85 | −10,09 | pewne | tak (pewne) | −6,94 pkt | 1,71 | −4,05 | 0,0023 | pewne | tak (prawdopodobne) | nie (eksploracyjne) |
+| EuroLLM-1.7B | −7,24 pkt | 0,79 | −9,14 | pewne | tak (pewne) | −7,28 pkt | 1,63 | −4,47 | 0,0012 | pewne | tak (prawdopodobne) | nie (eksploracyjne) |
+| LFM3-1.7B-Base | −6,98 pkt | 0,84 | −8,28 | pewne | tak (pewne) | −5,65 pkt | 1,38 | −4,11 | 0,0021 | pewne | tak (prawdopodobne) | nie (eksploracyjne) |
+| LFM2.5-1.2B-Base | −2,32 pkt | 0,76 | −3,06 | pewne | tak (pewne) | −1,29 pkt | 1,21 | −1,06 | 0,3121 | szum | nie (szum) | nie (eksploracyjne) |
 
 - **Odczyt po szablonach.** Na tych rekordach Slayer 1.06 jest wyraźnie (pewne) słabszy od modelu kontrolnego i od
-  wszystkich pięciu modeli odniesienia. Wobec LFM2.5 werdykt pewny leży na samym progu (z = −3,06). Po domenach
-  „pewne” zostaje tylko wobec czterech z pięciu modeli odniesienia: wobec LFM2.5 to szum, a wobec modelu
-  kontrolnego werdykt prawdopodobny (tabela wyżej), więc „słabszy od wszystkich” dotyczy tych szablonów, nie domen.
+  wszystkich pięciu modeli odniesienia, także po Holmie. Wobec LFM2.5 werdykt pewny leży na samym progu
+  (z = −3,06). Po domenach i po Holmie żadne porównanie nie jest pewne: wobec pięciu modeli różnica jest
+  prawdopodobna, a wobec LFM2.5 to szum (tabela wyżej), więc „słabszy od wszystkich” dotyczy tych szablonów, nie
+  domen.
 - **Stan treningu.** Slayer 1.06 to checkpoint z ok. 1/8 treningu, bez wygaszania LR. Wszystkie modele, z którymi
   go tu porównujemy, są po pełnym treningu, więc różnice mówią o tym checkpoincie, nie o gotowym Slayerze.
-- **Odczyt po domenach.** Różnica do gpt2-xl jest tylko prawdopodobna (t = −3,03, p = 0,0126). Opiera się na kilku
+- **Odczyt po domenach.** Różnica do gpt2-xl jest tylko prawdopodobna (t = −3,03). Opiera się na kilku
   domenach z dużą różnicą, głównie społecznych (tabela niżej). Różnica do LFM2.5 to po domenach szum.
 - **Stały target.** Slayer ma najwyższy udział stałego targetu (74,5%). Częściej niż inne modele wybiera to samo
   zdanie niezależnie od kontekstu, czyli idzie za priorem zdania, a nie za kontekstem. Bez porównania z wcześniejszymi
@@ -81,29 +86,28 @@ Slayer 1.06 minus model, różnica w parach na tych samych rekordach, w dwóch o
 
 ### Slayer 1.06 minus gpt2-xl po domenach
 
-SE po szablonach wewnątrz domeny. Werdykt per domena z z = różnica / SE, bez poprawki na 11 porównań.
+SE po szablonach wewnątrz domeny. Werdykt per domena z z = różnica / SE; „po Holmie” w rodzinie 11 domen tej tabeli
+(klucz `domains.*.holm` w `results/ewok.json`), wniosek o tabeli opiera się na tej kolumnie.
 
-| domena | n | szablony | Slayer 1.06 | gpt2-xl | różnica | SE | z | werdykt |
-|---|---:|---:|---:|---:|---:|---:|---:|---|
-| agent-properties | 1120 | 208 | 55,4% | 60,0% | −4,55 pkt | 1,69 | −2,70 | prawdopodobne |
-| material-dynamics | 780 | 137 | 66,7% | 72,3% | −5,64 pkt | 1,47 | −3,84 | pewne |
-| material-properties | 124 | 25 | 60,5% | 59,3% | +1,21 pkt | 4,20 | 0,29 | szum |
-| physical-dynamics | 75 | 15 | 61,3% | 66,0% | −4,67 pkt | 7,03 | −0,66 | szum |
-| physical-interactions | 280 | 60 | 55,0% | 54,6% | +0,36 pkt | 3,16 | 0,11 | szum |
-| physical-relations | 415 | 147 | 49,9% | 54,6% | −4,70 pkt | 2,24 | −2,10 | prawdopodobne |
-| quantitative-properties | 190 | 36 | 66,3% | 74,2% | −7,89 pkt | 3,60 | −2,20 | prawdopodobne |
-| social-interactions | 175 | 30 | 71,4% | 81,4% | −10,00 pkt | 3,61 | −2,77 | prawdopodobne |
-| social-properties | 185 | 32 | 65,7% | 81,9% | −16,22 pkt | 3,66 | −4,43 | pewne |
-| social-relations | 785 | 120 | 56,7% | 70,8% | −14,14 pkt | 1,70 | −8,33 | pewne |
-| spatial-relations | 245 | 33 | 56,7% | 52,9% | +3,88 pkt | 2,75 | 1,41 | szum |
+| domena | n | szablony | Slayer 1.06 | gpt2-xl | różnica | SE | z | werdykt | po Holmie |
+|---|---:|---:|---:|---:|---:|---:|---:|---|---|
+| agent-properties | 1120 | 208 | 55,4% | 60,0% | −4,55 pkt | 1,69 | −2,70 | prawdopodobne | nie (szum) |
+| material-dynamics | 780 | 137 | 66,7% | 72,3% | −5,64 pkt | 1,47 | −3,84 | pewne | tak (pewne) |
+| material-properties | 124 | 25 | 60,5% | 59,3% | +1,21 pkt | 4,20 | 0,29 | szum | nie (szum) |
+| physical-dynamics | 75 | 15 | 61,3% | 66,0% | −4,67 pkt | 7,03 | −0,66 | szum | nie (szum) |
+| physical-interactions | 280 | 60 | 55,0% | 54,6% | +0,36 pkt | 3,16 | 0,11 | szum | nie (szum) |
+| physical-relations | 415 | 147 | 49,9% | 54,6% | −4,70 pkt | 2,24 | −2,10 | prawdopodobne | nie (szum) |
+| quantitative-properties | 190 | 36 | 66,3% | 74,2% | −7,89 pkt | 3,60 | −2,20 | prawdopodobne | nie (szum) |
+| social-interactions | 175 | 30 | 71,4% | 81,4% | −10,00 pkt | 3,61 | −2,77 | prawdopodobne | tak (prawdopodobne) |
+| social-properties | 185 | 32 | 65,7% | 81,9% | −16,22 pkt | 3,66 | −4,43 | pewne | tak (pewne) |
+| social-relations | 785 | 120 | 56,7% | 70,8% | −14,14 pkt | 1,70 | −8,33 | pewne | tak (pewne) |
+| spatial-relations | 245 | 33 | 56,7% | 52,9% | +3,88 pkt | 2,75 | 1,41 | szum | nie (szum) |
 
-Różnice z werdyktem pewnym: social-relations, social-properties i material-dynamics. W czterech domenach
+Po Holmie zostają trzy różnice pewne (social-relations, social-properties, material-dynamics) i jedna
+prawdopodobna (social-interactions, na samym progu); agent-properties, quantitative-properties i physical-relations
+przechodzą w szum. W czterech domenach
 (material-properties, physical-dynamics, physical-interactions, spatial-relations) różnica to szum, a Slayer ma w
 nich wynik równy albo wyższy. Domeny są nierówne: od 75 do 1120 rekordów.
-
-Z poprawką Holma na 11 porównań (p z |z|, progi p jak wyżej) trzy werdykty pewne zostają. Prawdopodobne zostaje
-tylko social-interactions, na samym progu. Agent-properties, quantitative-properties i physical-relations przechodzą
-w szum.
 
 ### Poprzednia reguła: bez tokenów specjalnych
 

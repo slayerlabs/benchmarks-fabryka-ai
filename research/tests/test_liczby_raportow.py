@@ -642,6 +642,49 @@ def test_t_bez_df_i_bez_porownania_zostaje_w_spokoju():
     assert _reguly_ijk("t = 9,87 (pewne)") == []
 
 
+# (l) tabele: werdykt w komórce wobec t/z z tego samego wiersza, flaga „po Holmie” wobec rodziny tabeli
+_TABELA_T = ("| from | to | t paradigms | df | p paradigms | verdict paradigms |\n|---|---|---:|---:|---:|---|\n"
+             "| a | b | -1.435 | 66 | 0.156 | {w1} |\n| c | d | 2.529 | 66 | 0.0138 | {w2} |\n")
+
+
+def _regula_l(tekst):
+    return [p for p in S.tabela_problemy(tekst.splitlines())]
+
+
+def test_werdykt_w_komorce_wobec_t_i_df_z_kolumn_bez_df_w_tekscie():
+    assert _regula_l(_TABELA_T.format(w1="noise", w2="probable")) == []
+    zle = [p for _, p in _regula_l(_TABELA_T.format(w1="certain", w2="certain"))]
+    assert zle == ["(l) t -1.435 (df 66) → szum, w kolumnie „verdict paradigms”: certain",
+                   "(l) t 2.529 (df 66) → prawdopodobne, w kolumnie „verdict paradigms”: certain"]
+    # przez cały raport: kod wyjścia 1 (regresja: wiersz z t i df w kolumnach, bez „(df” w tekście, przechodził)
+    assert any(p.startswith("(l) t -1.435") for _, _, p in bledy(_TABELA_T.format(w1="certain", w2="probable")))
+
+
+def test_werdykt_przy_z_w_kolumnie_i_df_w_naglowku_t():
+    tab = ("| model | z | werdykt | t (df = 10) | werdykt |\n|---|---:|---|---:|---|\n"
+           "| x | −8,15 | pewne | −3,03 | {w} |\n")
+    assert _regula_l(tab.format(w="prawdopodobne")) == []
+    assert [p for _, p in _regula_l(tab.format(w="pewne"))] == ["(l) t −3,03 (df 10) → prawdopodobne, w kolumnie "
+                                                                 "„werdykt”: pewne"]
+
+
+_TABELA_HOLM = ("| porównanie | z | werdykt | po Holmie |\n|---|---:|---|---|\n"
+                "| a | 12,64 | pewne | tak (pewne) |\n| b | 2,10 | prawdopodobne | {h} |\n| c | −1,84 | szum | nie (szum) |\n")
+
+
+def test_flaga_po_holmie_wobec_holma_na_wierszach_tabeli():
+    # b: p(|z| = 2,10) = 0,0357, w rodzinie 3 na drugiej randze 2 · 0,0357 = 0,071 > 0,0455: „nie”
+    assert _regula_l(_TABELA_HOLM.format(h="nie (szum)")) == []
+    assert [p for _, p in _regula_l(_TABELA_HOLM.format(h="tak (szum)"))] == [
+        "(l) Holm w rodzinie 3 wierszy → nie, w kolumnie „po Holmie”: tak"]
+    assert [p for _, p in _regula_l(_TABELA_HOLM.format(h="nie (prawdopodobne)"))] == [
+        "(l) werdykt z p Holma → szum, w kolumnie „po Holmie”: prawdopodobne"]
+    # odwrócona kolejność wierszy: ta sama rodzina, ten sam wynik
+    odwr = "\n".join(_TABELA_HOLM.format(h="tak (szum)").splitlines()[:2]
+                     + _TABELA_HOLM.format(h="tak (szum)").splitlines()[2:][::-1])
+    assert [p for _, p in _regula_l(odwr)] == ["(l) Holm w rodzinie 3 wierszy → nie, w kolumnie „po Holmie”: tak"]
+
+
 if __name__ == "__main__":
     testy =[(n, f) for n, f in sorted(globals().items()) if n.startswith("test_") and callable(f)]
     zle = 0

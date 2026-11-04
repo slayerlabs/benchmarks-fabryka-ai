@@ -32,36 +32,45 @@ Slayer 1.06 to checkpoint z ok. 1/8 planowanego treningu, bez wygaszania LR (wed
 01.11.2026), a Pythia-1B jest po pełnym treningu. Różnice niżej porównują ten checkpoint z gotowym modelem, nie dwa
 przepisy treningu.
 
-Slayer 1.06 minus Pythia-1B, trzy odczyty:
+Slayer 1.06 minus Pythia-1B, trzy odczyty. Wiąże odczyt po paradygmatach: BLiMP to typ `para +klastry` z
+[`METODOLOGIA.md`](../../METODOLOGIA.md) (klastry to paradygmaty, SE K, t przy df = k − 1). Odczyt w parach
+ustalił `THRESHOLDS.md` przed pomiarem; od przyjęcia metodologii to informacja o tych parach, nie werdykt.
 
-| odczyt | różnica | SE | test | werdykt | ustalone przed pomiarem |
-|---|---:|---:|---|---|---|
-| te 67 000 par (w parach) | -2,87 pkt | 0,16 pkt | z = -18,11 | pewne | tak |
-| paradygmaty jako klastry (k = 67, df = 66) | -2,87 pkt | 0,87 pkt | t = -3,30, p = 0,0016 | pewne | nie (eksploracyjne) |
-| na token (log-prawdopodobieństwo / liczba tokenów) | -3,09 pkt | 0,17 pkt | z = -17,76 | pewne | nie (eksploracyjne) |
+| odczyt | różnica | SE | test | werdykt | rola | ustalone przed pomiarem |
+|---|---:|---:|---|---|---|---|
+| paradygmaty jako klastry (k = 67, df = 66) | -2,87 pkt | 0,87 pkt | t = -3,30, p = 0,0016 | pewne | wiążący | nie |
+| te 67 000 par (w parach) | -2,87 pkt | 0,16 pkt | z = -18,11 | pewne | informacja | tak |
+| na token (log-prawdopodobieństwo / liczba tokenów) | -3,09 pkt | 0,17 pkt | z = -17,76 | pewne | eksploracyjne | nie |
 
-- Na tych parach Pythia-1B ma przewagę z werdyktem pewnym (z = -18,11). Uogólniony na inne paradygmaty werdykt
-  też jest pewny (t = -3,30), Pythia ma przewagę w 56 z 67 paradygmatów, ale bez 2 paradygmatów o największej
-  różnicy spada do prawdopodobnego (t = -2,91, p = 0,0049), więc opiera się częściowo na kilku paradygmatach.
+- Wiążący werdykt: Pythia-1B ma przewagę po paradygmatach z werdyktem pewnym (t = -3,30), ma przewagę w 56 z 67
+  paradygmatów, ale bez 2 paradygmatów o największej różnicy werdykt spada do prawdopodobnego (t = -2,91,
+  p = 0,0049), więc opiera się częściowo na kilku paradygmatach. Na samych parach przewaga też jest pewna
+  (z = -18,11).
 - Tokenizery się różnią (Slayer tnie te zdania na 1,18x tyle tokenów); na token różnica zostaje pewna
   (z = -17,76).
 
-### Zjawiska z werdyktem pewnym
+### Zjawiska po poprawce Holma
 
-Z 12 zjawisk różnica jest pewna na parach w 9 (we wszystkich 9 na korzyść Pythii-1B),
-prawdopodobna w elipsie (z = -2,68) i szum w efektach wysp (z = -1,17) oraz kwantyfikatorach (z = 1,89). Po
-paradygmatach (eksploracyjnie, wymaga k >= 3) pewne jest tylko jedno zjawisko:
+Wniosek o tabeli 12 zjawisk opiera się na kolumnie po Holmie (rodzina to wiersze jednej tabeli, osobno na każdym
+poziomie). Po paradygmatach (wiążąco; do rodziny wchodzi 9 zjawisk z k >= 3, pozostałe 3 są nierozstrzygalne)
+żadne zjawisko nie jest pewne po Holmie. Prawdopodobne są dwa, oba na korzyść Pythii-1B: argument structure
+i subject verb agreement. Bez poprawki pewne było argument structure (t = -4,68). Determiner noun agreement bez
+poprawki jest prawdopodobne (t = -3,79), a po Holmie to szum:
 
-| zjawisko | paradygmaty | Slayer 1.06 | Pythia-1B | różnica | SE w parach | z w parach | t po paradygmatach | werdykt pary / paradygmaty |
-|---|---:|---:|---:|---:|---:|---:|---:|---|
-| argument structure | 9 | 0,785 | 0,836 | -5,2 pkt | 0,42 pkt | z = -12,22 | t = -4,68 | pewne / pewne |
-| determiner noun agreement | 8 | 0,930 | 0,951 | -2,1 pkt | 0,29 pkt | z = -7,11 | t = -3,79 | pewne / prawdopodobne |
-| subject verb agreement | 6 | 0,844 | 0,883 | -3,9 pkt | 0,51 pkt | z = -7,64 | t = -4,91 | pewne / prawdopodobne |
+| zjawisko | paradygmaty | Slayer 1.06 | Pythia-1B | różnica | SE w parach | z w parach | t po paradygmatach | werdykt pary / paradygmaty | p Holma po paradygmatach | werdykt po Holmie (paradygmaty) |
+|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---|
+| argument structure | 9 | 0,785 | 0,836 | -5,2 pkt | 0,42 pkt | z = -12,22 | t = -4,68 | pewne / pewne | 0,0143 | prawdopodobne |
+| determiner noun agreement | 8 | 0,930 | 0,951 | -2,1 pkt | 0,29 pkt | z = -7,11 | t = -3,79 | pewne / prawdopodobne | 0,0475 | szum |
+| subject verb agreement | 6 | 0,844 | 0,883 | -3,9 pkt | 0,51 pkt | z = -7,64 | t = -4,91 | pewne / prawdopodobne | 0,0353 | prawdopodobne |
 
-Pozostałe zjawiska z werdyktem pewnym na parach (anaphor agreement, binding, control raising, filler gap
-dependency, irregular forms, npi licensing) po paradygmatach to szum albo nierozstrzygalne: różnica jest
-prawdziwa dla tych par z werdyktem pewnym, ale nie pokazano, że trzyma się dla innych paradygmatów zjawiska.
-Per paradygmat (n = 1000 każdy): na parach Slayer prowadzi z werdyktem pewnym w 7, Pythia w 34, szum w 18;
+W parach (informacja o tych parach) po Holmie z 12 zjawisk pewnych jest 7, prawdopodobne są 3 (anaphor agreement,
+binding, elipsa), a szum to 2 (efekty wysp i kwantyfikatory). Zjawiska pewne na parach, które po paradygmatach
+są szumem albo nierozstrzygalne (anaphor agreement, binding, control raising, determiner noun agreement, filler
+gap dependency, irregular forms, npi licensing), mają różnicę pokazaną tylko dla tych par, nie dla innych
+paradygmatów zjawiska. Pełna tabela z obiema kolumnami Holma: [`results/BLIMP.md`](results/BLIMP.md), sekcja
+„12 phenomena”.
+
+Per paradygmat (n = 1000 każdy; porównanie wewnątrz jednego paradygmatu to odczyt w parach): Slayer prowadzi z werdyktem pewnym w 7, Pythia w 34, szum w 18;
 poprawka Holma zostawia 37 różnic. Największe pewne różnice na korzyść Slayera to sentential_subject_island
 (23,7 pkt, z = 11,63) i principle_A_reconstruction (15,7 pkt, z = 9,44); na korzyść Pythii tough_vs_raising_1
 (-16,5 pkt, z = -12,10) i principle_A_domain_3 (-15,0 pkt, z = -7,32). Kolejność zależy od miary (korelacja
@@ -117,19 +126,25 @@ kontrole i odchylenia od protokołu: [`results/CHECKPOINTS.md`](results/CHECKPOI
 
 ![BLiMP po checkpointach](results/blimp_curve.svg)
 
-| krok | bieg końcowy | trafność | SE | Slayer minus Pythia-1B | SE | z | werdykt |
-|---:|---|---:|---:|---:|---:|---:|---|
-| 1430 | nie | 0,7382 | 0,0015 | -8,26 pkt | 0,17 pkt | z = -48,76 | pewne |
-| 2860 | nie | 0,7616 | 0,0015 | -5,91 pkt | 0,17 pkt | z = -35,80 | pewne |
-| 7150 | tak | 0,7743 | 0,0015 | -4,64 pkt | 0,16 pkt | z = -28,77 | pewne |
-| 8600 | tak | 0,7766 | 0,0015 | -4,41 pkt | 0,16 pkt | z = -27,46 | pewne |
-| 10010 | tak | 0,7707 | 0,0015 | -5,00 pkt | 0,16 pkt | z = -30,88 | pewne |
-| 13848 | tak | 0,7921 | 0,0014 | -2,87 pkt | 0,16 pkt | z = -18,11 | pewne |
+Werdykt wiąże odczyt po 67 paradygmatach (t przy df = 66); kolumny „po Holmie” liczą poprawkę Holma na 6 wierszach
+tej tabeli, osobno dla paradygmatów i dla par. Wszystkie checkpointy zostają po Holmie z werdyktem pewnym poniżej
+Pythii-1B.
+
+| krok | bieg końcowy | trafność | SE | Slayer minus Pythia-1B | t po paradygmatach (df = 66) | werdykt po paradygmatach | po Holmie (paradygmaty) | SE par | z par | werdykt par | po Holmie (pary) |
+|---:|---|---:|---:|---:|---:|---|---|---:|---:|---|---|
+| 1430 | nie | 0,7382 | 0,0015 | -8,26 pkt | t = -8,27 | pewne | tak (pewne) | 0,17 pkt | z = -48,76 | pewne | tak (pewne) |
+| 2860 | nie | 0,7616 | 0,0015 | -5,91 pkt | t = -6,35 | pewne | tak (pewne) | 0,17 pkt | z = -35,80 | pewne | tak (pewne) |
+| 7150 | tak | 0,7743 | 0,0015 | -4,64 pkt | t = -5,07 | pewne | tak (pewne) | 0,16 pkt | z = -28,77 | pewne | tak (pewne) |
+| 8600 | tak | 0,7766 | 0,0015 | -4,41 pkt | t = -5,29 | pewne | tak (pewne) | 0,16 pkt | z = -27,46 | pewne | tak (pewne) |
+| 10010 | tak | 0,7707 | 0,0015 | -5,00 pkt | t = -5,73 | pewne | tak (pewne) | 0,16 pkt | z = -30,88 | pewne | tak (pewne) |
+| 13848 | tak | 0,7921 | 0,0014 | -2,87 pkt | t = -3,30 | pewne | tak (pewne) | 0,16 pkt | z = -18,11 | pewne | tak (pewne) |
 
 - Pytanie 1 (czy różnica do Pythii-1B maleje w biegu końcowym). Czy luka maleje z tokenami: nierozstrzygnięte
   (z SE z reszt wokół prostej nachylenie to szum, p = 0,18). Reguła z protokołu jest spełniona (nachylenie po krokach 7150, 8600, 10010 i 13848 to 0,26 pkt na mld tokenów,
   SE 0,02 pkt, z = 12,55; po 67 paradygmatach t = 3,34), ale cały wzrost leży w odcinku po wznowieniu biegu.
-- Cały wzrost leży między 10010 a 13848: 2,14 pkt, z = 15,00 (pewne), po 67 paradygmatach t = 3,86 (pewne).
+- Cały wzrost leży między 10010 a 13848: 2,14 pkt, po 67 paradygmatach t = 3,86 (pewne), po Holmie na 6 zmianach
+  między checkpointami nadal pewne (p = 0,0016); na parach z = 15,00 (pewne). Zmiana 7150 → 13848 (1,78 pkt,
+  t = 3,18, pewne bez poprawki) po Holmie jest tylko prawdopodobna (p = 0,0112).
   Między 7150 a 10010 zmiana to -0,36 pkt, na tych parach z = -2,50 (prawdopodobne), ale po paradygmatach
   t = -0,77 (szum), a bez kroku 13848 nachylenie wynosi -0,12 pkt na mld tokenów, na parach z = -2,38
   (prawdopodobne), po paradygmatach t = -0,76 (szum). Spadku przed 13848 nie wykazano poza tymi parami.
@@ -144,8 +159,9 @@ kontrole i odchylenia od protokołu: [`results/CHECKPOINTS.md`](results/CHECKPOI
   niezależne; sąsiednie okna są skorelowane, więc SE jest za małe, a werdykty avgK wobec wygaszania za mocne.
 - Uśrednianie podnosi też BLiMP na tych parach wobec kroku 13848: avg3 0,7964 (0,43 pkt, SE 0,08 pkt, z = 5,15, pewne), avg5
   0,8000 (0,79 pkt, SE 0,09 pkt, z = 8,62, pewne), avg10 0,8030 (1,09 pkt, SE 0,10 pkt, z = 10,81, pewne).
-  Po 67 paradygmatach: avg3 t = 1,69 (szum), avg5 t = 2,82 (prawdopodobne), avg10 t = 3,53 (pewne), więc poza
-  tymi parami wzrost dla avg3 nie jest wykazany. Protokół nie przewidywał zmiany BLiMP, więc to obserwacja, nie teza.
+  Po 67 paradygmatach (wiążąco): avg3 t = 1,69 (szum), avg5 t = 2,82 (prawdopodobne), avg10 t = 3,53 (pewne);
+  poprawka Holma na trzech średnich nie zmienia tych werdyktów. Poza tymi parami wzrost dla avg3 nie jest
+  wykazany. Protokół nie przewidywał zmiany BLiMP, więc to obserwacja, nie teza.
 - Pulpit treningu liczy BLiMP innym protokołem: 76,1 przy kroku 13848 wobec 79,2 na pełnym BLiMP dla 1.06, więc tych liczb nie porównuje się wprost. <!-- liczba-spoza-wynikow: 76,1 to eval/blimp_acc pulpitu https://track.fabryka.ai/run/f056bb5c-f1da-56d5-9776-cc33063f10a5 przy kroku 13848; 79,2 to 0,7921 z tabeli wyżej w procentach -->
 
 ## Ograniczenia

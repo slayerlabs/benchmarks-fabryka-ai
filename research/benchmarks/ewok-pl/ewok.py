@@ -39,7 +39,9 @@ import torch
 
 KATALOG = Path(__file__).resolve().parent
 sys.path.insert(0, str(KATALOG.parents[1] / "common"))
+sys.path.insert(0, str(KATALOG.parents[1] / "tools"))
 
+from statystyka import holm  # noqa: E402,F401  (p poprawione Holmem, wspólne z raportami innych testów)
 from hipoteza_formatu import ModelSlayer, licz_logliki, para  # noqa: E402
 from metryki import POWTORZENIA, SEED, srednia_z_niepewnoscia  # noqa: E402
 
@@ -262,15 +264,6 @@ def test_permutacyjny(roznice, seed=SEED, powtorzenia=POWTORZENIA, klastry=None)
     rng = np.random.default_rng(seed)
     znaki = rng.choice([-1.0, 1.0], size=(powtorzenia, len(d)))
     return float(((np.abs((znaki * d).mean(axis=1)) >= obs - 1e-12).sum() + 1) / (powtorzenia + 1))
-
-
-def holm(pv):
-    kol = sorted(range(len(pv)), key=lambda i: pv[i])
-    out, mx = [None] * len(pv), 0.0
-    for r, i in enumerate(kol):
-        mx = max(mx, min(1.0, (len(pv) - r) * pv[i]))
-        out[i] = mx
-    return out
 
 
 def podsumuj(oceny, meta, grupy=("Domain", "ConceptA", "ContextType", "ContextDiff", "TargetDiff"), szabl=None):

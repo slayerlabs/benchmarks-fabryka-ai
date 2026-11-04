@@ -182,6 +182,25 @@ def test_wyniki_z_pliku_gz():
     assert list(got) == [r["id"] for r in rows] and got["ewok-en-0003"]["ll"] == SAMPLE[3]["ll"]
 
 
+def _report(zs, ts_p, dom_zs):
+    return {"contrasts": [{"diff_by_template": {"z": z}, "diff_by_domain_clusters": {"p": p},
+                           "domains": {d: {"z": x} for d, x in dom_zs.items()}} for z, p in zip(zs, ts_p)]}
+
+
+def test_holm_kolumny_tabel_porownan():
+    # mutation: Holm skipped, a family other than the table, or the domain column read through p of z instead of p of t
+    r = E.add_holm(_report([-8.0, -3.06], [0.0017, 0.3121], {"a": -2.10, "b": -3.84, "c": 0.29}))
+    k0, k1 = r["contrasts"]
+    assert k1["holm_by_template"]["p_holm"] == E.p_z(-3.06) and k1["holm_by_template"]["werdykt_holm"] == "pewne"
+    assert abs(k0["holm_by_domain_clusters"]["p_holm"] - 2 * 0.0017) < 1e-12  # p = 0.0017 pewne -> prawdopodobne
+    assert k0["holm_by_domain_clusters"]["werdykt_holm"] == "prawdopodobne"
+    assert [k0["domains"][d]["holm"]["po_holmie"] for d in "abc"] == ["nie", "tak", "nie"]  # a: 2 · p(|z| = 2,10) = 0,071
+    # reversed row order: the same flags per row
+    rr = E.add_holm(_report([-3.06, -8.0], [0.3121, 0.0017], {"c": 0.29, "b": -3.84, "a": -2.10}))
+    assert rr["contrasts"][1]["holm_by_domain_clusters"] == k0["holm_by_domain_clusters"]
+    assert rr["contrasts"][1]["domains"]["a"]["holm"] == k0["domains"]["a"]["holm"]
+
+
 if __name__ == "__main__":
     for name, f in list(globals().items()):
         if name.startswith("test_"):

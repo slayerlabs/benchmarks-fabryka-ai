@@ -17,7 +17,10 @@ Kod wyjścia 1, gdy:
  (j) z i t stoją w jednym nawiasie lub klauzuli, ich werdykty się różnią, a przy t nie ma słowa werdyktu
      (tekst niesie wtedy tylko werdykt par, np. „dołek: 1.55 pts (z = 10.81, t = 3.07)”);
  (k) akapit podaje liczbę wyników istotnych po Holmie i opisuje t po paradygmatach, a liczby po paradygmatach
-     obok nie ma.
+     obok nie ma;
+ (l) w tabeli słowo w kolumnie „werdykt/verdict” nie zgadza się z z albo t (df z kolumny, nagłówka, komórki albo
+     akapitu nad tabelą) z tego samego wiersza, albo flaga „po Holmie/after Holm” (tak/nie, werdykt w nawiasie) nie
+     zgadza się z Holmem liczonym na wierszach tej tabeli.
  (d)-(f) bramki raportów z metadanymi w LICZBY.json "raporty" (bramki_raportu): werdykt na zbiorze
      wieloparadygmatowym bez SE klastrowanego / Holma, werdykt grupy < 3 członków, różne tokenizery bez
      wyniku na token.
@@ -28,6 +31,7 @@ Uruchom: python tools/liczby.py && python tools/sprawdz_raporty.py [plik.html ..
 import bisect
 import html
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -610,6 +614,132 @@ def wylaczone(plik, sekcja, regula):
     return False
 
 
+# ---------- (l) tabele: werdykt w komórce wobec z/t z tego samego wiersza, kolumna „po Holmie” wobec rodziny tabeli ----------
+_KOL_Z = re.compile(r"^z\b(?!\s*[(:].*\bt\b)", re.IGNORECASE)
+_KOL_T = re.compile(r"^t\b", re.IGNORECASE)
+_KOL_WERDYKT = re.compile(r"^(?:werdykt|verdict)\b(?!.*(?:/|Holm))", re.IGNORECASE)
+_KOL_HOLM = re.compile(r"^(?:po Holmie|after Holm)\b", re.IGNORECASE)
+_KOMORKA_LICZBA = re.compile(r"^\s*(?:[zt]\s*=\s*)?([−-]?)(\d+)(?:[.,](\d+))?(?:\s*,\s*df\s*=?\s*(\d+))?\s*$", re.IGNORECASE)
+_KOMORKA_SLOWO = re.compile(rf"^\s*\**({_SLOWO_Z})\**\s*$", re.IGNORECASE)
+_KOMORKA_HOLM = re.compile(rf"^\s*(tak|nie|yes|no)\b(?:\s*\(\s*({_SLOWO_Z})\s*\))?", re.IGNORECASE)
+
+
+def _bloki_tabel(linie):
+    """[(nr nagłówka, [nr wierszy danych])] dla każdej tabeli markdown (nagłówek, separator, wiersze)."""
+    out, i = [], 0
+    while i < len(linie):
+        if (linie[i].lstrip().startswith("|") and i + 1 < len(linie)
+                and re.fullmatch(r"\s*\|[\s:|-]+\|\s*", linie[i + 1])):
+            j = i + 2
+            while j < len(linie) and linie[j].lstrip().startswith("|"):
+                j += 1
+            out.append((i, list(range(i + 2, j))))
+            i = j
+        else:
+            i += 1
+    return out
+
+
+def _komorka_statystyki(tekst):
+    """(wartość, cyfry, df z komórki albo None) z komórki `−3,03`, `t = 4,47, df 134`; None, gdy to nie liczba."""
+    m = _KOMORKA_LICZBA.match(tekst.replace("**", ""))
+    if not m:
+        return None
+    return _wartosc_z(m.group(1), m.group(2), m.group(3)), len(m.group(3) or ""), (int(m.group(4)) if m.group(4) else None)
+
+
+def _p_przedzial(rodzaj, wartosc, cyfr, df):
+    """Dwustronne p na obu końcach przedziału zaokrąglenia |wartości|: (p przy |x| + h, p przy |x| − h)."""
+    h = 0.5 * 10 ** (-cyfr)
+    a = [abs(wartosc) + h, max(abs(wartosc) - h, 0.0)]
+    if rodzaj == "z":
+        return tuple(math.erfc(x / math.sqrt(2)) for x in a)
+    return tuple(liczby.p_t(x, df) for x in a)
+
+
+def tabela_problemy(linie):
+    """(l) [(indeks linii, opis)]: (1) słowo werdyktu w kolumnie „werdykt/verdict” wobec z albo t z najbliższej
+    kolumny z/t na lewo w tym samym wierszu (t z df z kolumny „df”, z nagłówka `(df = N)`, z komórki albo z akapitu
+    nad tabelą); (2) flaga „po Holmie”/„after Holm” (tak/nie i werdykt w nawiasie) wobec Holma liczonego na p
+    wszystkich wierszy tabeli z tej samej kolumny z/t (rodzina = tabela). Przy zaokrągleniu, które leży na progu,
+    bramka milczy."""
+    problemy = []
+    for h, wiersze in _bloki_tabel(linie):
+        nag = komorki(linie[h])
+        stat = {k: ("z" if _KOL_Z.match(c) else "t") for k, c in enumerate(nag) if _KOL_Z.match(c) or _KOL_T.match(c)}
+        if not stat:
+            continue
+        df_kol = [k for k, c in enumerate(nag) if c.strip().lower() == "df"]
+        df_nag = {k: int(m.group(1)) for k in stat for m in [re.search(r"df\s*=\s*(\d+)", nag[k])] if m}
+
+        def zrodlo(k):  # najbliższa kolumna z/t na lewo od k
+            lewo = [s for s in stat if s < k]
+            return max(lewo) if lewo else None
+
+        def df_wiersza(i, s, df_kom):
+            if stat[s] == "z":
+                return 0
+            if df_kom is not None:
+                return df_kom
+            if s in df_nag:
+                return df_nag[s]
+            prawo = [d for d in df_kol if d > s]
+            k = min(prawo) if prawo else (max(df_kol) if df_kol else None)
+            if k is not None:
+                c = komorki(linie[i])
+                return int(c[k]) if k < len(c) and c[k].strip().isdigit() else None
+            return df_kontekstu(linie, i)
+
+        wartosci = {}  # (wiersz, kolumna statystyki) -> (wartość, cyfr, df)
+        for i in wiersze:
+            c = komorki(linie[i])
+            for s in stat:
+                v = _komorka_statystyki(c[s]) if s < len(c) else None
+                if v is None:
+                    continue
+                df = df_wiersza(i, s, v[2])
+                if df is None or (stat[s] == "t" and df <= 0):
+                    continue
+                wartosci[(i, s)] = (v[0], v[1], df)
+        for k, nazwa in enumerate(nag):
+            s = zrodlo(k)
+            if s is None or any(s < x < k for x in stat):
+                continue
+            if _KOL_WERDYKT.match(nazwa):
+                for i in wiersze:
+                    c = komorki(linie[i])
+                    m = _KOMORKA_SLOWO.match(c[k]) if k < len(c) else None
+                    if not m or (i, s) not in wartosci:
+                        continue
+                    x, cyfr, df = wartosci[(i, s)]
+                    oczek = {liczby.werdykt_p(p) for p in _p_przedzial(stat[s], x, cyfr, df)}
+                    if len(oczek) == 1 and _nazwa_werdyktu(m.group(1)) != (o := oczek.pop()):
+                        problemy.append((i, f"(l) {stat[s]} {c[s].strip()}{f' (df {df})' if stat[s] == 't' else ''} "
+                                            f"→ {o}, w kolumnie „{nazwa}”: {m.group(1)}"))
+            elif _KOL_HOLM.match(nazwa):
+                # wiersz bez tak/nie (np. „outside the family (k < 3)”) nie należy do rodziny
+                rodzina = [i for i in wiersze if (i, s) in wartosci and k < len(komorki(linie[i]))
+                           and _KOMORKA_HOLM.match(komorki(linie[i])[k])]
+                if len(rodzina) < 2:
+                    continue
+                przedzialy = [_p_przedzial(stat[s], *wartosci[(i, s)]) for i in rodzina]
+                dol, gora = liczby.holm([a for a, _ in przedzialy]), liczby.holm([b for _, b in przedzialy])
+                for i, a, b in zip(rodzina, dol, gora):
+                    c = komorki(linie[i])
+                    m = _KOMORKA_HOLM.match(c[k]) if k < len(c) else None
+                    if not m:
+                        continue
+                    flagi = {"tak" if p <= liczby.P_PRAWDOPODOBNE else "nie" for p in (a, b)}
+                    jest = "tak" if m.group(1).lower() in ("tak", "yes") else "nie"
+                    if len(flagi) == 1 and jest != (o := flagi.pop()):
+                        problemy.append((i, f"(l) Holm w rodzinie {len(rodzina)} wierszy → {o}, w kolumnie „{nazwa}”: "
+                                            f"{m.group(1)}"))
+                    slowa = {liczby.werdykt_p(p) for p in (a, b)}
+                    if m.group(2) and len(slowa) == 1 and _nazwa_werdyktu(m.group(2)) != (o := slowa.pop()):
+                        problemy.append((i, f"(l) werdykt z p Holma → {o}, w kolumnie „{nazwa}”: {m.group(2)}"))
+    return problemy
+
+
 def sprawdz_tekst(plik, linie, liczby, zb):
     bledy = []
     sekcja, sekcje = None, {}
@@ -637,6 +767,9 @@ def sprawdz_tekst(plik, linie, liczby, zb):
             bledy.append((plik, nr, problem))
         for problem in t_verdict_problems(l, df_kontekstu(linie, nr - 1), liczby):
             bledy.append((plik, nr, problem))
+    # LICZBY.md wypisuje werdykt główny porównania (przy klastrach z t, df nie ma w tabeli) obok z par: to nie raport
+    for i, problem in ([] if plik == "results/LICZBY.md" else tabela_problemy(linie)):
+        bledy.append((plik, i + 1, problem))
     akapity = jednostki(linie)
     teksty = [" ".join(bez_kodu(l) for _, l in a) for a in akapity]
     for i, akapit in enumerate(akapity):

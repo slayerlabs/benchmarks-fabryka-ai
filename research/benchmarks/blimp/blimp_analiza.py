@@ -3,87 +3,39 @@ tokenizer effects. Pure functions; called by `blimp.py zbierz`, tested in tests/
 
 The pair-level SE in blimp.py answers "is the gap real on these 67 000 pairs". Pairs of one paradigm
 share a template, so for "is the gap real for paradigms of this kind" the unit is the paradigm:
-SE over the 67 paradigm differences (clustered), a bootstrap over paradigms and a sign test.
+SE over the 67 paradigm differences (clustered), a bootstrap over paradigms and a sign test. The paradigm
+level is the binding one (METODOLOGIA.md, type `para +klastry`); the pair level is information about these pairs.
+SE K, the t distribution and Holm come from tools/statystyka.py (one implementation for every benchmark).
 """
 import math
 import re
+import sys
+from pathlib import Path
 
-from blimp import PROG_PEWNE, PROG_PRAWDOPODOBNE, SEED, trafienie_pary, werdykt
+from blimp import SEED, trafienie_pary, werdykt
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))
+from statystyka import (P_PEWNE, P_PRAWDOPODOBNE, klastrowe_wazone, p_t, p_z, po_holmie,  # noqa: E402,F401
+                        werdykt_p)
+from statystyka import holm as holm_p  # noqa: E402
 
 NIEROZSTRZYGALNE = "nierozstrzygalne"  # a group with fewer than 3 paradigms gets no verdict
 MIN_CZLONKOW = 3
-# the THRESHOLDS.md z thresholds as two-sided p, so a t with few degrees of freedom is held to the same error rate
-P_PEWNE = math.erfc(PROG_PEWNE / math.sqrt(2))  # 0.0027
-P_PRAWDOPODOBNE = math.erfc(PROG_PRAWDOPODOBNE / math.sqrt(2))  # 0.0455
 
 
 def srednia(xs):
     return sum(xs) / len(xs)
 
 
-def t_klastrowe(xs):
-    """Mean of cluster values, SE = sd / sqrt(k), t = mean / SE; SE and t None for k < 2 or sd = 0."""
-    k = len(xs)
-    m = srednia(xs)
-    if k < 2:
-        return m, None, None
-    sd = math.sqrt(sum((x - m) ** 2 for x in xs) / (k - 1))
-    se = sd / math.sqrt(k)
-    return m, se, (m / se if se > 0 else None)
-
-
-def _beta_cf(a, b, x):
-    """Continued fraction of the incomplete beta (modified Lentz)."""
-    tiny = 1e-300
-    c, d = 1.0, 1.0 - (a + b) * x / (a + 1)
-    d = 1.0 / (d if abs(d) > tiny else tiny)
-    h = d
-    for m in range(1, 1000):
-        for num in (m * (b - m) * x / ((a + 2 * m - 1) * (a + 2 * m)),
-                    -(a + m) * (a + b + m) * x / ((a + 2 * m) * (a + 2 * m + 1))):
-            d = 1.0 + num * d
-            d = 1.0 / (d if abs(d) > tiny else tiny)
-            c = 1.0 + num / c
-            c = c if abs(c) > tiny else tiny
-            h *= d * c
-        if abs(d * c - 1.0) < 1e-15:
-            break
-    return h
-
-
-def beta_reg(a, b, x):
-    """Regularised incomplete beta I_x(a, b)."""
-    if x <= 0:
-        return 0.0
-    if x >= 1:
-        return 1.0
-    ln = math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b) + a * math.log(x) + b * math.log1p(-x)
-    if x < (a + 1) / (a + b + 2):
-        return math.exp(ln) * _beta_cf(a, b, x) / a
-    return 1.0 - math.exp(ln) * _beta_cf(b, a, 1 - x) / b
-
-
-def p_t(t, df):
-    """Two-sided p of Student's t with df degrees of freedom; None (no variance) -> 1."""
-    if t is None:
-        return 1.0
-    return beta_reg(df / 2, 0.5, df / (df + t * t))
-
-
-def werdykt_p(p):
-    """THRESHOLDS.md verdict read as a p-value: p <= p(|z| = 3) certain, <= p(|z| = 2) probable."""
-    return "pewne" if p <= P_PEWNE else "prawdopodobne" if p <= P_PRAWDOPODOBNE else "szum"
-
-
 def klastry(xs):
-    """Clustered mean, SE, t, df = k - 1, two-sided p from the t distribution, and its verdict."""
+    """Mean of the paradigm values, SE K over them (equal weights: every paradigm has its own value), t at
+    df = k - 1, two-sided p from the t distribution and its verdict (statystyka.klastrowe_wazone; k < 3 gives
+    "nierozstrzygalne", SE = 0 no t)."""
     if not xs:
         return {"k": 0, "roznica": None, "se": None, "t": None, "df": None, "p": None, "werdykt": None}
-    m, se, t = t_klastrowe(xs)
-    df = len(xs) - 1
-    p = p_t(t, df) if df > 0 else None
-    return {"k": len(xs), "roznica": m, "se": se, "t": t, "df": df, "p": p,
-            "werdykt": werdykt_p(p) if p is not None else None}
+    r = klastrowe_wazone([(1, x) for x in xs])
+    return {"k": r["k"], "roznica": r["roznica"], "se": r["se"], "t": r["t"], "df": r["df"], "p": r["p_t"],
+            "werdykt": r["werdykt"]}
 
 
 def werdykt_grupy(xs):
@@ -128,18 +80,25 @@ def test_znakow(dodatnie, ujemne):
     return min(1.0, 2 * ogon)
 
 
-def p_z(z):
-    """Two-sided normal p-value; None (no variance) -> 1."""
-    return 1.0 if z is None else math.erfc(abs(z) / math.sqrt(2))
-
-
 def holm(p, alfa=0.05):
-    """Holm step-down: {name: rejected?}."""
-    kolej = sorted(p, key=lambda k: p[k])
-    m, out, dalej = len(kolej), {}, True
-    for i, k in enumerate(kolej):
-        dalej = dalej and p[k] <= alfa / (m - i)
-        out[k] = dalej
+    """Holm step-down over {name: p}: {name: rejected?}, rejected = Holm-adjusted p <= alfa (statystyka.holm);
+    p = None is outside the family and never rejected."""
+    nazwy = list(p)
+    return {k: a is not None and a <= alfa for k, a in zip(nazwy, holm_p([p[k] for k in nazwy]))}
+
+
+def zjawiska_po_holmie(zjawiska, por_zjawiska=None):
+    """Holm over the phenomena table, one family per level (METODOLOGIA.md, core rule 4).
+    zjawiska: {phenomenon: {"k", "p_t"}} (paradigm level; k < MIN_CZLONKOW is outside the family);
+    por_zjawiska: {phenomenon: {"z"}} (pair level, p from z). -> {phenomenon: {"p_holm", "werdykt_holm",
+    "po_holmie"} for paradigms, the same with suffix "_pary" for pairs}; the verdict after Holm is read from
+    the adjusted p (p thresholds of |z| = 2 and 3)."""
+    nazwy = sorted(zjawiska)
+    kl = po_holmie([zjawiska[z]["p_t"] if zjawiska[z]["k"] >= MIN_CZLONKOW else None for z in nazwy])
+    out = {z: dict(h) for z, h in zip(nazwy, kl)}
+    if por_zjawiska is not None:
+        for z, h in zip(nazwy, po_holmie([p_z(por_zjawiska[z]["z"]) for z in nazwy])):
+            out[z].update({f"{k}_pary": v for k, v in h.items()})
     return out
 
 
@@ -192,8 +151,9 @@ def trafienie_na_token(doc, wiersz):
     return 1 if ll[0] / nt[0] >= ll[1] / nt[1] else 0
 
 
-def analiza(docs, wa, wb, por_paradygmaty):
-    """wa, wb: {id: row} of model a (Slayer) and b (Pythia); por_paradygmaty: pair-level per-paradigm entries."""
+def analiza(docs, wa, wb, por_paradygmaty, por_zjawiska=None):
+    """wa, wb: {id: row} of model a (Slayer) and b (Pythia); por_paradygmaty, por_zjawiska: pair-level
+    per-paradigm and per-phenomenon entries (blimp.porownanie_parowane); the latter adds Holm on pairs."""
     gr = sorted({d["grupa"] for d in docs})
     zj = {d["grupa"]: d["zjawisko"] for d in docs}
     roz, roz_tok, ta_sama, rozna = ({g: [] for g in gr} for _ in range(4))
@@ -235,6 +195,8 @@ def analiza(docs, wa, wb, por_paradygmaty):
         k = klastry(xs)
         zjawiska[z] = {"k": k["k"], "roznica": k["roznica"], "se": k["se"], "t": k["t"], "df": k["df"],
                        "p_t": k["p"], "werdykt": werdykt_grupy(xs)}
+    for z, h in zjawiska_po_holmie(zjawiska, por_zjawiska).items():
+        zjawiska[z].update(h)
 
     def worek_opis(po_grupie):
         r = podzbior(po_grupie)

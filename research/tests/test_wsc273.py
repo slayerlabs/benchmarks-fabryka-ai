@@ -11,11 +11,14 @@ import hashlib
 import importlib.util
 import json
 import statistics
+import sys
 from pathlib import Path
 
 import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "tools"))
+import statystyka as T  # noqa: E402
 BENCHMARK = ROOT / "benchmarks" / "wsc273"
 SCRIPT = BENCHMARK / "wsc273.py"
 RESULT = BENCHMARK / "results" / "wsc273.json"
@@ -97,6 +100,10 @@ def test_schema_se_sees_that_a_constant_answer_hits_once_per_twin_pair(m):
     srednia = sum(d) / 16
     reszty = [(d[2 * g] - srednia) + (d[2 * g + 1] - srednia) for g in range(8)]
     assert wynik["se"] == pytest.approx((8 / 7 * sum(x * x for x in reszty)) ** 0.5 / 16, rel=1e-12)
+    # t read at df = schemas - 1 (SE K), not as a z: p from Student's t with 7 degrees of freedom
+    assert wynik["df"] == 7 and wynik["p"] == pytest.approx(T.p_t(wynik["t"], 7))
+    rev = m.po_schematach(rows[::-1], [k // 2 for k in range(16)], baza)  # reversed row order: same reading
+    assert rev["t"] == pytest.approx(wynik["t"]) and rev["schematy"] == 8
 
 
 def test_schemas_follow_the_text_not_the_row_parity(m):
@@ -114,8 +121,23 @@ def test_schema_reading_recomputes_from_the_per_question_files(report):
     # mutation: a report that kept the question-level SE, or grouped schemas by k // 2 (137 groups)
     wiersz = report["slayer_pelny"]["wobec_wiekszosciowej_po_schematach"]
     assert wiersz["schematy"] == 135 and wiersz["rozmiary_schematow"] == {"2": 133, "3": 1, "4": 1}
-    assert wiersz["werdykt"] == "pewne" and "eksploracyjne" in wiersz
-    assert all(v["z_wiekszosciowa"] >= 3 for v in report["slayer_pelny"]["po_schematach_wrazliwosc_progu"].values())
+    assert wiersz["werdykt"] == "pewne" and wiersz["df"] == 134  # t read at df = schemas - 1, not as a z
+    assert wiersz["p"] == pytest.approx(T.p_t(wiersz["t"], 134))
+    assert all(v["t_wiekszosciowa"] >= 3 for v in report["slayer_pelny"]["po_schematach_wrazliwosc_progu"].values())
+
+
+def test_holm_family_is_the_six_rows_of_the_bases_table(m, report):
+    # mutation: Holm left out, a family other than the six rows, or the schema rows read through p of z
+    h = m.holm_bazy(report)
+    assert [(r["probka"], r["baza"]) for r in h] == [(a, b) for a in ("panel200", "pelny", "pelny_po_schematach")
+                                                     for b in ("losowa", "wiekszosciowa")]
+    assert h == report["holm_bazy"]
+    p = [T.p_z(report[k][w]["z"]) for k in ("slayer_panel200", "slayer_pelny")
+         for w in ("wobec_losowej", "wobec_wiekszosciowej")]
+    p += [report["slayer_pelny"][w]["p"] for w in ("wobec_losowej_po_schematach", "wobec_wiekszosciowej_po_schematach")]
+    assert [r["p_holm"] for r in h] == pytest.approx(T.holm(p))
+    # per-question random-base rows are "pewne" raw and "prawdopodobne" after Holm; the schema rows stay "pewne"
+    assert [r["werdykt_holm"] for r in h] == ["prawdopodobne", "szum", "prawdopodobne", "szum", "pewne", "pewne"]
 
 
 def test_field_subsets_are_the_strict_ones_that_keep_text_and_options(m):

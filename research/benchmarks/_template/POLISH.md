@@ -8,7 +8,7 @@ czyli etapy A–C.
 
 | protokół przed pomiarem | wartość |
 |---|---|
-| Typ testu (tabela typów METODOLOGII), bazy i b, SNR, MDE, kontaminacja | jak pola karty oryginału, policzone na polskim zbiorze |
+| Typ testu (link do wiersza w README, „Benchmarki i typy”), bazy i b, SNR, MDE, kontaminacja | jak pola karty oryginału, policzone na polskim zbiorze |
 | SE na wiążącym poziomie: polski zbiór / oryginał | / |
 
 ## D1. Przetłumaczyć czy napisać od zera

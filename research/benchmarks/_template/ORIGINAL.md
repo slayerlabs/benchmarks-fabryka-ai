@@ -17,7 +17,7 @@ wierszy tabeli albo na listę, jedna pozycja na linię. Przykład: `benchmarks/a
 | Dane: split w pracy | split: ; n: |
 | Dane: split w Space/repo | split: ; n: ; pełny split albo panel 200: |
 | Dane: licencja | licencja autorów: ; tag HF: ; ukryte odpowiedzi w teście: tak/nie |
-| Typ testu | kod z tabeli typów METODOLOGII z modyfikatorami, np. `para +klastry`: |
+| Typ testu | link do wiersza testu w [README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy) (typ stoi tylko tam): |
 | Format zadania i prompt | szablon z pracy albo kodu; gdy praca nie ma promptu modelu językowego (modele dostrajane): szablon z implementacji Space/lm-eval z separatorem celu (`target_delimiter`, domyślnie spacja) i pełnym ocenianym tekstem jednej opcji |
 | Ocena | |
 | Metryka decyzyjna | |

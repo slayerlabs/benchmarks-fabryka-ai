@@ -38,9 +38,9 @@
    "werdykt": "pewne"
   },
   "wobec_wiekszosciowej": {
-   "roznica": 0.08499999999999996,
+   "roznica": 0.085,
    "se": 0.0469028183786358,
-   "z": 1.8122578330754937,
+   "z": 1.8122578330754946,
    "werdykt": "szum"
   }
  },
@@ -66,47 +66,49 @@
    "werdykt": "pewne"
   },
   "wobec_wiekszosciowej": {
-   "roznica": 0.08791208791208793,
+   "roznica": 0.08791208791208792,
    "se": 0.044019965373240516,
-   "z": 1.9970957988424314,
+   "z": 1.997095798842431,
    "werdykt": "szum"
   },
   "wobec_losowej_po_schematach": {
-   "roznica": 0.08974358974358976,
+   "roznica": 0.08974358974358974,
    "se": 0.020087888471605465,
-   "z": 4.467547192450998,
+   "t": 4.467547192450997,
+   "df": 134,
+   "p": 1.6664432003287382e-05,
    "werdykt": "pewne",
    "schematy": 135,
    "rozmiary_schematow": {
     "2": 133,
     "3": 1,
     "4": 1
-   },
-   "eksploracyjne": "jednostka wybrana po wyniku po pytaniach; nie w protokole"
+   }
   },
   "wobec_wiekszosciowej_po_schematach": {
-   "roznica": 0.08791208791208793,
-   "se": 0.020092537916080126,
-   "z": 4.375360060499455,
+   "roznica": 0.08791208791208792,
+   "se": 0.02009253791608013,
+   "t": 4.375360060499454,
+   "df": 134,
+   "p": 2.4178481625296653e-05,
    "werdykt": "pewne",
    "schematy": 135,
    "rozmiary_schematow": {
     "2": 133,
     "3": 1,
     "4": 1
-   },
-   "eksploracyjne": "jednostka wybrana po wyniku po pytaniach; nie w protokole"
+   }
   },
   "po_schematach_wrazliwosc_progu": {
    "0.5": {
     "schematy": 134,
-    "z_losowa": 4.4896272096205125,
-    "z_wiekszosciowa": 4.396623224256821
+    "t_losowa": 4.489627209620512,
+    "t_wiekszosciowa": 4.39662322425682
    },
    "0.7": {
     "schematy": 140,
-    "z_losowa": 4.4172620807555605,
-    "z_wiekszosciowa": 4.127683860495488
+    "t_losowa": 4.41726208075556,
+    "t_wiekszosciowa": 4.127683860495488
    }
   }
  },
@@ -153,5 +155,49 @@
   "mediana": 0.59,
   "max": 0.63
  },
- "sd_podproby_200": 0.01801860988106096
+ "sd_podproby_200": 0.01801860988106096,
+ "holm_bazy": [
+  {
+   "probka": "panel200",
+   "baza": "losowa",
+   "p_holm": 0.009782833437133308,
+   "werdykt_holm": "prawdopodobne",
+   "po_holmie": "tak"
+  },
+  {
+   "probka": "panel200",
+   "baza": "wiekszosciowa",
+   "p_holm": 0.09162955447106724,
+   "werdykt_holm": "szum",
+   "po_holmie": "nie"
+  },
+  {
+   "probka": "pelny",
+   "baza": "losowa",
+   "p_holm": 0.009782833437133308,
+   "werdykt_holm": "prawdopodobne",
+   "po_holmie": "tak"
+  },
+  {
+   "probka": "pelny",
+   "baza": "wiekszosciowa",
+   "p_holm": 0.09162955447106724,
+   "werdykt_holm": "szum",
+   "po_holmie": "nie"
+  },
+  {
+   "probka": "pelny_po_schematach",
+   "baza": "losowa",
+   "p_holm": 9.99865920197243e-05,
+   "werdykt_holm": "pewne",
+   "po_holmie": "tak"
+  },
+  {
+   "probka": "pelny_po_schematach",
+   "baza": "wiekszosciowa",
+   "p_holm": 0.00012089240812648326,
+   "werdykt_holm": "pewne",
+   "po_holmie": "tak"
+  }
+ ]
 }

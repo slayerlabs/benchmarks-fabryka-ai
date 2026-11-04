@@ -39,7 +39,9 @@ import torch
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1] / "common"))
+sys.path.insert(0, str(HERE.parents[1] / "tools"))
 
+from statystyka import p_t as p_student, p_z, po_holmie, werdykt as verdict, werdykt_p  # noqa: E402,F401
 from hipoteza_formatu import ModelSlayer, licz_logliki, para  # noqa: E402
 from metryki import POWTORZENIA, SEED, srednia_z_niepewnoscia  # noqa: E402
 
@@ -270,11 +272,6 @@ def cluster_mean(values, clusters, seed=SEED, reps=POWTORZENIA):
             "ci95": [float(lo), float(hi)]}
 
 
-def verdict(z):
-    """As the number gate (tools/liczby.py): |z| >= 3 pewne, 2-3 prawdopodobne, < 2 szum."""
-    return "pewne" if abs(z) >= 3 else "prawdopodobne" if abs(z) >= 2 else "szum"
-
-
 def permutation_test(diffs, seed=SEED, reps=POWTORZENIA, clusters=None):
     """Paired two-sided permutation test (random sign flips); with `clusters` a whole template flips at once."""
     d = np.asarray(diffs, dtype=float)
@@ -295,39 +292,6 @@ def summarize(scores, meta, tmpl):
     return out
 
 
-P_CERTAIN, P_PROBABLE = math.erfc(3 / math.sqrt(2)), math.erfc(2 / math.sqrt(2))  # p of |z| = 3 and |z| = 2
-
-
-def _beta_cf(a, b, x):
-    """Continued fraction of the incomplete beta (modified Lentz), as in benchmarks/blimp/blimp_analiza.py."""
-    tiny = 1e-300
-    c, d = 1.0, 1.0 - (a + b) * x / (a + 1)
-    d = 1.0 / (d if abs(d) > tiny else tiny)
-    h = d
-    for m in range(1, 1000):
-        for num in (m * (b - m) * x / ((a + 2 * m - 1) * (a + 2 * m)),
-                    -(a + m) * (a + b + m) * x / ((a + 2 * m) * (a + 2 * m + 1))):
-            d = 1.0 + num * d
-            d = 1.0 / (d if abs(d) > tiny else tiny)
-            c = 1.0 + num / c
-            c = c if abs(c) > tiny else tiny
-            h *= d * c
-        if abs(d * c - 1.0) < 1e-15:
-            break
-    return h
-
-
-def p_student(t, df):
-    """Two-sided p of Student's t, I_x(df/2, 1/2) with x = df / (df + t^2). No scipy in the run environment."""
-    a, b, x = df / 2, 0.5, df / (df + t * t)
-    if x >= 1:
-        return 1.0
-    ln = math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b) + a * math.log(x) + b * math.log1p(-x)
-    if x < (a + 1) / (a + b + 2):
-        return math.exp(ln) * _beta_cf(a, b, x) / a
-    return 1.0 - math.exp(ln) * _beta_cf(b, a, 1 - x) / b
-
-
 def domain_clusters(diffs):
     """Domains as clusters (as paradigms in benchmarks/blimp): unweighted mean of the k domain means, SE = sd / sqrt(k),
     t with df = k - 1, two-sided p from Student's t, verdict from p at the thresholds of |z| = 3 and |z| = 2. Answers
@@ -337,8 +301,7 @@ def domain_clusters(diffs):
     se = float(x.std(ddof=1) / math.sqrt(k))
     t = float(x.mean() / se) if se else 0.0
     p = p_student(t, k - 1)
-    return {"k": k, "value": float(x.mean()), "se": se, "t": t, "df": k - 1, "p": p,
-            "verdict": "pewne" if p <= P_CERTAIN else "prawdopodobne" if p <= P_PROBABLE else "szum"}
+    return {"k": k, "value": float(x.mean()), "se": se, "t": t, "df": k - 1, "p": p, "verdict": werdykt_p(p)}
 
 
 def contrast(a, b, name_a, name_b, meta, tmpl):
@@ -365,6 +328,21 @@ def contrast(a, b, name_a, name_b, meta, tmpl):
     return {"a": name_a, "b": name_b, "n": len(d), "diff": srednia_z_niepewnoscia(d), "a_better": sum(x > 0 for x in d),
             "b_better": sum(x < 0 for x in d), "diff_by_template": r, "p_by_template": permutation_test(d, clusters=cl),
             "domains": domains, "diff_by_domain_clusters": domain_clusters([v["value"] for v in domains.values()])}
+
+
+def add_holm(report):
+    """Holm columns (tools/statystyka.py po_holmie; family = one table): the measured model against every other
+    model by template (p of z) and over domains as clusters (p of t), and per contrast its domain table (p of z)."""
+    ks = report["contrasts"]
+    for key, col, p in (("diff_by_template", "holm_by_template", lambda k: p_z(k["diff_by_template"]["z"])),
+                        ("diff_by_domain_clusters", "holm_by_domain_clusters", lambda k: k["diff_by_domain_clusters"]["p"])):
+        for k, h in zip(ks, po_holmie([p(k) for k in ks])):
+            k[col] = h
+    for k in ks:
+        doms = k["domains"]
+        for d, h in zip(doms, po_holmie([p_z(v["z"]) for v in doms.values()])):
+            doms[d]["holm"] = h
+    return report
 
 
 # ---------------------------------------------------------------- commands
@@ -403,7 +381,14 @@ def cmd_report(a):
                 print(f"{a.measured} - {m:24s} {100 * r['value']:+.2f} pts  SE {100 * r['se']:.2f}  z {r['z']:+.1f}  "
                       f"{r['verdict']}  |  domains (k={g['k']}): {100 * g['value']:+.2f} SE {100 * g['se']:.2f} "
                       f"t {g['t']:+.2f} p {g['p']:.4f} {g['verdict']}")
-    Path(a.out).write_text(json.dumps(report, indent=1, ensure_ascii=False), encoding="utf-8")
+    Path(a.out).write_text(json.dumps(add_holm(report), indent=1, ensure_ascii=False), encoding="utf-8")
+
+
+def cmd_holm(a):
+    """Holm columns on a report already in the repo (the records' text, and so the templates, are not in the repo)."""
+    path = Path(a.report)
+    path.write_text(json.dumps(add_holm(json.loads(path.read_text(encoding="utf-8"))), indent=1, ensure_ascii=False),
+                    encoding="utf-8")
 
 
 def main():
@@ -423,8 +408,10 @@ def main():
     r.add_argument("--out", default=str(HERE / "results" / "ewok.json"))
     r.add_argument("--rule", choices=RULES, default="authors",
                    help="the rule the per-record files were scored with; only labels the report")
+    h = sub.add_parser("holm", help="add the Holm columns to an existing report")
+    h.add_argument("--report", default=str(HERE / "results" / "ewok.json"))
     a = p.parse_args()
-    {"score": cmd_score, "report": cmd_report}[a.cmd](a)
+    {"score": cmd_score, "report": cmd_report, "holm": cmd_holm}[a.cmd](a)
 
 
 if __name__ == "__main__":
