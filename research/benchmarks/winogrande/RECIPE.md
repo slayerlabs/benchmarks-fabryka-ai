@@ -48,4 +48,31 @@ lm_eval --model hf \
 - Data przebiegu: 2026-11-04, około 01:02 czasu lokalnego. Czas liczenia żądań: 57 s po załadowaniu modelu.
 - Rewizja wag: lokalny katalog nie ma pola `model_sha` w wyjściu lm-eval (wpisane `main` i pusty sha, bo ścieżka jest lokalna). Commit pliku wag z metadanych pobrania: `f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0`. To jest `step143000` według API HF.
 - Wynik: `acc` 0,5445935280189423 (690 z 1267), SE 0,013996485037729782. Plik: `benchmarks/winogrande/results/pythia-1b-v0/D__models__pythia-1b-v0/results_2026-11-04T01-02-51.185008.json`, klucz `results.winogrande.acc,none`. Per pytanie: `samples_winogrande_2026-11-04T01-02-51.185008.jsonl`, pole `doc_id`.
-- Różnica wobec 0,5375: +0,007094 (0,71 pkt). W paśmie ±2 pkt (0,5175–0,5575) i w paśmie ±2 SE (0,5095–0,5655). Werdykt słowny: niezapisane, pisze go Grzegorz.
+- Różnica wobec 0,5375: +0,007094 (0,71 pkt). W paśmie ±2 pkt (0,5175–0,5575) i w paśmie ±2 SE (0,5095–0,5655). Werdykt słowny: w `REPRODUCTION.md`.
+
+## Wynik 2: Slayer 1.06, pełny validation
+
+Protokół zapisany przed przebiegiem. Wyniku tu jeszcze nie ma.
+
+- Przewidywanie Grzegorza, przed przebiegiem: acc wyjdzie ponad pasmo 0,505–0,584 (Pythia 0,5446 ± 2 SE różnicy, SE różnicy 0,0198).
+- Model: `SlayerLab/Slayer1B-1.06` @ `ef81be58742544ad32e1afab38db011fec209609`, lokalnie `D:/models/slayer-1.06`. `config.json` ma ten sam sha256 co plik z tej rewizji (`ca38e559…`). `model.safetensors` ma sha256 `e10df6d50101d8424ff7338c97373ab9e151e359a6fcb23108023ac4a6400214`, równy LFS oid tej rewizji. Rozmiar 4 295 670 676 bajtów.
+- Ładowanie: nakładka `slayer` z `common/slayer_lm.py` tego worktree. `.pth` w venv wskazuje `C:/Users/taki1/bench/wt-winogrande/research/common`. Przed instalacją wskazywał `D:/projects/benchmarks-fabryka-ai/research/common`.
+- BOS: nakładka dokleja jeden token `prefix_token_id` (`<|endoftext|>`, id 0) przed kontekstem w `_encode_pair`. Pythia w wyniku 1 szła bez BOS (`add_bos_token=False`, kontekst niepusty). To nie jest ten sam ciąg tokenów. Zapisane przed pomiarem, z kodu nakładki.
+- Reszta jak w wyniku 1: zadanie `winogrande` z przypiętą rewizją zbioru, 0-shot, float32, batch 1, seed `0,1234,1234,1234`, CUDA, RTX 5060 Ti.
+- Komenda, w `research/`:
+
+```bash
+lm_eval --model slayer \
+  --model_args pretrained=D:/models/slayer-1.06,dtype=float32 \
+  --tasks winogrande \
+  --include_path benchmarks/winogrande/lm_eval_tasks \
+  --num_fewshot 0 \
+  --batch_size 1 \
+  --device cuda \
+  --seed 0,1234,1234,1234 \
+  --log_samples \
+  --output_path benchmarks/winogrande/results/slayer-1.06
+```
+
+- Wynik: niezapisane. Przebieg jeszcze nie poszedł.
+
