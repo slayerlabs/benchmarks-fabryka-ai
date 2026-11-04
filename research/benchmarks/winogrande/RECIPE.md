@@ -78,3 +78,19 @@ lm_eval --model slayer \
 - Data przebiegu: 2026-11-04, około 01:35. Czas liczenia żądań: 80 s po załadowaniu modelu. Wyjście lm-eval: `tokenizer_bos_token` `<|endoftext|>`, id 0.
 - Wobec Pythii, te same 1267 zdań: różnica acc Slayer minus Pythia = −0,022889, SE sparowane 0,017767, z = −1,288. Werdykt słowny: niezapisane, pisze go Grzegorz.
 
+## Wynik 3: Pythia z tym samym BOS co nakładka Slayera
+
+Protokół zapisany przed przebiegiem. Nie zastępuje wyniku 1. Wyniku tu jeszcze nie ma.
+
+- Po co: wynik 1 i wynik 2 nie mają tego samego ciągu tokenów. Nakładka dokleja `<|endoftext|>` (id 0) przed kontekstem. `add_bos_token=True` u Pythii tego nie robi, bo tokenizer i tak nie emituje BOS. Skrypt wstawia token w `_encode_pair`, w tym samym miejscu co `common/slayer_lm.py`.
+- Model, zbiór, seed, precyzja, batch, sprzęt: jak w wyniku 1.
+- Komenda, w `research/`:
+
+```bash
+python benchmarks/winogrande/pythia_bos.py --check
+python benchmarks/winogrande/pythia_bos.py
+```
+
+- Wynik: niezapisane. Przebieg jeszcze nie poszedł.
+
+
