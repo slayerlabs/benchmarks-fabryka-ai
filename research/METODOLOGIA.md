@@ -11,7 +11,7 @@ nowej.
 
 ## Etapy pracy
 
-<img src="../docs/img/droga-testu.svg" alt="1. Opis testu, 2. sprawdzenie na modelu autorów, 3. kod w repo, 4. liczenie, 5. publikacja na CodeSOTA. Po polsku: test tłumaczony idzie tą samą drogą, własny test zamiast kroków 1–2 ma opis zbioru." width="960">
+<img src="../docs/img/droga-testu.svg" alt="1. Opis testu, 2. sprawdzenie na modelu autorów (gdy się nie zgadza: szukamy przyczyny, poprawiamy i sprawdzamy jeszcze raz), 3. kod w repo, 4. liczenie, 5. publikacja na CodeSOTA. Po polsku: test tłumaczony idzie tą samą drogą, własny test zamiast kroków 1–2 ma opis zbioru." width="960">
 
 Każdy etap kończy się plikiem w `benchmarks/<name>/`, wzory są w
 [`benchmarks/_template/`](benchmarks/_template/README.md). Benchmark bez oryginału (zbiór pisany od zera, held-out)
