@@ -18,3 +18,7 @@ Procedurę opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworze
 Zdanie werdyktu, Grzegorz Zawadzki, 2026-11-04. W pliku jedna poprawka wobec wiadomości: „graniacch” → „granicach”. Etykieta z metodologii przy |z| ≥ 3 to „pewne”, nie „pewny”. Tego słowa w zdaniu nie podmieniłem, bo „jest pewne” byłoby niegramatyczne.
 
 Wartość wpadła w furtkę która wynosi 0.5095-0,5655. |z| wynioslo 3,18 co oznacza, że wynik jest pewny. Różnica wobec 0,5375 wynosi +0,71pkt, co jest szumem i akceptowalna w granicach furtki.
+
+Zdanie o panelu Space, Grzegorz Zawadzki, 2026-11-04. W pliku jedna poprawka: „przykladach” → „przykładach”. 0,55 jest ze Space, nie z naszego pliku. <!-- liczba-spoza-wynikow: results.json Space T07 @ 2d3d73f, panel 200 -->
+
+Różnica 0,55 a 0,5217. To nie jest ta sama próbka, bo była liczona na 200 i 1267 przykładach. <!-- liczba-spoza-wynikow: 0,55 ze Space T07, panel 200; 0,5217 jest w results/winogrande.json -->

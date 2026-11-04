@@ -1,0 +1,66 @@
+{
+  "pythia": {
+    "acc": 0.5445935280189423,
+    "se": 0.013996485037729782,
+    "n": 1267,
+    "correct": 690,
+    "pred_n1": 589,
+    "pred_n2": 678,
+    "majority_prediction_share": 0.5351223362273086
+  },
+  "pythia_bos": {
+    "acc": 0.5438042620363063,
+    "se": 0.013998453610924324,
+    "n": 1267,
+    "correct": 689,
+    "pred_n1": 610,
+    "pred_n2": 657,
+    "majority_prediction_share": 0.5185477505919495
+  },
+  "slayer": {
+    "acc": 0.5217048145224941,
+    "se": 0.01403923921648463,
+    "n": 1267,
+    "correct": 661,
+    "pred_n1": 630,
+    "pred_n2": 637,
+    "majority_prediction_share": 0.5027624309392266
+  },
+  "bazy": {
+    "losowa": 0.5,
+    "wiekszosciowa": 0.5043409629044988,
+    "wiekszosciowa_n2": 639
+  },
+  "prog": {
+    "opublikowane": 0.5375,
+    "se_karty": 0.014,
+    "dwa_se": 0.028,
+    "furtka_dol": 0.5095,
+    "furtka_gora": 0.5655,
+    "pasmo_2pkt_dol": 0.5175,
+    "pasmo_2pkt_gora": 0.5575,
+    "pasmo_slayer_dol": 0.505,
+    "pasmo_slayer_gora": 0.584,
+    "pythia_skrot": 0.5446,
+    "se_roznicy_niezaleznej": 0.0198
+  },
+  "slayer_minus_pythia": {
+    "roznica": -0.022889,
+    "se": 0.017767,
+    "z": -1.288
+  },
+  "pythia_bos_minus_pythia": {
+    "roznica": -0.000789,
+    "se": 0.011194,
+    "z": -0.071
+  },
+  "slayer_minus_pythia_bos": {
+    "roznica": -0.022099,
+    "se": 0.017179,
+    "z": -1.286
+  },
+  "pythia_wobec_opublikowanego": {
+    "roznica": 0.007094,
+    "z_losowa": 3.18
+  }
+}

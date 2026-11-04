@@ -93,6 +93,16 @@ python benchmarks/winogrande/pythia_bos.py
 
 - Wynik: `acc` 0,5438042620363063 (689 z 1267), SE 0,013998453610924324. Plik: `benchmarks/winogrande/results/pythia-1b-v0-bos/results.json`, klucz `results.winogrande.acc,none`. Per pytanie: `samples_winogrande.jsonl`.
 - Wobec Pythii bez BOS, te same 1267: różnica −0,000789, SE sparowane 0,011194, z = −0,071, flipów decyzji 201. Wobec Slayera: różnica Slayer minus ta Pythia = −0,022099, SE sparowane 0,017179, z = −1,286.
-- Werdykt Grzegorza, 2026-11-04. W pliku jedna poprawka: „trafilem” → „trafiłem”. Reszta bez zmian. „Nie trafiłem z predykcją. BOS nie tłumaczy luki do Slayera.”
+- Werdykt Grzegorza, 2026-11-04. W pliku jedna poprawka: „trafilem” → „trafiłem”. Reszta bez zmian. „Nie trafiłem z predykcją. BOS nie tłumaczy luki do Slayera.” <!-- ocena-bez-se: z tego przebiegu jest w linii wyżej, z = −0,071 -->
+
+## Bazy i predykcje
+
+Policzone z plików per pytanie tym samym kodem co w czacie (wyższy loglik wygrywa, remis bierze opcję 1). Baza większościowa jest ze splitu, nie z predykcji: 639 z 1267 = 0,5043409629044988, jak karta (tam zaokrąglone do 0,5043).
+
+- Slayer: opcja 1 wygrała 630 razy, opcja 2 wygrała 637. Udział najczęstszej predykcji 0,5027624309392266.
+- Pythia bez BOS: 589 i 678. Udział 0,5351223362273086.
+- Pythia z BOS: 610 i 657. Udział 0,5185477505919495.
+
+Źródło liczb: `benchmarks/winogrande/results/winogrande.json`.
 
 
