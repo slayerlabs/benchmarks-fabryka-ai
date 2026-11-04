@@ -139,6 +139,21 @@ def test_mde_from_the_binding_se_k_of_slayer_minus_pythia():
     assert abs(r["panel200"] - (2 + 0.84) * se * math.sqrt(len(d) / 200)) < TOL
 
 
+def test_snr_divides_the_published_spread_by_se_k():
+    # published acc of Pythia v0 as in ORIGINAL.md, 4 decimals
+    opublikowane = {"70m": 0.4878, "160m": 0.5328, "410m": 0.5312, "1b": 0.5375, "1.4b": 0.5627, "2.8b": 0.6125,
+                    "6.9b": 0.6180, "12b": 0.6440}
+    se, _ = se_klastrowe(TR["pythia"])
+    for nazwa, rozmiary in [("8_rozmiarow", list(opublikowane)), ("trojka_410m_1b_1.4b", ["410m", "1b", "1.4b"]),
+                            ("definicja_400m_3b", ["410m", "1b", "1.4b", "2.8b"])]:
+        acc = [round(opublikowane[r] * 1267) / 1267 for r in rozmiary]
+        sd = stats.tstd(acc)
+        r = JSON["snr"][nazwa]
+        assert r["modele"] == rozmiary, nazwa
+        assert abs(r["rozrzut"] - sd) < TOL, nazwa
+        assert abs(r["iloraz_k"] - sd / se) < 1e-6, nazwa
+
+
 def test_gap_to_published_uses_the_conservative_se():
     se_k, _ = se_klastrowe(TR["pythia"])
     d = math.fsum(TR["pythia"]) / len(TR["pythia"]) - 0.5375

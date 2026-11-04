@@ -6526,7 +6526,18 @@
     "winogrande/winogrande/mde/z_holm_m3": 2.4283725526104103,
     "winogrande/winogrande/mde/pelny": 0.04530920956871844,
     "winogrande/winogrande/mde/pelny_holm_m3": 0.052143442582701524,
-    "winogrande/winogrande/mde/panel200": 0.11404067927053865
+    "winogrande/winogrande/mde/panel200": 0.11404067927053865,
+    "winogrande/winogrande/snr/se_k": 0.012547695078394582,
+    "winogrande/winogrande/snr/se_a": 0.013996485037729767,
+    "winogrande/winogrande/snr/8_rozmiarow/rozrzut": 0.053738751317820334,
+    "winogrande/winogrande/snr/8_rozmiarow/iloraz_k": 4.2827587841492205,
+    "winogrande/winogrande/snr/8_rozmiarow/iloraz_a": 3.839446201882753,
+    "winogrande/winogrande/snr/trojka_410m_1b_1.4b/rozrzut": 0.016705612066706156,
+    "winogrande/winogrande/snr/trojka_410m_1b_1.4b/iloraz_k": 1.331368985485704,
+    "winogrande/winogrande/snr/trojka_410m_1b_1.4b/iloraz_a": 1.1935576697773407,
+    "winogrande/winogrande/snr/definicja_400m_3b/rozrzut": 0.036943353422609015,
+    "winogrande/winogrande/snr/definicja_400m_3b/iloraz_k": 2.9442342351959465,
+    "winogrande/winogrande/snr/definicja_400m_3b/iloraz_a": 2.6394736480639454
    }
   },
   "wsc273": {

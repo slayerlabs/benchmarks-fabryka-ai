@@ -32,8 +32,8 @@ Slayer 1.06 to checkpoint z ok. 1/8 planowanego treningu, bez wygaszania LR (wed
 01.11.2026), a Pythia-1B jest po pełnym treningu. Różnice niżej porównują ten checkpoint z gotowym modelem, nie dwa
 przepisy treningu.
 
-Slayer 1.06 minus Pythia-1B, trzy odczyty. Wiąże odczyt po paradygmatach: BLiMP to typ `para +klastry` z
-[`METODOLOGIA.md`](../../METODOLOGIA.md) (klastry to paradygmaty, SE K, t przy df = k − 1). Odczyt w parach
+Slayer 1.06 minus Pythia-1B, trzy odczyty. Wiąże odczyt po paradygmatach: typ testu stoi w
+[wierszu BLiMP tabeli typów](../../README.md#benchmarki-i-typy) (klastry to paradygmaty, SE K, t przy df = k − 1). Odczyt w parach
 ustalił `THRESHOLDS.md` przed pomiarem; od przyjęcia metodologii to informacja o tych parach, nie werdykt.
 
 | odczyt | różnica | SE | test | werdykt | rola | ustalone przed pomiarem |

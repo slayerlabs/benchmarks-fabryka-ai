@@ -18,14 +18,13 @@ from statistics import NormalDist
 
 TU = Path(__file__).resolve().parent
 sys.path.insert(0, str(TU.parent.parent / "tools"))
-from liczby import p_t, werdykt, werdykt_t  # noqa: E402
+from statystyka import P_PRAWDOPODOBNE, p_t, po_holmie, werdykt, werdykt_t  # noqa: E402
 
 WYNIKI = TU / "results"
 KLASTRY = TU / "klastry.json"
 YAML = TU / "lm_eval_tasks" / "winogrande" / "default.yaml"
 MODELE = {"pythia": "pythia-1b-v0", "pythia_bos": "pythia-1b-v0-bos", "slayer": "slayer-1.06"}
 POROWNANIA = [("slayer", "pythia"), ("pythia_bos", "pythia"), ("slayer", "pythia_bos")]
-P_PRAWDOPODOBNE = math.erfc(2 / math.sqrt(2))  # p for |z| = 2, the Holm threshold
 # sha256 of the inputs; a regenerated klastry.json or a new run changes these on purpose
 SHA_PARQUET = "f9d914d1818c0aba98cabdf8af2bc4bd943c462b9c5e7062647e05c2ce3315d1"
 SHA_WEJSC = {
@@ -36,6 +35,12 @@ SHA_WEJSC = {
 }
 ROZMIAR_PANELU = 200
 Z_MOC = 0.84  # 80% power term of the MDE (METODOLOGIA, core point 5)
+# SNR source (ORIGINAL.md): published Pythia v0 winogrande acc @ a19eecb, as correct out of 1267
+# (0.4878, 0.5328, 0.5312, 0.5375, 0.5627, 0.6125, 0.6180, 0.6440; 4 decimals fix the count, 1/1267 > 0.0001)
+PYTHIA_V0_TRAFIENIA = {"70m": 618, "160m": 675, "410m": 673, "1b": 681, "1.4b": 713, "2.8b": 776, "6.9b": 783,
+                       "12b": 816}
+SNR_ZESTAWY = {"8_rozmiarow": list(PYTHIA_V0_TRAFIENIA), "trojka_410m_1b_1.4b": ["410m", "1b", "1.4b"],
+               "definicja_400m_3b": ["410m", "1b", "1.4b", "2.8b"]}
 # thresholds written in RECIPE.md before the runs
 PROG = {"opublikowane": 0.5375, "se_karty": 0.014, "dwa_se": 0.028, "furtka_dol": 0.5095, "furtka_gora": 0.5655,
         "pasmo_2pkt_dol": 0.5175, "pasmo_2pkt_gora": 0.5575, "pasmo_slayer_dol": 0.505, "pasmo_slayer_gora": 0.584,
@@ -100,6 +105,8 @@ def se_a(x):
 
 
 def se_k(x, klaster):
+    # statystyka.se_k gives the same SE through cluster means, but differs in the last bit (1 ulp) on one value;
+    # kept as residual sums so winogrande.json stays byte for byte the same
     n, m, sumy = len(x), sum(x) / len(x), {}
     for c, v in zip(klaster, x):
         sumy[c] = sumy.get(c, 0.0) + v - m
@@ -118,12 +125,8 @@ def roznica(x, y, klaster):
 
 def holm(wyniki):
     """Holm step-down on the p of each comparison; 'tak' when the adjusted p is at most p(|z| = 2)."""
-    kolejnosc = sorted(wyniki, key=lambda r: r["p"])
-    m, biezace = len(kolejnosc), 0.0
-    for i, r in enumerate(kolejnosc):
-        biezace = max(biezace, min(1.0, (m - i) * r["p"]))
-        r["p_holm"] = biezace
-        r["po_holmie"] = "tak" if biezace <= P_PRAWDOPODOBNE else "nie"
+    for r, h in zip(wyniki, po_holmie([r["p"] for r in wyniki])):
+        r["p_holm"], r["po_holmie"] = h["p_holm"], h["po_holmie"]
 
 
 def main():
@@ -169,6 +172,15 @@ def main():
     out["mde"] = {"se_roznicy_k": se_par, "zrodlo_se": "slayer_minus_pythia", "z_moc": Z_MOC, "z_holm_m3": z_holm,
                   "pelny": (2 + Z_MOC) * se_par, "pelny_holm_m3": (z_holm + Z_MOC) * se_par,
                   "panel200": (2 + Z_MOC) * se_par * math.sqrt(n / ROZMIAR_PANELU)}
+    # SNR (METODOLOGIA, card field SNR; +klastry: SE K): spread of published acc / SE K of one result. Only Pythia-1B v0
+    # has per-item results here, so its SE K stands for every size; SE A of that result is kept for comparison
+    out["snr"] = {"se_k": out["pythia"]["se_k"], "se_a": out["pythia"]["se_a"], "zrodlo_se": "pythia"}
+    for nazwa, rozmiary in SNR_ZESTAWY.items():
+        acc_z = [PYTHIA_V0_TRAFIENIA[r] / n for r in rozmiary]
+        m = sum(acc_z) / len(acc_z)
+        sd = math.sqrt(sum((a - m) ** 2 for a in acc_z) / (len(acc_z) - 1))
+        out["snr"][nazwa] = {"modele": rozmiary, "rozrzut": sd, "iloraz_k": sd / out["pythia"]["se_k"],
+                             "iloraz_a": sd / out["pythia"]["se_a"]}
     (WYNIKI / "winogrande.json").write_text(json.dumps(out, indent=2, ensure_ascii=False) + "\n")
     for nazwa in list(porownania) + ["pythia_wobec_b", "slayer_wobec_b"]:
         r = out[nazwa]
