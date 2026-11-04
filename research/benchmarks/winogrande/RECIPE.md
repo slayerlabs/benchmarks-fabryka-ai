@@ -93,5 +93,6 @@ python benchmarks/winogrande/pythia_bos.py
 
 - Wynik: `acc` 0,5438042620363063 (689 z 1267), SE 0,013998453610924324. Plik: `benchmarks/winogrande/results/pythia-1b-v0-bos/results.json`, klucz `results.winogrande.acc,none`. Per pytanie: `samples_winogrande.jsonl`.
 - Wobec Pythii bez BOS, te same 1267: różnica −0,000789, SE sparowane 0,011194, z = −0,071, flipów decyzji 201. Wobec Slayera: różnica Slayer minus ta Pythia = −0,022099, SE sparowane 0,017179, z = −1,286.
+- Werdykt Grzegorza, 2026-11-04. W pliku jedna poprawka: „trafilem” → „trafiłem”. Reszta bez zmian. „Nie trafiłem z predykcją. BOS nie tłumaczy luki do Slayera.”
 
 
