@@ -14,25 +14,68 @@ Wszystkie komendy niżej uruchamiasz w katalogu `research/`.
 
 | katalog albo plik | co tam jest |
 |---|---|
-| `METODOLOGIA.md` | jak powstaje benchmark: etapy A–D, karta zbioru, modele kontrolne i odniesienia, przepis, czystość |
+| `METODOLOGIA.md` | wspólny rdzeń reguł, tabela typów testów, etapy A–D, modele, przepis, następna wersja Slayera |
+| `LEADERBOARD.md` | zasady meta-oceny i rankingu modeli |
 | `BENCHMARKI_PL.md` | które benchmarki przetłumaczyć, a które napisać od zera po polsku |
 | `benchmarks/<name>/` | kod, dokumentacja i wyniki jednego benchmarku: `README.md`, `ORIGINAL.md`, `REPRODUCTION.md`, `RECIPE.md`; wyniki per model w `results/<model>/` (surowe `.jsonl` lokalnie, `.jsonl.gz` do ~10 MB w repo), raporty zbiorcze w `results/*.json` i `*.md`; wersja polska w osobnym `benchmarks/<name>-pl/` z `POLISH.md` |
 | `benchmarks/_template/` | od czego zacząć nowy benchmark |
 | `analyses/<name>/` | analiza na wielu testach naraz, te same pliki co benchmark (dziś `answer-format/`: litery A/B/C/D a losowość) |
 | `common/` | ładowanie modeli, wspólny format odpowiedzi, lista zadań (`zadania.py`), dane do testów (`tests/data/`), ewaluacja przez lm-eval |
-| `tools/` | bramka liczb (`liczby.py`, `sprawdz_raporty.py`) |
-| `results/` | `LICZBY.json` i `LICZBY.md`: wszystkie liczby raportów, wygenerowane przez bramkę liczb |
+| `tools/` | bramka liczb (`liczby.py`, `sprawdz_raporty.py`), przebieg centralny (`przebieg_centralny.sh`, `kontrola_sensu.py`) |
+| `results/` | `LICZBY.json` i `LICZBY.md`: wszystkie liczby raportów, wygenerowane przez bramkę liczb; `central-run/`: wyniki przebiegu centralnego |
 | `tests/` | testy kodu, bez sieci i bez wag |
 | `slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami: `dane/`, `testy_danych_slayer/`, `wygaszanie/`, `tokenizer/`, `lab/`, `paczka_testerzy/` (komendy w ich README uruchamiasz w `research/slayer-1b/`) |
 
-Dziś w repo są trzy benchmarki:
+Jest też jedna analiza: [`analyses/answer-format/`](analyses/answer-format/README.md). Testy z listy Space liczy kod
+w `common/`, opisany w [`common/README.md`](common/README.md).
 
-- [`benchmarks/ewok-pl/`](benchmarks/ewok-pl/README.md): EWoK po polsku i angielsku;
-- [`benchmarks/blimp/`](benchmarks/blimp/README.md): BLiMP, pełny zbiór;
-- [`benchmarks/wikitext-2/`](benchmarks/wikitext-2/README.md): perpleksja WikiText-2, mianownik jak w lm-eval.
+## Benchmarki i typy
 
-Jest też jedna analiza: [`analyses/answer-format/`](analyses/answer-format/README.md). Testy z listy Space (ARC,
-MMLU, SIQA, Belebele, MultiBLiMP i inne) liczy kod w `common/`. Opisuje go [`common/README.md`](common/README.md).
+Typ to wiersz tabeli typów z [METODOLOGII](METODOLOGIA.md#typy-testów); określa skalę, bazy, SE, wiążący werdykt,
+kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy przebieg centralny
+([METODOLOGIA, „Następna wersja Slayera”](METODOLOGIA.md#następna-wersja-slayera)).
+
+| katalog | Space | typ | grupy | przebieg | wczesny sygnał (informacyjnie) |
+|---|---|---|---|---|---|
+| [`arc-easy`](benchmarks/arc-easy/ORIGINAL.md) | | `mc-k` | | nie | tak |
+| [`blimp`](benchmarks/blimp/README.md) | T01 | `para +klastry` | klastry: paradygmaty; zjawiska informacyjnie | T01 | tak |
+| [`blimp-supplement`](benchmarks/blimp-supplement/ORIGINAL.md) | | `para +warstwy` | warstwy: podzadania, średnia bez wag (karta nie pokazuje, że podzadanie to jeden szablon) | nie | nieustalone |
+| [`boolq`](benchmarks/boolq/ORIGINAL.md) | T10 | `mc` | karta nie podaje wspólnych ustępów; gdy je znajdzie, `+klastry` | nie | nieustalone |
+| [`ewok`](benchmarks/ewok/README.md) | | `para +klastry` | klastry: szablony; domeny informacyjnie | nie, własny kod | nieustalone |
+| [`ewok-pl`](benchmarks/ewok-pl/README.md) | | `para +klastry +pl` | klastry: szablony; domeny informacyjnie | nie, własny kod | nieustalone |
+| [`hellaswag`](benchmarks/hellaswag/ORIGINAL.md) | T05 | `mc` | | nie | nieustalone |
+| [`lambada`](benchmarks/lambada/ORIGINAL.md) | T17 | `cloze` | | nie | tak |
+| [`openbookqa`](benchmarks/openbookqa/ORIGINAL.md) | T08 | `mc` | | nie | nieustalone |
+| [`piqa`](benchmarks/piqa/README.md) | T06 | `mc` | | nie, własny kod | tak |
+| [`sciq`](benchmarks/sciq/ORIGINAL.md) | T09 | `poz` | | nie | tak |
+| [`uncheatable-eval`](benchmarks/uncheatable-eval/ORIGINAL.md) | | `ppl +warstwy` | kategorie, średnia bez wag | nie | nieustalone |
+| [`wikitext-2`](benchmarks/wikitext-2/README.md) | T03 | `ppl` | | T03 | nieustalone |
+| [`winogrande`](benchmarks/winogrande/ORIGINAL.md) | T07 | `mc +klastry` | klastry: pary bliźniacze | nie | nie |
+| [`wsc273`](benchmarks/wsc273/README.md) | T14 | `mc +klastry` | klastry: pary schematów | nie, własny kod | nieustalone |
+
+Wczesny sygnał (kryterium w METODOLOGII) policzono z publicznych plików zero-shot 15 checkpointów
+[`pythia-1b-v0`](https://github.com/EleutherAI/pythia/tree/main/evals/pythia-v0/pythia-1b/zero-shot); karta przejmuje
+wartość dopiero z własnym przeliczeniem. Plik Pythii nie ma zadań HellaSwag, BoolQ, OpenBookQA, EWoK, BLiMP
+Supplement, UncheatableEval ani WikiText-2, a jego `wsc` to inny zbiór niż WSC273, stąd „nieustalone”.
+
+Testy Space (`tasks_50.json`) według typu:
+
+| typ | testy Space |
+|---|---|
+| `mc` | T05–T08, T10–T16, T18–T21, T40, T44–T46, T48 (T07 i T14 z `+klastry`); polskie (`+pl`): T22–T24, T26, T29, T37 |
+| `mc +warstwy` | T32 MMLU (57 przedmiotów) |
+| `mc-k` | T02 ARC-Challenge |
+| `poz` | T09 SciQ |
+| `para` | T01 BLiMP (`+klastry`), T04 MultiBLiMP (`+proc +pl`) |
+| `cloze` | T17 LAMBADA |
+| `ppl` | T03 WikiText-2 |
+| `gen` | T33 GSM8K, T34 MATH (`+warstwy`), T42 NQ, T43 TriviaQA, T47 BBH (`+warstwy`) |
+| `ifeval` | T36 IFEval |
+| `f1-korpus` | T25 DYK, T27 PSC, T28 CBD (wszystkie `+pl`) |
+| `ciagla` | T30 PolQA, T31 PoQuAD (Levenshtein, `+pl`), T35 TruthfulQA MC2, T38 SQuAD2 (`+proc`), T39 DROP, T41 CoQA, T50 ReCoRD |
+| `mcc` | T49 CoLA |
+
+Czy T35 TruthfulQA MC2 stawia poprawne opcje na stałych pozycjach (wtedy kontrola jak przy `poz`), ustala karta.
 
 ## Przygotowanie (raz)
 
@@ -69,11 +112,8 @@ Do benchmarku polskiego albo bez oryginału pobierz też model, który zna polsk
 `git clone` pobiera domyślną gałąź repo, czyli `main`. Od niej zakładasz swoją gałąź.
 
 Wszystkie przebiegi liczysz w środowisku z `common/requirements.lock.txt` (lm-eval 0.4.9.1). Czym różni się ono od
-lm-eval w Space, opisuje [`METODOLOGIA.md`](METODOLOGIA.md), sekcja „Wersja lm-eval”.
-Lock ogranicza Pythona do 3.9–3.12: `numpy==2.0.2` i `scipy==1.13.1` wymagają co najmniej 3.9 i mają gotowe wheele
-tylko do 3.12. Sprawdzone na 3.9.25 i 3.12.10. Pilnuje tego pierwsza linia locka,
-`--only-binary numpy,scipy`: na 3.14 `pip install` od razu kończy się błędem `No matching distribution found for
-numpy==2.0.2`.
+lm-eval w Space, opisuje [`METODOLOGIA.md`](METODOLOGIA.md), sekcja „Wersja lm-eval”. Lock działa na Pythonie
+3.9–3.12; na nowszym `pip install` kończy się błędem `No matching distribution found for numpy==2.0.2`.
 
 `common/slayer_lm.py --install` uruchamiasz raz na venv i checkout. Zapisuje w venv ścieżkę tego `common/`.
 Rejestruje model `slayer` tylko pod komendą `lm_eval`, nie pod `python -m lm_eval`.
@@ -125,6 +165,7 @@ Testy działają bez sieci i bez wag. Każdy kończy się kodem 0:
 .venv-eval/bin/python tests/test_wikitext_mianownik.py
 .venv-eval/bin/python -m pytest tests/test_wsc273.py
 .venv-eval/bin/python -m pytest tests/test_piqa.py
+.venv-eval/bin/python -m pytest tests/test_przebieg_centralny.py
 .venv-eval/bin/python tests/test_liczby_raportow.py
 ```
 
@@ -155,37 +196,15 @@ to co innego niż warunek odtworzenia z etapu B metodologii.
 
 ## SE i werdykt
 
-- **SE** (błąd standardowy): dla trafności p na n pytaniach SE = √(p(1−p)/n). Przedział 95% (CI95) to wynik plus minus
-  około 2 SE. Space liczy CI95 bootstrapem (10 000 powtórzeń, seed 20261028).
-- **Porównanie dwóch wyników:** liczysz różnicę, SE różnicy i z = różnica / SE. Gdy oba modele odpowiadały na te same
-  pytania, SE różnicy jest parowane. Inaczej SE różnicy to √(SE₁² + SE₂²), co zawyża szum.
-- **Werdykt** (jak w `tools/liczby.py`): |z| ≥ 3 „pewne”, 2–3 „prawdopodobne”, poniżej 2 „szum”. „Szum” znaczy, że
-  pomiar nie rozstrzyga. Nie znaczy, że różnicy nie ma.
-- **SE dla perpleksji i BPB:** wzór dla trafności tu nie działa. SE liczysz bootstrapem po dokumentach (losujesz
-  dokumenty ze zwracaniem i liczysz metrykę od nowa).
-- **Test złożony z wielu grup** (paradygmaty, domeny, kategorie, szablony): pozycje w jednej grupie nie są niezależne.
-  Werdykt porównania podajesz też po grupach: różnice średnich grup, t przy df = k−1 (k grup) i progi p takie jak dla
-  |z| = 3 i |z| = 2. Gdy porównujesz wiele grup naraz (domeny, paradygmaty, pary pojęć), tabela werdyktów podaje
-  domyślnie p poprawione metodą Holma, nie tylko wtedy, gdy nazywasz najlepsze albo najgorsze. Rodzina Holma to
-  wszystkie kontrasty z tabeli werdyktów, a obok p po poprawce stoi surowe p
-  ([#76](https://github.com/slayerlabs/benchmarks-fabryka-ai/pull/76),
-  [#92](https://github.com/slayerlabs/benchmarks-fabryka-ai/pull/92), [#93](https://github.com/slayerlabs/benchmarks-fabryka-ai/pull/93)).
+Werdykt (progi |z| w `tools/liczby.py`), Holm i MDE opisuje
+[METODOLOGIA, „Wspólny rdzeń”](METODOLOGIA.md#wspólny-rdzeń), a metodę SE każdego typu testu (analityczne, bootstrap,
+warstwowe, po klastrach) kolumna „SE” w [„Typach testów”](METODOLOGIA.md#typy-testów). Space liczy CI95 bootstrapem
+(10 000 powtórzeń, seed 20261028).
 
 ## Bazy: losowa i większościowa
 
-- **Baza losowa:** wynik zgadywania (1/k przy k opcjach, połowa przy parach zdań).
-- **Baza większościowa:** udział najczęstszej poprawnej odpowiedzi, czyli wynik stałej odpowiedzi, np. zawsze „tak”
-  w BoolQ. Przy wyborze odpowiedzi liczysz ją po pozycji opcji, bo lm-eval punktuje indeks odpowiedzi. Podajesz
-  dokładną wartość ze splitu (np. ze statystyk HF datasets-server), nie zaokrągloną z abstraktu. Przy parach zdań
-  (BLiMP i podobne) poprawne zdanie stoi zawsze na tej samej pozycji, więc baza większościowa jest pełna i nie ma
-  znaczenia: podajesz i sprawdzasz tylko bazę losową. Tak samo, gdy implementacja stawia poprawną opcję zawsze na
-  tej samej pozycji (SciQ w lm-eval, [#90](https://github.com/slayerlabs/benchmarks-fabryka-ai/pull/90)): wpisujesz
-  bazę większościową jako pełną z tym powodem. Wynik ponad bazą losową nie wyklucza wtedy kodu „zawsze ostatnia
-  opcja”, więc kontrola przechodzi też sprawdzenie pozycji (METODOLOGIA, „Model kontrolny etapu B”).
-- **Udział najczęstszej predykcji:** jaki odsetek odpowiedzi modelu to ta sama opcja. Małe modele w testach z literami
-  często wybierają w kółko jedną literę. Wynik podany bez tych liczb wprowadza w błąd. Gdy poprawna opcja stoi zawsze
-  na tej samej pozycji, wysoki udział tej pozycji wygląda jak dobry wynik, więc udział podajesz z wyniku z
-  przemieszanymi opcjami.
+Bazę losową, stałą odpowiedź (bazę większościową albo jej zamiennik), b i udział najczęstszej predykcji dla każdego
+typu testu definiuje [METODOLOGIA, „Typy testów”](METODOLOGIA.md#typy-testów).
 
 ## Slayer 1B: wyniki testów (30.10.2026)
 

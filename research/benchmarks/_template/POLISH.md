@@ -6,6 +6,11 @@ Ten plik leży w osobnym katalogu `benchmarks/<name>-pl/`. Procedurę i znaczeni
 Oryginał: `../<name>/`. Wpisz tu link do jego `README.md`. W katalogu oryginału są karta oryginału i odtworzenie,
 czyli etapy A–C.
 
+| protokół przed pomiarem | wartość |
+|---|---|
+| Typ testu (tabela typów METODOLOGII), bazy i b, SNR, MDE, kontaminacja | jak pola karty oryginału, policzone na polskim zbiorze |
+| SE na wiążącym poziomie: polski zbiór / oryginał | / |
+
 ## D1. Przetłumaczyć czy napisać od zera
 
 | | wartość |

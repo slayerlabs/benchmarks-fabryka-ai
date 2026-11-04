@@ -30,7 +30,7 @@ def tabela_metodologii():
 
 def slayer_metodologii():
     tekst = (KORZEN / "METODOLOGIA.md").read_text(encoding="utf-8")
-    return re.search(r"`(SlayerLab/Slayer1B-1\.06)` @ `([0-9a-f]{40})`", tekst).groups()
+    return re.search(r"`(SlayerLab/Slayer1B-[0-9.]+)` @ `([0-9a-f]{40})`", tekst).groups()
 
 
 def klucze_zadan():

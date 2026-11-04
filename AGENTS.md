@@ -10,7 +10,7 @@ Krótki opis repo dla każdego, kto pisze tu kod. Szczegóły są w [`README.md`
 - `research/benchmarks/_template/`: wzór nowego benchmarku.
 - `research/analyses/<name>/`: analiza na wielu benchmarkach naraz.
 - `research/common/`: kod używany przez więcej niż jeden benchmark.
-- `research/tools/`: bramka liczb.
+- `research/tools/`: bramka liczb i przebieg centralny.
 - `research/results/`: liczby wygenerowane przez bramkę liczb.
 - `research/tests/`: testy kodu, bez sieci i bez wag.
 - `research/slayer-1b/` i `frontend-beta/`: nie ruszasz ich przy pracy nad benchmarkami.
@@ -26,19 +26,9 @@ Krótki opis repo dla każdego, kto pisze tu kod. Szczegóły są w [`README.md`
 
 ## Przed PR
 
-Autor PR uruchamia w `research/` testy zmienionego benchmarku, `tests/test_liczby_raportow.py` i bramkę liczb. Każda
-komenda musi zakończyć się kodem 0. Katalog `research/` nie ma CI.
-
-```bash
-.venv-eval/bin/python tools/liczby.py && .venv-eval/bin/python tools/sprawdz_raporty.py
-.venv-eval/bin/python tests/test_<name>.py
-.venv-eval/bin/python tests/test_<name>_zgodnosc.py   # tylko gdy benchmark ma własną implementację
-.venv-eval/bin/python tests/test_liczby_raportow.py
-```
-
-Każda liczba w raporcie `.md` pod `research/` musi być w `results/LICZBY.json`. Każde porównanie ma SE i werdykt.
-Liczbę spoza wyników, np. wynik z pracy, oznaczasz na końcu jej linii znacznikiem
-`<!-- liczba-spoza-wynikow: skąd jest liczba -->`.
+Komendy z sekcji [„Przed PR”](README.md#przed-pr) README kończą się kodem 0; katalog `research/` nie ma CI. Reguły,
+które sprawdzają (bramka liczb, SE i werdykt przy każdym porównaniu), opisuje
+[`research/METODOLOGIA.md`](research/METODOLOGIA.md), „Wspólny rdzeń”.
 
 ## Zasady
 

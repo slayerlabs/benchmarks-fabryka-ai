@@ -29,15 +29,8 @@ adresem https://github.com/orgs/slayerlabs/projects/10. Jak przygotować kompute
 
 1. Załóż gałąź od `main`. Nazwij ją `research/<name>` (benchmark) albo `docs/<temat>`. Możesz też otworzyć PR z
    forka. Wtedy nie potrzebujesz prawa zapisu w repo.
-2. Przed PR (poza PR z samą kartą, wariant niżej) uruchom w `research/` testy zmienionego benchmarku, `tests/test_liczby_raportow.py` i bramkę liczb.
-   Katalog `research/` nie ma CI, więc robisz to sam. Każda komenda musi zakończyć się kodem 0:
-
-   ```bash
-   .venv-eval/bin/python tools/liczby.py && .venv-eval/bin/python tools/sprawdz_raporty.py
-   .venv-eval/bin/python tests/test_<name>.py
-   .venv-eval/bin/python tests/test_<name>_zgodnosc.py   # tylko gdy benchmark ma własną implementację
-   .venv-eval/bin/python tests/test_liczby_raportow.py
-   ```
+2. Uruchom komendy z sekcji [„Przed PR”](README.md#przed-pr) README. Katalog `research/` nie ma CI, więc robisz to
+   sam, a każda komenda musi zakończyć się kodem 0.
 
 3. Otwórz PR do `main` i wypełnij checklistę z szablonu. W opisie wpisz `Refs #N` z numerem zadania z tego repo.
    Dopóki pracujesz, PR jest w trybie **Draft** (`gh pr create --draft`), a zadanie stoi w In Progress. Gdy
