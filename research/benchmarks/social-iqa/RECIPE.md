@@ -2,6 +2,8 @@
 
 ## Środowisko
 
+- Commit z wynikiem: `a80e693` (gałąź `research/siqa`, od `origin/main` @ `476ffa7`). PR scala się merge commitem,
+  więc hash zostaje w historii `main`.
 - lm-eval 0.4.9.1, transformers 4.57.6, torch 2.8.0+cu128, Python 3.9.25 (`C:/Users/taki1/bench/.venv-eval`).
 - GPU NVIDIA GeForce RTX 5060 Ti 16 GB, Windows 11, `--device cuda --batch 8`.
 - Model: `SlayerLab/Slayer1B-1.06` @ `ef81be58742544ad32e1afab38db011fec209609`, lokalna kopia `D:/models/slayer-1.06`.
