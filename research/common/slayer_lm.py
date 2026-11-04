@@ -122,6 +122,10 @@ class _SlayerModule(torch.nn.Module):
         The criterion gets the whole batch, as in `GenerationMixin`: a row past `until` keeps going until all rows
         finish, and `generate_until` cuts it at `until`. A row past end of text gets only that token, which lm-eval
         skips when decoding. Left padding does not enter the forward.
+
+        Each row keeps its own KV cache (`Slayer.krok`), so a step runs the forward on one new token instead of the
+        whole sequence; a finished row skips the forward, its next token is end of text anyway. A model without
+        `krok` gets the whole sequence at each step.
         """
         if kwargs.get("do_sample"):
             raise NotImplementedError("SlayerLM: generate_until supports greedy only (do_sample=False).")
@@ -135,11 +139,21 @@ class _SlayerModule(torch.nn.Module):
             real_tokens = output[b] if mask is None else output[b][mask]
             # Empty context: the forward starts from BOS, as `loglikelihood` in lm-eval; BOS does not reach the output.
             rows.append(real_tokens.view(1, -1) if real_tokens.numel() else output.new_full((1, 1), self.slayer.bos))
+        step = getattr(self.slayer, "krok", None)
+        caches = [[] for _ in rows]
+        pending = list(rows)
+        last = [None] * len(rows)
         for _ in range(limit):
-            last_logits = torch.cat([self.slayer.logits(seq)[:, -1] for seq in rows])
+            for b in range(len(rows)):
+                if last[b] is not None and bool(finished[b]):
+                    continue
+                last[b] = step(pending[b], caches[b])[0] if step else self.slayer.logits(rows[b])[0, -1]
+            last_logits = torch.stack(last)
             next_tokens = last_logits.argmax(dim=-1).masked_fill(finished, self.slayer.bos)
             finished = finished | (next_tokens == self.slayer.bos)
-            rows = [torch.cat([seq, n.view(1, 1)], dim=1) for seq, n in zip(rows, next_tokens)]
+            pending = [n.view(1, 1) for n in next_tokens]
+            if not step:
+                rows = [torch.cat([seq, n], dim=1) for seq, n in zip(rows, pending)]
             output = torch.cat([output, next_tokens[:, None]], dim=1)
             if bool(finished.all()):
                 break
