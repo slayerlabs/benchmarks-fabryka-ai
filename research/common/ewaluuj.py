@@ -16,7 +16,10 @@ import json
 import subprocess
 import sys
 import traceback
+from collections import Counter
 from pathlib import Path
+
+import numpy as np
 
 KATALOG = Path(__file__).resolve().parent
 sys.path.insert(0, str(KATALOG))
@@ -99,7 +102,10 @@ def zbuduj_zadania(cfgs):
     from lm_eval.tasks import TaskManager, get_task_dict
     tm, wynik = TaskManager(), []
     for cfg in cfgs:
-        zad = list(get_task_dict([copy.deepcopy(cfg)], tm).values())[0]
+        if "class" in cfg:  # legacy task class (SQuAD 2.0): built directly, not through the task index
+            zad = cfg["class"]()
+        else:
+            zad = list(get_task_dict([copy.deepcopy(cfg)], tm).values())[0]
         zad.config.task = cfg["task"]
         wynik.append(zad)
     return wynik
@@ -113,8 +119,8 @@ def z_pmi(cfg):
     return any(m["metric"] == "acc_mutual_info" for m in cfg.get("metric_list", []))
 
 
-def wybor_probki(zad, meta, tryb):
-    """(indeksy albo None = całość, n_population, source_ids wybranych)."""
+def wybor_probki(zad, meta, tryb, czlonek=None, n=None):
+    """(indeksy albo None = całość, n_population, source_ids wybranych); `n` = przydział podtestu grupy."""
     docs = list(zad.eval_docs)
     pole = meta.get("pole_id")
     ids = [d.get(pole, i) if pole else i for i, d in enumerate(docs)]
@@ -124,9 +130,302 @@ def wybor_probki(zad, meta, tryb):
         return idx, len(docs), [ids[i] for i in idx]
     if tryb == "pelna" or meta.get("probkowanie") is False:
         return None, len(docs), ids
-    n = 200 if tryb == "panel200" else int(tryb)
-    idx = M.ranking_panel(meta["benchmark_id"], meta["task"], ids, n)
+    if n is None:
+        n = 200 if tryb == "panel200" else int(tryb)
+    idx = M.ranking_panel(meta["benchmark_id"], czlonek or meta["task"], ids, n)
     return idx, len(docs), [ids[i] for i in idx]
+
+
+# --- (c): groups, demonstrations, context limit, generation and corpus metrics ---
+
+LIMIT_KONTEKSTU = 4096  # METHOD.md §2: longer inputs are rejected, never truncated
+BUDZET_GEN = 256  # METHOD.md §4: default generation budget (HFLM max_gen_toks)
+
+
+def czlonek(cfg):
+    """Podtest configu (grupy i zadania z YAML-a lm-eval), None dla configów pisanych ręcznie."""
+    return (cfg.get("metadata") or {}).get("czlonek")
+
+
+def rodzaj(meta):
+    """`gen` (T30, T31) liczy się jak `proba`: metryka per pytanie z lm-eval."""
+    return "proba" if meta["rodzaj"] == "gen" else meta["rodzaj"]
+
+
+def metryka(meta):
+    return meta.get("metryka") or meta.get("klucz", "acc")
+
+
+def przydzialy(space, meta, tryb):
+    """{podtest: n} grupy: panel200 według METHOD §3, liczba = tyle na podtest; {} = jak dla jednego zadania."""
+    if len(space) == 1 or tryb == "pelna":
+        return {}
+    if tryb == "panel200":
+        return M.przydzial_grupy({czlonek(c): len(z.eval_docs) for c, z in space}, 200)
+    return {czlonek(c): int(tryb) for c, _ in space}
+
+
+def uzyj_banku(zad):
+    """Bank Space, gdy zadanie ma demonstracje z osobnego splitu. Zostają: demonstracje źródłowe (BBH, stała lista
+    w YAML-u) i few-shot z testu (Belebele T24: lm-eval bierze pierwsze dokumenty testu, bank rozłączny byłby pusty)."""
+    cfg = zad.config
+    if not (cfg.num_fewshot or 0) or (cfg.fewshot_config or {}).get("samples") is not None:
+        return False
+    return (cfg.fewshot_split or cfg.training_split) not in (None, cfg.test_split)
+
+
+def ustaw_bank(zad, meta, czl, idx):
+    """Demonstracje: pierwsze dokumenty splitu few-shot w kolejności M.ranking_banku, bez tych, których prompt
+    równa się promptowi ocenianego dokumentu; zawsze te same, w tej kolejności (sampler first_n). Zwraca ich id."""
+    from lm_eval.api.samplers import FirstNSampler
+    k = zad.config.num_fewshot
+    docs = list(zad.fewshot_docs())
+    oceniane = list(zad.eval_docs)
+    zakazane = {str(zad.doc_to_text(oceniane[i])) for i in (idx if idx is not None else range(len(oceniane)))}
+    ids = [M.sha256_tekstu(json.dumps(d, sort_keys=True, ensure_ascii=False, default=str)) for d in docs]
+    bank = []
+    for i in M.ranking_banku(meta["benchmark_id"], czl or meta["task"], ids):
+        if len(bank) == k:
+            break
+        if str(zad.doc_to_text(docs[i])) not in zakazane:
+            bank.append(i)
+    if len(bank) < k:
+        raise ValueError(f"bank demonstracji {czl}: {len(bank)} z {k}")
+    zad.sampler = FirstNSampler([docs[i] for i in bank], zad, rnd=zad.fewshot_rnd)
+    return [ids[i] for i in bank]
+
+
+def ogranicz_kontekst(zad, licz_tokeny, limit):
+    """METHOD.md §4: prompt + budżet ≤ limit. Demonstracje zdejmowane od końca; pytania, opcje i odniesienia nie są
+    cięte, więc prompt za długi bez demonstracji kończy zadanie błędem."""
+    oryginal = zad.fewshot_context
+    budzet_gen = (zad.config.generation_kwargs or {}).get("max_gen_toks", BUDZET_GEN)
+
+    def budzet(doc):
+        if zad.OUTPUT_TYPE == "generate_until":
+            return budzet_gen
+        cele = zad.doc_to_choice(doc) if zad.OUTPUT_TYPE == "multiple_choice" else [zad.doc_to_target(doc)]
+        return max(licz_tokeny(zad.config.target_delimiter + str(c)) for c in cele)
+
+    def fewshot_context(doc, num_fewshot, **kw):
+        for k in range(num_fewshot, -1, -1):
+            ctx = oryginal(doc, num_fewshot=k, **kw)
+            if max(licz_tokeny(c) for c in (ctx if isinstance(ctx, list) else [ctx])) + budzet(doc) <= limit:
+                return ctx
+        raise ValueError(f"{zad.config.task}: prompt bez demonstracji + budżet > {limit} tokenów")
+
+    zad.fewshot_context = fewshot_context
+
+
+def wartosc_odpowiedzi(zad, meta, doc, tekst):
+    """Metryka testu dla odpowiedzi `tekst` podanej zamiast generacji: filtry zadania, potem jego process_results."""
+    resps = [[tekst]]
+    for zespol in getattr(zad, "_filters", []):
+        if zespol.name == meta.get("filtr", "none"):
+            for f in zespol.filters:
+                resps = list(f().apply(resps, [doc]))
+    odp = resps[0]
+    if meta.get("strip"):
+        return float(str(odp).strip() == str(zad.doc_to_target(doc)))
+    reszta = [(0.0, False)] if meta["task"] == "squadv2" else []  # legacy SQuAD2: second request = loglik
+    return float(zad.process_results(doc, [odp] + reszta)[metryka(meta)])
+
+
+def _pierwszy(cel):
+    return str(cel[0] if isinstance(cel, list) and cel else cel)
+
+
+def bazy_proby(zad, meta, docs):
+    """(bazy w schemacie Space, szczegóły) wg wiersza typu w METODOLOGII: gen/ciagla = wyższa z pustej odpowiedzi
+    i najczęstszej złotej, ifeval = pusta, cloze = udział najczęstszego słowa docelowego, masa = jednakowe logliki,
+    wybor_losowy = średnia po losowej opcji, mcc = 0."""
+    baza = meta.get("baza", "gen")
+    n = len(docs)
+    bazy = {"chance_value": 0.0, "majority_value": None, "majority_prediction_share": None,
+            "constant_prediction": None}
+    szczegoly = {"baza": baza}
+    sr = lambda v: sum(v) / len(v)
+    if baza in ("gen", "pusta"):
+        szczegoly["pusta"] = sr([wartosc_odpowiedzi(zad, meta, d, "") for d in docs])
+        stale = [szczegoly["pusta"]]
+        if baza == "gen":
+            tekst = Counter(_pierwszy(zad.doc_to_target(d)) for d in docs).most_common(1)[0][0]
+            v = sr([wartosc_odpowiedzi(zad, meta, d, tekst) for d in docs])
+            szczegoly["najczestsza_zlota"] = {"tekst": tekst[:80], "value": v}
+            stale.append(v)
+        bazy["majority_value"] = max(stale)
+    elif baza == "cloze":
+        cele = Counter(str(zad.doc_to_target(d)).strip() for d in docs)
+        bazy["majority_value"] = cele.most_common(1)[0][1] / n
+    elif baza == "masa":
+        bazy["chance_value"] = sr([zad.process_results(d, [(0.0, False)] * len(zad.doc_to_choice(d)))[metryka(meta)]
+                                   for d in docs])
+    elif baza == "wybor_losowy":
+        def losowa(d):
+            k = len(zad.doc_to_choice(d))
+            return sr([zad.process_results(d, [(0.0 if j == i else -1e9, False) for j in range(k)])[metryka(meta)]
+                       for i in range(k)])
+        bazy["chance_value"] = sr([losowa(d) for d in docs])
+    elif baza == "mcc":
+        bazy["majority_value"] = 0.0
+    return bazy, szczegoly
+
+
+def bazy_f1_korpus(zlote, k, funkcja, seed=M.SEED, losowania=200):
+    """f1-korpus: oczekiwane F1 predykcji klas z równymi szansami (średnia z `losowania`) i F1 najlepszej stałej klasy."""
+    rng = np.random.default_rng(seed)
+    losowa = float(np.mean([funkcja(zlote, list(rng.integers(0, k, len(zlote)))) for _ in range(losowania)]))
+    stala = max(funkcja(zlote, [c] * len(zlote)) for c in range(k))
+    return {"chance_value": losowa, "majority_value": stala, "majority_prediction_share": None,
+            "constant_prediction": None}
+
+
+def funkcja_korpusowa(cfg, nazwa):
+    """Agregacja metryki korpusowej z configu (f1 forka OpenPL: binarne albo makro), na listach (złote, pred)."""
+    if nazwa == "mcc":
+        return M.mcc
+    for m in cfg.get("metric_list") or []:
+        if getattr(m["metric"], "__name__", m["metric"]) == nazwa and callable(m.get("aggregation")):
+            agg = m["aggregation"]
+            return lambda z, p: float(agg(list(zip(p, z))))  # fork: items = (prediction, reference)
+    return lambda z, p: M.f1_korpus(z, p, "macro" if meta_srednia_makro(cfg) else "binary")
+
+
+def meta_srednia_makro(cfg):
+    return any("macro" in getattr(m.get("aggregation"), "__name__", "") for m in cfg.get("metric_list") or [])
+
+
+def podsumuj_wariant(meta, czlonkowie):
+    """Metryki jednego wariantu. `czlonkowie` = [(podtest, cfg, zad, próbki)]; więcej niż jeden = grupa, średnia
+    podtestów z wagami populacji (MMLU, MATH, BBH, METHOD.md §3) i bazy złożone tymi samymi wagami."""
+    wagi = {n: len(z.eval_docs) for n, _, z, _ in czlonkowie}
+    klasy_stale = meta.get("klasy_stale", False)
+    if rodzaj(meta) == "mc":
+        klucz = meta.get("klucz", "acc")
+        korpus = klucz not in ("acc", "acc_norm")  # f1 of the OpenPL fork (T25, T27, T28)
+        if len(czlonkowie) == 1:
+            _, cfg, zad, probki = czlonkowie[0]
+            wynik = M.podsumuj_mc(probki, klasy_stale, z_pmi=z_pmi(cfg), klucz="acc" if korpus else klucz)
+            if korpus:
+                oceny = [M.oceny_mc(p, z_pmi(cfg)) for p in probki]
+                zlote, pred = [o["gold"] for o in oceny], [o["pred"] for o in oceny]
+                f = funkcja_korpusowa(cfg, klucz)
+                wynik["glowna"] = {**M.korpusowa_z_niepewnoscia(zlote, pred, f), "metryka": klucz}
+                wynik["bazy"] = bazy_f1_korpus(zlote, max(o["k"] for o in oceny), f)
+            return wynik
+        oceny = {n: [M.oceny_mc(p, z_pmi(cfg)) for p in probki] for n, cfg, _, probki in czlonkowie}
+        wynik = {m: M.warstwy({n: [o[m] for o in oc] for n, oc in oceny.items()}, wagi)
+                 for m in ("acc", "acc_norm", "acc_pmi", "bpb_poprawnej")
+                 if all(m in o for oc in oceny.values() for o in oc)}
+        wynik["bazy"] = M.wazona_baza({n: M.bazy_mc(oc, klasy_stale, klucz) for n, oc in oceny.items()}, wagi)
+        wszystkie = [o for oc in oceny.values() for o in oc]
+        wynik["udzial_najczestszej_predykcji"] = (Counter(o[f"pred_{klucz}"] for o in wszystkie).most_common(1)[0][1]
+                                                  / len(wszystkie))
+        return wynik
+    nazwa, filtr = metryka(meta), meta.get("filtr", "none")
+    wartosci, bazy, szczegoly, predykcje, wynik = {}, {}, {}, [], {}
+    for n, cfg, zad, probki in czlonkowie:
+        wybrane = [s for s in probki if s.get("filter", "none") == filtr]
+        if rodzaj(meta) == "korpus":
+            pary = [s[nazwa] for s in wybrane]  # lm-eval MC: (gold, pred)
+            f = funkcja_korpusowa(cfg, nazwa)
+            wynik["glowna"] = {**M.korpusowa_z_niepewnoscia([g for g, _ in pary], [p for _, p in pary], f),
+                               "metryka": nazwa}
+            predykcje += [p for _, p in pary]
+        elif meta.get("strip"):  # BBH: answer stripped before exact match; the source-literal value is a diagnostic
+            wartosci[n] = [float(str(s["filtered_resps"][0]).strip() == str(s["target"])) for s in wybrane]
+            wynik.setdefault("zrodlowa_doslowna", {})[n] = sum(float(s[nazwa]) for s in wybrane) / len(wybrane)
+        else:
+            wartosci[n] = [float(s[nazwa]) for s in wybrane]
+        if zad.OUTPUT_TYPE == "generate_until":
+            predykcje += [str(s["filtered_resps"][0]).strip() for s in wybrane]
+        bazy[n], szczegoly[n] = bazy_proby(zad, meta, [s["doc"] for s in wybrane])
+        if meta.get("podzbior"):  # SQuAD2: b and the control on HasAns, the full value next to it
+            maska = [s[meta["podzbior"]] == 1 for s in wybrane]
+            wynik["podzbior"] = {"nazwa": meta["podzbior"],
+                                 "glowna": M.srednia_z_niepewnoscia([v for v, m in zip(wartosci[n], maska) if m]),
+                                 "bazy": bazy_proby(zad, meta, [s["doc"] for s, m in zip(wybrane, maska) if m])[0]}
+    if "glowna" not in wynik:
+        glowna = (M.srednia_z_niepewnoscia(next(iter(wartosci.values()))) if len(wartosci) == 1
+                  else M.warstwy(wartosci, wagi))
+        wynik["glowna"] = {**glowna, "metryka": nazwa}
+    wynik["bazy"] = next(iter(bazy.values())) if len(bazy) == 1 else M.wazona_baza(bazy, wagi)
+    wynik["bazy_szczegoly"] = szczegoly
+    wynik["udzial_najczestszej_predykcji"] = (Counter(predykcje).most_common(1)[0][1] / len(predykcje)
+                                              if predykcje else None)
+    return wynik
+
+
+def ocen_zadanie(lm, task_id, dane, probka, licz_tokeny, wyj, runner, model_id, protocol_id):
+    """Jedno zadanie Space na modelu `lm`: (obserwacja, wpis rozszerzony, bazy, sha256 próbek); wyjątek = brak wyniku."""
+    from lm_eval import simple_evaluate
+    import trace_pytan as T
+
+    meta = Z.ZADANIA[task_id]
+    warianty = Z.konfiguracje(task_id, dane)
+    obiekty = zbuduj_zadania([c for _, c in warianty])
+    po_wariancie = {}
+    for (wariant, cfg), zad in zip(warianty, obiekty):
+        po_wariancie.setdefault(wariant, []).append((cfg, zad))
+    space = po_wariancie["space"]
+    n_czl = przydzialy(space, meta, probka)
+    wybory = [wybor_probki(zad, meta, probka, czlonek(cfg), n_czl.get(czlonek(cfg))) for cfg, zad in space]
+    limit = min(LIMIT_KONTEKSTU, getattr(lm, "max_length", None) or LIMIT_KONTEKSTU)
+    samples, demonstracje = {}, {}
+    for lista in po_wariancie.values():
+        for (cfg, zad), (idx, _, _) in zip(lista, wybory):
+            if idx is not None:
+                samples[cfg["task"]] = idx
+            if uzyj_banku(zad):
+                demonstracje[czlonek(cfg) or meta["task"]] = ustaw_bank(zad, meta, czlonek(cfg), idx)
+            if (zad.config.num_fewshot or 0) > 0 or zad.OUTPUT_TYPE == "generate_until":
+                ogranicz_kontekst(zad, licz_tokeny, limit)
+    wynik = simple_evaluate(model=lm, tasks=obiekty, samples=samples or None, log_samples=True,
+                            bootstrap_iters=0, random_seed=0, numpy_random_seed=1234,
+                            torch_random_seed=1234, fewshot_random_seed=1234)
+
+    dodatkowe, digest = {}, hashlib.sha256()
+    for wariant, lista in po_wariancie.items():
+        czlonkowie = []
+        for cfg, zad in lista:
+            probki = wynik["samples"][cfg["task"]]
+            if getattr(zad, "multiple_input", 0):  # WinoGrande, WSC273: gold index comes from doc_to_text
+                for s in probki:
+                    s["gold"] = int(zad.doc_to_text(s["doc"]))
+            nazwa = f"{task_id}_{wariant}" + (f"_{czlonek(cfg)}" if len(lista) > 1 else "")
+            tresc = "".join(json.dumps(s, ensure_ascii=False, default=str) + "\n" for s in probki).encode()
+            (wyj / "probki" / f"{nazwa}.jsonl").write_bytes(tresc)
+            digest.update(tresc)
+            czlonkowie.append((czlonek(cfg) or meta["task"], cfg, zad, probki))
+        if meta["rodzaj"] == "rolling":
+            _, cfg, _, probki = czlonkowie[0]
+            dodatkowe[wariant] = M.podsumuj_rolling(probki, cfg["process_results"], licz_tokeny)
+            continue
+        dodatkowe[wariant] = podsumuj_wariant(meta, czlonkowie)
+        if meta.get("trace") and len(czlonkowie) == 1:
+            probki = czlonkowie[0][3]
+            pole = meta.get("pole_id")
+            wiersze = [T.trace_pytania(s, licz_tokeny, id_pytania=s["doc"].get(pole) if pole else s["doc_id"])
+                       for s in probki]
+            (wyj / "trace" / f"{task_id}_{wariant}.jsonl").write_text(
+                "".join(json.dumps(w, ensure_ascii=False) + "\n" for w in wiersze))
+            dodatkowe[wariant]["rozklad_wyborow"] = T.rozklad_wyborow(wiersze)
+    d = dodatkowe["space"]
+    if demonstracje:
+        d["demonstracje"] = demonstracje
+    if meta["rodzaj"] == "rolling":
+        glowna, bazy = d["byte_perplexity"], None
+    else:
+        glowna, bazy = d.get("glowna") or d[meta.get("klucz", "acc")], d["bazy"]
+    n_pop = sum(w[1] for w in wybory)
+    wybrane_ids = [i for (cfg, _), w in zip(space, wybory)
+                   for i in (w[2] if len(space) == 1 else [f"{czlonek(cfg)}|{x}" for x in w[2]])]
+    digests = {"source_id": M.sha256_tekstu("\n".join(map(str, wybrane_ids))),
+               "results": digest.hexdigest(), "runner": runner}
+    obs = M.obserwacja(task_id, meta, model_id, protocol_id, glowna, bazy, n_pop, len(wybrane_ids), digests)
+    roz = {**obs, "dodatkowe": dodatkowe, "zrodlo_danych": {"repo": meta["repo"], "rewizja": meta["rewizja"],
+                                                             "tryb": dane}}
+    return obs, roz, bazy, digests["results"]
 
 
 def zapisz_historie(sciezka, wiersz, nowy):
@@ -170,9 +469,6 @@ def main():
     if a.model == "slayer" and not a.model_path:
         p.error("--model slayer requires --model_path (local weights directory, e.g. models/slayer-1.06); --repo and --revision only go to the report")
 
-    from lm_eval import simple_evaluate
-    import trace_pytan as T
-
     wyj = Path(a.wyjscie)
     for podkatalog in ("probki", "trace"):
         (wyj / podkatalog).mkdir(parents=True, exist_ok=True)
@@ -187,14 +483,9 @@ def main():
         meta = Z.ZADANIA[task_id]
         zadania_space.append({"task_id": task_id, "task": meta["task"], "family": meta["family"],
                               "language": meta["language"], "split": meta["split"]})
-        warianty = Z.konfiguracje(task_id, a.dane)
         try:
-            obiekty = zbuduj_zadania([c for _, c in warianty])
-            idx, n_pop, wybrane_ids = wybor_probki(obiekty[0], meta, a.probka)
-            samples = {c["task"]: idx for _, c in warianty} if idx is not None else None
-            wynik = simple_evaluate(model=lm, tasks=obiekty, samples=samples, log_samples=True,
-                                    bootstrap_iters=0, random_seed=0, numpy_random_seed=1234,
-                                    torch_random_seed=1234, fewshot_random_seed=1234)
+            obs, roz, bazy, digest = ocen_zadanie(lm, task_id, a.dane, a.probka, licz_tokeny, wyj, runner,
+                                                  model_id, protocol_id)
         except Exception as e:  # zadanie, którego nie dało się uruchomić, zostaje w raporcie ze stanem
             stan = "blocked_access" if "huggingface" in repr(e).lower() or "connect" in repr(e).lower() else "failed"
             obs = M.obserwacja(task_id, meta, model_id, protocol_id, {"n": 0}, None, None, None, {},
@@ -205,41 +496,10 @@ def main():
             traceback.print_exc()
             nieudane.append(task_id)
             continue
-
-        dodatkowe, glowna, bazy = {}, None, None
-        digest_wynikow = hashlib.sha256()
-        for wariant, cfg in warianty:
-            probki = wynik["samples"][cfg["task"]]
-            plik = wyj / "probki" / f"{task_id}_{wariant}.jsonl"
-            tresc = "".join(json.dumps(s, ensure_ascii=False, default=str) + "\n" for s in probki).encode()
-            plik.write_bytes(tresc)
-            digest_wynikow.update(tresc)
-            if meta["rodzaj"] == "rolling":
-                pp = M.podsumuj_rolling(probki, cfg["process_results"], licz_tokeny)
-                dodatkowe[wariant] = pp
-                glowna = pp["byte_perplexity"] if wariant == "space" else glowna
-                continue
-            klucz = meta.get("klucz", "acc")
-            mc = M.podsumuj_mc(probki, meta.get("klasy_stale", False), z_pmi=z_pmi(cfg), klucz=klucz)
-            dodatkowe[wariant] = mc
-            if wariant == "space":
-                glowna, bazy = mc[klucz], mc["bazy"]
-            if meta.get("trace"):
-                pole = meta.get("pole_id")
-                wiersze = [T.trace_pytania(s, licz_tokeny, id_pytania=s["doc"].get(pole) if pole else s["doc_id"])
-                           for s in probki]
-                (wyj / "trace" / f"{task_id}_{wariant}.jsonl").write_text(
-                    "".join(json.dumps(w, ensure_ascii=False) + "\n" for w in wiersze))
-                mc["rozklad_wyborow"] = T.rozklad_wyborow(wiersze)
-        digests = {"source_id": M.sha256_tekstu("\n".join(map(str, wybrane_ids))),
-                   "results": digest_wynikow.hexdigest(), "runner": runner}
-        zrodla.append(digests["results"])
+        zrodla.append(digest)
         bazy_wszystkie[task_id] = bazy
-        obs = M.obserwacja(task_id, meta, model_id, protocol_id, glowna, bazy, n_pop,
-                           len(wybrane_ids), digests)
         obserwacje.append(obs)
-        rozszerzone.append({**obs, "dodatkowe": dodatkowe,
-                            "zrodlo_danych": {"repo": meta["repo"], "rewizja": meta["rewizja"], "tryb": a.dane}})
+        rozszerzone.append(roz)
 
     teraz = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     run_id = f"niezalezny-{model_id.replace('/', '_')}-{(rewizja or 'lokalny')[:8]}-{teraz}"

@@ -44,14 +44,27 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`ewok`](benchmarks/ewok/README.md) | | `para +klastry` | klastry: szablony; domeny informacyjnie | nie, własny kod | nieustalone |
 | [`ewok-pl`](benchmarks/ewok-pl/README.md) | | `para +klastry +pl` | klastry: szablony; domeny informacyjnie | nie, własny kod | nieustalone |
 | [`hellaswag`](benchmarks/hellaswag/ORIGINAL.md) | T05 | `mc` | | nie | nieustalone |
-| [`lambada`](benchmarks/lambada/ORIGINAL.md) | T17 | `cloze` | | nie | tak |
+| [`lambada`](benchmarks/lambada/ORIGINAL.md) | T17 | `cloze` | | T17 | tak |
 | [`openbookqa`](benchmarks/openbookqa/ORIGINAL.md) | T08 | `mc` | | nie | nieustalone |
 | [`piqa`](benchmarks/piqa/README.md) | T06 | `mc` | | nie, własny kod | tak |
 | [`sciq`](benchmarks/sciq/ORIGINAL.md) | T09 | `poz` | | nie | tak |
 | [`uncheatable-eval`](benchmarks/uncheatable-eval/ORIGINAL.md) | | `ppl +warstwy` | kategorie, średnia bez wag | nie | nieustalone |
 | [`wikitext-2`](benchmarks/wikitext-2/README.md) | T03 | `ppl` | | T03 | nieustalone |
-| [`winogrande`](benchmarks/winogrande/README.md) | T07 | `mc +klastry` | klastry: pary bliźniacze | nie | nie |
-| [`wsc273`](benchmarks/wsc273/README.md) | T14 | `mc +klastry` | klastry: pary schematów | nie, własny kod | nieustalone |
+| [`winogrande`](benchmarks/winogrande/README.md) | T07 | `mc +klastry` | klastry: pary bliźniacze | T07 | nie |
+| [`wsc273`](benchmarks/wsc273/README.md) | T14 | `mc +klastry` | klastry: pary schematów | T14 | nieustalone |
+| [`mmlu`](benchmarks/mmlu/README.md) | T32 | `mc +warstwy` | warstwy: 57 przedmiotów, wagi populacji | T32 | nieustalone |
+| [`gsm8k`](benchmarks/gsm8k/README.md) | T33 | `gen` | | T33 | nieustalone |
+| [`math`](benchmarks/math/README.md) | T34 | `gen +warstwy` | warstwy: 7 działów, wagi populacji | T34 | nieustalone |
+| [`truthfulqa`](benchmarks/truthfulqa/README.md) | T35 | `masa` | | T35 | nieustalone |
+| [`ifeval`](benchmarks/ifeval/README.md) | T36 | `ifeval` | | T36 | nieustalone |
+| [`squad2`](benchmarks/squad2/README.md) | T38 | `ciagla +proc` | | T38 | nieustalone |
+| [`drop`](benchmarks/drop/README.md) | T39 | `ciagla` | | T39 | nieustalone |
+| [`coqa`](benchmarks/coqa/README.md) | T41 | `ciagla` | | T41 | nieustalone |
+| [`nq-open`](benchmarks/nq-open/README.md) | T42 | `gen` | | T42 | nieustalone |
+| [`triviaqa`](benchmarks/triviaqa/README.md) | T43 | `gen` | | T43 | nieustalone |
+| [`bbh`](benchmarks/bbh/README.md) | T47 | `gen +warstwy` | warstwy: 27 zadań, wagi populacji | T47 | nieustalone |
+| [`cola`](benchmarks/cola/README.md) | T49 | `mcc` | | T49 | nieustalone |
+| [`record`](benchmarks/record/README.md) | T50 | `ciagla` | | T50 | nieustalone |
 
 Wczesny sygnał (kryterium w METODOLOGII) policzono z publicznych plików zero-shot 15 checkpointów
 [`pythia-1b-v0`](https://github.com/EleutherAI/pythia/tree/main/evals/pythia-v0/pythia-1b/zero-shot); karta przejmuje

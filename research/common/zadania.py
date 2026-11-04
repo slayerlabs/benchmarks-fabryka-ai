@@ -10,9 +10,13 @@ litery, wariant „cloze" (wybory = treść odpowiedzi). Do każdego wariantu MC
 """
 
 import importlib.util
+import sys
 from pathlib import Path
 
 import lm_eval
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import metryki as M  # noqa: E402
 
 KATALOG = Path(__file__).resolve().parent
 DANE_TESTOWE = KATALOG / "tests" / "data"
@@ -90,6 +94,80 @@ ZADANIA = {
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="allenai/social_i_qa", rewizja="8835ceb9141d7896d9d968634a9b21ae440e3ec5",
                 split="validation", rodzaj="mc", klasy_stale=False, parquet=True),
+    # --- (c): config from the installed lm-eval YAML (`lm_eval` / `grupa`), dataset pinned as in tasks_50.json.
+    # rodzaj: mc = own MC metrics from logliks; proba = lm-eval per-question metric `metryka` of filter `filtr`;
+    # korpus = corpus metric over (gold, pred) pairs. baza: how the constant-answer baseline is computed
+    # (ewaluuj.bazy_proby). shots > 0 with a separate few-shot split: demonstrations from the hash-selected
+    # disjoint bank (METHOD.md §4, ewaluuj.uzyj_banku); fixed source shots (BBH) stay as published.
+    "T07": dict(benchmark_id="winogrande", task="winogrande", family="winogrande", language="EN",
+                metric="acc,none", unit="score", higher_is_better=True, lm_eval="winogrande",
+                repo="allenai/winogrande", rewizja="01e74176c63542e6b0bcb004dcdea22d94fb67b5",
+                nazwa_hf="winogrande_xl", split="validation", rodzaj="mc", klasy_stale=True),
+    "T14": dict(benchmark_id="wsc273", task="wsc273", family="wsc273", language="EN",
+                metric="acc,none", unit="score", higher_is_better=True, lm_eval="wsc273",
+                repo="ErnestSDavis/winograd_wsc", rewizja="8052c534a4cecd8328c0bc879f6a5aa07404c4da",
+                nazwa_hf="wsc273", split="test", rodzaj="mc", klasy_stale=True,
+                rewizja_parquet="24cdebf4993560f25ff220b171e40f1027f3d9e6"),
+    "T17": dict(benchmark_id="lambada", task="lambada_openai", family="lambada", language="EN",
+                metric="acc,none", unit="score", higher_is_better=True, lm_eval="lambada_openai",
+                repo="EleutherAI/lambada_openai", rewizja="900124bf3b8235c6daf21033af9948b3f07346c4",
+                nazwa_hf="default", split="test", rodzaj="proba", metryka="acc", baza="cloze"),
+    "T32": dict(benchmark_id="mmlu", task="mmlu", family="mmlu", language="EN",
+                metric="acc,none", unit="score", higher_is_better=True, grupa="mmlu",
+                repo="hails/mmlu_no_train", rewizja="b2e1ec9aa795adafe68e8e983248dbd4b52a1c60",
+                split="test", rodzaj="mc", klasy_stale=True, shots=5),
+    "T33": dict(benchmark_id="gsm8k", task="gsm8k", family="gsm8k", language="EN",
+                metric="exact_match,strict-match", unit="score", higher_is_better=True, lm_eval="gsm8k",
+                repo="openai/gsm8k", rewizja="740312add88f781978c0658806c59bc2815b9866",
+                nazwa_hf="main", split="test", rodzaj="proba", metryka="exact_match", filtr="strict-match",
+                baza="gen", shots=5),
+    "T34": dict(benchmark_id="math", task="hendrycks_math", family="math", language="EN",
+                metric="exact_match,none", unit="score", higher_is_better=True, grupa="hendrycks_math",
+                repo="EleutherAI/hendrycks_math", rewizja="21a5633873b6a120296cce3e2df9d5550074f4a3",
+                split="test", rodzaj="proba", metryka="exact_match", baza="gen"),
+    "T35": dict(benchmark_id="truthfulqa", task="truthfulqa_mc2", family="truthfulqa", language="EN",
+                metric="acc,none", unit="score", higher_is_better=True, lm_eval="truthfulqa_mc2",
+                repo="truthfulqa/truthful_qa", rewizja="741b8276f2d1982aa3d5b832d3ee81ed3b896490",
+                nazwa_hf="multiple_choice", split="validation", rodzaj="proba", metryka="acc", baza="masa"),
+    "T36": dict(benchmark_id="ifeval", task="ifeval", family="ifeval", language="EN",
+                metric="prompt_level_strict_acc,none", unit="score", higher_is_better=True, lm_eval="ifeval",
+                repo="google/IFEval", rewizja="966cd89545d6b6acfd7638bc708b98261ca58e84",
+                split="train", rodzaj="proba", metryka="prompt_level_strict_acc", baza="pusta"),
+    "T38": dict(benchmark_id="squad2", task="squadv2", family="squad2", language="EN",
+                metric="f1,none", unit="percent", higher_is_better=True,
+                repo="rajpurkar/squad_v2", rewizja="3ffb306f725f7d2ce8394bc1873b24868140c412",
+                nazwa_hf="squad_v2", split="validation", rodzaj="proba", metryka="f1", baza="gen",
+                podzbior="HasAns"),
+    "T39": dict(benchmark_id="drop", task="drop", family="drop", language="EN",
+                metric="f1,none", unit="score", higher_is_better=True, lm_eval="drop",
+                repo="EleutherAI/drop", rewizja="619386fc7ffe6dace3cc6d3483c69b164ebf6bf3",
+                split="validation", rodzaj="proba", metryka="f1", baza="gen"),
+    "T41": dict(benchmark_id="coqa", task="coqa", family="coqa", language="EN",
+                metric="f1,none", unit="score", higher_is_better=True, lm_eval="coqa",
+                repo="EleutherAI/coqa", rewizja="82e11af842af6c1396f5e9a5c7de260107c50cf1",
+                split="validation", rodzaj="proba", metryka="f1", baza="gen"),
+    "T42": dict(benchmark_id="nq_open", task="nq_open", family="nq_open", language="EN",
+                metric="exact_match,remove_whitespace", unit="score", higher_is_better=True, lm_eval="nq_open",
+                repo="google-research-datasets/nq_open", rewizja="5dd9790a83002ad084ddeb7c420dc716852c6f28",
+                nazwa_hf="nq_open", split="validation", rodzaj="proba", metryka="exact_match",
+                filtr="remove_whitespace", baza="gen"),
+    "T43": dict(benchmark_id="triviaqa", task="triviaqa", family="triviaqa", language="EN",
+                metric="exact_match,remove_whitespace", unit="score", higher_is_better=True, lm_eval="triviaqa",
+                repo="mandarjoshi/trivia_qa", rewizja="0f7faf33a3908546c6fd5b73a660e0f8ff173c2f",
+                nazwa_hf="rc.nocontext", split="validation", rodzaj="proba", metryka="exact_match",
+                filtr="remove_whitespace", baza="gen"),
+    "T47": dict(benchmark_id="bbh", task="bbh_fewshot", family="bbh", language="EN",
+                metric="exact_match,none", unit="score", higher_is_better=True, grupa="bbh_fewshot",
+                repo="lukaemon/bbh", rewizja="982bb89fd79532a8ac676a61fc42eb1aeec63f99",
+                split="test", rodzaj="proba", metryka="exact_match", baza="gen", shots=3, strip=True),
+    "T49": dict(benchmark_id="cola", task="cola", family="cola", language="EN",
+                metric="mcc,none", unit="score", higher_is_better=True, lm_eval="cola",
+                repo="nyu-mll/glue", rewizja="bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c",
+                nazwa_hf="cola", split="validation", rodzaj="korpus", metryka="mcc", baza="mcc"),
+    "T50": dict(benchmark_id="record", task="record", family="record", language="EN",
+                metric="f1,none", unit="score", higher_is_better=True, lm_eval="record",
+                repo="aps/super_glue", rewizja="3de24cf8022e94f4ee4b9d55a6f539891524d646",
+                nazwa_hf="record", split="validation", rodzaj="proba", metryka="f1", baza="wybor_losowy"),
 }
 
 # ARC-C pierwszy: priorytet zespołu (wynik dosłownie losowy, potrzebny trace per pytanie).
@@ -142,6 +220,91 @@ def _zrodlo(task_id, meta, zrodlo):
             "dataset_kwargs": kw, "test_split": meta["split"]}
 
 
+_MENEDZER = []
+
+
+def _yaml(nazwa):
+    """Config zadania z YAML-a zainstalowanego lm-eval (`!function` rozwiązane), świeża kopia do nadpisania."""
+    if not _MENEDZER:
+        from lm_eval.tasks import TaskManager
+        _MENEDZER.append(TaskManager())
+    return dict(_MENEDZER[0]._get_config(nazwa))
+
+
+def czlonkowie_grupy(grupa):
+    """Podtesty grupy lm-eval; MMLU to grupa grup po tagach, więc członków daje katalog `mmlu/default`."""
+    if grupa == "mmlu":
+        return sorted(p.stem for p in (ZADANIA_LM_EVAL / "mmlu" / "default").glob("mmlu_*.yaml"))
+    return list(_yaml(grupa)["task"])
+
+
+def _zrodlo_yaml(task_id, meta, zrodlo, nazwa, cfg):
+    """Pola datasetu configu z YAML-a. Lokalnie: `tests/data/<podtest>.jsonl`, bank demonstracji z
+    `<podtest>_demo.jsonl`. Z HF: repo i rewizja Space, podzbiór grupy z YAML-a podtestu, splity YAML-a poza testowym."""
+    if zrodlo == "lokalne":
+        pliki = {"test": str(DANE_TESTOWE / f"{nazwa}.jsonl")}
+        demo = DANE_TESTOWE / f"{nazwa}_demo.jsonl"
+        if demo.exists():
+            pliki["demo"] = str(demo)
+        return {"dataset_path": "json", "dataset_name": None, "dataset_kwargs": {"data_files": pliki},
+                "test_split": "test", "validation_split": None, "training_split": None,
+                "fewshot_split": "demo" if demo.exists() else None}
+    pola = _zrodlo(task_id, meta, zrodlo)
+    if meta.get("grupa"):
+        pola["dataset_name"] = cfg.get("dataset_name")
+    return pola
+
+
+def _z_lm_eval(task_id, meta, zrodlo, nazwa, **nadpisz):
+    cfg = _yaml(nazwa)
+    for klucz in ("group", "tag"):
+        cfg.pop(klucz, None)
+    cfg.update(_zrodlo_yaml(task_id, meta, zrodlo, nazwa, cfg))
+    cfg.update(task=f"slayer_{nazwa}", num_fewshot=meta.get("shots", 0),
+               metadata={**(cfg.get("metadata") or {}), "task_id": task_id, "czlonek": nazwa})
+    cfg.update(nadpisz)
+    return cfg
+
+
+def mc2_wyniki(doc, results):
+    """TruthfulQA MC2 w wersji 6d2abda4 (Space); 0.4.9.1 przepisało `process_results_mc2`."""
+    return {"acc": M.mc2([r[0] for r in results], doc["mc2_targets"]["labels"])}
+
+
+def squad2_klasa(pola):
+    """SQuAD 2.0: legacy klasa lm-eval (prompt, żądania, `until: \\n`), jak każe tasks_50.json; podmienione są
+    tylko zbiór (przypięty) i metryka: F1/EM squad_v2 per pytanie offline (metryki.squad_f1), średnia = f1 modułu
+    `evaluate` przy progu no-answer 1,0, którego exp(logprob) nie przekracza."""
+    from lm_eval.api.metrics import mean
+    from lm_eval.api.task import ConfigurableTask
+    baza = _modul_lm_eval("squadv2/task.py").SQuAD2
+    klucze = ("f1", "exact", "HasAns")
+
+    class SlayerSQuAD2(baza):
+        def __init__(self, config=None):
+            ConfigurableTask.__init__(self, config={"task": "slayer_squadv2", "output_type": "generate_until",
+                                                    "metadata": {"version": self.VERSION}, **pola})
+
+        def has_training_docs(self):
+            return "train" in self.dataset
+
+        def validation_docs(self):
+            return self.dataset[pola["test_split"]]
+
+        def process_results(self, doc, results):
+            zlote = list(doc["answers"]["text"])
+            return {"f1": M.squad_f1(results[0], zlote), "exact": M.squad_em(results[0], zlote),
+                    "HasAns": float(bool(zlote))}
+
+        def aggregation(self):
+            return {k: mean for k in klucze}
+
+        def higher_is_better(self):
+            return {k: True for k in klucze}
+
+    return SlayerSQuAD2
+
+
 def konfiguracje(task_id, zrodlo="hf"):
     """Lista (wariant, config) dla jednego zadania Space. Pierwszy wariant = format Space."""
     warianty = _konfiguracje(task_id, zrodlo)
@@ -191,4 +354,16 @@ def _konfiguracje(task_id, zrodlo):
         return [("space", {**baza, "task": "slayer_social_iqa", "doc_to_text": "Q: {{context}} {{question}}\nA:",
                            "target_delimiter": " ", "doc_to_choice": "{{[answerA, answerB, answerC]}}",
                            "doc_to_target": "{{ (label|int) - 1 }}"})]
+    if t == "squadv2":
+        pola = _zrodlo(task_id, meta, zrodlo)
+        return [("space", {"task": "slayer_squadv2", "class": squad2_klasa(pola),
+                           "metadata": {"task_id": task_id, "czlonek": t}})]
+    if t == "ifeval":
+        from langdetect import DetectorFactory
+        DetectorFactory.seed = 0  # METHOD.md §4: language instructions reproducible
+    nadpisz = {"mmlu": {"metric_list": METRYKI_MC}, "truthfulqa_mc2": {"process_results": mc2_wyniki}}.get(t, {})
+    if meta.get("grupa"):
+        return [("space", _z_lm_eval(task_id, meta, zrodlo, m, **nadpisz)) for m in czlonkowie_grupy(meta["grupa"])]
+    if meta.get("lm_eval"):
+        return [("space", _z_lm_eval(task_id, meta, zrodlo, meta["lm_eval"], **nadpisz))]
     raise KeyError(task_id)
