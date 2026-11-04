@@ -5,24 +5,20 @@ oryginałem, i budujemy polskie benchmarki.
 
 ## Pierwsze kroki
 
-1. **Dołącz.** Napisz na Discordzie na kanale #bench-team i podaj swój login GitHub.
+1. **Dołącz.** Napisz na Discordzie na kanale #bench-team i podaj swój login GitHub. Zasady pracy są w „Jak dołączyć”.
 
    <a href="https://discord.gg/HnTkVR4c5T"><img src="docs/img/discord.svg" alt="Discord" height="36"></a>
    <a href="CONTRIBUTING.md"><img src="docs/img/jak-dolaczyc.svg" alt="Jak dołączyć" height="36"></a>
-   [Discord](https://discord.gg/HnTkVR4c5T) · [Jak dołączyć](CONTRIBUTING.md)
 
 2. **Weź zadanie** z kolumny Ready na tablicy albo z etykietą `good first issue`. Przypisz się i przestaw je na In
    Progress.
 
    <a href="https://github.com/orgs/slayerlabs/projects/10"><img src="docs/img/tablica.svg" alt="Tablica" height="36"></a>
    <a href="https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22"><img src="docs/img/zadania-na-start.svg" alt="Zadania na start" height="36"></a>
-   [Tablica](https://github.com/orgs/slayerlabs/projects/10) ·
-   [Zadania na start](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22)
 
 3. **Przygotuj środowisko.**
 
    <a href="research/README.md#przygotowanie-raz"><img src="docs/img/przygotowanie.svg" alt="Przygotowanie" height="36"></a>
-   [Przygotowanie](research/README.md#przygotowanie-raz)
 
 4. **Uruchom jeden test** w katalogu `research/`. Kod 0 znaczy, że środowisko działa:
 
@@ -40,9 +36,9 @@ Przed PR: [CONTRIBUTING, „Przed PR”](CONTRIBUTING.md#przed-pr).
 
 | gdzie | co tam jest |
 |---|---|
-| <a href="research/METODOLOGIA.md"><img src="docs/img/metodologia.svg" alt="Metodologia" height="36"></a> [Metodologia](research/METODOLOGIA.md) | jak powstaje benchmark: etapy A–D, typy testów, SE i werdykt |
-| <a href="research/benchmarks/_template"><img src="docs/img/nowy-test.svg" alt="Nowy test" height="36"></a> [Nowy test](research/benchmarks/_template) | wzór nowego benchmarku; każdy benchmark ma katalog w `research/benchmarks/` |
-| <a href="https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks"><img src="docs/img/wyniki-na-hf.svg" alt="Wyniki na HF" height="36"></a> [Wyniki na HF](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks) | wyniki Slayera 1B w Space |
+| <a href="research/METODOLOGIA.md"><img src="docs/img/metodologia.svg" alt="Metodologia" height="36"></a> | jak powstaje benchmark: etapy A–D, typy testów, SE i werdykt |
+| <a href="research/benchmarks/_template"><img src="docs/img/nowy-test.svg" alt="Nowy test" height="36"></a> | wzór nowego benchmarku; każdy benchmark ma katalog w `research/benchmarks/` |
+| <a href="https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks"><img src="docs/img/wyniki-na-hf.svg" alt="Wyniki na HF" height="36"></a> | wyniki Slayera 1B w Space |
 | `research/common/`, `research/tools/`, `research/tests/` | kod wspólny, bramka liczb i przebieg centralny, testy bez sieci i bez wag |
 | `research/slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami |
 
