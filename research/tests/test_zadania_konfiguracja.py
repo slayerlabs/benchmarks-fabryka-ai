@@ -15,7 +15,7 @@ import zadania as Z  # noqa: E402
 from lm_eval.api.task import TaskConfig  # noqa: E402
 
 OPENPL = "21d0ea9cf4fd6153dfff4d84d6ad0aab5488f302"
-DEMONSTRACJE_Z_TESTU = {"T24"}  # Belebele: the fork's YAML takes the first 5 test documents (only split)
+DEMONSTRACJE_Z_TESTU = {"T24"}  # Belebele, only split: bank from test, left out of scoring (ewaluuj.ustaw_bank)
 
 
 def katalogi():

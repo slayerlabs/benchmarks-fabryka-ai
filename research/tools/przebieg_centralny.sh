@@ -10,7 +10,7 @@
 #                          with N > 1 GPUs (nvidia-smi -L) models go round robin to N queues, one per GPU
 #                          (CUDA_VISIBLE_DEVICES), queue log $WS/logi/<stage>_gpu<N>.log
 # ENV_OVERRIDE=new WYNIKI=$WS/wyniki_nowe on licz: same models in the other venv, for the environment check.
-#   ponow                  in the background: every (model, task) whose latest run failed, e.g. with BATCH=1 after an OOM
+#   ponow                  in the background: every (model, task) whose latest run failed
 #   straznik               idle guard (also started by przygotuj): tools/straznik_bezczynnosci.py
 #   proba_cpu ["LABEL ..."] load test on CPU: PROBA_N (2) questions, WikiText-2 1 document; every pair must finish
 #   kontrola               sanity check of the full results (tools/kontrola_sensu.py); licz runs it at its end
@@ -23,7 +23,8 @@ K=${K:-/workspace/kod}
 WS=${WS:-/workspace}
 ST=$WS/stan
 CZ=$WS/czasy.jsonl
-BATCH=${BATCH:-auto}
+# Space METHOD.md §2: batch size 1 for every task (padding in a batch shifts float32 logits and greedy generation)
+BATCH=${BATCH:-1}
 # WikiText-2 window for HF models: the config default (128k-262k tokens for Qwen3.5 and LFM) puts a whole
 # document in one float32 forward and ends in CUDA OOM on 24 GB even at batch 1. EuroLLM's own is 4096.
 OKNO_ROLLING=${OKNO_ROLLING:-4096}

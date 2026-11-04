@@ -203,6 +203,10 @@ Testy działają bez sieci i bez wag. Każdy kończy się kodem 0:
 .venv-eval/bin/python -m pytest tests/test_wsc273.py
 .venv-eval/bin/python -m pytest tests/test_piqa.py
 .venv-eval/bin/python -m pytest tests/test_przebieg_centralny.py
+.venv-eval/bin/python tests/test_przebieg_c.py
+.venv-eval/bin/python tests/test_zadania_konfiguracja.py
+.venv-eval/bin/python tests/test_zgodnosc_space.py
+.venv-eval/bin/python tests/test_lm_eval_wersje.py
 .venv-eval/bin/python tests/test_liczby_raportow.py
 .venv-eval/bin/python tests/test_statystyka.py
 .venv-eval/bin/python tests/test_straznik_i_kontrola.py
@@ -214,6 +218,23 @@ Testy działają bez sieci i bez wag. Każdy kończy się kodem 0:
 Testy BLiMP to `tests/test_blimp*.py` oraz `tests/test_lm_eval_slayer.py`. Testy BLiMP podmieniają model, więc błąd w
 `common/slayer_model.py` łapie dopiero `test_lm_eval_slayer.py`: `test_forward_matches_official_reference` łapie
 forward (wariant RoPE, skala logitów), a testy `loglikelihood` łapią dodatkowy token w `encode`.
+
+Przebieg centralny liczy Qwen3.5 i LFM3 w środowisku `new` (lm-eval 0.4.13, `NEW_ENV_PINS` w
+`tools/przebieg_centralny.sh`), resztę w `lock` (0.4.9.1). Kod, który sięga do wnętrza lm-eval, sprawdzasz więc w obu.
+Środowisko `new` bez wag i GPU (w `research/`):
+
+```bash
+python3 -m venv /tmp/venv-0413
+/tmp/venv-0413/bin/pip install -r common/requirements.lock.txt pytest
+/tmp/venv-0413/bin/pip install transformers==5.22.1 lm_eval==0.4.13 peft==0.21.2
+HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 /tmp/venv-0413/bin/python tests/test_lm_eval_wersje.py
+HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 /tmp/venv-0413/bin/python tests/test_zadania_konfiguracja.py
+HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 /tmp/venv-0413/bin/python tests/test_przebieg_c.py
+HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 /tmp/venv-0413/bin/python tests/test_zgodnosc_space.py
+```
+
+`test_lm_eval_wersje.py` kończy się błędem w środowisku innym niż te dwa. Test Slayera z KV cache w `test_przebieg_c.py`
+jest w `new` pominięty, bo Slayer liczy się tylko w `lock`.
 
 Gdy sprawdzasz, czy test łapie celowo zepsuty kod ewaluacji (mutację), przed każdą mutacją usuwasz katalogi
 `__pycache__` albo ustawiasz `PYTHONPYCACHEPREFIX` na katalog tymczasowy, bo stary plik `.pyc` może zostać wczytany

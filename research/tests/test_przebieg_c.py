@@ -99,6 +99,11 @@ def test_gsm8k_generation_strict_match_and_disjoint_bank(tmp_path, monkeypatch):
         assert ctx.count("What is 2+3?") == (1 if ctx.endswith("What is 2+3?\nAnswer:") else 0)
 
 
+WERSJA_LOCK = re.search(r"^lm_eval==(\S+)$", (Path(E.KATALOG) / "requirements.lock.txt").read_text(), re.M)[1]
+
+
+@pytest.mark.skipif(__import__("lm_eval").__version__ != WERSJA_LOCK,
+                    reason="SlayerLM runs only in the lock env (MODELE in tools/przebieg_centralny.sh)")
 def test_gsm8k_runs_on_a_tiny_slayer_with_kv_cache(tmp_path, monkeypatch):
     """The generation path end to end on SlayerLM (random 2-layer model from test_lm_eval_slayer, block 512):
     window limit from the model, its tokenizer counting tokens, greedy generation with the KV cache."""
@@ -128,11 +133,40 @@ def test_context_limit_drops_demonstrations_from_the_end():
             return " ".join([f"d{i} x" for i in range(num_fewshot)] + ["q"] * doc["dl"])
 
     zad = Stub()
-    E.ogranicz_kontekst(zad, slowa, 10)
-    # 2 words per demonstration + question 1 + budget 3 <= 10 -> 3 demonstrations, the first three
-    assert zad.fewshot_context({"dl": 1}, num_fewshot=5) == "d0 x d1 x d2 x q"
+    E.ogranicz_kontekst(zad, slowa, 10, E.licznik_wejscia(object(), slowa))
+    # BOS 1 + 2 words per demonstration + question 1 + budget 3 <= 10 -> 2 demonstrations, the first two
+    # (without the BOS 3 would fit: 6 + 1 + 3 = 10)
+    assert zad.fewshot_context({"dl": 1}, num_fewshot=5) == "d0 x d1 x q"
     with pytest.raises(ValueError):
-        zad.fewshot_context({"dl": 8}, num_fewshot=5)  # question alone + budget > limit: never truncated
+        zad.fewshot_context({"dl": 7}, num_fewshot=5)  # BOS + question alone + budget > limit: never truncated
+
+
+def test_input_count_adds_one_bos_unless_the_tokenizer_gave_it():
+    class Tok:
+        prefix_token_id = 0
+
+        def __init__(self, z_bos):
+            self.z_bos = z_bos
+
+        def tok_encode(self, t):
+            return ([0] if self.z_bos else []) + [5] * len(t.split())
+
+    assert E.licznik_wejscia(Tok(False), None)("a b c") == 4
+    assert E.licznik_wejscia(Tok(True), None)("a b c") == 4
+    assert E.licznik_wejscia(Tok(False), None)("") == 1  # empty context: the unscored BOS prefix
+
+
+def test_mc_zero_shot_prompt_over_the_limit_is_rejected(tmp_path, monkeypatch):
+    """0-shot MC goes through the same limit: a prompt that does not fit is an error, never truncated."""
+    docs = [{"sentence": "a b c d e f g h i j", "label": 1, "idx": 0}]
+    lm = AtrapaLM(ll=lambda c, k: (-1.0, False))
+    # prompt: 10 words + "Question: Is this sentence positive or negative? Answer:" 8 = 18, BOS 1, budget " negative" 1
+    monkeypatch.setattr(E, "LIMIT_KONTEKSTU", 20)
+    obs, _ = ocen("T21", {"sst2": docs}, lm, tmp_path, monkeypatch)
+    assert obs["state"] == "ok"
+    monkeypatch.setattr(E, "LIMIT_KONTEKSTU", 19)
+    with pytest.raises(ValueError, match="> 19"):
+        ocen("T21", {"sst2": docs}, lm, tmp_path, monkeypatch)
 
 
 # --- grupa z wagami populacji (T34 MATH, gen) ---
@@ -253,6 +287,33 @@ def test_f1_corpus_for_openpl_mc_tasks():
         assert d["glowna"]["value"] == pytest.approx(oczekiwane) and d["glowna"]["metryka"] == "f1"
         # best constant class: always 1 -> F1 2/3 (binary); macro 1/3
         assert d["bazy"]["majority_value"] == pytest.approx(2 / 3 if agg is agg_f1 else 1 / 3)
+
+
+# --- Belebele (T24): demonstrations from the only split, never scored (METHOD.md §4) ---
+
+BELEBELE = [{"flores_passage": f"P{i}", "question": f"Q{i}?", "mc_answer1": "a", "mc_answer2": "b",
+             "mc_answer3": "c", "mc_answer4": "d", "correct_answer_num": "1"} for i in range(8)]
+
+
+@pytest.mark.parametrize("probka, n_populacji, n_ocenianych", [("pelna", 3, 3), ("2", 8, 2)])
+def test_belebele_bank_from_the_test_split_is_left_out_of_scoring(tmp_path, monkeypatch, probka, n_populacji,
+                                                                  n_ocenianych):
+    """Full split: bank first (first 5 in bank order), out of population and scoring. Panel: sample from all 8
+    documents as in Space (n_population 900 for T24), bank = first 5 in bank order outside the sample."""
+    konteksty = []
+    lm = AtrapaLM(ll=lambda ctx, kont: (konteksty.append(ctx), (0.0 if kont == " A" else -1.0, False))[1])
+    obs, d = ocen("T24", {"polish_belebele_mc": BELEBELE}, lm, tmp_path, monkeypatch, probka=probka)
+    ids = [M.sha256_tekstu(json.dumps(x, sort_keys=True, ensure_ascii=False)) for x in BELEBELE]
+    proba = [] if probka == "pelna" else M.ranking_panel("belebele", "polish_belebele_mc", list(range(8)), 2)
+    bank = [i for i in M.ranking_banku("belebele", "polish_belebele_mc", ids) if i not in proba][:5]
+    assert d["demonstracje"] == {"polish_belebele_mc": [ids[i] for i in bank]}
+    assert obs["n_population"] == n_populacji and obs["n_scored"] == n_ocenianych
+    oceniane = set()
+    for ctx in [c for c in konteksty if c]:  # empty context = unconditional loglik of acc_mutual_info
+        fragmenty = re.findall(r'Fragment: "(P\d)"', ctx)
+        assert fragmenty[:5] == [f"P{i}" for i in bank] and len(fragmenty) == 6
+        oceniane.add(int(fragmenty[5][1:]))
+    assert len(oceniane) == n_ocenianych and not oceniane & set(bank)
 
 
 # --- ReCoRD (T50) ---

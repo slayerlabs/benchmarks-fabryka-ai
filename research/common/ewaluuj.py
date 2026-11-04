@@ -119,21 +119,25 @@ def z_pmi(cfg):
     return any(m["metric"] == "acc_mutual_info" for m in cfg.get("metric_list", []))
 
 
-def wybor_probki(zad, meta, tryb, czlonek=None, n=None):
-    """(indeksy albo None = całość, n_population, source_ids wybranych); `n` = przydział podtestu grupy."""
+def wybor_probki(zad, meta, tryb, czlonek=None, n=None, wykluczone=()):
+    """(indeksy albo None = całość, n_population, source_ids wybranych); `n` = przydział podtestu grupy.
+    `wykluczone`: indeksy dokumentów banku demonstracji z tego samego splitu (T24), poza populacją i oceną."""
     docs = list(zad.eval_docs)
     pole = meta.get("pole_id")
     ids = [d.get(pole, i) if pole else i for i, d in enumerate(docs)]
+    wykluczone = set(wykluczone)
+    kandydaci = [i for i in range(len(docs)) if i not in wykluczone]
     if meta.get("probkowanie") is False and tryb.isdigit():
         # unsampled task (WikiText-2) cut to its first documents: a load test, not a panel
-        idx = list(range(min(int(tryb), len(docs))))
-        return idx, len(docs), [ids[i] for i in idx]
+        idx = kandydaci[:int(tryb)]
+        return idx, len(kandydaci), [ids[i] for i in idx]
     if tryb == "pelna" or meta.get("probkowanie") is False:
-        return None, len(docs), ids
+        return (kandydaci if wykluczone else None), len(kandydaci), [ids[i] for i in kandydaci]
     if n is None:
         n = 200 if tryb == "panel200" else int(tryb)
-    idx = M.ranking_panel(meta["benchmark_id"], czlonek or meta["task"], ids, n)
-    return idx, len(docs), [ids[i] for i in idx]
+    idx = [kandydaci[j] for j in M.ranking_panel(meta["benchmark_id"], czlonek or meta["task"],
+                                                  [ids[i] for i in kandydaci], n)]
+    return idx, len(kandydaci), [ids[i] for i in idx]
 
 
 # --- (c): groups, demonstrations, context limit, generation and corpus metrics ---
@@ -166,22 +170,35 @@ def przydzialy(space, meta, tryb):
 
 
 def uzyj_banku(zad):
-    """Bank Space, gdy zadanie ma demonstracje z osobnego splitu. Zostają: demonstracje źródłowe (BBH, stała lista
-    w YAML-u) i few-shot z testu (Belebele T24: lm-eval bierze pierwsze dokumenty testu, bank rozłączny byłby pusty)."""
+    """Bank Space dla każdego zadania z demonstracjami, także z tego samego splitu co test (Belebele T24, jedyny
+    split). Zostają tylko demonstracje źródłowe (BBH, stała lista w YAML-u)."""
     cfg = zad.config
-    if not (cfg.num_fewshot or 0) or (cfg.fewshot_config or {}).get("samples") is not None:
+    fs = cfg.fewshot_config or {}  # GOTCHA: słownik w 0.4.9.1, dataclass FewshotConfig w 0.4.13
+    if not (cfg.num_fewshot or 0) or (fs.get("samples") if isinstance(fs, dict) else fs.samples) is not None:
         return False
-    return (cfg.fewshot_split or cfg.training_split) not in (None, cfg.test_split)
+    return (cfg.fewshot_split or cfg.training_split) is not None
+
+
+def demonstracje_z_testu(zad):
+    return (zad.config.fewshot_split or zad.config.training_split) == zad.config.test_split
 
 
 def ustaw_bank(zad, meta, czl, idx):
     """Demonstracje: pierwsze dokumenty splitu few-shot w kolejności M.ranking_banku, bez tych, których prompt
-    równa się promptowi ocenianego dokumentu; zawsze te same, w tej kolejności (sampler first_n). Zwraca ich id."""
-    from lm_eval.api.samplers import FirstNSampler
+    równa się promptowi ocenianego dokumentu (`idx`, None = cały test); zawsze te same, w tej kolejności. Zwraca id.
+
+    Split few-shot = test (T24) przy pełnym splicie: wołane przed próbą z `idx` None, bank bierze pierwsze dokumenty
+    całego splitu, a `zad.bank_testu` (ich indeksy) wypada z populacji i oceny (wybor_probki `wykluczone`)."""
     k = zad.config.num_fewshot
     docs = list(zad.fewshot_docs())
     oceniane = list(zad.eval_docs)
-    zakazane = {str(zad.doc_to_text(oceniane[i])) for i in (idx if idx is not None else range(len(oceniane)))}
+    z_testu = demonstracje_z_testu(zad)
+    if z_testu and docs != oceniane:
+        raise ValueError(f"{czl}: dokumenty few-shot różne od testowych przy tym samym splicie")
+    if idx is None:
+        zakazane = set() if z_testu else {str(zad.doc_to_text(d)) for d in oceniane}
+    else:
+        zakazane = {str(zad.doc_to_text(oceniane[i])) for i in idx}
     ids = [M.sha256_tekstu(json.dumps(d, sort_keys=True, ensure_ascii=False, default=str)) for d in docs]
     bank = []
     for i in M.ranking_banku(meta["benchmark_id"], czl or meta["task"], ids):
@@ -191,13 +208,45 @@ def ustaw_bank(zad, meta, czl, idx):
             bank.append(i)
     if len(bank) < k:
         raise ValueError(f"bank demonstracji {czl}: {len(bank)} z {k}")
-    zad.sampler = FirstNSampler([docs[i] for i in bank], zad, rnd=zad.fewshot_rnd)
+    zad.sampler = sampler_banku([docs[i] for i in bank], zad)
+    zad.bank_testu = bank if z_testu and idx is None else []
     return [ids[i] for i in bank]
 
 
-def ogranicz_kontekst(zad, licz_tokeny, limit):
-    """METHOD.md §4: prompt + budżet ≤ limit. Demonstracje zdejmowane od końca; pytania, opcje i odniesienia nie są
-    cięte, więc prompt za długi bez demonstracji kończy zadanie błędem."""
+def sampler_banku(docs, zad):
+    """Sampler zwracający pierwsze `n` dokumentów `docs` w tej kolejności, w lm-eval 0.4.9.1 i 0.4.13.
+
+    GOTCHA: 0.4.9.1 bierze (docs, task, rnd=Random), 0.4.13 (środowisko `new`) (df, *, rnd=int|None). Przy splicie
+    few-shot = test 0.4.9.1 prosi o n + 1 i odrzuca oceniany dokument; bank nie ma ocenianych, więc zostaje n."""
+    import inspect
+    from lm_eval.api.samplers import ContextSampler, FirstNSampler
+
+    class Bank(FirstNSampler):
+        def sample(self, n, *args, **kwargs):
+            return list(self.docs if hasattr(self, "docs") else self.fewshot_docs())[:n]
+
+    if "task" in inspect.signature(ContextSampler.__init__).parameters:
+        return Bank(docs, zad, rnd=zad.fewshot_rnd)
+    return Bank(list(docs), rnd=None)
+
+
+def licznik_wejscia(lm, licz_tokeny):
+    """Tokeny tekstu żądania z jednym wiodącym BOS (METHOD.md §2): tokenizer modelu i BOS, gdy tokenizer sam go nie
+    dał. Model bez BOS dostaje limit ostrzejszy najwyżej o jeden token."""
+    bos = getattr(lm, "prefix_token_id", None)
+    if bos is None or not hasattr(lm, "tok_encode"):
+        return lambda t: licz_tokeny(t) + 1
+
+    def licz(t):
+        ids = list(lm.tok_encode(t))
+        return len(ids) + (0 if ids[:1] == [bos] else 1)
+    return licz
+
+
+def ogranicz_kontekst(zad, licz_tokeny, limit, licz_wejscie):
+    """METHOD.md §4: prompt z BOS (`licz_wejscie`) + budżet ≤ limit; budżet MC = najdłuższa kontynuacja
+    (`licz_tokeny`, bez BOS). Demonstracje zdejmowane od końca; pytania, opcje i odniesienia nie są cięte, więc prompt
+    za długi bez demonstracji (także MC 0-shot) kończy zadanie błędem."""
     oryginal = zad.fewshot_context
     budzet_gen = (zad.config.generation_kwargs or {}).get("max_gen_toks", BUDZET_GEN)
 
@@ -210,7 +259,7 @@ def ogranicz_kontekst(zad, licz_tokeny, limit):
     def fewshot_context(doc, num_fewshot, **kw):
         for k in range(num_fewshot, -1, -1):
             ctx = oryginal(doc, num_fewshot=k, **kw)
-            if max(licz_tokeny(c) for c in (ctx if isinstance(ctx, list) else [ctx])) + budzet(doc) <= limit:
+            if max(licz_wejscie(c) for c in (ctx if isinstance(ctx, list) else [ctx])) + budzet(doc) <= limit:
                 return ctx
         raise ValueError(f"{zad.config.task}: prompt bez demonstracji + budżet > {limit} tokenów")
 
@@ -369,17 +418,28 @@ def ocen_zadanie(lm, task_id, dane, probka, licz_tokeny, wyj, runner, model_id, 
         po_wariancie.setdefault(wariant, []).append((cfg, zad))
     space = po_wariancie["space"]
     n_czl = przydzialy(space, meta, probka)
-    wybory = [wybor_probki(zad, meta, probka, czlonek(cfg), n_czl.get(czlonek(cfg))) for cfg, zad in space]
+    demonstracje, przed_proba = {}, set()
+    # Bank z testu (T24) przy pełnym splicie: przed próbą, jego dokumenty nie wchodzą do oceny. Panel jak w Space
+    # (n_population 900): najpierw próba z całego splitu, bank z dokumentów spoza niej.
+    if probka == "pelna" or meta.get("probkowanie") is False:
+        for lista in po_wariancie.values():
+            for cfg, zad in lista:
+                if uzyj_banku(zad) and demonstracje_z_testu(zad):
+                    demonstracje[czlonek(cfg) or meta["task"]] = ustaw_bank(zad, meta, czlonek(cfg), None)
+                    przed_proba.add(id(zad))
+    wybory = [wybor_probki(zad, meta, probka, czlonek(cfg), n_czl.get(czlonek(cfg)), getattr(zad, "bank_testu", ()))
+              for cfg, zad in space]
     limit = min(LIMIT_KONTEKSTU, getattr(lm, "max_length", None) or LIMIT_KONTEKSTU)
-    samples, demonstracje = {}, {}
+    licz_wejscie = licznik_wejscia(lm, licz_tokeny)
+    samples = {}
     for lista in po_wariancie.values():
         for (cfg, zad), (idx, _, _) in zip(lista, wybory):
             if idx is not None:
                 samples[cfg["task"]] = idx
-            if uzyj_banku(zad):
+            if uzyj_banku(zad) and id(zad) not in przed_proba:
                 demonstracje[czlonek(cfg) or meta["task"]] = ustaw_bank(zad, meta, czlonek(cfg), idx)
-            if (zad.config.num_fewshot or 0) > 0 or zad.OUTPUT_TYPE == "generate_until":
-                ogranicz_kontekst(zad, licz_tokeny, limit)
+            if zad.OUTPUT_TYPE != "loglikelihood_rolling":  # rolling: okna modelu, bez promptu do odrzucenia
+                ogranicz_kontekst(zad, licz_tokeny, limit, licz_wejscie)
     wynik = simple_evaluate(model=lm, tasks=obiekty, samples=samples or None, log_samples=True,
                             bootstrap_iters=0, random_seed=0, numpy_random_seed=1234,
                             torch_random_seed=1234, fewshot_random_seed=1234)

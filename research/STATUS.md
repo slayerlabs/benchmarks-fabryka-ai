@@ -93,7 +93,7 @@ Nie idzie do tabeli CodeSOTA, dopóki ktoś nie sprawdzi i nie przestawi wiersza
 | **MedMCQA** | Slayer wybiera „A” w 93% pytań; repo 0,316, Space 0,245 (z 2,27), a LFM2.5 zgadza się ze Space | sprawdzić ładowanie Slayera i format promptu w przebiegu | [REPRODUCTION](benchmarks/medmcqa/REPRODUCTION.md) | <!-- liczba-spoza-wynikow: results/central-run/medmcqa/slayer1b-1.06 i results.json Space T45 @ 2d3d73f -->
 | **PubMedQA** | Slayer pod bazą większościową, żaden model nie wybiera `maybe` | sprawdzić prompt i mapowanie odpowiedzi | [REPRODUCTION](benchmarks/pubmedqa/REPRODUCTION.md) |
 | **MultiBLiMP PL** | Slayer blisko 100% | sprawdzić, czy zbiór nie jest w danych treningowych | [REPRODUCTION](benchmarks/multiblimp-pl/REPRODUCTION.md) · #36 |
-| **Belebele PL** | 5 pierwszych dokumentów testu jako przykłady (YAML OpenPL) | bank przykładów spoza testu | [README](benchmarks/belebele-pl/README.md) |
+| **Belebele PL** | jedyny split to test: bank przykładów z testu, poza oceną; pełny split ocenia 895 z 900 | przy porównaniu ze Space pamiętać o n | [README](benchmarks/belebele-pl/README.md) |
 | **few-shot Space** | klucz hasha banku przykładów nieopublikowany; przyjęty `…\|support\|id` | potwierdzić u autora Space | `common/ewaluuj.py` |
 | **WSC273** | kontrola spoza listy, panel ≠ pełny split | kontrola z listy METODOLOGII | [REPRODUCTION](benchmarks/wsc273/REPRODUCTION.md) |
 | **EWoK-PL** | 1 domena z 11, tłumaczenie bez przeglądu | przegląd i reszta domen | [POLISH](benchmarks/ewok-pl/POLISH.md) |

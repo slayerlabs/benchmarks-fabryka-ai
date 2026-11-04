@@ -30,9 +30,9 @@ METRYKI_MC = [
 ]
 
 
-def _modul_lm_eval(sciezka_wzgledna):
-    """Moduł pomocniczy zadania lm-eval (katalogi zadań nie są pakietami)."""
-    plik = ZADANIA_LM_EVAL / sciezka_wzgledna
+def _modul_lm_eval(sciezka_wzgledna, katalog=ZADANIA_LM_EVAL):
+    """Moduł pomocniczy zadania lm-eval (katalogi zadań nie są pakietami); `katalog` BENCHMARKI = kopia w repo."""
+    plik = katalog / sciezka_wzgledna
     spec = importlib.util.spec_from_file_location(plik.stem, plik)
     modul = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(modul)
@@ -42,9 +42,7 @@ def _modul_lm_eval(sciezka_wzgledna):
 def funkcja_z_pliku(katalog, odwolanie):
     """`!function modul.nazwa` of a task YAML, imported on first call.
 
-    GOTCHA: the PolQA/PoQuAD helpers import Levenshtein (pinned in tools/przebieg_centralny.sh, not in the lock),
-    so building the config must not import them. `__name__` stays the function's own name: lm-eval keys a
-    callable metric by it (`f1`, `levenshtein`).
+    GOTCHA: `__name__` stays the function's own name: lm-eval keys a callable metric by it (`f1`, `levenshtein`).
     """
     nazwa_modulu, nazwa = odwolanie.rsplit(".", 1)
     plik = Path(katalog) / f"{nazwa_modulu}.py"
@@ -104,16 +102,16 @@ ZADANIA = {
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="nyu-mll/blimp", rewizja="877fba0801ffb7cbd8c39c1ff314a46f053f6036",
                 parquet_hf="*/train-*.parquet", split="train", rodzaj="mc", klasy_stale=False),
-    "T02": dict(benchmark_id="arc", task="arc_challenge", family="science_qa", language="EN",
+    "T02": dict(benchmark_id="arc", task="arc_challenge", family="arc", language="EN",
                 metric="acc_norm,none", unit="score", higher_is_better=True, klucz="acc_norm",
                 repo="allenai/ai2_arc", rewizja="210d026faf9955653af8916fad021475a3f00453",
                 nazwa_hf="ARC-Challenge", split="test", rodzaj="mc", klasy_stale=True, pole_id="id",
                 trace=True),
-    "T03": dict(benchmark_id="wikitext2", task="wikitext", family="language_modeling", language="EN",
+    "T03": dict(benchmark_id="wikitext2", task="wikitext", family="wikitext2", language="EN",
                 metric="byte_perplexity,none", unit="byte_ppl", higher_is_better=False,
                 repo="EleutherAI/wikitext_document_level", rewizja="647234772b9554e208af6c826f23b99e3cac88c8",
                 nazwa_hf="wikitext-2-raw-v1", split="test", rodzaj="rolling", probkowanie=False),
-    "T04": dict(benchmark_id="multiblimp", task="multiblimp_pl", family="grammar", language="PL",
+    "T04": dict(benchmark_id="multiblimp", task="multiblimp_pl", family="multiblimp", language="PL",
                 metric="accuracy", unit="percent", higher_is_better=True,
                 repo="jumelet/multiblimp", rewizja="de923efa8d2483d6b13364ee68e65308e990a991",
                 plik_hf="pol/data.tsv", split="pol/data.tsv", rodzaj="mc", klasy_stale=False),
@@ -179,8 +177,7 @@ ZADANIA = {
                 nazwa_hf="sst2", split="validation", rodzaj="mc", klasy_stale=True, pole_id="idx"),
     # Polish tasks (Space: OpenPL fork @ 21d0ea9c, 5-shot). The task YAML is a copy of the fork's file under
     # benchmarks/<dir>/lm_eval_tasks/ (`yaml`, relative to benchmarks/); zadania.py pins the dataset revision.
-    # GOTCHA: lm-eval draws the 5 demonstrations with its own sampler (seed 1234) from the YAML's few-shot
-    # split; Space draws them from a disjoint bank chosen by hash (METHOD.md), so the shots differ from Space.
+    # The 5 demonstrations come from the hash-selected Space bank (ewaluuj.ustaw_bank), not from the YAML's sampler.
     "T22": dict(benchmark_id="polemo2", task="polemo2_in_multiple_choice", family="polemo2", language="PL",
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="allegro/klej-polemo2-in", rewizja="9843af31facd613eb091deaa4141df4331d4f918",
@@ -191,7 +188,8 @@ ZADANIA = {
                 repo="sdadas/8tags", rewizja="82ddf9c0d06ffc982aeccf2473b7ce31f2167adf",
                 split="test", rodzaj="mc", klasy_stale=True, shoty=5,
                 yaml="8tags/lm_eval_tasks/polish_8tags/8tags_mc.yaml"),
-    # Belebele has only a test split: the fork's YAML takes the first 5 test documents as shots (first_n)
+    # Belebele has only a test split: the bank comes from it and its 5 documents are never scored (METHOD.md §4,
+    # benchmarks/belebele-pl/README.md), instead of the fork's first 5 test documents.
     "T24": dict(benchmark_id="belebele", task="polish_belebele_mc", family="belebele", language="PL",
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="facebook/belebele", rewizja="7899cdfa4e1e0d733fd77c848e2c273cb1d32be2",
@@ -242,16 +240,16 @@ ZADANIA = {
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="EleutherAI/race", rewizja="66ca2e6374282f5e35b11559e87185db911a6900",
                 nazwa_hf="high", split="test", rodzaj="mc", klasy_stale=False),
-    "T44":dict(benchmark_id="pubmedqa", task="pubmedqa", family="biomedical_qa", language="EN",
+    "T44": dict(benchmark_id="pubmedqa", task="pubmedqa", family="pubmedqa", language="EN",
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="bigbio/pubmed_qa", rewizja="15578e80ef02c2c9636d33fdd7eb6b05b987ba60",
                 nazwa_hf="pubmed_qa_labeled_fold0_source", split="test", rodzaj="mc", klasy_stale=True,
                 parquet=True, rewizja_parquet="13a7d15476092370cbabb6475390e7e69b74d2f2"),
-    "T45": dict(benchmark_id="medmcqa", task="medmcqa", family="biomedical_qa", language="EN",
+    "T45": dict(benchmark_id="medmcqa", task="medmcqa", family="medmcqa", language="EN",
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="openlifescienceai/medmcqa", rewizja="91c6572c454088bf71b679ad90aa8dffcd0d5868",
                 split="validation", rodzaj="mc", klasy_stale=True, cloze=True, pole_id="id"),
-    "T46": dict(benchmark_id="social_iqa", task="social_iqa", family="commonsense", language="EN",
+    "T46": dict(benchmark_id="social_iqa", task="social_iqa", family="social_iqa", language="EN",
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="allenai/social_i_qa", rewizja="8835ceb9141d7896d9d968634a9b21ae440e3ec5",
                 split="validation", rodzaj="mc", klasy_stale=False, parquet=True),
@@ -390,12 +388,61 @@ def _zrodlo(task_id, meta, zrodlo):
 _MENEDZER = []
 
 
+def zapewnij_squad_metrics():
+    """GOTCHA: CoQA (T41) i ReCoRD (T50) lm-eval importują `transformers.data.metrics.squad_metrics`, którego nie ma
+    w transformers 5 (środowisko `new`). Wtedy rejestrujemy moduł z funkcjami transformers 4.57.6 (lock), które
+    lm-eval woła. Usuń, gdy lm-eval przestanie go importować."""
+    try:
+        import transformers.data.metrics.squad_metrics  # noqa: F401
+        return
+    except ImportError:
+        pass
+    import collections
+    import types
+    import transformers.data
+
+    def get_tokens(s):
+        return M.squad_normalizuj(s).split() if s else []
+
+    def compute_exact(a_gold, a_pred):
+        return int(M.squad_normalizuj(a_gold) == M.squad_normalizuj(a_pred))
+
+    def compute_f1(a_gold, a_pred):
+        zlote, pred = get_tokens(a_gold), get_tokens(a_pred)
+        wspolne = sum((collections.Counter(zlote) & collections.Counter(pred)).values())
+        if not zlote or not pred:
+            return int(zlote == pred)
+        if wspolne == 0:
+            return 0
+        precyzja, czulosc = wspolne / len(pred), wspolne / len(zlote)
+        return 2 * precyzja * czulosc / (precyzja + czulosc)
+
+    metryki = types.ModuleType("transformers.data.metrics")
+    squad = types.ModuleType("transformers.data.metrics.squad_metrics")
+    squad.normalize_answer, squad.get_tokens = M.squad_normalizuj, get_tokens
+    squad.compute_exact, squad.compute_f1 = compute_exact, compute_f1
+    metryki.squad_metrics = squad
+    transformers.data.metrics = metryki
+    sys.modules.update({metryki.__name__: metryki, squad.__name__: squad})
+
+
 def _yaml(nazwa):
-    """Config zadania z YAML-a zainstalowanego lm-eval (`!function` rozwiązane), świeża kopia do nadpisania."""
+    """Config zadania z YAML-a zainstalowanego lm-eval (`!function` rozwiązane, `include` scalone), świeża kopia.
+
+    GOTCHA: 0.4.9.1 (lock) daje go przez `TaskManager._get_config`, 0.4.13 (środowisko `new` przebiegu) nie ma tej
+    metody: indeks trzyma `Entry.yaml_path`, a scala `tasks._yaml_loader.load_yaml`."""
     if not _MENEDZER:
         from lm_eval.tasks import TaskManager
+        zapewnij_squad_metrics()
         _MENEDZER.append(TaskManager())
-    return dict(_MENEDZER[0]._get_config(nazwa))
+    tm = _MENEDZER[0]
+    if hasattr(tm, "_get_config"):
+        return dict(tm._get_config(nazwa))
+    from lm_eval.tasks._yaml_loader import load_yaml
+    wpis = tm.task_index.get(nazwa)
+    if wpis is None or wpis.yaml_path is None:
+        raise KeyError(f"lm-eval {lm_eval.__version__}: brak YAML-a zadania {nazwa}")
+    return dict(load_yaml(wpis.yaml_path, resolve_func=True))
 
 
 def czlonkowie_grupy(grupa):
@@ -582,7 +629,7 @@ def _konfiguracje(task_id, zrodlo):
                            "doc_to_text": "{{sentence}}\nQuestion: Is this sentence positive or negative?\nAnswer:",
                            "doc_to_target": "label", "doc_to_choice": ["negative", "positive"]})]
     if t == "race":
-        rc = _modul_lm_eval("race/preprocess_race.py")
+        rc = _modul_lm_eval("race/lm_eval_tasks/preprocess_race.py", BENCHMARKI)
         return [("space", {**baza, "task": "slayer_race", "doc_to_text": rc.doc_to_text,
                            "doc_to_target": rc.doc_to_target, "doc_to_choice": rc.doc_to_choice})]
     if t == "paws_en":

@@ -11,4 +11,4 @@ Mierzy: czytanie ze zrozumieniem, egzaminy szkoły średniej, 4 odpowiedzi.
 - Definicja zadania: lm-eval `6d2abda4` (Space); przebieg liczy lm-eval 0.4.9.1 (`lock`) i 0.4.13 (`new`) z promptem przepisanym w `common/zadania.py`.
 - Przebieg centralny: podpięty (`T40` w `common/zadania.py` i `KATALOGI` w `tools/przebieg_centralny.sh`); przepis w [`RECIPE.md`](RECIPE.md).
 
-Prompt z `race/preprocess_race.py`; długie artykuły.
+Prompt z `race/preprocess_race.py` lm-eval `6d2abda4`, skopiowanego do [`lm_eval_tasks/`](lm_eval_tasks/preprocess_race.py): lm-eval 0.4.13 zmienia w nim `question[-5:]` na `question[:-5]` (wcześniejsze pytania artykułu kończące się na `  _  .`), a kopia trzyma prompt Space także w środowisku `new`. Długie artykuły.
