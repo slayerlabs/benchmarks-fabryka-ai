@@ -373,3 +373,9 @@ def test_snr_recomputed_from_github():
     assert f"modele: {len(nd)} rozmiarów" in _row("SNR: źródło")
     assert f"między {len(nd)} rozmiarami" in _row("SNR: rozrzut")
     assert f"(kroki {steps[0]}–{steps[-1]})" in _row("SNR: rozrzut")
+
+
+if __name__ == "__main__":
+    import pytest
+
+    raise SystemExit(pytest.main([__file__]))

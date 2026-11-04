@@ -5,15 +5,8 @@ Krótki opis repo dla każdego, kto pisze tu kod. Szczegóły są w [`README.md`
 
 ## Układ
 
-- `research/benchmarks/<name>/`: jeden benchmark (dokumenty, kod, `results/`). Wersja polska leży w osobnym
-  katalogu `research/benchmarks/<name>-pl/` z `POLISH.md`.
-- `research/benchmarks/_template/`: wzór nowego benchmarku.
-- `research/analyses/<name>/`: analiza na wielu benchmarkach naraz.
-- `research/common/`: kod używany przez więcej niż jeden benchmark.
-- `research/tools/`: bramka liczb i przebieg centralny.
-- `research/results/`: liczby wygenerowane przez bramkę liczb.
-- `research/tests/`: testy kodu, bez sieci i bez wag.
-- `research/slayer-1b/` i `frontend-beta/`: nie ruszasz ich przy pracy nad benchmarkami.
+Układ katalogów opisuje [`research/README.md`, „Układ”](research/README.md#układ). `research/slayer-1b/` i
+`frontend-beta/` nie ruszasz przy pracy nad benchmarkami.
 
 ## Gdzie co dodać
 
@@ -26,18 +19,15 @@ Krótki opis repo dla każdego, kto pisze tu kod. Szczegóły są w [`README.md`
 
 ## Przed PR
 
-Komendy z sekcji [„Przed PR”](README.md#przed-pr) README kończą się kodem 0; katalog `research/` nie ma CI. Reguły,
+Komendy z sekcji [„Przed PR”](CONTRIBUTING.md#przed-pr) w CONTRIBUTING kończą się kodem 0; katalog `research/` nie ma CI. Reguły,
 które sprawdzają (bramka liczb, SE i werdykt przy każdym porównaniu), opisuje
 [`research/METODOLOGIA.md`](research/METODOLOGIA.md), „Wspólny rdzeń”.
 
 ## Zasady
 
 - Język: nazwy katalogów, plików i kod po angielsku. Dokumenty po polsku.
-- Nie commitujesz wag modeli (`*.safetensors`, `*.bin`, `*.pt`, katalog `models/`), zbiorów danych (`*.parquet`,
-  `*.arrow`), archiwów `*.zip` ani żadnego pliku powyżej 10 MB. Listę wykluczeń ma `research/.gitignore`.
-- Wyniki per pytanie wolno commitować skompresowane, jako `results/<model>/<zadanie>.jsonl.gz`, do około 10 MB na
-  plik. Potrzebuje ich test zgodności i recenzent, który odtwarza wynik. Surowe `*.jsonl` w `results/<model>/`
-  zostają lokalnie (`.gitignore`).
+- Czego nie commitujesz (wagi, zbiory, pliki powyżej 10 MB) i kiedy wolno `.jsonl.gz`:
+  [`CONTRIBUTING.md`, „Pliki w repo”](CONTRIBUTING.md#pliki-w-repo).
 - Pytania benchmarku nie trafiają do danych treningowych (`research/METODOLOGIA.md`, sekcja „Czystość benchmarku”).
 - Siła dowodu rośnie z kosztem błędnej decyzji i jej odwrócenia, ponad minimum z bramki liczb (liczba w
   `LICZBY.json`, SE i werdykt). Sekcja „Siła dowodu” w `research/METODOLOGIA.md`.

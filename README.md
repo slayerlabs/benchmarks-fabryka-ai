@@ -1,108 +1,47 @@
 # benchmarks-fabryka-ai
 
-Budujemy otwarte modele językowe dla ludzi, z publicznymi wagami, danymi i kodem.
+Mierzymy otwarte modele językowe, dziś polsko-angielskiego **Slayer 1B**, na benchmarkach odtworzonych zgodnie z
+oryginałem, i budujemy polskie benchmarki.
 
-Mierzymy modele językowe na benchmarkach odtworzonych zgodnie z oryginałem. Budujemy też polskie benchmarki. Dziś
-mierzymy polsko-angielski **Slayer 1B** i pięć modeli odniesienia, a później każdy następny model. Przyda się każda
-pomoc, nawet 2 godziny pracy.
+## Pierwsze kroki
 
-## Jak dołączyć
+1. **Dołącz.** Napisz na Discordzie na kanale #bench-team i podaj swój login GitHub. Zasady pracy są w „Jak dołączyć”.
 
-**1. Dołącz do Discorda.** Nasz kanał to **#bench-team**: https://discord.gg/HnTkVR4c5T. Napisz tam do LoIlita albo
-Elwenora i podaj swój login GitHub. Dodadzą Cię do zespołu Benchmark Team. Od tej chwili możesz brać zadania,
-przesuwać karty na tablicy i pushować gałęzie do repo. Na Discordzie zadajesz też pytania i piszesz, gdy coś nie
-działa.
+   <a href="https://discord.gg/HnTkVR4c5T"><img src="docs/img/discord.svg" alt="Discord" height="36"></a>
+   <a href="CONTRIBUTING.md"><img src="docs/img/jak-dolaczyc.svg" alt="Jak dołączyć" height="36"></a>
 
-**2. Weź pierwsze zadanie** według [`CONTRIBUTING.md`, „Pierwsze zadanie”](CONTRIBUTING.md#pierwsze-zadanie).
+2. **Weź zadanie** z kolumny Ready na tablicy albo z etykietą `good first issue`. Przypisz się i przestaw je na In
+   Progress.
 
-**3. Przygotuj komputer** według sekcji [„Przygotowanie (raz)”](research/README.md#przygotowanie-raz) w
-`research/README.md`.
+   <a href="https://github.com/orgs/slayerlabs/projects/10"><img src="docs/img/tablica.svg" alt="Tablica" height="36"></a>
+   <a href="https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22"><img src="docs/img/zadania-na-start.svg" alt="Zadania na start" height="36"></a>
 
-**4. Przeczytaj metodologię** w [`research/METODOLOGIA.md`](research/METODOLOGIA.md). Opisuje, w jakiej kolejności
-powstaje benchmark i co trafia do każdego pliku.
+3. **Przygotuj środowisko.**
 
-**5. Otwórz PR do `main`** według [`CONTRIBUTING.md`](CONTRIBUTING.md). W opisie PR wpisz `Refs #N` z numerem
-zadania.
+   <a href="research/README.md#przygotowanie-raz"><img src="docs/img/przygotowanie.svg" alt="Przygotowanie" height="36"></a>
 
-```mermaid
-flowchart LR
-  A[Discord #bench-team: dostęp od LoIlita albo Elwenora] --> B[Pierwsze zadanie: CONTRIBUTING.md]
-  B --> C[Przypisz się i przestaw zadanie na In Progress]
-  C --> D[PR do main + Refs #N]
-  D --> E[Testy autora PR, potem recenzja] --> F[Merge]
-```
+4. **Uruchom jeden test** w katalogu `research/`. Kod 0 znaczy, że środowisko działa:
 
-Gdy przestawiasz zadanie z In Progress na Review albo Independent Check, automat
-[`board-unassign.yml`](.github/workflows/board-unassign.yml) w ciągu kilkunastu minut zdejmuje przypisanie z issue.
-Wtedy wszyscy widzą, że zadanie jest do wzięcia. Recenzent, który przypisze się sam już w Review, zostaje
-przypisany. Status Done zamyka issue.
+   ```bash
+   .venv-eval/bin/python tests/test_statystyka.py
+   ```
 
-Przydatne linki:
+5. **Otwórz PR do `main`** z `Refs #N` w opisie, według [`CONTRIBUTING.md`, „PR”](CONTRIBUTING.md#pr).
 
-- Zadania: https://github.com/slayerlabs/benchmarks-fabryka-ai/issues
-- Tablica zadań: https://github.com/orgs/slayerlabs/projects/10
-- Kamienie: https://github.com/slayerlabs/benchmarks-fabryka-ai/milestones
-- Wyniki Slayera 1B w Space: https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks
-- Organizacje: https://github.com/slayerlabs, https://huggingface.co/SlayerLab
+Jak powstaje test: [METODOLOGIA, „Etapy pracy”](research/METODOLOGIA.md#etapy-pracy).
 
-## Kto jest kim
+<a name="definicja-zrobione"></a>Kiedy test jest skończony: [METODOLOGIA, „Definicja „zrobione””](research/METODOLOGIA.md#definicja-zrobione).
 
-- **LoIlita i Elwenor** koordynują zespół. Dodają nowe osoby do zespołu Benchmark Team, co daje dostęp do zadań,
-  tablicy i repo. Piszesz do nich na Discordzie, na kanale #bench-team.
-- **Arek** jest właścicielem modelu Slayer i Space z wynikami. Wgrywa wyniki do Space.
+<a name="przed-pr"></a>Przed PR: [CONTRIBUTING, „Przed PR”](CONTRIBUTING.md#przed-pr).
 
-## Definicja „zrobione”
+## Gdzie co jest
 
-Benchmark jest zrobiony, gdy PR do `main` zawiera katalog `research/benchmarks/<name>/` założony z
-[`research/benchmarks/_template/`](research/benchmarks/_template/README.md). Zamiast jednego PR może być kilka, po
-jednym na etap. W katalogu musi być:
+| gdzie | co tam jest |
+|---|---|
+| <a href="research/METODOLOGIA.md"><img src="docs/img/metodologia.svg" alt="Metodologia" height="36"></a> | jak powstaje benchmark: etapy A–D, typy testów, SE i werdykt |
+| <a href="research/benchmarks/_template"><img src="docs/img/nowy-test.svg" alt="Nowy test" height="36"></a> | wzór nowego benchmarku; każdy benchmark ma katalog w `research/benchmarks/` |
+| <a href="https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks"><img src="docs/img/wyniki-na-hf.svg" alt="Wyniki na HF" height="36"></a> | wyniki Slayera 1B w Space |
+| `research/common/`, `research/tools/`, `research/tests/` | kod wspólny, bramka liczb i przebieg centralny, testy bez sieci i bez wag |
+| `research/slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami |
 
-1. `ORIGINAL.md` (etap A) i `REPRODUCTION.md` (etap B) ze spełnionym warunkiem odtworzenia. Benchmark bez oryginału
-   ma zamiast nich `DATASET.md` i kontrolę na modelu, który zna polski. Wersja polska leży w osobnym katalogu
-   `research/benchmarks/<name>-pl/` i ma `POLISH.md` (etap D).
-2. Kod liczący wynik (etap C). To wywołanie kodu z etapu B albo własna implementacja z testem zgodności
-   `research/tests/test_<name>_zgodnosc.py`.
-3. Test kodu `research/tests/test_<name>.py` z próbką danych. Test przechodzi bez sieci i bez wag.
-4. Wynik mierzonego modelu z n i SE, a obok wynik modelu kontrolnego
-   ([„Model kontrolny etapu B”](research/METODOLOGIA.md#model-kontrolny-etapu-b)) liczony tym samym kodem. Oba liczy
-   autor PR.
-5. Wiersz testu w [`research/README.md`, „Benchmarki i typy”](research/README.md#benchmarki-i-typy) (karta do niego linkuje), bazy i b według tabeli typów, porównanie z modelem kontrolnym jako różnica w SE z werdyktem
-   ([METODOLOGIA, „Typy testów”](research/METODOLOGIA.md#typy-testów)).
-6. `RECIPE.md` z wpisem dla każdego wyniku.
-7. Benchmark liczony przez `research/common/ewaluuj.py`: wpis w `ZADANIA` (`research/common/zadania.py`) i w
-   `KATALOGI` przebiegu centralnego. Benchmark z własnym kodem: komenda w `RECIPE.md`, którą liczy się go ręcznie,
-   bo przebieg centralny woła tylko `ewaluuj.py`.
-8. Komendy z sekcji [„Przed PR”](#przed-pr) zakończone kodem 0.
-9. `Refs #N` zadania w opisie PR.
-
-Autor PR nie liczy modeli odniesienia. Liczy je przebieg centralny `research/tools/przebieg_centralny.sh`, opisany w
-[METODOLOGII, „Następna wersja Slayera”](research/METODOLOGIA.md#następna-wersja-slayera).
-
-## Przed PR
-
-Przed otwarciem PR uruchom w katalogu `research/` komendy niżej. To testy zmienionego benchmarku,
-`tests/test_liczby_raportow.py` i bramka liczb. Każda komenda musi zakończyć się kodem 0. Katalog `research/` nie ma
-CI, więc uruchamiasz je sam.
-
-```bash
-.venv-eval/bin/python tools/liczby.py && .venv-eval/bin/python tools/sprawdz_raporty.py
-.venv-eval/bin/python tests/test_<name>.py
-.venv-eval/bin/python tests/test_<name>_zgodnosc.py   # tylko gdy benchmark ma własną implementację
-.venv-eval/bin/python tests/test_liczby_raportow.py
-```
-
-**Sama karta.** PR z samą kartą oryginału (etap A) wymaga tylko bramki liczb z kodem 0, bez testów benchmarku:
-
-```bash
-.venv-eval/bin/python tools/liczby.py && .venv-eval/bin/python tools/sprawdz_raporty.py
-```
-
-Recenzent takiego PR nie odtwarza `RECIPE.md`. Sprawdza u źródła prompt, ocenę, wynik referencyjny i bazy, a przy
-„brak” albo „nieustalone” listę przeszukanych miejsc.
-
-## Co jest w repo
-
-- [`research/`](research/README.md): benchmarki, analizy, kod wspólny, bramka liczb, testy.
-- [`AGENTS.md`](AGENTS.md): krótki opis układu repo. Mówi też, gdzie dodać nowe pliki i co musi przejść przed PR.
-- [`frontend-beta/`](frontend-beta/README.md): prototyp tablicy wyników w React, na danych syntetycznych. Dziś
-  nieużywany.
+Pełny układ: [`research/README.md`, „Układ”](research/README.md#układ).

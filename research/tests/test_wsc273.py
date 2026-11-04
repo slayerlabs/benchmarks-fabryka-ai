@@ -255,3 +255,7 @@ def test_per_question_files_hold_no_question_text():
     # the public repo keeps hashes and scores, not the dataset
     for model, sample in [("bloom-560m", "full"), ("slayer-1.06", "panel200"), ("slayer-1.06", "full")]:
         assert all(set(r) == {"k", "id", "gold", "logliki", "pred", "acc"} for r in read_gz(model, sample))
+
+
+if __name__ == "__main__":
+    raise SystemExit(pytest.main([__file__]))

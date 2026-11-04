@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="310" viewBox="0 0 960 310" role="img" aria-label="Droga testu: 1. opis testu, 2. sprawdzenie: liczymy znany model z opublikowanym wynikiem, np. Pythię, i patrzymy, czy wychodzi to samo; najpierw 5–10 pytań ręcznie, 3. kod w repo, 4. liczenie, 5. publikacja na CodeSOTA. Gdy sprawdzenie się nie zgadza, szukamy przyczyny na kilku pytaniach, poprawiamy i wracamy do kroku 2. Gdy przyczyny nie da się znaleźć, komentarz w zadaniu. Test tłumaczony na polski idzie tą samą drogą z opisem tłumaczenia. Własny test polski zamiast kroków 1 i 2 ma opis zbioru.">
+<title>Droga jednego testu</title>
+<defs><marker id="s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#8c959f"/></marker></defs>
+<g font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" text-anchor="middle" fill="#ffffff">
+  <rect x="10" y="10" width="168" height="84" rx="10" fill="#0969da"/>
+  <text x="94" y="36" font-size="15" font-weight="700">1. Opis testu</text>
+  <text x="94" y="56" font-size="12">co sprawdza, wynik autorów</text>
+  <text x="94" y="80" font-size="11" fill-opacity="0.85">ORIGINAL.md · etap A</text>
+
+  <rect x="208" y="10" width="168" height="84" rx="10" fill="#0969da"/>
+  <text x="292" y="36" font-size="15" font-weight="700">2. Sprawdzenie</text>
+  <text x="292" y="56" font-size="12">5–10 pytań ręcznie,</text>
+  <text x="292" y="70" font-size="12">całość ma dać ich wynik</text>
+  <text x="292" y="86" font-size="11" fill-opacity="0.85">REPRODUCTION, RECIPE · B</text>
+
+  <rect x="406" y="10" width="168" height="84" rx="10" fill="#0969da"/>
+  <text x="490" y="36" font-size="15" font-weight="700">3. Kod w repo</text>
+  <text x="490" y="56" font-size="12">woła kod autorów albo</text>
+  <text x="490" y="70" font-size="12">własny z testem zgodności</text>
+  <text x="490" y="86" font-size="11" fill-opacity="0.85">kod · etap C</text>
+
+  <rect x="604" y="10" width="168" height="84" rx="10" fill="#1a7f37"/>
+  <text x="688" y="36" font-size="15" font-weight="700">4. Liczenie</text>
+  <text x="688" y="56" font-size="12">jeden skrypt puszcza</text>
+  <text x="688" y="70" font-size="12">wszystkie testy</text>
+
+  <rect x="802" y="10" width="148" height="84" rx="10" fill="#8250df"/>
+  <text x="876" y="36" font-size="15" font-weight="700">5. Publikacja</text>
+  <text x="876" y="56" font-size="12">wyniki</text>
+  <text x="876" y="70" font-size="12">na CodeSOTA</text>
+
+  <rect x="208" y="140" width="168" height="64" rx="10" fill="#bc4c00"/>
+  <text x="292" y="162" font-size="13" font-weight="700">Szukamy przyczyny</text>
+  <text x="292" y="180" font-size="12">na kilku pytaniach</text>
+  <text x="292" y="195" font-size="12">i poprawiamy</text>
+</g>
+<g stroke="#8c959f" stroke-width="2" fill="none">
+  <line x1="179" y1="52" x2="205" y2="52" marker-end="url(#s)"/>
+  <line x1="377" y1="52" x2="403" y2="52" marker-end="url(#s)"/>
+  <line x1="575" y1="52" x2="601" y2="52" marker-end="url(#s)"/>
+  <line x1="773" y1="52" x2="799" y2="52" marker-end="url(#s)"/>
+  <line x1="256" y1="95" x2="256" y2="137" marker-end="url(#s)"/>
+  <line x1="328" y1="139" x2="328" y2="97" marker-end="url(#s)"/>
+  <line x1="207" y1="172" x2="182" y2="172" stroke-dasharray="4 3" marker-end="url(#s)"/>
+</g>
+<g font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="12" fill="#57606a">
+  <text x="250" y="122" text-anchor="end" font-weight="700">nie zgadza się</text>
+  <text x="334" y="122" font-weight="700">jeszcze raz</text>
+  <text x="176" y="168" text-anchor="end">nie da się:</text>
+  <text x="176" y="184" text-anchor="end">komentarz w zadaniu</text>
+</g>
+<g font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" fill="#ffffff">
+  <rect x="10" y="218" width="465" height="84" rx="10" fill="#cf222e"/>
+  <text x="28" y="246" font-size="15" font-weight="700">Po polsku: tłumaczymy</text>
+  <text x="28" y="268" font-size="12">gdy test nie zależy od kraju. Kroki 1–5 tak samo,</text>
+  <text x="28" y="284" font-size="12">dochodzi opis tłumaczenia (POLISH.md · etap D).</text>
+
+  <rect x="485" y="218" width="465" height="84" rx="10" fill="#cf222e"/>
+  <text x="503" y="246" font-size="15" font-weight="700">Po polsku: piszemy od zera</text>
+  <text x="503" y="268" font-size="12">wiedza o Polsce, polska gramatyka. Zamiast kroków 1–2</text>
+  <text x="503" y="284" font-size="12">opis zbioru (DATASET.md), dalej kroki 3–5.</text>
+</g>
+</svg>

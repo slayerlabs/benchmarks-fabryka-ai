@@ -7,7 +7,7 @@ dojdzie każdy następny model z Hugging Face. Rewizje i role modeli opisuje
 
 Każdy benchmark ma jeden katalog w `benchmarks/`. Kod wspólny dla wielu benchmarków leży w `common/`. Jak powstaje
 benchmark (karta oryginału, odtworzenie, kod, wersja polska), opisuje [`METODOLOGIA.md`](METODOLOGIA.md). Kiedy
-benchmark jest skończony, mówi sekcja [„Definicja „zrobione””](../README.md#definicja-zrobione) w README repo.
+benchmark jest skończony, mówi sekcja [„Definicja „zrobione””](METODOLOGIA.md#definicja-zrobione) w METODOLOGII.
 Wszystkie komendy niżej uruchamiasz w katalogu `research/`.
 
 ## Układ
@@ -24,7 +24,7 @@ Wszystkie komendy niżej uruchamiasz w katalogu `research/`.
 | `tools/` | bramka liczb (`liczby.py`, `sprawdz_raporty.py`), przebieg centralny (`przebieg_centralny.sh`, `kontrola_sensu.py`) |
 | `results/` | `LICZBY.json` i `LICZBY.md`: wszystkie liczby raportów, wygenerowane przez bramkę liczb; `central-run/`: wyniki przebiegu centralnego |
 | `tests/` | testy kodu, bez sieci i bez wag |
-| `slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami: `dane/`, `testy_danych_slayer/`, `wygaszanie/`, `tokenizer/`, `lab/`, `paczka_testerzy/` (komendy w ich README uruchamiasz w `research/slayer-1b/`) |
+| `slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami: `dane/` (spis zbiorów: [`REJESTR_DATASETOW.md`](slayer-1b/dane/REJESTR_DATASETOW.md)), `testy_danych_slayer/`, `wygaszanie/`, `tokenizer/`, `lab/`, `paczka_testerzy/` (komendy w ich README uruchamiasz w `research/slayer-1b/`) |
 
 Jest też jedna analiza: [`analyses/answer-format/`](analyses/answer-format/README.md). Testy z listy Space liczy kod
 w `common/`, opisany w [`common/README.md`](common/README.md).
@@ -78,8 +78,11 @@ Testy Space (`tasks_50.json`) według typu:
 
 ## Przygotowanie (raz)
 
-Robisz to raz na komputer. Potrzebujesz dostępu do Hugging Face (HF) i kilku GB wolnego dysku. Kod działa na CPU,
-choć wolno, albo na GPU z opcją `--device cuda`.
+Do samej karty oryginału (etap A) wystarczą `git clone` i `python3`, bo bramka liczb używa tylko biblioteki
+standardowej. Resztę przygotowania robisz od etapu B.
+
+Robisz to raz na komputer. Potrzebujesz Pythona 3.9–3.12, dostępu do Hugging Face (HF) i kilku GB wolnego dysku. Kod
+działa na CPU, choć wolno, albo na GPU z opcją `--device cuda`.
 
 Przed pierwszym pobraniem:
 
@@ -111,8 +114,8 @@ Do benchmarku polskiego albo bez oryginału pobierz też model, który zna polsk
 `git clone` pobiera domyślną gałąź repo, czyli `main`. Od niej zakładasz swoją gałąź.
 
 Wszystkie przebiegi liczysz w środowisku z `common/requirements.lock.txt` (lm-eval 0.4.9.1). Czym różni się ono od
-lm-eval w Space, opisuje [`METODOLOGIA.md`](METODOLOGIA.md), sekcja „Wersja lm-eval”. Lock działa na Pythonie
-3.9–3.12; na nowszym `pip install` kończy się błędem `No matching distribution found for numpy==2.0.2`.
+lm-eval w Space, opisuje [`METODOLOGIA.md`](METODOLOGIA.md), sekcja „Wersja lm-eval”. Na Pythonie nowszym niż 3.12
+`pip install` kończy się błędem `No matching distribution found for numpy==2.0.2`.
 
 `common/slayer_lm.py --install` uruchamiasz raz na venv i checkout. Zapisuje w venv ścieżkę tego `common/`.
 Rejestruje model `slayer` tylko pod komendą `lm_eval`, nie pod `python -m lm_eval`.
@@ -166,6 +169,11 @@ Testy działają bez sieci i bez wag. Każdy kończy się kodem 0:
 .venv-eval/bin/python -m pytest tests/test_piqa.py
 .venv-eval/bin/python -m pytest tests/test_przebieg_centralny.py
 .venv-eval/bin/python tests/test_liczby_raportow.py
+.venv-eval/bin/python tests/test_statystyka.py
+.venv-eval/bin/python tests/test_straznik_i_kontrola.py
+.venv-eval/bin/python tests/test_arc_easy_snr.py
+.venv-eval/bin/python tests/test_winogrande.py
+.venv-eval/bin/python tests/test_winogrande_przelicz.py
 ```
 
 Testy BLiMP to `tests/test_blimp*.py` oraz `tests/test_lm_eval_slayer.py`. Testy BLiMP podmieniają model, więc błąd w
@@ -177,7 +185,7 @@ Gdy sprawdzasz, czy test łapie celowo zepsuty kod ewaluacji (mutację), przed k
 zamiast zmienionego kodu i mutacja fałszywie „przeżywa” (`python -B` tylko nie zapisuje nowych `.pyc`, istniejące
 dalej czyta).
 
-Przed PR nie uruchamiasz wszystkich testów. Listę komend ma README repo, sekcja [„Przed PR”](../README.md#przed-pr).
+Przed PR nie uruchamiasz wszystkich testów. Listę komend ma CONTRIBUTING, sekcja [„Przed PR”](../CONTRIBUTING.md#przed-pr).
 To testy zmienionego benchmarku, `tests/test_liczby_raportow.py` i bramka liczb.
 
 ## Bramka liczb

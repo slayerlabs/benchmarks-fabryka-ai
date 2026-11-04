@@ -2,7 +2,7 @@
 
 Skopiuj ten katalog do `benchmarks/<name>/` (małe litery, myślnik, np. `blimp`) i wypełnij pliki. Procedurę i
 znaczenie pól opisuje [`../../METODOLOGIA.md`](../../METODOLOGIA.md). Kiedy benchmark jest skończony, mówi
-[README repo, „Definicja „zrobione””](../../../README.md#definicja-zrobione).
+[METODOLOGIA, „Definicja „zrobione””](../../METODOLOGIA.md#definicja-zrobione).
 
 ```
 benchmarks/<name>/

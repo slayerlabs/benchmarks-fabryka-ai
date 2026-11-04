@@ -11,20 +11,39 @@ nowej.
 
 ## Etapy pracy
 
-```mermaid
-flowchart LR
-  A[A. Karta oryginału] --> B[B. Odtworzenie wyniku oryginalnym kodem]
-  B -->|warunek spełniony| C[C. Kod w repo]
-  B -->|niespełniony| X[Stop: komentarz w zadaniu]
-  B -->|bez kontroli, kod autorów zgodny z repo| C
-  B -->|bez kontroli, kod niezgodny| X
-  C --> D[D. Wersja polska tą samą metodą]
-```
+<img src="../docs/img/droga-testu.svg" alt="1. Opis testu, 2. sprawdzenie: liczymy znany model z opublikowanym wynikiem, np. Pythię, i patrzymy, czy wychodzi to samo (gdy się nie zgadza: szukamy przyczyny, poprawiamy i sprawdzamy jeszcze raz), 3. kod w repo, 4. liczenie, 5. publikacja na CodeSOTA. Po polsku: test tłumaczony idzie tą samą drogą, własny test zamiast kroków 1–2 ma opis zbioru." width="960">
 
 Każdy etap kończy się plikiem w `benchmarks/<name>/`, wzory są w
 [`benchmarks/_template/`](benchmarks/_template/README.md). Benchmark bez oryginału (zbiór pisany od zera, held-out)
 zamiast etapów A i B ma kartę zbioru. Każdy etap może iść osobnym PR. Kiedy benchmark jest skończony, mówi
-[README repo, „Definicja „zrobione””](../README.md#definicja-zrobione).
+[„Definicja „zrobione””](#definicja-zrobione) niżej.
+
+## Definicja „zrobione”
+
+Benchmark jest zrobiony, gdy PR do `main` zawiera katalog `research/benchmarks/<name>/` założony z
+[`research/benchmarks/_template/`](benchmarks/_template/README.md). Zamiast jednego PR może być kilka, po
+jednym na etap. W katalogu musi być:
+
+1. `ORIGINAL.md` (etap A) i `REPRODUCTION.md` (etap B) ze spełnionym warunkiem odtworzenia. Benchmark bez oryginału
+   ma zamiast nich `DATASET.md` i kontrolę na modelu, który zna polski. Wersja polska leży w osobnym katalogu
+   `research/benchmarks/<name>-pl/` i ma `POLISH.md` (etap D).
+2. Kod liczący wynik (etap C). To wywołanie kodu z etapu B albo własna implementacja z testem zgodności
+   `research/tests/test_<name>_zgodnosc.py`.
+3. Test kodu `research/tests/test_<name>.py` z próbką danych. Test przechodzi bez sieci i bez wag.
+4. Wynik mierzonego modelu z n i SE, a obok wynik modelu kontrolnego
+   ([„Model kontrolny etapu B”](#model-kontrolny-etapu-b)) liczony tym samym kodem. Oba liczy
+   autor PR.
+5. Wiersz testu w [`research/README.md`, „Benchmarki i typy”](README.md#benchmarki-i-typy) (karta do niego linkuje), bazy i b według tabeli typów, porównanie z modelem kontrolnym jako różnica w SE z werdyktem
+   ([„Typy testów”](#typy-testów)).
+6. `RECIPE.md` z wpisem dla każdego wyniku.
+7. Benchmark liczony przez `research/common/ewaluuj.py`: wpis w `ZADANIA` (`research/common/zadania.py`) i w
+   `KATALOGI` przebiegu centralnego. Benchmark z własnym kodem: komenda w `RECIPE.md`, którą liczy się go ręcznie,
+   bo przebieg centralny woła tylko `ewaluuj.py`.
+8. Komendy z sekcji [„Przed PR”](../CONTRIBUTING.md#przed-pr) zakończone kodem 0.
+9. `Refs #N` zadania w opisie PR.
+
+Autor PR nie liczy modeli odniesienia. Liczy je przebieg centralny `research/tools/przebieg_centralny.sh`, opisany w
+[„Następna wersja Slayera”](#następna-wersja-slayera).
 
 ## Wspólny rdzeń
 
@@ -63,11 +82,12 @@ Obowiązuje każdy test. Gdzie treść reguły zależy od typu, reguła odsyła 
 7. **Przepis.** Każdy wynik ma wpis w `RECIPE.md` (sekcja „Przepis”). *Recenzent:* odtwarza co najmniej jeden wpis.
 8. **Smoke test.** Przed pełnym przebiegiem czytasz ręcznie 5–10 przykładów: wyrenderowany prompt, opcje, cel,
    odpowiedź albo logprob modelu i dane wejściowe. W teście z podtestami albo klastrami bierzesz je z różnych
-   podtestów. Wpis w `RECIPE.md` podaje ich id i to, co się zgadzało. *Recenzent:* otwiera jeden z podanych przykładów.
+   podtestów. Wpis w `RECIPE.md` podaje ich id i to, co się zgadzało (wzór:
+   [WinoGrande, „Smoke test przed przebiegiem”](benchmarks/winogrande/RECIPE.md#smoke-test-przed-przebiegiem)). *Recenzent:* otwiera jeden z podanych przykładów.
 9. **Bramka liczb.** Każda liczba w raporcie `.md` pod `research/` stoi w `results/LICZBY.json` albo ma na końcu
    linii znacznik `<!-- liczba-spoza-wynikow: skąd jest liczba -->`, jedna linia na jeden wynik (wzór:
    `benchmarks/arc-easy/ORIGINAL.md`). Bramka sprawdza raporty, warunek odtworzenia z etapu B sprawdza kod; to dwie
-   różne rzeczy. *Recenzent:* komendy z [„Przed PR”](../README.md#przed-pr) kończą się kodem 0.
+   różne rzeczy. *Recenzent:* komendy z [„Przed PR”](../CONTRIBUTING.md#przed-pr) kończą się kodem 0.
 10. **Czystość i kontaminacja.** Pytania testu nie trafiają do treningu, a karta ma pole „Kontaminacja” (sekcja
     „Czystość benchmarku”). *Recenzent:* przy wartości „sprawdzona” jest metoda.
 
@@ -164,8 +184,17 @@ samym splicie, prompcie i rewizji, co wynik referencyjny. `REPRODUCTION.md` poda
 i różnicę; przebieg ma wpis w `RECIPE.md`.
 
 **Warunek odtworzenia:** |różnica| ≤ 2 pkt w skali metryki (0,02 przy skali 0–1 i przy MCC), a gdy 2 SE > 2 pkt,
-|różnica| ≤ 2 SE. Typ `ppl` ma próg z sekcji niżej. Niespełniony warunek zatrzymuje pracę: w komentarzu zadania
-wpisujesz, co policzyłeś i jaką różnicę dostałeś, bo ta sama różnica siedziałaby w każdym następnym wyniku.
+|różnica| ≤ 2 SE. Typ `ppl` ma próg z sekcji niżej. Niespełniony warunek zatrzymuje pracę, bo ta sama różnica
+siedziałaby w każdym następnym wyniku. Najpierw szukasz przyczyny na kilku pytaniach, porównując je z wynikami autorów.
+Najczęściej to:
+
+- inny prompt albo format odpowiedzi;
+- inny podział na tokeny albo brak tokenu startu (BOS);
+- inna metryka albo agregacja (np. `acc` zamiast `acc_norm`);
+- inny split, podzbiór albo rewizja zbioru.
+
+Po poprawce liczysz jeszcze raz. Gdy przyczyny nie da się znaleźć, w komentarzu zadania wpisujesz, co policzyłeś i jaką
+różnicę dostałeś.
 
 ### Próg dla perpleksji i BPB
 
@@ -358,7 +387,7 @@ Slayera w `MODELE` w `tools/przebieg_centralny.sh` muszą się zgadzać, pilnuje
 
 **Jedna komenda.** Nową wersję liczy przebieg centralny. Zmieniasz wiersz Slayera w `MODELE` na
 `slayer1b-<wersja>|SlayerLab/Slayer1B-<wersja>|<rewizja>|slayer|lock` i linię wyżej. Maszyna to instancja vast.ai
-z GPU (bezpiecznik `slayer-1b/wygaszanie/bezpiecznik.py` niszczy ją przez API vast.ai). Kod `research/` kopiujesz
+z kartami GPU (bezpiecznik `slayer-1b/wygaszanie/bezpiecznik.py` niszczy ją przez API vast.ai). Kod `research/` kopiujesz
 ręcznie do `/workspace/kod`, a `wyniki.tgz` z `pakuj` ręcznie pobierasz i rozpakowujesz w `results/central-run/`;
 skryptu do tych dwóch kroków jeszcze nie ma.
 
@@ -415,7 +444,7 @@ ponad b + 3 SE; bez danych „nieustalone”. Test bez wczesnego sygnału liczys
 ## Recenzja
 
 Recenzję w dwóch krokach i trzy ścieżki sprawdzenia opisuje [CONTRIBUTING](../CONTRIBUTING.md#pr); PR z samą kartą
-ma wariant „Sama karta” w [„Przed PR”](../README.md#przed-pr). Przeliczenie `needs-recheck` robi druga osoba od zera,
+ma wariant „Sama karta” w [„Przed PR”](../CONTRIBUTING.md#przed-pr). Przeliczenie `needs-recheck` robi druga osoba od zera,
 na innym sprzęcie (inne pole „Sprzęt” w `RECIPE.md`), i nie zagląda przy tym w liczby autora.
 
 ## Siła dowodu

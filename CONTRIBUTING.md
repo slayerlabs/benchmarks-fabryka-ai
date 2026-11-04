@@ -6,30 +6,31 @@ Rozmawiamy na Discordzie, na kanale **#bench-team**: https://discord.gg/HnTkVR4c
 albo Elwenora i podaj swój login GitHub. Dodadzą Cię do zespołu Benchmark Team. Wtedy możesz brać zadania, przesuwać
 karty na tablicy i pushować gałęzie.
 
-Na tym samym kanale zadajesz pytania. Tam też piszesz, gdy coś nie działa albo w dokumentacji czegoś brakuje. Podaj
-krok, w którym utknąłeś, i czego zabrakło. Wystarczy jedno zdanie. Opiekunowie to osoby z sekcji
-[„Kto jest kim”](README.md#kto-jest-kim) w README.
+Tam też pytaj, gdy coś nie działa albo czegoś nie ma w dokumentacji. Napisz, na którym kroku utknąłeś.
+
+### Kto jest kim
+
+- **LoIlita i Elwenor** koordynują zespół. Dodają nowe osoby do zespołu Benchmark Team, co daje dostęp do zadań,
+  tablicy i repo.
+- **Arek** jest właścicielem modelu Slayer i [Space z wynikami](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks).
+  Wgrywa wyniki do Space.
 
 ## Pierwsze zadanie
 
 Wybierz zadanie, przypisz się do niego (Assignees → Assign yourself) i przestaw je na tablicy na In Progress.
-Bierzesz jedno zadanie naraz. Jeśli zaczynasz, weź zadanie z etykietą `good first issue`
-([lista w tym repo](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22)).
-Takie zadanie nazywa się „Karta oryginału: <benchmark>”. Piszesz w nim kartę oryginału jednego benchmarku, czyli plik
-`ORIGINAL.md` (etap A). Zajmuje to około 2 h.
+Bierzesz jedno zadanie naraz. Jeśli zaczynasz, weź
+[good first issue](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22).
 
-Recenzję cudzej karty możesz wziąć, gdy masz już za sobą jedną własną kartę.
-
-Wszystkie zadania są pod adresem https://github.com/slayerlabs/benchmarks-fabryka-ai/issues. Tablica jest pod
-adresem https://github.com/orgs/slayerlabs/projects/10. Jak przygotować komputer, opisuje
-[`research/README.md`, „Przygotowanie (raz)”](research/README.md#przygotowanie-raz). Procedurę pracy opisuje
-[`research/METODOLOGIA.md`](research/METODOLOGIA.md).
+<a href="https://github.com/slayerlabs/benchmarks-fabryka-ai/issues"><img src="docs/img/wszystkie-zadania.svg" alt="Wszystkie zadania" height="36"></a>
+<a href="https://github.com/orgs/slayerlabs/projects/10"><img src="docs/img/tablica.svg" alt="Tablica" height="36"></a>
+<a href="research/README.md#przygotowanie-raz"><img src="docs/img/przygotowanie.svg" alt="Przygotowanie komputera" height="36"></a>
+<a href="research/METODOLOGIA.md"><img src="docs/img/metodologia.svg" alt="Metodologia" height="36"></a>
 
 ## PR
 
 1. Załóż gałąź od `main`. Nazwij ją `research/<name>` (benchmark) albo `docs/<temat>`. Możesz też otworzyć PR z
    forka. Wtedy nie potrzebujesz prawa zapisu w repo.
-2. Uruchom komendy z sekcji [„Przed PR”](README.md#przed-pr) README. Katalog `research/` nie ma CI, więc robisz to
+2. Uruchom komendy z sekcji [„Przed PR”](#przed-pr) niżej. Katalog `research/` nie ma CI, więc robisz to
    sam, a każda komenda musi zakończyć się kodem 0.
 
 3. Otwórz PR do `main` i wypełnij checklistę z szablonu. W opisie wpisz `Refs #N` z numerem zadania z tego repo.
@@ -42,8 +43,27 @@ adresem https://github.com/orgs/slayerlabs/projects/10. Jak przygotować kompute
    zna ten kod, odtwarza co najmniej jeden wynik z `RECIPE.md`. Wynik z etykietą `needs-recheck` liczy od zera druga
    osoba, na innym sprzęcie.
 
-**PR z samą kartą (etap A)** ma krótszą drogę, opisaną w wariancie „Sama karta” sekcji
-[„Przed PR”](README.md#przed-pr).
+## Przed PR
+
+Przed otwarciem PR uruchom w katalogu `research/` komendy niżej. To testy zmienionego benchmarku,
+`tests/test_liczby_raportow.py` i bramka liczb. Każda komenda musi zakończyć się kodem 0. Katalog `research/` nie ma
+CI, więc uruchamiasz je sam.
+
+```bash
+.venv-eval/bin/python tools/liczby.py && .venv-eval/bin/python tools/sprawdz_raporty.py
+.venv-eval/bin/python tests/test_<name>.py
+.venv-eval/bin/python tests/test_<name>_zgodnosc.py   # tylko gdy benchmark ma własną implementację
+.venv-eval/bin/python tests/test_liczby_raportow.py
+```
+
+**Sama karta.** PR z samą kartą oryginału (etap A) wymaga tylko bramki liczb z kodem 0, bez testów benchmarku:
+
+```bash
+.venv-eval/bin/python tools/liczby.py && .venv-eval/bin/python tools/sprawdz_raporty.py
+```
+
+Recenzent takiego PR nie odtwarza `RECIPE.md`. Sprawdza u źródła prompt, ocenę, wynik referencyjny i bazy, a przy
+„brak” albo „nieustalone” listę przeszukanych miejsc.
 
 ## Etykiety
 
@@ -64,6 +84,11 @@ Status w tej kolejności:
 4. **Review**: pierwsze sprawdzenie.
 5. **Independent Check**: drugie, niezależne sprawdzenie.
 6. **Done**: zrobione.
+
+Gdy przestawiasz zadanie z In Progress na Review albo Independent Check, automat
+[`board-unassign.yml`](.github/workflows/board-unassign.yml) w ciągu kilkunastu minut zdejmuje przypisanie z issue.
+W Review i Independent Check zadanie można wziąć tylko jako recenzję, bo praca autora już leży w PR. Recenzent,
+który przypisze się sam już w Review, zostaje przypisany. Status Done zamyka issue.
 
 Pola zadania:
 
@@ -99,8 +124,11 @@ autora.
 
 ## Pliki w repo
 
+Układ katalogów opisuje [`research/README.md`, „Układ”](research/README.md#układ).
+
 - Dokumenty piszesz po polsku. Nazwy katalogów, plików i kod piszesz po angielsku.
 - Nie commitujesz wag modeli (`*.safetensors`, `*.bin`, `*.pt`, katalog `models/`), zbiorów danych (`*.parquet`,
-  `*.arrow`), archiwów `*.zip` ani żadnego pliku powyżej 10 MB.
+  `*.arrow`), archiwów `*.zip` ani żadnego pliku powyżej 10 MB. Listę wykluczeń ma `research/.gitignore`.
 - Wyniki per pytanie wolno commitować skompresowane, jako `results/<model>/<zadanie>.jsonl.gz`, do około 10 MB na
-  plik. Surowe `*.jsonl` zostają na Twoim komputerze, bo wyklucza je `.gitignore`.
+  plik. Potrzebuje ich test zgodności i recenzent, który odtwarza wynik. Surowe `*.jsonl` zostają na Twoim
+  komputerze, bo wyklucza je `.gitignore`.

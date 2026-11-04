@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="145" height="36" viewBox="0 0 145 36" role="img" aria-label="Wyniki na HF">
+<title>Wyniki na HF</title>
+<rect x="0.5" y="0.5" width="144" height="35" rx="8" fill="#b35900" stroke="#ffffff" stroke-opacity="0.25"/>
+<g transform="translate(14 9)"><path d="M2 16h14" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><rect x="3" y="9" width="3" height="5.5" fill="#fff"/><rect x="7.5" y="5" width="3" height="9.5" fill="#fff"/><rect x="12" y="2" width="3" height="12.5" fill="#fff"/></g>
+<text x="40" y="23" fill="#ffffff" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600">Wyniki na HF</text>
+</svg>

@@ -290,3 +290,7 @@ def test_gpu_repeats(d):
         differ = sum(pick_norm(a) != pick_norm(b) for a, b in zip(d["p"], L))
         mx = max(abs(x - y) for a, b in zip(d["p"], L) for x, y in zip(a["logprob"], b["logprob"]))
         has(d["text"], f"| {device} | {len(L)} | {f4(acc)} | {differ} | {mx:.1e} |")
+
+
+if __name__ == "__main__":
+    raise SystemExit(pytest.main([__file__]))

@@ -529,6 +529,9 @@ def markdown(liczby):
 
 
 def main(argv=None):
+    if argv and argv[0] in ("-h", "--help"):
+        print(__doc__)
+        return 0
     liczby = zbuduj()
     (KORZEN / "results/LICZBY.json").write_text(json.dumps(liczby, ensure_ascii=False, indent=1) + "\n")
     (KORZEN / "results/LICZBY.md").write_text(markdown(liczby))

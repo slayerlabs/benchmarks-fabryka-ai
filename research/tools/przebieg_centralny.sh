@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 # Central run: every model in MODELE x every task in common/zadania.py ZADANIA, full sets
-# (common/ewaluuj.py --probka pelna), on one vast.ai GPU. Code in $K (= research/).
+# (common/ewaluuj.py --probka pelna), on a vast.ai instance. Code in $K (= research/).
 # Long stages run in the background (nohup) and end with $WS/stan/<name>.ok or .blad;
 # every timed step appends a JSON line to $WS/czasy.jsonl.
 #   lista                  model list: label|repo|revision|loader|env (read by tests/test_przebieg_centralny.py)
-#   plan "LABEL ..."       ewaluuj.py commands that `licz` would run, without running them
+#   plan "LABEL ..."       ewaluuj.py commands that `licz` would run, without running them ("# GPU N:" per queue)
 #   przygotuj LIMIT_S      safety destroy after LIMIT_S, both venvs, HF download speed test
-#   licz "LABEL ..."       in the background: per model download weights, every task, delete weights
+#   licz "LABEL ..."       in the background: per model download weights, every task, delete weights;
+#                          with N > 1 GPUs (nvidia-smi -L) models go round robin to N queues, one per GPU
+#                          (CUDA_VISIBLE_DEVICES), queue log $WS/logi/<stage>_gpu<N>.log
 # ENV_OVERRIDE=new WYNIKI=$WS/wyniki_nowe on licz: same models in the other venv, for the environment check.
 #   ponow                  in the background: every (model, task) whose latest run failed, e.g. with BATCH=1 after an OOM
 #   straznik               idle guard (also started by przygotuj): tools/straznik_bezczynnosci.py
@@ -83,8 +85,8 @@ polecenie() {  # polecenie LABEL TASK_ID -> ewaluuj.py command line
   echo "$WS/venv-$ENV/bin/python $K/common/ewaluuj.py ${args[*]}"
 }
 
-gpu_nazwa() {  # NVIDIA name, otherwise "<cpu brand> <device>", e.g. Apple_M5_Pro_mps
-    local n; n=$(nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null | head -1)
+gpu_nazwa() {  # NVIDIA name (of GPU $GPU_NR when set), otherwise "<cpu brand> <device>", e.g. Apple_M5_Pro_mps
+    local n; n=$(nvidia-smi ${GPU_NR:+-i "$GPU_NR"} --query-gpu=name --format=csv,noheader 2>/dev/null | head -1)
     [ -n "$n" ] || n="$(sysctl -n machdep.cpu.brand_string 2>/dev/null || uname -m) ${DEVICE:-cpu}"
     echo "$n" | tr ' ' '_'
 }
@@ -98,11 +100,44 @@ licz_model() {  # licz_model LABEL: download, every task, delete weights; a fail
   for T in $ZADANIA_ID; do
     t=$(teraz)
     kod=0
-    $(polecenie "$L" "$T") > "$WS/logi/${L}_${T}_$ENV.log" 2>&1 || kod=$?
-    zapisz_czas ewaluacja "$t" "{\"model\": \"$L\", \"zadanie\": \"$T\", \"kod\": $kod, \"gpu\": \"$(gpu_nazwa)\", \"batch\": \"$BATCH\", \"env\": \"$ENV\", \"wyniki\": \"${WYNIKI:-$WS/wyniki}\"}"
+    echo "gpu ${GPU_NR:--} $(gpu_nazwa)" > "$WS/logi/${L}_${T}_$ENV.log"
+    $(polecenie "$L" "$T") >> "$WS/logi/${L}_${T}_$ENV.log" 2>&1 || kod=$?
+    zapisz_czas ewaluacja "$t" "{\"model\": \"$L\", \"zadanie\": \"$T\", \"kod\": $kod, \"gpu\": \"$(gpu_nazwa)\", \"gpu_nr\": \"${GPU_NR:-}\", \"batch\": \"$BATCH\", \"env\": \"$ENV\", \"wyniki\": \"${WYNIKI:-$WS/wyniki}\"}"
   done
   # ZOSTAW_WAGI=1: proba_cpu followed by licz on the same instance downloads each model once
   [[ ${ZOSTAW_WAGI:-0} == 1 ]] || rm -rf "$WS/modele/$L"
+}
+
+liczba_gpu() { nvidia-smi -L 2>/dev/null | grep -c '^GPU ' || true; }
+
+kolejki() {  # kolejki ITEM...: "<gpu> ITEM ..." per queue, items round robin; one line "- ITEM ..." with 0 or 1 GPU
+  local n i=0 x; n=$(liczba_gpu)
+  if (( n <= 1 )); then echo "- $*"; return; fi
+  local -a q=()
+  for x in "$@"; do q[i % n]+=" $x"; i=$((i + 1)); done
+  for i in "${!q[@]}"; do echo "$i${q[i]}"; done
+}
+
+licz_kolejke() {  # licz_kolejke GPU ITEM...: ITEM = LABEL (whole model, logs the model stage) or LABEL:T01,T02
+  local nr=$1 p t z; shift
+  [[ $nr == - ]] || export CUDA_VISIBLE_DEVICES=$nr GPU_NR=$nr
+  for p in "$@"; do
+    t=$(teraz)
+    if [[ $p == *:* ]]; then z=${p#*:}; ZADANIA_ID=${z//,/ } licz_model "${p%%:*}"
+    else licz_model "$p"; zapisz_czas model "$t" "{\"model\": \"$p\", \"gpu_nr\": \"${GPU_NR:-}\"}"; fi
+  done
+}
+
+licz_rownolegle() {  # licz_rownolegle NAME ITEM...: the `kolejki` queues side by side; fails when any queue fails
+  local nazwa=$1 nr reszta p kod=0; shift
+  local -a pidy=()
+  while read -r nr reszta; do
+    if [[ $nr == - ]]; then licz_kolejke - $reszta; return; fi
+    licz_kolejke "$nr" $reszta < /dev/null > "$WS/logi/${nazwa}_gpu$nr.log" 2>&1 &
+    pidy+=($!)
+  done < <(kolejki "$@")
+  for p in "${pidy[@]}"; do wait "$p" || kod=1; done
+  return $kod
 }
 
 etap=${1:-}
@@ -114,9 +149,13 @@ case "$etap" in
     for T in $ZADANIA_ID; do echo "$T $(katalog "$T")"; done
     ;;
   plan)
-    for L in ${2:-$(printf '%s\n' "${MODELE[@]}" | cut -d'|' -f1)}; do
-      for T in $ZADANIA_ID; do polecenie "$L" "$T"; done
-    done
+    while read -r nr reszta; do
+      [[ $nr == - ]] || echo "# GPU $nr: $reszta"
+      for L in $reszta; do for T in $ZADANIA_ID; do
+        if [[ $nr == - ]]; then polecenie "$L" "$T"
+        else echo "CUDA_VISIBLE_DEVICES=$nr $(GPU_NR=$nr polecenie "$L" "$T")"; fi
+      done; done
+    done < <(kolejki ${2:-$(printf '%s\n' "${MODELE[@]}" | cut -d'|' -f1)})
     ;;
   przygotuj)
     LIMIT=${2:?safety limit in seconds}
@@ -147,9 +186,9 @@ case "$etap" in
   licz)
     LISTA=${2:?model labels}
     export PYTHONUNBUFFERED=1 NVIDIA_TF32_OVERRIDE=0 HF_HUB_DISABLE_PROGRESS_BARS=1
-    w_tle "licz_${LISTA// /_}" "set -e; source $K/tools/przebieg_centralny.sh _funkcje; \
-      for L in $LISTA; do t=\$(teraz); licz_model \$L; zapisz_czas model \$t \"{\\\"model\\\": \\\"\$L\\\"}\"; done; \
-      bash $K/tools/przebieg_centralny.sh kontrola || true"
+    w_tle "licz_${LISTA// /_}" "set -e; source $K/tools/przebieg_centralny.sh _funkcje; kod=0; \
+      licz_rownolegle licz_${LISTA// /_} $LISTA || kod=1; \
+      bash $K/tools/przebieg_centralny.sh kontrola || true; exit \$kod"
     ;;
   ponow)  # in the background: (model, task) pairs whose latest czasy.jsonl entry has kod != 0, again
     export PYTHONUNBUFFERED=1 NVIDIA_TF32_OVERRIDE=0 HF_HUB_DISABLE_PROGRESS_BARS=1
@@ -163,7 +202,7 @@ for (l,t),k in d.items():
 print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wyniki}")
     echo "again: ${PARY:-nothing} (batch $BATCH)"
     [[ -n $PARY ]] && w_tle ponow "set -e; source $K/tools/przebieg_centralny.sh _funkcje; \
-      for p in $PARY; do L=\${p%%:*}; ZADANIA_ID=\"\${p#*:}\"; ZADANIA_ID=\${ZADANIA_ID//,/ }; licz_model \$L; done"
+      licz_rownolegle ponow $PARY"
     ;;
   straznik)  # idle guard: GPU < 5% with no evaluation for STRAZNIK_OKNO s -> pack, copy to $WS/wyjscie, destroy
     mkdir -p "$WS/logi"
@@ -194,7 +233,7 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
     ;;
   stan)
     ls -la $ST; for f in $WS/logi/*.log; do echo "== $f"; tail -n 2 "$f"; done; tail -n 5 $CZ 2>/dev/null
-    nvidia-smi --query-gpu=utilization.gpu,memory.used --format=csv; df -h $WS | tail -1
+    nvidia-smi --query-gpu=index,utilization.gpu,memory.used --format=csv; df -h $WS | tail -1
     ;;
   _funkcje) ;;  # sourced: functions only
   *)
