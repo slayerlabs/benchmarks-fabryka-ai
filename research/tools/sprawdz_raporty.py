@@ -970,6 +970,9 @@ def pliki_md(korzen):
 
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
+    if argv and argv[0] in ("-h", "--help"):
+        print(__doc__)
+        return 0
     sciezka_liczb = KORZEN / "results/LICZBY.json"
     if not sciezka_liczb.exists():
         print("brak results/LICZBY.json: najpierw python tools/liczby.py")

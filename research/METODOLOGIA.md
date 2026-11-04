@@ -11,7 +11,7 @@ nowej.
 
 ## Etapy pracy
 
-<img src="../docs/img/droga-testu.svg" alt="1. Opis testu, 2. sprawdzenie na modelu autorów (gdy się nie zgadza: szukamy przyczyny, poprawiamy i sprawdzamy jeszcze raz), 3. kod w repo, 4. liczenie, 5. publikacja na CodeSOTA. Po polsku: test tłumaczony idzie tą samą drogą, własny test zamiast kroków 1–2 ma opis zbioru." width="960">
+<img src="../docs/img/droga-testu.svg" alt="1. Opis testu, 2. sprawdzenie: liczymy znany model z opublikowanym wynikiem, np. Pythię, i patrzymy, czy wychodzi to samo (gdy się nie zgadza: szukamy przyczyny, poprawiamy i sprawdzamy jeszcze raz), 3. kod w repo, 4. liczenie, 5. publikacja na CodeSOTA. Po polsku: test tłumaczony idzie tą samą drogą, własny test zamiast kroków 1–2 ma opis zbioru." width="960">
 
 Każdy etap kończy się plikiem w `benchmarks/<name>/`, wzory są w
 [`benchmarks/_template/`](benchmarks/_template/README.md). Benchmark bez oryginału (zbiór pisany od zera, held-out)
@@ -82,7 +82,8 @@ Obowiązuje każdy test. Gdzie treść reguły zależy od typu, reguła odsyła 
 7. **Przepis.** Każdy wynik ma wpis w `RECIPE.md` (sekcja „Przepis”). *Recenzent:* odtwarza co najmniej jeden wpis.
 8. **Smoke test.** Przed pełnym przebiegiem czytasz ręcznie 5–10 przykładów: wyrenderowany prompt, opcje, cel,
    odpowiedź albo logprob modelu i dane wejściowe. W teście z podtestami albo klastrami bierzesz je z różnych
-   podtestów. Wpis w `RECIPE.md` podaje ich id i to, co się zgadzało. *Recenzent:* otwiera jeden z podanych przykładów.
+   podtestów. Wpis w `RECIPE.md` podaje ich id i to, co się zgadzało (wzór:
+   [WinoGrande, „Smoke test przed przebiegiem”](benchmarks/winogrande/RECIPE.md#smoke-test-przed-przebiegiem)). *Recenzent:* otwiera jeden z podanych przykładów.
 9. **Bramka liczb.** Każda liczba w raporcie `.md` pod `research/` stoi w `results/LICZBY.json` albo ma na końcu
    linii znacznik `<!-- liczba-spoza-wynikow: skąd jest liczba -->`, jedna linia na jeden wynik (wzór:
    `benchmarks/arc-easy/ORIGINAL.md`). Bramka sprawdza raporty, warunek odtworzenia z etapu B sprawdza kod; to dwie

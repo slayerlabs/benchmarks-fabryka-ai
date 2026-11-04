@@ -87,8 +87,8 @@ Status w tej kolejności:
 
 Gdy przestawiasz zadanie z In Progress na Review albo Independent Check, automat
 [`board-unassign.yml`](.github/workflows/board-unassign.yml) w ciągu kilkunastu minut zdejmuje przypisanie z issue.
-Wtedy wszyscy widzą, że zadanie jest do wzięcia. Recenzent, który przypisze się sam już w Review, zostaje
-przypisany. Status Done zamyka issue.
+W Review i Independent Check zadanie można wziąć tylko jako recenzję, bo praca autora już leży w PR. Recenzent,
+który przypisze się sam już w Review, zostaje przypisany. Status Done zamyka issue.
 
 Pola zadania:
 

@@ -6,7 +6,7 @@ Refs #
 
 ## Checklista benchmarku
 
-<!-- Usuń punkty, które nie dotyczą PR (np. PR z samą kartą oryginału). Definicja „zrobione”: research/METODOLOGIA.md. -->
+<!-- Usuń punkty, które nie dotyczą PR (np. PR z samą kartą oryginału). Definicja „zrobione”: research/METODOLOGIA.md. PR z samą kartą oryginału zostawia punkt 1 (tylko bramka liczb), `ORIGINAL.md` z punktu 2 i ostatni punkt. -->
 
 - [ ] Komendy z sekcji „Przed PR” w CONTRIBUTING.md kod 0 (w `research/`): bramka liczb, testy zmienionego benchmarku (z testem zgodności, jeśli jest własna implementacja), `tests/test_liczby_raportow.py`
 - [ ] `ORIGINAL.md` i `REPRODUCTION.md` ze spełnionym warunkiem odtworzenia (albo `DATASET.md` z kontrolą na modelu, który zna polski)

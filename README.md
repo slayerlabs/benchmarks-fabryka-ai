@@ -30,9 +30,9 @@ oryginałem, i budujemy polskie benchmarki.
 
 Jak powstaje test: [METODOLOGIA, „Etapy pracy”](research/METODOLOGIA.md#etapy-pracy).
 
-Kiedy test jest skończony: [METODOLOGIA, „Definicja „zrobione””](research/METODOLOGIA.md#definicja-zrobione).
+<a name="definicja-zrobione"></a>Kiedy test jest skończony: [METODOLOGIA, „Definicja „zrobione””](research/METODOLOGIA.md#definicja-zrobione).
 
-Przed PR: [CONTRIBUTING, „Przed PR”](CONTRIBUTING.md#przed-pr).
+<a name="przed-pr"></a>Przed PR: [CONTRIBUTING, „Przed PR”](CONTRIBUTING.md#przed-pr).
 
 ## Gdzie co jest
 

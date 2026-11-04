@@ -112,7 +112,7 @@ huggingface-cli download SlayerLab/Slayer1B-1.06 --revision ef81be58742544ad32e1
 .venv-eval/bin/python analyses/answer-format/analiza_formatu.py --wyniki analyses/answer-format/results
 ```
 
-Pełna lista zadań i komenda dla Pythii: `paczka_testerzy/INSTRUKCJA.md`, sekcja „Jak wygenerować
+Pełna lista zadań i komenda dla Pythii: [`slayer-1b/paczka_testerzy/INSTRUKCJA.md`](../slayer-1b/paczka_testerzy/INSTRUKCJA.md), sekcja „Jak wygenerować
 surowe dane od zera”. Ścieżka lm-eval (model z transformers):
 
 ```bash

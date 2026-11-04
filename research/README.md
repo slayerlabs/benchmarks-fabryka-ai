@@ -78,8 +78,11 @@ Testy Space (`tasks_50.json`) według typu:
 
 ## Przygotowanie (raz)
 
-Robisz to raz na komputer. Potrzebujesz dostępu do Hugging Face (HF) i kilku GB wolnego dysku. Kod działa na CPU,
-choć wolno, albo na GPU z opcją `--device cuda`.
+Do samej karty oryginału (etap A) wystarczą `git clone` i `python3`, bo bramka liczb używa tylko biblioteki
+standardowej. Resztę przygotowania robisz od etapu B.
+
+Robisz to raz na komputer. Potrzebujesz Pythona 3.9–3.12, dostępu do Hugging Face (HF) i kilku GB wolnego dysku. Kod
+działa na CPU, choć wolno, albo na GPU z opcją `--device cuda`.
 
 Przed pierwszym pobraniem:
 
@@ -111,8 +114,8 @@ Do benchmarku polskiego albo bez oryginału pobierz też model, który zna polsk
 `git clone` pobiera domyślną gałąź repo, czyli `main`. Od niej zakładasz swoją gałąź.
 
 Wszystkie przebiegi liczysz w środowisku z `common/requirements.lock.txt` (lm-eval 0.4.9.1). Czym różni się ono od
-lm-eval w Space, opisuje [`METODOLOGIA.md`](METODOLOGIA.md), sekcja „Wersja lm-eval”. Lock działa na Pythonie
-3.9–3.12; na nowszym `pip install` kończy się błędem `No matching distribution found for numpy==2.0.2`.
+lm-eval w Space, opisuje [`METODOLOGIA.md`](METODOLOGIA.md), sekcja „Wersja lm-eval”. Na Pythonie nowszym niż 3.12
+`pip install` kończy się błędem `No matching distribution found for numpy==2.0.2`.
 
 `common/slayer_lm.py --install` uruchamiasz raz na venv i checkout. Zapisuje w venv ścieżkę tego `common/`.
 Rejestruje model `slayer` tylko pod komendą `lm_eval`, nie pod `python -m lm_eval`.
