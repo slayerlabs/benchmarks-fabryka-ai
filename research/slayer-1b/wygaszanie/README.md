@@ -50,13 +50,20 @@ A 09:11, B 09:17, oba `ckpt @ 13998`, `DONE`, 11 450 / 11 240 tok/s przez cały 
 
 **Loss heldout:** A 2,2807, B 2,3276, 1.06 2,3310. Δ A−B = **−0,0470 nat** (SE 0,0006, parowany bootstrap
 po 1027 oknach). Warunki: Δ ≤ −0,03 tak, |Δ| ≥ 3 × Z2 (0,0033) tak, |Δ| > 2·SE tak.
+Okna to kolejne kawałki tego samego strumienia, a różnice sąsiednich okien są skorelowane (0,63), więc SE po oknach <!-- liczba-spoza-wynikow: autokorelacja i bootstrap blokowy przeliczone z okien heldout_A.json i heldout_B.json -->
+jest za małe. Bootstrap blokowy (bloki 64 sąsiednich okien w obrębie komponentu) daje SE 0,0016 nat, z = −29: <!-- liczba-spoza-wynikow: jak wyżej -->
+warunek |Δ| > 2·SE i werdykt zostają.
 **Werdykt: „działa"** wg głównej miary szumu Z2; **nie** wg Z1 (|Δ| < 3 × Z1 = 0,417). Spadek jest we
 wszystkich komponentach (web −0,055, core −0,020, legal −0,037, en −0,058). B (stały LR, te same dane)
 prawie nie rusza lossu wobec 1.06 (−0,0034), czyli zysk A pochodzi z wygaszenia, nie z danych.
 
-**Benchmarki (A−B, |Δ| > 2 SE):** trafność (acc) bez ruchu na ARC-C, MedMCQA, Social IQa, MultiBLiMP;
-wszystkie przy bazie losowej jak 1.06. Ponad 2 SE poza acc: MultiBLiMP acc_norm +0,005 i bpb +0,004
-na korzyść A, Social IQa PMI −0,012 na niekorzyść A (bez poprawki na wielokrotne porównania). PubMedQA acc_norm −0,058 i bpb −0,022 na niekorzyść A (n=500,
+**Benchmarki (A−B, |Δ| > 2 SE):** trafność (acc) bez ruchu na ARC-C, MedMCQA, Social IQa, MultiBLiMP.
+Przy bazie losowej, jak 1.06, leżą tylko formaty z literami; MultiBLiMP (0,986 przy bazie 0,5) i Social IQa <!-- liczba-spoza-wynikow: trafność MultiBLiMP A z wyniki/A/multiblimp.jsonl -->
+cloze (ok. 0,39 przy bazie 0,333) są nad nią. Ponad 2 SE po pytaniach poza acc: MultiBLiMP acc_norm +0,005 i <!-- liczba-spoza-wynikow: przybliżenie trafności Social IQa cloze -->
+bpb +0,004 na korzyść A, Social IQa PMI −0,012 na niekorzyść A (bez poprawki na wielokrotne porównania). Pytania
+jednego zjawiska MultiBLiMP nie są niezależne: po 14 grupach bpb ma z = 1,71 (szum), a acc_norm <!-- liczba-spoza-wynikow: SE klastrowe po 14 grupach z wyniki/{A,B}/multiblimp.jsonl -->
+z = 2,25 (prawdopodobne) przy średniej ważonej, ale t = 1,60 bez wag (df = 13, szum), więc oba wyniki MultiBLiMP <!-- liczba-spoza-wynikow: jak wyżej -->
+leżą na granicy szumu albo w nim. PubMedQA acc_norm −0,058 i bpb −0,022 na niekorzyść A (n=500,
 sygnał do sprawdzenia, nie wynik). BPB poprawnej odpowiedzi: A lepsze od B w ARC-C cloze
 (−0,044), MedMCQA cloze (−0,063), MultiBLiMP (−0,022) i Social IQa MC (−0,046), gorsze w ARC-C MC
 (+0,053), MedMCQA MC (+0,016), Social IQa cloze (+0,018) i PubMedQA (+0,177), więc podział cloze/litery

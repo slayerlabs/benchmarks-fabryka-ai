@@ -33,6 +33,9 @@ KOLOR, KOLOR_SR, KOLOR_PY = "#2a78d6", "#1b9e77", "#eb6834"
 
 
 AMENDMENT_2 = "(amendment 2: measured after avg3/avg5 BLiMP was read; not a protocol result)"
+# a gap to a fully trained model reads as "the model is worse" unless the training state stands next to it
+STAN_TRENINGU = ("Slayer 1.06 (step 13848) is a checkpoint from about 1/8 of the planned training, without LR "
+                 "annealing (per the model author, statement of 1 November 2026); Pythia-1B is fully trained.")
 
 
 def etykieta(e):
@@ -104,8 +107,10 @@ def pliki(liczby, kr):
         return w.get("/".join([P, *map(str, k)]))
 
     def zt(pp, pk):
-        """'+1.78 pts (z = 12.03, t = 3.18)' from the pair and the clustered comparison."""
-        return f"{pkt(pp['roznica'])} (z = {f(pp['z'], 2)}" + (f", t = {f(pk['z'], 2)})" if pk else ")")
+        """'1.78 pts (z = 12.03, certain; t = 3.18, certain)': both verdicts, the pair one and the paradigm one.
+        Without the word next to t a reader takes the pair verdict for both, and they can differ."""
+        return (f"{pkt(pp['roznica'])} (z = {f(pp['z'], 2)}, {wer(pp['werdykt'])}"
+                + (f"; t = {f(pk['z'], 2)}, {wer(pk['werdykt'])})" if pk else ")"))
 
     def krok(a, b):
         return (por.get(f"k{b}_vs_k{a}/blimp_krzywa_krok/acc"), por.get(f"k{b}_vs_k{a}/blimp_krzywa_krok_klastr/acc"))
@@ -127,12 +132,18 @@ def pliki(liczby, kr):
         n = kr["nachylenie"]
         nk = por.get("krzywa/blimp_krzywa_nachylenie_klastr/acc")
         L += ["## Question 1: does the gap to Pythia-1B shrink over the final run?", ""]
-        k_10_13, k_7_13, k_7_10, k_8_13 = krok(10010, 13848), krok(7150, 13848), krok(7150, 10010), krok(8600, 13848)
-        if all(k_[0] for k_ in (k_10_13, k_7_13, k_7_10, k_8_13)):
+        k_10_13, k_7_13, k_7_10, k_8_10 = krok(10010, 13848), krok(7150, 13848), krok(7150, 10010), krok(8600, 10010)
+        if all(k_[0] for k_ in (k_10_13, k_7_13, k_7_10, k_8_10)):
+            pp_, pk_ = k_8_10
+            if pk_ and pp_["werdykt"] != "szum" and pk_["werdykt"] == "szum":
+                dolek = ("a drop on these pairs that does not carry over to the paradigms, so a dip at step 10010 is not "
+                         "shown beyond these pairs")
+            else:
+                dolek = "read the verdict at the paradigm level for anything beyond these pairs"
             L += [f"**What the data show: step 13848 is closer to Pythia-1B than 10010, {zt(*k_10_13)}, and than 7150, "
                   f"{zt(*k_7_13)}. Between 7150 and 10010 the gap does not shrink: {zt(*k_7_10)}. The rise falls in the "
                   f"only interval that contains a restart of the run, and a trend cannot be told apart from the swings "
-                  f"between checkpoints.** Step 10010 is a local dip: from 8600 the change is {zt(*k_8_13)}.", ""]
+                  f"between checkpoints.** From 8600 to 10010 the change is {zt(*k_8_10)}: {dolek}.", ""]
         pr = por.get("krzywa/blimp_krzywa_nachylenie_reszty/acc")
         if n["werdykt_luki"] == "potwierdzone" and n.get("zastrzezenia") and pr:
             L += [f"**Protocol rule: met ({WERDYKT_TEZY['potwierdzone']} on pair and paradigm SE at fixed checkpoints). "
@@ -245,7 +256,7 @@ def pliki(liczby, kr):
     L += ["## Accuracy per checkpoint", "",
           "Overall accuracy over 67 paradigms (n = 67 000 pairs), SE stratified by paradigm, bootstrap CI95. "
           f"Gap = checkpoint - Pythia-1B ({f(pythia, 4)}) on the same pairs, paired SE. Chance = 0.5. "
-          "Points of side branches (1430, 2860) are not on the final run.", "",
+          "Points of side branches (1430, 2860) are not on the final run. " + STAN_TRENINGU, "",
           "| checkpoint | repo | final run | bn tokens | accuracy | SE | CI95 | gap to Pythia | SE | z | verdict |",
           "|---:|---|---|---:|---:|---:|---|---:|---:|---:|---|"]
     for p in punkty:
@@ -338,12 +349,23 @@ def pliki(liczby, kr):
         n_ist = sum(r["holm"] for e in sr for r in kr["srednie"][e]["blimp_zjawiska"].values())
         spadki = [(e, z) for e in sr for z, r in kr["srednie"][e]["blimp_zjawiska"].items()
                   if r["holm"] and r["roznica"] < 0]
+        # the paradigm level (k >= 3) next to the pair level: a Holm count on pairs alone reads as a claim
+        # about the phenomena, and on these averages the two levels disagree
+        klastr = [(e, z, r) for e in sr for z, r in kr["srednie"][e]["blimp_zjawiska"].items()
+                  if (r.get("k") or 0) >= 3]
+        nie_szum = [(e, z, r) for e, z, r in klastr if r.get("werdykt_klastr") not in (None, "szum")]
+        sily = sorted({wer(r["werdykt_klastr"]) for _, _, r in nie_szum})
+        spadki_k = [(e, z) for e, z, r in nie_szum if r["roznica"] < 0]
         L += [f"Per phenomenon (protocol question 2): average - Slayer 1.06 on the same pairs, paired SE, Holm over "
-              f"{len(zj)} phenomena x {len(sr)} averages at the 'probable' level. Holm-significant: {n_ist} of "
-              f"{len(zj) * len(sr)}, of them {len(spadki)} decreases"
+              f"{len(zj)} phenomena x {len(sr)} averages at the 'probable' level. On the pairs, Holm-significant: "
+              f"{n_ist} of {len(zj) * len(sr)}, of them {len(spadki)} decreases"
               + (" (" + ", ".join(f"{z.replace('_', ' ')} in {e}" for e, z in spadki) + ")" if spadki else "")
-              + ". Averaging does not move BLiMP evenly: some phenomena fall while the overall accuracy rises. "
-              "Paradigms: t over the phenomenon's paradigm differences, df = k - 1; fewer than 3 paradigms: undetermined.", "",
+              + f". Over the paradigms (phenomena with at least 3 paradigms, {len(klastr)} tests): {len(nie_szum)} not "
+              f"noise" + (f" ({', '.join(sily)})" if sily else "") + f", of them {len(spadki_k)} decreases"
+              + ("; the pair-level decreases are noise over the paradigms. That some phenomena fall while the overall "
+                 "accuracy rises is shown only on these pairs, not for the phenomena" if spadki and not spadki_k else "")
+              + ". Paradigms: t over the phenomenon's paradigm differences, df = k - 1; fewer than 3 paradigms: "
+              "undetermined.", "",
               "| phenomenon | average | paradigms | difference | SE pairs | z pairs | verdict pairs | Holm | t paradigms | verdict paradigms |",
               "|---|---|---:|---:|---:|---:|---|---|---:|---|"]
         for z in zj:

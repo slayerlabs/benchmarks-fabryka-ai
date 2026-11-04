@@ -436,8 +436,99 @@ def test_generator_gate_reports_forward_slashes_when_str_gives_backslashes(tmp_p
     assert [x[0] for x in b] == ["benchmarks/blimp/results/blimp_paradigms.svg"], b
 
 
+# ---- (i)-(k): werdykt przy t (p z rozkładu t przy df), dwa poziomy z jednym werdyktem, liczba Holma ----
+# Zdania z main @ 09e597c, które przeszły bramkę (h), bo ona widzi tylko z (przegląd wsteczny, punkty 1 i 2).
+_STARE_CHECKPOINTS_8 = (
+    "**What the data show: step 13848 is closer to Pythia-1B than 10010, 2.14 pts (z = 15.00, t = 3.86), and than "
+    "7150, 1.78 pts (z = 12.03, t = 3.18). Between 7150 and 10010 the gap does not shrink: -0.36 pts (z = -2.50, "
+    "t = -0.77). The rise falls in the only interval that contains a restart of the run, and a trend cannot be told "
+    "apart from the swings between checkpoints.** Step 10010 is a local dip: from 8600 the change is 1.55 pts "
+    "(z = 10.81, t = 3.07).")
+_STARE_CHECKPOINTS_110 = (
+    "Per phenomenon (protocol question 2): average - Slayer 1.06 on the same pairs, paired SE, Holm over 12 phenomena "
+    "x 3 averages at the 'probable' level. Holm-significant: 17 of 36, of them 2 decreases (quantifiers in avg5, "
+    "quantifiers in avg10). Averaging does not move BLiMP evenly: some phenomena fall while the overall accuracy "
+    "rises. Paradigms: t over the phenomenon's paradigm differences, df = k - 1; fewer than 3 paradigms: undetermined.")
+
+
+def _reguly_ijk(tekst):
+    return [p for _, _, p in bledy(tekst) if p[:3] in ("(i)", "(j)", "(k)")]
+
+
+def test_regresja_wstecz_1_dolek_10010_daje_kod_1(tmp_path):
+    # z = 10.81 pewne na parach, t = 3.07 (df = 66 z LICZBY.json) tylko prawdopodobne; zdanie niosło jeden werdykt
+    assert any(p.startswith("(j) z 10.81") for p in _reguly_ijk(_STARE_CHECKPOINTS_8))
+    assert any(p.startswith("(j) z -2.50") for p in _reguly_ijk(_STARE_CHECKPOINTS_8))
+    p = tmp_path / "CHECKPOINTS_stary.md"
+    p.write_text(_STARE_CHECKPOINTS_8 + "\n", encoding="utf-8")
+    assert S.main([str(p)]) == 1
+
+
+def test_regresja_wstecz_2_holm_bez_paradygmatow_daje_kod_1(tmp_path):
+    assert any(p.startswith("(k)") for p in _reguly_ijk(_STARE_CHECKPOINTS_110))
+    p = tmp_path / "CHECKPOINTS_stary.md"
+    p.write_text(_STARE_CHECKPOINTS_110 + "\n", encoding="utf-8")
+    assert S.main([str(p)]) == 1
+
+
+def test_poprawione_zdania_wstecz_przechodza():
+    nowe_8 = ("From 8600 to 10010 the change is -0.59 pts (z = -4.28, certain; t = -1.34, noise): a drop on these "
+              "pairs that does not carry over to the paradigms.")
+    nowe_110 = ("On the pairs, Holm-significant: 17 of 36, of them 2 decreases. Over the paradigms (phenomena with at "
+                "least 3 paradigms, 27 tests): 4 not noise (probable), of them 0 decreases. Paradigms: t over the "
+                "phenomenon's paradigm differences, df = k - 1.")
+    assert _reguly_ijk(nowe_8) == [] and _reguly_ijk(nowe_110) == []
+
+
+def test_werdykt_t_z_p_przy_df():
+    # przy df = 2 t = 10 to p ≈ 0,0099: prawdopodobne, choć jako z byłoby pewne
+    assert L.werdykt_t(10.0, 2) == "prawdopodobne"
+    assert L.werdykt_t(-3.30, 66) == "pewne" and L.werdykt_t(3.07, 66) == "prawdopodobne"
+    assert L.werdykt_t(-1.34, 66) == "szum" and L.werdykt_t(0.0, 5) == "szum"
+    assert math.isclose(L.p_t(2.0, 10), 0.0734, abs_tol=1e-4)
+
+
+def test_klastrowe_wazone_niezalezne_od_kolejnosci_grup():
+    grupy = [(100, 0.2), (50, 0.1), (200, 0.3), (80, 0.25)]
+    a, b = L.klastrowe_wazone(grupy), L.klastrowe_wazone(grupy[::-1])
+    assert a == b
+    assert math.isclose(a["roznica"], (20 + 5 + 60 + 20) / 430) and a["df"] == 3 and a["k"] == 4
+    stala = L.klastrowe_wazone([(10, 0.1)] * 3)  # ta sama różnica w każdej grupie: brak rozrzutu, brak werdyktu
+    assert stala["se"] == 0 and stala["t"] is None and stala["werdykt"] is None
+
+
+def test_multiblimp_po_grupach_w_liczbach():
+    liczby, _ = dane()
+    p = next(x for x in liczby["porownania"] if x["id"] == "slayer_vs_pythia/multiblimp/acc_po_grupach")
+    assert p["df"] == 13 and math.isclose(p["z"], 4.47, abs_tol=0.01) and p["werdykt"] == "pewne"
+
+
+def test_zly_werdykt_przy_t_lapany_z_df_w_tekscie():
+    assert _reguly_ijk("t = -1,34, df = 66, pewne") == ["(i) t -1,34 → szum, w tekście: pewne"]
+    assert _reguly_ijk("t = -1,34, df = 66, szum") == []
+    assert _reguly_ijk("t = 3,3, df = 2 (pewne)") == ["(i) t 3,3 → szum, w tekście: pewne"]
+
+
+def test_werdykt_t_w_tabeli_z_df_z_kolumny_i_z_opisu():
+    kolumna = "| zjawisko | t | df | werdykt |\n|---|---:|---:|---|\n| x | t = 2.40 | 7 | certain |"
+    assert _reguly_ijk(kolumna) == ["(i) t 2.40 → szum, w tekście: certain"]
+    opis = ("Paradigms: t over the 67 paradigm differences, df = 66.\n\n| a | t | p | verdict |\n|---|---|---|---|\n"
+            "| x | t = 3.07 | 0.0031 | certain |")
+    assert _reguly_ijk(opis) == ["(i) t 3.07 → prawdopodobne, w tekście: certain"]
+
+
+def test_uklad_pary_ukosnik_paradygmaty_bierze_drugie_slowo_dla_t():
+    assert _reguly_ijk("| z = -7,11 | t = -3,79, df = 7 | pewne / prawdopodobne |") == []
+    assert _reguly_ijk("| z = -7,11 | t = -3,79, df = 7 | pewne / pewne |") == ["(i) t -3,79 → prawdopodobne, w tekście: pewne"]
+
+
+def test_t_bez_df_i_bez_porownania_zostaje_w_spokoju():
+    # nie wiadomo, przy jakim df czytać t: bramka nie zgaduje
+    assert _reguly_ijk("t = 9,87 (pewne)") == []
+
+
 if __name__ == "__main__":
-    testy = [(n, f) for n, f in sorted(globals().items()) if n.startswith("test_") and callable(f)]
+    testy =[(n, f) for n, f in sorted(globals().items()) if n.startswith("test_") and callable(f)]
     zle = 0
     for n, f in testy:
         try:

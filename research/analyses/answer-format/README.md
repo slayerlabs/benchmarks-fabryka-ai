@@ -41,9 +41,15 @@ Eksperyment z wygaszaniem LR z tego samego raportu leży w [`../../slayer-1b/wyg
 | T0 scorer vs opublikowane | Pythia-1B ARC-E/ARC-C acc i acc_norm w granicach dziesiątej części punktu od opublikowanych wartości; `Qwen2.5-0.5B` ARC-C 25-shot acc_norm 0,3609 wobec opublikowanego 0,356 | tak, scorer OK |
 | T1 jedna litera | ARC-C: „A” w 92,0% z 1172 wyborów, „A” poprawne w 22,7%; MedMCQA: „A” w 93,3% z 4183, poprawne w 32,2%; p dwumianowe zapisane jako 0 w obu | tak (oba) |
 | T2 pozycja | po przesunięciu treści odpowiedzi 95,1% wyborów w ARC-C zostaje na tej samej literze (SE 0,6 pkt); 1,7% idzie za treścią | tak |
-| T3 ukryta wiedza | ARC-C cloze: tylko PMI 0,2978 przekracza bazę losową + 2 SE (próg 0,2769); MedMCQA cloze: przekraczają acc_norm 0,2711 i reguła BPB 0,2706 (próg 0,2637) | tak (słabo: kilka punktów ponad bazą) |
+| T3 ukryta wiedza | ARC-C cloze: tylko PMI 0,2978 przekracza bazę losową + 2 SE (próg 0,2769); MedMCQA cloze: acc_norm 0,2711 i reguła BPB 0,2706 przekraczają bazę losową + 2 SE (próg 0,2637), ale leżą 5 pkt pod bazą większościową 0,3223 | ARC-C tak (słabo: kilka punktów ponad bazą); MedMCQA nie wobec kontroli z `METODOLOGIA.md` (obie bazy) |
 | T4 pułapka częstej odpowiedzi | ARC-C cloze: w 80,1% z 900 błędnych wyborów acc wybrana odpowiedź ma wyższe prawdopodobieństwo bezwarunkowe niż poprawna; PMI 0,2978 wobec acc 0,2321, 245 pytań z błędnych na dobre, 168 z dobrych na błędne, McNemar p 0,00018 | tak |
 | T5 treść wyuczona, trafność stoi | BPB poprawnej odpowiedzi w ARC-C spada z 1,5757 do 1,4621, sparowana różnica −0,1136, SE 0,0072; ale acc_norm też rośnie (z = 3,57) | nie: trafność nie stoi |
+
+T3 na MedMCQA: reguła zapisana przed wynikiem (`ORIGINAL.md`, T3) wymieniała tylko bazę losową i według niej
+przechodzi. Kontrola z `METODOLOGIA.md` wymaga wyniku ponad 2 SE nad bazą losową i nad większościową. Baza
+większościowa MedMCQA to udział „A” wśród poprawnych odpowiedzi, 0,3223 (1348 z 4183), a acc_norm 0,2711 leży
+pod nią, więc według tej kontroli ukryta wiedza na MedMCQA nie jest pokazana. Scorer cloze nie może celowo wybierać
+„zawsze A”, ale reguła repo tego nie wyłącza.
 
 T5 nie przechodzi z dobrego powodu. Reguła zapisana przed wynikami zakładała, że BPB poprawnej odpowiedzi spada, a
 trafność liczona po treści się nie zmienia. Tymczasem od Slayer 1.00 do Slayer 1.06 poprawiają się obie: spada BPB
@@ -85,7 +91,13 @@ Bazy większościowe są w `zestawienie` raportu.
 Jak czytać: na literach obu modeli nie da się rozróżnić (szum we wszystkich sześciu zadaniach). Po treści
 Pythia-1B wypada wyżej w ARC-E cloze (acc z = −3,03, pewne) i w MMLU cloze (z = −3,39, pewne).
 Slayer wypada wyżej w polskiej gramatyce (MultiBLiMP, z = 27,94, pewne), co zgadza się z tym, że Pythię trenowano
-na tekście angielskim (the Pile); mieszanki danych Slayera tu nie badamy.
+na tekście angielskim (the Pile); mieszanki danych Slayera tu nie badamy. Pytania jednego zjawiska MultiBLiMP nie
+są niezależne: po 14 grupach (SE klastrowe, średnia ważona liczbą pytań) różnica to 21,24 pkt, SE 4,75 pkt,
+z = 4,47, pewne (wiersz `multiblimp/acc_po_grupach` w `results/LICZBY.md`); werdykt bez zmian, siła ok. 6 razy
+mniejsza.
+
+Slayer 1.06 to checkpoint z ok. 1/8 planowanego treningu, bez wygaszania LR (według autora modelu, stan z
+01.11.2026), a Pythia-1B jest po pełnym treningu: różnice mówią o tym checkpoincie, nie o przepisie Slayera.
 
 ## Wersje Slayera (ARC-C, te same 1172 pytania)
 
@@ -106,13 +118,16 @@ Wiersz BPB podaje różnicę i SE w bitach na bajt (z 1,5757 do 1,4621), nie w p
 1. Losowe wyniki Slayera 1.06 w formacie liter biorą się ze stałej preferencji jednej litery (T1), która idzie za
    pozycją, a nie treścią (T2). Pythia-1B zachowuje się tak samo, a jej trafność z liter różni się od Slayera
    tylko o szum. Trafność z liter nie nadaje się do porządkowania modeli tej wielkości.
-2. Miary liczone po treści niosą sygnał: PMI na ARC-C i acc_norm na MedMCQA przekraczają bazę losową + 2 SE (T3),
-   PMI naprawia część pułapki częstej odpowiedzi (T4), a acc_norm, PMI i BPB poprawnej odpowiedzi rosną od
-   Slayer 1.00 do Slayer 1.06 z werdyktem pewnym.
+2. Miary liczone po treści niosą sygnał na ARC-C: PMI przekracza bazę losową + 2 SE (T3), PMI naprawia część
+   pułapki częstej odpowiedzi (T4), a acc_norm, PMI i BPB poprawnej odpowiedzi rosną od Slayer 1.00 do
+   Slayer 1.06 z werdyktem pewnym. Na MedMCQA acc_norm przekracza bazę losową + 2 SE, ale leży pod bazą
+   większościową, więc kontrola z `METODOLOGIA.md` nie przechodzi i ukrytej wiedzy tam nie pokazano.
 3. Wobec Pythii-1B w angielskich zadaniach wiedzy liczonych po treści Slayer 1.06 wypada niżej z werdyktem pewnym
    w ARC-E cloze acc, MMLU cloze i MedMCQA PMI.
    Wypada niżej z werdyktem prawdopodobnym w SIQA PMI, a w pozostałych miarach cloze różnica to szum.
-   W polskiej gramatyce (MultiBLiMP) wypada wyżej z werdyktem pewnym.
+   W polskiej gramatyce (MultiBLiMP) wypada wyżej z werdyktem pewnym, także po 14 grupach zjawisk.
+   Slayer 1.06 to checkpoint z ok. 1/8 planowanego treningu, bez wygaszania LR (według autora modelu, stan z
+   01.11.2026), a Pythia-1B jest po pełnym treningu, więc to porównanie checkpointu z gotowym modelem.
 4. Dla Slayera raportujemy liczby z cloze, BPB i PMI; wyniki z liter pokazujemy razem z udziałem najczęstszej
    predykcji.
 

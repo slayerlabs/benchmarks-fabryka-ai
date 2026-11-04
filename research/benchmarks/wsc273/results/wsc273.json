@@ -70,6 +70,24 @@
    "se": 0.044019965373240516,
    "z": 1.9970957988424314,
    "werdykt": "szum"
+  },
+  "wobec_losowej_po_parach": {
+   "roznica": 0.08974358974358976,
+   "se": 0.020388458902166527,
+   "z": 4.401685785778217,
+   "werdykt": "pewne",
+   "pary": 137,
+   "pary_pelne": 136,
+   "pary_z_roznym_gold": 135
+  },
+  "wobec_wiekszosciowej_po_parach": {
+   "roznica": 0.08791208791208793,
+   "se": 0.02072305676863917,
+   "z": 4.242235539552638,
+   "werdykt": "pewne",
+   "pary": 137,
+   "pary_pelne": 136,
+   "pary_z_roznym_gold": 135
   }
  },
  "zgodnosc_panel_pelny": {

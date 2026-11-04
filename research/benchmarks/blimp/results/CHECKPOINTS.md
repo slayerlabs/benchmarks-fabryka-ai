@@ -5,7 +5,7 @@ Protocol and thresholds (written and committed before the measurement): [`CHECKP
 
 ## Question 1: does the gap to Pythia-1B shrink over the final run?
 
-**What the data show: step 13848 is closer to Pythia-1B than 10010, 2.14 pts (z = 15.00, t = 3.86), and than 7150, 1.78 pts (z = 12.03, t = 3.18). Between 7150 and 10010 the gap does not shrink: -0.36 pts (z = -2.50, t = -0.77). The rise falls in the only interval that contains a restart of the run, and a trend cannot be told apart from the swings between checkpoints.** Step 10010 is a local dip: from 8600 the change is 1.55 pts (z = 10.81, t = 3.07).
+**What the data show: step 13848 is closer to Pythia-1B than 10010, 2.14 pts (z = 15.00, certain; t = 3.86, certain), and than 7150, 1.78 pts (z = 12.03, certain; t = 3.18, certain). Between 7150 and 10010 the gap does not shrink: -0.36 pts (z = -2.50, probable; t = -0.77, noise). The rise falls in the only interval that contains a restart of the run, and a trend cannot be told apart from the swings between checkpoints.** From 8600 to 10010 the change is -0.59 pts (z = -4.28, certain; t = -1.34, noise): a drop on these pairs that does not carry over to the paradigms, so a dip at step 10010 is not shown beyond these pairs.
 
 **Protocol rule: met (CONFIRMED on pair and paradigm SE at fixed checkpoints). Shrinking of the gap with tokens: not determined** - the rule does not include checkpoint-to-checkpoint noise (SE from residuals 0.13 pts, p = 0.18) and the rise sits in the restart interval.
 
@@ -44,7 +44,7 @@ Reading: avg10 - annealed arm = 0.0028 nat, SE 0.0023, z = 1.23 (noise) on all w
 
 ## Accuracy per checkpoint
 
-Overall accuracy over 67 paradigms (n = 67 000 pairs), SE stratified by paradigm, bootstrap CI95. Gap = checkpoint - Pythia-1B (0.8207) on the same pairs, paired SE. Chance = 0.5. Points of side branches (1430, 2860) are not on the final run.
+Overall accuracy over 67 paradigms (n = 67 000 pairs), SE stratified by paradigm, bootstrap CI95. Gap = checkpoint - Pythia-1B (0.8207) on the same pairs, paired SE. Chance = 0.5. Points of side branches (1430, 2860) are not on the final run. Slayer 1.06 (step 13848) is a checkpoint from about 1/8 of the planned training, without LR annealing (per the model author, statement of 1 November 2026); Pythia-1B is fully trained.
 
 | checkpoint | repo | final run | bn tokens | accuracy | SE | CI95 | gap to Pythia | SE | z | verdict |
 |---:|---|---|---:|---:|---:|---|---:|---:|---:|---|
@@ -107,7 +107,7 @@ Uniform mean of the last K trainer checkpoints of the Slayer 1.06 run (constant 
 | avg5 | 5 | 13650-13848 | 0.8000 | 0.79 pts | 0.09 pts | z = 8.62 | certain | t = 2.82 | probable |
 | avg10 (amendment 2: measured after avg3/avg5 BLiMP was read; not a protocol result) | 10 | 13400-13848 | 0.8030 | 1.09 pts | 0.10 pts | z = 10.81 | certain | t = 3.53 | certain |
 
-Per phenomenon (protocol question 2): average - Slayer 1.06 on the same pairs, paired SE, Holm over 12 phenomena x 3 averages at the 'probable' level. Holm-significant: 17 of 36, of them 2 decreases (quantifiers in avg5, quantifiers in avg10). Averaging does not move BLiMP evenly: some phenomena fall while the overall accuracy rises. Paradigms: t over the phenomenon's paradigm differences, df = k - 1; fewer than 3 paradigms: undetermined.
+Per phenomenon (protocol question 2): average - Slayer 1.06 on the same pairs, paired SE, Holm over 12 phenomena x 3 averages at the 'probable' level. On the pairs, Holm-significant: 17 of 36, of them 2 decreases (quantifiers in avg5, quantifiers in avg10). Over the paradigms (phenomena with at least 3 paradigms, 27 tests): 4 not noise (probable), of them 0 decreases; the pair-level decreases are noise over the paradigms. That some phenomena fall while the overall accuracy rises is shown only on these pairs, not for the phenomena. Paradigms: t over the phenomenon's paradigm differences, df = k - 1; fewer than 3 paradigms: undetermined.
 
 | phenomenon | average | paradigms | difference | SE pairs | z pairs | verdict pairs | Holm | t paradigms | verdict paradigms |
 |---|---|---:|---:|---:|---:|---|---|---:|---|

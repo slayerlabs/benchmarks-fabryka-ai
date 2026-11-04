@@ -66,7 +66,9 @@ Slayer 1.06 minus model, różnica w parach na tych samych rekordach, w dwóch o
 | LFM2.5-1.2B-Base | −2,32 pkt | 0,76 | −3,06 | pewne | −1,29 pkt | 1,21 | −1,06 | 0,3121 | szum | nie (eksploracyjne) |
 
 - **Odczyt po szablonach.** Na tych rekordach Slayer 1.06 jest wyraźnie (pewne) słabszy od modelu kontrolnego i od
-  wszystkich pięciu modeli odniesienia. Wobec LFM2.5 werdykt pewny leży na samym progu (z = −3,06).
+  wszystkich pięciu modeli odniesienia. Wobec LFM2.5 werdykt pewny leży na samym progu (z = −3,06). Po domenach
+  „pewne” zostaje tylko wobec czterech z pięciu modeli odniesienia: wobec LFM2.5 to szum, a wobec modelu
+  kontrolnego werdykt prawdopodobny (tabela wyżej), więc „słabszy od wszystkich” dotyczy tych szablonów, nie domen.
 - **Stan treningu.** Slayer 1.06 to checkpoint z ok. 1/8 treningu, bez wygaszania LR. Wszystkie modele, z którymi
   go tu porównujemy, są po pełnym treningu, więc różnice mówią o tym checkpoincie, nie o gotowym Slayerze.
 - **Odczyt po domenach.** Różnica do gpt2-xl jest tylko prawdopodobna (t = −3,03, p = 0,0126). Opiera się na kilku

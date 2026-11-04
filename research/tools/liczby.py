@@ -80,6 +80,62 @@ def werdykt(z):
     return "szum"
 
 
+def _beta_cf(a, b, x):
+    """Ułamek łańcuchowy niekompletnej funkcji beta (Numerical Recipes, betacf)."""
+    qab, qap, qam = a + b, a + 1, a - 1
+    c, d = 1.0, 1 - qab * x / qap
+    d = 1 / (d if abs(d) > 1e-300 else 1e-300)
+    h = d
+    for m in range(1, 300):
+        m2 = 2 * m
+        for aa in (m * (b - m) * x / ((qam + m2) * (a + m2)), -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2))):
+            d = 1 + aa * d
+            d = 1 / (d if abs(d) > 1e-300 else 1e-300)
+            c = 1 + aa / c
+            c = c if abs(c) > 1e-300 else 1e-300
+            h *= d * c
+        if abs(d * c - 1) < 1e-14:
+            break
+    return h
+
+
+def p_t(t, df):
+    """Dwustronne p rozkładu t Studenta z df stopniami swobody."""
+    if t == 0:
+        return 1.0
+    x = df / (df + t * t)
+    if x <= 0:
+        return 0.0
+    a, b = df / 2, 0.5
+    ln = math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b) + a * math.log(x) + b * math.log1p(-x)
+    if x < (a + 1) / (a + b + 2):
+        return math.exp(ln) * _beta_cf(a, b, x) / a
+    return 1.0 - math.exp(ln) * _beta_cf(b, a, 1 - x) / b
+
+
+def werdykt_t(t, df):
+    """Werdykt t z df: te same progi co z, czytane jako dwustronne p (p <= p(|z| = 3) pewne, <= p(|z| = 2)
+    prawdopodobne), żeby t z małą liczbą klastrów nie dostało werdyktu mocniejszego niż jego p."""
+    p = p_t(t, df)
+    if p <= math.erfc(PROG_PEWNE / math.sqrt(2)):
+        return "pewne"
+    if p <= math.erfc(PROG_PRAWDOPODOBNE / math.sqrt(2)):
+        return "prawdopodobne"
+    return "szum"
+
+
+def klastrowe_wazone(grupy):
+    """grupy: [(n, różnica w grupie)]. Średnia ważona n i SE po grupach (klastrowe, z poprawką G/(G-1));
+    t = różnica / SE, df = G - 1."""
+    N, G = sum(n for n, _ in grupy), len(grupy)
+    m = sum(n * d for n, d in grupy) / N
+    se = math.sqrt(sum((n * (d - m)) ** 2 for n, d in grupy) * G / (G - 1)) / N
+    if se == 0:  # every group the same: no spread to read a t from
+        return {"roznica": m, "se": se, "t": None, "df": G - 1, "p_t": None, "werdykt": None, "k": G}
+    t = m / se
+    return {"roznica": m, "se": se, "t": t, "df": G - 1, "p_t": p_t(t, G - 1), "werdykt": werdykt_t(t, G - 1), "k": G}
+
+
 def se_niezalezne(se_a, se_b):
     """SE różnicy dwóch niezależnych pomiarów (ostrożne, gdy pomiary są w parach)."""
     return math.hypot(se_a, se_b)
@@ -156,6 +212,15 @@ def porownania_formatu(raport):
             if isinstance(x, dict) and isinstance(y, dict):
                 out.append(porownanie(f"slayer_vs_pythia/{zadanie}/{m}", "slayer_vs_pythia", zadanie, m,
                                       "1.06", "pythia-1b", x["wartosc"], x["se"], y["wartosc"], y["se"]))
+        # pytania jednej grupy (zjawisko MultiBLiMP, przedmiot MMLU) nie są niezależne: SE po grupach obok SE po pytaniach
+        gx, gy = zest["1.06"][zadanie].get("per_grupa"), zest["pythia-1b"][zadanie].get("per_grupa")
+        if isinstance(gx, dict) and isinstance(gy, dict) and len(set(gx) & set(gy)) >= 3:
+            r = klastrowe_wazone([(gx[g]["n"], gx[g]["wartosc"] - gy[g]["wartosc"]) for g in sorted(set(gx) & set(gy))])
+            p = porownanie(f"slayer_vs_pythia/{zadanie}/acc_po_grupach", "slayer_vs_pythia", zadanie, "acc_po_grupach",
+                           "1.06", "pythia-1b", None, None, None, None, se_par=r["se"],
+                           zrodlo_par=f"klastrowe po grupach (k = {r['k']}), średnia ważona liczbą pytań", roznica=r["roznica"])
+            p.update({"df": r["df"], "p_t": r["p_t"], "werdykt": r["werdykt"], "werdykt_parowane": r["werdykt"]})
+            out.append(p)
     # postęp wersji Slayera na ARC-C (niezależne SE; parowane dla 1.00 -> 1.06 z test5)
     t5 = raport.get("test5", {})
     par = {"acc_norm": t5.get("se_delta_acc_norm")}
@@ -295,6 +360,24 @@ def porownania_blimp(bl):
                      ("blimp_inny_worek_slow", worek["nie"])):
         out.append(porownanie(f"slayer_vs_pythia/{nazwa}/acc", "slayer_vs_pythia", nazwa, "acc", a, b, None, None, None, None,
                               se_par=r["se"], zrodlo_par="paired by minimal pair, stratified by paradigm", roznica=r["roznica"]))
+    # the tokenization split over paradigms: the pair SE above says "on these pairs", this one "for paradigms"
+    pd_ = an.get("paradygmaty_dodatkowe", {})
+    ta_sama, inna = [], []
+    for g, d in pd_.items():
+        n, n_ts = mod[a]["paradygmaty"][g]["n"], d.get("n_ta_sama_tokenizacja") or 0
+        if n_ts:
+            ta_sama.append((n_ts, d["roznica_ta_sama_tokenizacja"]))
+        if n - n_ts:
+            inna.append((n - n_ts, (n * por["paradygmaty"][g]["roznica"] - n_ts * (d.get("roznica_ta_sama_tokenizacja") or 0))
+                         / (n - n_ts)))
+    for nazwa, grupy in (("blimp_ta_sama_tokenizacja_klastr", ta_sama), ("blimp_rozna_tokenizacja_klastr", inna)):
+        if len(grupy) < 3:
+            continue
+        r = klastrowe_wazone(grupy)
+        klastr(porownanie(f"slayer_vs_pythia/{nazwa}/acc", "slayer_vs_pythia", nazwa, "acc", a, b, None, None, None, None,
+                          se_par=r["se"], zrodlo_par=f"clustered by paradigm, weighted by pairs (k = {r['k']})",
+                          roznica=r["roznica"]),
+               r["df"], r["p_t"], r["werdykt"])
     return out
 
 

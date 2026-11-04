@@ -157,6 +157,24 @@ def wobec_wiekszosciowej(oceny):
                       statistics.fmean(o["gold"] == klasa for o in oceny))
 
 
+def po_parach(oceny, baza):
+    """Model minus baza z SE klastrowym po parach schematów. WSC273 układa bliźniacze zdania jednego schematu
+    kolejno, więc parę wyznacza wiersz k // 2 (przybliżenie z kolejności wierszy: zbiór nie ma id schematu).
+    Stała odpowiedź trafia dokładnie raz w każdej parze o różnych gold, więc wariancja różnicy siedzi w parach,
+    a SE po pytaniach ją zawyża. `baza(o)` to trafienie bazy na pytaniu o."""
+    pary = {}
+    for o in oceny:
+        pary.setdefault(o["k"] // 2, []).append(o["acc"] - baza(o))
+    n, g = len(oceny), len(pary)
+    m = statistics.fmean(x for p in pary.values() for x in p)
+    se = (sum(sum(x - m for x in p) ** 2 for p in pary.values()) * g / (g - 1)) ** 0.5 / n
+    wynik = porownanie(m + statistics.fmean(baza(o) for o in oceny), se, statistics.fmean(baza(o) for o in oceny))
+    wynik.update({"pary": g, "pary_pelne": sum(len(p) == 2 for p in pary.values()),
+                  "pary_z_roznym_gold": sum(1 for k, p in pary.items() if len(p) == 2
+                                            and len({o["gold"] for o in oceny if o["k"] // 2 == k}) == 2)})
+    return wynik
+
+
 def pola(dokumenty, klucze):
     return [{k: d[k] for k in klucze} for d in dokumenty]
 
@@ -217,7 +235,12 @@ def cmd_report(_):
         "kontrola": {**wynik_kontroli, "opublikowana": KONTROLA["wartosc"], "se_opublikowane": KONTROLA["se"],
                      "porownanie": porownanie(wynik_kontroli["value"], KONTROLA["se"], KONTROLA["wartosc"])},
         "slayer_panel200": {**wynik_panel, **wobec_baz(wynik_panel, probka)},
-        "slayer_pelny": {**wynik_pelny, **wobec_baz(wynik_pelny, pelny)},
+        "slayer_pelny": {**wynik_pelny, **wobec_baz(wynik_pelny, pelny),
+                         # panel 200 has full and broken pairs, so only the full split gets the pair reading
+                         "wobec_losowej_po_parach": po_parach(pelny, lambda o: wynik_pelny["bazy"]["chance_value"]),
+                         "wobec_wiekszosciowej_po_parach": po_parach(
+                             pelny, lambda o, k=max((0, 1), key=lambda i: sum(x["gold"] == i for x in pelny)):
+                             float(o["gold"] == k))},
         "zgodnosc_panel_pelny": {"max_roznica_loglik": roznica, "rozne_acc": rozne_acc},
         "warianty_tozsamosci": warianty_wyniku,
         "rozstep_wariantow": max(wartosci_wariantow) - min(wartosci_wariantow),
