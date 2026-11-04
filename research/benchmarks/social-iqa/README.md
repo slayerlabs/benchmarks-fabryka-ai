@@ -46,7 +46,7 @@ bazy, a werdykt o umiejętności opierać na pełnym splicie (METODOLOGIA, „Sp
 
 **Bez kontroli: nierozstrzygnięte.** Żaden model, który da się pobrać, nie ma opublikowanego wyniku zero-shot na Social IQa: Pythia-1b-v0
 nie ma tego testu w pliku wyników, karta EuroLLM-1.7B podaje go w tabeli GAPERON bez czystej liczby, Open LLM
-Leaderboard v2 nie zawiera tego testu, a `results.json` Space nie ma dla T46 żadnego modelu. Praca podaje tylko wyniki
+Leaderboard v2 nie zawiera tego testu, a `results.json` Space ma dla T46 dwa wiersze (`LiquidAI/LFM2.5-1.2B-Base` i `SlayerLab/Slayer1B-1.06`), oba `not_run` bez wartości. Praca podaje tylko wyniki
 fine-tuned (BERT-large 64,5 na teście), więc nie spełniają warunku modelu kontrolnego etapu B. <!-- liczba-spoza-wynikow: Sap i in. 2019, tabela 2 (wynik fine-tuned) -->
 Repo woła wprost zadanie lm-eval, które wskazuje Space, więc test zgodności implementacji niczego by nie sprawdził
 (METODOLOGIA, „Bez kontroli”). Zgodnie z tą sekcją wynik nie idzie do Space ani do meta-oceny — zostaje w repo jako
