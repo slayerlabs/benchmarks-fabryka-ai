@@ -579,6 +579,36 @@ def test_regula_k_lapie_dziewiec_postaci():
     assert zlapane == list(range(9)), zlapane
 
 
+def test_regula_k_samo_slowo_paradygmat_nie_wystarcza():
+    # druga recenzja metody: liczenie paradygmatów zbioru to nie odczyt po paradygmatach
+    assert _reguly_ijk("Holm-significant: 3 of 12 domains. The set has 67 paradigms of 1000 pairs.") == []
+    assert _reguly_ijk("Holm-significant: 3 of 12 domains. The set has 67 paradigms.") == []
+    assert _reguly_ijk("Po Holmie istotne: 3 z 12 domen. Zbiór ma 67 paradygmatów.") == []
+
+
+def test_regula_k_rzeczownik_slownie_i_dwa_akapity_dalej():
+    teza = "Paradigms: t over the paradigm differences, df = k - 1."
+    for tekst in ("Holm-significant: 17 phenomena of 36, of them 2 decreases. " + teza,
+                  "Holm-significant: seventeen of 36, of them 2 decreases. " + teza,
+                  "Po Holmie istotne: siedemnaście z 36. " + teza,
+                  "Holm-significant: 17 of 36.\n\nSome phenomena fall.\n\n" + teza):
+        assert any(p.startswith("(k)") for p in _reguly_ijk(tekst)), tekst
+    # okno jest ograniczone: trzy akapity dalej reguła już nie patrzy
+    assert _reguly_ijk("Holm-significant: 17 of 36.\n\nA.\n\nB.\n\n" + teza) == []
+
+
+def test_regula_k_liczba_holma_nie_jest_liczba_po_paradygmatach():
+    # liczba Holma i słowo „paradigm” w jednym zdaniu: liczba Holma nie może sama uciszyć reguły
+    assert any(p.startswith("(k)") for p in _reguly_ijk(
+        "Holm-significant on the pairs: 17 of 36, with the paradigm-level t in the table."))
+
+
+def test_regula_j_nawias_zamyka_klauzule_z():
+    # z przed nawiasem i t w nawiasie to dwie klauzule: t bez słowa nie dziedziczy werdyktu z
+    assert _reguly_ijk("z = 4,0, pewne (t = 1,2, df = 66)") == []
+    assert any(p.startswith("(j)") for p in _reguly_ijk("(z = 4,0, t = 1,2, df = 66)"))
+
+
 def test_regula_k_milczy_gdy_jest_liczba_po_paradygmatach():
     assert _reguly_ijk(_WARIANTY_K[1] + " Over the paradigms: 4 of 27 not noise, 0 after Holm.") == []
     assert _reguly_ijk("Holm-significant: 17 of 36 on the pairs.") == []  # bez paradygmatów w pobliżu nie ma czego żądać

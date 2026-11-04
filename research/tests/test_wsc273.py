@@ -92,6 +92,11 @@ def test_schema_se_sees_that_a_constant_answer_hits_once_per_twin_pair(m):
     assert wynik["roznica"] == pytest.approx(14 / 16 - 0.5) and wynik["schematy"] == 8
     _, se_pytania = mean_se([r["acc"] - baza(r) for r in rows])
     assert wynik["se"] < se_pytania  # the constant answer's +1/-1 inside a schema cancels; per question it does not
+    # cluster-robust SE with the small-sample factor G/(G-1): sqrt(G/(G-1) * sum_g (sum_i (d_i - mean))^2) / n
+    d = [r["acc"] - baza(r) for r in rows]
+    srednia = sum(d) / 16
+    reszty = [(d[2 * g] - srednia) + (d[2 * g + 1] - srednia) for g in range(8)]
+    assert wynik["se"] == pytest.approx((8 / 7 * sum(x * x for x in reszty)) ** 0.5 / 16, rel=1e-12)
 
 
 def test_schemas_follow_the_text_not_the_row_parity(m):

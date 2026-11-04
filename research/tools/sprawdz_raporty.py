@@ -315,13 +315,25 @@ _T_DOKLEJKA = re.compile(r"(?:\s*[,;(]?\s*(?:df|p)\s*(?:<=|>=|[<≈=≤])\s*[<�
                          r"|\s*\|\s*[<≈]?\s*\d+(?:[.,]\d+)?\s*(?=\|))*", re.IGNORECASE)
 _T_PRZYKLEJONY = re.compile(rf"\s*(?:,|;|\||:|\()\s*[\"„«']?({_SLOWO_Z})\b", re.IGNORECASE)
 _Z_PRZED_T = re.compile(r"(?<![\w])z\s*=\s*([−-]?)(\d+)(?:[.,](\d+))?", re.IGNORECASE)
-# (k): liczba wyników po Holmie w formach „17 of 36”, „17 out of 36”, „17 z 36”, „17/36”, przed albo po „Holm”
-_LICZNIK = r"\d+\s*(?:of|out of|z|spośród|/)\s*\d+\b"
-_HOLM_LICZBA = re.compile(rf"Holm[\w-]*[^.;|]{{0,60}}?\b{_LICZNIK}|\b{_LICZNIK}[^.;|]{{0,60}}?Holm", re.IGNORECASE)
+# (k): liczba wyników po Holmie w formach „17 of 36”, „17 phenomena of 36”, „17 out of 36”, „17 z 36”, „17/36”,
+# przed albo po „Holm”; licznik cyfrą albo słownie do dwudziestu (EN i PL, forma podstawowa)
+_SLOWNIE = ("one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|"
+            "seventeen|eighteen|nineteen|twenty|jeden|jedna|dwa|dwie|trzy|cztery|pięć|sześć|siedem|osiem|dziewięć|"
+            "dziesięć|jedenaście|dwanaście|trzynaście|czternaście|piętnaście|szesnaście|siedemnaście|osiemnaście|"
+            "dziewiętnaście|dwadzieścia")
+_ILE = rf"(?:\d+|{_SLOWNIE})"
+_LICZNIK = rf"(?:\b{_ILE}\s+(?:[^\W\d][\w-]*\s+)?(?:of|out of|z|spośród)\s+\d+\b|\b\d+\s*/\s*\d+\b)"
+_HOLM_LICZBA = re.compile(rf"Holm[\w-]*[^.;|]{{0,60}}?{_LICZNIK}|{_LICZNIK}[^.;|]{{0,60}}?Holm", re.IGNORECASE)
 _PARADYGMAT = re.compile(r"paradigm|paradygmat", re.IGNORECASE)
-_LICZBA_POZIOMU = re.compile(rf"\b{_LICZNIK}|\b\d+\s+(?:not noise|nie[- ]szum|tests?\b|testów|after Holm|po Holmie)",
+# zdanie o paradygmatach, które coś twierdzi o odczycie (t, df, szum, werdykt, różnica, tabela z nim), a nie
+# tylko je liczy („zbiór ma 67 paradygmatów”)
+_TEZA = re.compile(r"\bt\b|\bdf\b|nois|szum|signif|istotn|verdict|werdykt|differ|różnic|odczyt|reading|level|"
+                   r"poziom|Holm|carr|przenos|shown|pokaza|tabel|table|column|kolumn|\bfall|spad|decreas",
+                   re.IGNORECASE)
+_LICZBA_POZIOMU = re.compile(rf"{_LICZNIK}|\b{_ILE}\s+(?:not noise|nie[- ]szum|tests?\b|testów|after Holm|po Holmie)",
                              re.IGNORECASE)
-_NIE_SZUM_LICZBA = re.compile(r"\b\d+\s+(?:not noise|nie[- ]szum)", re.IGNORECASE)
+_NIE_SZUM_LICZBA = re.compile(rf"\b{_ILE}\s+(?:not noise|nie[- ]szum)", re.IGNORECASE)
+_OKNO_K = 2  # (k) patrzy na akapit i po dwa akapity (wiersz tabeli to akapit) przed nim i po nim, nie dalej
 
 
 def df_z_linii(linia):
@@ -433,13 +445,15 @@ def _liczba_po_paradygmatach(tekst):
 
 
 def holm_bez_paradygmatow(akapit_tekst, sasiedzi=""):
-    """(k) Akapit podaje liczbę wyników po Holmie, ten akapit albo sąsiedni (`sasiedzi`, np. nagłówek tabeli
-    z kolumną paradygmatów) opisuje odczyt po paradygmatach, a liczby na poziomie paradygmatów nie ma ani tu,
-    ani obok: zdanie o zjawiskach stoi wtedy na samych parach."""
+    """(k) Akapit podaje liczbę wyników po Holmie, zdanie w nim albo w oknie `_OKNO_K` akapitów (`sasiedzi`,
+    np. nagłówek tabeli z kolumną paradygmatów) twierdzi coś o odczycie po paradygmatach (`_TEZA`), a liczby
+    na poziomie paradygmatów nie ma ani tu, ani obok: zdanie o zjawiskach stoi wtedy na samych parach.
+    Licznik słownie (k) zna do dwudziestu; dalej i poza oknem reguła nie sprawdza."""
     if not _HOLM_LICZBA.search(akapit_tekst):
         return False
     razem = akapit_tekst + " " + sasiedzi
-    return bool(_PARADYGMAT.search(razem)) and not _liczba_po_paradygmatach(razem)
+    teza = any(_PARADYGMAT.search(zd) and _TEZA.search(zd) for zd in re.split(r"(?<=[.;])\s+", razem))
+    return teza and not _liczba_po_paradygmatach(razem)
 
 
 def count_z_verdict_pairs(linie):
@@ -629,7 +643,7 @@ def sprawdz_tekst(plik, linie, liczby, zb):
         nr0 = akapit[0][0]
         tekst_akapitu = teksty[i]
         surowy_akapit = " ".join(l for _, l in akapit)
-        sasiedzi = " ".join(teksty[j] for j in (i - 1, i + 1) if 0 <= j < len(teksty))
+        sasiedzi = " ".join(teksty[j] for j in range(i - _OKNO_K, i + _OKNO_K + 1) if j != i and 0 <= j < len(teksty))
         if holm_bez_paradygmatow(tekst_akapitu, sasiedzi):
             bledy.append((plik, nr0, "(k) liczba wyników po Holmie bez liczby po paradygmatach, a ten albo sąsiedni "
                                      "akapit opisuje odczyt po paradygmatach: zdanie o zjawiskach stoi na samych parach"))
