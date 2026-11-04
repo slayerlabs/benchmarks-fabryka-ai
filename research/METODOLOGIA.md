@@ -183,8 +183,17 @@ samym splicie, prompcie i rewizji, co wynik referencyjny. `REPRODUCTION.md` poda
 i różnicę; przebieg ma wpis w `RECIPE.md`.
 
 **Warunek odtworzenia:** |różnica| ≤ 2 pkt w skali metryki (0,02 przy skali 0–1 i przy MCC), a gdy 2 SE > 2 pkt,
-|różnica| ≤ 2 SE. Typ `ppl` ma próg z sekcji niżej. Niespełniony warunek zatrzymuje pracę: w komentarzu zadania
-wpisujesz, co policzyłeś i jaką różnicę dostałeś, bo ta sama różnica siedziałaby w każdym następnym wyniku.
+|różnica| ≤ 2 SE. Typ `ppl` ma próg z sekcji niżej. Niespełniony warunek zatrzymuje pracę, bo ta sama różnica
+siedziałaby w każdym następnym wyniku. Najpierw szukasz przyczyny na kilku pytaniach, porównując je z wynikami autorów.
+Najczęściej to:
+
+- inny prompt albo format odpowiedzi;
+- inny podział na tokeny albo brak tokenu startu (BOS);
+- inna metryka albo agregacja (np. `acc` zamiast `acc_norm`);
+- inny split, podzbiór albo rewizja zbioru.
+
+Po poprawce liczysz jeszcze raz. Gdy przyczyny nie da się znaleźć, w komentarzu zadania wpisujesz, co policzyłeś i jaką
+różnicę dostałeś.
 
 ### Próg dla perpleksji i BPB
 
