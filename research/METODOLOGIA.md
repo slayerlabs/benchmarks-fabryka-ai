@@ -118,9 +118,13 @@ Pojęcia z tabeli:
 - **SE B (bootstrap):** 10 000 powtórzeń ze stałym seedem, jednostki losowane ze zwracaniem, metryka liczona od nowa;
   przy porównaniu te same indeksy dla obu modeli. SE B równe 0 (np. F1 = 0 albo F1 = 1 w każdym losowaniu) daje z
   nieokreślone i werdykt „nierozstrzygalne”, jak w rdzeniu.
-- **SE K (klastrowane):** liczysz średnią każdego klastra (przy porównaniu: średnią różnic per pozycja w klastrze), a
-  z k średnich klastrów SE = sd / √k. Werdykt z testu t przy df = k − 1, z progami p takimi jak dla |z| = 2 i |z| = 3;
-  przy k < 3 werdykt „nierozstrzygalne” (tak liczy `tools/liczby.py`). Metryka korpusowa (`f1-korpus`, `mcc`) z
+- **SE K (klastrowane):** SE raportowanej średniej po pozycjach x̄, odporne na klastry:
+  √(k/(k−1) · Σ_c (Σ_{i∈c} (xᵢ − x̄))²) / n, gdzie k to liczba klastrów, a n liczba pozycji
+  ([Miller 2024, §2.2, wzór 4](https://arxiv.org/abs/2411.00640), z czynnikiem k/(k−1)); przy porównaniu ten sam wzór
+  na różnicach per pozycja. Przy klastrach równej wielkości to sd średnich klastrów / √k. Werdykt z testu t przy
+  df = k − 1, z progami p takimi jak dla |z| = 2 i |z| = 3; przy k < 3 werdykt „nierozstrzygalne” (tak liczy
+  `klastrowe_wazone` w `tools/liczby.py`, dochodzi w
+  [#99](https://github.com/slayerlabs/benchmarks-fabryka-ai/pull/99)). Metryka korpusowa (`f1-korpus`, `mcc`) z
   klastrami: SE B z bootstrapem losującym całe klastry. Bootstrap meta-oceny też losuje całe klastry.
 - **SE W (warstwowe):** √(Σ wᵢ² SEᵢ²), wᵢ to wagi podtestów z oryginału (sumują się do 1), SEᵢ metodą typu bazowego.
 - **Udział najczęstszej predykcji:** odsetek odpowiedzi modelu na tej samej opcji. Podajesz go przy każdym typie z
