@@ -106,6 +106,17 @@ def test_schema_se_sees_that_a_constant_answer_hits_once_per_twin_pair(m):
     assert rev["t"] == pytest.approx(wynik["t"]) and rev["schematy"] == 8
 
 
+def test_schema_reading_is_labelled_exploratory(m):
+    # mutation: the schema unit, chosen after the per-question result, presented as the binding reading
+    docs = [{"text": t} for t in ("Ann thanked Beth because she helped.", "Ann thanked Beth because she was helped.",
+                                  "Tom hit Jim so he cried.", "Tom hit Jim so he laughed.",
+                                  "Sue paid Joe as she owed him.", "Sue paid Joe as he owed her.")]
+    rows = [{"k": k, "acc": float(k != 5), "gold": k % 2} for k in range(6)]
+    r = m.po_schematach_pelny(rows, docs, {"bazy": {"chance_value": 0.5}})
+    for klucz in ("wobec_losowej_po_schematach", "wobec_wiekszosciowej_po_schematach"):
+        assert "eksploracyjne" in r[klucz]
+
+
 def test_schemas_follow_the_text_not_the_row_parity(m):
     # mutation: k // 2 pairs a 3-sentence schema's last row with the next schema's first
     docs = [{"text": t} for t in (
@@ -122,6 +133,7 @@ def test_schema_reading_recomputes_from_the_per_question_files(report):
     wiersz = report["slayer_pelny"]["wobec_wiekszosciowej_po_schematach"]
     assert wiersz["schematy"] == 135 and wiersz["rozmiary_schematow"] == {"2": 133, "3": 1, "4": 1}
     assert wiersz["werdykt"] == "pewne" and wiersz["df"] == 134  # t read at df = schemas - 1, not as a z
+    assert "eksploracyjne" in wiersz  # unit chosen after the per-question result: not the binding reading
     assert wiersz["p"] == pytest.approx(T.p_t(wiersz["t"], 134))
     assert all(v["t_wiekszosciowa"] >= 3 for v in report["slayer_pelny"]["po_schematach_wrazliwosc_progu"].values())
 

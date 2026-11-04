@@ -64,7 +64,7 @@ poprawki jest prawdopodobne (t = -3,79), a po Holmie to szum:
 | subject verb agreement | 6 | 0,844 | 0,883 | -3,9 pkt | 0,51 pkt | z = -7,64 | t = -4,91 | pewne / prawdopodobne | 0,0353 | prawdopodobne |
 
 W parach (informacja o tych parach) po Holmie z 12 zjawisk pewnych jest 7, prawdopodobne są 3 (anaphor agreement,
-binding, elipsa), a szum to 2 (efekty wysp i kwantyfikatory). Zjawiska pewne na parach, które po paradygmatach
+binding, elipsa), a szum to 2 (efekty wysp i kwantyfikatory). Zjawiska pewne na parach bez poprawki Holma, które po paradygmatach
 są szumem albo nierozstrzygalne (anaphor agreement, binding, control raising, determiner noun agreement, filler
 gap dependency, irregular forms, npi licensing), mają różnicę pokazaną tylko dla tych par, nie dla innych
 paradygmatów zjawiska. Pełna tabela z obiema kolumnami Holma: [`results/BLIMP.md`](results/BLIMP.md), sekcja

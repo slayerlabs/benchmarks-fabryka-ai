@@ -207,13 +207,15 @@ def holm_bazy(raport):
 
 
 def po_schematach_pelny(pelny, docs, wynik_pelny):
-    """Odczyt po schematach (wiążący, typ `mc +klastry`) wobec obu baz, plus wrażliwość na próg grupowania."""
+    """Odczyt po schematach (eksploracyjny: jednostka wybrana po wyniku po pytaniach, poza protokołem pomiaru)
+    wobec obu baz, plus wrażliwość na próg grupowania."""
     klasa = max((0, 1), key=lambda i: sum(x["gold"] == i for x in pelny))
     losowa = lambda o: wynik_pelny["bazy"]["chance_value"]  # noqa: E731
     wieksz = lambda o: float(o["gold"] == klasa)  # noqa: E731
     grupy = schematy(docs)
-    return {"wobec_losowej_po_schematach": po_schematach(pelny, grupy, losowa),
-            "wobec_wiekszosciowej_po_schematach": po_schematach(pelny, grupy, wieksz),
+    eksp = {"eksploracyjne": "jednostka wybrana po wyniku po pytaniach; nie w protokole"}
+    return {"wobec_losowej_po_schematach": {**po_schematach(pelny, grupy, losowa), **eksp},
+            "wobec_wiekszosciowej_po_schematach": {**po_schematach(pelny, grupy, wieksz), **eksp},
             "po_schematach_wrazliwosc_progu": {
                 str(p): {"schematy": max(g) + 1, "t_losowa": po_schematach(pelny, g, losowa)["t"],
                          "t_wiekszosciowa": po_schematach(pelny, g, wieksz)["t"]}

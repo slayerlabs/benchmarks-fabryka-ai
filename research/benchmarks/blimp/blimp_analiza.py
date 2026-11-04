@@ -80,9 +80,9 @@ def test_znakow(dodatnie, ujemne):
     return min(1.0, 2 * ogon)
 
 
-def holm(p, alfa=0.05):
+def holm(p, alfa=P_PRAWDOPODOBNE):
     """Holm step-down over {name: p}: {name: rejected?}, rejected = Holm-adjusted p <= alfa (statystyka.holm);
-    p = None is outside the family and never rejected."""
+    alfa defaults to the repo threshold, p of |z| = 2 (0.0455); p = None is outside the family and never rejected."""
     nazwy = list(p)
     return {k: a is not None and a <= alfa for k, a in zip(nazwy, holm_p([p[k] for k in nazwy]))}
 

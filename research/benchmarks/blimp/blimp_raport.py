@@ -210,7 +210,7 @@ def sekcja_v0(w, bl):
          f"ranking depends on which Pythia weights are the reference: against v1 Slayer is certainly ahead in "
          f"{int(w[p + '/liczby/slayer_pewne_v1'])} paradigms and Pythia in {int(w[p + '/liczby/pythia_pewne_v1'])}; "
          f"against v0 in {int(w[p + '/liczby/slayer_pewne_v0'])} and {int(w[p + '/liczby/pythia_pewne_v0'])}. After "
-         f"a Holm correction over the 67 paradigms (family-wise 5%) against v1: Slayer "
+         f"a Holm correction over the 67 paradigms (Holm-adjusted p at most the p of |z| = 2) against v1: Slayer "
          f"{int(w[p + '/liczby/slayer_holm_v1'])}, Pythia {int(w[p + '/liczby/pythia_holm_v1'])}; against v0: Slayer "
          f"{int(w[p + '/liczby/slayer_holm_v0'])}, Pythia {int(w[p + '/liczby/pythia_holm_v0'])}. Certain and "
          f"Holm-significant against both weights with the same sign: {int(w[p + '/liczby/slayer_zostaje'])} Slayer "
@@ -346,7 +346,7 @@ def pliki(liczby, bl):
           "## 67 paradigms", "",
           f"n = 1000 pairs per paradigm and model. On pairs: Slayer ahead {licz['pewne'][0]} certain, "
           f"{licz['prawdopodobne'][0]} probable; Pythia ahead {licz['pewne'][1]} certain, {licz['prawdopodobne'][1]} "
-          f"probable; noise {sum(licz['szum'])}. With 67 comparisons a Holm correction (family-wise 5%) keeps "
+          f"probable; noise {sum(licz['szum'])}. With 67 comparisons a Holm correction (adjusted p at most the p of |z| = 2) keeps "
           f"{an['holm_odrzucone']} differences; the 'certain' rows marked `certain, not Holm` "
           f"({', '.join(nie_holm)}) do not survive it. Holm, per token and same tokenization: {EKSPL}", "",
           f"The order of the gaps depends on the measure: Spearman rank correlation between the summed and the "

@@ -83,7 +83,8 @@
     "2": 133,
     "3": 1,
     "4": 1
-   }
+   },
+   "eksploracyjne": "jednostka wybrana po wyniku po pytaniach; nie w protokole"
   },
   "wobec_wiekszosciowej_po_schematach": {
    "roznica": 0.08791208791208792,
@@ -97,7 +98,8 @@
     "2": 133,
     "3": 1,
     "4": 1
-   }
+   },
+   "eksploracyjne": "jednostka wybrana po wyniku po pytaniach; nie w protokole"
   },
   "po_schematach_wrazliwosc_progu": {
    "0.5": {

@@ -287,7 +287,7 @@ def porownanie_parowane(wa, wb, docs):
 def wzgledem_referencji(por_v1, por_v0):
     """Slayer - Pythia per paradigm against the two Pythia weights: every paradigm "certain" against v1 with its
     difference against v0 (the control model), and whether it stays: certain and Holm-significant (67 paradigms,
-    family-wise 5%, as the v1 ranking of BLIMP.md) against both weights, with the same sign.
+    adjusted p at most the p of |z| = 2, as the v1 ranking of BLIMP.md) against both weights, with the same sign.
     -> {"ogolem": v0 overall entry, "pewne_v1": {paradigm: {"v1": {roznica, z, holm}, "v0": {roznica, z, werdykt,
     holm}, "zostaje"}}, "liczby": counts per side}; z sits under a key "z" so that LICZBY.json pools it as a z value"""
     from blimp_analiza import holm, p_z  # blimp_analiza imports this module

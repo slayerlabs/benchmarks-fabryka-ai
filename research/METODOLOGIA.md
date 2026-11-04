@@ -125,7 +125,7 @@ Pojęcia z tabeli:
   na różnicach per pozycja. Przy klastrach równej wielkości to sd średnich klastrów / √k. Werdykt z testu t przy
   df = k − 1, z progami p takimi jak dla |z| = 2 i |z| = 3; przy k < 3 werdykt „nierozstrzygalne”. Liczą to
   `se_k` i `klastrowe_wazone` w `tools/statystyka.py`, porównanie ze stałym predyktorem `wobec_stalej`, a kolumnę
-  „po Holmie” `po_holmie`; raporty nie liczą tego ręcznie. Metryka korpusowa (`f1-korpus`, `mcc`) z
+  „po Holmie” `po_holmie`; nowe raporty nie liczą tego ręcznie. Metryka korpusowa (`f1-korpus`, `mcc`) z
   klastrami: SE B z bootstrapem losującym całe klastry. Bootstrap meta-oceny też losuje całe klastry.
 - **SE W (warstwowe):** √(Σ wᵢ² SEᵢ²), wᵢ to wagi podtestów z oryginału (sumują się do 1), SEᵢ metodą typu bazowego.
 - **Udział najczęstszej predykcji:** odsetek odpowiedzi modelu na tej samej opcji. Podajesz go przy każdym typie z
@@ -257,7 +257,7 @@ sprawdzonymi ręcznie. Etap D i przepis zostają bez zmian.
 | pole | co wpisać |
 |---|---|
 | Co mierzy | umiejętność jednym zdaniem; metoda przejęta od benchmarku, jeśli jest |
-| Typ testu | jak w karcie oryginału |
+| Typ testu | link do wiersza testu w [README, „Benchmarki i typy”](README.md#benchmarki-i-typy) |
 | Jak powstał | źródło tekstów, daty, narzędzia, kryteria doboru, licencja |
 | Kto pisał i kto sprawdzał | nicki GitHub, co sprawdzał drugi człowiek i na ilu przykładach |
 | Jawna próbka | około 10% zbioru w repo, ta sama dla wszystkich |

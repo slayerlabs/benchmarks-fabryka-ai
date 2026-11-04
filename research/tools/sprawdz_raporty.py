@@ -618,8 +618,11 @@ def wylaczone(plik, sekcja, regula):
 _KOL_Z = re.compile(r"^z\b(?!\s*[(:].*\bt\b)", re.IGNORECASE)
 _KOL_T = re.compile(r"^t\b", re.IGNORECASE)
 _KOL_WERDYKT = re.compile(r"^(?:werdykt|verdict)\b(?!.*(?:/|Holm))", re.IGNORECASE)
-_KOL_HOLM = re.compile(r"^(?:po Holmie|after Holm)\b", re.IGNORECASE)
-_KOMORKA_LICZBA = re.compile(r"^\s*(?:[zt]\s*=\s*)?([−-]?)(\d+)(?:[.,](\d+))?(?:\s*,\s*df\s*=?\s*(\d+))?\s*$", re.IGNORECASE)
+_KOL_HOLM = re.compile(r"^(?:po Holmie|after Holm|Holm)\b", re.IGNORECASE)
+_KOL_WERDYKT_HOLMA = re.compile(r"^(?:werdykt|verdict)\b.*Holm", re.IGNORECASE)
+_KOL_P_HOLMA = re.compile(r"^p[ _]Holm", re.IGNORECASE)
+_KOMORKA_P = re.compile(r"^\s*(\d+)[.,](\d+)\s*$")
+_KOMORKA_LICZBA = re.compile(r"^\s*(?:([zt])\s*=\s*)?([−-]?)(\d+)(?:[.,](\d+))?(?:\s*,\s*df\s*=?\s*(\d+))?\s*$", re.IGNORECASE)
 _KOMORKA_SLOWO = re.compile(rf"^\s*\**({_SLOWO_Z})\**\s*$", re.IGNORECASE)
 _KOMORKA_HOLM = re.compile(rf"^\s*(tak|nie|yes|no)\b(?:\s*\(\s*({_SLOWO_Z})\s*\))?", re.IGNORECASE)
 
@@ -641,11 +644,28 @@ def _bloki_tabel(linie):
 
 
 def _komorka_statystyki(tekst):
-    """(wartość, cyfry, df z komórki albo None) z komórki `−3,03`, `t = 4,47, df 134`; None, gdy to nie liczba."""
+    """(wartość, cyfry, df z komórki albo None, „z”/„t” z zapisu `z = …`/`t = …` albo None) z komórki `−3,03`,
+    `t = 4,47, df 134`; None, gdy to nie liczba."""
     m = _KOMORKA_LICZBA.match(tekst.replace("**", ""))
     if not m:
         return None
-    return _wartosc_z(m.group(1), m.group(2), m.group(3)), len(m.group(3) or ""), (int(m.group(4)) if m.group(4) else None)
+    return (_wartosc_z(m.group(2), m.group(3), m.group(4)), len(m.group(4) or ""),
+            (int(m.group(5)) if m.group(5) else None), (m.group(1) or "").lower() or None)
+
+
+def _df_sekcji(linie, h, akapitow=2):
+    """Jedno df zapisane w `akapitow` akapitach tuż nad tabelą z linii h (np. opis tabeli, a pod nim akapit
+    „Conclusion for the table”), bez przechodzenia przez inną tabelę ani nagłówek; albo None."""
+    j, tekst = h, []
+    for _ in range(akapitow):
+        while j > 0 and not linie[j - 1].strip():
+            j -= 1
+        if j == 0 or linie[j - 1].lstrip().startswith(("|", "#")):
+            break
+        while j > 0 and linie[j - 1].strip() and not linie[j - 1].lstrip().startswith(("|", "#")):
+            j -= 1
+            tekst.append(linie[j])
+    return df_z_linii(" ".join(tekst))
 
 
 def _p_przedzial(rodzaj, wartosc, cyfr, df):
@@ -667,6 +687,11 @@ def tabela_problemy(linie):
     for h, wiersze in _bloki_tabel(linie):
         nag = komorki(linie[h])
         stat = {k: ("z" if _KOL_Z.match(c) else "t") for k, c in enumerate(nag) if _KOL_Z.match(c) or _KOL_T.match(c)}
+        for k in range(len(nag)):  # kolumna bez z/t w nagłówku („test”), której komórki zapisują `z = …`/`t = …`
+            komorki_k = [komorki(linie[i])[k] for i in wiersze if k < len(komorki(linie[i]))]
+            if k not in stat and any(re.match(r"\s*[zt]\s*=", x) for x in komorki_k):
+                stat[k] = "?"
+        problemy += _werdykt_z_p_holma(linie, nag, wiersze)
         if not stat:
             continue
         df_kol = [k for k, c in enumerate(nag) if c.strip().lower() == "df"]
@@ -679,6 +704,8 @@ def tabela_problemy(linie):
         def df_wiersza(i, s, df_kom):
             if stat[s] == "z":
                 return 0
+            if stat[s] == "?":
+                return None
             if df_kom is not None:
                 return df_kom
             if s in df_nag:
@@ -688,19 +715,23 @@ def tabela_problemy(linie):
             if k is not None:
                 c = komorki(linie[i])
                 return int(c[k]) if k < len(c) and c[k].strip().isdigit() else None
-            return df_kontekstu(linie, i)
+            df = df_kontekstu(linie, i)
+            return df if df is not None else _df_sekcji(linie, h)
 
-        wartosci = {}  # (wiersz, kolumna statystyki) -> (wartość, cyfr, df)
+        wartosci = {}  # (wiersz, kolumna statystyki) -> (wartość, cyfr, df, „z”/„t”)
         for i in wiersze:
             c = komorki(linie[i])
             for s in stat:
                 v = _komorka_statystyki(c[s]) if s < len(c) else None
                 if v is None:
                     continue
-                df = df_wiersza(i, s, v[2])
-                if df is None or (stat[s] == "t" and df <= 0):
+                rodzaj = v[3] or stat[s]
+                if rodzaj == "?":
                     continue
-                wartosci[(i, s)] = (v[0], v[1], df)
+                df = 0 if rodzaj == "z" else (v[2] if v[2] is not None else df_wiersza(i, s, None))
+                if df is None or (rodzaj == "t" and df <= 0):
+                    continue
+                wartosci[(i, s)] = (v[0], v[1], df, rodzaj)
         for k, nazwa in enumerate(nag):
             s = zrodlo(k)
             if s is None or any(s < x < k for x in stat):
@@ -711,18 +742,19 @@ def tabela_problemy(linie):
                     m = _KOMORKA_SLOWO.match(c[k]) if k < len(c) else None
                     if not m or (i, s) not in wartosci:
                         continue
-                    x, cyfr, df = wartosci[(i, s)]
-                    oczek = {liczby.werdykt_p(p) for p in _p_przedzial(stat[s], x, cyfr, df)}
+                    x, cyfr, df, rodzaj = wartosci[(i, s)]
+                    oczek = {liczby.werdykt_p(p) for p in _p_przedzial(rodzaj, x, cyfr, df)}
                     if len(oczek) == 1 and _nazwa_werdyktu(m.group(1)) != (o := oczek.pop()):
-                        problemy.append((i, f"(l) {stat[s]} {c[s].strip()}{f' (df {df})' if stat[s] == 't' else ''} "
+                        problemy.append((i, f"(l) {rodzaj} {c[s].strip()}{f' (df {df})' if rodzaj == 't' else ''} "
                                             f"→ {o}, w kolumnie „{nazwa}”: {m.group(1)}"))
             elif _KOL_HOLM.match(nazwa):
+                pelna = bool(re.match(r"(?:po Holmie|after Holm)\b", nazwa, re.IGNORECASE))  # rodzina = tabela
                 # wiersz bez tak/nie (np. „outside the family (k < 3)”) nie należy do rodziny
                 rodzina = [i for i in wiersze if (i, s) in wartosci and k < len(komorki(linie[i]))
                            and _KOMORKA_HOLM.match(komorki(linie[i])[k])]
                 if len(rodzina) < 2:
                     continue
-                przedzialy = [_p_przedzial(stat[s], *wartosci[(i, s)]) for i in rodzina]
+                przedzialy = [_p_przedzial(wartosci[(i, s)][3], *wartosci[(i, s)][:3]) for i in rodzina]
                 dol, gora = liczby.holm([a for a, _ in przedzialy]), liczby.holm([b for _, b in przedzialy])
                 for i, a, b in zip(rodzina, dol, gora):
                     c = komorki(linie[i])
@@ -731,12 +763,40 @@ def tabela_problemy(linie):
                         continue
                     flagi = {"tak" if p <= liczby.P_PRAWDOPODOBNE else "nie" for p in (a, b)}
                     jest = "tak" if m.group(1).lower() in ("tak", "yes") else "nie"
+                    if not pelna and (jest == "nie" or "nie" not in flagi):
+                        # kolumna „Holm …”: rodzina może być większa niż wiersze tabeli (ranking 67 paradygmatów
+                        # pokazany częściowo), a Holm na podzbiorze daje p nie większe, więc łapie tylko „tak”,
+                        # którego nie daje nawet rodzina z samych wierszy tabeli
+                        continue
                     if len(flagi) == 1 and jest != (o := flagi.pop()):
                         problemy.append((i, f"(l) Holm w rodzinie {len(rodzina)} wierszy → {o}, w kolumnie „{nazwa}”: "
                                             f"{m.group(1)}"))
                     slowa = {liczby.werdykt_p(p) for p in (a, b)}
                     if m.group(2) and len(slowa) == 1 and _nazwa_werdyktu(m.group(2)) != (o := slowa.pop()):
                         problemy.append((i, f"(l) werdykt z p Holma → {o}, w kolumnie „{nazwa}”: {m.group(2)}"))
+    return problemy
+
+
+def _werdykt_z_p_holma(linie, nag, wiersze):
+    """(l) kolumna „werdykt po Holmie”/„verdict after Holm” wobec p z najbliższej kolumny „p Holm…” na lewo."""
+    problemy = []
+    for k, nazwa in enumerate(nag):
+        if not _KOL_WERDYKT_HOLMA.match(nazwa):
+            continue
+        lewo = [j for j in range(k) if _KOL_P_HOLMA.match(nag[j])]
+        if not lewo:
+            continue
+        j = max(lewo)
+        for i in wiersze:
+            c = komorki(linie[i])
+            m = _KOMORKA_SLOWO.match(c[k]) if k < len(c) else None
+            mp = _KOMORKA_P.match(c[j]) if j < len(c) else None
+            if not m or not mp:
+                continue
+            p, h = float(f"{mp.group(1)}.{mp.group(2)}"), 0.5 * 10 ** (-len(mp.group(2)))
+            oczek = {liczby.werdykt_p(x) for x in (max(p - h, 0.0), p + h)}
+            if len(oczek) == 1 and _nazwa_werdyktu(m.group(1)) != (o := oczek.pop()):
+                problemy.append((i, f"(l) p Holma {c[j].strip()} → {o}, w kolumnie „{nazwa}”: {m.group(1)}"))
     return problemy
 
 

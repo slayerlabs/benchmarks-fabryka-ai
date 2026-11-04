@@ -80,7 +80,7 @@ Conclusion for the table (after Holm): over the paradigms (binding), of the 9 ph
 
 ## 67 paradigms
 
-n = 1000 pairs per paradigm and model. On pairs: Slayer ahead 7 certain, 1 probable; Pythia ahead 34 certain, 7 probable; noise 18. With 67 comparisons a Holm correction (family-wise 5%) keeps 37 differences; the 'certain' rows marked `certain, not Holm` (npi_present_2, regular_plural_subject_verb_agreement_2, determiner_noun_agreement_irregular_2, sentential_negation_npi_licensor_present) do not survive it. Holm, per token and same tokenization: *[Added after the measurement: exploratory, not in THRESHOLDS.md.]*
+n = 1000 pairs per paradigm and model. On pairs: Slayer ahead 7 certain, 1 probable; Pythia ahead 34 certain, 7 probable; noise 18. With 67 comparisons a Holm correction (adjusted p at most the p of |z| = 2) keeps 37 differences; the 'certain' rows marked `certain, not Holm` (npi_present_2, regular_plural_subject_verb_agreement_2, determiner_noun_agreement_irregular_2, sentential_negation_npi_licensor_present) do not survive it. Holm, per token and same tokenization: *[Added after the measurement: exploratory, not in THRESHOLDS.md.]*
 
 The order of the gaps depends on the measure: Spearman rank correlation between the summed and the per-token differences is 0.77. 1 of the 7 certain Slayer advantages reverses per token: tough_vs_raising_2 (4.0 pts summed, -9.2 pts per token). Another example: tough_vs_raising_1 is -16.5 pts summed, -2.2 pts per token, and -14.1 pts on the pairs where both tokenizers give the same token difference between good and bad sentence. Read the ranking as 'where the gap is large under summed log-likelihood', not as a ranking of syntactic weaknesses.
 
@@ -158,7 +158,7 @@ The order of the gaps depends on the measure: Spearman rank correlation between 
 
 ## Against the control model Pythia-1B v0
 
-Slayer 1.06 minus Pythia-1B v0 on the same 67 000 pairs: -3.23 pts, paired SE 0.16 pts, z = -20.51: certain. Per paradigm the ranking depends on which Pythia weights are the reference: against v1 Slayer is certainly ahead in 7 paradigms and Pythia in 34; against v0 in 6 and 35. After a Holm correction over the 67 paradigms (family-wise 5%) against v1: Slayer 7, Pythia 30; against v0: Slayer 5, Pythia 34. Certain and Holm-significant against both weights with the same sign: 3 Slayer advantages and 23 Pythia advantages. A per-paradigm statement about Slayer holds only for those. Rows: every paradigm certain against v1 in Slayer's favour.
+Slayer 1.06 minus Pythia-1B v0 on the same 67 000 pairs: -3.23 pts, paired SE 0.16 pts, z = -20.51: certain. Per paradigm the ranking depends on which Pythia weights are the reference: against v1 Slayer is certainly ahead in 7 paradigms and Pythia in 34; against v0 in 6 and 35. After a Holm correction over the 67 paradigms (Holm-adjusted p at most the p of |z| = 2) against v1: Slayer 7, Pythia 30; against v0: Slayer 5, Pythia 34. Certain and Holm-significant against both weights with the same sign: 3 Slayer advantages and 23 Pythia advantages. A per-paradigm statement about Slayer holds only for those. Rows: every paradigm certain against v1 in Slayer's favour.
 
 | paradigm | difference vs v1 | z vs v1 | Holm vs v1 | difference vs v0 | z vs v0 | verdict vs v0 | Holm vs v0 | stays |
 |---|---:|---:|---|---:|---:|---|---|---|

@@ -685,6 +685,35 @@ def test_flaga_po_holmie_wobec_holma_na_wierszach_tabeli():
     assert [p for _, p in _regula_l(odwr)] == ["(l) Holm w rodzinie 3 wierszy → nie, w kolumnie „po Holmie”: tak"]
 
 
+def _podmiana_w_raporcie(sciezka, stare, nowe):
+    """(l) na kopii raportu z repo z jedną podmianą; podmiana musi wystąpić w pliku dokładnie raz."""
+    tekst = (KORZEN / sciezka).read_text(encoding="utf-8")
+    assert tekst.count(stare) == 1, stare
+    przed = [p for _, p in S.tabela_problemy(tekst.splitlines())]
+    po = [p for _, p in S.tabela_problemy(tekst.replace(stare, nowe).splitlines())]
+    return przed, po
+
+
+_PODMIANY_L = [
+    # kolumna „test” zamiast z/t (WSC273), flaga po Holmie w rodzinie sześciu wierszy z z i t
+    ("benchmarks/wsc273/README.md", "| z = 3,03 | pewne | tak (prawdopodobne) |", "| z = 3,03 | pewne | tak (pewne) |"),
+    # „werdykt po Holmie” obok kolumny „p Holma”
+    ("benchmarks/blimp/README.md", "| 0,0475 | szum |", "| 0,0475 | prawdopodobne |"),
+    # df = 66 dwa akapity nad tabelą (nad nią stoi „Conclusion for the table”)
+    ("benchmarks/blimp/results/CHECKPOINTS.md", "| t = -3.30 | 0.0016 | certain |", "| t = -3.30 | 0.0016 | probable |"),
+    ("benchmarks/blimp/results/CHECKPOINTS.md", "| t = 3.07 | 0.0031 | probable |", "| t = 3.07 | 0.0031 | certain |"),
+    # kolumny „Holm vs v0” i „Holm”: „yes”, którego nie daje nawet Holm na wierszach tabeli
+    ("benchmarks/blimp/results/BLIMP.md", "| -0.5 pts | z = -0.42 | noise | no | no |", "| -0.5 pts | z = -0.42 | noise | yes | no |"),
+    ("benchmarks/blimp/results/CHECKPOINTS.md", "| z = -1.39 | noise | no | t = -5.00 |", "| z = -1.39 | noise | yes | t = -5.00 |"),
+]
+
+
+def test_regula_l_lapie_podmiany_w_tabelach_repo():
+    for sciezka, stare, nowe in _PODMIANY_L:
+        przed, po = _podmiana_w_raporcie(sciezka, stare, nowe)
+        assert przed == [] and len(po) >= 1, (sciezka, nowe, po)
+
+
 if __name__ == "__main__":
     testy =[(n, f) for n, f in sorted(globals().items()) if n.startswith("test_") and callable(f)]
     zle = 0

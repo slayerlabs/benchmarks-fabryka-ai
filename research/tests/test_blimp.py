@@ -362,7 +362,9 @@ def test_ten_sam_worek_slow():
     assert not A.ten_sam_worek_slow("Susan revealed herself.", "Susan revealed themselves.")
     assert math.isclose(A.test_znakow(0, 5), 2 / 32) and A.test_znakow(3, 3) == 1.0
     odrz = A.holm({"a": 0.001, "b": 0.02, "c": 0.04})
-    assert odrz == {"a": True, "b": True, "c": True}  # 0.001<=0.05/3, 0.02<=0.05/2, 0.04<=0.05
+    assert odrz == {"a": True, "b": True, "c": True}  # 0.001<=0.0455/3, 0.02<=0.0455/2, 0.04<=0.0455
+    # default threshold is the repo's p of |z| = 2 (0.0455), not 0.05: p = 0.048 alone is not rejected
+    assert A.holm({"a": 0.048}) == {"a": False}
     assert A.holm({"a": 0.001, "b": 0.03, "c": 0.04}) == {"a": True, "b": False, "c": False}  # step-down stops
     assert math.isclose(A.spearman([1, 2, 3, 4], [10, 20, 30, 40]), 1.0)
     assert math.isclose(A.spearman([1, 2, 3, 4], [4, 3, 2, 1]), -1.0)
