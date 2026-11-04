@@ -48,6 +48,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`openbookqa`](benchmarks/openbookqa/ORIGINAL.md) | T08 | `mc` | | nie | nieustalone |
 | [`piqa`](benchmarks/piqa/README.md) | T06 | `mc` | | nie, własny kod | tak |
 | [`sciq`](benchmarks/sciq/ORIGINAL.md) | T09 | `poz` | | nie | tak |
+| [`social-iqa`](benchmarks/social-iqa/README.md) | T46 | `mc` | | nie | nieustalone |
 | [`uncheatable-eval`](benchmarks/uncheatable-eval/ORIGINAL.md) | | `ppl +warstwy` | kategorie, średnia bez wag | nie | nieustalone |
 | [`wikitext-2`](benchmarks/wikitext-2/README.md) | T03 | `ppl` | | T03 | nieustalone |
 | [`winogrande`](benchmarks/winogrande/ORIGINAL.md) | T07 | `mc +klastry` | klastry: pary bliźniacze | nie | nie |
