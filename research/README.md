@@ -45,6 +45,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`ewok-pl`](benchmarks/ewok-pl/README.md) | | `para +klastry +pl` | klastry: szablony; domeny informacyjnie | nie, własny kod | nieustalone |
 | [`hellaswag`](benchmarks/hellaswag/ORIGINAL.md) | T05 | `mc` | | nie | nieustalone |
 | [`lambada`](benchmarks/lambada/ORIGINAL.md) | T17 | `cloze` | | nie | tak |
+| [`math`](benchmarks/math/ORIGINAL.md) | T34 | `gen +warstwy` | warstwy: 7 działów, średnia z wagami równymi liczebności działu (`weight_by_size`); 5 poziomów trudności informacyjnie | nie | nieustalone |
 | [`openbookqa`](benchmarks/openbookqa/ORIGINAL.md) | T08 | `mc` | | nie | nieustalone |
 | [`piqa`](benchmarks/piqa/README.md) | T06 | `mc` | | nie, własny kod | tak |
 | [`sciq`](benchmarks/sciq/ORIGINAL.md) | T09 | `poz` | | nie | tak |
@@ -56,7 +57,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 Wczesny sygnał (kryterium w METODOLOGII) policzono z publicznych plików zero-shot 15 checkpointów
 [`pythia-1b-v0`](https://github.com/EleutherAI/pythia/tree/main/evals/pythia-v0/pythia-1b/zero-shot); karta przejmuje
 wartość dopiero z własnym przeliczeniem. Plik Pythii nie ma zadań HellaSwag, BoolQ, OpenBookQA, EWoK, BLiMP
-Supplement, UncheatableEval ani WikiText-2, a jego `wsc` to inny zbiór niż WSC273, stąd „nieustalone”.
+Supplement, MATH, UncheatableEval ani WikiText-2, a jego `wsc` to inny zbiór niż WSC273, stąd „nieustalone”.
 
 Testy Space (`tasks_50.json`) według typu:
 
