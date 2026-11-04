@@ -35,31 +35,38 @@ Bazy:
 
 Slayer 1.06 wobec baz:
 
-| próbka | baza | różnica | SE | test | werdykt |
-|---|---|---:|---:|---|---|
-| panel 200 | losowa | +10,5 pkt | 0,0347 | z = 3,03 | pewne |
-| panel 200 | większościowa | +8,5 pkt | 0,0469 | z = 1,81 | szum |
-| pełny split | losowa | +9,0 pkt | 0,0298 | z = 3,01 | pewne |
-| pełny split | większościowa | +8,8 pkt | 0,0440 | z = 1,997 | szum |
-| pełny split, SE po schematach (eksploracyjne) | losowa | +9,0 pkt | 0,0201 | z = 4,47 | pewne |
-| pełny split, SE po schematach (eksploracyjne) | większościowa | +8,8 pkt | 0,0201 | z = 4,38 | pewne |
+| próbka | baza | różnica | SE | test | werdykt | po Holmie |
+|---|---|---:|---:|---|---|---|
+| panel 200 | losowa | +10,5 pkt | 0,0347 | z = 3,03 | pewne | tak (prawdopodobne) |
+| panel 200 | większościowa | +8,5 pkt | 0,0469 | z = 1,81 | szum | nie (szum) |
+| pełny split | losowa | +9,0 pkt | 0,0298 | z = 3,01 | pewne | tak (prawdopodobne) |
+| pełny split | większościowa | +8,8 pkt | 0,0440 | z = 1,997 | szum | nie (szum) |
+| pełny split, SE K po schematach (eksploracyjne) | losowa | +9,0 pkt | 0,0201 | t = 4,47, df 134 | pewne | tak (pewne) |
+| pełny split, SE K po schematach (eksploracyjne) | większościowa | +8,8 pkt | 0,0201 | t = 4,38, df 134 | pewne | tak (pewne) |
 
 Model i stała odpowiedź odpowiadają na te same pytania, więc SE różnicy wobec bazy większościowej jest parowane
-(`research/README.md`, „SE i werdykt”). Wobec bazy losowej, czyli stałej, SE to SE trafności.
+(METODOLOGIA, „b”). Wobec bazy losowej, czyli stałej, SE to SE trafności. „Po Holmie”: p z wiersza poprawione
+metodą Holma w rodzinie sześciu wierszy tej tabeli (klucz `holm_bazy` w `results/wsc273.json`), „tak” przy p Holma
+nie większym niż p dla |z| = 2, w nawiasie werdykt z p Holma. Rodzina jest ostrożna: ten sam kontrast stoi w niej
+dwa razy (SE po pytaniach i SE K po schematach), a panel jest podzbiorem pełnego splitu.
 
-**Odczyt po schematach jest eksploracyjny.** Jednostkę wybraliśmy po zobaczeniu wyniku po pytaniach i to ona
-przesuwa werdykt wobec bazy większościowej z „szum” na „pewne”; protokół jej nie przewidywał. Uzasadnienie:
-WSC273 składa się ze schematów, czyli kolejnych zdań różniących się jednym-dwoma słowami, zwykle z przeciwnymi
+**Wiąże odczyt po pytaniach z protokołu: wobec bazy większościowej szum (z = 1,997). Odczyt po schematach jest
+eksploracyjny.** Jednostkę wybraliśmy po zobaczeniu wyniku po pytaniach i to ona przesuwa werdykt wobec bazy
+większościowej z „szum” na „pewne”; protokół jej nie przewidywał, a wiersz typu `mc +klastry` w
+[tabeli typów](../../README.md#benchmarki-i-typy) doszedł po pomiarze, więc ten wynik zostaje przy starym protokole
+(METODOLOGIA, rdzeń, punkt 1). Następny pomiar WSC273 zapisuje schematy jako jednostkę w protokole przed przebiegiem.
+Uzasadnienie jednostki: WSC273 składa się ze schematów, czyli kolejnych zdań różniących się jednym-dwoma słowami, zwykle z przeciwnymi
 odpowiedziami. Stała odpowiedź trafia w takim schemacie mniej więcej raz na parę, więc wariancja różnicy siedzi
 w schematach, a SE po pytaniach ją zawyża. Zbiór nie ma id schematu. Schematy wyznaczamy z tekstu zdań
 (`schematy` w `wsc273.py`): kolejne zdanie należy do schematu poprzedniego, gdy zbiory ich słów pokrywają się
 w co najmniej 60% (Jaccard). Wychodzi 135 schematów: 133 pary, jeden schemat z 3 zdaniami (George, wiersze <!-- liczba-spoza-wynikow: próg grupowania, stała PROG_SCHEMATU -->
 252-254) i jeden z 4 (Madonna, 267-270). Podział po kolejności wierszy (k // 2) rozjeżdża się na tych dwóch
 schematach i dalej, więc go nie używamy. Wynik zależy od grupowania tylko w drugim miejscu: przy progu 50%
-(134 schematy) i 70% (140) z wobec bazy większościowej to 4,40 i 4,13, czyli zawsze pewne. <!-- liczba-spoza-wynikow: progi grupowania; z z po_schematach_wrazliwosc_progu w results/wsc273.json -->
+(134 schematy) i 70% (140) t wobec bazy większościowej to 4,40 i 4,13, czyli zawsze pewne. <!-- liczba-spoza-wynikow: progi grupowania; t z po_schematach_wrazliwosc_progu w results/wsc273.json -->
 
 Panelu 200 nie przeliczamy po schematach: panel losuje pojedyncze zdania, więc część schematów jest w nim
-niepełna i ani SE po pytaniach, ani SE po schematach nie opisuje go czysto; jego werdykty w tabeli są po pytaniach.
+niepełna i ani SE po pytaniach, ani SE po schematach nie opisuje go czysto; jego werdykty w tabeli są po pytaniach
+i służą tylko zgodności ze Space.
 
 Przebieg próbki zgadza się z podzbiorem przebiegu pełnego: największa różnica logliku to 0,0, liczba różnych `acc` to 0. <!-- liczba-spoza-wynikow: zgodność przebiegów z results/wsc273.json -->
 Najdłuższe żądanie ma 48 tokenów, więc nic nie zostało obcięte. <!-- liczba-spoza-wynikow: wyjście evaluate -->

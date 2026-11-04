@@ -1041,7 +1041,12 @@
      "z": -2.698210891968547,
      "verdict": "prawdopodobne",
      "a": 0.5544642857142857,
-     "b": 0.6
+     "b": 0.6,
+     "holm": {
+      "p_holm": 0.04879928305045804,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "material-dynamics": {
      "value": -0.05641025641025641,
@@ -1055,7 +1060,12 @@
      "z": -3.8449691402077475,
      "verdict": "pewne",
      "a": 0.6666666666666666,
-     "b": 0.7230769230769231
+     "b": 0.7230769230769231,
+     "holm": {
+      "p_holm": 0.0010851084964941405,
+      "werdykt_holm": "pewne",
+      "po_holmie": "tak"
+     }
     },
     "material-properties": {
      "value": 0.012096774193548387,
@@ -1069,7 +1079,12 @@
      "z": 0.2883029082712055,
      "verdict": "szum",
      "a": 0.6048387096774194,
-     "b": 0.592741935483871
+     "b": 0.592741935483871,
+     "holm": {
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "physical-dynamics": {
      "value": -0.04666666666666667,
@@ -1083,7 +1098,12 @@
      "z": -0.6634640835636696,
      "verdict": "szum",
      "a": 0.6133333333333333,
-     "b": 0.66
+     "b": 0.66,
+     "holm": {
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "physical-interactions": {
      "value": 0.0035714285714285713,
@@ -1097,7 +1117,12 @@
      "z": 0.11304776013029186,
      "verdict": "szum",
      "a": 0.55,
-     "b": 0.5464285714285714
+     "b": 0.5464285714285714,
+     "holm": {
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "physical-relations": {
      "value": -0.046987951807228916,
@@ -1111,7 +1136,12 @@
      "z": -2.0997217401492216,
      "verdict": "prawdopodobne",
      "a": 0.4987951807228916,
-     "b": 0.5457831325301205
+     "b": 0.5457831325301205,
+     "holm": {
+      "p_holm": 0.17876663008074498,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "quantitative-properties": {
      "value": -0.07894736842105263,
@@ -1125,7 +1155,12 @@
      "z": -2.195634864932287,
      "verdict": "prawdopodobne",
      "a": 0.6631578947368421,
-     "b": 0.7421052631578947
+     "b": 0.7421052631578947,
+     "holm": {
+      "p_holm": 0.16870853202303276,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "social-interactions": {
      "value": -0.1,
@@ -1139,7 +1174,12 @@
      "z": -2.771754836932165,
      "verdict": "prawdopodobne",
      "a": 0.7142857142857143,
-     "b": 0.8142857142857143
+     "b": 0.8142857142857143,
+     "holm": {
+      "p_holm": 0.04460400893993666,
+      "werdykt_holm": "prawdopodobne",
+      "po_holmie": "tak"
+     }
     },
     "social-properties": {
      "value": -0.16216216216216217,
@@ -1153,7 +1193,12 @@
      "z": -4.434165690121631,
      "verdict": "pewne",
      "a": 0.6567567567567567,
-     "b": 0.8189189189189189
+     "b": 0.8189189189189189,
+     "holm": {
+      "p_holm": 9.242952319814752e-05,
+      "werdykt_holm": "pewne",
+      "po_holmie": "tak"
+     }
     },
     "social-relations": {
      "value": -0.14140127388535031,
@@ -1167,7 +1212,12 @@
      "z": -8.332006611337395,
      "verdict": "pewne",
      "a": 0.5668789808917197,
-     "b": 0.70828025477707
+     "b": 0.70828025477707,
+     "holm": {
+      "p_holm": 8.743185961081078e-16,
+      "werdykt_holm": "pewne",
+      "po_holmie": "tak"
+     }
     },
     "spatial-relations": {
      "value": 0.03877551020408163,
@@ -1181,7 +1231,12 @@
      "z": 1.4123289575285902,
      "verdict": "szum",
      "a": 0.5673469387755102,
-     "b": 0.5285714285714286
+     "b": 0.5285714285714286,
+     "holm": {
+      "p_holm": 0.6314124952221783,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     }
    },
    "diff_by_domain_clusters": {
@@ -1192,6 +1247,16 @@
     "df": 10,
     "p": 0.012636696584881094,
     "verdict": "prawdopodobne"
+   },
+   "holm_by_template": {
+    "p_holm": 7.039634169068112e-16,
+    "werdykt_holm": "pewne",
+    "po_holmie": "tak"
+   },
+   "holm_by_domain_clusters": {
+    "p_holm": 0.02527339316976219,
+    "werdykt_holm": "prawdopodobne",
+    "po_holmie": "tak"
    }
   },
   {
@@ -1235,7 +1300,12 @@
      "z": -2.0853834367638626,
      "verdict": "prawdopodobne",
      "a": 0.5544642857142857,
-     "b": 0.59375
+     "b": 0.59375,
+     "holm": {
+      "p_holm": 0.22220705461204,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "material-dynamics": {
      "value": -0.17692307692307693,
@@ -1249,7 +1319,12 @@
      "z": -11.359441344611668,
      "verdict": "pewne",
      "a": 0.6666666666666666,
-     "b": 0.8435897435897436
+     "b": 0.8435897435897436,
+     "holm": {
+      "p_holm": 7.322585918286221e-29,
+      "werdykt_holm": "pewne",
+      "po_holmie": "tak"
+     }
     },
     "material-properties": {
      "value": 0.008064516129032258,
@@ -1263,7 +1338,12 @@
      "z": 0.18821825649408927,
      "verdict": "szum",
      "a": 0.6048387096774194,
-     "b": 0.5967741935483871
+     "b": 0.5967741935483871,
+     "holm": {
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "physical-dynamics": {
      "value": -0.06666666666666667,
@@ -1277,7 +1357,12 @@
      "z": -1.3711988681906335,
      "verdict": "szum",
      "a": 0.6133333333333333,
-     "b": 0.68
+     "b": 0.68,
+     "holm": {
+      "p_holm": 0.5623276911527613,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "physical-interactions": {
      "value": -0.04642857142857143,
@@ -1291,7 +1376,12 @@
      "z": -1.473627463238297,
      "verdict": "szum",
      "a": 0.55,
-     "b": 0.5964285714285714
+     "b": 0.5964285714285714,
+     "holm": {
+      "p_holm": 0.5623276911527613,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "physical-relations": {
      "value": -0.060240963855421686,
@@ -1305,7 +1395,12 @@
      "z": -2.194368932877742,
      "verdict": "prawdopodobne",
      "a": 0.4987951807228916,
-     "b": 0.5590361445783133
+     "b": 0.5590361445783133,
+     "holm": {
+      "p_holm": 0.19746228227374446,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "quantitative-properties": {
      "value": 0.018421052631578946,
@@ -1319,7 +1414,12 @@
      "z": 0.35313725188283845,
      "verdict": "szum",
      "a": 0.6631578947368421,
-     "b": 0.6447368421052632
+     "b": 0.6447368421052632,
+     "holm": {
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "social-interactions": {
      "value": -0.08857142857142856,
@@ -1333,7 +1433,12 @@
      "z": -2.992852508405913,
      "verdict": "prawdopodobne",
      "a": 0.7142857142857143,
-     "b": 0.8028571428571428
+     "b": 0.8028571428571428,
+     "holm": {
+      "p_holm": 0.024874495372882593,
+      "werdykt_holm": "prawdopodobne",
+      "po_holmie": "tak"
+     }
     },
     "social-properties": {
      "value": -0.10810810810810811,
@@ -1347,7 +1452,12 @@
      "z": -2.963695222768896,
      "verdict": "prawdopodobne",
      "a": 0.6567567567567567,
-     "b": 0.7648648648648648
+     "b": 0.7648648648648648,
+     "holm": {
+      "p_holm": 0.024874495372882593,
+      "werdykt_holm": "prawdopodobne",
+      "po_holmie": "tak"
+     }
     },
     "social-relations": {
      "value": -0.12993630573248408,
@@ -1361,7 +1471,12 @@
      "z": -7.16049082019678,
      "verdict": "pewne",
      "a": 0.5668789808917197,
-     "b": 0.6968152866242038
+     "b": 0.6968152866242038,
+     "holm": {
+      "p_holm": 8.038871361701929e-12,
+      "werdykt_holm": "pewne",
+      "po_holmie": "tak"
+     }
     },
     "spatial-relations": {
      "value": -0.07346938775510205,
@@ -1375,7 +1490,12 @@
      "z": -1.6528287439626617,
      "verdict": "szum",
      "a": 0.5673469387755102,
-     "b": 0.6408163265306123
+     "b": 0.6408163265306123,
+     "holm": {
+      "p_holm": 0.4918286118076499,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     }
    },
    "diff_by_domain_clusters": {
@@ -1386,6 +1506,16 @@
     "df": 10,
     "p": 0.00233980440029457,
     "verdict": "pewne"
+   },
+   "holm_by_template": {
+    "p_holm": 3.188992618099485e-23,
+    "werdykt_holm": "pewne",
+    "po_holmie": "tak"
+   },
+   "holm_by_domain_clusters": {
+    "p_holm": 0.008734025105689967,
+    "werdykt_holm": "prawdopodobne",
+    "po_holmie": "tak"
    }
   },
   {
@@ -1429,7 +1559,12 @@
      "z": -0.35693430895087475,
      "verdict": "szum",
      "a": 0.5544642857142857,
-     "b": 0.5602678571428571
+     "b": 0.5602678571428571,
+     "holm": {
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "material-dynamics": {
      "value": -0.06217948717948718,
@@ -1443,7 +1578,12 @@
      "z": -4.842869721836981,
      "verdict": "pewne",
      "a": 0.6666666666666666,
-     "b": 0.7288461538461538
+     "b": 0.7288461538461538,
+     "holm": {
+      "p_holm": 1.4077492339437405e-05,
+      "werdykt_holm": "pewne",
+      "po_holmie": "tak"
+     }
     },
     "material-properties": {
      "value": 0.020161290322580645,
@@ -1457,7 +1597,12 @@
      "z": 0.4433203002928298,
      "verdict": "szum",
      "a": 0.6048387096774194,
-     "b": 0.5846774193548387
+     "b": 0.5846774193548387,
+     "holm": {
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "physical-dynamics": {
      "value": 0.0,
@@ -1471,7 +1616,12 @@
      "z": 0.0,
      "verdict": "szum",
      "a": 0.6133333333333333,
-     "b": 0.6133333333333333
+     "b": 0.6133333333333333,
+     "holm": {
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "physical-interactions": {
      "value": -0.08928571428571429,
@@ -1485,7 +1635,12 @@
      "z": -2.531665830609869,
      "verdict": "prawdopodobne",
      "a": 0.55,
-     "b": 0.6392857142857142
+     "b": 0.6392857142857142,
+     "holm": {
+      "p_holm": 0.11352212326559316,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "physical-relations": {
      "value": -0.051807228915662654,
@@ -1499,7 +1654,12 @@
      "z": -1.723308377893568,
      "verdict": "szum",
      "a": 0.4987951807228916,
-     "b": 0.5506024096385542
+     "b": 0.5506024096385542,
+     "holm": {
+      "p_holm": 0.7634949617739422,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "quantitative-properties": {
      "value": 0.04473684210526316,
@@ -1513,7 +1673,12 @@
      "z": 0.9806779235445006,
      "verdict": "szum",
      "a": 0.6631578947368421,
-     "b": 0.618421052631579
+     "b": 0.618421052631579,
+     "holm": {
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "social-interactions": {
      "value": 0.02,
@@ -1527,7 +1692,12 @@
      "z": 0.6272831365691698,
      "verdict": "szum",
      "a": 0.7142857142857143,
-     "b": 0.6942857142857143
+     "b": 0.6942857142857143,
+     "holm": {
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "social-properties": {
      "value": 0.013513513513513514,
@@ -1541,7 +1711,12 @@
      "z": 0.3209816344388594,
      "verdict": "szum",
      "a": 0.6567567567567567,
-     "b": 0.6432432432432432
+     "b": 0.6432432432432432,
+     "holm": {
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "social-relations": {
      "value": -0.017197452229299363,
@@ -1555,7 +1730,12 @@
      "z": -1.166732576712579,
      "verdict": "szum",
      "a": 0.5668789808917197,
-     "b": 0.5840764331210191
+     "b": 0.5840764331210191,
+     "holm": {
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "spatial-relations": {
      "value": -0.014285714285714285,
@@ -1569,7 +1749,12 @@
      "z": -0.4811471897373182,
      "verdict": "szum",
      "a": 0.5673469387755102,
-     "b": 0.5816326530612245
+     "b": 0.5816326530612245,
+     "holm": {
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     }
    },
    "diff_by_domain_clusters": {
@@ -1580,6 +1765,16 @@
     "df": 10,
     "p": 0.3121145182879841,
     "verdict": "szum"
+   },
+   "holm_by_template": {
+    "p_holm": 0.002193839861547305,
+    "werdykt_holm": "pewne",
+    "po_holmie": "tak"
+   },
+   "holm_by_domain_clusters": {
+    "p_holm": 0.3121145182879841,
+    "werdykt_holm": "szum",
+    "po_holmie": "nie"
    }
   },
   {
@@ -1623,7 +1818,12 @@
      "z": -5.566989566241826,
      "verdict": "pewne",
      "a": 0.5544642857142857,
-     "b": 0.6450892857142857
+     "b": 0.6450892857142857,
+     "holm": {
+      "p_holm": 2.5917790754101964e-07,
+      "werdykt_holm": "pewne",
+      "po_holmie": "tak"
+     }
     },
     "material-dynamics": {
      "value": -0.19230769230769232,
@@ -1637,7 +1837,12 @@
      "z": -11.898034058157252,
      "verdict": "pewne",
      "a": 0.6666666666666666,
-     "b": 0.8589743589743589
+     "b": 0.8589743589743589,
+     "holm": {
+      "p_holm": 1.3328480234648936e-31,
+      "werdykt_holm": "pewne",
+      "po_holmie": "tak"
+     }
     },
     "material-properties": {
      "value": 0.05241935483870968,
@@ -1651,7 +1856,12 @@
      "z": 1.7684372568780586,
      "verdict": "szum",
      "a": 0.6048387096774194,
-     "b": 0.5524193548387096
+     "b": 0.5524193548387096,
+     "holm": {
+      "p_holm": 0.30795133081975345,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "physical-dynamics": {
      "value": -0.07333333333333333,
@@ -1665,7 +1875,12 @@
      "z": -1.674076210622198,
      "verdict": "szum",
      "a": 0.6133333333333333,
-     "b": 0.6866666666666666
+     "b": 0.6866666666666666,
+     "holm": {
+      "p_holm": 0.30795133081975345,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "physical-interactions": {
      "value": -0.06964285714285715,
@@ -1679,7 +1894,12 @@
      "z": -2.0952507917311816,
      "verdict": "prawdopodobne",
      "a": 0.55,
-     "b": 0.6196428571428572
+     "b": 0.6196428571428572,
+     "holm": {
+      "p_holm": 0.20093182391242057,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "physical-relations": {
      "value": -0.0783132530120482,
@@ -1693,7 +1913,12 @@
      "z": -2.6655712163323337,
      "verdict": "prawdopodobne",
      "a": 0.4987951807228916,
-     "b": 0.5771084337349398
+     "b": 0.5771084337349398,
+     "holm": {
+      "p_holm": 0.05380035574629091,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "quantitative-properties": {
      "value": -0.04473684210526316,
@@ -1707,7 +1932,12 @@
      "z": -1.0301480482807484,
      "verdict": "szum",
      "a": 0.6631578947368421,
-     "b": 0.7078947368421052
+     "b": 0.7078947368421052,
+     "holm": {
+      "p_holm": 0.5115542061278793,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "social-interactions": {
      "value": -0.08857142857142856,
@@ -1721,7 +1951,12 @@
      "z": -2.12617564379776,
      "verdict": "prawdopodobne",
      "a": 0.7142857142857143,
-     "b": 0.8028571428571428
+     "b": 0.8028571428571428,
+     "holm": {
+      "p_holm": 0.20093182391242057,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "social-properties": {
      "value": -0.17027027027027028,
@@ -1735,7 +1970,12 @@
      "z": -4.6208126635783655,
      "verdict": "pewne",
      "a": 0.6567567567567567,
-     "b": 0.827027027027027
+     "b": 0.827027027027027,
+     "holm": {
+      "p_holm": 3.4401583144799225e-05,
+      "werdykt_holm": "pewne",
+      "po_holmie": "tak"
+     }
     },
     "social-relations": {
      "value": -0.11464968152866242,
@@ -1749,7 +1989,12 @@
      "z": -4.4377476686184645,
      "verdict": "pewne",
      "a": 0.5668789808917197,
-     "b": 0.6815286624203821
+     "b": 0.6815286624203821,
+     "holm": {
+      "p_holm": 7.27240771137977e-05,
+      "werdykt_holm": "pewne",
+      "po_holmie": "tak"
+     }
     },
     "spatial-relations": {
      "value": -0.04285714285714286,
@@ -1763,7 +2008,12 @@
      "z": -1.136428907911934,
      "verdict": "szum",
      "a": 0.5673469387755102,
-     "b": 0.610204081632653
+     "b": 0.610204081632653,
+     "holm": {
+      "p_holm": 0.5115542061278793,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     }
    },
    "diff_by_domain_clusters": {
@@ -1774,6 +2024,16 @@
     "df": 10,
     "p": 0.0017468050211379934,
     "verdict": "pewne"
+   },
+   "holm_by_template": {
+    "p_holm": 4.1583375585590805e-32,
+    "werdykt_holm": "pewne",
+    "po_holmie": "tak"
+   },
+   "holm_by_domain_clusters": {
+    "p_holm": 0.008734025105689967,
+    "werdykt_holm": "prawdopodobne",
+    "po_holmie": "tak"
    }
   },
   {
@@ -1817,7 +2077,12 @@
      "z": -3.5159738180953815,
      "verdict": "pewne",
      "a": 0.5544642857142857,
-     "b": 0.6191964285714285
+     "b": 0.6191964285714285,
+     "holm": {
+      "p_holm": 0.003943297700651275,
+      "werdykt_holm": "prawdopodobne",
+      "po_holmie": "tak"
+     }
     },
     "material-dynamics": {
      "value": -0.12564102564102564,
@@ -1831,7 +2096,12 @@
      "z": -8.273861196203509,
      "verdict": "pewne",
      "a": 0.6666666666666666,
-     "b": 0.7923076923076923
+     "b": 0.7923076923076923,
+     "holm": {
+      "p_holm": 1.4265804570414763e-15,
+      "werdykt_holm": "pewne",
+      "po_holmie": "tak"
+     }
     },
     "material-properties": {
      "value": 0.020161290322580645,
@@ -1845,7 +2115,12 @@
      "z": 0.5381673812272534,
      "verdict": "szum",
      "a": 0.6048387096774194,
-     "b": 0.5846774193548387
+     "b": 0.5846774193548387,
+     "holm": {
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "physical-dynamics": {
      "value": -0.1,
@@ -1859,7 +2134,12 @@
      "z": -1.7089037893331982,
      "verdict": "szum",
      "a": 0.6133333333333333,
-     "b": 0.7133333333333334
+     "b": 0.7133333333333334,
+     "holm": {
+      "p_holm": 0.43734386247068907,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "physical-interactions": {
      "value": -0.06964285714285715,
@@ -1873,7 +2153,12 @@
      "z": -1.9013523669810088,
      "verdict": "szum",
      "a": 0.55,
-     "b": 0.6196428571428572
+     "b": 0.6196428571428572,
+     "holm": {
+      "p_holm": 0.34353524506064625,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "physical-relations": {
      "value": -0.10240963855421686,
@@ -1887,7 +2172,12 @@
      "z": -3.6560506461536106,
      "verdict": "pewne",
      "a": 0.4987951807228916,
-     "b": 0.6012048192771084
+     "b": 0.6012048192771084,
+     "holm": {
+      "p_holm": 0.0025613077289660434,
+      "werdykt_holm": "pewne",
+      "po_holmie": "tak"
+     }
     },
     "quantitative-properties": {
      "value": -0.02894736842105263,
@@ -1901,7 +2191,12 @@
      "z": -0.5674673143527302,
      "verdict": "szum",
      "a": 0.6631578947368421,
-     "b": 0.6921052631578948
+     "b": 0.6921052631578948,
+     "holm": {
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "social-interactions": {
      "value": -0.045714285714285714,
@@ -1915,7 +2210,12 @@
      "z": -2.025564229072141,
      "verdict": "prawdopodobne",
      "a": 0.7142857142857143,
-     "b": 0.76
+     "b": 0.76,
+     "holm": {
+      "p_holm": 0.2996662221148271,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "social-properties": {
      "value": -0.05945945945945946,
@@ -1929,7 +2229,12 @@
      "z": -1.4795114702343464,
      "verdict": "szum",
      "a": 0.6567567567567567,
-     "b": 0.7162162162162162
+     "b": 0.7162162162162162,
+     "holm": {
+      "p_holm": 0.5560146721609133,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "social-relations": {
      "value": -0.05987261146496815,
@@ -1943,7 +2248,12 @@
      "z": -3.2555827916335116,
      "verdict": "pewne",
      "a": 0.5668789808917197,
-     "b": 0.6267515923566879
+     "b": 0.6267515923566879,
+     "holm": {
+      "p_holm": 0.009052791919722756,
+      "werdykt_holm": "prawdopodobne",
+      "po_holmie": "tak"
+     }
     },
     "spatial-relations": {
      "value": 0.014285714285714285,
@@ -1957,7 +2267,12 @@
      "z": 0.3053166951953392,
      "verdict": "szum",
      "a": 0.5673469387755102,
-     "b": 0.5530612244897959
+     "b": 0.5530612244897959,
+     "holm": {
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     }
    },
    "diff_by_domain_clusters": {
@@ -1968,6 +2283,16 @@
     "df": 10,
     "p": 0.0021054939814697535,
     "verdict": "pewne"
+   },
+   "holm_by_template": {
+    "p_holm": 3.8333131651145727e-16,
+    "werdykt_holm": "pewne",
+    "po_holmie": "tak"
+   },
+   "holm_by_domain_clusters": {
+    "p_holm": 0.008734025105689967,
+    "werdykt_holm": "prawdopodobne",
+    "po_holmie": "tak"
    }
   },
   {
@@ -2011,7 +2336,12 @@
      "z": -3.438747691121117,
      "verdict": "pewne",
      "a": 0.5544642857142857,
-     "b": 0.6196428571428572
+     "b": 0.6196428571428572,
+     "holm": {
+      "p_holm": 0.004675293102957007,
+      "werdykt_holm": "prawdopodobne",
+      "po_holmie": "tak"
+     }
     },
     "material-dynamics": {
      "value": -0.09102564102564102,
@@ -2025,7 +2355,12 @@
      "z": -6.488892197706248,
      "verdict": "pewne",
      "a": 0.6666666666666666,
-     "b": 0.7576923076923077
+     "b": 0.7576923076923077,
+     "holm": {
+      "p_holm": 9.511678819286316e-10,
+      "werdykt_holm": "pewne",
+      "po_holmie": "tak"
+     }
     },
     "material-properties": {
      "value": 0.012096774193548387,
@@ -2039,7 +2374,12 @@
      "z": 0.26248911720607987,
      "verdict": "szum",
      "a": 0.6048387096774194,
-     "b": 0.592741935483871
+     "b": 0.592741935483871,
+     "holm": {
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "physical-dynamics": {
      "value": -0.13333333333333333,
@@ -2053,7 +2393,12 @@
      "z": -2.0754968504097993,
      "verdict": "prawdopodobne",
      "a": 0.6133333333333333,
-     "b": 0.7466666666666667
+     "b": 0.7466666666666667,
+     "holm": {
+      "p_holm": 0.1897025523240632,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "physical-interactions": {
      "value": -0.048214285714285716,
@@ -2067,7 +2412,12 @@
      "z": -1.4137045687593288,
      "verdict": "szum",
      "a": 0.55,
-     "b": 0.5982142857142857
+     "b": 0.5982142857142857,
+     "holm": {
+      "p_holm": 0.629794653380832,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "physical-relations": {
      "value": -0.05301204819277108,
@@ -2081,7 +2431,12 @@
      "z": -2.318227734799508,
      "verdict": "prawdopodobne",
      "a": 0.4987951807228916,
-     "b": 0.5518072289156627
+     "b": 0.5518072289156627,
+     "holm": {
+      "p_holm": 0.12262168479968477,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "quantitative-properties": {
      "value": -0.015789473684210527,
@@ -2095,7 +2450,12 @@
      "z": -0.5461395782808972,
      "verdict": "szum",
      "a": 0.6631578947368421,
-     "b": 0.6789473684210526
+     "b": 0.6789473684210526,
+     "holm": {
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     },
     "social-interactions": {
      "value": -0.12571428571428572,
@@ -2109,7 +2469,12 @@
      "z": -3.159280514049781,
      "verdict": "pewne",
      "a": 0.7142857142857143,
-     "b": 0.84
+     "b": 0.84,
+     "holm": {
+      "p_holm": 0.011071142615486309,
+      "werdykt_holm": "prawdopodobne",
+      "po_holmie": "tak"
+     }
     },
     "social-properties": {
      "value": -0.16756756756756758,
@@ -2123,7 +2488,12 @@
      "z": -3.9287553484057867,
      "verdict": "pewne",
      "a": 0.6567567567567567,
-     "b": 0.8243243243243243
+     "b": 0.8243243243243243,
+     "holm": {
+      "p_holm": 0.0007684798751442674,
+      "werdykt_holm": "pewne",
+      "po_holmie": "tak"
+     }
     },
     "social-relations": {
      "value": -0.08280254777070063,
@@ -2137,7 +2507,12 @@
      "z": -4.946338862162743,
      "verdict": "pewne",
      "a": 0.5668789808917197,
-     "b": 0.6496815286624203
+     "b": 0.6496815286624203,
+     "holm": {
+      "p_holm": 7.56222711313677e-06,
+      "werdykt_holm": "pewne",
+      "po_holmie": "tak"
+     }
     },
     "spatial-relations": {
      "value": -0.030612244897959183,
@@ -2151,7 +2526,12 @@
      "z": -0.8902784814880997,
      "verdict": "szum",
      "a": 0.5673469387755102,
-     "b": 0.5979591836734693
+     "b": 0.5979591836734693,
+     "holm": {
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "po_holmie": "nie"
+     }
     }
    },
    "diff_by_domain_clusters": {
@@ -2162,6 +2542,16 @@
     "df": 10,
     "p": 0.0011926233563428932,
     "verdict": "pewne"
+   },
+   "holm_by_template": {
+    "p_holm": 2.399283507698559e-19,
+    "werdykt_holm": "pewne",
+    "po_holmie": "tak"
+   },
+   "holm_by_domain_clusters": {
+    "p_holm": 0.00715574013805736,
+    "werdykt_holm": "prawdopodobne",
+    "po_holmie": "tak"
    }
   }
  ]

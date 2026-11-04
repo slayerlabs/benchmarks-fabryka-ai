@@ -10,7 +10,7 @@ Refs #
 
 - [ ] Komendy z sekcji „Przed PR” w README.md kod 0 (w `research/`): bramka liczb, testy zmienionego benchmarku (z testem zgodności, jeśli jest własna implementacja), `tests/test_liczby_raportow.py`
 - [ ] `ORIGINAL.md` i `REPRODUCTION.md` ze spełnionym warunkiem odtworzenia (albo `DATASET.md` z kontrolą na modelu, który zna polski)
-- [ ] Typ testu w karcie (tabela typów w `research/METODOLOGIA.md`) i kontrola tym samym kodem według kolumny „kontrola” tego typu, albo „bez kontroli” ze zgodnością kodu
+- [ ] Wiersz testu w `research/README.md`, „Benchmarki i typy” (karta linkuje do niego, nie powtarza typu) i kontrola tym samym kodem według kolumny „kontrola” tego typu, albo „bez kontroli” ze zgodnością kodu
 - [ ] `RECIPE.md` z wpisem dla każdego wyniku w tym PR
 - [ ] Każdy wynik ma n i SE, każde porównanie różnicę w SE i werdykt
 - [ ] Bez wag modeli, zbiorów i plików powyżej 10 MB w commitach

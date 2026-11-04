@@ -80,6 +80,29 @@ def test_verdict_thresholds(m):
     assert m.verdict(2.99) == "prawdopodobne" and m.verdict(-2.0) == "prawdopodobne" and m.verdict(1.99) == "szum"
 
 
+def test_against_majority_is_paired_with_the_constant(m):
+    # catches: unpaired SE (SE of the model alone) or the constant taken from the model's picks
+    rows = [{"acc_norm": a, "gold": g} for a, g in zip([1, 1, 0, 1, 0, 1], [1, 1, 1, 0, 0, 1])]
+    r = m.against_majority(rows)
+    d = np.array([a - (g == 1) for a, g in ((q["acc_norm"], q["gold"]) for q in rows)], dtype=float)
+    assert r["constant"] == 1 and math.isclose(r["base"], 4 / 6)
+    assert math.isclose(r["se"], d.std(ddof=1) / math.sqrt(6)) and math.isclose(r["difference_pts"], 100 * d.mean())
+    rev = m.against_majority(rows[::-1])  # reversed question order: same numbers
+    assert math.isclose(rev["z"], r["z"]) and rev["constant"] == r["constant"]
+
+
+def test_with_holm_family_is_the_table(m):
+    # catches: Holm skipped, family size wrong, or flags attached to the wrong row
+    comps = {"a": {"z": 3.2}, "b": {"z": 2.5}, "c": {"z": 0.5}}
+    out = m.with_holm({k: dict(v) for k, v in comps.items()})
+    pa = math.erfc(3.2 / math.sqrt(2))
+    assert math.isclose(out["a"]["holm"]["p"], 3 * pa)
+    assert [out[k]["holm"]["flag"] for k in "abc"] == ["tak", "tak", "nie"]  # b: 2 · p(|z| = 2,5) = 0,0248
+    assert out["a"]["holm"]["verdict"] == "prawdopodobne"  # 3 · p(|z| = 3,2) = 0,0041 > p(|z| = 3)
+    rev = m.with_holm({k: dict(comps[k]) for k in "cba"})
+    assert all(math.isclose(rev[k]["holm"]["p"], out[k]["holm"]["p"]) for k in "abc")
+
+
 # ---------- independent recompute of the report ----------
 
 def f4(x):
@@ -210,31 +233,50 @@ def test_control(d):
         tol = max(2.0, 200 * PUB[f"{metric}_stderr"])
         has(d["text"], f"| {metric} | {f4(ours[metric])} | {f4(PUB[metric])} | {f2(diff)} | {f2(tol)} | "
                        f"{'tak' if abs(diff) <= tol else 'nie'} |")
-    se = math.sqrt(PUB["acc_norm"] * (1 - PUB["acc_norm"]) / PUB["n"])
-    g = [q["gold"] for q in d["s"]]
-    maj = max(g.count(0), g.count(1)) / len(g)
-    has(d["text"], f"leży {f2((PUB['acc_norm'] - 0.5) / se)} błędów standardowych ponad bazą losową i "
-                   f"{f2((PUB['acc_norm'] - maj) / se)} ponad bazą większościową (błąd standardowy {f4(se)})")
-    passed = all(abs(ours[k] - PUB[k]) <= max(0.02, 2 * PUB[f"{k}_stderr"]) for k in ours) and PUB["acc_norm"] - max(0.5, maj) > 2 * se
+    full, panel = vs_constant(d["p"]), vs_constant(part(d["p"], d["panel"]))
+    has(d["text"], f"b = {f4(full['b'])}), parowane per pytanie: pełny split {f2(full['pts'])} pkt (SE parowane "
+                   f"{f4(full['se'])}, z {f2(full['z'])}, {verdict(full['z'])}), panel {f2(panel['pts'])} pkt "
+                   f"(z {f2(panel['z'])}, {verdict(panel['z'])})")
+    passed = all(abs(ours[k] - PUB[k]) <= max(0.02, 2 * PUB[f"{k}_stderr"]) for k in ours) and full["z"] > 2
     has(d["text"], f"Kontrola zaliczona: {'tak' if passed else 'nie'}.")
 
 
+def vs_constant(lines):
+    """Paired against 'always the most frequent gold option' (ties: option 0), recomputed here."""
+    g = [q["gold"] for q in lines]
+    const = 0 if g.count(0) >= g.count(1) else 1
+    diff = np.array([float(pick_norm(q) == q["gold"]) - float(q["gold"] == const) for q in lines])
+    se = diff.std(ddof=1) / math.sqrt(len(diff))
+    return {"b": g.count(const) / len(g), "pts": 100 * diff.mean(), "se": se, "z": diff.mean() / se}
+
+
+def holm_words(zs):
+    """Holm over two-sided normal p of zs: ('tak'/'nie', verdict word of the adjusted p) per row."""
+    ps = [math.erfc(abs(z) / math.sqrt(2)) for z in zs]
+    adj, mx = [0.0] * len(ps), 0.0
+    for r, i in enumerate(sorted(range(len(ps)), key=lambda i: ps[i])):
+        mx = max(mx, min(1.0, (len(ps) - r) * ps[i]))
+        adj[i] = mx
+    p2, p3 = math.erfc(2 / math.sqrt(2)), math.erfc(3 / math.sqrt(2))
+    return [("tak" if a <= p2 else "nie", "pewne" if a <= p3 else "prawdopodobne" if a <= p2 else "szum") for a in adj]
+
+
 def test_comparisons(d):
+    rows = []  # (label, split, pts, z): the six comparisons of one table, the Holm family
     for label, idx in (("pełny", None), ("panel", d["panel"])):
         S, P = part(d["s"], idx), part(d["p"], idx)
         r = stats(S)
-        g = [q["gold"] for q in S]
-        maj = max(g.count(0), g.count(1)) / len(g)
-        for name, base in (("losowa", 0.5), ("większościowa", maj)):
-            z = (r["v"] - base) / r["se"]
-            has(d["text"], f"| Slayer 1.06 − baza {name} | {label} | {f2(100 * (r['v'] - base))} | {f2(z)} | {verdict(z)} |")
+        rows.append(("Slayer 1.06 − baza losowa", label, 100 * (r["v"] - 0.5), (r["v"] - 0.5) / r["se"]))
+        c = vs_constant(S)
+        rows.append(("Slayer 1.06 − stały predyktor (SE parowane)", label, c["pts"], c["z"]))
         diff = np.array([float(pick_norm(a) == a["gold"]) - float(pick_norm(b) == b["gold"]) for a, b in zip(S, P)])
         se = diff.std(ddof=1) / math.sqrt(len(diff))
-        z = diff.mean() / se
-        has(d["text"], f"| Slayer 1.06 − Pythia-1B v0 (SE parowane) | {label} | {f2(100 * diff.mean())} | {f2(z)} | {verdict(z)} |")
-        if label == "pełny":
-            has(d["text"], f"Slayer 1.06 ma {f4(r['v'])} na pełnym splicie, {f2(100 * (r['v'] - 0.5))} pkt ponad bazą "
-                           f"losową (z {f2((r['v'] - 0.5) / r['se'])}, {verdict((r['v'] - 0.5) / r['se'])})")
+        rows.append(("Slayer 1.06 − Pythia-1B v0 (SE parowane)", label, 100 * diff.mean(), diff.mean() / se))
+    for (name, label, pts, z), (flag, word) in zip(rows, holm_words([z for *_, z in rows])):
+        has(d["text"], f"| {name} | {label} | {f2(pts)} | {f2(z)} | {verdict(z)} | {flag} ({word}) |")
+    r = stats(d["s"])
+    has(d["text"], f"Slayer 1.06 ma {f4(r['v'])} na pełnym splicie, {f2(100 * (r['v'] - 0.5))} pkt ponad bazą "
+                   f"losową (z {f2((r['v'] - 0.5) / r['se'])}, {verdict((r['v'] - 0.5) / r['se'])})")
 
 
 def test_gpu_repeats(d):

@@ -5,7 +5,7 @@ Protocol and thresholds (written and committed before the measurement): [`CHECKP
 
 ## Question 1: does the gap to Pythia-1B shrink over the final run?
 
-**What the data show: step 13848 is closer to Pythia-1B than 10010, 2.14 pts (z = 15.00, certain; t = 3.86, certain), and than 7150, 1.78 pts (z = 12.03, certain; t = 3.18, certain). Between 7150 and 10010 the gap does not shrink: -0.36 pts (z = -2.50, probable; t = -0.77, noise). The rise falls in the only interval that contains a restart of the run, and a trend cannot be told apart from the swings between checkpoints.** From 8600 to 10010 the change is -0.59 pts (z = -4.28, certain; t = -1.34, noise): a drop on these pairs that is not shown at the paradigm level (noise there), so a dip at step 10010 is not shown beyond these pairs.
+**What the data show (binding level: t over the 67 paradigms, read after Holm over the 6 changes of the table below; the pair z is information about these pairs): step 13848 is closer to Pythia-1B than 10010, 2.14 pts (t = 3.86, certain, after Holm over the 6 changes certain, p = 0.0016; pairs z = 15.00, certain), and than 7150, 1.78 pts (t = 3.18, certain, after Holm over the 6 changes probable, p = 0.0112; pairs z = 12.03, certain). Between 7150 and 10010 the gap does not shrink: -0.36 pts (t = -0.77, noise, after Holm over the 6 changes noise, p = 0.8871; pairs z = -2.50, probable). The rise falls in the only interval that contains a restart of the run, and a trend cannot be told apart from the swings between checkpoints.** From 8600 to 10010 the change is -0.59 pts (t = -1.34, noise, after Holm over the 6 changes noise, p = 0.5561; pairs z = -4.28, certain): a drop on these pairs that is not shown at the paradigm level (noise there), so a dip at step 10010 is not shown beyond these pairs.
 
 **Protocol rule: met (CONFIRMED on pair and paradigm SE at fixed checkpoints). Shrinking of the gap with tokens: not determined** - the rule does not include checkpoint-to-checkpoint noise (SE from residuals 0.13 pts, p = 0.18) and the rise sits in the restart interval.
 
@@ -44,31 +44,35 @@ Reading: avg10 - annealed arm = 0.0028 nat, SE 0.0023, z = 1.23 (noise) on all w
 
 ## Accuracy per checkpoint
 
-Overall accuracy over 67 paradigms (n = 67 000 pairs), SE stratified by paradigm, bootstrap CI95. Gap = checkpoint - Pythia-1B (0.8207) on the same pairs, paired SE. Chance = 0.5. Points of side branches (1430, 2860) are not on the final run. Slayer 1.06 (step 13848) is a checkpoint from about 1/8 of the planned training, without LR annealing (per the model author, statement of 1 November 2026); Pythia-1B is fully trained.
+Overall accuracy over 67 paradigms (n = 67 000 pairs), SE stratified by paradigm, bootstrap CI95. Gap = checkpoint - Pythia-1B (0.8207) on the same pairs. Paradigms (binding): t over the 67 paradigm differences, df = 66, verdict from p. Pairs (information): paired SE, verdict from |z|. Holm over the 6 rows of the table, one family per level; 'after Holm' is yes when the adjusted p is at most the 'probable' p, and its verdict is read from the adjusted p. Chance = 0.5. Points of side branches (1430, 2860) are not on the final run. Slayer 1.06 (step 13848) is a checkpoint from about 1/8 of the planned training, without LR annealing (per the model author, statement of 1 November 2026); Pythia-1B is fully trained.
 
-| checkpoint | repo | final run | bn tokens | accuracy | SE | CI95 | gap to Pythia | SE | z | verdict |
-|---:|---|---|---:|---:|---:|---|---:|---:|---:|---|
-| 1430 | v1.00 | no | 1.50 | 0.7382 | 0.0015 | 0.7352-0.7411 | -8.26 pts | 0.17 pts | z = -48.76 | certain |
-| 2860 | v1.01 | no | 3.00 | 0.7616 | 0.0015 | 0.7587-0.7646 | -5.91 pts | 0.17 pts | z = -35.80 | certain |
-| 7150 | v1.03 | yes | 7.50 | 0.7743 | 0.0015 | 0.7714-0.7771 | -4.64 pts | 0.16 pts | z = -28.77 | certain |
-| 8600 | v1.04 | yes | 9.02 | 0.7766 | 0.0015 | 0.7738-0.7794 | -4.41 pts | 0.16 pts | z = -27.46 | certain |
-| 10010 | v1.04 | yes | 10.50 | 0.7707 | 0.0015 | 0.7678-0.7735 | -5.00 pts | 0.16 pts | z = -30.88 | certain |
-| 13848 | v1.06 | yes | 14.52 | 0.7921 | 0.0014 | 0.7892-0.7949 | -2.87 pts | 0.16 pts | z = -18.11 | certain |
+Conclusion for the table: at the paradigm level after Holm, 6 of the 6 checkpoints are certainly below Pythia-1B (every one).
+
+| checkpoint | repo | final run | bn tokens | accuracy | SE | CI95 | gap to Pythia | t paradigms | p paradigms | verdict paradigms | after Holm paradigms | SE pairs | z pairs | verdict pairs | after Holm pairs |
+|---:|---|---|---:|---:|---:|---|---:|---:|---:|---|---|---:|---:|---|---|
+| 1430 | v1.00 | no | 1.50 | 0.7382 | 0.0015 | 0.7352-0.7411 | -8.26 pts | t = -8.27 | < 10^-4 | certain | yes (certain) | 0.17 pts | z = -48.76 | certain | yes (certain) |
+| 2860 | v1.01 | no | 3.00 | 0.7616 | 0.0015 | 0.7587-0.7646 | -5.91 pts | t = -6.35 | < 10^-4 | certain | yes (certain) | 0.17 pts | z = -35.80 | certain | yes (certain) |
+| 7150 | v1.03 | yes | 7.50 | 0.7743 | 0.0015 | 0.7714-0.7771 | -4.64 pts | t = -5.07 | < 10^-4 | certain | yes (certain) | 0.16 pts | z = -28.77 | certain | yes (certain) |
+| 8600 | v1.04 | yes | 9.02 | 0.7766 | 0.0015 | 0.7738-0.7794 | -4.41 pts | t = -5.29 | < 10^-4 | certain | yes (certain) | 0.16 pts | z = -27.46 | certain | yes (certain) |
+| 10010 | v1.04 | yes | 10.50 | 0.7707 | 0.0015 | 0.7678-0.7735 | -5.00 pts | t = -5.73 | < 10^-4 | certain | yes (certain) | 0.16 pts | z = -30.88 | certain | yes (certain) |
+| 13848 | v1.06 | yes | 14.52 | 0.7921 | 0.0014 | 0.7892-0.7949 | -2.87 pts | t = -3.30 | 0.0016 | certain | yes (certain) | 0.16 pts | z = -18.11 | certain | yes (certain) |
 
 ![BLiMP over checkpoints](blimp_curve.svg)
 
 ## Changes between checkpoints of the final run
 
-Later - earlier on the same pairs, every pair of the four points. Pairs: paired SE stratified by paradigm, verdict from |z|. Paradigms: t over the 67 paradigm differences, df = 66, verdict from p.
+Later - earlier on the same pairs, every pair of the four points. Paradigms (binding): t over the 67 paradigm differences, df = 66, verdict from p. Pairs (information): paired SE stratified by paradigm, verdict from |z|. Holm over the 6 changes, one family per level; 'after Holm' is yes when the adjusted p is at most the 'probable' p, and its verdict is read from the adjusted p.
 
-| from | to | difference | SE pairs | z pairs | verdict pairs | t paradigms | p paradigms | verdict paradigms |
-|---:|---:|---:|---:|---:|---|---:|---:|---|
-| 7150 | 8600 | 0.23 pts | 0.14 pts | z = 1.66 | noise | t = 0.54 | 0.5902 | noise |
-| 7150 | 10010 | -0.36 pts | 0.14 pts | z = -2.50 | probable | t = -0.77 | 0.4435 | noise |
-| 7150 | 13848 | 1.78 pts | 0.15 pts | z = 12.03 | certain | t = 3.18 | 0.0022 | certain |
-| 8600 | 10010 | -0.59 pts | 0.14 pts | z = -4.28 | certain | t = -1.34 | 0.1854 | noise |
-| 8600 | 13848 | 1.55 pts | 0.14 pts | z = 10.81 | certain | t = 3.07 | 0.0031 | probable |
-| 10010 | 13848 | 2.14 pts | 0.14 pts | z = 15.00 | certain | t = 3.86 | 0.0003 | certain |
+Conclusion for the table (paradigms after Holm): certain 10010 -> 13848; probable 7150 -> 13848, 8600 -> 13848; the other changes noise.
+
+| from | to | difference | t paradigms | p paradigms | verdict paradigms | p Holm paradigms | after Holm paradigms | SE pairs | z pairs | verdict pairs | after Holm pairs |
+|---:|---:|---:|---:|---:|---|---:|---|---:|---:|---|---|
+| 7150 | 8600 | 0.23 pts | t = 0.54 | 0.5902 | noise | 0.8871 | no (noise) | 0.14 pts | z = 1.66 | noise | no (noise) |
+| 7150 | 10010 | -0.36 pts | t = -0.77 | 0.4435 | noise | 0.8871 | no (noise) | 0.14 pts | z = -2.50 | probable | yes (probable) |
+| 7150 | 13848 | 1.78 pts | t = 3.18 | 0.0022 | certain | 0.0112 | yes (probable) | 0.15 pts | z = 12.03 | certain | yes (certain) |
+| 8600 | 10010 | -0.59 pts | t = -1.34 | 0.1854 | noise | 0.5561 | no (noise) | 0.14 pts | z = -4.28 | certain | yes (certain) |
+| 8600 | 13848 | 1.55 pts | t = 3.07 | 0.0031 | probable | 0.0124 | yes (probable) | 0.14 pts | z = 10.81 | certain | yes (certain) |
+| 10010 | 13848 | 2.14 pts | t = 3.86 | 0.0003 | certain | 0.0016 | yes (certain) | 0.14 pts | z = 15.00 | certain | yes (certain) |
 
 Where the 10010 -> 13848 change sits: five paradigms carry 1.06 pts of the 2.14 pts (each paradigm weighs 1/67): left branch island echo question 0.23 pts, superlative quantifiers 2 0.22 pts, left branch island simple question 0.21 pts, existential there quantifiers 2 0.20 pts, coordinate structure constraint complex left branch 0.19 pts. Without them the change is 1.08 pts.
 
@@ -99,13 +103,13 @@ OLS on ln(tokens) over all 6 points, side branches included (no lineage, so no v
 
 ## Weight averaging vs Slayer 1.06
 
-Uniform mean of the last K trainer checkpoints of the Slayer 1.06 run (constant LR 6e-4), BLiMP paired against the CUDA run of step 13848 (= Slayer 1.06). The protocol expected no BLiMP change; a certain difference is reported, not claimed.
+Uniform mean of the last K trainer checkpoints of the Slayer 1.06 run (constant LR 6e-4), BLiMP paired against the CUDA run of step 13848 (= Slayer 1.06). The protocol expected no BLiMP change; a certain difference is reported, not claimed. Paradigms (binding): t over the 67 paradigm differences, df = 66. Holm over the 3 averages, one family per level, as in the tables above.
 
-| model | K | steps | accuracy | difference | SE pairs | z pairs | verdict pairs | t paradigms | verdict paradigms |
-|---|---:|---|---:|---:|---:|---:|---|---:|---|
-| avg3 | 3 | 13750-13848 | 0.7964 | 0.43 pts | 0.08 pts | z = 5.15 | certain | t = 1.69 | noise |
-| avg5 | 5 | 13650-13848 | 0.8000 | 0.79 pts | 0.09 pts | z = 8.62 | certain | t = 2.82 | probable |
-| avg10 (amendment 2: measured after avg3/avg5 BLiMP was read; not a protocol result) | 10 | 13400-13848 | 0.8030 | 1.09 pts | 0.10 pts | z = 10.81 | certain | t = 3.53 | certain |
+| model | K | steps | accuracy | difference | t paradigms | verdict paradigms | after Holm paradigms | SE pairs | z pairs | verdict pairs | after Holm pairs |
+|---|---:|---|---:|---:|---:|---|---|---:|---:|---|---|
+| avg3 | 3 | 13750-13848 | 0.7964 | 0.43 pts | t = 1.69 | noise | no (noise) | 0.08 pts | z = 5.15 | certain | yes (certain) |
+| avg5 | 5 | 13650-13848 | 0.8000 | 0.79 pts | t = 2.82 | probable | yes (probable) | 0.09 pts | z = 8.62 | certain | yes (certain) |
+| avg10 (amendment 2: measured after avg3/avg5 BLiMP was read; not a protocol result) | 10 | 13400-13848 | 0.8030 | 1.09 pts | t = 3.53 | certain | yes (certain) | 0.10 pts | z = 10.81 | certain | yes (certain) |
 
 Per phenomenon (protocol question 2): average - Slayer 1.06 on the same pairs, paired SE, Holm over 12 phenomena x 3 averages at the 'probable' level. On the pairs, Holm-significant: 17 of 36, of them 2 decreases (quantifiers in avg5, quantifiers in avg10). Over the paradigms (phenomena with at least 3 paradigms, 27 tests): 4 not noise without correction (probable), of them 0 decreases; after Holm over the 27 tests at the 'probable' level 0 remain; the pair-level decreases are noise over the paradigms. That some phenomena fall while the overall accuracy rises is shown only on these pairs; for the phenomena it is not shown. Paradigms: t over the phenomenon's paradigm differences, df = k - 1; fewer than 3 paradigms: undetermined.
 

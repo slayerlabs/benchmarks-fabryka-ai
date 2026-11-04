@@ -7,7 +7,7 @@ ustalić, wpisz „nieustalone” z listą przeszukanych miejsc.
 | pole | wartość |
 |---|---|
 | Co mierzy | umiejętność: ; metoda przejęta od (benchmark, jeśli jest): |
-| Typ testu | kod z tabeli typów METODOLOGII z modyfikatorami, np. `mc +pl`: |
+| Typ testu | link do wiersza testu w [README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy) (typ stoi tylko tam): |
 | Jak powstał | źródło tekstów: ; daty: ; narzędzia: ; kryteria doboru: ; licencja: |
 | Kto pisał i kto sprawdzał | autor (nick GitHub): ; sprawdzał: ; co i na ilu przykładach: |
 | Jawna próbka | plik w repo: ; n (około 10% zbioru): |

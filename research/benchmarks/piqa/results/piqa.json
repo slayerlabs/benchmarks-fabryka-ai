@@ -211,9 +211,24 @@
    }
   },
   "discriminates": {
-   "se_published": 0.010636136039605329,
-   "z_over_random": 19.284658814142347,
-   "z_over_majority": 18.824282343778208,
+   "full": {
+    "base": 0.5048966267682263,
+    "constant": 1,
+    "difference_pts": 20.45701849836779,
+    "se": 0.015651171513160526,
+    "z": 13.070598888502497,
+    "verdict": "pewne",
+    "n": 1838
+   },
+   "panel": {
+    "base": 0.51,
+    "constant": 0,
+    "difference_pts": 22.0,
+    "se": 0.0471072762679709,
+    "z": 4.670191474211427,
+    "verdict": "pewne",
+    "n": 200
+   },
    "ok": true
   },
   "passed": true
@@ -222,12 +237,26 @@
   "slayer_vs_random_full": {
    "difference_pts": 14.145810663764957,
    "z": 12.642364752916496,
-   "verdict": "pewne"
+   "verdict": "pewne",
+   "holm": {
+    "p": 7.397358934194613e-36,
+    "verdict": "pewne",
+    "flag": "tak"
+   }
   },
   "slayer_vs_majority_full": {
-   "difference_pts": 13.656147986942324,
-   "z": 12.20474443454631,
-   "verdict": "pewne"
+   "base": 0.5048966267682263,
+   "constant": 1,
+   "difference_pts": 13.65614798694233,
+   "se": 0.016150737340183033,
+   "z": 8.455433147913213,
+   "verdict": "pewne",
+   "n": 1838,
+   "holm": {
+    "p": 1.3902661542229953e-16,
+    "verdict": "pewne",
+    "flag": "tak"
+   }
   },
   "slayer_minus_pythia_full": {
    "difference": -0.06800870511425462,
@@ -235,17 +264,36 @@
    "se": 0.009496543038751927,
    "z": -7.161417037414132,
    "verdict": "pewne",
-   "n": 1838
+   "n": 1838,
+   "holm": {
+    "p": 3.1938932747309237e-12,
+    "verdict": "pewne",
+    "flag": "tak"
+   }
   },
   "slayer_vs_random_panel": {
    "difference_pts": 18.000000000000004,
    "z": 5.443391838356153,
-   "verdict": "pewne"
+   "verdict": "pewne",
+   "holm": {
+    "p": 1.5682644168516333e-07,
+    "verdict": "pewne",
+    "flag": "tak"
+   }
   },
   "slayer_vs_majority_panel": {
-   "difference_pts": 17.000000000000004,
-   "z": 5.1409811806697,
-   "verdict": "pewne"
+   "base": 0.51,
+   "constant": 0,
+   "difference_pts": 17.0,
+   "se": 0.050678809265241355,
+   "z": 3.354459239763482,
+   "verdict": "pewne",
+   "n": 200,
+   "holm": {
+    "p": 0.0015904053511722402,
+    "verdict": "pewne",
+    "flag": "tak"
+   }
   },
   "slayer_minus_pythia_panel": {
    "difference": -0.05,
@@ -253,7 +301,12 @@
    "se": 0.02722509926796877,
    "z": -1.836540594686707,
    "verdict": "szum",
-   "n": 200
+   "n": 200,
+   "holm": {
+    "p": 0.06627774400125293,
+    "verdict": "szum",
+    "flag": "nie"
+   }
   }
  },
  "gpu_repeats": {

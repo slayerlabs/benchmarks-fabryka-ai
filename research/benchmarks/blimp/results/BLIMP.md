@@ -5,13 +5,15 @@ Protocol and thresholds (written before the measurement): [`THRESHOLDS.md`](../T
 
 **Slayer 1.06: 0.7921 (CI95 0.7892-0.7949), Pythia-1B: 0.8207 (CI95 0.8181-0.8233) on all 67000 minimal pairs.**
 
+**Binding verdict (the 67 paradigms as clusters, SE K, t at df = 66): Slayer 1.06 - Pythia-1B = -2.87 pts, SE 0.87 pts, t = -3.30, p = 0.0016: certain. Per phenomenon, after Holm over the 9 phenomena with at least 3 paradigms: none certain, 2 probable (argument structure, subject verb agreement), 7 noise.** The pair level (z over the 67 000 pairs) is information about these pairs, not the verdict of this report.
+
 Slayer 1.06 is a checkpoint from about 1/8 of the planned training, without LR annealing (per the model author, statement of 1 November 2026); Pythia-1B is fully trained. The comparison is between this checkpoint and a finished model, not between the two training recipes.
 
-- **On these 67 000 pairs:** difference -2.87 pts, paired SE 0.16 pts, z = -18.11: certain. This says the gap is real for these pairs. This is the comparison THRESHOLDS.md fixed before the measurement.
-- **Generalised to paradigms** (the 67 paradigms as clusters, since pairs of one paradigm share a template): SE 0.87 pts, t = -3.30, df = 66, p = 0.0016 from the t distribution: certain; bootstrap over paradigms CI95 -4.50 pts to -1.16 pts; Pythia ahead in 56 of 67 paradigms (exact sign test, p < 10^-7). Sensitivity: without the 2 paradigms with the largest gap t = -2.91, df = 64, p = 0.0049 (probable), so the paradigm-level verdict rests partly on a few paradigms. *[Added after the measurement: exploratory, not in THRESHOLDS.md.]*
+- **Generalised to paradigms (binding)** (the 67 paradigms as clusters, since pairs of one paradigm share a template): SE 0.87 pts, t = -3.30, df = 66, p = 0.0016 from the t distribution: certain; bootstrap over paradigms CI95 -4.50 pts to -1.16 pts; Pythia ahead in 56 of 67 paradigms (exact sign test, p < 10^-7). Sensitivity: without the 2 paradigms with the largest gap t = -2.91, df = 64, p = 0.0049 (probable), so the paradigm-level verdict rests partly on a few paradigms. *[Added after the measurement, not in THRESHOLDS.md; binding by METODOLOGIA.md, type `para +klastry`.]*
+- **On these 67 000 pairs (information):** difference -2.87 pts, paired SE 0.16 pts, z = -18.11: certain. This says the gap is real for these pairs. This is the comparison THRESHOLDS.md fixed before the measurement.
 - **Per token** (log-likelihood divided by the number of tokens, since the tokenizers differ): difference -3.09 pts, SE 0.17 pts, z = -17.76: certain. *[Added after the measurement: exploratory, not in THRESHOLDS.md.]*
 
-THRESHOLDS.md fixed, before any result was seen: the pair-level comparison and its verdicts (overall, phenomena, paradigms), the Pythia control and the Space panel check. Everything marked *added after the measurement* was added after the results were seen, partly at reviewers' request: paradigms as clusters (read through the t distribution), the k < 3 rule, the Holm correction, per-token scores, the tokenization and same-words splits, and the random-panel analysis of the Space panel. Read those as exploratory. Verdict thresholds everywhere are those of THRESHOLDS.md: |z| >= 3 certain, 2-3 probable, < 2 noise; a t with df = k - 1 is held to the same two-sided p (<= 0.0027 certain, <= 0.0455 probable).
+THRESHOLDS.md fixed, before any result was seen: the pair-level comparison and its verdicts (overall, phenomena, paradigms), the Pythia control and the Space panel check. Everything marked *added after the measurement* was added after the results were seen, partly at reviewers' request: paradigms as clusters (read through the t distribution), the k < 3 rule, the Holm correction, per-token scores, the tokenization and same-words splits, and the random-panel analysis of the Space panel. METODOLOGIA.md, written after this measurement, makes the paradigm level and the Holm column of a table binding for BLiMP (type `para +klastry`), so the pair level fixed in THRESHOLDS.md is now information about these pairs; the rest of the later additions reads as exploratory. Verdict thresholds everywhere are those of THRESHOLDS.md: |z| >= 3 certain, 2-3 probable, < 2 noise; a t with df = k - 1 and a Holm-adjusted p are held to the same two-sided p (<= 0.0027 certain, <= 0.0455 probable).
 
 ## Overall
 
@@ -55,28 +57,30 @@ The panel is a lucky one for both models: only 3.3% of random panels give Slayer
 
 ## 12 phenomena
 
-Two verdicts per phenomenon. *Pairs* (fixed in THRESHOLDS.md): paired SE over the pairs of the phenomenon, verdict from |z| (is the gap real on these pairs); it applies at any number of paradigms. *Paradigms*: SE over the paradigm differences of the phenomenon, t = mean / SE with df = k - 1, verdict from the p of the t distribution (would it hold for other paradigms of the phenomenon); with fewer than 3 paradigms this column gives no verdict (undetermined). The paradigm columns: *[Added after the measurement: exploratory, not in THRESHOLDS.md.]*
+Two verdicts per phenomenon. *Paradigms* (binding): SE over the paradigm differences of the phenomenon, t = mean / SE with df = k - 1, verdict from the p of the t distribution (would it hold for other paradigms of the phenomenon); with fewer than 3 paradigms this column gives no verdict (undetermined). *Pairs* (fixed in THRESHOLDS.md, information): paired SE over the pairs of the phenomenon, verdict from |z| (is the gap real on these pairs); it applies at any number of paradigms. Each level has a Holm column (one family per level: the 12 phenomena on pairs, the phenomena with k >= 3 on paradigms); 'after Holm' is yes when the Holm-adjusted p is at most the 'probable' p, and its verdict is read from the adjusted p. The paradigm and Holm columns: *[Added after the measurement, not in THRESHOLDS.md; binding by METODOLOGIA.md, type `para +klastry`.]*
 
-| phenomenon | paradigms | n | Slayer 1.06 | Pythia-1B | difference | SE pairs | z pairs | verdict pairs | SE paradigms | t paradigms | df | p paradigms | verdict paradigms |
-|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---:|---:|---:|---|
-| anaphor agreement | 2 | 2000 | 0.986 | 0.995 | -0.9 pts | 0.26 pts | z = -3.41 | certain | 0.40 pts | t = -2.25 | 1 | 0.2662 | undetermined (k < 3) |
-| argument structure | 9 | 9000 | 0.785 | 0.836 | -5.2 pts | 0.42 pts | z = -12.22 | certain | 1.11 pts | t = -4.68 | 8 | 0.0016 | certain |
-| binding | 7 | 7000 | 0.791 | 0.808 | -1.7 pts | 0.50 pts | z = -3.42 | certain | 3.43 pts | t = -0.50 | 6 | 0.6354 | noise |
-| control raising | 5 | 5000 | 0.776 | 0.832 | -5.5 pts | 0.55 pts | z = -9.99 | certain | 3.64 pts | t = -1.52 | 4 | 0.2040 | noise |
-| determiner noun agreement | 8 | 8000 | 0.930 | 0.951 | -2.1 pts | 0.29 pts | z = -7.11 | certain | 0.55 pts | t = -3.79 | 7 | 0.0068 | probable |
-| ellipsis | 2 | 2000 | 0.843 | 0.867 | -2.4 pts | 0.90 pts | z = -2.68 | probable | 0.60 pts | t = -4.00 | 1 | 0.1560 | undetermined (k < 3) |
-| filler gap dependency | 7 | 7000 | 0.749 | 0.777 | -2.8 pts | 0.50 pts | z = -5.56 | certain | 2.70 pts | t = -1.04 | 6 | 0.3402 | noise |
-| irregular forms | 2 | 2000 | 0.865 | 0.939 | -7.4 pts | 0.73 pts | z = -10.14 | certain | 5.65 pts | t = -1.32 | 1 | 0.4131 | undetermined (k < 3) |
-| island effects | 8 | 8000 | 0.666 | 0.673 | -0.7 pts | 0.58 pts | z = -1.17 | noise | 4.26 pts | t = -0.16 | 7 | 0.8787 | noise |
-| npi licensing | 7 | 7000 | 0.740 | 0.776 | -3.5 pts | 0.56 pts | z = -6.26 | certain | 3.45 pts | t = -1.02 | 6 | 0.3474 | noise |
-| quantifiers | 4 | 4000 | 0.735 | 0.722 | 1.4 pts | 0.71 pts | z = 1.89 | noise | 4.94 pts | t = 0.27 | 3 | 0.8023 | noise |
-| subject verb agreement | 6 | 6000 | 0.844 | 0.883 | -3.9 pts | 0.51 pts | z = -7.64 | certain | 0.79 pts | t = -4.91 | 5 | 0.0044 | probable |
+Conclusion for the table (after Holm): over the paradigms (binding), of the 9 phenomena with k >= 3: none certain, 2 probable (argument structure, subject verb agreement), 7 noise; the other 3 are undetermined (k < 3). On the pairs (information), of 12: 7 certain (argument structure, control raising, determiner noun agreement, filler gap dependency, irregular forms, npi licensing, subject verb agreement), 3 probable (anaphor agreement, binding, ellipsis), 2 noise. A phenomenon certain on the pairs but noise over its paradigms has a gap shown for these pairs only, not for other paradigms of the phenomenon.
+
+| phenomenon | paradigms | n | Slayer 1.06 | Pythia-1B | difference | SE pairs | z pairs | verdict pairs | p Holm pairs | after Holm pairs | SE paradigms | t paradigms | df | p paradigms | verdict paradigms | p Holm paradigms | after Holm paradigms |
+|---|---:|---:|---:|---:|---:|---:|---:|---|---:|---|---:|---:|---:|---:|---|---:|---|
+| anaphor agreement | 2 | 2000 | 0.986 | 0.995 | -0.9 pts | 0.26 pts | z = -3.41 | certain | 0.0031 | yes (probable) | 0.40 pts | t = -2.25 | 1 | 0.2662 | undetermined (k < 3) | - | outside the family (k < 3) |
+| argument structure | 9 | 9000 | 0.785 | 0.836 | -5.2 pts | 0.42 pts | z = -12.22 | certain | < 10^-4 | yes (certain) | 1.11 pts | t = -4.68 | 8 | 0.0016 | certain | 0.0143 | yes (probable) |
+| binding | 7 | 7000 | 0.791 | 0.808 | -1.7 pts | 0.50 pts | z = -3.42 | certain | 0.0031 | yes (probable) | 3.43 pts | t = -0.50 | 6 | 0.6354 | noise | 1.0000 | no (noise) |
+| control raising | 5 | 5000 | 0.776 | 0.832 | -5.5 pts | 0.55 pts | z = -9.99 | certain | < 10^-4 | yes (certain) | 3.64 pts | t = -1.52 | 4 | 0.2040 | noise | 1.0000 | no (noise) |
+| determiner noun agreement | 8 | 8000 | 0.930 | 0.951 | -2.1 pts | 0.29 pts | z = -7.11 | certain | < 10^-4 | yes (certain) | 0.55 pts | t = -3.79 | 7 | 0.0068 | probable | 0.0475 | no (noise) |
+| ellipsis | 2 | 2000 | 0.843 | 0.867 | -2.4 pts | 0.90 pts | z = -2.68 | probable | 0.0222 | yes (probable) | 0.60 pts | t = -4.00 | 1 | 0.1560 | undetermined (k < 3) | - | outside the family (k < 3) |
+| filler gap dependency | 7 | 7000 | 0.749 | 0.777 | -2.8 pts | 0.50 pts | z = -5.56 | certain | < 10^-4 | yes (certain) | 2.70 pts | t = -1.04 | 6 | 0.3402 | noise | 1.0000 | no (noise) |
+| irregular forms | 2 | 2000 | 0.865 | 0.939 | -7.4 pts | 0.73 pts | z = -10.14 | certain | < 10^-4 | yes (certain) | 5.65 pts | t = -1.32 | 1 | 0.4131 | undetermined (k < 3) | - | outside the family (k < 3) |
+| island effects | 8 | 8000 | 0.666 | 0.673 | -0.7 pts | 0.58 pts | z = -1.17 | noise | 0.2437 | no (noise) | 4.26 pts | t = -0.16 | 7 | 0.8787 | noise | 1.0000 | no (noise) |
+| npi licensing | 7 | 7000 | 0.740 | 0.776 | -3.5 pts | 0.56 pts | z = -6.26 | certain | < 10^-4 | yes (certain) | 3.45 pts | t = -1.02 | 6 | 0.3474 | noise | 1.0000 | no (noise) |
+| quantifiers | 4 | 4000 | 0.735 | 0.722 | 1.4 pts | 0.71 pts | z = 1.89 | noise | 0.1164 | no (noise) | 4.94 pts | t = 0.27 | 3 | 0.8023 | noise | 1.0000 | no (noise) |
+| subject verb agreement | 6 | 6000 | 0.844 | 0.883 | -3.9 pts | 0.51 pts | z = -7.64 | certain | < 10^-4 | yes (certain) | 0.79 pts | t = -4.91 | 5 | 0.0044 | probable | 0.0353 | yes (probable) |
 
 ![BLiMP overall and phenomena](blimp_phenomena.svg)
 
 ## 67 paradigms
 
-n = 1000 pairs per paradigm and model. On pairs: Slayer ahead 7 certain, 1 probable; Pythia ahead 34 certain, 7 probable; noise 18. With 67 comparisons a Holm correction (family-wise 5%) keeps 37 differences; the 'certain' rows marked `certain, not Holm` (npi_present_2, regular_plural_subject_verb_agreement_2, determiner_noun_agreement_irregular_2, sentential_negation_npi_licensor_present) do not survive it. Holm, per token and same tokenization: *[Added after the measurement: exploratory, not in THRESHOLDS.md.]*
+n = 1000 pairs per paradigm and model. On pairs: Slayer ahead 7 certain, 1 probable; Pythia ahead 34 certain, 7 probable; noise 18. With 67 comparisons a Holm correction (adjusted p at most the p of |z| = 2) keeps 37 differences; the 'certain' rows marked `certain, not Holm` (npi_present_2, regular_plural_subject_verb_agreement_2, determiner_noun_agreement_irregular_2, sentential_negation_npi_licensor_present) do not survive it. Holm, per token and same tokenization: *[Added after the measurement: exploratory, not in THRESHOLDS.md.]*
 
 The order of the gaps depends on the measure: Spearman rank correlation between the summed and the per-token differences is 0.77. 1 of the 7 certain Slayer advantages reverses per token: tough_vs_raising_2 (4.0 pts summed, -9.2 pts per token). Another example: tough_vs_raising_1 is -16.5 pts summed, -2.2 pts per token, and -14.1 pts on the pairs where both tokenizers give the same token difference between good and bad sentence. Read the ranking as 'where the gap is large under summed log-likelihood', not as a ranking of syntactic weaknesses.
 
@@ -154,7 +158,7 @@ The order of the gaps depends on the measure: Spearman rank correlation between 
 
 ## Against the control model Pythia-1B v0
 
-Slayer 1.06 minus Pythia-1B v0 on the same 67 000 pairs: -3.23 pts, paired SE 0.16 pts, z = -20.51: certain. Per paradigm the ranking depends on which Pythia weights are the reference: against v1 Slayer is certainly ahead in 7 paradigms and Pythia in 34; against v0 in 6 and 35. After a Holm correction over the 67 paradigms (family-wise 5%) against v1: Slayer 7, Pythia 30; against v0: Slayer 5, Pythia 34. Certain and Holm-significant against both weights with the same sign: 3 Slayer advantages and 23 Pythia advantages. A per-paradigm statement about Slayer holds only for those. Rows: every paradigm certain against v1 in Slayer's favour.
+Slayer 1.06 minus Pythia-1B v0 on the same 67 000 pairs: -3.23 pts, paired SE 0.16 pts, z = -20.51: certain. Per paradigm the ranking depends on which Pythia weights are the reference: against v1 Slayer is certainly ahead in 7 paradigms and Pythia in 34; against v0 in 6 and 35. After a Holm correction over the 67 paradigms (Holm-adjusted p at most the p of |z| = 2) against v1: Slayer 7, Pythia 30; against v0: Slayer 5, Pythia 34. Certain and Holm-significant against both weights with the same sign: 3 Slayer advantages and 23 Pythia advantages. A per-paradigm statement about Slayer holds only for those. Rows: every paradigm certain against v1 in Slayer's favour.
 
 | paradigm | difference vs v1 | z vs v1 | Holm vs v1 | difference vs v0 | z vs v0 | verdict vs v0 | Holm vs v0 | stays |
 |---|---:|---:|---|---:|---:|---|---|---|
