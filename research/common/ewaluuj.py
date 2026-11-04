@@ -243,27 +243,71 @@ def licznik_wejscia(lm, licz_tokeny):
     return licz
 
 
-def ogranicz_kontekst(zad, licz_tokeny, limit, licz_wejscie):
-    """METODOLOGIA, „Wejście”: prompt z BOS (`licz_wejscie`) + budżet ≤ limit; budżet MC = najdłuższa kontynuacja
-    (`licz_tokeny`, bez BOS). Demonstracje zdejmowane od końca; pytania, opcje i odniesienia nie są cięte, więc prompt
-    za długi bez demonstracji (także MC 0-shot) kończy zadanie błędem."""
-    oryginal = zad.fewshot_context
-    budzet_gen = (zad.config.generation_kwargs or {}).get("max_gen_toks", BUDZET_GEN)
+def pary_zadania(zad, doc, ctx):
+    """(kontekst, kontynuacja) żądań loglik dokumentu jak w `construct_requests` lm-eval: MC = kontekst i separator +
+    opcja, wielokontekstowe (WinoGrande) = kontekst + opcja i separator + cel, loglikelihood = kontekst i cel."""
+    delim = zad.config.target_delimiter
+    if zad.OUTPUT_TYPE != "multiple_choice":
+        return [(c, str(zad.doc_to_target(doc))) for c in (ctx if isinstance(ctx, list) else [ctx])]
+    if getattr(zad, "multiple_input", 0):
+        cel = delim + str(zad.doc_to_target(doc))
+        if isinstance(ctx, list):
+            return [(c, cel) for c in ctx]
+        return [(ctx + str(o), cel) for o in zad.doc_to_choice(doc)]
+    return [(c, delim + str(o)) for c in (ctx if isinstance(ctx, list) else [ctx]) for o in zad.doc_to_choice(doc)]
 
-    def budzet(doc):
-        if zad.OUTPUT_TYPE == "generate_until":
-            return budzet_gen
-        cele = zad.doc_to_choice(doc) if zad.OUTPUT_TYPE == "multiple_choice" else [zad.doc_to_target(doc)]
-        return max(licz_tokeny(zad.config.target_delimiter + str(c)) for c in cele)
+
+def miesci_sie(zad, doc, ctx, limit, licz_wejscie):
+    """Czy żądania dokumentu wchodzą do modelu bez obcinania, tą samą miarą co HFLM.
+
+    Generacja: prompt z BOS + `max_gen_toks` ≤ limit (HFLM tnie kontekst do max_length − max_gen_toks). Loglik: BOS +
+    kontekst + kontynuacja ≤ limit + 1, bo HFLM podaje modelowi `(kontekst + kontynuacja)[:-1]` i tnie dopiero powyżej
+    max_length + 1 tokenów. Para liczona jako jeden tekst: `_encode_pair` bierze kontynuację z kodowania całości."""
+    if zad.OUTPUT_TYPE == "generate_until":
+        budzet = (zad.config.generation_kwargs or {}).get("max_gen_toks", BUDZET_GEN)
+        return max(licz_wejscie(c) for c in (ctx if isinstance(ctx, list) else [ctx])) + budzet <= limit
+    return max(licz_wejscie(k + c) for k, c in pary_zadania(zad, doc, ctx)) <= limit + 1
+
+
+def klucz_dokumentu(doc):
+    return json.dumps(doc, sort_keys=True, ensure_ascii=False, default=str)
+
+
+def ogranicz_kontekst(zad, licz_tokeny, limit, licz_wejscie):
+    """METODOLOGIA, „Wejście”: żądanie z BOS (`licz_wejscie`) mieści się w limicie jak w HFLM (`miesci_sie`).
+    Demonstracje zdejmowane od końca; pytania, opcje i odniesienia nie są cięte, więc prompt za długi bez demonstracji
+    (także MC 0-shot) kończy zadanie błędem. `zad.uzyte_demonstracje`: {dokument: (zadane, użyte)} do śladu skracania
+    (`slad_skracania`). `licz_tokeny` zostaje w sygnaturze dla wywołań sprzed liczenia pary jako całości."""
+    oryginal = zad.fewshot_context
+    zad.uzyte_demonstracje = {}
 
     def fewshot_context(doc, num_fewshot, **kw):
         for k in range(num_fewshot, -1, -1):
             ctx = oryginal(doc, num_fewshot=k, **kw)
-            if max(licz_wejscie(c) for c in (ctx if isinstance(ctx, list) else [ctx])) + budzet(doc) <= limit:
+            if miesci_sie(zad, doc, ctx, limit, licz_wejscie):
+                zad.uzyte_demonstracje[klucz_dokumentu(doc)] = (num_fewshot, k)
                 return ctx
         raise ValueError(f"{zad.config.task}: prompt bez demonstracji + budżet > {limit} tokenów")
 
     zad.fewshot_context = fewshot_context
+
+
+def slad_skracania(czlonkowie):
+    """Ile ocenionych pytań dostało mniej demonstracji niż zadane i ile średnio dostały; None bez few-shot.
+    `czlonkowie` = [(zad, próbki)] jednego wariantu (grupa: wszystkie podtesty razem)."""
+    wszystkie = []
+    for zad, probki in czlonkowie:
+        if getattr(zad, "uzyte_demonstracje", None) is None:
+            continue
+        pytania = {s.get("doc_id", i): s["doc"] for i, s in enumerate(probki)}  # one sample per filter (GSM8K: 2)
+        wszystkie += [zad.uzyte_demonstracje.get(klucz_dokumentu(d)) for d in pytania.values()]
+    pary = [p for p in wszystkie if p is not None]
+    if not pary or max(z for z, _ in pary) == 0:
+        return None
+    return {"zadane": max(z for z, _ in pary), "pytania": len(pary),
+            "pytania_z_mniejsza_liczba": sum(1 for z, u in pary if u < z),
+            "srednio_przykladow": sum(u for _, u in pary) / len(pary),
+            "pytania_bez_sladu": len(wszystkie) - len(pary)}
 
 
 def wartosc_odpowiedzi(zad, meta, doc, tekst):
@@ -462,6 +506,9 @@ def ocen_zadanie(lm, task_id, dane, probka, licz_tokeny, wyj, runner, model_id, 
             dodatkowe[wariant] = M.podsumuj_rolling(probki, cfg["process_results"], licz_tokeny)
             continue
         dodatkowe[wariant] = podsumuj_wariant(meta, czlonkowie)
+        slad = slad_skracania([(zad, c[3]) for (_, zad), c in zip(lista, czlonkowie)])
+        if slad:
+            dodatkowe[wariant]["demonstracje_skrocone"] = slad
         if meta.get("trace") and len(czlonkowie) == 1:
             probki = czlonkowie[0][3]
             pole = meta.get("pole_id")

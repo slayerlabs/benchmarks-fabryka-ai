@@ -63,6 +63,22 @@ def ocen(task_id, dane, lm, tmp_path, monkeypatch, probka="pelna"):
     return obs, roz["dodatkowe"]["space"]
 
 
+def ocen_loglik(task_id, dane, ll, tmp_path, monkeypatch):
+    """Like `ocen` for loglik tasks, `ll(ctx, cont)` -> loglik; returns (results_rozszerzone entry, requests in order)."""
+    zadania = []
+    lm = AtrapaLM(ll=lambda ctx, kont: (zadania.append((ctx, kont)), (ll(ctx, kont), False))[1])
+    katalog = tmp_path / "data"
+    katalog.mkdir(exist_ok=True)
+    for nazwa, docs in dane.items():
+        (katalog / f"{nazwa}.jsonl").write_text("".join(json.dumps(d, ensure_ascii=False) + "\n" for d in docs))
+    monkeypatch.setattr(Z, "DANE_TESTOWE", katalog)
+    wyj = tmp_path / "wyj"
+    for podkatalog in ("probki", "trace"):
+        (wyj / podkatalog).mkdir(parents=True, exist_ok=True)
+    _, roz, _, _ = E.ocen_zadanie(lm, task_id, "lokalne", "pelna", slowa, wyj, "0" * 64, "atrapa", "p")
+    return roz, zadania
+
+
 def ostatnie_pytanie(ctx, znacznik):
     return ctx.rsplit(znacznik, 1)[1]
 
@@ -97,6 +113,34 @@ def test_gsm8k_generation_strict_match_and_disjoint_bank(tmp_path, monkeypatch):
         assert ctx.count("Question: ") == 6
         assert re.findall(r"Question: (Demo \d\?)", ctx) == kolejnosc
         assert ctx.count("What is 2+3?") == (1 if ctx.endswith("What is 2+3?\nAnswer:") else 0)
+
+
+def test_truncated_prompts_are_counted_in_the_result(tmp_path, monkeypatch):
+    """Context limit trace: how many scored questions got fewer demonstrations than asked, and the mean they got.
+    Expected values come from the contexts the model actually received. Kills: a trace that records the asked count,
+    one that counts every request instead of scored questions, a missing field in the result."""
+    dlugie = {"question": "What is 9+9? " + "long " * 20, "answer": "9+9=18\n#### 18"}
+    test = GSM_TEST[:2] + [dlugie]
+    lm = AtrapaLM(gen=lambda ctx: " #### 0")
+    _, d = ocen("T33", {"gsm8k": test, "gsm8k_demo": GSM_DEMO}, lm, tmp_path, monkeypatch)
+    assert d["demonstracje_skrocone"] == {"zadane": 5, "pytania": 3, "pytania_z_mniejsza_liczba": 0,
+                                          "srednio_przykladow": 5.0, "pytania_bez_sladu": 0}
+    krotkie = max(slowa(c) for c in lm.konteksty if "long" not in c)
+    budzet = E.BUDZET_GEN  # gsm8k YAML sets no max_gen_toks
+    monkeypatch.setattr(E, "LIMIT_KONTEKSTU", krotkie + 1 + budzet)  # BOS + the longest short prompt + budget
+    lm = AtrapaLM(gen=lambda ctx: " #### 0")
+    obs, d = ocen("T33", {"gsm8k": test, "gsm8k_demo": GSM_DEMO}, lm, tmp_path, monkeypatch)
+    uzyte = {"long" in c: c.count("Question: Demo") for c in lm.konteksty}
+    assert uzyte[False] == 5 and 0 <= uzyte[True] < 5 and obs["n_scored"] == 3
+    assert d["demonstracje_skrocone"] == {"zadane": 5, "pytania": 3, "pytania_z_mniejsza_liczba": 1,
+                                          "srednio_przykladow": pytest.approx((5 + 5 + uzyte[True]) / 3),
+                                          "pytania_bez_sladu": 0}
+
+
+def test_zero_shot_task_has_no_truncation_trace(tmp_path, monkeypatch):
+    lm = AtrapaLM(ll=lambda c, k: (-1.0, False))
+    _, d = ocen("T21", {"sst2": [{"sentence": "good", "label": 1, "idx": 0}]}, lm, tmp_path, monkeypatch)
+    assert "demonstracje_skrocone" not in d
 
 
 WERSJA_LOCK = re.search(r"^lm_eval==(\S+)$", (Path(E.KATALOG) / "requirements.lock.txt").read_text(), re.M)[1]
@@ -160,13 +204,60 @@ def test_mc_zero_shot_prompt_over_the_limit_is_rejected(tmp_path, monkeypatch):
     """0-shot MC goes through the same limit: a prompt that does not fit is an error, never truncated."""
     docs = [{"sentence": "a b c d e f g h i j", "label": 1, "idx": 0}]
     lm = AtrapaLM(ll=lambda c, k: (-1.0, False))
-    # prompt: 10 words + "Question: Is this sentence positive or negative? Answer:" 8 = 18, BOS 1, budget " negative" 1
-    monkeypatch.setattr(E, "LIMIT_KONTEKSTU", 20)
+    # prompt: 10 words + "Question: Is this sentence positive or negative? Answer:" 8 = 18, BOS 1, " negative" 1 = 20
+    # tokens; HFLM feeds (context + continuation)[:-1], 19 tokens, so limit 19 fits and 18 does not
+    monkeypatch.setattr(E, "LIMIT_KONTEKSTU", 19)
     obs, _ = ocen("T21", {"sst2": docs}, lm, tmp_path, monkeypatch)
     assert obs["state"] == "ok"
-    monkeypatch.setattr(E, "LIMIT_KONTEKSTU", 19)
-    with pytest.raises(ValueError, match="> 19"):
+    monkeypatch.setattr(E, "LIMIT_KONTEKSTU", 18)
+    with pytest.raises(ValueError, match="> 18"):
         ocen("T21", {"sst2": docs}, lm, tmp_path, monkeypatch)
+
+
+def test_loglik_budget_is_context_plus_continuation_like_hflm():
+    """Boundary: HFLM truncates a loglik request only above max_length + 1 tokens of BOS + context + continuation
+    (`_loglikelihood_tokens`: `(context_enc + continuation_enc)[-(max_length + 1):][:-1]`); generation keeps
+    context + max_gen_toks <= max_length. Kills: the old `<= limit` (one token too strict), a budget from the shortest
+    option, and a pair counted without the delimiter."""
+    class Stub:
+        OUTPUT_TYPE = "multiple_choice"
+        multiple_input = 0
+        config = SimpleNamespace(target_delimiter=" ", task="stub")
+
+        def doc_to_choice(self, doc):
+            return ["a", "b c d"]
+
+        def fewshot_context(self, doc, num_fewshot, **kw):
+            return " ".join([f"d{i} x" for i in range(num_fewshot)] + ["q"])
+
+    licz = E.licznik_wejscia(object(), slowa)
+    # longest pair, 2 demonstrations: BOS 1 + 4 + q 1 + " b c d" 3 = 9 tokens; HFLM feeds 8
+    for limit, demonstracje in ((8, 2), (7, 1), (6, 1), (5, 0), (4, 0), (3, None)):
+        zad = Stub()
+        E.ogranicz_kontekst(zad, slowa, limit, licz)
+        if demonstracje is None:  # BOS + q + " b c d" = 5 tokens > 3 + 1: never truncated, an error
+            with pytest.raises(ValueError):
+                zad.fewshot_context({}, num_fewshot=2)
+            continue
+        assert zad.fewshot_context({}, num_fewshot=2).count(" x") == demonstracje, limit
+        assert zad.uzyte_demonstracje == {E.klucz_dokumentu({}): (2, demonstracje)}
+    assert E.miesci_sie(Stub(), {}, "q", 3, lambda t: len(t.split()) + 1) is False
+    assert E.miesci_sie(Stub(), {}, "q", 3, lambda t: len(t.split())) is True  # 4 tokens without the BOS
+
+
+def test_multi_input_pairs_put_the_option_in_the_context():
+    class Stub:
+        OUTPUT_TYPE = "multiple_choice"
+        multiple_input = 2
+        config = SimpleNamespace(target_delimiter=" ")
+
+        def doc_to_choice(self, doc):
+            return ["Ann", "Mary Lou"]
+
+        def doc_to_target(self, doc):
+            return "had helped."
+
+    assert E.pary_zadania(Stub(), {}, "Then ") == [("Then Ann", " had helped."), ("Then Mary Lou", " had helped.")]
 
 
 # --- grupa z wagami populacji (T34 MATH, gen) ---
@@ -418,6 +509,72 @@ def test_group_allocation_reserves_two_then_largest_deficit():
 def test_group_allocation_order_independent():
     pop = {f"m{i}": 3 + i for i in range(6)}
     assert M.przydzial_grupy(dict(reversed(list(pop.items()))), 20) == M.przydzial_grupy(pop, 20)
+
+
+def test_group_panel_uses_the_allocation():
+    """`przydzialy`: panel200 of a group = metryki.przydzial_grupy over member populations, a number = that many per
+    member, full split or a single task = {} (ewaluuj.wybor_probki then takes n from the mode). Kills: allocation
+    switched off (returns {}), allocation from the budget of a number mode, populations taken from the panel."""
+    space = [({"metadata": {"czlonek": m}}, SimpleNamespace(eval_docs=[0] * n)) for m, n in (("a", 300), ("b", 10))]
+    # shares 200 * 300/310 = 193.5 and 200 * 10/310 = 6.5 after two reserved each -> 194 and 6
+    assert E.przydzialy(space, {}, "panel200") == {"a": 194, "b": 6}
+    assert E.przydzialy(space, {}, "panel200") == M.przydzial_grupy({"a": 300, "b": 10}, 200)
+    assert E.przydzialy(space, {}, "7") == {"a": 7, "b": 7}
+    assert E.przydzialy(space, {}, "pelna") == {} and E.przydzialy(space[:1], {}, "panel200") == {}
+
+
+def test_group_panel200_scores_200_questions_not_200_per_member(tmp_path, monkeypatch):
+    """End to end on MATH (T34): algebra 300 problems, the other six 1 each; panel200 scores 200 in all, algebra
+    194 (two reserved per member capped at N_i = 1, the rest to algebra). Without the allocation: 206."""
+    dane = {m: [{"problem": f"{m} p0", "solution": "\\boxed{1}"}] for m in MATH_CZLONKOWIE}
+    dane["hendrycks_math_algebra"] = [{"problem": f"a{i}", "solution": "\\boxed{1}"} for i in range(300)]
+    lm = AtrapaLM(gen=lambda ctx: "$1$")
+    obs, d = ocen("T34", dane, lm, tmp_path, monkeypatch, probka="panel200")
+    assert obs["n_scored"] == 200 and obs["n_population"] == 306
+    assert d["glowna"]["czlonkowie"]["hendrycks_math_algebra"]["n"] == 194
+
+
+def test_corpus_metric_se_is_the_bootstrap_sd():
+    """`korpusowa_z_niepewnoscia` (SE B): SE = sd of the metric recomputed on question resamples. Checked against
+    the binomial SE of accuracy written as a corpus function (sqrt(p(1-p)/n)) and against a resample done here.
+    Kills: SE set to 0 or None, SE of the point value, a CI that does not contain the value."""
+    zlote = [i % 2 for i in range(40)]
+    pred = [z if i % 4 else 1 - z for i, z in enumerate(zlote)]  # 30 of 40 right
+    trafnosc = lambda z, p: sum(a == b for a, b in zip(z, p)) / len(z)
+    r = M.korpusowa_z_niepewnoscia(zlote, pred, trafnosc)
+    assert r["value"] == 0.75 and r["n"] == 40
+    assert r["se"] == pytest.approx(math.sqrt(0.75 * 0.25 / 40), rel=0.05)
+    import numpy as np
+    rng = np.random.default_rng(M.SEED)
+    boot = [trafnosc([zlote[i] for i in idx], [pred[i] for i in idx]) for idx in rng.integers(0, 40, size=(M.POWTORZENIA, 40))]
+    assert r["se"] == pytest.approx(float(np.std(boot, ddof=1)))
+    assert r["ci95"][0] < 0.75 < r["ci95"][1]
+    assert M.korpusowa_z_niepewnoscia(zlote, pred, M.mcc)["se"] > 0.05  # MCC on 40 questions moves by more than 0.05 between resamples
+
+
+def test_random_f1_baseline_uses_all_options_cbd():
+    """T28 CBD: six options, macro F1 from the fork's YAML. The random baseline draws among all six classes; drawn
+    among two (the binary DYK/PSC case) it would be about half as large. Expected: uniform random macro F1 with
+    10 golds per class is about 1/6 (each class: 2 * 1/6 * 1/6 / (1/6 + 1/6)); two classes would give about 1/12."""
+    _, cfg = Z.konfiguracje("T28", "lokalne")[0]
+    assert len(cfg["doc_to_choice"]) == 6
+
+    def probka(pred, gold):
+        konty = [" " + c for c in cfg["doc_to_choice"]]
+        return {"arguments": [("q", c) for c in konty] + [("", c) for c in konty], "target": gold, "doc": {},
+                "filtered_resps": [(0.0 if i == pred else -1.0, False) for i in range(6)] + [(0.0, False)] * 6}
+
+    zlote = [g for g in range(6) for _ in range(10)]
+    probki = [probka(g if i % 2 else (g + 1) % 6, g) for i, g in enumerate(zlote)]
+    d = E.podsumuj_wariant(Z.ZADANIA["T28"], [("polish_cbd_multiple_choice", cfg, SimpleNamespace(eval_docs=zlote),
+                                               probki)])
+    from sklearn.metrics import f1_score
+    assert d["glowna"]["metryka"] == "f1"
+    assert d["glowna"]["value"] == pytest.approx(f1_score(zlote, [M.oceny_mc(p)["pred"] for p in probki],
+                                                          average="macro"))
+    assert d["bazy"]["chance_value"] == pytest.approx(1 / 6, abs=0.03)
+    # best constant class: F1 of that class 2 * 10 / (10 + 60) = 2/7, the five others 0 -> macro (2/7) / 6
+    assert d["bazy"]["majority_value"] == pytest.approx(2 / 7 / 6)
 
 
 def test_stratified_weights_ignore_sample_quota():

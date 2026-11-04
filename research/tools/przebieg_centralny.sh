@@ -6,7 +6,8 @@
 #   lista                  model list: label|repo|revision|loader|env (read by tests/test_przebieg_centralny.py)
 #   plan "LABEL ..."       ewaluuj.py commands that `licz` would run, without running them ("# GPU N:" per queue)
 #   przygotuj LIMIT_S      safety destroy after LIMIT_S, both venvs, HF download speed test
-#   licz "LABEL ..."       in the background: per model download weights, every task, delete weights;
+#   licz "LABEL ..."       in the background: per model download weights, every task, delete weights (a gated
+#                          repo the HF token cannot read is skipped: log line POMINIETY, $ST/pominiety_<label>.txt);
 #                          with N > 1 GPUs (nvidia-smi -L) models go round robin to N queues, one per GPU
 #                          (CUDA_VISIBLE_DEVICES), queue log $WS/logi/<stage>_gpu<N>.log
 # ENV_OVERRIDE=new WYNIKI=$WS/wyniki_nowe on licz: same models in the other venv, for the environment check.
@@ -40,12 +41,15 @@ NLTK_DANE=${NLTK_DANE:-$WS/nltk_data}
 export NLTK_DATA=$NLTK_DANE
 
 # One list for the run; tests/test_przebieg_centralny.py checks it against METODOLOGIA.md ("Pięć modeli
-# odniesienia" without Bielik, gated repo) and the Slayer revision named there.
+# odniesienia") and the Slayer revision named there.
 # loader: slayer = common/slayer_lm.py, hf = HFLM, hf-trust = HFLM with trust_remote_code. env: lock | new.
+# Bielik is a gated repo (LlamaForCausalLM, tokenizer.json, so the lock env loads it): counted when the HF token has
+# access, otherwise licz_model skips it with a message in the log and $ST/pominiety_<label>.txt (`dostep_hf`).
 MODELE=(
   "slayer1b-1.06|SlayerLab/Slayer1B-1.06|ef81be58742544ad32e1afab38db011fec209609|slayer|lock"
   "qwen3.5-0.8b-base|Qwen/Qwen3.5-0.8B-Base|dc7cdfe2ee4154fa7e30f5b51ca41bfa40174e68|hf|new"
   "lfm2.5-1.2b-base|LiquidAI/LFM2.5-1.2B-Base|7453bca97ca1e67754c4035a4b4c584e1c9dd725|hf|lock"
+  "bielik-1.5b-v3|speakleash/Bielik-1.5B-v3|4b25049621bf3952a1fc9314c89773102eda0333|hf|lock"
   "lfm3-1.7b-base|LiquidAI/LFM3-1.7B-Base|545fc8f4c7b5fa9f405105274cd29c4f8f44b526|hf-trust|new"
   "eurollm-1.7b|utter-project/EuroLLM-1.7B|c730cd9b616799ace3c65e927d63191446f59374|hf|lock"
 )
@@ -102,10 +106,31 @@ gpu_nazwa() {  # NVIDIA name (of GPU $GPU_NR when set), otherwise "<cpu brand> <
     echo "$n" | tr ' ' '_'
 }
 
+dostep_hf() {  # dostep_hf: 0 = the HF token may read $REPO, 3 = gated repo without access (message on stdout);
+  # any other error (network) is not a skip: the download below fails as it would without the check
+  "$WS/venv-$ENV/bin/python" -c "import sys
+from huggingface_hub import auth_check
+from huggingface_hub.errors import GatedRepoError
+try:
+    auth_check(sys.argv[1])
+except GatedRepoError as e:
+    print(f'{type(e).__name__}: {str(e).splitlines()[0]}')
+    sys.exit(3)" "$REPO"
+}
+
 licz_model() {  # licz_model LABEL: download, every task, delete weights; a failed task does not stop the rest
-  local L=$1 t T kod
+  local L=$1 t T kod powod
   model "$L"
   t=$(teraz)
+  mkdir -p "$ST"
+  kod=0; powod=$(dostep_hf) || kod=$?
+  if (( kod == 3 )); then  # gated repo, no access: the model is left out, the run goes on with the next one
+    echo "POMINIETY $L ($REPO @ $REV): token HF bez dostepu do repo z bramka zgody; $powod" > "$ST/pominiety_$L.txt"
+    cat "$ST/pominiety_$L.txt"
+    zapisz_czas pominiety "$t" "{\"model\": \"$L\", \"repo\": \"$REPO\", \"powod\": \"brak dostepu do repo z bramka\"}"
+    return 0
+  fi
+  rm -f "$ST/pominiety_$L.txt"
   "$WS/venv-$ENV/bin/python" -c "from huggingface_hub import snapshot_download as s; s('$REPO', revision='$REV', local_dir='$WS/modele/$L')"
   zapisz_czas pobranie "$t" "{\"model\": \"$L\", \"bajty\": $(bajty "$WS/modele/$L")}"
   for T in $ZADANIA_ID; do
@@ -231,7 +256,9 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
     fi
     mkdir -p "$ST" "$WS/logi" "$WS/modele"
     for L in $LISTA; do licz_model "$L"; done
-    python3 $K/tools/kontrola_sensu.py --tylko-stan $(for L in $LISTA; do for T in $ZADANIA_ID; do echo "$WYNIKI/$(katalog "$T")/$L"; done; done)
+    # a gated model skipped by licz_model has no outputs; its skip stays in $ST/pominiety_<label>.txt
+    python3 $K/tools/kontrola_sensu.py --tylko-stan $(for L in $LISTA; do [[ -e $ST/pominiety_$L.txt ]] && continue
+      for T in $ZADANIA_ID; do echo "$WYNIKI/$(katalog "$T")/$L"; done; done)
     ;;
   kontrola)  # sanity of full results (score 1.000, below random - 5 points, ...): $WS/logi/kontrola_sensu.txt
     mkdir -p "$WS/logi"
@@ -244,7 +271,7 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
     ls -la $WS/wyniki.tgz
     ;;
   stan)
-    ls -la $ST; for f in $WS/logi/*.log; do echo "== $f"; tail -n 2 "$f"; done; tail -n 5 $CZ 2>/dev/null
+    ls -la $ST; cat $ST/pominiety_*.txt 2>/dev/null || true; for f in $WS/logi/*.log; do echo "== $f"; tail -n 2 "$f"; done; tail -n 5 $CZ 2>/dev/null
     nvidia-smi --query-gpu=index,utilization.gpu,memory.used --format=csv; df -h $WS | tail -1
     ;;
   _funkcje) ;;  # sourced: functions only
