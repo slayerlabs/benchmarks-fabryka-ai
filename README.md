@@ -3,8 +3,7 @@
 Mierzymy otwarte modele językowe, dziś polsko-angielskiego **Slayer 1B**, na benchmarkach odtworzonych zgodnie z
 oryginałem, i budujemy polskie benchmarki.
 
-**[Stan benchmarków](research/STATUS.md)**: co jest gotowe do tabeli na CodeSOTA, czego brakuje, co nie jest
-zaczęte i które wyniki trzeba policzyć jeszcze raz.
+<a href="research/STATUS.md"><img src="docs/img/stan-benchmarkow.svg" alt="Stan benchmarków" height="36"></a>
 
 ## Pierwsze kroki
 
@@ -41,7 +40,7 @@ Jak powstaje test: [METODOLOGIA, „Etapy pracy”](research/METODOLOGIA.md#etap
 
 | gdzie | co tam jest |
 |---|---|
-| [`research/STATUS.md`](research/STATUS.md) | stan wszystkich benchmarków: gotowe, z brakami, tylko karta, niezaczęte, wyniki do sprawdzenia |
+| <a href="research/STATUS.md"><img src="docs/img/stan-benchmarkow.svg" alt="Stan benchmarków" height="36"></a> | co gotowe, czego brakuje, co do sprawdzenia |
 | <a href="research/METODOLOGIA.md"><img src="docs/img/metodologia.svg" alt="Metodologia" height="36"></a> | jak powstaje benchmark: etapy A–D, typy testów, SE i werdykt |
 | <a href="research/benchmarks/_template"><img src="docs/img/nowy-test.svg" alt="Nowy test" height="36"></a> | wzór nowego benchmarku; każdy benchmark ma katalog w `research/benchmarks/` |
 | <a href="https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks"><img src="docs/img/wyniki-na-hf.svg" alt="Wyniki na HF" height="36"></a> | wyniki Slayera 1B w Space |

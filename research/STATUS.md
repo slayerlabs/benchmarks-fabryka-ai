@@ -1,58 +1,61 @@
 # Stan benchmarków
 
-Jedna lista wszystkich benchmarków: co jest gotowe do tabeli na
-[CodeSOTA „Under 1B”](https://beta.codesota.com/sub-1b), czemu brakuje niewiele, co ma tylko kartę oryginału, czego
-nikt nie zaczął i które wyniki trzeba policzyć jeszcze raz. Stan na **4.11.2026**, z `main` i otwartych issues.
+Stan na **4.11.2026**. Zmieniasz stan benchmarku? Przestaw jego wiersz w tym samym PR.
 
-Kiedy benchmark jest skończony, mówi [METODOLOGIA, „Definicja „zrobione””](METODOLOGIA.md#definicja-zrobione). Kiedy
-wchodzi do rankingu, mówi [LEADERBOARD.md, „Który test wchodzi”](LEADERBOARD.md#który-test-wchodzi). Typy i bazy:
-[README, „Benchmarki i typy”](README.md#benchmarki-i-typy).
+<a href="#gotowe"><img src="../docs/img/stan/gotowe.svg" alt="Gotowe" height="36"></a>
+<a href="#male-braki"><img src="../docs/img/stan/male-braki.svg" alt="Małe braki" height="36"></a>
+<a href="#tylko-karta"><img src="../docs/img/stan/tylko-karta.svg" alt="Tylko karta" height="36"></a>
+<a href="#w-toku"><img src="../docs/img/stan/w-toku.svg" alt="W toku" height="36"></a>
+<a href="#niezaczete"><img src="../docs/img/stan/niezaczete.svg" alt="Niezaczęte" height="36"></a>
+<a href="#do-sprawdzenia"><img src="../docs/img/stan/do-sprawdzenia.svg" alt="Do sprawdzenia" height="36"></a>
 
-**Zmieniasz stan benchmarku (scalony PR, nowy wynik, nowe zastrzeżenie)? Przestaw jego wiersz w tym pliku w tym samym
-PR.**
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'pie1': '#1a7f37', 'pie2': '#9a6700', 'pie3': '#0969da', 'pie4': '#8250df', 'pie5': '#6e7781', 'pie6': '#afb8c1', 'pieStrokeColor': '#ffffff', 'pieOuterStrokeWidth': '0px'}}}%%
+pie showData
+    "Gotowe" : 3
+    "Małe braki" : 5
+    "Tylko karta" : 8
+    "W toku" : 2
+    "Niezaczęte, z zadaniem" : 39
+    "Niezaczęte, bez zadania" : 27
+```
 
-Skrót kolumn: **A** karta oryginału `ORIGINAL.md`, **B** odtworzenie `REPRODUCTION.md`, **C** kod i test w `tests/`,
-**wynik** to wynik Slayera 1.06 w katalogu `results/`. ✓ jest, ✗ brak, ~ jest z zastrzeżeniem.
+**A** karta `ORIGINAL.md` · **B** odtworzenie `REPRODUCTION.md` · **C** kod i test · **wynik** Slayera 1.06 ·
+✓ jest · ~ z zastrzeżeniem · ✗ brak
 
-## Na skróty
+<a href="METODOLOGIA.md#definicja-zrobione"><img src="../docs/img/metodologia.svg" alt="Metodologia" height="36"></a><a href="https://github.com/orgs/slayerlabs/projects/10"><img src="../docs/img/tablica.svg" alt="Tablica" height="36"></a>
 
-| stan | ile | benchmarki |
-|---|---|---|
-| [✅ gotowe do tabeli](#gotowe-do-tabeli) | 3 | BLiMP (do sprawdzenia), EWoK, WinoGrande |
-| [🟡 małe braki](#małe-braki) | 5 | EWoK-PL, PIQA, WSC273, WikiText-2, ARC-Easy |
-| [📄 tylko karta oryginału](#tylko-karta-oryginału) | 8 | ARC-Challenge, BLiMP Supplement, BoolQ, HellaSwag, LAMBADA, OpenBookQA, SciQ, UncheatableEval |
-| [🔨 w toku, bez katalogu](#w-toku-bez-katalogu) | 2 | LogiQA, MATH |
-| [⬜ niezaczęte, z zadaniem](#niezaczęte-z-zadaniem) | 39 | karty #104–#138, testy Space bez wyniku, held-out |
-| [⬜ niezaczęte, bez zadania](#niezaczęte-bez-zadania) | 27 | pozycje katalogu CodeSOTA bez issue i bez katalogu |
-| [⚠️ wyniki do sprawdzenia](#wyniki-do-sprawdzenia) | 6 | BLiMP, MultiBLiMP, WSC273, WikiText-2, EWoK-PL, katalog CodeSOTA |
+<a name="gotowe"></a>
 
-## Gotowe do tabeli
+## ✅ Gotowe do tabeli CodeSOTA · 3
 
-Spełniony warunek odtworzenia (etap B), kod z testem i wynik Slayera 1.06 obok modelu kontrolnego.
-
-| benchmark | Space | A | B | C | wynik | co jeszcze |
+| benchmark | Space | A | B | C | wynik | uwaga |
 |---|---|---|---|---|---|---|
-| [BLiMP](benchmarks/blimp/README.md) | T01 | ✓ | ~ | ✓ | ✓ | ⚠️ [do ponownego policzenia](#blimp), do tabeli dopiero po sprawdzeniu; B spełniony przez lm-eval, kodem autorów (jiant) nie zrobiony, panel Space nie odtworzony |
-| [EWoK](benchmarks/ewok/README.md) | | ✓ | ✓ | ✓ | ✓ | brak; wynik też dla pięciu modeli odniesienia |
-| [WinoGrande](benchmarks/winogrande/REPRODUCTION.md) | T07 | ✓ | ✓ | ✓ | ✓ | katalog nie ma `README.md` z wynikiem; Slayer nie odróżnia się od stałej odpowiedzi (szum) |
+| [BLiMP](benchmarks/blimp/README.md) | T01 | ✓ | ~ | ✓ | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia) |
+| [EWoK](benchmarks/ewok/README.md) | | ✓ | ✓ | ✓ | ✓ | |
+| [WinoGrande](benchmarks/winogrande/REPRODUCTION.md) | T07 | ✓ | ✓ | ✓ | ✓ | brak `README.md` |
 
-## Małe braki
+<a name="male-braki"></a>
 
-| benchmark | Space | A | B | C | wynik | czego brakuje | zadanie |
+## 🟡 Małe braki · 5
+
+| benchmark | Space | A | B | C | wynik | brakuje | zadanie |
 |---|---|---|---|---|---|---|---|
-| [EWoK-PL](benchmarks/ewok-pl/README.md) | | `POLISH.md` ✓ | — | ✓ | ✓ | przetłumaczona 1 domena z 11; tłumaczenie bez przeglądu człowieka (`draft_review_required`) | |
-| [PIQA](benchmarks/piqa/README.md) | T06 | ✗ | ✗ | ✓ | ✓ | liczona protokołem Space w wyjątku do 8.11; karta i odtworzenie | #57, #97 |
-| [WSC273](benchmarks/wsc273/README.md) | T14 | ✗ | ~ | ✓ | ~ | karta; model kontrolny spoza listy źródeł METODOLOGII, więc wynik wstępny | #108, #97 |
-| [WikiText-2](benchmarks/wikitext-2/README.md) | T03 | ✓ | ~ | ✓ | ~ | wspólny próg zgodności dla perpleksji; bez niego werdykt B jest nierozstrzygalny. Typ `ppl` idzie do osobnej kolumny, nie do meta-oceny | #15, #41 |
-| [ARC-Easy](benchmarks/arc-easy/ORIGINAL.md) | | ✓ | ✗ | ✗ | ✗ | odtworzenie, kod, wynik; jest już SNR i bazy | #23 |
+| [EWoK-PL](benchmarks/ewok-pl/README.md) | | — | — | ✓ | ✓ | 10 z 11 domen, przegląd tłumaczenia | |
+| [PIQA](benchmarks/piqa/README.md) | T06 | ✗ | ✗ | ✓ | ✓ | karta, odtworzenie | #57 #97 |
+| [WSC273](benchmarks/wsc273/README.md) | T14 | ✗ | ~ | ✓ | ~ | karta, kontrola z listy | #108 #97 |
+| [WikiText-2](benchmarks/wikitext-2/README.md) | T03 | ✓ | ~ | ✓ | ~ | próg dla perpleksji | #15 #41 |
+| [ARC-Easy](benchmarks/arc-easy/ORIGINAL.md) | | ✓ | ✗ | ✗ | ✗ | odtworzenie, kod, wynik | #23 |
 
-## Tylko karta oryginału
+<a name="tylko-karta"></a>
 
-Jest `ORIGINAL.md`, nie ma odtworzenia, kodu ani wyniku. Następny krok to etap B.
+## 📄 Tylko karta · 8
+
+Następny krok: etap B.
 
 | benchmark | Space | zadanie |
 |---|---|---|
-| [ARC-Challenge](benchmarks/arc-challenge/ORIGINAL.md) | T02 | #29, #49 |
+| [ARC-Challenge](benchmarks/arc-challenge/ORIGINAL.md) | T02 | #29 #49 |
 | [BLiMP Supplement](benchmarks/blimp-supplement/ORIGINAL.md) | | #33 |
 | [BoolQ](benchmarks/boolq/ORIGINAL.md) | T10 | #26 |
 | [HellaSwag](benchmarks/hellaswag/ORIGINAL.md) | T05 | #24 |
@@ -61,83 +64,53 @@ Jest `ORIGINAL.md`, nie ma odtworzenia, kodu ani wyniku. Następny krok to etap 
 | [SciQ](benchmarks/sciq/ORIGINAL.md) | T09 | #30 |
 | [UncheatableEval](benchmarks/uncheatable-eval/ORIGINAL.md) | | #35 |
 
-## W toku, bez katalogu
+<a name="w-toku"></a>
 
-| benchmark | Space | stan | zadanie |
+## 🔨 W toku · 2
+
+| benchmark | Space | PR | zadanie |
 |---|---|---|---|
-| LogiQA | T18 | PR #139 (draft): wynik wstępny protokołem Space | #19, #97 |
-| MATH | T34 | PR #141 (draft): karta oryginału | #125 |
+| LogiQA | T18 | #139 wynik wstępny | #19 #97 |
+| MATH | T34 | #141 karta | #125 |
 
-## Niezaczęte, z zadaniem
+<a name="niezaczete"></a>
 
-Weź zadanie z [tablicy](https://github.com/orgs/slayerlabs/projects/10) i przypisz się. Karty z etykietą
-`good first issue` nadają się na start.
+## ⬜ Niezaczęte · 66
 
-**Karta oryginału (etap A):** COPA #105, CommitmentBank #106, WiC #107, RTE #109, ANLI #110, PROST #111, SST-2 #112,
-PolEmo 2.0 #113, 8TAGS #114, Belebele PL #115, DYK #116, PPC #117, PSC #118, CBD #119, NKJP-NER #120, PolQA #121,
-PoQuAD #122, MMLU #123, GSM8K #124, TruthfulQA #126, LLMzSzŁ #127, SQuAD 2.0 #128, DROP #129, RACE #130, CoQA #131,
-NQ-Open #132, TriviaQA #133, MedMCQA #134, BIG-Bench Hard #135, PAWS #136, CoLA #137, ReCoRD #138, MultiBLiMP PL #104.
+<a href="https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22"><img src="../docs/img/zadania-na-start.svg" alt="Zadania na start" height="36"></a>
 
-**Testy Space bez wyniku Slayera 1.06** (wyjątek #97 do 8.11): MathQA #28, PubMedQA #20, Social IQa #17, IFEval #40.
+**Z zadaniem (39)**
 
-**Held-out:** NLL EN/PL/kod #22, część z kodem źródłowym #42.
-
-## Niezaczęte, bez zadania
-
-Pozycje [katalogu CodeSOTA](https://beta.codesota.com/api/sub1b/benchmarks) (`sub1b-catalog-v1`), dla których repo
-nie ma katalogu ani issue. Zanim zaczniesz, załóż issue.
-
-| grupa katalogu | benchmarki |
+| co | zadania |
 |---|---|
-| liquid-reference | GPQA, GPQA Diamond, MMLU-Pro, IFBench, Multi-IF, MGSM, MMMLU, CaseReportBench, BFCL v3, BFCL v4, τ²-Bench Telecom, τ²-Bench Retail |
-| math-reasoning | GSM-Symbolic, SVAMP, AIME 2025 |
-| coding | HumanEval, HumanEval+, MBPP, MBPP+, LiveCodeBench |
-| reading-context | RULER, LongBench v2 |
-| trust-preference-multilingual | SimpleQA, WildBench, AlpacaEval 2.0 LC, MT-Bench |
+| karta, angielskie | COPA #105 · CommitmentBank #106 · WiC #107 · RTE #109 · ANLI #110 · PROST #111 · SST-2 #112 · MMLU #123 · GSM8K #124 · TruthfulQA #126 · SQuAD 2.0 #128 · DROP #129 · RACE #130 · CoQA #131 · NQ-Open #132 · TriviaQA #133 · MedMCQA #134 · BBH #135 · PAWS #136 · CoLA #137 · ReCoRD #138 |
+| karta, polskie | MultiBLiMP #104 · PolEmo 2.0 #113 · 8TAGS #114 · Belebele #115 · DYK #116 · PPC #117 · PSC #118 · CBD #119 · NKJP-NER #120 · PolQA #121 · PoQuAD #122 · LLMzSzŁ #127 |
+| Space bez wyniku | MathQA #28 · PubMedQA #20 · Social IQa #17 · IFEval #40 |
+| held-out | NLL EN/PL/kod #22 · kod źródłowy #42 |
+
+**Bez zadania (27)**: z [katalogu CodeSOTA](https://beta.codesota.com/api/sub1b/benchmarks). Zanim zaczniesz, załóż
+issue.
+
+| grupa | benchmarki |
+|---|---|
+| liquid-reference | GPQA · GPQA Diamond · MMLU-Pro · IFBench · Multi-IF · MGSM · MMMLU · CaseReportBench · BFCL v3 · BFCL v4 · τ²-Bench Telecom · τ²-Bench Retail |
+| math-reasoning | GSM-Symbolic · SVAMP · AIME 2025 |
+| coding | HumanEval · HumanEval+ · MBPP · MBPP+ · LiveCodeBench |
+| reading-context | RULER · LongBench v2 |
+| trust-preference | SimpleQA · WildBench · AlpacaEval 2.0 LC · MT-Bench |
 | reasoning | ARC-AGI-1 |
 
-## Wyniki do sprawdzenia
+<a name="do-sprawdzenia"></a>
 
-Wynik z tej listy nie idzie do tabeli, dopóki ktoś go nie sprawdzi i nie przestawi wiersza.
+## ⚠️ Do sprawdzenia · 6
 
-### BLiMP
+Nie idzie do tabeli, dopóki ktoś nie sprawdzi i nie przestawi wiersza.
 
-Zgłoszenie z zespołu: wszystkie wyniki wychodzą około 80%, co wygląda podejrzanie. Policzyć jeszcze raz, drugą osobą,
-na innym sprzęcie (ścieżka „recenzja i przeliczenie”, [CONTRIBUTING](../CONTRIBUTING.md)).
-
-Co już jest w repo, żeby nie zaczynać od zera:
-
-- [BLIMP.md](benchmarks/blimp/results/BLIMP.md): Slayer 1.06 i Pythia-1B są blisko siebie, a model kontrolny
-  Pythia-1B v0 zgadza się z opublikowaną wartością i z lm-eval prawie na każdej parze.
-- [CHECKPOINTS.md](benchmarks/blimp/results/CHECKPOINTS.md): checkpointy Slayera 1.00–1.06 rosną mało, wszystkie leżą
-  w wąskim przedziale.
-
-Co sprawdzić: wyniki per paradygmat (czy któryś stoi na 50% albo 100%, czy wzór paradygmatów u Slayera przypomina
-Pythię), czy liczba z naszego kodu zgadza się z wynikiem lm-eval policzonym niezależnie, czy płaski przebieg
-checkpointów nie bierze się z tego samego wejścia (te same wagi, ten sam plik wyników).
-
-### MultiBLiMP (część polska)
-
-W [analizie formatu odpowiedzi](analyses/answer-format/README.md) Slayer ma wynik bliski 100%, wyraźnie ponad Pythią.
-Sprawdzić, czy zbiór nie jest w danych treningowych Slayera, zanim wynik pójdzie dalej. Karta: #104; wyciek danych:
-#36.
-
-### WSC273
-
-Kontrola na `bloom-560m` mieści się w progu, ale pochodzi spoza listy źródeł METODOLOGII, a panel 200 i pełny split
-dają różne liczby. Oba wyniki Slayera są wstępne ([REPRODUCTION.md](benchmarks/wsc273/REPRODUCTION.md)).
-
-### WikiText-2
-
-Wynik zgadza się ze Space, ale bez progu dla perpleksji werdykt etapu B jest nierozstrzygalny (#41, #15).
-
-### EWoK-PL
-
-Kontrole D3 spełnione, ale tłumaczenie obejmuje jedną domenę i czeka na przegląd człowieka
-([POLISH.md](benchmarks/ewok-pl/POLISH.md)). Wynik jest wynikiem tej domeny, nie całego EWoK.
-
-### Katalog CodeSOTA a repo
-
-Statusy w katalogu nie zgadzają się z repo: ARC-Easy ma `full`, ARC-Challenge, HellaSwag, OpenBookQA i BoolQ mają
-`pilot`, GSM8K i HumanEval `adapter_ready`, a w repo te testy mają najwyżej kartę oryginału. BLiMP, EWoK i WinoGrande,
-gotowe w repo, mają `planned`. Ustalić, kto prowadzi katalog i skąd bierze statusy.
+| co | problem | co zrobić | gdzie |
+|---|---|---|---|
+| **BLiMP** | wszystkie wyniki około 80%, checkpointy prawie płasko | druga osoba liczy od zera; per paradygmat: czy któryś stoi na 50% albo 100%; czy checkpointy nie czytają tych samych wag | [BLIMP](benchmarks/blimp/results/BLIMP.md) · [CHECKPOINTS](benchmarks/blimp/results/CHECKPOINTS.md) |
+| **MultiBLiMP PL** | Slayer blisko 100% | sprawdzić, czy zbiór nie jest w danych treningowych | [analiza](analyses/answer-format/README.md) · #104 #36 |
+| **WSC273** | kontrola spoza listy, panel ≠ pełny split | kontrola z listy METODOLOGII | [REPRODUCTION](benchmarks/wsc273/REPRODUCTION.md) |
+| **WikiText-2** | werdykt B nierozstrzygalny | próg dla perpleksji | #41 #15 |
+| **EWoK-PL** | 1 domena z 11, tłumaczenie bez przeglądu | przegląd i reszta domen | [POLISH](benchmarks/ewok-pl/POLISH.md) |
+| **katalog CodeSOTA** | statusy ≠ repo: ARC-Easy `full`, ARC-C · HellaSwag · OBQA · BoolQ `pilot`, GSM8K · HumanEval `adapter_ready`; BLiMP · EWoK · WinoGrande `planned` | ustalić, kto prowadzi katalog | [API](https://beta.codesota.com/api/sub1b/benchmarks) |

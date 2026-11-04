@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="114" height="36" viewBox="0 0 114 36" role="img" aria-label="Małe braki">
+<title>Małe braki</title>
+<rect x="0.5" y="0.5" width="113" height="35" rx="8" fill="#9a6700" stroke="#ffffff" stroke-opacity="0.25"/>
+<path d="M20 11a7 7 0 1 0 0.01 0" fill="none" stroke="#fff" stroke-width="2"/><path d="M20 11a7 7 0 0 1 0 14z" fill="#fff"/>
+<text x="34" y="23" fill="#ffffff" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600">Małe braki</text>
+</svg>
