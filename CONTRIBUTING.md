@@ -6,8 +6,7 @@ Rozmawiamy na Discordzie, na kanale **#bench-team**: https://discord.gg/HnTkVR4c
 albo Elwenora i podaj swój login GitHub. Dodadzą Cię do zespołu Benchmark Team. Wtedy możesz brać zadania, przesuwać
 karty na tablicy i pushować gałęzie.
 
-Na tym samym kanale zadajesz pytania. Tam też piszesz, gdy coś nie działa albo w dokumentacji czegoś brakuje. Podaj
-krok, w którym utknąłeś, i czego zabrakło. Wystarczy jedno zdanie.
+Tam też pytaj, gdy coś nie działa albo czegoś nie ma w dokumentacji. Napisz, na którym kroku utknąłeś.
 
 ### Kto jest kim
 
