@@ -381,9 +381,10 @@ benchmarku, a wpis w `ZADANIA` musi się z nią zgadzać (`tests/test_zgodnosc_k
 zadań reguły `common/ewaluuj.py`:
 
 - **Wejście.** Każde żądanie ma dokładnie jeden wiodący token BOS. Prompt z BOS plus budżet odpowiedzi (generacja:
-  `max_gen_toks` z YAML-a, domyślnie 256 tokenów; MC: najdłuższa kontynuacja) mieści się w 4096 tokenach. Za długi
-  prompt traci demonstracje od końca; pytania, opcji i odniesień nie przycinamy, więc prompt za długi bez demonstracji
-  kończy zadanie błędem.
+  `max_gen_toks` z YAML-a, domyślnie 256 tokenów; MC: BOS, kontekst i najdłuższa kontynuacja liczone jako jeden tekst, tak jak w HFLM) mieści się w oknie modelu,
+  najwyżej 4096 tokenów. Za długi prompt traci demonstracje od końca, a wynik zadania zapisuje w polu
+  `demonstracje_skrocone`, ile pytań dostało mniej demonstracji. Pytań, opcji i odniesień nie przycinamy, więc prompt
+  za długi bez demonstracji kończy zadanie błędem.
 - **Batch 1** w każdym zadaniu: dopełnianie w batchu przesuwa logity float32 i wynik generacji zachłannej.
 - **Panel 200.** Pytania panelu to pierwsze 200 dokumentów w kolejności rosnącego SHA-256 klucza
   `20261028|benchmark_id|podtest|id dokumentu` (podtest: nazwa zadania, gdy test nie jest grupą). W grupie z wagami (MMLU, MATH, BBH) każdy podtest dostaje najpierw

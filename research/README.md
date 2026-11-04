@@ -40,7 +40,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 |---|---|---|---|---|---|
 | [`8tags`](benchmarks/8tags/README.md) | T23 | `mc +pl` | | T23 | nieustalone |
 | [`anli-r3`](benchmarks/anli-r3/README.md) | T16 | `mc` | | T16 | nieustalone |
-| [`arc-challenge`](benchmarks/arc-challenge/ORIGINAL.md) | T02 | `mc-k` | | T02 | nieustalone |
+| [`arc-challenge`](benchmarks/arc-challenge/README.md) | T02 | `mc-k` | | T02 | nieustalone |
 | [`arc-easy`](benchmarks/arc-easy/ORIGINAL.md) | | `mc-k` | | nie | tak |
 | [`bbh`](benchmarks/bbh/README.md) | T47 | `gen +warstwy` | warstwy: 27 zadań, wagi populacji | T47 | nieustalone |
 | [`belebele-pl`](benchmarks/belebele-pl/README.md) | T24 | `mc +pl` | | T24 | nieustalone |
