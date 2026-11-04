@@ -385,7 +385,7 @@ Slayera w `MODELE` w `tools/przebieg_centralny.sh` muszą się zgadzać, pilnuje
 
 **Jedna komenda.** Nową wersję liczy przebieg centralny. Zmieniasz wiersz Slayera w `MODELE` na
 `slayer1b-<wersja>|SlayerLab/Slayer1B-<wersja>|<rewizja>|slayer|lock` i linię wyżej. Maszyna to instancja vast.ai
-z GPU (bezpiecznik `slayer-1b/wygaszanie/bezpiecznik.py` niszczy ją przez API vast.ai). Kod `research/` kopiujesz
+z kartami GPU (bezpiecznik `slayer-1b/wygaszanie/bezpiecznik.py` niszczy ją przez API vast.ai). Kod `research/` kopiujesz
 ręcznie do `/workspace/kod`, a `wyniki.tgz` z `pakuj` ręcznie pobierasz i rozpakowujesz w `results/central-run/`;
 skryptu do tych dwóch kroków jeszcze nie ma.
 

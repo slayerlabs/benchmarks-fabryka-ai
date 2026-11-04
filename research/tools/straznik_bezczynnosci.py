@@ -39,7 +39,8 @@ def main(argv=None):
     p.add_argument("--okno", type=float, default=600.0)
     p.add_argument("--prog", type=float, default=5.0)
     p.add_argument("--interwal", type=float, default=30.0)
-    p.add_argument("--gpu", default="nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits | head -1")
+    # busiest GPU: with one queue per GPU the instance is idle only when every card is
+    p.add_argument("--gpu", default="nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits | sort -n | tail -1")
     # GOTCHA: "[c]" keeps the probe's own `sh -c` command line out of the count
     p.add_argument("--kolejka", default="pgrep -fc '[c]ommon/ewaluuj.py' || true")
     p.add_argument("--pakuj", default=f"bash {KORZEN}/tools/przebieg_centralny.sh pakuj")
