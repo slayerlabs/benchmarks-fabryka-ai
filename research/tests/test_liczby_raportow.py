@@ -522,6 +522,91 @@ def test_uklad_pary_ukosnik_paradygmaty_bierze_drugie_slowo_dla_t():
     assert _reguly_ijk("| z = -7,11 | t = -3,79, df = 7 | pewne / pewne |") == ["(i) t -3,79 → prawdopodobne, w tekście: pewne"]
 
 
+def test_minus_typograficzny_przy_t():
+    assert _reguly_ijk("t = −1,34, df = 66, pewne") == ["(i) t −1,34 → szum, w tekście: pewne"]
+
+
+def test_kolumna_df_wygrywa_z_liczbami():
+    # t = 3.07 ma w LICZBY.json df = 66 (prawdopodobne); kolumna tabeli mówi df = 2, więc szum
+    tabela = "| zjawisko | t | df | werdykt |\n|---|---:|---:|---|\n| x | t = 3.07 | 2 | probable |"
+    assert _reguly_ijk(tabela) == ["(i) t 3.07 → szum, w tekście: probable"]
+
+
+def test_przedzial_zaokraglenia_na_progu_milczy():
+    # t = 2,0 przy df = 1000 to |t| w [1,95; 2,05]: próg „prawdopodobne” leży w środku, więc oba słowa przechodzą
+    assert _reguly_ijk("t = 2,0, df = 1000, szum") == [] and _reguly_ijk("t = 2,0, df = 1000, prawdopodobne") == []
+    assert _reguly_ijk("t = 2,5, df = 1000, szum") == ["(i) t 2,5 → prawdopodobne, w tekście: szum"]
+
+
+def test_doklejka_p_i_rozklad_t():
+    assert _reguly_ijk("t = -3.30, df = 66, p = 0.0016 from the t distribution: probable") == [
+        "(i) t -3.30 → pewne, w tekście: probable"]
+    assert _reguly_ijk("t = -3,30, df = 66, p ≈ 0,0016 z rozkładu t: prawdopodobne") == [
+        "(i) t -3,30 → pewne, w tekście: prawdopodobne"]
+    assert _reguly_ijk("t = 1,60 bez wag (df = 13, pewne)") == ["(i) t 1,60 → szum, w tekście: pewne"]
+    assert _reguly_ijk("t = 1,60 (df = 13, pewne)") == ["(i) t 1,60 → szum, w tekście: pewne"]
+    assert _reguly_ijk("t = 1,60 bez wag i z innym ujęciem (df = 13, pewne)") == []  # więcej niż trzy słowa: nie przylega
+
+
+def test_podmiany_w_plikach_repo_zlapane():
+    # dwie podmiany, które w pierwszej wersji reguły przechodziły (druga weryfikacja PR)
+    liczby, zb = dane()
+    for plik, stare, nowe in (("benchmarks/blimp/results/BLIMP.md", "distribution: certain", "distribution: probable"),
+                              ("slayer-1b/wygaszanie/README.md", "(df = 13, szum), więc", "(df = 13, pewne), więc")):
+        linie = (KORZEN / plik).read_text(encoding="utf-8").splitlines()
+        assert any(stare in l for l in linie), (plik, stare)
+        linie = [l.replace(stare, nowe, 1) for l in linie]
+        assert any(p.startswith("(i)") for _, _, p in S.sprawdz_tekst(plik, linie, liczby, zb)), plik
+
+
+# Item 2 przegląd wsteczny w dziewięciu postaciach: każda podaje liczbę Holma na parach, mówi o paradygmatach
+# (ten albo sąsiedni akapit), a liczby po paradygmatach nie ma.
+_WARIANTY_K = [
+    _STARE_CHECKPOINTS_110,
+    "Holm-significant: 17/36, of them 2 decreases. Paradigms: t over the paradigm differences, df = k - 1.",
+    "Istotne po Holmie: 17 z 36, w tym 2 spadki. Część zjawisk spada. Paradygmaty: t po różnicach paradygmatów.",
+    "17 of 36 are Holm-significant, 2 of them decreases. Over paradigms the t uses df = k - 1.",
+    "Holm-significant: 17 of 36, of them 2 decreases.\n\n| phenomenon | z pairs | t paradigms | verdict paradigms |",
+    "After Holm correction 17 out of 36 differences remain, 2 of them decreases. Paradigm-level t is in the table.",
+    "Zostaje 17 z 36 po Holmie, w tym 2 spadki; po paradygmatach patrz tabela.",
+    "Paradigms: t over the paradigm differences, df = k - 1.\n\nHolm-significant: 17 of 36, some phenomena fall.",
+    "Holm over 36 tests: 17/36 significant on the pairs; read paradigm verdicts in the column next to it.",
+]
+
+
+def test_regula_k_lapie_dziewiec_postaci():
+    zlapane = [i for i, w in enumerate(_WARIANTY_K) if any(p.startswith("(k)") for p in _reguly_ijk(w))]
+    assert zlapane == list(range(9)), zlapane
+
+
+def test_regula_k_milczy_gdy_jest_liczba_po_paradygmatach():
+    assert _reguly_ijk(_WARIANTY_K[1] + " Over the paradigms: 4 of 27 not noise, 0 after Holm.") == []
+    assert _reguly_ijk("Holm-significant: 17 of 36 on the pairs.") == []  # bez paradygmatów w pobliżu nie ma czego żądać
+
+
+def test_rozroznialny_bez_probek_jest_ostrozny(tmp_path):
+    import wykres_przebiegu as Wp
+    assert Wp.rozroznialny(tmp_path, "blimp", 1) is False
+    centralny = KORZEN / "results/central-run"
+    assert [Wp.rozroznialny(centralny, "blimp", i) for i in range(1, len(Wp.M))] == [False] * 4  # szum po paradygmatach
+
+
+def test_rozroznialny_widzi_roznice_po_paradygmatach(tmp_path):
+    import gzip as gz
+    import json as js
+    import wykres_przebiegu as Wp
+    for i, (m, _) in enumerate(Wp.M[:2]):
+        d = tmp_path / "blimp" / m / "probki"
+        d.mkdir(parents=True)
+        with gz.open(d / "T01_space.jsonl.gz", "wt") as fh:
+            for p in range(6):  # 6 paradigms x 10 pairs; model 0 right on 9/10, model 1 on 5/10 (+-1 per paradigm)
+                for j in range(10):
+                    dobrze = j < (9 if i == 0 else 5 + p % 2)
+                    fh.write(js.dumps({"doc": {"UID": f"p{p}"}, "target": 0,
+                                       "filtered_resps": [[-1.0 if dobrze else -2.0], [-1.5]]}) + "\n")
+    assert Wp.rozroznialny(tmp_path, "blimp", 1) is True
+
+
 def test_t_bez_df_i_bez_porownania_zostaje_w_spokoju():
     # nie wiadomo, przy jakim df czytać t: bramka nie zgaduje
     assert _reguly_ijk("t = 9,87 (pewne)") == []

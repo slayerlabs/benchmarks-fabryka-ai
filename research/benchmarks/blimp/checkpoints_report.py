@@ -46,6 +46,40 @@ def wer(x):
     return WERDYKT_EN.get(x, x)
 
 
+def opis_dolka(pp, pk):
+    """How to read the 8600 -> 10010 change: a pair verdict that the paradigm t does not back is not a dip."""
+    if pk and pp["werdykt"] != "szum" and pk["werdykt"] == "szum":
+        return ("a drop on these pairs that is not shown at the paradigm level (noise there), so a dip at step 10010 "
+                "is not shown beyond these pairs")
+    return "read the verdict at the paradigm level for anything beyond these pairs"
+
+
+def holm(ps, alfa):
+    """Holm step-down: list of booleans (rejected) in the order of ps."""
+    kolejnosc = sorted(range(len(ps)), key=lambda i: ps[i])
+    out, m = [False] * len(ps), len(ps)
+    for r, i in enumerate(kolejnosc):
+        if ps[i] > alfa / (m - r):
+            break
+        out[i] = True
+    return out
+
+
+P_PRAWDOPODOBNE = 0.0455  # two-sided p of |z| = 2, the 'probable' level used for Holm on pairs
+
+
+def zjawiska_po_paradygmatach(srednie):
+    """Paradigm-level reading of 'average - 1.06' per phenomenon (k >= 3 paradigms): tests, count not noise
+    before correction, its verdict words, decreases among them, and the count left after Holm over all tests."""
+    klastr = [(e, z, r) for e, d in srednie.items() for z, r in d["blimp_zjawiska"].items() if (r.get("k") or 0) >= 3]
+    nie_szum = [(e, z, r) for e, z, r in klastr if r.get("werdykt_klastr") not in (None, "szum")]
+    po_holmie = holm([r.get("p_klastr", 1.0) for _, _, r in klastr], P_PRAWDOPODOBNE)
+    return {"testy": len(klastr), "nie_szum": len(nie_szum),
+            "sily": sorted({wer(r["werdykt_klastr"]) for _, _, r in nie_szum}),
+            "spadki": [(e, z) for e, z, r in nie_szum if r["roznica"] < 0],
+            "po_holmie": sum(po_holmie)}
+
+
 def tak(x):
     return "yes" if x else "no"
 
@@ -134,12 +168,7 @@ def pliki(liczby, kr):
         L += ["## Question 1: does the gap to Pythia-1B shrink over the final run?", ""]
         k_10_13, k_7_13, k_7_10, k_8_10 = krok(10010, 13848), krok(7150, 13848), krok(7150, 10010), krok(8600, 10010)
         if all(k_[0] for k_ in (k_10_13, k_7_13, k_7_10, k_8_10)):
-            pp_, pk_ = k_8_10
-            if pk_ and pp_["werdykt"] != "szum" and pk_["werdykt"] == "szum":
-                dolek = ("a drop on these pairs that does not carry over to the paradigms, so a dip at step 10010 is not "
-                         "shown beyond these pairs")
-            else:
-                dolek = "read the verdict at the paradigm level for anything beyond these pairs"
+            dolek = opis_dolka(*k_8_10)
             L += [f"**What the data show: step 13848 is closer to Pythia-1B than 10010, {zt(*k_10_13)}, and than 7150, "
                   f"{zt(*k_7_13)}. Between 7150 and 10010 the gap does not shrink: {zt(*k_7_10)}. The rise falls in the "
                   f"only interval that contains a restart of the run, and a trend cannot be told apart from the swings "
@@ -351,19 +380,18 @@ def pliki(liczby, kr):
                   if r["holm"] and r["roznica"] < 0]
         # the paradigm level (k >= 3) next to the pair level: a Holm count on pairs alone reads as a claim
         # about the phenomena, and on these averages the two levels disagree
-        klastr = [(e, z, r) for e in sr for z, r in kr["srednie"][e]["blimp_zjawiska"].items()
-                  if (r.get("k") or 0) >= 3]
-        nie_szum = [(e, z, r) for e, z, r in klastr if r.get("werdykt_klastr") not in (None, "szum")]
-        sily = sorted({wer(r["werdykt_klastr"]) for _, _, r in nie_szum})
-        spadki_k = [(e, z) for e, z, r in nie_szum if r["roznica"] < 0]
+        zp = zjawiska_po_paradygmatach(kr["srednie"])
         L += [f"Per phenomenon (protocol question 2): average - Slayer 1.06 on the same pairs, paired SE, Holm over "
               f"{len(zj)} phenomena x {len(sr)} averages at the 'probable' level. On the pairs, Holm-significant: "
               f"{n_ist} of {len(zj) * len(sr)}, of them {len(spadki)} decreases"
               + (" (" + ", ".join(f"{z.replace('_', ' ')} in {e}" for e, z in spadki) + ")" if spadki else "")
-              + f". Over the paradigms (phenomena with at least 3 paradigms, {len(klastr)} tests): {len(nie_szum)} not "
-              f"noise" + (f" ({', '.join(sily)})" if sily else "") + f", of them {len(spadki_k)} decreases"
+              + f". Over the paradigms (phenomena with at least 3 paradigms, {zp['testy']} tests): {zp['nie_szum']} "
+              f"not noise without correction" + (f" ({', '.join(zp['sily'])})" if zp['sily'] else "")
+              + f", of them {len(zp['spadki'])} decreases; after Holm over the {zp['testy']} tests at the 'probable' "
+              f"level {zp['po_holmie']} remain"
               + ("; the pair-level decreases are noise over the paradigms. That some phenomena fall while the overall "
-                 "accuracy rises is shown only on these pairs, not for the phenomena" if spadki and not spadki_k else "")
+                 "accuracy rises is shown only on these pairs; for the phenomena it is not shown"
+                 if spadki and not zp["spadki"] else "")
               + ". Paradigms: t over the phenomenon's paradigm differences, df = k - 1; fewer than 3 paradigms: "
               "undetermined.", "",
               "| phenomenon | average | paradigms | difference | SE pairs | z pairs | verdict pairs | Holm | t paradigms | verdict paradigms |",

@@ -93,7 +93,7 @@ Pythia-1B wypada wyżej w ARC-E cloze (acc z = −3,03, pewne) i w MMLU cloze (z
 Slayer wypada wyżej w polskiej gramatyce (MultiBLiMP, z = 27,94, pewne), co zgadza się z tym, że Pythię trenowano
 na tekście angielskim (the Pile); mieszanki danych Slayera tu nie badamy. Pytania jednego zjawiska MultiBLiMP nie
 są niezależne: po 14 grupach (SE klastrowe, średnia ważona liczbą pytań) różnica to 21,24 pkt, SE 4,75 pkt,
-z = 4,47, pewne (wiersz `multiblimp/acc_po_grupach` w `results/LICZBY.md`); werdykt bez zmian, siła ok. 6 razy
+t = 4,47, df = 13, pewne (wiersz `multiblimp/acc_po_grupach` w `results/LICZBY.md`); werdykt bez zmian, siła ok. 6 razy
 mniejsza.
 
 Slayer 1.06 to checkpoint z ok. 1/8 planowanego treningu, bez wygaszania LR (według autora modelu, stan z

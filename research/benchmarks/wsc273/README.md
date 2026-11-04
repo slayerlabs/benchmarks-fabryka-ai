@@ -41,22 +41,25 @@ Slayer 1.06 wobec baz:
 | panel 200 | większościowa | +8,5 pkt | 0,0469 | z = 1,81 | szum |
 | pełny split | losowa | +9,0 pkt | 0,0298 | z = 3,01 | pewne |
 | pełny split | większościowa | +8,8 pkt | 0,0440 | z = 1,997 | szum |
-| pełny split, SE po parach schematów | losowa | +9,0 pkt | 0,0204 | z = 4,40 | pewne |
-| pełny split, SE po parach schematów | większościowa | +8,8 pkt | 0,0207 | z = 4,24 | pewne |
+| pełny split, SE po schematach (eksploracyjne) | losowa | +9,0 pkt | 0,0201 | z = 4,47 | pewne |
+| pełny split, SE po schematach (eksploracyjne) | większościowa | +8,8 pkt | 0,0201 | z = 4,38 | pewne |
 
 Model i stała odpowiedź odpowiadają na te same pytania, więc SE różnicy wobec bazy większościowej jest parowane
 (`research/README.md`, „SE i werdykt”). Wobec bazy losowej, czyli stałej, SE to SE trafności.
 
-WSC273 składa się z par bliźniaczych zdań jednego schematu, które różnią się jednym słowem i mają przeciwne
-odpowiedzi. Stała odpowiedź trafia więc dokładnie raz w każdej parze, a wariancja różnicy siedzi w parach: SE po
-pytaniach ją zawyża. Właściwą jednostką jest para schematu (137 klastrów: 136 par i jedno zdanie bez pary). Pary
-wyznaczamy z kolejności wierszy (wiersz k i k+1 dla parzystego k), bo zbiór nie ma id schematu. 135 ze 136 par ma
-różne odpowiedzi, więc układ się zgadza, ale podział jest przybliżony (`po_parach` w `wsc273.py`).
+**Odczyt po schematach jest eksploracyjny.** Jednostkę wybraliśmy po zobaczeniu wyniku po pytaniach i to ona
+przesuwa werdykt wobec bazy większościowej z „szum” na „pewne”; protokół jej nie przewidywał. Uzasadnienie:
+WSC273 składa się ze schematów, czyli kolejnych zdań różniących się jednym-dwoma słowami, zwykle z przeciwnymi
+odpowiedziami. Stała odpowiedź trafia w takim schemacie mniej więcej raz na parę, więc wariancja różnicy siedzi
+w schematach, a SE po pytaniach ją zawyża. Zbiór nie ma id schematu. Schematy wyznaczamy z tekstu zdań
+(`schematy` w `wsc273.py`): kolejne zdanie należy do schematu poprzedniego, gdy zbiory ich słów pokrywają się
+w co najmniej 60% (Jaccard). Wychodzi 135 schematów: 133 pary, jeden schemat z 3 zdaniami (George, wiersze <!-- liczba-spoza-wynikow: próg grupowania, stała PROG_SCHEMATU -->
+252-254) i jeden z 4 (Madonna, 267-270). Podział po kolejności wierszy (k // 2) rozjeżdża się na tych dwóch
+schematach i dalej, więc go nie używamy. Wynik zależy od grupowania tylko w drugim miejscu: przy progu 50%
+(134 schematy) i 70% (140) z wobec bazy większościowej to 4,40 i 4,13, czyli zawsze pewne. <!-- liczba-spoza-wynikow: progi grupowania; z z po_schematach_wrazliwosc_progu w results/wsc273.json -->
 
-Na pełnym splicie, po parach schematów, Slayer 1.06 leży pewnie nad obiema bazami (z = 4,40 wobec losowej, z = 4,24
-wobec większościowej). Odczyt po pytaniach (z = 3,01 i z = 1,997, czyli „tuż nad progiem” i „szum”) był za słaby,
-bo pomijał pary. Panelu 200 nie przeliczamy po parach: ma 68 pełnych par i 64 zdania bez pary, więc ani SE po
-pytaniach, ani SE po parach nie opisuje go czysto; jego werdykty w tabeli są po pytaniach.
+Panelu 200 nie przeliczamy po schematach: panel losuje pojedyncze zdania, więc część schematów jest w nim
+niepełna i ani SE po pytaniach, ani SE po schematach nie opisuje go czysto; jego werdykty w tabeli są po pytaniach.
 
 Przebieg próbki zgadza się z podzbiorem przebiegu pełnego: największa różnica logliku to 0,0, liczba różnych `acc` to 0. <!-- liczba-spoza-wynikow: zgodność przebiegów z results/wsc273.json -->
 Najdłuższe żądanie ma 48 tokenów, więc nic nie zostało obcięte. <!-- liczba-spoza-wynikow: wyjście evaluate -->

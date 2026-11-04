@@ -325,5 +325,42 @@ def test_average_weights_odrzuca_zle_wejscie():
         acc.dodaj({"tok.weight": torch.zeros(2, 2), "head.weight": torch.ones(2, 2)})
 
 
+# ---- report sentences that read the pair verdict against the paradigm verdict (retrospective review, points 1-2)
+
+def test_dip_sentence_only_when_pairs_see_it_and_paradigms_do_not():
+    import checkpoints_report as R
+    # mutation: the old text called 10010 a local dip on the pair verdict alone
+    assert "not shown beyond these pairs" in R.opis_dolka({"werdykt": "pewne"}, {"werdykt": "szum"})
+    assert "not shown" not in R.opis_dolka({"werdykt": "pewne"}, {"werdykt": "pewne"})
+    assert "not shown" not in R.opis_dolka({"werdykt": "szum"}, {"werdykt": "szum"})
+    assert "not shown" not in R.opis_dolka({"werdykt": "pewne"}, None)
+
+
+def _zj(roznica, werdykt, p, k=4):
+    return {"roznica": roznica, "werdykt_klastr": werdykt, "p_klastr": p, "k": k}
+
+
+def test_phenomena_count_over_paradigms_with_and_without_holm():
+    import checkpoints_report as R
+    srednie = {"avg3": {"blimp_zjawiska": {"a": _zj(0.01, "prawdopodobne", 0.02), "b": _zj(-0.02, "szum", 0.6),
+                                           "c": _zj(0.02, "pewne", 0.0001, k=2)}},
+               "avg5": {"blimp_zjawiska": {"a": _zj(0.02, "prawdopodobne", 0.0027), "b": _zj(-0.03, "prawdopodobne", 0.04),
+                                           "c": _zj(0.02, "szum", 0.9, k=2)}}}
+    w = R.zjawiska_po_paradygmatach(srednie)
+    # k < 3 is never a test; Holm over 4 tests at 0.0455: 0.0027 <= 0.0455/4, then 0.02 > 0.0455/3 stops
+    assert w["testy"] == 4 and w["nie_szum"] == 3 and w["spadki"] == [("avg5", "b")] and w["po_holmie"] == 1
+    odwrocone = {e: {"blimp_zjawiska": dict(reversed(list(d["blimp_zjawiska"].items())))}
+                 for e, d in reversed(list(srednie.items()))}
+    v = R.zjawiska_po_paradygmatach(odwrocone)
+    assert (v["testy"], v["nie_szum"], v["po_holmie"], v["spadki"]) == (4, 3, 1, [("avg5", "b")])
+
+
+def test_holm_step_down_stops_at_first_failure():
+    import checkpoints_report as R
+    assert R.holm([0.001, 0.06, 0.02], 0.05) == [True, False, True]  # .001 <= .05/3, .02 <= .05/2, .06 > .05
+    assert R.holm([0.03, 0.001, 0.04], 0.05) == [False, True, False]  # .03 > .05/2 stops before .04
+    assert R.holm([0.04, 0.04], 0.05) == [False, False]
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-q"]))

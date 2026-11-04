@@ -61,8 +61,8 @@ prawie nie rusza lossu wobec 1.06 (−0,0034), czyli zysk A pochodzi z wygaszeni
 Przy bazie losowej, jak 1.06, leżą tylko formaty z literami; MultiBLiMP (0,986 przy bazie 0,5) i Social IQa <!-- liczba-spoza-wynikow: trafność MultiBLiMP A z wyniki/A/multiblimp.jsonl -->
 cloze (ok. 0,39 przy bazie 0,333) są nad nią. Ponad 2 SE po pytaniach poza acc: MultiBLiMP acc_norm +0,005 i <!-- liczba-spoza-wynikow: przybliżenie trafności Social IQa cloze -->
 bpb +0,004 na korzyść A, Social IQa PMI −0,012 na niekorzyść A (bez poprawki na wielokrotne porównania). Pytania
-jednego zjawiska MultiBLiMP nie są niezależne: po 14 grupach bpb ma z = 1,71 (szum), a acc_norm <!-- liczba-spoza-wynikow: SE klastrowe po 14 grupach z wyniki/{A,B}/multiblimp.jsonl -->
-z = 2,25 (prawdopodobne) przy średniej ważonej, ale t = 1,60 bez wag (df = 13, szum), więc oba wyniki MultiBLiMP <!-- liczba-spoza-wynikow: jak wyżej -->
+jednego zjawiska MultiBLiMP nie są niezależne: po 14 grupach bpb ma t = 1,71 (df = 13, szum), a acc_norm <!-- liczba-spoza-wynikow: SE klastrowe po 14 grupach z wyniki/{A,B}/multiblimp.jsonl -->
+t = 2,25 (df = 13, prawdopodobne) przy średniej ważonej, ale t = 1,60 bez wag (df = 13, szum), więc oba wyniki MultiBLiMP <!-- liczba-spoza-wynikow: jak wyżej -->
 leżą na granicy szumu albo w nim. PubMedQA acc_norm −0,058 i bpb −0,022 na niekorzyść A (n=500,
 sygnał do sprawdzenia, nie wynik). BPB poprawnej odpowiedzi: A lepsze od B w ARC-C cloze
 (−0,044), MedMCQA cloze (−0,063), MultiBLiMP (−0,022) i Social IQa MC (−0,046), gorsze w ARC-C MC

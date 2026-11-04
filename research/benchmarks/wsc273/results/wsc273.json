@@ -71,23 +71,43 @@
    "z": 1.9970957988424314,
    "werdykt": "szum"
   },
-  "wobec_losowej_po_parach": {
+  "wobec_losowej_po_schematach": {
    "roznica": 0.08974358974358976,
-   "se": 0.020388458902166527,
-   "z": 4.401685785778217,
+   "se": 0.020087888471605465,
+   "z": 4.467547192450998,
    "werdykt": "pewne",
-   "pary": 137,
-   "pary_pelne": 136,
-   "pary_z_roznym_gold": 135
+   "schematy": 135,
+   "rozmiary_schematow": {
+    "2": 133,
+    "3": 1,
+    "4": 1
+   },
+   "eksploracyjne": "jednostka wybrana po wyniku po pytaniach; nie w protokole"
   },
-  "wobec_wiekszosciowej_po_parach": {
+  "wobec_wiekszosciowej_po_schematach": {
    "roznica": 0.08791208791208793,
-   "se": 0.02072305676863917,
-   "z": 4.242235539552638,
+   "se": 0.020092537916080126,
+   "z": 4.375360060499455,
    "werdykt": "pewne",
-   "pary": 137,
-   "pary_pelne": 136,
-   "pary_z_roznym_gold": 135
+   "schematy": 135,
+   "rozmiary_schematow": {
+    "2": 133,
+    "3": 1,
+    "4": 1
+   },
+   "eksploracyjne": "jednostka wybrana po wyniku po pytaniach; nie w protokole"
+  },
+  "po_schematach_wrazliwosc_progu": {
+   "0.5": {
+    "schematy": 134,
+    "z_losowa": 4.4896272096205125,
+    "z_wiekszosciowa": 4.396623224256821
+   },
+   "0.7": {
+    "schematy": 140,
+    "z_losowa": 4.4172620807555605,
+    "z_wiekszosciowa": 4.127683860495488
+   }
   }
  },
  "zgodnosc_panel_pelny": {
