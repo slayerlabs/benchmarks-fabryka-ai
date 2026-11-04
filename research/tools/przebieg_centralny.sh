@@ -45,6 +45,7 @@ export NLTK_DATA=$NLTK_DANE
 # loader: slayer = common/slayer_lm.py, hf = HFLM, hf-trust = HFLM with trust_remote_code. env: lock | new.
 # Bielik is a gated repo (LlamaForCausalLM, tokenizer.json, so the lock env loads it): counted when the HF token has
 # access, otherwise licz_model skips it with a message in the log and $ST/pominiety_<label>.txt (`dostep_hf`).
+# Last row: the stage B control model (METODOLOGIA "Model kontrolny etapu B", item 1); f3f1b6d5 is branch step143000.
 MODELE=(
   "slayer1b-1.06|SlayerLab/Slayer1B-1.06|ef81be58742544ad32e1afab38db011fec209609|slayer|lock"
   "qwen3.5-0.8b-base|Qwen/Qwen3.5-0.8B-Base|dc7cdfe2ee4154fa7e30f5b51ca41bfa40174e68|hf|new"
@@ -52,6 +53,7 @@ MODELE=(
   "bielik-1.5b-v3|speakleash/Bielik-1.5B-v3|4b25049621bf3952a1fc9314c89773102eda0333|hf|lock"
   "lfm3-1.7b-base|LiquidAI/LFM3-1.7B-Base|545fc8f4c7b5fa9f405105274cd29c4f8f44b526|hf-trust|new"
   "eurollm-1.7b|utter-project/EuroLLM-1.7B|c730cd9b616799ace3c65e927d63191446f59374|hf|lock"
+  "pythia-1b-v0|EleutherAI/pythia-1b-v0|f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0|hf|lock"
 )
 
 # Task id -> <benchmark> directory name under wyniki/ and results/central-run/; the test checks that ZADANIA_ID equals the keys of ZADANIA.

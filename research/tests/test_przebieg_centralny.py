@@ -11,6 +11,8 @@ from pathlib import Path
 KORZEN = Path(__file__).resolve().parent.parent
 SKRYPT = KORZEN / "tools" / "przebieg_centralny.sh"
 BIELIK = "speakleash/Bielik-1.5B-v3"  # gated repo: counted with access, skipped without (licz_model, dostep_hf)
+KONTROLNY = "EleutherAI/pythia-1b-v0"
+PYTHIA_STEP143000 = "f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0"  # commit of HF branch step143000
 
 
 def uruchom(*args, ws=None):
@@ -44,8 +46,17 @@ def klucze_zadan():
 def test_reference_models_match_methodology():
     tabela = tabela_metodologii()
     assert len(tabela) == 5 and BIELIK in tabela
-    odniesienia = {repo: rev for _, repo, rev, _, _ in modele_skryptu() if not repo.startswith("SlayerLab/")}
+    odniesienia = {repo: rev for _, repo, rev, _, _ in modele_skryptu()
+                   if not repo.startswith("SlayerLab/") and repo != KONTROLNY}
     assert odniesienia == tabela
+
+
+def test_control_model_is_first_on_methodology_list():
+    tekst = (KORZEN / "METODOLOGIA.md").read_text(encoding="utf-8")
+    sekcja = tekst.split("### Model kontrolny etapu B", 1)[1].split("\n### ", 1)[0]
+    assert re.search(r"^1\. \*\*`([^`]+)` @ `step143000`\*\*", sekcja, re.MULTILINE).group(1) == KONTROLNY
+    wiersze = [m for m in modele_skryptu() if m[1] == KONTROLNY]
+    assert wiersze == [["pythia-1b-v0", KONTROLNY, PYTHIA_STEP143000, "hf", "lock"]]
 
 
 def test_bielik_runs_in_the_lock_env_with_hflm():

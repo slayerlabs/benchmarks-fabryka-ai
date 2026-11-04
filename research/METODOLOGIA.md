@@ -346,8 +346,9 @@ do tego czasu przebieg liczy 4 modele odniesienia.
 
 Wszystkie modele liczy przebieg centralny tym samym kodem (sekcja „Następna wersja Slayera”): mierzony model, modele
 odniesienia i model kontrolny benchmarku. Autor PR niczego nie liczy na GPU. Lista `MODELE` w
-`tools/przebieg_centralny.sh` ma dziś tylko Slayera i modele odniesienia, więc werdykt etapu B z modelem kontrolnym
-spoza niej czeka, aż przebieg go policzy.
+`tools/przebieg_centralny.sh` ma Slayera, modele odniesienia i pierwszy model kontrolny z listy,
+`EleutherAI/pythia-1b-v0` @ `step143000` (commit `f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0`). Werdykt etapu B z
+dalszym modelem z listy czeka, aż ktoś dopisze go do `MODELE`.
 
 ## Przepis (RECIPE.md)
 
