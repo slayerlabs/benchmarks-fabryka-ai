@@ -18,10 +18,8 @@ Tam też pytaj, gdy coś nie działa albo czegoś nie ma w dokumentacji. Napisz,
 ## Pierwsze zadanie
 
 Wybierz zadanie, przypisz się do niego (Assignees → Assign yourself) i przestaw je na tablicy na In Progress.
-Bierzesz jedno zadanie naraz. Jeśli zaczynasz, weź zadanie z etykietą `good first issue`
-([lista w tym repo](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22)).
-Takie zadanie nazywa się „Karta oryginału: <benchmark>”. Piszesz w nim kartę oryginału jednego benchmarku, czyli plik
-`ORIGINAL.md` (etap A). Zajmuje to około 2 h.
+Bierzesz jedno zadanie naraz. Jeśli zaczynasz, weź
+[good first issue](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22).
 
 Recenzję cudzej karty możesz wziąć, gdy masz już za sobą jedną własną kartę.
 
