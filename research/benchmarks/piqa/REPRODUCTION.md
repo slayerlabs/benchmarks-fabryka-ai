@@ -23,6 +23,5 @@ Procedurę opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworze
 Ten sam przebieg Pythii na RTX 4090, RTX A6000 i RTX 3090 daje te same decyzje `acc_norm` na wszystkich 1838
 pytaniach (`results/PIQA.md`, „Ten sam przebieg Pythii na innych GPU”).
 
-Ładowania Slayera kontrola nie sprawdza. Space nie ma wartości T06 dla Slayera 1.06 (ani dla innego modelu), więc
-porównanie Slayera policzonego kodem repo z panelem Space z sekcji „Model kontrolny etapu B” jest niewykonalne.
-Slayer idzie przez wrapper `slayer` z `common/slayer_lm.py` (#44).
+Ładowania Slayera kontrola nie sprawdza ([METODOLOGIA, „Model kontrolny etapu B”](../../METODOLOGIA.md#model-kontrolny-etapu-b)):
+sprawdzają je testy kodu Slayera. Slayer idzie przez wrapper `slayer` z `common/slayer_lm.py` (#44).

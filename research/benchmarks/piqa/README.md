@@ -1,8 +1,8 @@
-# PIQA (Space T06)
+# PIQA (T06)
 
 > Praca idzie według [`METODOLOGIA.md`](../../METODOLOGIA.md).
 
-Slayer 1.06 na PIQA według protokołu Space, z kontrolą Pythia-1B v0 (zadanie #16). Etapy A–C: #57.
+Slayer 1.06 na PIQA według [`PROTOCOL.md`](PROTOCOL.md), z kontrolą Pythia-1B v0 (zadanie #16). Etapy A–C: #57.
 
 - [`ORIGINAL.md`](ORIGINAL.md): karta oryginału (etap A).
 - [`REPRODUCTION.md`](REPRODUCTION.md): odtworzenie (etap B), werdykt: spełniony. Pythia-1B v0 `acc_norm` 0,7095
@@ -11,8 +11,8 @@ Slayer 1.06 na PIQA według protokołu Space, z kontrolą Pythia-1B v0 (zadanie 
   wynikiem.
 - [`results/PIQA.md`](results/PIQA.md): raport wygenerowany z `results/piqa.json`.
 - [`RECIPE.md`](RECIPE.md): jeden wpis na każdy wynik.
-- [`SPACE_METHOD.md`](SPACE_METHOD.md): wyciąg z METHOD.md Space i wpis T06 z tasks_50.json w użytej rewizji
-  Space.
+- [`SPACE_METHOD.md`](SPACE_METHOD.md): wyciąg z opisu metody Space i jego wpisu T06, informacyjnie: ustawienia
+  testu wyznaczają karta i `PROTOCOL.md`, nie ten plik.
 - `piqa.py`: `fetch`, `score`, `report`; `instance.sh`: to samo na GPU z vast.ai.
 - `results/raw/`: jedna linia na pytanie (log-prawdopodobieństwo każdej opcji, wybory, poprawna odpowiedź, id
   źródła), sha256 w `SHA256SUMS`.

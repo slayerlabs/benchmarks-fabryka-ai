@@ -5,7 +5,7 @@ Procedurę opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworze
 | | wartość |
 |---|---|
 | kod referencyjny @ commit | lm-eval `0.4.9.1` (`common/requirements.lock.txt`), zadanie `pubmedqa`: repo bierze `doc_to_text` z `preprocess_pubmedqa.py` tej wersji i te same opcje i cel co `pubmedqa.yaml` (`common/zadania.py`, T44); zmienione tylko źródło danych (parquet przypięty w `ORIGINAL.md`) |
-| dlaczego ten kod | Autorzy nie publikują kodu 0-shot dla modelu językowego (praca ocenia dostrajane klasyfikatory). Space wskazuje `lm_eval/tasks/pubmedqa/pubmedqa.yaml` (`tasks_50.json` T44), a katalog zadania ma te same bloby w `6d2abda4`, `v0.4.8` i `v0.4.9.1` (`ORIGINAL.md`, „Znane rozbieżności”). |
+| dlaczego ten kod | Autorzy nie publikują kodu 0-shot dla modelu językowego (praca ocenia dostrajane klasyfikatory). Karta (`ORIGINAL.md`) wskazuje zadanie lm-eval `lm_eval/tasks/pubmedqa/pubmedqa.yaml`, a katalog zadania ma te same bloby w `6d2abda4`, `v0.4.8` i `v0.4.9.1` (`ORIGINAL.md`, „Znane rozbieżności”). |
 | model kontrolny @ rewizja | bez kontroli |
 | bez kontroli: miejsca, w których szukano opublikowanego wyniku | plik Pythii v0 (`EleutherAI/pythia` @ `a19eecb`, `evals/pythia-v0`: brak `pubmedqa`); karty 5 modeli przebiegu centralnego (Qwen3.5-0.8B-Base, LFM2.5-1.2B-Base, LFM3-1.7B-Base, EuroLLM-1.7B, Slayer 1.06): bez wyniku PubMedQA; `openlifescienceai/results` @ `62d7322cf11bf622399f7f54e5a7620ec6ef013d` (Open Medical-LLM Leaderboard, 0-shot): żadnego z 5 modeli; Space @ `2d3d73f`: `not_run`; issue [#97](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/97). |
 | bez kontroli: opublikowane wyniki innych modeli (niepoliczone) | `openlifescienceai/results` ma 0-shot `pubmedqa` m.in. dla `TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T` (plik `results_2024-05-24 17:53:20.359555.json`, float32). Rewizja modelu w pliku to `main`, wersja lm-eval niezapisana. Z decyzji dla przebiegu centralnego liczymy tylko Slayera i modele przebiegu, bez dodatkowych modeli kontrolnych, więc tej kontroli nie policzono. |
@@ -23,10 +23,11 @@ Procedurę opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworze
 | warunek odtworzenia | ±2 pkt, a gdy 2 SE > 2 pkt, ±2 SE; nie ma wartości referencyjnej, do której go przyłożyć. |
 | werdykt | bez kontroli: nierozstrzygnięte. Wynik nie idzie do meta-oceny; do Space najwyżej jako wstępny według wyjątku z #97. |
 
-## Slayer a Space
+## Ładowanie Slayera
 
-Kontrola nie sprawdza ładowania Slayera. Space @ `2d3d73f5c0ee431df9d38bd9619ccb05a26bf9a9` ma T44 w stanie
-`not_run` dla Slayera 1.06 (i dla LFM2.5-1.2B-Base), więc porównania Slayera z panelem Space nie da się zrobić.
+Kontrola nie sprawdza ładowania Slayera; sprawdzają je testy kodu Slayera
+([METODOLOGIA, „Model kontrolny etapu B”](../../METODOLOGIA.md#model-kontrolny-etapu-b)). Informacyjnie: Space @
+`2d3d73f5c0ee431df9d38bd9619ccb05a26bf9a9` ma T44 w stanie `not_run` dla Slayera 1.06 (i dla LFM2.5-1.2B-Base).
 
 ## Wynik Slayera pod bazą większościową
 

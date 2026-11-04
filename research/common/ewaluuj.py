@@ -142,8 +142,8 @@ def wybor_probki(zad, meta, tryb, czlonek=None, n=None, wykluczone=()):
 
 # --- (c): groups, demonstrations, context limit, generation and corpus metrics ---
 
-LIMIT_KONTEKSTU = 4096  # METHOD.md §2: longer inputs are rejected, never truncated
-BUDZET_GEN = 256  # METHOD.md §4: default generation budget (HFLM max_gen_toks)
+LIMIT_KONTEKSTU = 4096  # METODOLOGIA "Ustawienia przebiegu centralnego": longer inputs are rejected, never truncated
+BUDZET_GEN = 256  # same section: default generation budget (HFLM max_gen_toks)
 
 
 def czlonek(cfg):
@@ -161,7 +161,7 @@ def metryka(meta):
 
 
 def przydzialy(space, meta, tryb):
-    """{podtest: n} grupy: panel200 według METHOD §3, liczba = tyle na podtest; {} = jak dla jednego zadania."""
+    """{podtest: n} grupy: panel200 według metryki.przydzial_grupy, liczba = tyle na podtest; {} = jak dla jednego zadania."""
     if len(space) == 1 or tryb == "pelna":
         return {}
     if tryb == "panel200":
@@ -170,7 +170,7 @@ def przydzialy(space, meta, tryb):
 
 
 def uzyj_banku(zad):
-    """Bank Space dla każdego zadania z demonstracjami, także z tego samego splitu co test (Belebele T24, jedyny
+    """Bank przykładów (METODOLOGIA „Przykłady few-shot”) dla każdego zadania z demonstracjami, także z tego samego splitu co test (Belebele T24, jedyny
     split). Zostają tylko demonstracje źródłowe (BBH, stała lista w YAML-u)."""
     cfg = zad.config
     fs = cfg.fewshot_config or {}  # GOTCHA: słownik w 0.4.9.1, dataclass FewshotConfig w 0.4.13
@@ -231,7 +231,7 @@ def sampler_banku(docs, zad):
 
 
 def licznik_wejscia(lm, licz_tokeny):
-    """Tokeny tekstu żądania z jednym wiodącym BOS (METHOD.md §2): tokenizer modelu i BOS, gdy tokenizer sam go nie
+    """Tokeny tekstu żądania z jednym wiodącym BOS (METODOLOGIA, „Wejście”): tokenizer modelu i BOS, gdy tokenizer sam go nie
     dał. Model bez BOS dostaje limit ostrzejszy najwyżej o jeden token."""
     bos = getattr(lm, "prefix_token_id", None)
     if bos is None or not hasattr(lm, "tok_encode"):
@@ -244,7 +244,7 @@ def licznik_wejscia(lm, licz_tokeny):
 
 
 def ogranicz_kontekst(zad, licz_tokeny, limit, licz_wejscie):
-    """METHOD.md §4: prompt z BOS (`licz_wejscie`) + budżet ≤ limit; budżet MC = najdłuższa kontynuacja
+    """METODOLOGIA, „Wejście”: prompt z BOS (`licz_wejscie`) + budżet ≤ limit; budżet MC = najdłuższa kontynuacja
     (`licz_tokeny`, bez BOS). Demonstracje zdejmowane od końca; pytania, opcje i odniesienia nie są cięte, więc prompt
     za długi bez demonstracji (także MC 0-shot) kończy zadanie błędem."""
     oryginal = zad.fewshot_context
@@ -346,7 +346,7 @@ def meta_srednia_makro(cfg):
 
 def podsumuj_wariant(meta, czlonkowie):
     """Metryki jednego wariantu. `czlonkowie` = [(podtest, cfg, zad, próbki)]; więcej niż jeden = grupa, średnia
-    podtestów z wagami populacji (MMLU, MATH, BBH, METHOD.md §3) i bazy złożone tymi samymi wagami."""
+    podtestów z wagami populacji (MMLU, MATH, BBH) i bazy złożone tymi samymi wagami."""
     wagi = {n: len(z.eval_docs) for n, _, z, _ in czlonkowie}
     klasy_stale = meta.get("klasy_stale", False)
     if rodzaj(meta) == "mc":
@@ -406,7 +406,7 @@ def podsumuj_wariant(meta, czlonkowie):
 
 
 def ocen_zadanie(lm, task_id, dane, probka, licz_tokeny, wyj, runner, model_id, protocol_id):
-    """Jedno zadanie Space na modelu `lm`: (obserwacja, wpis rozszerzony, bazy, sha256 próbek); wyjątek = brak wyniku."""
+    """Jedno zadanie ZADANIA na modelu `lm`: (obserwacja, wpis rozszerzony, bazy, sha256 próbek); wyjątek = brak wyniku."""
     from lm_eval import simple_evaluate
     import trace_pytan as T
 
@@ -419,8 +419,8 @@ def ocen_zadanie(lm, task_id, dane, probka, licz_tokeny, wyj, runner, model_id, 
     space = po_wariancie["space"]
     n_czl = przydzialy(space, meta, probka)
     demonstracje, przed_proba = {}, set()
-    # Bank z testu (T24) przy pełnym splicie: przed próbą, jego dokumenty nie wchodzą do oceny. Panel jak w Space
-    # (n_population 900): najpierw próba z całego splitu, bank z dokumentów spoza niej.
+    # Bank z testu (T24) przy pełnym splicie: przed próbą, jego dokumenty nie wchodzą do oceny. Przy panelu
+    # najpierw próba z całego splitu, bank z dokumentów spoza niej (METODOLOGIA „Przykłady few-shot”, punkt 4).
     if probka == "pelna" or meta.get("probkowanie") is False:
         for lista in po_wariancie.values():
             for cfg, zad in lista:

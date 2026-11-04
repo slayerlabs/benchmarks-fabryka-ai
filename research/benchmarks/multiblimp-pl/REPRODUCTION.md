@@ -4,8 +4,8 @@ Procedurę opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworze
 
 | | wartość |
 |---|---|
-| kod referencyjny @ commit | Space: suma log-prawdopodobieństw zdania po spacji, pusty kontekst (T04, `instrument: custom_pl`). Repo: lm-eval `0.4.9.1`, silnik `multiple_choice` z konfiguracją `T04` w `common/zadania.py` (to samo: `doc_to_text` pusty, `target_delimiter` spacja, opcje `[sen, wrong_sen]`, cel 0). Kod autorów: `jumelet/multiblimp` @ `e05dba5`, `src/lm_eval/score.py` (`minicons`, suma log-prawdopodobieństw tokenów). |
-| dlaczego ten kod | Space liczy T04 tym protokołem; kod autorów wymaga `minicons` w wersji, której repo nie przypina. |
+| kod referencyjny @ commit | Protokół repo z karty (`ORIGINAL.md`, „Format zadania i prompt”): suma log-prawdopodobieństw zdania po spacji, pusty kontekst (T04). Repo: lm-eval `0.4.9.1`, silnik `multiple_choice` z konfiguracją `T04` w `common/zadania.py` (to samo: `doc_to_text` pusty, `target_delimiter` spacja, opcje `[sen, wrong_sen]`, cel 0). Kod autorów: `jumelet/multiblimp` @ `e05dba5`, `src/lm_eval/score.py` (`minicons`, suma log-prawdopodobieństw tokenów). |
+| dlaczego ten kod | Protokół z karty (`ORIGINAL.md`); kod autorów wymaga `minicons` w wersji, której repo nie przypina. |
 | model kontrolny @ rewizja albo „bez kontroli” | bez kontroli |
 | bez kontroli: miejsca, w których szukano opublikowanego wyniku | (1) Praca arXiv:2504.02768v4, źródła LaTeX, tabela per język, wiersz `pol`: wyniki tylko dla Llama3 8B i 70B, Aya 32B, Gemma3 27B, OLMo2 32B, Qwen3 14B, EuroLLM 9B i Goldfisha 125M. EuroLLM-1.7B praca ocenia, ale wyniku dla `pol` nie podaje (sprawdzone w źródle tabeli, nie w streszczeniu HTML). (2) Repo autorów @ `e05dba5`: brak plików wyników. (3) Karta zbioru HF @ `de923ef`: brak wyników. (4) Karty Qwen3.5-0.8B-Base, LFM2.5-1.2B-Base, LFM3-1.7B-Base (`main`) i EuroLLM-1.7B (@ `c730cd9`): słowo „BLiMP” nie występuje. Żaden z pięciu modeli przebiegu centralnego nie ma opublikowanego wyniku dla `pol`. |
 | bez kontroli: modele z opublikowanym wynikiem, których nie liczono | Goldfish 125M (polski), 96,3 w pracy; to najtańsza kontrola. Z decyzji zadania liczony jest wyłącznie Slayer i modele przebiegu centralnego, więc go nie policzono. <!-- liczba-spoza-wynikow: arXiv 2504.02768v4, full_results.tex, wiersz pol --> |
@@ -36,9 +36,9 @@ Zamiana kolejności zdań w parze (typ `para`): wyliczona z zapisanych log-prawd
 
 Slayer ma 98,59%: więcej niż EuroLLM 9B (97,3) i blisko Gemmy3 27B (98,8) z pracy. Space oznacza go na T04 jako `flagged`. Podejrzenie, że zdania z `pol/data.tsv` (publiczne drzewa UD) są w danych treningowych Slayera, jest do sprawdzenia w [#36](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/36). Do tego czasu ten wynik nie mówi o polskiej gramatyce Slayera. <!-- liczba-spoza-wynikow: results.json przebiegu centralnego, slayer1b-1.06; arXiv 2504.02768v4, wiersz pol -->
 
-## Ładowanie Slayera wobec Space
+## Slayer w Space (informacyjnie: nie kontrola ani wzorzec)
 
-Space ma wynik Slayera 1.06 na T04, więc METODOLOGIA („Kontrola nie sprawdza ładowania Slayera”) wymaga porównania na pytaniach panelu Space. Panelu nie udało się odtworzyć: przebieg centralny identyfikuje parę numerem wiersza (`source_id_digest` pełnego pliku to SHA-256 listy numerów wierszy), ale 200 najniższych skrótów `20261028|benchmark_id|member_task|id` w 24 wariantach (numer wiersza, `sent_id`, skrót dokumentu, skrót kanoniczny; trzy nazwy członka, dwie nazwy testu) nie daje `source_id_digest` panelu T04 z `results.json` Space (`c9aba49d…`). Porównanie niżej bierze więc pełny plik zamiast panelu i jest przybliżeniem. <!-- liczba-spoza-wynikow: METHOD.md i results.json Space @ 2d3d73f5c0ee431df9d38bd9619ccb05a26bf9a9; results.json przebiegu centralnego, source_id_digest -->
+Space ma wynik Slayera 1.06 na T04. Ładowania Slayera ta wartość nie sprawdza: sprawdzają je testy kodu Slayera ([METODOLOGIA, „Model kontrolny etapu B”](../../METODOLOGIA.md#model-kontrolny-etapu-b)), a tabela niżej jest informacją. Panelu nie udało się odtworzyć: przebieg centralny identyfikuje parę numerem wiersza (`source_id_digest` pełnego pliku to SHA-256 listy numerów wierszy), ale 200 najniższych skrótów `20261028|benchmark_id|member_task|id` w 24 wariantach (numer wiersza, `sent_id`, skrót dokumentu, skrót kanoniczny; trzy nazwy członka, dwie nazwy testu) nie daje `source_id_digest` panelu T04 z `results.json` Space (`c9aba49d…`). Porównanie niżej bierze więc pełny plik zamiast panelu i jest przybliżeniem. <!-- liczba-spoza-wynikow: METHOD.md i results.json Space @ 2d3d73f5c0ee431df9d38bd9619ccb05a26bf9a9; results.json przebiegu centralnego, source_id_digest -->
 
 | | wartość |
 |---|---|
@@ -46,4 +46,4 @@ Space ma wynik Slayera 1.06 na T04, więc METODOLOGIA („Kontrola nie sprawdza 
 | przebieg centralny, Slayer 1.06 @ `ef81be58` | 98,59%, n = 3272, pełny plik <!-- liczba-spoza-wynikow: results.json przebiegu centralnego, slayer1b-1.06 --> |
 | SE panelu (SE A) | 0,70 pkt = √(0,99 · 0,01 / 200) <!-- liczba-spoza-wynikow: wartość Space T04 i n panelu --> |
 | różnica | −0,41 pkt, z = −0,58 wobec SE panelu, w granicach 2 SE <!-- liczba-spoza-wynikow: 98,59 − 99,0 i SE panelu --> |
-| werdykt | zgodne w przybliżeniu pełnym plikiem. Porównania na tych samych 200 parach nie zrobiono, bo składu panelu nie odtworzono. |
+| wniosek (informacyjnie) | zgodne w przybliżeniu pełnym plikiem. Porównania na tych samych 200 parach nie zrobiono, bo składu panelu nie odtworzono. |

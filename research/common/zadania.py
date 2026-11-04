@@ -1,12 +1,12 @@
 """Definicje zadań niezależnej ewaluacji Slayera 1B jako słowniki konfiguracji lm-eval.
 
-Każde zadanie z panelu Space ma tu wariant „space" (ten sam prompt i wybory co
-`lm_eval/tasks/...` wskazane w tasks_50.json Space) i, gdy Space liczy MC w formacie
-litery, wariant „cloze" (wybory = treść odpowiedzi). Do każdego wariantu MC dochodzi
-`acc_mutual_info`, więc w próbkach lądują też logliki bezwarunkowe do kalibracji PMI.
+Każde zadanie ma tu wariant główny „space" (nazwa formatu wyniku; prompt i wybory zadania lm-eval z karty
+benchmarku, METODOLOGIA „Wersja lm-eval”) i, gdy metryka decyzyjna liczy MC w formacie litery, wariant „cloze"
+(wybory = treść odpowiedzi). Do każdego wariantu MC dochodzi `acc_mutual_info`, więc w próbkach lądują też logliki
+bezwarunkowe do kalibracji PMI.
 
-Źródło danych: `hf` (repo i rewizja przypięte jak w tasks_50.json) albo `lokalne`
-(pliki JSONL z `tests/data/`, test na sucho bez sieci).
+Źródło danych: `hf` (repo i rewizja przypięte w ZADANIA, zgodne z kartą: tests/test_zgodnosc_karty.py) albo
+`lokalne` (pliki JSONL z `tests/data/`, test na sucho bez sieci).
 """
 
 import importlib.util
@@ -91,8 +91,9 @@ def multiblimp_choices(doc):
     raise KeyError(f"MultiBLiMP: brak kolumn pary minimalnej, są {sorted(doc)}")
 
 
-# Metadane z tasks_50.json Space (odczyt 29.10.2026). `klasy_stale` steruje bazą
-# większościową: Space podaje ją tylko dla zadań o stałym zbiorze klas.
+# Ustawienia testów; źródłem jest karta benchmarku (ORIGINAL.md / DATASET.md / POLISH.md), a zgodność wpisu z kartą
+# sprawdza tests/test_zgodnosc_karty.py. `klasy_stale` steruje bazą większościową: liczymy ją tylko dla zadań o
+# stałym zbiorze klas.
 ZADANIA = {
     # BLiMP: lm-eval group `blimp` (67 members, 6d2abda4 _template_yaml). One config over all 67
     # parquet files; on the full set the micro mean equals the group's equal-weight mean (1000 pairs
@@ -175,9 +176,10 @@ ZADANIA = {
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="nyu-mll/glue", rewizja="bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c",
                 nazwa_hf="sst2", split="validation", rodzaj="mc", klasy_stale=True, pole_id="idx"),
-    # Polish tasks (Space: OpenPL fork @ 21d0ea9c, 5-shot). The task YAML is a copy of the fork's file under
+    # Polish tasks (OpenPL fork @ 21d0ea9c, 5-shot). The task YAML is a copy of the fork's file under
     # benchmarks/<dir>/lm_eval_tasks/ (`yaml`, relative to benchmarks/); zadania.py pins the dataset revision.
-    # The 5 demonstrations come from the hash-selected Space bank (ewaluuj.ustaw_bank), not from the YAML's sampler.
+    # The 5 demonstrations come from the demonstration bank (METODOLOGIA "Przykłady few-shot", ewaluuj.ustaw_bank),
+    # not from the YAML's sampler.
     "T22": dict(benchmark_id="polemo2", task="polemo2_in_multiple_choice", family="polemo2", language="PL",
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="allegro/klej-polemo2-in", rewizja="9843af31facd613eb091deaa4141df4331d4f918",
@@ -188,7 +190,7 @@ ZADANIA = {
                 repo="sdadas/8tags", rewizja="82ddf9c0d06ffc982aeccf2473b7ce31f2167adf",
                 split="test", rodzaj="mc", klasy_stale=True, shoty=5,
                 yaml="8tags/lm_eval_tasks/polish_8tags/8tags_mc.yaml"),
-    # Belebele has only a test split: the bank comes from it and its 5 documents are never scored (METHOD.md §4,
+    # Belebele has only a test split: the bank comes from it and its 5 documents are never scored (METODOLOGIA "Przykłady few-shot",
     # benchmarks/belebele-pl/README.md), instead of the fork's first 5 test documents.
     "T24": dict(benchmark_id="belebele", task="polish_belebele_mc", family="belebele", language="PL",
                 metric="acc,none", unit="score", higher_is_better=True,
@@ -234,8 +236,7 @@ ZADANIA = {
                 nazwa_hf="poquad", split="validation", rodzaj="gen", klasy_stale=False, shoty=5,
                 rewizja_parquet="c76799436661006876ca3a2bf2ef2268b2179ac9", splity_dodatkowe=("train",),
                 yaml="poquad/lm_eval_tasks/polish_poquad/poquad_open_book.yaml"),
-    # T37 LLMzSzŁ is left out: the Space task file (tasks/llmzszl.yaml) is unpublished and METHOD.md and
-    # tasks_50.json give no prompt (benchmarks/llmzszl/README.md).
+    # T37 LLMzSzŁ is left out: it has no card with a prompt yet (benchmarks/llmzszl/README.md).
     "T40": dict(benchmark_id="race", task="race", family="race", language="EN",
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="EleutherAI/race", rewizja="66ca2e6374282f5e35b11559e87185db911a6900",
@@ -257,11 +258,11 @@ ZADANIA = {
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="google-research-datasets/paws-x", rewizja="4cd8187c404bda33cb1f62b49b001115862acf37",
                 nazwa_hf="en", split="test", rodzaj="mc", klasy_stale=False, pole_id="id"),
-    # --- (c): config from the installed lm-eval YAML (`lm_eval` / `grupa`), dataset pinned as in tasks_50.json.
+    # --- (c): config from the installed lm-eval YAML (`lm_eval` / `grupa`), dataset pinned here.
     # rodzaj: mc = own MC metrics from logliks; proba = lm-eval per-question metric `klucz` of filter `filtr`;
     # korpus = corpus metric over (gold, pred) pairs. baza: how the constant-answer baseline is computed
     # (ewaluuj.bazy_proby). shots > 0 with a separate few-shot split: demonstrations from the hash-selected
-    # disjoint bank (METHOD.md §4, ewaluuj.uzyj_banku); fixed source shots (BBH) stay as published.
+    # disjoint bank (METODOLOGIA "Przykłady few-shot", ewaluuj.uzyj_banku); fixed source shots (BBH) stay as published.
     "T07": dict(benchmark_id="winogrande", task="winogrande", family="winogrande", language="EN",
                 metric="acc,none", unit="score", higher_is_better=True, lm_eval="winogrande",
                 repo="allenai/winogrande", rewizja="01e74176c63542e6b0bcb004dcdea22d94fb67b5",
@@ -369,7 +370,7 @@ def _zrodlo(task_id, meta, zrodlo):
         return {"dataset_path": "parquet", "dataset_name": None,
                 "dataset_kwargs": {"data_files": pliki}, "test_split": "test"}
     if meta.get("parquet"):
-        # Repo z loading scriptem: Space czyta przypiętą konwersję parquet (METHOD.md);
+        # Repo z loading scriptem: czytamy konwersję parquet zamiast uruchamiać skrypt;
         # gałąź refs/convert/parquet nie ma przypiętego SHA, więc rewizja idzie do raportu.
         kw = {"revision": "refs/convert/parquet"}
     if meta.get("parquet_hf"):
@@ -454,7 +455,7 @@ def czlonkowie_grupy(grupa):
 
 def _zrodlo_yaml(task_id, meta, zrodlo, nazwa, cfg):
     """Pola datasetu configu z YAML-a. Lokalnie: `tests/data/<podtest>.jsonl`, bank demonstracji z
-    `<podtest>_demo.jsonl`. Z HF: repo i rewizja Space, podzbiór grupy z YAML-a podtestu, splity YAML-a poza testowym."""
+    `<podtest>_demo.jsonl`. Z HF: repo i rewizja wpisu ZADANIA, podzbiór grupy z YAML-a podtestu, splity YAML-a poza testowym."""
     if zrodlo == "lokalne":
         pliki = {"test": str(DANE_TESTOWE / f"{nazwa}.jsonl")}
         demo = DANE_TESTOWE / f"{nazwa}_demo.jsonl"
@@ -481,12 +482,12 @@ def _z_lm_eval(task_id, meta, zrodlo, nazwa, **nadpisz):
 
 
 def mc2_wyniki(doc, results):
-    """TruthfulQA MC2 w wersji 6d2abda4 (Space); 0.4.9.1 przepisało `process_results_mc2`."""
+    """TruthfulQA MC2 w wersji 6d2abda4 (METODOLOGIA „Wersja lm-eval”); 0.4.9.1 przepisało `process_results_mc2`."""
     return {"acc": M.mc2([r[0] for r in results], doc["mc2_targets"]["labels"])}
 
 
 def squad2_klasa(cfg):
-    """SQuAD 2.0: legacy klasa lm-eval (prompt, żądania, `until: \\n`), jak każe tasks_50.json; podmienione są
+    """SQuAD 2.0: legacy klasa lm-eval (prompt, żądania, `until: \\n`) z 6d2abda4; podmienione są
     tylko zbiór (przypięty) i metryka: F1/EM squad_v2 per pytanie offline (metryki.squad_f1), średnia = f1 modułu
     `evaluate` przy progu no-answer 1,0, którego exp(logprob) nie przekracza."""
     from lm_eval.api.metrics import mean
@@ -521,7 +522,7 @@ def squad2_klasa(cfg):
 
 
 def konfiguracje(task_id, zrodlo="hf"):
-    """Lista (wariant, config) dla jednego zadania Space. Pierwszy wariant = format Space."""
+    """Lista (wariant, config) dla jednego zadania ZADANIA. Pierwszy wariant („space") liczy metrykę decyzyjną."""
     warianty = _konfiguracje(task_id, zrodlo)
     for _, cfg in warianty:
         cfg["task_alias"] = cfg["task"]  # tabela wyników lm-eval wywraca się na aliasie None
@@ -571,7 +572,7 @@ def _konfiguracje(task_id, zrodlo):
         return [("space", {**baza, "task": "slayer_social_iqa", "doc_to_text": "Q: {{context}} {{question}}\nA:",
                            "target_delimiter": " ", "doc_to_choice": "{{[answerA, answerB, answerC]}}",
                            "doc_to_target": "{{ (label|int) - 1 }}"})]
-    # T05-T21, T40, T48: prompts of the lm-eval 6d2abda4 YAMLs the Space ran (fab_mapa50, section 6)
+    # T05-T21, T40, T48: prompts of the lm-eval 6d2abda4 YAMLs (METODOLOGIA "Wersja lm-eval"), rewritten here
     if t == "hellaswag":
         hs = _modul_lm_eval("hellaswag/utils.py")
         return [("space", {**baza, "task": "slayer_hellaswag", "process_docs": hs.process_docs,
@@ -645,7 +646,7 @@ def _konfiguracje(task_id, zrodlo):
                            **_zrodlo(task_id, meta, zrodlo)})]
     if t == "ifeval":
         from langdetect import DetectorFactory
-        DetectorFactory.seed = 0  # METHOD.md §4: language instructions reproducible
+        DetectorFactory.seed = 0  # language instructions reproducible (METODOLOGIA, seeds)
     nadpisz = {"mmlu": {"metric_list": METRYKI_MC}, "truthfulqa_mc2": {"process_results": mc2_wyniki}}.get(t, {})
     if meta.get("grupa"):
         return [("space", _z_lm_eval(task_id, meta, zrodlo, m, **nadpisz)) for m in czlonkowie_grupy(meta["grupa"])]

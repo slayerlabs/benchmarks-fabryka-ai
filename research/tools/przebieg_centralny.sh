@@ -23,7 +23,7 @@ K=${K:-/workspace/kod}
 WS=${WS:-/workspace}
 ST=$WS/stan
 CZ=$WS/czasy.jsonl
-# Space METHOD.md §2: batch size 1 for every task (padding in a batch shifts float32 logits and greedy generation)
+# METODOLOGIA "Ustawienia przebiegu centralnego": batch size 1 for every task (padding in a batch shifts float32 logits and greedy generation)
 BATCH=${BATCH:-1}
 # WikiText-2 window for HF models: the config default (128k-262k tokens for Qwen3.5 and LFM) puts a whole
 # document in one float32 forward and ends in CUDA OOM on 24 GB even at batch 1. EuroLLM's own is 4096.

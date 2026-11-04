@@ -80,7 +80,7 @@ def test_plan_runs_full_set_for_every_model_and_task():
     slayer = [l for l in linie if "SlayerLab/" in l]
     assert slayer and all("--model slayer" in l and f"--model_path {ws}/modele/" in l for l in slayer)
     assert all("--device cuda" in l for l in linie)
-    assert all(" --batch 1 " in l for l in linie)  # Space METHOD.md §2: batch size 1
+    assert all(" --batch 1 " in l for l in linie)  # METODOLOGIA "Ustawienia przebiegu centralnego": batch 1
 
 
 def plan_na_gpu(liczba):

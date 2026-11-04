@@ -5,7 +5,7 @@ Procedurę opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworze
 | | wartość |
 |---|---|
 | kod referencyjny @ commit | lm-eval `0.4.9.1` (`common/requirements.lock.txt`), silnik `multiple_choice` z konfiguracją `T02` w `common/zadania.py`: ten sam prompt `Question: {{question}}\nAnswer:`, opcje `{{choices.text}}`, cel z `answerKey`, `num_fewshot` 0, metryka decyzyjna `acc_norm`. To przepisany YAML `arc_challenge.yaml`, którego katalog w `6d2abda4` i `v0.4.9.1` jest identyczny (`ORIGINAL.md`, „Znane rozbieżności”). |
-| dlaczego ten kod | Praca nie ma promptu modelu językowego; Space (T02, `definition: lm_eval/tasks/arc/arc_challenge.yaml`) i pliki Pythii liczą zadanie lm-eval. |
+| dlaczego ten kod | Praca nie ma promptu modelu językowego; karta (`ORIGINAL.md`) wskazuje zadanie lm-eval `lm_eval/tasks/arc/arc_challenge.yaml`, które liczą też pliki Pythii. |
 | model kontrolny @ rewizja albo „bez kontroli” | bez kontroli |
 | bez kontroli: miejsca, w których szukano opublikowanego wyniku | (1) `EleutherAI/pythia-1b-v0` @ `step143000`, plik 0-shot @ `a19eecb`: jest wynik, ale nie przechodzi kontroli typu, bo leży na poziomie losowym (`ORIGINAL.md`, pole „Pythia-1B a klasa C”). (2) `utter-project/EuroLLM-1.7B` @ `c730cd9`, karta modelu: wynik tylko 25-shot `acc_norm` (Open LLM Leaderboard v1), a przebieg liczy 0-shot. (3) Karty `Qwen/Qwen3.5-0.8B-Base`, `LiquidAI/LFM2.5-1.2B-Base`, `LiquidAI/LFM3-1.7B-Base`: bez liczb ARC. (4) Praca TinyLlama arXiv:2401.02385, tabela 3: 0-shot bez nazwy metryki. (5) Praca ARC arXiv:1803.05457, tabela 6: solvery bez wag do pobrania. |
 | bez kontroli: modele z opublikowanym wynikiem, których nie liczono | `EleutherAI/pythia-2.8b-v0` @ `step143000`, 0-shot (`ORIGINAL.md`, „Druga kontrola, 0-shot”), i EuroLLM-1.7B w 25-shot. Oba wymagają nowego przebiegu modelu; z decyzji zadania liczony jest wyłącznie Slayer i modele przebiegu centralnego. |
@@ -35,9 +35,9 @@ SE A = √(p(1−p)/1172). z liczone wobec stałej b, bez parowania z predyktore
 
 EuroLLM-1.7B w 0-shot ma 0,3746, a karta modelu podaje 0,4061 w 25-shot; różnica liczby przykładów w prompcie robi z tego dwa różne protokoły, więc to nie jest odtworzenie. <!-- liczba-spoza-wynikow: results.json przebiegu centralnego, eurollm-1.7b; karta EuroLLM-1.7B @ c730cd9 -->
 
-## Ładowanie Slayera wobec Space
+## Slayer w Space (informacyjnie: nie kontrola ani wzorzec)
 
-Space ma wynik Slayera 1.06 na T02, więc METODOLOGIA („Kontrola nie sprawdza ładowania Slayera”) wymaga porównania na pytaniach panelu Space. Panelu nie udało się odtworzyć: reguła z `METHOD.md` §3 (SHA-256 klucza `20261028|benchmark_id|member_task|id`, 200 najniższych) w 2592 wariantach (nazwa testu i członka, separator, zapis daty, postać id, kierunek sortowania) nie daje `source_id_digest` panelu T02 z `results.json` Space (`1caa76f5…`), choć ten sam wzór skrótu (SHA-256 listy id w kolejności zbioru, rozdzielonej `\n`) odtwarza `source_id_digest` pełnego splitu z przebiegu centralnego. Porównanie niżej bierze więc pełny split zamiast panelu i jest przybliżeniem: panel to 200 z tych 1172 pytań. <!-- liczba-spoza-wynikow: METHOD.md i results.json Space @ 2d3d73f5c0ee431df9d38bd9619ccb05a26bf9a9; results.json przebiegu centralnego, source_id_digest -->
+Space ma wynik Slayera 1.06 na T02. Ładowania Slayera ta wartość nie sprawdza: sprawdzają je testy kodu Slayera ([METODOLOGIA, „Model kontrolny etapu B”](../../METODOLOGIA.md#model-kontrolny-etapu-b)), a tabela niżej jest informacją. Panelu nie udało się odtworzyć: reguła z `METHOD.md` §3 (SHA-256 klucza `20261028|benchmark_id|member_task|id`, 200 najniższych) w 2592 wariantach (nazwa testu i członka, separator, zapis daty, postać id, kierunek sortowania) nie daje `source_id_digest` panelu T02 z `results.json` Space (`1caa76f5…`), choć ten sam wzór skrótu (SHA-256 listy id w kolejności zbioru, rozdzielonej `\n`) odtwarza `source_id_digest` pełnego splitu z przebiegu centralnego. Porównanie niżej bierze więc pełny split zamiast panelu i jest przybliżeniem: panel to 200 z tych 1172 pytań. <!-- liczba-spoza-wynikow: METHOD.md i results.json Space @ 2d3d73f5c0ee431df9d38bd9619ccb05a26bf9a9; results.json przebiegu centralnego, source_id_digest -->
 
 | | wartość |
 |---|---|
@@ -45,4 +45,4 @@ Space ma wynik Slayera 1.06 na T02, więc METODOLOGIA („Kontrola nie sprawdza 
 | przebieg centralny, Slayer 1.06 @ `ef81be58` | `acc_norm` 0,2577, n = 1172, pełny split <!-- liczba-spoza-wynikow: results.json przebiegu centralnego, slayer1b-1.06 --> |
 | SE panelu (typ `mc-k`, SE A) | 0,0306 = √(0,25 · 0,75 / 200) <!-- liczba-spoza-wynikow: wartość Space T02 i n panelu --> |
 | różnica | +0,77 pkt, z = 0,25 wobec SE panelu, w granicach 2 SE <!-- liczba-spoza-wynikow: 0,2577 − 0,25 i SE panelu --> |
-| werdykt | zgodne w przybliżeniu pełnym splitem. Porównania na tych samych 200 pytaniach nie zrobiono, bo składu panelu nie odtworzono. |
+| wniosek (informacyjnie) | zgodne w przybliżeniu pełnym splitem. Porównania na tych samych 200 pytaniach nie zrobiono, bo składu panelu nie odtworzono. |

@@ -10,9 +10,9 @@ Wspólne dla wszystkich wpisów:
 - Środowisko: `common/requirements.lock.txt` w venv z `--system-site-packages` na obrazie
   `pytorch/pytorch:2.8.0-cuda12.8-cudnn9-runtime` (torch 2.8.0+cu128, CUDA 12.8); transformers 4.57.6 (PyPI);
   lm-eval 0.4.9.1 (PyPI).
-- Dane: `ybisk/piqa` @ `2e8ac2dffd59bac8c3c6714948f4c551a0848bb0` (tasks_50.json); czytane z
+- Dane: `ybisk/piqa` @ `2e8ac2dffd59bac8c3c6714948f4c551a0848bb0` (wpis `T06` w `common/zadania.py`); czytane z
   `refs/convert/parquet` @ `142c51238b3ca2bc61e9a075913871b8b600e8e1`, `plain_text/validation/0000.parquet`, sha256
-  `40e1677bba609c8801deacc171d76f3e24c083f365c95a1cbda7520c923dfea2`, 1838 wierszy. Pliki Space czytane w
+  `40e1677bba609c8801deacc171d76f3e24c083f365c95a1cbda7520c923dfea2`, 1838 wierszy. Wyciąg `SPACE_METHOD.md` (informacyjnie) z
   `SlayerLab/Slayer1B-Benchmarks` @ `2d3d73f5c0ee431df9d38bd9619ccb05a26bf9a9`.
 - Seedy: python 0, numpy 1234, torch 1234, fewshot 1234 (0-shot); seed bootstrapu 20261028, 10 000 powtórzeń.
 - Precyzja: float32, batch 1, `NVIDIA_TF32_OVERRIDE=0`.

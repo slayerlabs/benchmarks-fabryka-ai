@@ -140,7 +140,7 @@ def test_lazy_yaml_function_runs_the_fork_metric():
     assert f1["aggregation"]([(1, 1), (0, 1), (1, 0), (1, 1)]) == 2 / 3
 
 
-def test_paws_keeps_the_space_prompt_not_0_4_9_1():
+def test_paws_keeps_the_6d2abda4_prompt_not_0_4_9_1():
     cfg = Z.konfiguracje("T48")[0][1]
     assert cfg["doc_to_text"] == "" and "process_docs" not in cfg and "target_delimiter" not in cfg
     assert cfg["doc_to_choice"].startswith('{{[sentence1+", right? No, "')

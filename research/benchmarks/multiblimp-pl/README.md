@@ -5,7 +5,7 @@ zgodność podmiotu z orzeczeniem i imiesłowem w liczbie, osobie i rodzaju. Par
 zdaniu poprawnemu wyższe log-prawdopodobieństwo. Typ: [README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy).
 
 - Karta oryginału (etap A): [`ORIGINAL.md`](ORIGINAL.md)
-- Odtworzenie (etap B, bez kontroli: nierozstrzygnięte; Slayer wobec Space): [`REPRODUCTION.md`](REPRODUCTION.md)
+- Odtworzenie (etap B, bez kontroli: nierozstrzygnięte): [`REPRODUCTION.md`](REPRODUCTION.md)
 - Wyniki: `../../results/central-run/multiblimp-pl/` (przebieg centralny, pięć modeli)
 
 Slayer 1.06 ma 98,59%. Podejrzenie, że zbiór jest w danych treningowych Slayera, jest do sprawdzenia w

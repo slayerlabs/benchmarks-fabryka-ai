@@ -1,4 +1,4 @@
-# MedMCQA (Space T45)
+# MedMCQA (T45)
 
 > Praca idzie według [`METODOLOGIA.md`](../../METODOLOGIA.md).
 
@@ -6,8 +6,8 @@ Pytania z egzaminów medycznych, 4 opcje, odpowiedź literą. lm-eval `0.4.9.1`,
 `validation`, metryka decyzyjna `acc`.
 
 - [`ORIGINAL.md`](ORIGINAL.md): karta oryginału (etap A).
-- [`REPRODUCTION.md`](REPRODUCTION.md): etap B, werdykt: bez kontroli: nierozstrzygnięte. Slayer 1.06 w repo
-  (pełny split) nie zgadza się z wartością Space (panel 200); do wyjaśnienia.
+- [`REPRODUCTION.md`](REPRODUCTION.md): etap B, werdykt: bez kontroli: nierozstrzygnięte. Slayer 1.06 wybiera
+  `A` w prawie każdym pytaniu, więc jego wynik jest do sprawdzenia.
 - Wyniki: [`results/central-run/medmcqa/`](../../results/central-run/medmcqa/) (przebieg centralny, RTX 4090).
 
 ## Wyniki
@@ -25,4 +25,4 @@ pytaniach. <!-- liczba-spoza-wynikow: rozkład celu z probki/ przebiegu centraln
 
 Slayer 1.06 odpowiada `A` w 93,3% pytań, więc jego wynik to w praktyce stała odpowiedź. <!-- liczba-spoza-wynikow: probki przebiegu centralnego -->
 EuroLLM-1.7B leży przy bazie losowej (z = 1,21 wobec 0,25, szum) i pod b, bo w 62,9% pytań wybiera `B`. <!-- liczba-spoza-wynikow: probki przebiegu centralnego -->
-Space (panel 200) ma dla Slayera 0,245 wobec 0,3160 w repo (`REPRODUCTION.md`, „Slayer a Space”). <!-- liczba-spoza-wynikow: 0,245 z results.json Space @ 2d3d73f -->
+Space (panel 200, informacyjnie: nie kontrola ani wzorzec) ma dla Slayera 0,245 wobec 0,3160 w repo (`REPRODUCTION.md`, „Slayer w Space”). <!-- liczba-spoza-wynikow: 0,245 z results.json Space @ 2d3d73f -->

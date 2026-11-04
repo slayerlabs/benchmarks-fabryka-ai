@@ -25,9 +25,9 @@ def ranking_panel(benchmark_id, member_task, source_ids, n=200):
 
 
 def ranking_banku(benchmark_id, member_task, source_ids):
-    """Kolejność dokumentów banku demonstracji (METHOD.md §4: rozłączny bank wybierany hashem).
+    """Kolejność dokumentów banku demonstracji (METODOLOGIA, „Przykłady few-shot”).
 
-    METHOD nie publikuje klucza hasha banku; przyjmujemy klucz panelu z przestrzenią `support`:
+    Klucz panelu z przestrzenią `support`, która oddziela tę kolejność od panelu:
     SHA-256 `20261028|benchmark|member|support|source_id`, rosnąco. Demonstracje to pierwsze dokumenty tej kolejności.
     """
     klucz = lambda i: hashlib.sha256(f"{SEED}|{benchmark_id}|{member_task}|support|{source_ids[i]}".encode()).hexdigest()
@@ -178,7 +178,7 @@ def podsumuj_rolling(probki, proces, licz_tokeny=None):
     return perplexity(ll, w, b, t if licz_tokeny is not None else None)
 
 
-# --- grupy z wagami (+warstwy), METHOD.md §3 ---
+# --- grupy z wagami (+warstwy), METODOLOGIA „Ustawienia przebiegu centralnego” ---
 
 def przydzial_grupy(populacje, budzet):
     """Liczba dokumentów panelu per podtest: min(2, N_i), potem każdy slot do podtestu o największym
@@ -204,7 +204,7 @@ def warstwy(wartosci, wagi, seed=SEED, powtorzenia=POWTORZENIA):
     for m in sorted(wartosci):
         x = np.asarray(wartosci[m], dtype=float)
         if len(x) == 0:
-            raise ValueError(f"pusty podtest {m}")  # METHOD: brak członka grupy to jawny błąd
+            raise ValueError(f"pusty podtest {m}")  # brak członka grupy to jawny błąd (METODOLOGIA, panel)
         w = wagi[m] / suma_w
         se = float(x.std(ddof=1) / math.sqrt(len(x))) if len(x) > 1 else 0.0
         wartosc += w * x.mean()

@@ -9,9 +9,9 @@ Metryka decyzyjna: `exact_match` po obcięciu białych znaków odpowiedzi. Typ `
 Stan: podpięty do przebiegu centralnego (wpis `T47` w `common/zadania.py` i `KATALOGI`), wyników jeszcze nie ma.
 Kartę oryginału i odtworzenie (`ORIGINAL.md`, `REPRODUCTION.md`) dopisuje osobne zadanie.
 
-## Rozbieżności wobec Space
+## Ustawienia poza YAML-em lm-eval
 
-- Demonstracje źródłowe z YAML-a, bez banku (METHOD.md).
-- Odpowiedź obcięta z obu stron przed porównaniem (METHOD.md); wartość dosłowna lm-eval zostaje diagnostycznie w `dodatkowe.space.zrodlowa_doslowna`.
+- Demonstracje źródłowe z YAML-a, bez banku ([METODOLOGIA, „Przykłady few-shot”](../../METODOLOGIA.md#przykłady-few-shot), punkt 5).
+- Odpowiedź obcięta z obu stron przed porównaniem (ustawienie wpisu `T47` w `common/zadania.py`); wartość dosłowna lm-eval zostaje diagnostycznie w `dodatkowe.space.zrodlowa_doslowna`.
 - YAML 0.4.9.1 ładuje `SaylorTwift/bbh`; `zadania.py` podmienia zbiór na `lukaemon/bbh`.
-- Kontekst najwyżej 4096 tokenów (METHOD.md §2, §4): gdy prompt z budżetem generacji się nie mieści, demonstracje schodzą od końca, a prompt za długi bez demonstracji kończy zadanie błędem (`ewaluuj.ogranicz_kontekst`).
+- Kontekst najwyżej 4096 tokenów ([METODOLOGIA, „Ustawienia przebiegu centralnego”](../../METODOLOGIA.md#ustawienia-przebiegu-centralnego)): gdy prompt z budżetem generacji się nie mieści, demonstracje schodzą od końca, a prompt za długi bez demonstracji kończy zadanie błędem (`ewaluuj.ogranicz_kontekst`).

@@ -9,8 +9,8 @@ Metryka decyzyjna: `exact_match`. Typ `gen +warstwy` ([README, „Benchmarki i t
 Stan: podpięty do przebiegu centralnego (wpis `T34` w `common/zadania.py` i `KATALOGI`), wyników jeszcze nie ma.
 Kartę oryginału i odtworzenie (`ORIGINAL.md`, `REPRODUCTION.md`) dopisuje osobne zadanie.
 
-## Rozbieżności wobec Space
+## Ustawienia poza YAML-em lm-eval
 
-- Ekstraktor źródłowy: tekst między pierwszym a ostatnim `$`, bez `\boxed{}` (METHOD.md); Space nie używa MATH do rankingu modeli.
+- Ekstraktor źródłowy: tekst między pierwszym a ostatnim `$`, bez `\boxed{}`, zostaje taki, jak w YAML-u lm-eval (wpis `T34` w `common/zadania.py` go nie podmienia).
 - YAML-e 6d2abda4 i 0.4.9.1 różnią się tylko białym znakiem przed `doc_to_text`.
-- Kontekst najwyżej 4096 tokenów (METHOD.md §2, §4): gdy prompt z budżetem generacji się nie mieści, demonstracje schodzą od końca, a prompt za długi bez demonstracji kończy zadanie błędem (`ewaluuj.ogranicz_kontekst`).
+- Kontekst najwyżej 4096 tokenów ([METODOLOGIA, „Ustawienia przebiegu centralnego”](../../METODOLOGIA.md#ustawienia-przebiegu-centralnego)): gdy prompt z budżetem generacji się nie mieści, demonstracje schodzą od końca, a prompt za długi bez demonstracji kończy zadanie błędem (`ewaluuj.ogranicz_kontekst`).

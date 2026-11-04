@@ -5,7 +5,7 @@ Procedurę opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworze
 | | wartość |
 |---|---|
 | kod referencyjny @ commit | lm-eval `0.4.9.1` (`common/requirements.lock.txt`), zadanie `medmcqa`: repo bierze `doc_to_text` z `utils_medmcqa.py` tej wersji, opcje `A`–`D` i cel `cop` jak `medmcqa.yaml` (`common/zadania.py`, T45, wariant `space`); zmienione tylko źródło danych (przypięta rewizja HF) |
-| dlaczego ten kod | Autorzy nie publikują kodu 0-shot dla modelu językowego. Space wskazuje `lm_eval/tasks/medmcqa/medmcqa.yaml` (`tasks_50.json` T45), a katalog zadania ma te same bloby w `6d2abda4`, `v0.4.8` i `v0.4.9.1` (`ORIGINAL.md`). |
+| dlaczego ten kod | Autorzy nie publikują kodu 0-shot dla modelu językowego. Karta (`ORIGINAL.md`) wskazuje zadanie lm-eval `lm_eval/tasks/medmcqa/medmcqa.yaml`, a katalog zadania ma te same bloby w `6d2abda4`, `v0.4.8` i `v0.4.9.1` (`ORIGINAL.md`). |
 | model kontrolny @ rewizja | bez kontroli |
 | bez kontroli: miejsca, w których szukano opublikowanego wyniku | plik Pythii v0 (`EleutherAI/pythia` @ `a19eecb`: brak `medmcqa`); karty 5 modeli przebiegu centralnego: bez wyniku MedMCQA; `openlifescienceai/results` @ `62d7322cf11bf622399f7f54e5a7620ec6ef013d` (Open Medical-LLM Leaderboard, 0-shot): żadnego z 5 modeli. |
 | bez kontroli: opublikowane wyniki innych modeli (niepoliczone) | W `openlifescienceai/results` sprawdzone modele 1–3 mld (`pythia-1b`, `pythia-1b-deduped`, `pythia-1.4b`, `pythia-2.8b`, `pythia-2.8b-deduped`, TinyLlama-1.1B 3T, gpt-neo-2.7B) leżą pod b, więc nie przechodzą kolumny „kontrola”. Pierwszy przechodzący model wśród sprawdzonych to `Qwen/Qwen1.5-7B` (plik `results_2024-05-16 15:05:03.974764.json`, rewizja modelu `main`); pozostałych z 210 plików źródła nie przeglądano. Z decyzji dla przebiegu centralnego dodatkowych modeli kontrolnych nie liczymy. |
@@ -23,16 +23,17 @@ Procedurę opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworze
 | warunek odtworzenia | ±2 pkt, a gdy 2 SE > 2 pkt, ±2 SE; nie ma wartości referencyjnej, do której go przyłożyć. |
 | werdykt | bez kontroli: nierozstrzygnięte. Wynik nie idzie do meta-oceny. MedMCQA nie należy do wyjątku z #97 (Space ma już wartość T45). |
 
-## Slayer a Space
+## Slayer w Space (informacyjnie: nie kontrola ani wzorzec)
 
 Space @ `2d3d73f5c0ee431df9d38bd9619ccb05a26bf9a9` ma T45 dla Slayera 1.06: 0,245 na panelu 200 (CI95 0,185–0,305, udział najczęstszej predykcji 0,88). Repo ma 0,3160 na pełnym splicie. <!-- liczba-spoza-wynikow: results.json Space @ 2d3d73f -->
-Warunek z sekcji „Model kontrolny etapu B” (ten
-sam panel, różnica w granicach 2 SE panelu) sprawdzić się nie da, bo panelu Space nie odtworzono (`ORIGINAL.md`,
-„Panel Space”). <!-- liczba-spoza-wynikow: results.json Space @ 2d3d73f -->
+Ładowania Slayera ta wartość nie sprawdza
+([METODOLOGIA, „Model kontrolny etapu B”](../../METODOLOGIA.md#model-kontrolny-etapu-b)), a panelu Space nie odtworzono
+(`ORIGINAL.md`, „Panel Space”), więc liczby niżej porównują różne pytania.
 
 - Pełny split repo minus panel Space: +7,10 pkt. 2 SE panelu (SE A 0,0304) to 6,08 pkt, więc różnica wychodzi poza próg, ale pytania są inne. Ostrożne SE √(SE² + SE_panel²) = 0,0312, z = 2,27, prawdopodobne. <!-- liczba-spoza-wynikow: SE panelu z wartości Space 0,245 i n 200; SE pełnego splitu z results_rozszerzone.json -->
 - Na panelu wybranym kodem repo Slayer ma 0,310 i wybiera `A` w 191 z 200 pytań; Space podaje udział najczęstszej predykcji 0,88, repo na pełnym splicie 0,9331. <!-- liczba-spoza-wynikow: panel repo przeliczony z probki/T45_space.jsonl.gz; 0,88 z results.json Space -->
-- Ten sam przebieg daje LFM2.5-1.2B-Base 0,4059 na pełnym splicie, wobec 0,405 w Space (różnica 0,09 pkt). Dane i prompt są więc zgodne ze Space, a rozbieżność dotyczy tylko Slayera. Niesprawdzone: czy Space ładował Slayera tak samo (BOS, wagi, wrapper). Do wyjaśnienia przed wysłaniem wyniku T45 do Space. <!-- liczba-spoza-wynikow: results/central-run/medmcqa/lfm2.5-1.2b-base/results.json; 0,405 z results.json Space -->
+- Ten sam przebieg daje LFM2.5-1.2B-Base 0,4059 na pełnym splicie, wobec 0,405 w Space (różnica 0,09 pkt). <!-- liczba-spoza-wynikow: results/central-run/medmcqa/lfm2.5-1.2b-base/results.json; 0,405 z results.json Space -->
+- Podejrzany sam w sobie jest wynik Slayera, nie różnica wobec Space: na pełnym splicie Slayer wybiera `A` w 93,3% pytań, więc jego `acc` to w praktyce stała odpowiedź (sekcja „Wyniki przy bazie”). Do sprawdzenia przed wysłaniem wyniku T45 do Space. <!-- liczba-spoza-wynikow: probki Slayera w results/central-run/medmcqa -->
 
 ## Wyniki przy bazie
 

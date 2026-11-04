@@ -33,7 +33,7 @@ def bledy_obserwacji(obs, tylko_stan=False):
         v = space[klucz]["value"]
     if v is None or not math.isfinite(v):
         return [f"{zadanie}: {klucz} {v}"]
-    # MCC may be negative (Space): its random level 0 is not a floor
+    # MCC may be negative: its random level 0 is not a floor
     losowa = None if klucz == "mcc" else (space.get("bazy") or {}).get("chance_value")
     wynik = []
     if losowa is not None and losowa >= 1:

@@ -289,7 +289,7 @@ def test_f1_corpus_for_openpl_mc_tasks():
         assert d["bazy"]["majority_value"] == pytest.approx(2 / 3 if agg is agg_f1 else 1 / 3)
 
 
-# --- Belebele (T24): demonstrations from the only split, never scored (METHOD.md §4) ---
+# --- Belebele (T24): demonstrations from the only split, never scored (METODOLOGIA "Przykłady few-shot") ---
 
 BELEBELE = [{"flores_passage": f"P{i}", "question": f"Q{i}?", "mc_answer1": "a", "mc_answer2": "b",
              "mc_answer3": "c", "mc_answer4": "d", "correct_answer_num": "1"} for i in range(8)]
@@ -299,7 +299,7 @@ BELEBELE = [{"flores_passage": f"P{i}", "question": f"Q{i}?", "mc_answer1": "a",
 def test_belebele_bank_from_the_test_split_is_left_out_of_scoring(tmp_path, monkeypatch, probka, n_populacji,
                                                                   n_ocenianych):
     """Full split: bank first (first 5 in bank order), out of population and scoring. Panel: sample from all 8
-    documents as in Space (n_population 900 for T24), bank = first 5 in bank order outside the sample."""
+    documents, bank = first 5 in bank order outside the sample."""
     konteksty = []
     lm = AtrapaLM(ll=lambda ctx, kont: (konteksty.append(ctx), (0.0 if kont == " A" else -1.0, False))[1])
     obs, d = ocen("T24", {"polish_belebele_mc": BELEBELE}, lm, tmp_path, monkeypatch, probka=probka)

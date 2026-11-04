@@ -30,10 +30,10 @@ i `KATALOGI` · ✓ jest · ✗ brak
 
 ## ✅ Gotowe · 9
 
-| benchmark | Space | A | B | przebieg | uwaga |
+| benchmark | test | A | B | przebieg | uwaga |
 |---|---|---|---|---|---|
 | [BLiMP](benchmarks/blimp/README.md) | T01 | ✓ | ✓ | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia) |
-| [ARC-Challenge](benchmarks/arc-challenge/REPRODUCTION.md) | T02 | ✓ | bez kontroli | ✓ | Slayer zgodny ze Space |
+| [ARC-Challenge](benchmarks/arc-challenge/REPRODUCTION.md) | T02 | ✓ | bez kontroli | ✓ | Slayer na poziomie bazy losowej |
 | [WikiText-2](benchmarks/wikitext-2/README.md) | T03 | ✓ | ✓ | ✓ | próg dla perpleksji: #41 |
 | [MultiBLiMP PL](benchmarks/multiblimp-pl/README.md) | T04 | ✓ | bez kontroli | ✓ | ⚠️ możliwy przeciek (#36) |
 | [PIQA](benchmarks/piqa/README.md) | T06 | ✓ | ✓ | ✓ | |
@@ -77,7 +77,7 @@ Każdy katalog ma `README.md` i `RECIPE.md` ze zbiorem, rewizją, splitem, metry
 
 | co | benchmarki |
 |---|---|
-| Space | [LLMzSzŁ](benchmarks/llmzszl/README.md) T37 #127: Space nie publikuje promptu; kolumna informacyjna |
+| bez karty | [LLMzSzŁ](benchmarks/llmzszl/README.md) T37 #127: brak karty z promptem; kolumna informacyjna |
 | held-out | NLL EN/PL/kod #22 · kod źródłowy #42 |
 | [katalog CodeSOTA](https://beta.codesota.com/api/sub1b/benchmarks), bez issue | GPQA · GPQA Diamond · MMLU-Pro · IFBench · Multi-IF · MGSM · MMMLU · CaseReportBench · BFCL v3 · BFCL v4 · τ²-Bench Telecom · τ²-Bench Retail · GSM-Symbolic · SVAMP · AIME 2025 · HumanEval · HumanEval+ · MBPP · MBPP+ · LiveCodeBench · RULER · LongBench v2 · SimpleQA · WildBench · AlpacaEval 2.0 LC · MT-Bench · ARC-AGI-1 |
 
@@ -90,11 +90,10 @@ Nie idzie do tabeli CodeSOTA, dopóki ktoś nie sprawdzi i nie przestawi wiersza
 | co | problem | co zrobić | gdzie |
 |---|---|---|---|
 | **BLiMP** | wszystkie 5 modeli [przebiegu](results/central-run/scores.png) około 80%, checkpointy Slayera prawie płasko | druga osoba liczy od zera; per paradygmat: czy któryś stoi na 50% albo 100%; czy checkpointy nie czytają tych samych wag | [BLIMP](benchmarks/blimp/results/BLIMP.md) · [CHECKPOINTS](benchmarks/blimp/results/CHECKPOINTS.md) |
-| **MedMCQA** | Slayer wybiera „A” w 93% pytań; repo 0,316, Space 0,245 (z 2,27), a LFM2.5 zgadza się ze Space | sprawdzić ładowanie Slayera i format promptu w przebiegu | [REPRODUCTION](benchmarks/medmcqa/REPRODUCTION.md) | <!-- liczba-spoza-wynikow: results/central-run/medmcqa/slayer1b-1.06 i results.json Space T45 @ 2d3d73f -->
+| **MedMCQA** | Slayer wybiera „A” w 93% pytań; jego 0,316 to prawie dokładnie stała odpowiedź „zawsze A” (0,322), więc wynik nie mówi nic o wiedzy medycznej | sprawdzić ładowanie Slayera i format promptu w przebiegu | [REPRODUCTION](benchmarks/medmcqa/REPRODUCTION.md) | <!-- liczba-spoza-wynikow: results/central-run/medmcqa/slayer1b-1.06; b z benchmarks/medmcqa/ORIGINAL.md -->
 | **PubMedQA** | Slayer pod bazą większościową, żaden model nie wybiera `maybe` | sprawdzić prompt i mapowanie odpowiedzi | [REPRODUCTION](benchmarks/pubmedqa/REPRODUCTION.md) |
 | **MultiBLiMP PL** | Slayer blisko 100% | sprawdzić, czy zbiór nie jest w danych treningowych | [REPRODUCTION](benchmarks/multiblimp-pl/REPRODUCTION.md) · #36 |
-| **Belebele PL** | jedyny split to test: bank przykładów z testu, poza oceną; pełny split ocenia 895 z 900 | przy porównaniu ze Space pamiętać o n | [README](benchmarks/belebele-pl/README.md) |
-| **few-shot Space** | klucz hasha banku przykładów nieopublikowany; przyjęty `…\|support\|id` | potwierdzić u autora Space | `common/ewaluuj.py` |
+| **Belebele PL** | jedyny split to test: bank przykładów z testu, poza oceną; pełny split ocenia 895 z 900 | raport podaje n ocenianych, nie n splitu | [README](benchmarks/belebele-pl/README.md) |
 | **WSC273** | kontrola spoza listy, panel ≠ pełny split | kontrola z listy METODOLOGII | [REPRODUCTION](benchmarks/wsc273/REPRODUCTION.md) |
 | **EWoK-PL** | 1 domena z 11, tłumaczenie bez przeglądu | przegląd i reszta domen | [POLISH](benchmarks/ewok-pl/POLISH.md) |
 | **katalog CodeSOTA** | statusy ≠ repo | ustalić, kto prowadzi katalog | [API](https://beta.codesota.com/api/sub1b/benchmarks) |

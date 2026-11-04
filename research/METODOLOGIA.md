@@ -36,8 +36,9 @@ PR do `main` (jeden albo kilka, po jednym na etap) zawiera katalog `research/ben
 2. **Podpięcie do przebiegu** (etap C): wpis w `ZADANIA` (`research/common/zadania.py`) i w `KATALOGI`
    (`research/tools/przebieg_centralny.sh`). Benchmark z własnym kodem: przebieg woła jego komendę, a własna
    implementacja ma test zgodności `research/tests/test_<name>_zgodnosc.py`.
-3. Test `research/tests/test_<name>.py` z próbką danych, bez sieci i bez wag. Sprawdza też, że wpis w `ZADANIA`
-   wskazuje zbiór, rewizję, split i metrykę z karty.
+3. Test `research/tests/test_<name>.py` z próbką danych, bez sieci i bez wag. To, że wpis w `ZADANIA` wskazuje
+   zbiór, pełną rewizję, split, metrykę decyzyjną, liczbę przykładów i zadanie lm-eval z karty, sprawdza
+   `research/tests/test_zgodnosc_karty.py` (karta jest źródłem ustawień testu).
 4. Wiersz testu w [`research/README.md`, „Benchmarki i typy”](README.md#benchmarki-i-typy) z typem, bazami i b według
    tabeli typów ([„Typy testów”](#typy-testów)).
 5. `RECIPE.md` z komendą, którą przebieg liczy benchmark.
@@ -165,7 +166,7 @@ wpisujesz dopiero po przeczytaniu kodu przypiętej wersji (sekcja „Wersja lm-e
 | Źródła | praca, repo autorów z commitem, karta zbioru na HF z rewizją |
 | Dane | split i n w pracy; split i n w Space albo w repo (pełny split czy panel 200); licencja i to, czy test ma ukryte odpowiedzi |
 | Typ testu | link do wiersza testu w [README, „Benchmarki i typy”](README.md#benchmarki-i-typy); typu nie powtarzasz w karcie |
-| Format zadania i prompt | dokładny szablon z pracy albo kodu (separatory, spacje, etykiety), liczba przykładów w prompcie; gdy praca nie ma promptu modelu językowego, szablon implementacji Space albo lm-eval z `target_delimiter` i pełnym tekstem jednej opcji |
+| Format zadania i prompt | dokładny szablon z pracy albo kodu (separatory, spacje, etykiety), liczba przykładów w prompcie; gdy praca nie ma promptu modelu językowego, szablon implementacji lm-eval (sekcja „Wersja lm-eval”) z `target_delimiter` i pełnym tekstem jednej opcji |
 | Ocena | metryka i sposób liczenia: normalizacja długości (znaki, bajty, tokeny) i tekstu odpowiedzi |
 | Metryka decyzyjna | **jedna** metryka, po której porównujesz modele; pozostałe są pomocnicze |
 | Agregacja i grupy | średnia po pytaniach czy po podtestach, wagi; poziomy grup i ten, który wiąże (kolumna „Wiążący werdykt”) |
@@ -318,9 +319,11 @@ Model z wynikiem, który nie przechodzi kontroli z tabeli typów (np. Pythia v0 
 i LogiQA albo znany wynik 1B pod bazą większościową na BoolQ), pomijasz i bierzesz następny. Benchmark polski albo bez
 oryginału bez opublikowanego wyniku ma kontrolę z wiersza `+pl`.
 
-**Kontrola nie sprawdza ładowania Slayera.** Gdy Space ma wynik Slayera na tym teście, Slayer policzony Twoim kodem na
-pytaniach panelu Space zgadza się z nim w granicach 2 SE (SE metodą typu na panelu). Wynik referencyjny, ani
-tutaj, ani w etapie B, nie może pochodzić z kodu, który sprawdzasz.
+**Kontrola nie sprawdza ładowania Slayera.** Ładowanie sprawdzają testy kodu Slayera (`tests/test_lm_eval_slayer.py`,
+`tests/test_slayer_kv_cache.py`) i kontrola sensu przebiegu, a w raporcie wynik, który podejrzany jest sam w sobie
+(np. jedna opcja wybierana w prawie każdym pytaniu), oznaczasz do sprawdzenia. Wartość w Space nie jest ani kontrolą,
+ani wzorcem: Space to przykład, który zostanie nadpisany wynikami repo. Wynik referencyjny, ani tutaj, ani w etapie
+B, nie może pochodzić z kodu, który sprawdzasz.
 
 ### Pięć modeli odniesienia
 
@@ -357,11 +360,46 @@ Czego nie zapisano, wpisujesz jako „niezapisane”. Nie zgadujesz.
 ## Wersja lm-eval
 
 Obowiązuje środowisko z `common/requirements.lock.txt` z lm-eval 0.4.9.1 (instalacja:
-[README, „Przygotowanie (raz)”](README.md#przygotowanie-raz)). Protokół Space (`METHOD.md`) podaje lm-eval
+[README, „Przygotowanie (raz)”](README.md#przygotowanie-raz)). Definicje zadań (prompt, wybory, cel) przebieg
+centralny bierze z katalogów zadań lm-eval
 [`6d2abda4`](https://github.com/EleutherAI/lm-evaluation-harness/commit/6d2abda4fd171e68a8789330c4149e37c1ca0bda)
-(wersja 0.4.8). Dla benchmarku liczonego przez lm-eval karta mówi w „Znanych rozbieżnościach”, czy katalog zadania
-(YAML, funkcje, pliki pomocnicze) jest w obu wersjach identyczny, z hashami blobów obu wersji, i jaką rewizję zbioru
-zadanie ładuje. *Recenzent:* porównuje hashe (komenda w szablonie karty).
+(wersja 0.4.8), przepisanych w `common/zadania.py` albo skopiowanych do `benchmarks/<name>/lm_eval_tasks/`, żeby
+prompt nie zależał od zainstalowanej wersji. Dla benchmarku liczonego przez lm-eval karta mówi w „Znanych
+rozbieżnościach”, czy katalog zadania (YAML, funkcje, pliki pomocnicze) jest w obu wersjach identyczny, z hashami blobów
+obu wersji, i jaką rewizję zbioru zadanie ładuje. *Recenzent:* porównuje hashe (komenda w szablonie karty).
+
+## Ustawienia przebiegu centralnego
+
+Źródłem ustawień testu (zbiór i rewizja, split, metryka decyzyjna, liczba przykładów, zadanie lm-eval) jest karta
+benchmarku, a wpis w `ZADANIA` musi się z nią zgadzać (`tests/test_zgodnosc_karty.py`). Wspólne dla wszystkich
+zadań reguły `common/ewaluuj.py`:
+
+- **Wejście.** Każde żądanie ma dokładnie jeden wiodący token BOS. Prompt z BOS plus budżet odpowiedzi (generacja:
+  `max_gen_toks` z YAML-a, domyślnie 256 tokenów; MC: najdłuższa kontynuacja) mieści się w 4096 tokenach. Za długi
+  prompt traci demonstracje od końca; pytania, opcji i odniesień nie przycinamy, więc prompt za długi bez demonstracji
+  kończy zadanie błędem.
+- **Batch 1** w każdym zadaniu: dopełnianie w batchu przesuwa logity float32 i wynik generacji zachłannej.
+- **Panel 200.** Pytania panelu to pierwsze 200 dokumentów w kolejności rosnącego SHA-256 klucza
+  `20261028|benchmark_id|podtest|id dokumentu` (podtest: nazwa zadania, gdy test nie jest grupą). W grupie z wagami (MMLU, MATH, BBH) każdy podtest dostaje najpierw
+  min(2, N_i) pytań, a reszta trafia proporcjonalnie do N_i (`metryki.przydzial_grupy`). Brak podtestu grupy to błąd,
+  nie pominięcie.
+- **Seedy.** python 0, numpy 1234, torch 1234, fewshot 1234; wykrywanie języka w IFEval z seedem 0.
+
+### Przykłady few-shot
+
+Zadanie z przykładami w prompcie (`num_fewshot` > 0) bierze je z banku, nie z samplera lm-eval:
+
+1. Kandydaci to dokumenty splitu few-shot z YAML-a (`fewshot_split`, a bez niego `training_split`).
+2. Kolejność banku: rosnący SHA-256 klucza `20261028|benchmark_id|podtest|support|sha256(dokumentu jako JSON)`
+   (`metryki.ranking_banku`). Słowo `support` oddziela tę kolejność od kolejności panelu.
+3. Bank to pierwsze k dokumentów tej kolejności, których prompt różni się od promptu każdego ocenianego pytania.
+   Każde pytanie dostaje te same przykłady w tej samej kolejności.
+4. Gdy split few-shot jest splitem testowym (Belebele, T24), dokumenty banku nie wchodzą do oceny: przy pełnym splicie
+   bank to pierwsze k dokumentów kolejności, a reszta jest oceniana; przy panelu najpierw losujesz panel z całego
+   splitu, a bank bierzesz z dokumentów spoza niego.
+5. Stałe przykłady zapisane w źródle (lista `samples` w YAML-u, np. BBH) zostają takie, jak je opublikowano.
+
+Reguła daje te same przykłady w każdej wersji lm-eval i dla każdego modelu.
 
 ## Czystość benchmarku
 
@@ -376,8 +414,9 @@ zadanie ładuje. *Recenzent:* porównuje hashe (komenda w szablonie karty).
 ## Space i panel 200
 
 Space wyświetla `results.json`; wynik wgrywa Arek po ścieżce „recenzja i przeliczenie” (`needs-recheck`), a wynik
-różny od wartości, która już stoi w Space, nie zmienia jej bez takiego przeliczenia. Panel 200 służy wyłącznie
-zgodności ze Space. Werdykt między modelami i wersjami liczysz na pełnym splicie. W teście z `+warstwy` albo
+różny od wartości, która już stoi w Space, nie zmienia jej bez takiego przeliczenia. Wartości w Space są przykładem, który
+zostanie nadpisany wynikami repo; nie są wzorcem ustawień ani kontrolą. Panel 200 to informacja w formacie Space, nie
+warunek żadnego etapu. Werdykt między modelami i wersjami liczysz na pełnym splicie. W teście z `+warstwy` albo
 `+klastry` wartość Space jest średnią podtestów, a nie średnią 200 pytań, więc SE panelu liczysz metodą z kolumny
 „SE” typu. Odstępstwa z terminem (np. testy liczone protokołem Space do konkretnej daty) stoją w issue swojego kamienia,
 nie w tym dokumencie.
@@ -469,11 +508,12 @@ skali, SE i miejsca w rankingu: [LEADERBOARD.md](LEADERBOARD.md).
 
 - **Space:** strona z wynikami Slayera 1B na HF,
   [SlayerLab/Slayer1B-Benchmarks](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks). Wyświetla
-  `results.json`; protokół liczenia opisuje jej `METHOD.md`.
-- **T01–T50:** numer testu w Space (38 angielskich, 12 polskich), ustawienia w `tasks_50.json` Space i w
-  `common/zadania.py`.
+  `results.json`. Dzisiejsze wartości to przykład, który zostanie nadpisany wynikami repo, a nie wzorzec ustawień ani
+  kontrola.
+- **T01–T50:** numer testu (38 angielskich, 12 polskich), nadany w Space; ustawienia testu stoją w karcie benchmarku i
+  we wpisie `ZADANIA` w `common/zadania.py` (sekcja „Ustawienia przebiegu centralnego”).
 - **Panel 200:** najwyżej 200 pytań testu wybranych po haszu SHA-256, tych samych dla wszystkich modeli (WikiText-2 w
-  całości).
+  całości); reguła w sekcji „Ustawienia przebiegu centralnego”.
 - **Metryka decyzyjna:** jedna metryka z karty, według której porównujesz modele.
 - **acc, acc_norm:** trafność; model wybiera opcję o najwyższym log-prawdopodobieństwie, przy `acc_norm` dzielonym
   przez długość opcji w znakach albo bajtach.

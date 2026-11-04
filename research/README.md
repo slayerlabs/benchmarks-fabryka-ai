@@ -205,7 +205,7 @@ Testy działają bez sieci i bez wag. Każdy kończy się kodem 0:
 .venv-eval/bin/python -m pytest tests/test_przebieg_centralny.py
 .venv-eval/bin/python tests/test_przebieg_c.py
 .venv-eval/bin/python tests/test_zadania_konfiguracja.py
-.venv-eval/bin/python tests/test_zgodnosc_space.py
+.venv-eval/bin/python tests/test_zgodnosc_karty.py
 .venv-eval/bin/python tests/test_lm_eval_wersje.py
 .venv-eval/bin/python tests/test_liczby_raportow.py
 .venv-eval/bin/python tests/test_statystyka.py
@@ -230,7 +230,7 @@ python3 -m venv /tmp/venv-0413
 HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 /tmp/venv-0413/bin/python tests/test_lm_eval_wersje.py
 HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 /tmp/venv-0413/bin/python tests/test_zadania_konfiguracja.py
 HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 /tmp/venv-0413/bin/python tests/test_przebieg_c.py
-HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 /tmp/venv-0413/bin/python tests/test_zgodnosc_space.py
+HF_HUB_OFFLINE=1 HF_DATASETS_OFFLINE=1 /tmp/venv-0413/bin/python tests/test_zgodnosc_karty.py
 ```
 
 `test_lm_eval_wersje.py` kończy się błędem w środowisku innym niż te dwa. Test Slayera z KV cache w `test_przebieg_c.py`

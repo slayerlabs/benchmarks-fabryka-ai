@@ -1,4 +1,4 @@
-# PubMedQA (Space T44)
+# PubMedQA (T44)
 
 > Praca idzie według [`METODOLOGIA.md`](../../METODOLOGIA.md).
 
@@ -6,8 +6,7 @@ Odpowiedź `yes`/`no`/`maybe` na pytanie badawcze z abstraktu PubMed. lm-eval `0
 split `test` (PQA-L), metryka decyzyjna `acc`.
 
 - [`ORIGINAL.md`](ORIGINAL.md): karta oryginału (etap A).
-- [`REPRODUCTION.md`](REPRODUCTION.md): etap B, werdykt: bez kontroli: nierozstrzygnięte. Space nie ma wartości T44
-  dla Slayera (`not_run`).
+- [`REPRODUCTION.md`](REPRODUCTION.md): etap B, werdykt: bez kontroli: nierozstrzygnięte.
 - Wyniki: [`results/central-run/pubmedqa/`](../../results/central-run/pubmedqa/) (przebieg centralny, RTX 4090).
 
 ## Wyniki

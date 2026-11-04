@@ -1,4 +1,4 @@
-# Social IQa (Space T46)
+# Social IQa (T46)
 
 > Praca idzie według [`METODOLOGIA.md`](../../METODOLOGIA.md).
 
@@ -6,8 +6,7 @@ Krótka scena społeczna i pytanie o motywację, reakcję albo skutek; 3 odpowie
 `social_iqa`, 0-shot, split `validation`, metryka decyzyjna `acc`.
 
 - [`ORIGINAL.md`](ORIGINAL.md): karta oryginału (etap A).
-- [`REPRODUCTION.md`](REPRODUCTION.md): etap B, werdykt: bez kontroli: nierozstrzygnięte. Space nie ma wartości T46
-  dla Slayera (`not_run`).
+- [`REPRODUCTION.md`](REPRODUCTION.md): etap B, werdykt: bez kontroli: nierozstrzygnięte.
 - Wyniki: [`results/central-run/social-iqa/`](../../results/central-run/social-iqa/) (przebieg centralny, RTX 4090).
 
 ## Wyniki

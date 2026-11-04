@@ -52,7 +52,7 @@ def test_squad_metrics_of_coqa_and_record_import():
         assert Z.konfiguracje(t)
 
 
-def test_race_prompt_is_the_space_version():
+def test_race_prompt_is_the_6d2abda4_version():
     """RACE (T40): 6d2abda4 and 0.4.9.1 keep question[-5:] of a cloze question, 0.4.13 question[:-5]."""
     doc_to_text = Z.konfiguracje("T40")[0][1]["doc_to_text"]
     problemy = [{"question": "He went  _  .", "answer": "A", "options": ["home", "x", "y", "z"]},
