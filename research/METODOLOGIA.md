@@ -171,13 +171,19 @@ wpisujesz dopiero po przeczytaniu kodu przypiętej wersji (sekcja „Wersja lm-e
 | Metryka decyzyjna | **jedna** metryka, po której porównujesz modele; pozostałe są pomocnicze |
 | Agregacja i grupy | średnia po pytaniach czy po podtestach, wagi; poziomy grup i ten, który wiąże (kolumna „Wiążący werdykt”) |
 | Bazy | baza losowa, stała odpowiedź i b według kolumn typu, dokładne wartości ze splitu |
-| SNR | odchylenie standardowe opublikowanych wyników wszystkich modeli jednego źródła o rozmiarze od 400 mln do 3 mld parametrów, z końca ich treningu, poza mierzonym modelem i modelami odniesienia (gdy takich modeli jest mniej niż 3, wszystkich modeli źródła); źródło z największą liczbą takich modeli; SE jednego wyniku dla n pełnego splitu metodą z kolumny „SE”; iloraz; szum checkpointów (odchylenie standardowe 5 ostatnich checkpointów jednego modelu), gdy są opublikowane |
+| SNR | „po przebiegu centralnym”, dopóki żaden przebieg centralny nie objął testu (panel w akapicie „Panel SNR” pod tabelą); potem rozrzut, czyli odchylenie standardowe wyników modeli panelu, z listą modeli i commitem przebiegu; SE jednego wyniku dla n pełnego splitu metodą z kolumny „SE”; iloraz; szum checkpointów (odchylenie standardowe 5 ostatnich checkpointów jednego modelu), gdy są opublikowane |
 | MDE | dla panelu 200 i dla pełnego splitu (rdzeń, punkt 5) |
 | Wyniki referencyjne | co najmniej jeden opublikowany wynik modelu, który da się pobrać, z datą odczytu; bez takiego wyniku „brak” i miejsca, w których szukano (etap B idzie wtedy jako „bez kontroli”) |
 | Train policy | `eval_only` (domyślnie, żaden split nie trafia do treningu) albo `train_allowed` dla wymienionych splitów z numerem issue z decyzją |
 | Decyzja treningowa | co oznacza słaby wynik i czego nie wolno z niego wnioskować; różnica w pkt, która zmieniłaby decyzję, albo „nieustalona” |
 | Kontaminacja | „sprawdzona: metoda, odsetek pokrytych pytań”, „znana: źródło” albo „nieznana” |
 | Znane rozbieżności | czym implementacje (np. lm-eval) różnią się od kodu autorów, znane błędy danych; katalog zadania lm-eval w obu wersjach (sekcja „Wersja lm-eval”); gdy implementacja mierzy co innego niż praca, wpisujesz to, co mierzy implementacja, a rozbieżność z polem `domain` Space zgłaszasz w zadaniu |
+
+**Panel SNR.** Rozrzut SNR każdego testu liczysz na tym samym panelu: na modelach z listy `MODELE` w
+`tools/przebieg_centralny.sh` poza mierzonym modelem. Modele odniesienia i model kontrolny wchodzą do panelu. Wszystkie
+liczy jeden protokół, jak stały panel modeli w [Signal and Noise](https://arxiv.org/abs/2508.13144). Opublikowane
+wyniki innych modeli możesz podać w karcie informacyjnie, ale nie są podstawą werdyktu. Karty wypełnione przed tą
+regułą mają SNR z opublikowanych wyników i przechodzą na panel przy pierwszym przebiegu centralnym, który obejmuje test.
 
 ## B. Odtworzenie wyniku oryginalnym kodem (REPRODUCTION.md)
 
@@ -531,8 +537,8 @@ skali, SE i miejsca w rankingu: [LEADERBOARD.md](LEADERBOARD.md).
 - **Perpleksja, BPB:** koszt tekstu z NLL, na token albo słowo (perpleksja) albo w bitach na bajt (BPB); niżej znaczy
   lepiej. BPB da się porównać między tokenizerami, perpleksję tylko przy tym samym tokenizerze albo na słowach.
 - **SE i werdykt:** SE mówi, o ile wynik waha się od samego doboru pytań; werdykt z z (rdzeń, punkt 4).
-- **SNR:** odchylenie standardowe wyników kilku modeli podzielone przez SE jednego wyniku (pole SNR karty). To inny
-  iloraz niż SNR w [Signal and Noise](https://arxiv.org/abs/2508.13144), więc progów z tamtej pracy nie przenosisz.
+- **SNR:** odchylenie standardowe wyników modeli przebiegu centralnego poza mierzonym modelem podzielone przez SE
+  jednego wyniku (pole SNR karty, akapit „Panel SNR”). To inny iloraz niż SNR w [Signal and Noise](https://arxiv.org/abs/2508.13144), więc progów z tamtej pracy nie przenosisz.
 - **MDE:** najmniejsza różnica, którą test wykryje przy danym n (rdzeń, punkt 5).
 
 Pytania i potknięcia w dokumencie zgłaszasz na Discordzie ([CONTRIBUTING, „Kontakt”](../CONTRIBUTING.md#kontakt)).

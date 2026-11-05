@@ -14,7 +14,7 @@ ustalić, wpisz „nieustalone” z listą przeszukanych miejsc.
 | Ukryta reszta | gdzie leży: ; kto ją trzyma: ; jak poprosić o przebieg: |
 | Jak liczyć | metryka decyzyjna: ; prompt: ; ocena: ; agregacja: ; n: ; oczekiwane SE: |
 | Bazy | losowa: ; stała odpowiedź: ; b (kolumny typu): |
-| SNR | rozrzut wyników (odchylenie std.) między modelami: ; SE metodą typu: ; SNR = rozrzut / SE: ; modele (od 400 mln do 3 mld parametrów, bez mierzonego i modeli odniesienia, jak w karcie oryginału): |
+| SNR | po przebiegu centralnym; potem rozrzut wyników (odchylenie std.) modeli przebiegu centralnego bez mierzonego, jak w karcie oryginału: ; SE metodą typu: ; SNR = rozrzut / SE: ; modele i commit przebiegu: |
 | MDE | |
 | Kontaminacja | sprawdzona: metoda, odsetek / znana: źródło / nieznana |
 | Train policy | `eval_only` dla wszystkich splitów (domyślnie) albo `train_allowed`: które splity, issue z decyzją |
