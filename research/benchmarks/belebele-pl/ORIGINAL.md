@@ -26,11 +26,13 @@ czegoś nie da się ustalić, wpis brzmi „nieustalone” i podaje, gdzie szuka
 | SNR: rozrzut | odchylenie std. trzech wyników (ddof=1): 0,0150; przy ddof=0: 0,0123. <!-- liczba-spoza-wynikow: 0,674 / 0,704 / 0,690 z tabeli 5 pracy, policzone 2026-11-05 --> |
 | SNR: SE | 0,0154 = √(p̄(1−p̄)/n), p̄ = 0,6893, n = 900; SE A po pytaniach, typ `mc`. <!-- liczba-spoza-wynikow: średnia trzech wyników z tabeli 5 pracy i n = 900, policzone 2026-11-05 --> |
 | SNR: iloraz | 0,97 = 0,0150 / 0,0154 (ddof=1; przy ddof=0: 0,79). Iloraz < 2, więc ten panel trzech dostrojonych modeli nie rozstrzyga o różnicach między nimi przy n = 900; nie znaczy, że różnic nie ma. <!-- liczba-spoza-wynikow: obliczone z trzech wyników tabeli 5 pracy, odczyt 2026-11-05 --> |
+| SNR: interpretacja | XLM-V, InfoXLM i XLM-R w tabeli 5 to enkodery dotrenowane na angielskim (`Finetune in English`), a nie modele językowe liczone 5-shot; ten rozrzut nie mierzy szumu testu w protokole karty. Werdykt „nie rozstrzyga” zostaje. <!-- liczba-spoza-wynikow: Bandarkar i in. 2023, tabela 5 i sekcja 4.2, odczyt 2026-11-05 --> |
 | SNR: szum checkpointów | nieustalone. Szukano: `evals/pythia-v0`, `evals/pythia-v1`, `evals/bias-evals`, `evals/bloom`, `evals/opt` i `evals/csv` w [`EleutherAI/pythia` @ `main`](https://github.com/EleutherAI/pythia) — żaden plik nie ma zadania Belebele; tabela 5 i dodatek A.7 pracy — tylko końcowe wyniki bez per-checkpoint; karty HF `FacebookAI/xlm-roberta-large`, `microsoft/infoxlm-large` i `facebook/xlm-v-base` — brak wyników per checkpoint. Nie przeszukano: innych leaderboardów i cytowań pracy. |
 | MDE | pełny split: 6,7 pkt (n = 895); panel 200: 14,2 pkt. SE różnicy wzięte z `√2 · SE` pojedynczego wyniku przy p = 0,5 (największa wariancja), bo nie ma modelu kontrolnego z wynikami per pytanie: SE = 0,0167 dla n = 895 i 0,0354 dla n = 200; MDE = (2 + 0,84) · √2 · SE. <!-- liczba-spoza-wynikow: wyliczone z n = 895 i 200, wzór MDE z METODOLOGIA, rdzeń punkt 5 --> |
 | Kontaminacja | znana: Space @ `2d3d73f` oznacza T24 dla `SlayerLab/Slayer1B-1.06` jako `clean` (receipt sha256 `bc6c168cf6ef35bce80b70f3bf582853526b558cb7f37e30101e35f3c2342de7`), a dla `LiquidAI/LFM2.5-1.2B-Base` jako `unknown`; własnego skanu korpusu treningowego nie robiono. <!-- liczba-spoza-wynikow: results.json Space @ 2d3d73f5, observations T24 --> |
-| Wyniki referencyjne (odczyt 2026-11-05): Falcon-40B | `tiiuae/falcon-40b` @ `05ab2ee8d6b593bdbab17d728de5c028a7a94d83` → `acc` 0,599, 5-shot, `pol_Latn`, n = 900, średnia z 3 przebiegów; źródło: [arXiv:2308.16884v2, tabela 7](https://arxiv.org/abs/2308.16884v2). To kandydat kontroli etapu B: wynik jest powyżej b + 2 SE, a model da się pobrać. Uwaga: demonstracje w pracy pochodzą z angielskiego zbioru treningowego, a nasz przebieg bierze je z polskiego splitu `test`; to nie jest ten sam prompt. <!-- liczba-spoza-wynikow: Bandarkar i in. 2023, tabela 7; rewizja Falcon-40B z HF API, odczyt 2026-11-05 --> |
-| Wyniki referencyjne: Llama-2-70B | `meta-llama/Llama-2-70b-hf` @ `3aba440b59558f995867ba6e1f58f21d0336b5bb` → `acc` 0,792, 5-shot, `pol_Latn`, n = 900, średnia z 3 przebiegów; źródło: tabela 7 pracy. Model jest gated na HF; to alternatywny kandydat kontroli, nie pierwszy wybór. <!-- liczba-spoza-wynikow: Bandarkar i in. 2023, tabela 7; rewizja Llama-2-70B z HF API, odczyt 2026-11-05 --> |
+| Kandydat kontroli etapu B: Qwen2-1.5B | `Qwen/Qwen2-1.5B` @ `8a16abf2848eda07cc5253dec660bf1ce007ad7a` (bfloat16) → `acc` 0,5656 (56,5556%), 5-shot, `polish_belebele_mc`, `facebook/belebele` `pol_Latn`, split `test`, n = 900; źródło: Open PL LLM Leaderboard (SpeakLeash), Space @ `0d30867d1c291d42812b5f9c51988dd33d1b5145`, wiersz `Qwen2-1.5B`, kolumna `belebele_mc`, odczyt 2026-11-05. Protokół: fork `speakleash/lm-evaluation-harness` @ `21d0ea9c` (branch `polish4`), `lm_eval --tasks polish_mc --num_fewshot 5`; to ten sam YAML `belebele_mc.yaml`. Model bazowy bez szablonu czatu, 1,5 mld parametrów, dostępny na HF. Demonstracje: `first_n` z YAML-a forka (5 pierwszych dokumentów testu); repo w przebiegu centralnym bierze bank hashowy, więc dobór demonstracji się różni, ale szablon, zadanie, split, metryka i 5-shot są te same. Wynik jest powyżej b + 2 SE. To kandydat zgodny z protokołem karty; nie mierzono go w tym repo. <!-- liczba-spoza-wynikow: Open PL LLM Leaderboard @ 0d30867d, all_data.json pobrany 2026-11-05, wiersz Qwen/Qwen2-1.5B, n_shot 5; model sha z HF API --> |
+| Wyniki referencyjne (odczyt 2026-11-05): Falcon-40B | `tiiuae/falcon-40b` @ `05ab2ee8d6b593bdbab17d728de5c028a7a94d83` → `acc` 0,599, 5-shot, `pol_Latn`, n = 900, średnia z 3 przebiegów; źródło: [arXiv:2308.16884v2, tabela 7](https://arxiv.org/abs/2308.16884v2), wiersz `pol_Latn` na s. 772 (PDF s. 24). To **nie** jest kandydat zgodny z protokołem karty: praca używa promptu `P:/Q:/A:`, a nie polskiego promptu OpenPL, i modelu 40 mld parametrów; wynik jest tylko referencją. Dosłowny wiersz i nagłówek: sekcja „Notatka: tabela 7 pracy”. <!-- liczba-spoza-wynikow: Bandarkar i in. 2023, tabela 7, s. 772; rewizja Falcon-40B z HF API, odczyt 2026-11-05 --> |
+| Wyniki referencyjne: Llama-2-70B | `meta-llama/Llama-2-70b-hf` @ `3aba440b59558f995867ba6e1f58f21d0336b5bb` → `acc` 0,792, 5-shot, `pol_Latn`, n = 900, średnia z 3 przebiegów; źródło: tabela 7 pracy, wiersz `pol_Latn` na s. 772 (PDF s. 24). Model jest gated na HF i ma inny prompt niż karta, więc to tylko referencja, nie kandydat kontroli. Dosłowny wiersz i nagłówek: sekcja „Notatka: tabela 7 pracy”. <!-- liczba-spoza-wynikow: Bandarkar i in. 2023, tabela 7, s. 772; rewizja Llama-2-70B z HF API, odczyt 2026-11-05 --> |
 | Wyniki referencyjne: XLM-R large | `FacebookAI/xlm-roberta-large` @ `c23d21b0620b635a76227c604d44e43a9f0ee389` → `acc` 0,674, `pol_Latn`, `finetune in English`, n = 900; źródło: tabela 5 pracy. Wynik dotyczy modelu po dostrojeniu (autorzy nie publikują wag po dostrojeniu), więc nie jest gotową kontrolą 5-shot; służy do SNR. <!-- liczba-spoza-wynikow: Bandarkar i in. 2023, tabela 5; rewizja XLM-R large z HF API, odczyt 2026-11-05 --> |
 | Train policy | `eval_only`: split `test` nie trafia do treningu. Osobny angielski zbiór treningowy (RACE, SciQ, MultiRC, MCTest, MCScript2.0, ReClor) nie jest częścią Belebele i nie jest używany w przebiegu centralnym. Zbioru wolno użyć do dekontaminacji (`should_decontaminate: true`, zapytanie to `question`). |
 | Decyzja treningowa | Niski `acc` znaczy, że model słabo czyta polski fragment i wybiera jedną z czterech liter; nie mówi nic o wiedzy encyklopedycznej, generowaniu ani innych językach. Wysoki wynik może pochodzić z preferencji pozycji litery (stała `B` daje 0,2789) albo z kontaminacji, więc sam wynik nie dowodzi rozumienia. Różnica w pkt, która zmieniłaby decyzję: nieustalona, więc MDE jest informacyjne. <!-- liczba-spoza-wynikow: data/pol_Latn.jsonl @ 7899cdfa, policzone 2026-11-05 --> |
@@ -56,6 +58,60 @@ Oceniane kontynuacje: `" A"` (poprawna, indeks 0), `" B"`, `" C"`, `" D"`. Pierw
 `https://en.wikibooks.org/wiki/Accordion/Right_hand` i `question_number` 1; `link` nie jest unikalny, unikalna jest para
 `link` + `question_number`. <!-- liczba-spoza-wynikow: data/pol_Latn.jsonl @ 7899cdfa, odczyt 2026-11-05 -->
 
+## Model kontrolny etapu B: szukanie
+
+Kandydat: `Qwen/Qwen2-1.5B` @ `8a16abf2848eda07cc5253dec660bf1ce007ad7a`, bfloat16, 5-shot,
+`polish_belebele_mc`, `acc` 56,5556% (0,5656), n = 900. <!-- liczba-spoza-wynikow: Open PL LLM Leaderboard @ 0d30867d, all_data.json pobrany 2026-11-05, wiersz Qwen/Qwen2-1.5B, n_shot 5 --> Źródło wyniku: publiczny Open PL LLM Leaderboard
+(SpeakLeash), Space @ `0d30867d1c291d42812b5f9c51988dd33d1b5145`, wiersz `Qwen2-1.5B`, kolumna `belebele_mc`,
+odczyt 2026-11-05; publiczny snapshot `all_data.json` (2 379 500 bajtów, SHA-256
+`7c6d37383543e9606cb16c167bcf6c71b82246aad63b328ab991de1069d55b66`) ma dla tego wiersza `n_shot` = `5`
+i `belebele_mc` = `56.55555555555556`. Leaderboard opisuje protokół jako `polish_mc` z `--num_fewshot 5`
+(`src/about.py`, sekcja „Reproducibility”; `calc_avg.py`, `task9a` = `polish_belebele_mc`), a fork
+`speakleash/lm-evaluation-harness` ma branch `polish4` na commicie `21d0ea9c`, czyli dokładnie tym, z którego karta
+bierze YAML `belebele_mc.yaml`. Model jest bazowy (bez szablonu czatu), 1,5 mld parametrów i nie jest żadnym z pięciu
+modeli odniesienia. To kandydat zgodny z protokołem karty; nie był mierzony w tym repo.
+
+Szukano:
+- Open PL LLM Leaderboard: tabela `all_data.json`/`output.csv`, `src/about.py`, `calc_avg.py`, README Space.
+  Wiersze 5-shot dla modeli do 2 mld:
+  - `Qwen/Qwen2-1.5B` 56,5556. <!-- liczba-spoza-wynikow: Open PL LLM Leaderboard @ 0d30867d, all_data.json pobrany 2026-11-05 -->
+  - `Qwen/Qwen2-1.5B-Instruct` 58,3333. <!-- liczba-spoza-wynikow: Open PL LLM Leaderboard @ 0d30867d, all_data.json pobrany 2026-11-05 -->
+  - `Qwen/Qwen2.5-1.5B` 64,3333. <!-- liczba-spoza-wynikow: Open PL LLM Leaderboard @ 0d30867d, all_data.json pobrany 2026-11-05 -->
+  - `google/gemma-3n-E2B-it` 77,5556. <!-- liczba-spoza-wynikow: Open PL LLM Leaderboard @ 0d30867d, all_data.json pobrany 2026-11-05 -->
+  Kandydat wybrany: `Qwen2-1.5B`, bo ma jawny `Model sha` i jest modelem bazowym.
+- `speakleash/open_pl_llm_leaderboard_results` (surowe pliki wyników) — API zwraca HTTP 401 (repozytorium prywatne);
+  nie ma publicznego JSON-a z tym wierszem.
+- PoLEJ (`polej.azurro.pl`) — ma kolumnę Belebele PL, ale opis mówi 0-shot i `greedy_until`, więc to inny protokół
+  niż karta.
+- Tabela 7 pracy i karty HF `tiiuae/falcon-40b`, `meta-llama/Llama-2-70b-hf`, `FacebookAI/xlm-roberta-large`,
+  `microsoft/infoxlm-large`, `facebook/xlm-v-base` — wyniki 5-shot w pracy mają prompt `P:/Q:/A:` i modele
+  40–70 mld, a XLM-R/InfoXLM/XLM-V są dotrenowane na angielskim, nie liczone 5-shot.
+- `codesota.com/benchmark/open-pl-llm-leaderboard` — strona nie ma wyników; `github.com/chrisociepa/polish-open-llm-leaderboard`
+  to stary leaderboard 0-shot.
+
+Nie przeszukano: kanału Discord SpeakLeash, prywatnych wyników poza publiczną tabelą, innych leaderboardów i cytowań
+pracy pod kątem wyników `polish_belebele_mc`.
+
+## Notatka: tabela 7 pracy
+
+Nagłówek tabeli 7 (s. 771, PDF s. 23), w kolejności kolumn (zapis z HTML-a pracy; w PDF małe kapitaliki rozbijają `LLAMA`/`FALCON`):
+
+```text
+Evaluation Zero-Shot for Instructed Models 5-shot In-Context Learning Translate-Train-All
+Model Name GPT3.5-turbo Llama-2-chat Llama 2 Llama 1 Falcon XLM-V
+Size/Variant 70B 70B 65B 40B large
+```
+
+Wiersz `pol_Latn` (s. 772, PDF s. 24), dosłownie:
+
+```text
+pol_Latn 74.7 61.7 79.2 67.0 59.9 72.1
+```
+
+Kolumny w kolejności: GPT3.5-turbo 74,7; Llama-2-chat 61,7; Llama 2 79,2; Llama 1 67,0; Falcon 59,9; XLM-V 72,1. <!-- liczba-spoza-wynikow: ACL PDF 2024.acl-long.44, tabela 7, wiersz pol_Latn, s. 772, odczyt 2026-11-05 -->
+Podpis tabeli: „Table 7: Results on LLMs, with comparison to full finetuning on XLM-V” (s. 773). Źródło: ACL PDF
+`2024.acl-long.44`, odczyt 2026-11-05. <!-- liczba-spoza-wynikow: ACL PDF 2024.acl-long.44, tabela 7, s. 771-773, odczyt 2026-11-05 -->
+
 ## Znane rozbieżności
 
 - **Katalog zadania w forku OpenPL** [`speakleash/lm-evaluation-harness` @ `21d0ea9cf4fd6153dfff4d84d6ad0aab5488f302`](https://github.com/speakleash/lm-evaluation-harness/tree/21d0ea9cf4fd6153dfff4d84d6ad0aab5488f302/lm_eval/tasks/polish_belebele):
@@ -68,7 +124,7 @@ Oceniane kontynuacje: `" A"` (poprawna, indeks 0), `" B"`, `" C"`, `" D"`. Pierw
   `e08e63e8a11b563dad771f8ee99a1da167e55016`). <!-- liczba-spoza-wynikow: git tree speakleash/lm-evaluation-harness @ 21d0ea9c i EleutherAI/lm-evaluation-harness @ 6d2abda4 i v0.4.9.1, odczyt 2026-11-05 -->
 - **Prompt pracy a prompt OpenPL**: praca w 5-shot używa szablonu `P: <passage>\nQ: <question>\nA: <mc answer 1>\nB: <mc answer 2>\nC: <mc answer 3>\nD: <mc answer 4>\nAnswer: <Correct answer letter>`, demonstracji z angielskiego zbioru treningowego i średniej z 3 przebiegów. YAML `belebele_mc.yaml` używa polskich etykiet `Fragment:`, `Pytanie:`, `Możliwe odpowiedzi:`, `A -`…`D -`, `Prawidłowa odpowiedź:`; demonstracje bierze z polskiego splitu `test` (bank hashowy), a przebieg jest deterministyczny, bez uśredniania 3 przebiegów. Ocena liter jest ta sama: wybierana jest litera `A`–`D`. <!-- liczba-spoza-wynikow: Bandarkar i in. 2023, A.4.2 i tabela 7; belebele_mc.yaml @ 21d0ea9c; README belebele-pl -->
 - **Zbiór**: `polish_belebele_mc` w YAML nie przypina rewizji; `common/zadania.py` i `tasks_50.json` Space przypinają `facebook/belebele` @ `7899cdfa4e1e0d733fd77c848e2c273cb1d32be2`, więc karta też. <!-- liczba-spoza-wynikow: common/zadania.py; tasks_50.json Space @ 2d3d73f5; YAML @ 21d0ea9c -->
-- **Dane, smoke test**: 412 z 900 wierszy dzieli `link` z drugim pytaniem, ale para `link` + `question_number` jest unikalna; 488 fragmentów, z tego 412 ma 2 pytania, a 76 ma 1 pytanie. 3 pytania mają dwie identyczne opcje (wiersze 401, 431, 779 w kolejności pliku); w dwóch z nich (401 i 431) duplikatem jest opcja poprawna, więc pytanie ma dwa równie dobre wybory. 106 opcji ma spację na końcu, 1 opcję poprzedza spacja; 0 pól jest pustych i 0 pytań ma identyczny tekst. Pytanie w wierszu 401 ma powtórzone „ile osób”. <!-- liczba-spoza-wynikow: data/pol_Latn.jsonl @ 7899cdfa, policzone 2026-11-05 -->
+- **Dane, smoke test**: 412 z 900 wierszy dzieli `link` z drugim pytaniem, ale para `link` + `question_number` jest unikalna; 488 fragmentów, z tego 412 ma 2 pytania, a 76 ma 1 pytanie. 3 pytania mają dwie identyczne opcje (wiersze 401, 431, 779 w kolejności pliku); w dwóch z nich (401 i 431) duplikatem jest opcja poprawna, więc pytanie ma dwa równie dobre wybory. 105 opcji ma biały znak na końcu (w 98 pytaniach), a 1 opcja ma biały znak na początku (w osobnym pytaniu); łącznie 106 opcji w 99 pytaniach. 0 pól jest pustych i 0 pytań ma identyczny tekst. Pytanie w wierszu 401 ma powtórzone „ile osób”. <!-- liczba-spoza-wynikow: data/pol_Latn.jsonl @ 7899cdfa, policzone 2026-11-05: 105 końcowych + 1 początkowy = 106 opcji; 98 pytań z końcowym + 1 z początkowym = 99 pytań -->
 - **Pełny split centralny**: 900 wierszy w pliku, ale bank 5 demonstracji jest wybierany z całego splitu i jego dokumenty wypadają z oceny, więc ocenianych jest 895; Space liczy panel 200 i ocenia 200. <!-- liczba-spoza-wynikow: README belebele-pl; common/ewaluuj.py, wybor_probki i wykluczone; results.json Space @ 2d3d73f5 -->
 - **`acc_norm`**: YAML ma `acc` i `acc_norm`, ale przy kontynuacjach jednobajtowych `A`–`D` `acc_norm` = `acc`; Space raportuje tylko `acc`. <!-- liczba-spoza-wynikow: belebele_mc.yaml @ 21d0ea9c; lm-eval v0.4.9.1, normalizacja acc_norm po bajtach -->
 - **Space**: T24 dla `LiquidAI/LFM2.5-1.2B-Base` ma na panelu 200 0,300 (CI95 0,240–0,365), a dla `SlayerLab/Slayer1B-1.06` 0,300 (CI95 0,235–0,365); werdykt `inconclusive`. To przykład, nie wynik referencyjny ani kontrola. <!-- liczba-spoza-wynikow: results.json Space @ 2d3d73f5, observations i contrasts T24 -->
