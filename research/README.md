@@ -83,6 +83,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`record`](benchmarks/record/README.md) | T50 | `ciagla` | | T50 | nieustalone |
 | [`rte`](benchmarks/rte/README.md) | T15 | `mc` | | T15 | nieustalone |
 | [`sciq`](benchmarks/sciq/README.md) | T09 | `poz` | | T09 | tak |
+| [`social-iqa`](benchmarks/social-iqa/README.md) | T46 | `mc` | | T46 | nieustalone |
 | [`squad2`](benchmarks/squad2/README.md) | T38 | `ciagla +proc` | | T38 | nieustalone |
 | [`sst2`](benchmarks/sst2/README.md) | T21 | `mc` | | T21 | nieustalone |
 | [`triviaqa`](benchmarks/triviaqa/README.md) | T43 | `gen` | | T43 | nieustalone |

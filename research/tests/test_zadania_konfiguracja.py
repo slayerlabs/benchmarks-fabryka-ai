@@ -86,16 +86,10 @@ def test_main_metric_is_in_the_config():
         assert glowna in nazwy_metryk(cfg), t
 
 
-# Katalog benchmarku powstaje w osobnym otwartym PR; wpis znika z tej listy po jego scaleniu.
-KATALOG_W_INNYM_PR = {"T46": "social-iqa, PR #143"}
-
-
 def test_every_task_has_its_benchmark_directory():
     mapa = katalogi()
     assert list(mapa) == list(Z.ZADANIA)
     for t, k in mapa.items():
-        if t in KATALOG_W_INNYM_PR and not (KORZEN / "benchmarks" / k).is_dir():
-            continue
         assert (KORZEN / "benchmarks" / k).is_dir(), (t, k)
 
 

@@ -12,13 +12,12 @@ wiersz w tym samym PR.
 <a href="#do-sprawdzenia"><img src="../docs/img/stan/do-sprawdzenia.svg" alt="Do sprawdzenia" height="36"></a>
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'pie1': '#1a7f37', 'pie2': '#9a6700', 'pie3': '#bc4c00', 'pie4': '#6e7781', 'pie5': '#0969da', 'pieStrokeColor': '#ffffff', 'pieOuterStrokeWidth': '0px'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'pie1': '#1a7f37', 'pie2': '#9a6700', 'pie3': '#bc4c00', 'pie4': '#6e7781', 'pieStrokeColor': '#ffffff', 'pieOuterStrokeWidth': '0px'}}}%%
 pie showData
-    "Gotowe" : 8
+    "Gotowe" : 9
     "W przebiegu, brak opisu" : 40
     "Opisane, poza przebiegiem" : 5
     "Niezaczęte" : 30
-    "W osobnym PR" : 1
 ```
 
 **A** karta `ORIGINAL.md` · **B** `REPRODUCTION.md` (kontrola albo „bez kontroli”) · **przebieg** wpis w `ZADANIA`
@@ -29,7 +28,7 @@ i `KATALOGI` · ✓ jest · ✗ brak
 
 <a name="gotowe"></a>
 
-## ✅ Gotowe · 8
+## ✅ Gotowe · 9
 
 Każdy ma A, B, wpis w przebiegu, `RECIPE.md`, wiersz w [README, „Benchmarki i typy”](README.md#benchmarki-i-typy) i
 test `tests/test_<name>.py`.
@@ -44,6 +43,7 @@ test `tests/test_<name>.py`.
 | [WinoGrande](benchmarks/winogrande/README.md) | T07 | ✓ | ✓ | ✓ | |
 | [PubMedQA](benchmarks/pubmedqa/README.md) | T44 | ✓ | bez kontroli | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia) |
 | [MedMCQA](benchmarks/medmcqa/README.md) | T45 | ✓ | bez kontroli | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia) |
+| [Social IQa](benchmarks/social-iqa/README.md) | T46 | ✓ | bez kontroli | ✓ | Slayer nad b, pod czterema modelami odniesienia |
 
 <a name="brak-opisu"></a>
 
@@ -60,12 +60,6 @@ Po zamknięciu karty automat zakłada zadanie B.
 | A i B, polskie | PolEmo 2.0 T22 #113 · 8TAGS T23 #114 · Belebele T24 #115 · DYK T25 #116 · PPC T26 #117 · PSC T27 #118 · CBD T28 #119 · NKJP-NER T29 #120 · PolQA T30 #121 · PoQuAD T31 #122 |
 
 Każdy z tych 40 katalogów ma `README.md` i `RECIPE.md` ze zbiorem, rewizją, splitem, metryką i licencją.
-
-## 🔵 W osobnym PR · 1
-
-| benchmark | test | przebieg | gdzie |
-|---|---|---|---|
-| Social IQa | T46 | ✓ | katalog `benchmarks/social-iqa/` (A, B, README, RECIPE, test, wyniki) w PR #143 |
 
 <a name="poza-przebiegiem"></a>
 
