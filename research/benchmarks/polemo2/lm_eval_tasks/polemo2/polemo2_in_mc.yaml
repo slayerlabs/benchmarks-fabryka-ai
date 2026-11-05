@@ -1,0 +1,24 @@
+# Source: speakleash/lm-evaluation-harness @ 21d0ea9cf4fd6153dfff4d84d6ad0aab5488f302, lm_eval/tasks/polemo2/polemo2_in_mc.yaml
+# (OpenPL fork, Polish tasks of the Space). Copied unchanged below this header;
+# common/zadania.py pins the dataset revision and the shot count.
+group:
+  - polemo2_mc
+task: polemo2_in_multiple_choice
+dataset_path: allegro/klej-polemo2-in
+dataset_name: null
+output_type: multiple_choice
+training_split: train
+validation_split: validation
+test_split: test
+doc_to_text: "Opinia: \"{{sentence}}\"\nOkreśl sentyment podanej opinii: Neutralny, Negatywny, Pozytywny, Niejednoznaczny.\nSentyment:"
+doc_to_target: "{{['__label__meta_zero', '__label__meta_minus_m', '__label__meta_plus_m', '__label__meta_amb'].index(target)}}"
+doc_to_choice: ["Neutralny", "Negatywny", "Pozytywny", "Niejednoznaczny"]
+should_decontaminate: true
+doc_to_decontamination_query: "{{sentence}}"
+metric_list:
+  - metric: acc
+    aggregation: mean
+    higher_is_better: true
+  - metric: acc_norm
+    aggregation: mean
+    higher_is_better: true

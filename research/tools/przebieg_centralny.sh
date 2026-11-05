@@ -6,11 +6,12 @@
 #   lista                  model list: label|repo|revision|loader|env (read by tests/test_przebieg_centralny.py)
 #   plan "LABEL ..."       ewaluuj.py commands that `licz` would run, without running them ("# GPU N:" per queue)
 #   przygotuj LIMIT_S      safety destroy after LIMIT_S, both venvs, HF download speed test
-#   licz "LABEL ..."       in the background: per model download weights, every task, delete weights;
+#   licz "LABEL ..."       in the background: per model download weights, every task, delete weights (a gated
+#                          repo the HF token cannot read is skipped: log line POMINIETY, $ST/pominiety_<label>.txt);
 #                          with N > 1 GPUs (nvidia-smi -L) models go round robin to N queues, one per GPU
 #                          (CUDA_VISIBLE_DEVICES), queue log $WS/logi/<stage>_gpu<N>.log
 # ENV_OVERRIDE=new WYNIKI=$WS/wyniki_nowe on licz: same models in the other venv, for the environment check.
-#   ponow                  in the background: every (model, task) whose latest run failed, e.g. with BATCH=1 after an OOM
+#   ponow                  in the background: every (model, task) whose latest run failed
 #   straznik               idle guard (also started by przygotuj): tools/straznik_bezczynnosci.py
 #   proba_cpu ["LABEL ..."] load test on CPU: PROBA_N (2) questions, WikiText-2 1 document; every pair must finish
 #   kontrola               sanity check of the full results (tools/kontrola_sensu.py); licz runs it at its end
@@ -23,30 +24,46 @@ K=${K:-/workspace/kod}
 WS=${WS:-/workspace}
 ST=$WS/stan
 CZ=$WS/czasy.jsonl
-BATCH=${BATCH:-auto}
+# METODOLOGIA "Ustawienia przebiegu centralnego": batch size 1 for every task (padding in a batch shifts float32 logits and greedy generation)
+BATCH=${BATCH:-1}
 # WikiText-2 window for HF models: the config default (128k-262k tokens for Qwen3.5 and LFM) puts a whole
 # document in one float32 forward and ends in CUDA OOM on 24 GB even at batch 1. EuroLLM's own is 4096.
 OKNO_ROLLING=${OKNO_ROLLING:-4096}
 # transformers 4.57.6 from the lock has no qwen3_5, and the LFM3 remote code imports
 # use_kernel_func_from_hub_with_fallback (missing in 5.12.1). transformers 5 breaks lm_eval 0.4.9.1
 # (AutoModelForVision2Seq) and peft 0.17.1 (HybridCache), so the "new" env moves those too.
+# Levenshtein (PolQA/PoQuAD metric of the OpenPL fork, T30, T31) and langdetect (IFEval) come from the lock.
 NEW_ENV_PINS=(transformers==5.22.1 lm_eval==0.4.13 peft==0.21.2)
 # EuroLLM's tokenizer load needs protobuf, which the lock does not carry
 LOCK_ENV_PINS=(protobuf==7.36.2 sentencepiece==0.2.2)
+# IFEval (T36): lm-eval downloads NLTK punkt_tab on import when missing; przygotuj stages it once instead
+NLTK_DANE=${NLTK_DANE:-$WS/nltk_data}
+export NLTK_DATA=$NLTK_DANE
 
 # One list for the run; tests/test_przebieg_centralny.py checks it against METODOLOGIA.md ("Pięć modeli
-# odniesienia" without Bielik, gated repo) and the Slayer revision named there.
+# odniesienia") and the Slayer revision named there.
 # loader: slayer = common/slayer_lm.py, hf = HFLM, hf-trust = HFLM with trust_remote_code. env: lock | new.
+# Bielik is a gated repo (LlamaForCausalLM, tokenizer.json, so the lock env loads it): counted when the HF token has
+# access, otherwise licz_model skips it with a message in the log and $ST/pominiety_<label>.txt (`dostep_hf`).
+# Last row: the stage B control model (METODOLOGIA "Model kontrolny etapu B", item 1); f3f1b6d5 is branch step143000.
 MODELE=(
   "slayer1b-1.06|SlayerLab/Slayer1B-1.06|ef81be58742544ad32e1afab38db011fec209609|slayer|lock"
   "qwen3.5-0.8b-base|Qwen/Qwen3.5-0.8B-Base|dc7cdfe2ee4154fa7e30f5b51ca41bfa40174e68|hf|new"
   "lfm2.5-1.2b-base|LiquidAI/LFM2.5-1.2B-Base|7453bca97ca1e67754c4035a4b4c584e1c9dd725|hf|lock"
+  "bielik-1.5b-v3|speakleash/Bielik-1.5B-v3|4b25049621bf3952a1fc9314c89773102eda0333|hf|lock"
   "lfm3-1.7b-base|LiquidAI/LFM3-1.7B-Base|545fc8f4c7b5fa9f405105274cd29c4f8f44b526|hf-trust|new"
   "eurollm-1.7b|utter-project/EuroLLM-1.7B|c730cd9b616799ace3c65e927d63191446f59374|hf|lock"
+  "pythia-1b-v0|EleutherAI/pythia-1b-v0|f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0|hf|lock"
 )
 
 # Task id -> <benchmark> directory name under wyniki/ and results/central-run/; the test checks that ZADANIA_ID equals the keys of ZADANIA.
-KATALOGI="T01:blimp T02:arc-challenge T03:wikitext-2 T04:multiblimp-pl T44:pubmedqa T45:medmcqa T46:social-iqa"
+KATALOGI="T01:blimp T02:arc-challenge T03:wikitext-2 T04:multiblimp-pl T05:hellaswag T06:piqa T08:openbookqa
+T09:sciq T10:boolq T11:copa T12:cb T13:wic T15:rte T16:anli-r3 T18:logiqa T19:mathqa T20:prost T21:sst2 T22:polemo2
+T23:8tags T24:belebele-pl T25:dyk T26:ppc T27:psc T28:cbd T29:klej-ner T30:polqa T31:poquad T40:race T44:pubmedqa
+T45:medmcqa T46:social-iqa T48:paws-en"
+# (c): generation, groups with weights, corpus metrics, multi-context gold
+KATALOGI+=" T07:winogrande T14:wsc273 T17:lambada T32:mmlu T33:gsm8k T34:math T35:truthfulqa T36:ifeval T38:squad2"
+KATALOGI+=" T39:drop T41:coqa T42:nq-open T43:triviaqa T47:bbh T49:cola T50:record"
 ZADANIA_ID=${ZADANIA_ID:-$(for p in $KATALOGI; do printf '%s ' "${p%%:*}"; done)}
 katalog() { local p; for p in $KATALOGI; do [[ ${p%%:*} == "$1" ]] && echo "${p#*:}" && return 0; done; return 1; }
 
@@ -91,10 +108,31 @@ gpu_nazwa() {  # NVIDIA name (of GPU $GPU_NR when set), otherwise "<cpu brand> <
     echo "$n" | tr ' ' '_'
 }
 
+dostep_hf() {  # dostep_hf: 0 = the HF token may read $REPO, 3 = gated repo without access (message on stdout);
+  # any other error (network) is not a skip: the download below fails as it would without the check
+  "$WS/venv-$ENV/bin/python" -c "import sys
+from huggingface_hub import auth_check
+from huggingface_hub.errors import GatedRepoError
+try:
+    auth_check(sys.argv[1])
+except GatedRepoError as e:
+    print(f'{type(e).__name__}: {str(e).splitlines()[0]}')
+    sys.exit(3)" "$REPO"
+}
+
 licz_model() {  # licz_model LABEL: download, every task, delete weights; a failed task does not stop the rest
-  local L=$1 t T kod
+  local L=$1 t T kod powod
   model "$L"
   t=$(teraz)
+  mkdir -p "$ST"
+  kod=0; powod=$(dostep_hf) || kod=$?
+  if (( kod == 3 )); then  # gated repo, no access: the model is left out, the run goes on with the next one
+    echo "POMINIETY $L ($REPO @ $REV): token HF bez dostepu do repo z bramka zgody; $powod" > "$ST/pominiety_$L.txt"
+    cat "$ST/pominiety_$L.txt"
+    zapisz_czas pominiety "$t" "{\"model\": \"$L\", \"repo\": \"$REPO\", \"powod\": \"brak dostepu do repo z bramka\"}"
+    return 0
+  fi
+  rm -f "$ST/pominiety_$L.txt"
   "$WS/venv-$ENV/bin/python" -c "from huggingface_hub import snapshot_download as s; s('$REPO', revision='$REV', local_dir='$WS/modele/$L')"
   zapisz_czas pobranie "$t" "{\"model\": \"$L\", \"bajty\": $(bajty "$WS/modele/$L")}"
   for T in $ZADANIA_ID; do
@@ -180,6 +218,7 @@ case "$etap" in
       "$WS/venv-$E/bin/pip" freeze > "$WS/logi/freeze_$E.txt"
       zapisz_czas "pip_$E" "$t"
     done
+    "$WS/venv-lock/bin/python" -c "import nltk, sys; sys.exit(0 if nltk.download('punkt_tab', download_dir='$NLTK_DANE', quiet=True) else 1)"
     "$WS/venv-lock/bin/python" -c "import torch, json; print(json.dumps({'torch': torch.__version__, 'cuda': torch.version.cuda, 'gpu': torch.cuda.get_device_name(0)}))" | tee $WS/srodowisko.json
     nproc; free -g; df -h $WS; nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv
     ;;
@@ -219,7 +258,9 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
     fi
     mkdir -p "$ST" "$WS/logi" "$WS/modele"
     for L in $LISTA; do licz_model "$L"; done
-    python3 $K/tools/kontrola_sensu.py --tylko-stan $(for L in $LISTA; do for T in $ZADANIA_ID; do echo "$WYNIKI/$(katalog "$T")/$L"; done; done)
+    # a gated model skipped by licz_model has no outputs; its skip stays in $ST/pominiety_<label>.txt
+    python3 $K/tools/kontrola_sensu.py --tylko-stan $(for L in $LISTA; do [[ -e $ST/pominiety_$L.txt ]] && continue
+      for T in $ZADANIA_ID; do echo "$WYNIKI/$(katalog "$T")/$L"; done; done)
     ;;
   kontrola)  # sanity of full results (score 1.000, below random - 5 points, ...): $WS/logi/kontrola_sensu.txt
     mkdir -p "$WS/logi"
@@ -232,7 +273,7 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
     ls -la $WS/wyniki.tgz
     ;;
   stan)
-    ls -la $ST; for f in $WS/logi/*.log; do echo "== $f"; tail -n 2 "$f"; done; tail -n 5 $CZ 2>/dev/null
+    ls -la $ST; cat $ST/pominiety_*.txt 2>/dev/null || true; for f in $WS/logi/*.log; do echo "== $f"; tail -n 2 "$f"; done; tail -n 5 $CZ 2>/dev/null
     nvidia-smi --query-gpu=index,utilization.gpu,memory.used --format=csv; df -h $WS | tail -1
     ;;
   _funkcje) ;;  # sourced: functions only

@@ -10,7 +10,9 @@ from pathlib import Path
 
 KORZEN = Path(__file__).resolve().parent.parent
 SKRYPT = KORZEN / "tools" / "przebieg_centralny.sh"
-POMINIETE = {"speakleash/Bielik-1.5B-v3"}  # gated repo, left out of v1
+BIELIK = "speakleash/Bielik-1.5B-v3"  # gated repo: counted with access, skipped without (licz_model, dostep_hf)
+KONTROLNY = "EleutherAI/pythia-1b-v0"
+PYTHIA_STEP143000 = "f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0"  # commit of HF branch step143000
 
 
 def uruchom(*args, ws=None):
@@ -41,11 +43,86 @@ def klucze_zadan():
     raise AssertionError("ZADANIA not found in common/zadania.py")
 
 
-def test_reference_models_match_methodology_without_bielik():
+def test_reference_models_match_methodology():
     tabela = tabela_metodologii()
-    assert len(tabela) == 5 and POMINIETE <= set(tabela)
-    odniesienia = {repo: rev for _, repo, rev, _, _ in modele_skryptu() if not repo.startswith("SlayerLab/")}
-    assert odniesienia == {r: v for r, v in tabela.items() if r not in POMINIETE}
+    assert len(tabela) == 5 and BIELIK in tabela
+    odniesienia = {repo: rev for _, repo, rev, _, _ in modele_skryptu()
+                   if not repo.startswith("SlayerLab/") and repo != KONTROLNY}
+    assert odniesienia == tabela
+
+
+def test_control_model_is_first_on_methodology_list():
+    tekst = (KORZEN / "METODOLOGIA.md").read_text(encoding="utf-8")
+    sekcja = tekst.split("### Model kontrolny etapu B", 1)[1].split("\n### ", 1)[0]
+    assert re.search(r"^1\. \*\*`([^`]+)` @ `step143000`\*\*", sekcja, re.MULTILINE).group(1) == KONTROLNY
+    wiersze = [m for m in modele_skryptu() if m[1] == KONTROLNY]
+    assert wiersze == [["pythia-1b-v0", KONTROLNY, PYTHIA_STEP143000, "hf", "lock"]]
+
+
+def test_bielik_runs_in_the_lock_env_with_hflm():
+    """LlamaForCausalLM with tokenizer.json (HF model card @ 4b25049): transformers 4.57.6 of the lock loads it, no
+    remote code, so neither `new` nor `hf-trust`."""
+    assert [(l, w, e) for _, r, _, l, e in modele_skryptu() for w in [r] if r == BIELIK] == [("hf", BIELIK, "lock")]
+
+
+def atrapa_srodowiska(ws, dostep):
+    """$WS/venv-lock/bin/python and venv-new stand-ins: log every call; `auth_check` of Bielik exits 3 (GatedRepoError)
+    when `dostep` is False; the rest (snapshot_download, ewaluuj.py) succeeds without doing anything. `logi/` as made by
+    `przygotuj`."""
+    (Path(ws) / "logi").mkdir(exist_ok=True)
+    for env in ("lock", "new"):
+        p = Path(ws) / f"venv-{env}" / "bin" / "python"
+        p.parent.mkdir(parents=True)
+        p.write_text("#!/bin/sh\n"
+                     f"echo \"$*\" >> {ws}/wywolania.log\n"
+                     "case \"$*\" in *auth_check*" + BIELIK + "*) "
+                     + ("exit 0" if dostep else "echo 'GatedRepoError: 403 Client Error.'; exit 3") + ";; esac\n"
+                     "exit 0\n")
+        p.chmod(0o755)
+
+
+def kolejka(ws, *etykiety, zadania="T02 T04"):
+    """`licz_kolejke - LABEL...` (one queue, no GPU) from the sourced script; returns the completed process."""
+    env = {**os.environ, "WS": ws, "K": str(KORZEN), "ZADANIA_ID": zadania, "DEVICE": "cpu", "PATH": os.environ["PATH"]}
+    return subprocess.run(["bash", "-c", f"source {SKRYPT} _funkcje; licz_kolejke - {' '.join(etykiety)}"],
+                          capture_output=True, text=True, env=env)
+
+
+def czasy(ws):
+    return [json.loads(l) for l in (Path(ws) / "czasy.jsonl").read_text().splitlines()]
+
+
+def test_gated_model_without_access_is_skipped_and_the_queue_goes_on():
+    ws = tempfile.mkdtemp()
+    atrapa_srodowiska(ws, dostep=False)
+    wynik = kolejka(ws, "bielik-1.5b-v3", "eurollm-1.7b")
+    assert wynik.returncode == 0, wynik.stderr
+    assert "POMINIETY bielik-1.5b-v3 (speakleash/Bielik-1.5B-v3 @ 4b25049621bf3952a1fc9314c89773102eda0333)" in wynik.stdout
+    assert "GatedRepoError" in (Path(ws) / "stan" / "pominiety_bielik-1.5b-v3.txt").read_text()
+    wywolania = (Path(ws) / "wywolania.log").read_text()
+    assert "snapshot_download" not in wywolania.split("utter-project/EuroLLM-1.7B")[0]  # nothing downloaded for Bielik
+    assert "--etykieta bielik-1.5b-v3" not in wywolania
+    assert wywolania.count("--etykieta eurollm-1.7b") == 2  # the next model still runs both tasks
+    wpisy = czasy(ws)
+    assert [w["model"] for w in wpisy if w["etap"] == "pominiety"] == ["bielik-1.5b-v3"]
+    assert {(w["model"], w["zadanie"], w["kod"]) for w in wpisy if w["etap"] == "ewaluacja"} == {
+        ("eurollm-1.7b", "T02", 0), ("eurollm-1.7b", "T04", 0)}  # `ponow` reads only these: no retry of the skip
+
+
+def test_gated_model_with_access_is_counted_in_the_lock_env():
+    ws = tempfile.mkdtemp()
+    (Path(ws) / "stan").mkdir()
+    (Path(ws) / "stan" / "pominiety_bielik-1.5b-v3.txt").write_text("old skip\n")
+    atrapa_srodowiska(ws, dostep=True)
+    wynik = kolejka(ws, "bielik-1.5b-v3")
+    assert wynik.returncode == 0, wynik.stderr
+    assert "POMINIETY" not in wynik.stdout and not (Path(ws) / "stan" / "pominiety_bielik-1.5b-v3.txt").exists()
+    wywolania = (Path(ws) / "wywolania.log").read_text().splitlines()
+    assert any("snapshot_download" in w and BIELIK in w for w in wywolania)
+    ewaluacje = [w for w in wywolania if "--etykieta bielik-1.5b-v3" in w]
+    assert len(ewaluacje) == 2 and all(f"--repo {BIELIK} --revision 4b25049621bf3952a1fc9314c89773102eda0333" in w
+                                       and "--model hf " in w and "--trust_remote_code" not in w for w in ewaluacje)
+    assert (Path(ws) / "venv-lock").exists() and all(w["env"] == "lock" for w in czasy(ws) if w["etap"] == "ewaluacja")
 
 
 def test_slayer_revision_matches_methodology():
@@ -80,6 +157,7 @@ def test_plan_runs_full_set_for_every_model_and_task():
     slayer = [l for l in linie if "SlayerLab/" in l]
     assert slayer and all("--model slayer" in l and f"--model_path {ws}/modele/" in l for l in slayer)
     assert all("--device cuda" in l for l in linie)
+    assert all(" --batch 1 " in l for l in linie)  # METODOLOGIA "Ustawienia przebiegu centralnego": batch 1
 
 
 def plan_na_gpu(liczba):

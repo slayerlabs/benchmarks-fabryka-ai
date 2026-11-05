@@ -58,9 +58,9 @@ class Slayer(torch.nn.Module):
     def encode(self, tekst):
         return self.tok.encode(tekst, add_special_tokens=False).ids
 
-    def _rope(self, x):
+    def _rope(self, x, start=0):
         T = x.shape[-2]
-        cos, sin = self.cos[:T], self.sin[:T]
+        cos, sin = self.cos[start:start + T], self.sin[start:start + T]
         xf = x.float()
         if self.rope == "neox":
             x1, x2 = xf[..., : self.hd // 2], xf[..., self.hd // 2:]
@@ -80,11 +80,26 @@ class Slayer(torch.nn.Module):
         return (h @ self.w["tok.weight"].T).float()
 
     @torch.no_grad()
-    def ukryte(self, ids):
-        """ids: LongTensor [B, T] -> stan po lnf [B, T, d]."""
+    def krok(self, ids, cache):
+        """Generacja z KV cache: ids [B, T] dalszych tokenów -> logity ostatniej pozycji [B, V] (float32).
+
+        `cache` to lista (pusta na starcie sekwencji) uzupełniana w miejscu przez `ukryte`.
+        """
+        return self.glowa(self.ukryte(ids, cache)[:, -1])
+
+    @torch.no_grad()
+    def ukryte(self, ids, cache=None):
+        """ids: LongTensor [B, T] -> stan po lnf [B, T, d].
+
+        `cache`: lista par (K po RoPE, V po value residual) na warstwę; `ids` to wtedy tokeny po tych w cache,
+        a pozycje RoPE zaczynają się od długości cache. Bez cache forward jest ten sam co przed jego dodaniem.
+        """
         w = self.w
         x = w["tok.weight"][ids]
         B, T, _ = x.shape
+        P = cache[0][0].shape[2] if cache else 0
+        if P + T > self.blok:
+            raise ValueError(f"Slayer: {P + T} pozycji, a block = {self.blok}")
         v0 = None
         for i in range(self.n_layer):
             p = f"blocks.{i}."
@@ -106,12 +121,25 @@ class Slayer(torch.nn.Module):
                         s = torch.sigmoid(lam)
                         v = (1 - s) * v + s * v0
             if self.qk_po_rope:
-                q, k = self._rope(q), self._rope(k)
+                q, k = self._rope(q, P), self._rope(k, P)
             q = rmsnorm(q, w[p + "q_norm.weight"], self.eps)
             k = rmsnorm(k, w[p + "k_norm.weight"], self.eps)
             if not self.qk_po_rope:
-                q, k = self._rope(q), self._rope(k)
-            a = F.scaled_dot_product_attention(q, k, v, is_causal=True, scale=self.skala)
+                q, k = self._rope(q, P), self._rope(k, P)
+            if cache is not None:
+                if P:
+                    k = torch.cat([cache[i][0], k], 2)
+                    v = torch.cat([cache[i][1], v], 2)
+                if i < len(cache):
+                    cache[i] = (k, v)
+                else:
+                    cache.append((k, v))
+            if P == 0:
+                a = F.scaled_dot_product_attention(q, k, v, is_causal=True, scale=self.skala)
+            else:
+                # is_causal w SDPA wyrównuje maskę do lewego górnego rogu, a zapytania stoją na pozycjach P..P+T-1.
+                mask = None if T == 1 else torch.ones(T, P + T, dtype=torch.bool, device=x.device).tril(P)
+                a = F.scaled_dot_product_attention(q, k, v, attn_mask=mask, scale=self.skala)
             x = x + a.transpose(1, 2).reshape(B, T, self.d) @ w[p + "proj.weight"].T
             h = rmsnorm(x, w[p + "ln2.weight"], self.eps)
             m = F.silu(h @ w[p + "mlp.gate.weight"].T) * (h @ w[p + "mlp.up.weight"].T)
