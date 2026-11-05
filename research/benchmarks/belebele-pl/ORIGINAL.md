@@ -73,6 +73,8 @@ bierze YAML `belebele_mc.yaml`. Model jest bazowy (bez szablonu czatu), 1,5 mld 
 modeli odniesienia. To kandydat zgodny z protokołem karty; nie był mierzony w tym repo.
 
 Szukano:
+- `EleutherAI/pythia-1b-v0` @ `step143000` (METODOLOGIA, „Model kontrolny etapu B”, punkt 1): plik 0-shot z 132 zadań (arc, lambada, piqa, sciq, winogrande, wsc, 67 BLiMP i 57 hendrycksTest) nie ma Belebele; żaden plik w katalogu `evals` repo `EleutherAI/pythia` nie ma zadania Belebele. <!-- liczba-spoza-wynikow: plik Pythii v0 @ a19eecb, odczyt 2026-11-05 -->
+- `utter-project/EuroLLM-1.7B` @ `c730cd9b616799ace3c65e927d63191446f59374` (METODOLOGIA, punkt 2): karta modelu nie podaje wyniku Belebele. <!-- liczba-spoza-wynikow: karta EuroLLM-1.7B @ c730cd9, odczyt 2026-11-05 -->
 - Open PL LLM Leaderboard: tabela `all_data.json`/`output.csv`, `src/about.py`, `calc_avg.py`, README Space.
   Wiersze 5-shot dla modeli do 2 mld:
   - `Qwen/Qwen2-1.5B` 56,5556. <!-- liczba-spoza-wynikow: Open PL LLM Leaderboard @ 0d30867d, all_data.json pobrany 2026-11-05 -->
