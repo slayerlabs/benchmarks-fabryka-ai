@@ -3,6 +3,8 @@
 Mierzymy otwarte modele językowe, dziś polsko-angielskiego **Slayer 1B**, na benchmarkach odtworzonych zgodnie z
 oryginałem, i budujemy polskie benchmarki.
 
+<a href="research/STATUS.md"><img src="docs/img/stan-benchmarkow.svg" alt="Stan benchmarków" height="36"></a>
+
 ## Pierwsze kroki
 
 1. **Dołącz.** Napisz na Discordzie na kanale #bench-team i podaj swój login GitHub. Zasady pracy są w „Jak dołączyć”.
@@ -38,9 +40,11 @@ Jak powstaje test: [METODOLOGIA, „Etapy pracy”](research/METODOLOGIA.md#etap
 
 | gdzie | co tam jest |
 |---|---|
+| <a href="research/STATUS.md"><img src="docs/img/stan-benchmarkow.svg" alt="Stan benchmarków" height="36"></a> | co gotowe, czego brakuje, co do sprawdzenia |
 | <a href="research/METODOLOGIA.md"><img src="docs/img/metodologia.svg" alt="Metodologia" height="36"></a> | jak powstaje benchmark: etapy A–D, typy testów, SE i werdykt |
 | <a href="research/benchmarks/_template"><img src="docs/img/nowy-test.svg" alt="Nowy test" height="36"></a> | wzór nowego benchmarku; każdy benchmark ma katalog w `research/benchmarks/` |
 | <a href="https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks"><img src="docs/img/wyniki-na-hf.svg" alt="Wyniki na HF" height="36"></a> | wyniki Slayera 1B w Space |
+| <a href="research/slayer-1b/dane/DANE_TRENINGOWE.md"><img src="docs/img/dane-treningowe.svg" alt="Dane treningowe" height="36"></a> | na czym trenowano każdą wersję Slayera 1B (1.00–1.06) i znane przecieki testów do danych |
 | `research/common/`, `research/tools/`, `research/tests/` | kod wspólny, bramka liczb i przebieg centralny, testy bez sieci i bez wag |
 | `research/slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami |
 
