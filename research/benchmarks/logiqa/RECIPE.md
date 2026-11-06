@@ -21,6 +21,7 @@ Jeden wpis na każdy wynik. Wyników jeszcze nie ma: liczy je przebieg centralny
 - Środowisko: WSL2 Ubuntu, Python `~/bench-team/venv` (lm-eval 0.4.9.1, torch 2.8.0+cu128, transformers 4.57.6).
 - Sprzęt: NVIDIA GeForce RTX 5050 (8 GB), float32, batch 1, `NVIDIA_TF32_OVERRIDE=0`, `TOKENIZERS_PARALLELISM=false`.
 - Wagi: `~/bench-team/slayer-1.06` (SlayerLab/Slayer1B-1.06 @ `ef81be58742544ad32e1afab38db011fec209609`).
+- Commit kodu: `e4dd54f7104c28fb5b19015a58b215892d975175` (po rebase na `main`; wynik policzony kodem z `main`, pliki wyników w commicie z tym wpisem).
 
 ### Rewizje
 - Model: SlayerLab/Slayer1B-1.06 @ `ef81be58742544ad32e1afab38db011fec209609`.

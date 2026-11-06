@@ -1,7 +1,7 @@
 {
  "schema_version": 2,
  "protocol_id": "bench50-v0.3.1-fullB",
- "run_id": "niezalezny-SlayerLab_Slayer1B-1.06-ef81be58-20261104T104359Z",
+ "run_id": "niezalezny-SlayerLab_Slayer1B-1.06-ef81be58-20261106T102020Z",
  "models": [
   {
    "model_id": "SlayerLab/Slayer1B-1.06",
@@ -14,7 +14,7 @@
   {
    "task_id": "T18",
    "task": "logiqa",
-   "family": "logical_reasoning",
+   "family": "logiqa",
    "language": "EN",
    "split": "test"
   }
@@ -42,29 +42,29 @@
    },
    "source_id_digest": "b96f36a0c96deec2a7781f89325f8098aba759593f74c25085b0756323659c14",
    "results_sha256": "a6d0ed72a49c9a0c813c66adc2adf5e76332dff48805021f3be24e2ac526a4c5",
-   "runner_sha256": "a35cfc4c886e8704c05d14a5aab143e1bd03ec5f64ff78898c42dcd13076ffb9",
+   "runner_sha256": "4c93fb2695478487ca87a4d064ff273b1f2e3f48df8f81e8ad4a797cfba38a73",
    "contamination": "unscanned",
    "contamination_receipt_sha256": null,
    "reference": {
     "chance_value": 0.25,
-    "majority_value": 0.2780337941628264,
-    "majority_prediction_share": 0.6144393241167435,
-    "constant_prediction": false
+    "majority_value": null,
+    "majority_prediction_share": null,
+    "constant_prediction": null
    }
   }
  ],
  "contrasts": [],
  "provenance": {
-  "inventory_commit": "caf8ec8a5027fefc7b4c84cffe4f4c667ab3616a",
+  "inventory_commit": "e4dd54f7104c28fb5b19015a58b215892d975175",
   "kind": "measurement",
   "sources": [
    {
-    "run_id": "niezalezny-SlayerLab_Slayer1B-1.06-ef81be58-20261104T104359Z",
+    "run_id": "niezalezny-SlayerLab_Slayer1B-1.06-ef81be58-20261106T102020Z",
     "results_sha256": "a6d0ed72a49c9a0c813c66adc2adf5e76332dff48805021f3be24e2ac526a4c5"
    }
   ],
-  "qualification_sha256": "ca01e37725c98b6c8dc40b93c5f3432b6c3f4cdd626c81fef6dc5531415c0718",
+  "qualification_sha256": "fa84ae05194a40f550d1c34432ab6f3f417c6746873e28fda230750b9f8bb4a6",
   "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
-  "references_sha256": "8f73b8bbf82f4036e2704caf1146c758ab120b8588e927621301ecda36dc4123"
+  "references_sha256": "ced455901960afcd262f41c3cd66355d40f68abdf5fe47fc4ec6278db8596959"
  }
 }
