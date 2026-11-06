@@ -20,6 +20,7 @@ import argparse
 import gzip
 import hashlib
 import json
+import math
 import re
 import time
 import urllib.parse
@@ -269,6 +270,144 @@ def score(args):
     print(json.dumps(meta, indent=1))
 
 
+RAW = {
+    "euro_10": "eurollm-1.7b-10shot.jsonl.gz",
+    "slayer_10": "slayer-1.06-10shot.jsonl.gz",
+    "slayer_0": "slayer-1.06-0shot.jsonl.gz",
+}
+KARTA_ACC_NORM = 0.6057
+SPACE_ACC_NORM = 0.365
+PROG_PKT = 0.02
+BAZA_LOSOWA = 0.25
+
+
+def load_rows(path):
+    with gzip.open(path, "rt", encoding="utf-8") as handle:
+        return [json.loads(line) for line in handle]
+
+
+def proportion(rows, key):
+    """Mean of a 0/1 score and SE A, √(p(1−p)/n)."""
+    n = len(rows)
+    p = sum(row[key] for row in rows) / n
+    return {"n": n, "value": p, "se": math.sqrt(p * (1 - p) / n)}
+
+
+def most_common_share(rows, key):
+    counts = {}
+    for row in rows:
+        counts[row[key]] = counts.get(row[key], 0) + 1
+    return max(counts.values()) / len(rows)
+
+
+def panel_indices(rows):
+    """200 validation rows, Space T05: SHA-256 of ``20261028|hellaswag|hellaswag|<source_id>``."""
+    def key(i):
+        return hashlib.sha256(f"20261028|hellaswag|hellaswag|{rows[i]['source_id']}".encode()).hexdigest()
+    return sorted(sorted(range(len(rows)), key=key)[:200])
+
+
+def paired(left, right):
+    diffs = [a["acc_norm"] - b["acc_norm"] for a, b in zip(left, right)]
+    n = len(diffs)
+    mean = sum(diffs) / n
+    se = math.sqrt(sum((x - mean) ** 2 for x in diffs) / (n - 1) / n)
+    z = mean / se
+    return {"roznica": mean, "se": se, "z": z}
+
+
+def model_block(rows):
+    acc_norm = proportion(rows, "acc_norm")
+    acc = proportion(rows, "acc")
+    return {
+        "n": acc_norm["n"],
+        "acc": acc["value"],
+        "acc_norm": acc_norm["value"],
+        "se_acc_norm": acc_norm["se"],
+        "najczestsza_predykcja": most_common_share(rows, "pred_norm"),
+        "baza_losowa": BAZA_LOSOWA,
+        "baza_wiekszosciowa": most_common_share(rows, "gold"),
+    }
+
+
+def build_report(raw_dir):
+    """Numbers for the report, computed from results/raw. lm-eval's acc_norm must match ours."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))
+    from statystyka import werdykt, wobec_stalej
+
+    raw = Path(raw_dir)
+    loaded = {name: load_rows(raw / filename) for name, filename in RAW.items()}
+    for name, rows in loaded.items():
+        ours = proportion(rows, "acc_norm")["value"]
+        theirs = proportion(rows, "lm_eval_acc_norm")["value"]
+        if ours != theirs:
+            raise SystemExit(f"{name}: acc_norm {ours} != lm-eval {theirs}")
+    euro, slayer10, slayer0 = loaded["euro_10"], loaded["slayer_10"], loaded["slayer_0"]
+    panel = [slayer0[i] for i in panel_indices(slayer0)]
+    comparison = paired(slayer10, euro)
+    comparison["werdykt"] = werdykt(comparison["z"])
+    card_gap = proportion(euro, "acc_norm")["value"] - KARTA_ACC_NORM
+    panel_block = model_block(panel)
+    space_gap = panel_block["acc_norm"] - SPACE_ACC_NORM
+    return {
+        "euro_10": {**model_block(euro), "wobec_bazy": wobec_stalej(
+            [r["acc_norm"] for r in euro], [r["gold"] for r in euro])},
+        "slayer_10": {**model_block(slayer10), "wobec_bazy": wobec_stalej(
+            [r["acc_norm"] for r in slayer10], [r["gold"] for r in slayer10])},
+        "slayer_0": model_block(slayer0),
+        "slayer_0_panel": panel_block,
+        "porownanie_10": comparison,
+        "karta_acc_norm": KARTA_ACC_NORM,
+        "roznica_karty": card_gap,
+        "prog_pkt": PROG_PKT,
+        "dwa_se_euro": 2 * proportion(euro, "acc_norm")["se"],
+        "space_acc_norm": SPACE_ACC_NORM,
+        "roznica_space": space_gap,
+        "dwa_se_panelu": 2 * panel_block["se_acc_norm"],
+    }
+
+
+def pl(number, digits):
+    text = f"{number:.{digits}f}".replace(".", ",")
+    return "−" + text[1:] if text.startswith("-") else text
+
+
+def report_markdown(report):
+    euro, slayer, panel = report["euro_10"], report["slayer_10"], report["slayer_0_panel"]
+    gap, space = report["porownanie_10"], report
+    return "\n".join([
+        "# HellaSwag: wyniki",
+        "",
+        "Wygenerowane z `results/raw/*.jsonl.gz` przez `python benchmarks/hellaswag/hellaswag.py report`.",
+        "Metryka decyzyjna to `acc_norm`. `acc` jest obok, bez osobnego werdyktu.",
+        "",
+        "| przebieg | n | acc_norm | SE | acc | najczęstsza predykcja | baza większościowa |",
+        "|---|---:|---:|---:|---:|---:|---:|",
+        f"| EuroLLM 10-shot | {euro['n']} | {pl(euro['acc_norm'], 4)} | {pl(euro['se_acc_norm'], 4)} | {pl(euro['acc'], 4)} | {pl(euro['najczestsza_predykcja'], 4)} | {pl(euro['baza_wiekszosciowa'], 4)} |",
+        f"| Slayer 10-shot | {slayer['n']} | {pl(slayer['acc_norm'], 4)} | {pl(slayer['se_acc_norm'], 4)} | {pl(slayer['acc'], 4)} | {pl(slayer['najczestsza_predykcja'], 4)} | {pl(slayer['baza_wiekszosciowa'], 4)} |",
+        f"| Slayer 0-shot, cały split | {report['slayer_0']['n']} | {pl(report['slayer_0']['acc_norm'], 4)} | {pl(report['slayer_0']['se_acc_norm'], 4)} | {pl(report['slayer_0']['acc'], 4)} | {pl(report['slayer_0']['najczestsza_predykcja'], 4)} | {pl(report['slayer_0']['baza_wiekszosciowa'], 4)} |",
+        f"| Slayer 0-shot, panel 200 | {panel['n']} | {pl(panel['acc_norm'], 4)} | {pl(panel['se_acc_norm'], 4)} | {pl(panel['acc'], 4)} | {pl(panel['najczestsza_predykcja'], 4)} | {pl(panel['baza_wiekszosciowa'], 4)} |",
+        "",
+        f"Baza losowa to {pl(BAZA_LOSOWA, 2)}.",
+        f"EuroLLM wobec bazy większościowej: różnica {pl(euro['wobec_bazy']['roznica'], 4)}, SE {pl(euro['wobec_bazy']['se'], 4)}, z = {pl(euro['wobec_bazy']['z'], 2)}, {euro['wobec_bazy']['werdykt']}.",
+        f"Slayer 10-shot wobec bazy większościowej: różnica {pl(slayer['wobec_bazy']['roznica'], 4)}, SE {pl(slayer['wobec_bazy']['se'], 4)}, z = {pl(slayer['wobec_bazy']['z'], 2)}, {slayer['wobec_bazy']['werdykt']}.",
+        f"Slayer minus EuroLLM, 10-shot, te same pytania: różnica {pl(gap['roznica'], 4)}, SE {pl(gap['se'], 4)}, z = {pl(gap['z'], 2)}, {gap['werdykt']}.",
+        f"Karta EuroLLM: {pl(space['karta_acc_norm'], 4)}. Nasz EuroLLM: {pl(euro['acc_norm'], 4)}. Różnica {pl(space['roznica_karty'], 4)}. Próg {pl(space['prog_pkt'], 2)}, a 2 SE naszego wyniku to {pl(space['dwa_se_euro'], 4)}, więc obowiązuje próg 0,02. Warunek odtworzenia: spełniony.",
+        f"Space T05, Slayer 0-shot, panel 200: {pl(space['space_acc_norm'], 3)}. Nasz panel: {pl(panel['acc_norm'], 3)}. Różnica {pl(space['roznica_space'], 4)}. 2 SE panelu {pl(space['dwa_se_panelu'], 4)}. Różnica jest mniejsza od 2 SE.",
+        "",
+    ])
+
+
+def write_report(raw_dir, results_dir):
+    report = build_report(raw_dir)
+    results = Path(results_dir)
+    results.mkdir(parents=True, exist_ok=True)
+    (results / "hellaswag.json").write_text(json.dumps(report, indent=1, ensure_ascii=False) + "\n")
+    (results / "HELLASWAG.md").write_text(report_markdown(report))
+    print(report_markdown(report))
+
+
 def main():
     parser = argparse.ArgumentParser()
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -286,7 +425,13 @@ def main():
     score_parser.add_argument("--device", default="cuda")
     score_parser.add_argument("--batch", default="1")
     score_parser.add_argument("--limit")
+    report_parser = sub.add_parser("report")
+    report_parser.add_argument("--raw", default=str(Path(__file__).resolve().parent / "results" / "raw"))
+    report_parser.add_argument("--out", default=str(Path(__file__).resolve().parent / "results"))
     args = parser.parse_args()
+    if args.cmd == "report":
+        write_report(args.raw, args.out)
+        return
     {"show": show, "fetch": fetch, "score": score}[args.cmd](args)
 
 

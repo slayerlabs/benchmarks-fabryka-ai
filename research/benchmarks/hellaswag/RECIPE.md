@@ -1,6 +1,6 @@
 # HellaSwag: przepis
 
-Przebiegów modelu jeszcze nie ma, więc nie ma tu wyniku EuroLLM ani Slayera. Jest opis danych, komend i odczytu promptu. Wzór wpisu z wynikiem jest w [`../piqa/RECIPE.md`](../piqa/RECIPE.md). Ten plik dostanie takie wpisy dopiero po vast.ai.
+Liczby są w [`results/HELLASWAG.md`](results/HELLASWAG.md). Niżej: skąd każdy przebieg i odczyt promptu przed wagami.
 
 ## Co znaczą pola, zanim padnie jakikolwiek model
 
@@ -22,9 +22,39 @@ Prompt buduje `hellaswag.py`. Nie bierze gotowej kolumny `ctx`. Ta kolumna sklej
 - Trening, tylko jako 10 przykładów w promptcie 10-shot: `data/train-00000-of-00001.parquet`, sha256 `cacb12587faa63d7f723a72d61d12bfa94b140446f5a6a0a2e1c6906ab88bf02`. Plików nie ma w repo.
 - Pobranie, w `research/`: `python benchmarks/hellaswag/hellaswag.py fetch --out /ścieżka/data`
 - Odczyt tych samych siedmiu promptów, bez wag: `python benchmarks/hellaswag/hellaswag.py show`
-- Liczenie na vast.ai: [`instance.sh`](instance.sh). Najpierw `bash instance.sh setup LIMIT_S`, potem `eurollm` (10-shot), `slayer` (10-shot, ten sam kod) i `slayer-space` (0-shot, panel T05). Wyników z tych komend jeszcze nie ma.
+- Liczenie na vast.ai: [`instance.sh`](instance.sh). Najpierw `bash instance.sh setup 28800`, potem `eurollm`, `slayer` i `slayer-space`.
+- Raport, w `research/`: `python benchmarks/hellaswag/hellaswag.py report`
 
-Data odczytu promptów: 2026-11-04. Logprob nie był liczony.
+Data odczytu promptów: 2026-11-04. Logprob przy tamtym odczycie nie był liczony. Autor czyta te siedem przykładów osobiście.
+
+## Wspólne dla trzech przebiegów
+
+- Kod: gałąź `research/hellaswag-bc`, `benchmarks/hellaswag/hellaswag.py` i `instance.sh`.
+- Środowisko: obraz vast.ai z torch 2.8.0+cu128 i CUDA 12.8, potem `common/requirements.lock.txt` (lm-eval 0.4.9.1, transformers 4.57.6). Lockfile nie zawiera trzech paczek, które trzeba było dołożyć, żeby tokenizer i import wstały: `torchvision` 0.23.0+cu128, `sentencepiece` 0.2.0, `protobuf` 5.29.5.
+- Zbiór: jak wyżej. Sumy sha256 surowych wyników: [`results/raw/SHA256SUMS`](results/raw/SHA256SUMS).
+- Seedy: python 0, numpy 1234, torch 1234, fewshot 1234.
+- Precyzja: float32, batch 1, `NVIDIA_TF32_OVERRIDE=0`.
+- Sprzęt: NVIDIA GeForce RTX 4090 (vast.ai).
+
+## utter-project/EuroLLM-1.7B, 10-shot
+
+- Model: `utter-project/EuroLLM-1.7B` @ `c730cd9b616799ace3c65e927d63191446f59374`, wrapper `hf`.
+- Komenda: `bash benchmarks/hellaswag/instance.sh eurollm`
+- Data: 2026-11-05.
+- Wynik: `results/raw/eurollm-1.7b-10shot.jsonl.gz`. `acc_norm` 0,6074 (SE 0,0049), n = 10042.
+
+## SlayerLab/Slayer1B-1.06, 10-shot
+
+- Model: `SlayerLab/Slayer1B-1.06` @ `ef81be58742544ad32e1afab38db011fec209609`, wrapper `slayer`.
+- Komenda: `bash benchmarks/hellaswag/instance.sh slayer`
+- Data: 2026-11-05.
+- Wynik: `results/raw/slayer-1.06-10shot.jsonl.gz`. `acc_norm` 0,3953 (SE 0,0049), n = 10042.
+
+## SlayerLab/Slayer1B-1.06, 0-shot
+
+- Ten sam model i wrapper. Komenda: `bash benchmarks/hellaswag/instance.sh slayer-space`
+- Data: 2026-11-06.
+- Wynik: `results/raw/slayer-1.06-0shot.jsonl.gz`. Cały split: `acc_norm` 0,3938 (SE 0,0049). Panel 200: `acc_norm` 0,4350 (SE 0,0351).
 
 ## Wiersz 0, ActivityNet, indomain
 

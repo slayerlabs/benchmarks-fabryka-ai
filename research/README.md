@@ -43,7 +43,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`boolq`](benchmarks/boolq/ORIGINAL.md) | T10 | `mc +klastry` | klastry: wspólny ustęp (3270 pytań, 2938 ustępów, 578 pytań dzieli ustęp, do 9 na ustęp) | nie | nieustalone |
 | [`ewok`](benchmarks/ewok/README.md) | | `para +klastry` | klastry: szablony; domeny informacyjnie | nie, własny kod | nieustalone |
 | [`ewok-pl`](benchmarks/ewok-pl/README.md) | | `para +klastry +pl` | klastry: szablony; domeny informacyjnie | nie, własny kod | nieustalone |
-| [`hellaswag`](benchmarks/hellaswag/ORIGINAL.md) | T05 | `mc` | | nie | nieustalone |
+| [`hellaswag`](benchmarks/hellaswag/README.md) | T05 | `mc` | | nie, własny kod | nieustalone |
 | [`lambada`](benchmarks/lambada/ORIGINAL.md) | T17 | `cloze` | | nie | tak |
 | [`openbookqa`](benchmarks/openbookqa/ORIGINAL.md) | T08 | `mc` | | nie | nieustalone |
 | [`piqa`](benchmarks/piqa/README.md) | T06 | `mc` | | nie, własny kod | tak |

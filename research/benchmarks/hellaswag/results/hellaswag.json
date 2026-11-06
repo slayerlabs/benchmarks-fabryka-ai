@@ -1,0 +1,75 @@
+{
+ "euro_10": {
+  "n": 10042,
+  "acc": 0.45339573790081655,
+  "acc_norm": 0.6074487153953396,
+  "se_acc_norm": 0.004872960622254172,
+  "najczestsza_predykcja": 0.252141007767377,
+  "baza_losowa": 0.25,
+  "baza_wiekszosciowa": 0.25731925911173076,
+  "wobec_bazy": {
+   "n": 10042,
+   "stala": 2,
+   "b": 0.25731925911173076,
+   "wynik": 0.6074487153953396,
+   "roznica": 0.35012945628360886,
+   "se": 0.00652801730270312,
+   "z": 53.63488484300238,
+   "p": 0.0,
+   "werdykt": "pewne",
+   "metoda": "A parowane"
+  }
+ },
+ "slayer_10": {
+  "n": 10042,
+  "acc": 0.3247361083449512,
+  "acc_norm": 0.39533957379008167,
+  "se_acc_norm": 0.004878999900638247,
+  "najczestsza_predykcja": 0.2548297151961761,
+  "baza_losowa": 0.25,
+  "baza_wiekszosciowa": 0.25731925911173076,
+  "wobec_bazy": {
+   "n": 10042,
+   "stala": 2,
+   "b": 0.25731925911173076,
+   "wynik": 0.39533957379008167,
+   "roznica": 0.13802031467835094,
+   "se": 0.006511100874600295,
+   "z": 21.197692577113354,
+   "p": 1.0029463262383855e-99,
+   "werdykt": "pewne",
+   "metoda": "A parowane"
+  }
+ },
+ "slayer_0": {
+  "n": 10042,
+  "acc": 0.32443736307508464,
+  "acc_norm": 0.39384584744074885,
+  "se_acc_norm": 0.00487578525017849,
+  "najczestsza_predykcja": 0.25891256721768574,
+  "baza_losowa": 0.25,
+  "baza_wiekszosciowa": 0.25731925911173076
+ },
+ "slayer_0_panel": {
+  "n": 200,
+  "acc": 0.275,
+  "acc_norm": 0.435,
+  "se_acc_norm": 0.03505531343462785,
+  "najczestsza_predykcja": 0.275,
+  "baza_losowa": 0.25,
+  "baza_wiekszosciowa": 0.3
+ },
+ "porownanie_10": {
+  "roznica": -0.21210914160525793,
+  "se": 0.004528959794321755,
+  "z": -46.83396436223449,
+  "werdykt": "pewne"
+ },
+ "karta_acc_norm": 0.6057,
+ "roznica_karty": 0.0017487153953396062,
+ "prog_pkt": 0.02,
+ "dwa_se_euro": 0.009745921244508344,
+ "space_acc_norm": 0.365,
+ "roznica_space": 0.07,
+ "dwa_se_panelu": 0.0701106268692557
+}
