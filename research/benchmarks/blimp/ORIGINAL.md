@@ -58,7 +58,7 @@ jednym nieocenianym tokenie startowym (BOS albo EOT, gdy tokenizer nie ma BOS).
 
 ## Ocena
 
-- Metryka: trafność; para jest trafiona, gdy `P(sentence_good) > P(sentence_bad)`, czyli przy sumie
+- Metryka: trafność (`acc` w lm-eval, metryka decyzyjna); para jest trafiona, gdy `P(sentence_good) > P(sentence_bad)`, czyli przy sumie
   log-prawdopodobieństw tokenów zdania. Bez normalizacji długości (oba zdania pary mają zwykle tyle samo słów,
   z konstrukcji; liczba tokenów może się różnić).
 - Bez normalizacji tekstu odpowiedzi (nic nie jest generowane).

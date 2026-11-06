@@ -20,30 +20,33 @@ zamiast etapów A i B ma kartę zbioru. Każdy etap może iść osobnym PR. Kied
 
 ## Definicja „zrobione”
 
-Benchmark jest zrobiony, gdy PR do `main` zawiera katalog `research/benchmarks/<name>/` założony z
-[`research/benchmarks/_template/`](benchmarks/_template/README.md). Zamiast jednego PR może być kilka, po
-jednym na etap. W katalogu musi być:
+**Benchmark jest zrobiony, gdy jest opisany, przygotowany i podpięty do przebiegu centralnego**
+(`research/tools/przebieg_centralny.sh`). Jedno uruchomienie przebiegu na wynajętej karcie liczy wtedy wszystkie
+benchmarki naraz, na Slayerze i modelach odniesienia. Autor PR niczego nie liczy na GPU. Stan każdego benchmarku:
+[`STATUS.md`](STATUS.md).
 
-1. `ORIGINAL.md` (etap A) i `REPRODUCTION.md` (etap B) ze spełnionym warunkiem odtworzenia. Benchmark bez oryginału
-   ma zamiast nich `DATASET.md` i kontrolę na modelu, który zna polski. Wersja polska leży w osobnym katalogu
-   `research/benchmarks/<name>-pl/` i ma `POLISH.md` (etap D).
-2. Kod liczący wynik (etap C). To wywołanie kodu z etapu B albo własna implementacja z testem zgodności
-   `research/tests/test_<name>_zgodnosc.py`.
-3. Test kodu `research/tests/test_<name>.py` z próbką danych. Test przechodzi bez sieci i bez wag.
-4. Wynik mierzonego modelu z n i SE, a obok wynik modelu kontrolnego
-   ([„Model kontrolny etapu B”](#model-kontrolny-etapu-b)) liczony tym samym kodem. Oba liczy
-   autor PR.
-5. Wiersz testu w [`research/README.md`, „Benchmarki i typy”](README.md#benchmarki-i-typy) (karta do niego linkuje), bazy i b według tabeli typów, porównanie z modelem kontrolnym jako różnica w SE z werdyktem
-   ([„Typy testów”](#typy-testów)).
-6. `RECIPE.md` z wpisem dla każdego wyniku.
-7. Benchmark liczony przez `research/common/ewaluuj.py`: wpis w `ZADANIA` (`research/common/zadania.py`) i w
-   `KATALOGI` przebiegu centralnego. Benchmark z własnym kodem: komenda w `RECIPE.md`, którą liczy się go ręcznie,
-   bo przebieg centralny woła tylko `ewaluuj.py`.
-8. Komendy z sekcji [„Przed PR”](../CONTRIBUTING.md#przed-pr) zakończone kodem 0.
-9. `Refs #N` zadania w opisie PR.
+PR do `main` (jeden albo kilka, po jednym na etap) zawiera katalog `research/benchmarks/<name>/` założony z
+[`research/benchmarks/_template/`](benchmarks/_template/README.md), a w nim:
 
-Autor PR nie liczy modeli odniesienia. Liczy je przebieg centralny `research/tools/przebieg_centralny.sh`, opisany w
-[„Następna wersja Slayera”](#następna-wersja-slayera).
+1. `ORIGINAL.md` (etap A) i `REPRODUCTION.md` (etap B) z wartością referencyjną, modelem kontrolnym i warunkiem
+   odtworzenia ustalonymi przed liczeniem. Gdy żaden model nie ma opublikowanego wyniku: „bez kontroli” z listą
+   przeszukanych miejsc ([„Bez kontroli”](#bez-kontroli)). Werdykt wpisujesz po przebiegu centralnym. Benchmark bez
+   oryginału ma zamiast nich `DATASET.md`. Wersja polska leży w `research/benchmarks/<name>-pl/` i ma `POLISH.md`
+   (etap D).
+2. **Podpięcie do przebiegu** (etap C): wpis w `ZADANIA` (`research/common/zadania.py`) i w `KATALOGI`
+   (`research/tools/przebieg_centralny.sh`). Benchmark z własnym kodem: przebieg woła jego komendę, a własna
+   implementacja ma test zgodności `research/tests/test_<name>_zgodnosc.py`.
+3. Test `research/tests/test_<name>.py` z próbką danych, bez sieci i bez wag. To, że wpis w `ZADANIA` wskazuje
+   zbiór, pełną rewizję, split, metrykę decyzyjną, liczbę przykładów i zadanie lm-eval z karty, sprawdza
+   `research/tests/test_zgodnosc_karty.py` (karta jest źródłem ustawień testu).
+4. Wiersz testu w [`research/README.md`, „Benchmarki i typy”](README.md#benchmarki-i-typy) z typem, bazami i b według
+   tabeli typów ([„Typy testów”](#typy-testów)).
+5. `RECIPE.md` z komendą, którą przebieg liczy benchmark.
+6. Komendy z sekcji [„Przed PR”](../CONTRIBUTING.md#przed-pr) zakończone kodem 0.
+7. `Refs #N` zadania w opisie PR.
+
+Wynik z n i SE, porównanie z modelem kontrolnym i werdykt powstają z przebiegu centralnego, opisanego w
+[„Następna wersja Slayera”](#następna-wersja-slayera), i trafiają do katalogu benchmarku osobnym PR.
 
 ## Wspólny rdzeń
 
@@ -74,8 +77,8 @@ Obowiązuje każdy test. Gdzie treść reguły zależy od typu, reguła odsyła 
    pojedynczego wyniku. Pole „Decyzja treningowa” podaje różnicę, która zmieniłaby decyzję, albo „nieustalona”. Test
    o MDE większym od tej różnicy do tej decyzji nie służy; przy „nieustalona” MDE jest informacyjne. Źródło:
    [Miller 2024, §5](https://arxiv.org/abs/2411.00640). *Recenzent:* przelicza MDE z SE podanego w karcie.
-6. **Kontrola.** Model kontrolny liczysz tym samym kodem co mierzony model, a jego wynik odtwarza opublikowany (etap
-   B). Bez opublikowanego wyniku kod przechodzi zgodność z kodem autorów („Bez kontroli”). Kontrola odróżnia działający
+6. **Kontrola.** Model kontrolny liczy przebieg centralny tym samym kodem co mierzony model, a jego wynik odtwarza
+   opublikowany (etap B). Bez opublikowanego wyniku kod przechodzi zgodność z kodem autorów („Bez kontroli”). Kontrola odróżnia działający
    kod od zepsutego: robi to, co mówi kolumna „Kontrola” typu. SE wyniku kontroli liczysz metodą typu, gdy źródło
    daje wyniki na poziomie jednostki tej metody (pytanie, dokument, klaster, podtest), a inaczej metodą A dla n
    źródła. *Recenzent:* `REPRODUCTION.md` albo `DATASET.md` ma wynik, b, różnicę w SE i werdykt.
@@ -161,9 +164,9 @@ wpisujesz dopiero po przeczytaniu kodu przypiętej wersji (sekcja „Wersja lm-e
 |---|---|
 | Co mierzy | umiejętność, jednym zdaniem, słowami autorów |
 | Źródła | praca, repo autorów z commitem, karta zbioru na HF z rewizją |
-| Dane | split i n w pracy; split i n w Space albo w repo (pełny split czy panel 200); licencja i to, czy test ma ukryte odpowiedzi |
+| Dane | split i n w pracy; split i n, które liczy repo, ze źródłem (praca, karta zbioru albo zadanie lm-eval); licencja i to, czy test ma ukryte odpowiedzi |
 | Typ testu | link do wiersza testu w [README, „Benchmarki i typy”](README.md#benchmarki-i-typy); typu nie powtarzasz w karcie |
-| Format zadania i prompt | dokładny szablon z pracy albo kodu (separatory, spacje, etykiety), liczba przykładów w prompcie; gdy praca nie ma promptu modelu językowego, szablon implementacji Space albo lm-eval z `target_delimiter` i pełnym tekstem jednej opcji |
+| Format zadania i prompt | dokładny szablon z pracy albo kodu (separatory, spacje, etykiety), liczba przykładów w prompcie; gdy praca nie ma promptu modelu językowego, szablon implementacji lm-eval (sekcja „Wersja lm-eval”) z `target_delimiter` i pełnym tekstem jednej opcji |
 | Ocena | metryka i sposób liczenia: normalizacja długości (znaki, bajty, tokeny) i tekstu odpowiedzi |
 | Metryka decyzyjna | **jedna** metryka, po której porównujesz modele; pozostałe są pomocnicze |
 | Agregacja i grupy | średnia po pytaniach czy po podtestach, wagi; poziomy grup i ten, który wiąże (kolumna „Wiążący werdykt”) |
@@ -178,10 +181,11 @@ wpisujesz dopiero po przeczytaniu kodu przypiętej wersji (sekcja „Wersja lm-e
 
 ## B. Odtworzenie wyniku oryginalnym kodem (REPRODUCTION.md)
 
-Uruchamiasz kod autorów, a bez niego implementację, którą wskazuje praca albo leaderboard z wynikiem referencyjnym
-(często zadanie lm-eval z konkretnego commitu), i zapisujesz, dlaczego ją wybrałeś. Liczysz model kontrolny na tym
-samym splicie, prompcie i rewizji, co wynik referencyjny. `REPRODUCTION.md` podaje wynik z SE, n, wartość referencyjną
-i różnicę; przebieg ma wpis w `RECIPE.md`.
+Wybierasz kod autorów, a bez niego implementację, którą wskazuje praca albo leaderboard z wynikiem referencyjnym
+(często zadanie lm-eval z konkretnego commitu), i zapisujesz, dlaczego ją wybrałeś. Przed liczeniem `REPRODUCTION.md`
+podaje model kontrolny, wartość referencyjną i warunek odtworzenia. Model kontrolny liczy przebieg centralny na tym
+samym splicie, prompcie i rewizji, co wynik referencyjny; potem `REPRODUCTION.md` dostaje wynik z SE, n, różnicę i
+werdykt, a `RECIPE.md` wpis przebiegu.
 
 **Warunek odtworzenia:** |różnica| ≤ 2 pkt w skali metryki (0,02 przy skali 0–1 i przy MCC), a gdy 2 SE > 2 pkt,
 |różnica| ≤ 2 SE. Typ `ppl` ma próg z sekcji niżej. Niespełniony warunek zatrzymuje pracę, bo ta sama różnica
@@ -193,24 +197,25 @@ Najczęściej to:
 - inna metryka albo agregacja (np. `acc` zamiast `acc_norm`);
 - inny split, podzbiór albo rewizja zbioru.
 
-Po poprawce liczysz jeszcze raz. Gdy przyczyny nie da się znaleźć, w komentarzu zadania wpisujesz, co policzyłeś i jaką
-różnicę dostałeś.
+Po poprawce przebieg liczy jeszcze raz. Gdy przyczyny nie da się znaleźć, w komentarzu zadania wpisujesz, co
+porównałeś i jaką różnicę dał przebieg.
 
 ### Próg dla perpleksji i BPB
 
 Wspólnego progu jeszcze nie ma ([#41](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/41)). Do tego czasu
-zapisujesz w `REPRODUCTION.md` własny próg z uzasadnieniem, zanim policzysz wynik. Bez progu zapisanego przed
+zapisujesz w `REPRODUCTION.md` własny próg z uzasadnieniem, zanim przebieg policzy wynik. Bez progu zapisanego przed
 pomiarem werdykt etapu B brzmi „nierozstrzygalny”, nawet gdy liczby wyglądają na zgodne.
 
 ### Bez kontroli
 
 Gdy żaden model z listy „Model kontrolny etapu B” nie ma opublikowanego wyniku, wpisujesz „bez kontroli” z miejscami,
-w których szukałeś. Zamiast odtworzenia ten sam model (np. `EleutherAI/pythia-1b-v0` @ `step143000`) liczysz kodem
-autorów i kodem z repo na tych samych danych; obowiązuje próg z kolumny „Test zgodności” typu. Gdy kodu autorów nie
+w których szukałeś. Zamiast odtworzenia porównujesz kod autorów z kodem repo na tym samym modelu (np.
+`EleutherAI/pythia-1b-v0` @ `step143000`) i tych samych pytaniach, w teście zgodności z sekcji C; obowiązuje próg z
+kolumny „Test zgodności” typu. Gdy kodu autorów nie
 da się uruchomić, wpisujesz powód, a zgodność sprawdza recenzent PR. Gdy repo woła ten sam kod co implementacja
 referencyjna (np. zadanie lm-eval wprost), zgodność niczego nie sprawdza; wtedy wynik modelu kontrolnego policzony
 tym kodem przechodzi kolumnę „Kontrola” typu, a bez takiego modelu werdykt etapu B brzmi „bez kontroli:
-nierozstrzygnięte” i wynik nie idzie do Space ani do meta-oceny. Niezgodny kod zatrzymuje pracę tak samo jak
+nierozstrzygnięte” i wynik nie idzie do tabeli CodeSOTA ani do meta-oceny. Niezgodny kod zatrzymuje pracę tak samo jak
 niespełniony warunek odtworzenia. Brak opublikowanego wyniku nie zatrzymuje pracy.
 
 ## C. Kod w repo
@@ -303,7 +308,7 @@ który ma taki wynik i przechodzi kontrolę z tabeli typów**:
 
 1. **`EleutherAI/pythia-1b-v0` @ `step143000`**:
    [plik wyników 0-shot](https://github.com/EleutherAI/pythia/blob/main/evals/pythia-v0/pythia-1b/zero-shot/pythia-1b-0shot-global_step143000_eval_results_11-28-2022-15-14-35.json),
-   policzony w 2022 r. starszym lm-eval (wersję, której użyłeś, zapisujesz w `REPRODUCTION.md`). Plik ma tylko
+   policzony w 2022 r. starszym lm-eval (wersję lm-eval z tego pliku zapisujesz w `REPRODUCTION.md`). Plik ma tylko
    `arc_challenge`, `arc_easy`, `lambada_openai`, `logiqa`, `piqa`, `sciq`, `winogrande`, `wsc` (SuperGLUE WSC, nie
    WSC273), 67 zadań `blimp_*` i 57 zadań `hendrycksTest-*`.
 2. **`utter-project/EuroLLM-1.7B`** tam, gdzie jego karta modelu podaje wynik.
@@ -316,9 +321,11 @@ Model z wynikiem, który nie przechodzi kontroli z tabeli typów (np. Pythia v0 
 i LogiQA albo znany wynik 1B pod bazą większościową na BoolQ), pomijasz i bierzesz następny. Benchmark polski albo bez
 oryginału bez opublikowanego wyniku ma kontrolę z wiersza `+pl`.
 
-**Kontrola nie sprawdza ładowania Slayera.** Gdy Space ma wynik Slayera na tym teście, Slayer policzony Twoim kodem na
-pytaniach panelu Space zgadza się z nim w granicach 2 SE (SE metodą typu na panelu). Wynik referencyjny, ani
-tutaj, ani w etapie B, nie może pochodzić z kodu, który sprawdzasz.
+**Kontrola nie sprawdza ładowania Slayera.** Ładowanie sprawdzają testy kodu Slayera (`tests/test_lm_eval_slayer.py`,
+`tests/test_slayer_kv_cache.py`) i kontrola sensu przebiegu, a w raporcie wynik, który podejrzany jest sam w sobie
+(np. jedna opcja wybierana w prawie każdym pytaniu), oznaczasz do sprawdzenia. Wartość w Space nie jest ani kontrolą,
+ani wzorcem: Space to przykład, który zostanie nadpisany wynikami repo. Wynik referencyjny, ani tutaj, ani w etapie
+B, nie może pochodzić z kodu, który sprawdzasz.
 
 ### Pięć modeli odniesienia
 
@@ -332,11 +339,16 @@ Każdy benchmark porównuje mierzony model z pięcioma modelami, zawsze w tych r
 | `LiquidAI/LFM3-1.7B-Base` | `545fc8f4c7b5fa9f405105274cd29c4f8f44b526` | `trust_remote_code`, kod modelu z tej rewizji |
 | `utter-project/EuroLLM-1.7B` | `c730cd9b616799ace3c65e927d63191446f59374` | |
 
+Bielik wchodzi do przebiegu centralnego, gdy konto uruchamiające przebieg ma zaakceptowaną zgodę na jego warunki na HF;
+do tego czasu przebieg liczy 4 modele odniesienia.
+
 ### Kto liczy które modele
 
-Autor PR liczy tym samym kodem mierzony model i model kontrolny. Modele odniesienia liczy przebieg centralny (sekcja
-„Następna wersja Slayera”), poza Bielikiem, którego przebieg pomija z powodu bramki zgody; przy benchmarku polskim
-Bielika liczy autor jako model kontrolny.
+Wszystkie modele liczy przebieg centralny tym samym kodem (sekcja „Następna wersja Slayera”): mierzony model, modele
+odniesienia i model kontrolny benchmarku. Autor PR niczego nie liczy na GPU. Lista `MODELE` w
+`tools/przebieg_centralny.sh` ma Slayera, modele odniesienia i pierwszy model kontrolny z listy,
+`EleutherAI/pythia-1b-v0` @ `step143000` (commit `f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0`). Werdykt etapu B z
+dalszym modelem z listy czeka, aż ktoś dopisze go do `MODELE`.
 
 ## Przepis (RECIPE.md)
 
@@ -345,7 +357,7 @@ inny za dwa tygodnie odtworzy ten sam wynik. Wpis podaje:
 
 - commit, na którym policzono wynik; PR z nowym wynikiem scalasz merge commitem, bo squash (repo go dopuszcza) usuwa
   hash gałęzi z historii `main`;
-- środowisko: `common/requirements.lock.txt` z wersją transformers, albo osobne środowisko, gdy liczysz inną wersją
+- środowisko: `common/requirements.lock.txt` z wersją transformers, albo osobne środowisko, gdy wynik liczy inna wersja
   lm-eval;
 - rewizje modelu i zbioru, dokładną komendę, seed, precyzję, sprzęt i datę;
 - smoke test (rdzeń, punkt 8) i plik z wynikiem.
@@ -355,11 +367,47 @@ Czego nie zapisano, wpisujesz jako „niezapisane”. Nie zgadujesz.
 ## Wersja lm-eval
 
 Obowiązuje środowisko z `common/requirements.lock.txt` z lm-eval 0.4.9.1 (instalacja:
-[README, „Przygotowanie (raz)”](README.md#przygotowanie-raz)). Protokół Space (`METHOD.md`) podaje lm-eval
+[README, „Przygotowanie (raz)”](README.md#przygotowanie-raz)). Definicje zadań (prompt, wybory, cel) przebieg
+centralny bierze z katalogów zadań lm-eval
 [`6d2abda4`](https://github.com/EleutherAI/lm-evaluation-harness/commit/6d2abda4fd171e68a8789330c4149e37c1ca0bda)
-(wersja 0.4.8). Dla benchmarku liczonego przez lm-eval karta mówi w „Znanych rozbieżnościach”, czy katalog zadania
-(YAML, funkcje, pliki pomocnicze) jest w obu wersjach identyczny, z hashami blobów obu wersji, i jaką rewizję zbioru
-zadanie ładuje. *Recenzent:* porównuje hashe (komenda w szablonie karty).
+(wersja 0.4.8), przepisanych w `common/zadania.py` albo skopiowanych do `benchmarks/<name>/lm_eval_tasks/`, żeby
+prompt nie zależał od zainstalowanej wersji. Dla benchmarku liczonego przez lm-eval karta mówi w „Znanych
+rozbieżnościach”, czy katalog zadania (YAML, funkcje, pliki pomocnicze) jest w obu wersjach identyczny, z hashami blobów
+obu wersji, i jaką rewizję zbioru zadanie ładuje. *Recenzent:* porównuje hashe (komenda w szablonie karty).
+
+## Ustawienia przebiegu centralnego
+
+Źródłem ustawień testu (zbiór i rewizja, split, metryka decyzyjna, liczba przykładów, zadanie lm-eval) jest karta
+benchmarku, a wpis w `ZADANIA` musi się z nią zgadzać (`tests/test_zgodnosc_karty.py`). Wspólne dla wszystkich
+zadań reguły `common/ewaluuj.py`:
+
+- **Wejście.** Każde żądanie ma dokładnie jeden wiodący token BOS. Prompt z BOS plus budżet odpowiedzi (generacja:
+  `max_gen_toks` z YAML-a, domyślnie 256 tokenów; MC: BOS, kontekst i najdłuższa kontynuacja liczone jako jeden tekst, tak jak w HFLM) mieści się w oknie modelu,
+  najwyżej 4096 tokenów. Za długi prompt traci demonstracje od końca, a wynik zadania zapisuje w polu
+  `demonstracje_skrocone`, ile pytań dostało mniej demonstracji. Pytań, opcji i odniesień nie przycinamy, więc prompt
+  za długi bez demonstracji kończy zadanie błędem.
+- **Batch 1** w każdym zadaniu: dopełnianie w batchu przesuwa logity float32 i wynik generacji zachłannej.
+- **Panel 200.** Pytania panelu to pierwsze 200 dokumentów w kolejności rosnącego SHA-256 klucza
+  `20261028|benchmark_id|podtest|id dokumentu` (podtest: nazwa zadania, gdy test nie jest grupą). W grupie z wagami (MMLU, MATH, BBH) każdy podtest dostaje najpierw
+  min(2, N_i) pytań, a reszta trafia proporcjonalnie do N_i (`metryki.przydzial_grupy`). Brak podtestu grupy to błąd,
+  nie pominięcie.
+- **Seedy.** python 0, numpy 1234, torch 1234, fewshot 1234; wykrywanie języka w IFEval z seedem 0.
+
+### Przykłady few-shot
+
+Zadanie z przykładami w prompcie (`num_fewshot` > 0) bierze je z banku, nie z samplera lm-eval:
+
+1. Kandydaci to dokumenty splitu few-shot z YAML-a (`fewshot_split`, a bez niego `training_split`).
+2. Kolejność banku: rosnący SHA-256 klucza `20261028|benchmark_id|podtest|support|sha256(dokumentu jako JSON)`
+   (`metryki.ranking_banku`). Słowo `support` oddziela tę kolejność od kolejności panelu.
+3. Bank to pierwsze k dokumentów tej kolejności, których prompt różni się od promptu każdego ocenianego pytania.
+   Każde pytanie dostaje te same przykłady w tej samej kolejności.
+4. Gdy split few-shot jest splitem testowym (Belebele, T24), dokumenty banku nie wchodzą do oceny: przy pełnym splicie
+   bank to pierwsze k dokumentów kolejności, a reszta jest oceniana; przy panelu najpierw losujesz panel z całego
+   splitu, a bank bierzesz z dokumentów spoza niego.
+5. Stałe przykłady zapisane w źródle (lista `samples` w YAML-u, np. BBH) zostają takie, jak je opublikowano.
+
+Reguła daje te same przykłady w każdej wersji lm-eval i dla każdego modelu.
 
 ## Czystość benchmarku
 
@@ -374,8 +422,9 @@ zadanie ładuje. *Recenzent:* porównuje hashe (komenda w szablonie karty).
 ## Space i panel 200
 
 Space wyświetla `results.json`; wynik wgrywa Arek po ścieżce „recenzja i przeliczenie” (`needs-recheck`), a wynik
-różny od wartości, która już stoi w Space, nie zmienia jej bez takiego przeliczenia. Panel 200 służy wyłącznie
-zgodności ze Space. Werdykt między modelami i wersjami liczysz na pełnym splicie. W teście z `+warstwy` albo
+różny od wartości, która już stoi w Space, nie zmienia jej bez takiego przeliczenia. Wartości w Space są przykładem, który
+zostanie nadpisany wynikami repo; nie są wzorcem ustawień ani kontrolą. Panel 200 to informacja w formacie Space, nie
+warunek żadnego etapu. Werdykt między modelami i wersjami liczysz na pełnym splicie. W teście z `+warstwy` albo
 `+klastry` wartość Space jest średnią podtestów, a nie średnią 200 pytań, więc SE panelu liczysz metodą z kolumny
 „SE” typu. Odstępstwa z terminem (np. testy liczone protokołem Space do konkretnej daty) stoją w issue swojego kamienia,
 nie w tym dokumencie.
@@ -407,11 +456,11 @@ wyniku, wynik równy 1, wynik pod bazą losową o ponad 5 pkt, perpleksja niesko
 `results/central-run/<benchmark>/<etykieta>/`: `results.json` w schemacie Space, `results_rozszerzone.json` i wyniki
 per pytanie w `probki/`. Wyniki poprzednich wersji zostają w swoich katalogach. Przebieg nie pisze do `benchmarks/`.
 
-**Gotowe benchmarki.** Gotowy jest benchmark z wpisem w `ZADANIA` w `common/zadania.py` i w `KATALOGI` przebiegu
+**Benchmarki w przebiegu.** Przebieg liczy benchmarki z wpisem w `ZADANIA` w `common/zadania.py` i w `KATALOGI`
 (test pilnuje, że to ta sama lista); aktualną listę wypisuje `bash tools/przebieg_centralny.sh katalogi`. Wpis w obu
-listach dodaje autor w PR benchmarku (punkt Definicji „zrobione”), a recenzent sprawdza go komendą `plan`.
-Benchmark z własnym kodem spoza `common/ewaluuj.py` (EWoK, EWoK-PL, PIQA, WSC273) liczysz komendą z jego `RECIPE.md`,
-dopóki nie ma wpisu.
+listach dodaje autor w PR benchmarku (punkt 2 Definicji „zrobione”), a recenzent sprawdza go komendą `plan`. Sam wpis
+nie robi benchmarku gotowym: potrzebne są wszystkie punkty Definicji. EWoK i EWoK-PL mają własny kod bez wpisu w
+przebiegu; ich komenda stoi w `RECIPE.md`.
 
 **Porównanie N z N−1.** Obie wersje są na tych samych pytaniach, więc różnica ma SE parowane i werdykt per test, bez
 średniej po testach; tabela wielu testów ma kolumnę „po Holmie” (rdzeń, punkt 4). Zmianę uznajesz za
@@ -467,11 +516,12 @@ skali, SE i miejsca w rankingu: [LEADERBOARD.md](LEADERBOARD.md).
 
 - **Space:** strona z wynikami Slayera 1B na HF,
   [SlayerLab/Slayer1B-Benchmarks](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks). Wyświetla
-  `results.json`; protokół liczenia opisuje jej `METHOD.md`.
-- **T01–T50:** numer testu w Space (38 angielskich, 12 polskich), ustawienia w `tasks_50.json` Space i w
-  `common/zadania.py`.
+  `results.json`. Dzisiejsze wartości to przykład, który zostanie nadpisany wynikami repo, a nie wzorzec ustawień ani
+  kontrola.
+- **T01–T50:** numer testu (38 angielskich, 12 polskich), nadany w Space; ustawienia testu stoją w karcie benchmarku i
+  we wpisie `ZADANIA` w `common/zadania.py` (sekcja „Ustawienia przebiegu centralnego”).
 - **Panel 200:** najwyżej 200 pytań testu wybranych po haszu SHA-256, tych samych dla wszystkich modeli (WikiText-2 w
-  całości).
+  całości); reguła w sekcji „Ustawienia przebiegu centralnego”.
 - **Metryka decyzyjna:** jedna metryka z karty, według której porównujesz modele.
 - **acc, acc_norm:** trafność; model wybiera opcję o najwyższym log-prawdopodobieństwie, przy `acc_norm` dzielonym
   przez długość opcji w znakach albo bajtach.

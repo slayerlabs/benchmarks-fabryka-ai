@@ -1,17 +1,23 @@
-# HellaSwag (Space T05)
+# HellaSwag (T05)
 
 > Praca idzie według [`METODOLOGIA.md`](../../METODOLOGIA.md).
 
-Wybór najbardziej prawdopodobnego dalszego ciągu spośród czterech. Metryka decyzyjna to `acc_norm`.
+Mierzy: dokończenie opisu sytuacji, 4 zakończenia.
 
-- [`ORIGINAL.md`](ORIGINAL.md): karta oryginału.
-- [`REPRODUCTION.md`](REPRODUCTION.md): odtworzenie EuroLLM 10-shot i porównanie ze Slayerem.
-- [`results/HELLASWAG.md`](results/HELLASWAG.md): liczby wygenerowane z surowych plików.
-- [`RECIPE.md`](RECIPE.md): jeden wpis na każdy wynik i smoke test promptów.
-- `hellaswag.py`: punktacja, `fetch`, `score`, `report`. `instance.sh`: to samo na GPU z vast.ai.
-- `results/raw/`: jedna linia na pytanie, sha256 w `SHA256SUMS`.
-- Test: `tests/test_hellaswag.py`, bez sieci i bez wag.
+- Test T05, typ `mc` ([README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy)).
+- Zbiór: `Rowan/hellaswag` @ `218ec52e09a7e7462a5400043bb9a69a41d06b76`, split `validation`, n = 10042.
+- Metryka decyzyjna: `acc_norm`.
+- Licencja (karta zbioru na przypiętej rewizji): unknown.
+- Definicja zadania: lm-eval `6d2abda4` ([METODOLOGIA, „Wersja lm-eval”](../../METODOLOGIA.md#wersja-lm-eval)); przebieg liczy lm-eval 0.4.9.1 (`lock`) i 0.4.13 (`new`) z promptem przepisanym w `common/zadania.py`.
+- Przebieg centralny: podpięty (`T05` w `common/zadania.py` i `KATALOGI` w `tools/przebieg_centralny.sh`); przepis w [`RECIPE.md`](RECIPE.md).
+- Etap B i C, własny przebieg na vast.ai: [`REPRODUCTION.md`](REPRODUCTION.md), liczby w [`results/HELLASWAG.md`](results/HELLASWAG.md).
 
-EuroLLM 10-shot, n = 10042: `acc_norm` 0,6074 (SE 0,0049). Karta modelu: 0,6057. Różnica 0,0017, warunek ±0,02 spełniony.
+`process_docs` z `hellaswag/utils.py` zainstalowanego lm-eval.
+
+Karta oryginału: [`ORIGINAL.md`](ORIGINAL.md).
+
+EuroLLM 10-shot, n = 10042: `acc_norm` 0,6074 (SE 0,0049). Karta modelu podaje 0,6057 bez nazwy metryki. Różnica `acc_norm` to 0,0017, a `acc` to 0,4534, więc liczba z karty pasuje do `acc_norm`. Warunek ±0,02 jest spełniony.
 
 Slayer 1.06, ten sam kod i te same pytania: `acc_norm` 0,3953 (SE 0,0049). Wobec EuroLLM różnica −0,2121, SE 0,0045, z = −46,83, pewne. Baza losowa 0,25. Baza większościowa 0,2573.
+
+Zgodność ze Space jest niepotwierdzona: skład panelu 200 jest niesprawdzony.

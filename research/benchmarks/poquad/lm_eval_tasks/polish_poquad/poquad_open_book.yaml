@@ -1,0 +1,29 @@
+# Source: speakleash/lm-evaluation-harness @ 21d0ea9cf4fd6153dfff4d84d6ad0aab5488f302, lm_eval/tasks/polish_poquad/poquad_open_book.yaml
+# (OpenPL fork, Polish tasks of the Space). Copied unchanged below this header;
+# common/zadania.py pins the dataset revision and the shot count.
+task: polish_poquad_open_book
+dataset_path: clarin-pl/poquad
+dataset_name: null
+output_type: generate_until
+training_split: train
+validation_split: null
+test_split: validation
+doc_to_text: "Tytuł: {{title}} \n Kontekst: {{context}} \n Pytanie: {{question}} \n Prawidłowa odpowiedź (krótki cytat z Kontekstu):"
+doc_to_target: !function utils.doc_to_target
+should_decontaminate: true
+doc_to_decontamination_query: "{{context}} {{question}}"
+generation_kwargs:
+  until:
+    - "\n"
+    - "</s>"
+    - "<|im_end|>"
+  do_sample: false
+  temperature: 0.0
+  max_gen_toks: 50
+metric_list:
+  - metric: exact_match
+    aggregation: mean
+    higher_is_better: true
+  - metric: !function utils.levenshtein
+    aggregation: !function utils.agg_levenshtein
+    higher_is_better: true

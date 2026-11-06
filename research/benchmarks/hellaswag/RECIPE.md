@@ -1,4 +1,21 @@
-# HellaSwag: przepis
+# HellaSwag (T05): przepis
+
+Liczby etapu B są w [`results/HELLASWAG.md`](results/HELLASWAG.md). Niżej przepis przebiegu centralnego i trzech przebiegów z vast.ai.
+
+## Przebieg centralny (Slayer i modele odniesienia)
+
+- Commit kodu: niezapisane (przed przebiegiem)
+- Środowisko: `common/requirements.lock.txt` + piny `LOCK_ENV_PINS` / `NEW_ENV_PINS` z `tools/przebieg_centralny.sh` (env `lock`: lm-eval 0.4.9.1, env `new`: lm-eval 0.4.13)
+- Modele: lista `MODELE` w `tools/przebieg_centralny.sh` (rewizje z METODOLOGII)
+- Zbiór: `Rowan/hellaswag@218ec52e09a7e7462a5400043bb9a69a41d06b76` (wpis `T05` w `common/zadania.py`)
+- Komenda (w `research/`): `bash tools/przebieg_centralny.sh licz` liczy wszystkie zadania; dla tego zadania woła `common/ewaluuj.py --zadania T05 --probka pelna --device cuda` (pełne linie: `bash tools/przebieg_centralny.sh plan | grep -- '--zadania T05 '`)
+- Seed: python 0, numpy 1234, torch 1234, fewshot 1234
+- Precyzja: niezapisane (przed przebiegiem)
+- Sprzęt: niezapisane (przed przebiegiem)
+- Data: niezapisane (przed przebiegiem)
+- Smoke test: `bash tools/przebieg_centralny.sh proba_cpu` (2 pytania na parę model × zadanie)
+- Wynik: `results/central-run/hellaswag/<model>/results.json`
+
 
 Liczby są w [`results/HELLASWAG.md`](results/HELLASWAG.md). Niżej: skąd każdy przebieg i odczyt promptu przed wagami.
 
@@ -54,7 +71,8 @@ Data odczytu promptów: 2026-11-04. Logprob przy tamtym odczycie nie był liczon
 
 - Ten sam model i wrapper. Komenda: `bash benchmarks/hellaswag/instance.sh slayer-space`
 - Data: 2026-11-06.
-- Wynik: `results/raw/slayer-1.06-0shot.jsonl.gz`. Cały split: `acc_norm` 0,3938 (SE 0,0049). Panel 200: `acc_norm` 0,4350 (SE 0,0351).
+- Wynik: `results/raw/slayer-1.06-0shot.jsonl.gz`. Cały split: `acc_norm` 0,3938 (SE 0,0049).
+- Zgodność ze Space: niepotwierdzona, skład panelu niesprawdzony. `source_id` nie jest unikalny, więc hasz po nim nie jest panelem T05.
 
 ## Wiersz 0, ActivityNet, indomain
 

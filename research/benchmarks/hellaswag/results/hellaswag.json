@@ -69,6 +69,11 @@
  "roznica_karty": 0.0017487153953396062,
  "prog_pkt": 0.02,
  "dwa_se_euro": 0.009745921244508344,
+ "odtworzenie": "spełniony",
+ "n_source_id": 10042,
+ "n_source_id_unikalne": 8407,
+ "max_powtorzen_source_id": 10,
+ "panel_unikalne_source_id": 177,
  "space_acc_norm": 0.365,
  "roznica_space": 0.07,
  "dwa_se_panelu": 0.0701106268692557

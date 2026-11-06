@@ -301,7 +301,10 @@ def most_common_share(rows, key):
 
 
 def panel_indices(rows):
-    """200 validation rows, Space T05: SHA-256 of ``20261028|hellaswag|hellaswag|<source_id>``."""
+    """200 rows by SHA-256 of ``20261028|hellaswag|hellaswag|<source_id>``.
+
+    This is not the Space panel. ``source_id`` repeats, so the sample is not one row per document.
+    """
     def key(i):
         return hashlib.sha256(f"20261028|hellaswag|hellaswag|{rows[i]['source_id']}".encode()).hexdigest()
     return sorted(sorted(range(len(rows)), key=key)[:200])
@@ -344,12 +347,17 @@ def build_report(raw_dir):
         if ours != theirs:
             raise SystemExit(f"{name}: acc_norm {ours} != lm-eval {theirs}")
     euro, slayer10, slayer0 = loaded["euro_10"], loaded["slayer_10"], loaded["slayer_0"]
-    panel = [slayer0[i] for i in panel_indices(slayer0)]
+    chosen = panel_indices(slayer0)
+    panel = [slayer0[i] for i in chosen]
     comparison = paired(slayer10, euro)
     comparison["werdykt"] = werdykt(comparison["z"])
-    card_gap = proportion(euro, "acc_norm")["value"] - KARTA_ACC_NORM
+    euro_acc = proportion(euro, "acc_norm")
+    card_gap = euro_acc["value"] - KARTA_ACC_NORM
+    limit = max(PROG_PKT, 2 * euro_acc["se"])
     panel_block = model_block(panel)
-    space_gap = panel_block["acc_norm"] - SPACE_ACC_NORM
+    counts = {}
+    for row in slayer0:
+        counts[row["source_id"]] = counts.get(row["source_id"], 0) + 1
     return {
         "euro_10": {**model_block(euro), "wobec_bazy": wobec_stalej(
             [r["acc_norm"] for r in euro], [r["gold"] for r in euro])},
@@ -361,9 +369,14 @@ def build_report(raw_dir):
         "karta_acc_norm": KARTA_ACC_NORM,
         "roznica_karty": card_gap,
         "prog_pkt": PROG_PKT,
-        "dwa_se_euro": 2 * proportion(euro, "acc_norm")["se"],
+        "dwa_se_euro": 2 * euro_acc["se"],
+        "odtworzenie": "spełniony" if abs(card_gap) <= limit else "niespełniony",
+        "n_source_id": len(slayer0),
+        "n_source_id_unikalne": len(counts),
+        "max_powtorzen_source_id": max(counts.values()),
+        "panel_unikalne_source_id": len({slayer0[i]["source_id"] for i in chosen}),
         "space_acc_norm": SPACE_ACC_NORM,
-        "roznica_space": space_gap,
+        "roznica_space": panel_block["acc_norm"] - SPACE_ACC_NORM,
         "dwa_se_panelu": 2 * panel_block["se_acc_norm"],
     }
 
@@ -387,14 +400,14 @@ def report_markdown(report):
         f"| EuroLLM 10-shot | {euro['n']} | {pl(euro['acc_norm'], 4)} | {pl(euro['se_acc_norm'], 4)} | {pl(euro['acc'], 4)} | {pl(euro['najczestsza_predykcja'], 4)} | {pl(euro['baza_wiekszosciowa'], 4)} |",
         f"| Slayer 10-shot | {slayer['n']} | {pl(slayer['acc_norm'], 4)} | {pl(slayer['se_acc_norm'], 4)} | {pl(slayer['acc'], 4)} | {pl(slayer['najczestsza_predykcja'], 4)} | {pl(slayer['baza_wiekszosciowa'], 4)} |",
         f"| Slayer 0-shot, cały split | {report['slayer_0']['n']} | {pl(report['slayer_0']['acc_norm'], 4)} | {pl(report['slayer_0']['se_acc_norm'], 4)} | {pl(report['slayer_0']['acc'], 4)} | {pl(report['slayer_0']['najczestsza_predykcja'], 4)} | {pl(report['slayer_0']['baza_wiekszosciowa'], 4)} |",
-        f"| Slayer 0-shot, panel 200 | {panel['n']} | {pl(panel['acc_norm'], 4)} | {pl(panel['se_acc_norm'], 4)} | {pl(panel['acc'], 4)} | {pl(panel['najczestsza_predykcja'], 4)} | {pl(panel['baza_wiekszosciowa'], 4)} |",
+        f"| próba panelu po source_id | {panel['n']} | {pl(panel['acc_norm'], 4)} | {pl(panel['se_acc_norm'], 4)} | {pl(panel['acc'], 4)} | {pl(panel['najczestsza_predykcja'], 4)} | {pl(panel['baza_wiekszosciowa'], 4)} |",
         "",
         f"Baza losowa to {pl(BAZA_LOSOWA, 2)}.",
         f"EuroLLM wobec bazy większościowej: różnica {pl(euro['wobec_bazy']['roznica'], 4)}, SE {pl(euro['wobec_bazy']['se'], 4)}, z = {pl(euro['wobec_bazy']['z'], 2)}, {euro['wobec_bazy']['werdykt']}.",
         f"Slayer 10-shot wobec bazy większościowej: różnica {pl(slayer['wobec_bazy']['roznica'], 4)}, SE {pl(slayer['wobec_bazy']['se'], 4)}, z = {pl(slayer['wobec_bazy']['z'], 2)}, {slayer['wobec_bazy']['werdykt']}.",
         f"Slayer minus EuroLLM, 10-shot, te same pytania: różnica {pl(gap['roznica'], 4)}, SE {pl(gap['se'], 4)}, z = {pl(gap['z'], 2)}, {gap['werdykt']}.",
-        f"Karta EuroLLM: {pl(space['karta_acc_norm'], 4)}. Nasz EuroLLM: {pl(euro['acc_norm'], 4)}. Różnica {pl(space['roznica_karty'], 4)}. Próg {pl(space['prog_pkt'], 2)}, a 2 SE naszego wyniku to {pl(space['dwa_se_euro'], 4)}, więc obowiązuje próg 0,02. Warunek odtworzenia: spełniony.",
-        f"Space T05, Slayer 0-shot, panel 200: {pl(space['space_acc_norm'], 3)}. Nasz panel: {pl(panel['acc_norm'], 3)}. Różnica {pl(space['roznica_space'], 4)}. 2 SE panelu {pl(space['dwa_se_panelu'], 4)}. Różnica jest mniejsza od 2 SE.",
+        f"Karta EuroLLM podaje {pl(space['karta_acc_norm'], 4)} bez nazwy metryki. Nasz `acc_norm` to {pl(euro['acc_norm'], 4)}, `acc` to {pl(euro['acc'], 4)}. Różnica `acc_norm` od karty: {pl(space['roznica_karty'], 4)}. Próg {pl(space['prog_pkt'], 2)}, a 2 SE naszego wyniku to {pl(space['dwa_se_euro'], 4)}. Warunek odtworzenia: {space['odtworzenie']}.",
+        f"Zgodność ze Space: niepotwierdzona, skład panelu niesprawdzony. `source_id` nie jest unikalny ({space['n_source_id_unikalne']} wartości na {space['n_source_id']} wierszy, do {space['max_powtorzen_source_id']} wierszy na jedno id). Próba hasza po `source_id` dała {pl(panel['acc_norm'], 4)} wobec {pl(space['space_acc_norm'], 3)} ze Space i tylko {space['panel_unikalne_source_id']} różnych id w 200 wierszach.",
         "",
     ])
 

@@ -20,7 +20,7 @@ class Decide(unittest.TestCase):
         self.assertEqual(
             decide(closed("Karta oryginału: PAWS (część angielska PAWS-X)"), []),
             ("PAWS (część angielska PAWS-X)",
-             "PAWS (część angielska PAWS-X) nie ma wyniku Slayera 1.06 w repo benchmarków"),
+             "PAWS (część angielska PAWS-X) nie jest podpięty do przebiegu centralnego"),
         )
 
     def test_not_planned_creates_nothing(self):

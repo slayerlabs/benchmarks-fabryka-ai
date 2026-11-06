@@ -1,8 +1,9 @@
 """Sanity check of ewaluuj.py outputs (end of a full run in przebieg_centralny.sh).
 
 An error is: a task that did not finish, a main score of exactly 1.000, a score below the random
-baseline minus 5 points, a random baseline of 1.000 (only one choice read per question), or a
-perplexity that is not finite and above 1.
+baseline minus 5 points (not for MCC, which may be negative), a random baseline of 1.000 (only one
+choice read per question), or a perplexity that is not finite and above 1. The main score is
+acc/acc_norm, or `dodatkowe.space.glowna` for the other metrics (exact_match, f1, mcc, levenshtein, ...).
   python tools/kontrola_sensu.py [--tylko-stan] DIR...   (each DIR holds results_rozszerzone.json; exit 1 on any error)
 --tylko-stan: only "the task finished" (stage proba_cpu: a few questions say nothing about the score).
 """
@@ -25,9 +26,15 @@ def bledy_obserwacji(obs, tylko_stan=False):
     if "byte_perplexity" in space:
         v = space["byte_perplexity"]["value"]
         return [] if v is not None and math.isfinite(v) and v > 1 else [f"{zadanie}: byte perplexity {v}"]
-    klucz = "acc_norm" if obs.get("metric", "").startswith("acc_norm") else "acc"
-    v = space[klucz]["value"]
-    losowa = (space.get("bazy") or {}).get("chance_value")
+    if "glowna" in space:  # generation, mass, corpus metrics (exact_match, f1, mcc, levenshtein, ...)
+        klucz, v = space["glowna"].get("metryka", "glowna"), space["glowna"].get("value")
+    else:
+        klucz = "acc_norm" if obs.get("metric", "").startswith("acc_norm") else "acc"
+        v = space[klucz]["value"]
+    if v is None or not math.isfinite(v):
+        return [f"{zadanie}: {klucz} {v}"]
+    # MCC may be negative: its random level 0 is not a floor
+    losowa = None if klucz == "mcc" else (space.get("bazy") or {}).get("chance_value")
     wynik = []
     if losowa is not None and losowa >= 1:
         wynik.append(f"{zadanie}: random baseline {losowa:.3f}, one choice per question")

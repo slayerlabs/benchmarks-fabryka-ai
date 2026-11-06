@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="178" height="36" viewBox="0 0 178 36" role="img" aria-label="Dane treningowe">
+<title>Dane treningowe</title>
+<rect x="0.5" y="0.5" width="177" height="35" rx="8" fill="#0969da" stroke="#ffffff" stroke-opacity="0.25"/>
+<g transform="translate(14 9)"><ellipse cx="9" cy="4" rx="6.5" ry="2.5" fill="none" stroke="#fff" stroke-width="1.6"/><path d="M2.5 4v10c0 1.4 2.9 2.5 6.5 2.5s6.5-1.1 6.5-2.5V4M2.5 9c0 1.4 2.9 2.5 6.5 2.5s6.5-1.1 6.5-2.5" fill="none" stroke="#fff" stroke-width="1.6"/></g>
+<text x="40" y="23" fill="#ffffff" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600">Dane treningowe</text>
+</svg>
