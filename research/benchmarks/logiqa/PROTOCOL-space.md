@@ -1,6 +1,6 @@
 # Protokół Space: LogiQA (T18) dla Slayera 1.06
 
-Ustalony przed pomiarem. Korekty po wyniku trafiają do osobnej sekcji na końcu pliku.
+Zapisano 2026-11-04 11:46:35, po pomiarze (start panelu 11:33:13). Korekty po wyniku trafiają do osobnej sekcji na końcu pliku.
 
 ## Dane
 - Zbiór: `EleutherAI/logiqa` @ `c1eee1b2fd0ddc87777e36490f7ad54d0b97d141` (rewizja z `tasks_50.json`), split test, n = 651.
@@ -36,3 +36,6 @@ Wynik: **bez kontroli, wynik wstępny.**
 
 ## Czasy
 - panel200: ok. 5 min? (log: 1600 żądań), pełny: ok. 6 min (5208 żądań). Sprzęt: RTX 5050 (8 GB), WSL2 Ubuntu.
+
+## Korekty
+- 6.11.2026: nagłówek zmieniony z „Ustalony przed pomiarem” — plik pierwszy raz trafił do commita `4a80f06` o 11:46:35, czyli po zakończeniu pomiarów panelu (11:37:30) i pełnego splitu (11:43:59); decyzje i wyniki w środku bez zmian.

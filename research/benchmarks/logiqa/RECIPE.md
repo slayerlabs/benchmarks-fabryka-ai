@@ -48,7 +48,7 @@ $PY common/ewaluuj.py ... --probka pelna --wyjscie benchmarks/logiqa/results/sla
 - logiqa.json: `80f2ce9fe68beae22e255d2a5d47337c622ce93642d0f7f508b838a27eb35bbb`
 
 ### Smoke test
-5 przykładów (pierwszy, ostatni, 3 losowe, seed 20261028) — odpowiedź pasuje do pytania, brak pustych pól/ucięć/duplikatów. n=651, najczęstsza poprawna „d” 181/651 = 0,278. Zapis: `space-19-notatki/SMOKE.md`.
+5 przykładów (pierwszy, ostatni, 3 losowe, seed 20261028) — odpowiedź pasuje do pytania, brak pustych pól/ucięć/duplikatów. n=651, najczęstsza poprawna „d” 181/651 = 0,278. Zapis: [notatki/SMOKE.md](notatki/SMOKE.md).
 
 ### Kontrola
-Bez kontroli — wynik wstępny. Miejsca przeszukane: plik wyników Pythii v0, karta EuroLLM-1.7B, Open LLM Leaderboard v2, praca Liu i in. (2020) i repo autorów (tylko dane). Zapis: `space-19-notatki/REGULA.md`.
+Bez kontroli — wynik wstępny. Miejsca przeszukane: plik wyników Pythii v0, karta EuroLLM-1.7B, Open LLM Leaderboard v2, praca Liu i in. (2020) i repo autorów (tylko dane). Zapis: [notatki/REGULA.md](notatki/REGULA.md).
