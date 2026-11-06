@@ -37,8 +37,9 @@ Test wchodzi do meta-oceny, gdy:
 - jego SNR przekracza próg z pliku zestawu, a b nie przekracza najwyższego dopuszczalnego b (przy wysokim b dzielnik
   1 − b mnoży SE testu i jeden test przejąłby zmienność całej oceny).
 
-SNR to pole SNR karty, które pomija modele z rankingu (METODOLOGIA, „A. Karta oryginału”), bo test dobrany na ich
-wynikach faworyzowałby te modele. Test ze znaną kontaminacją u danego modelu zostaje u tego modelu kolumną
+SNR to pole SNR karty, liczone na modelach przebiegu centralnego poza mierzonym (METODOLOGIA, „Panel SNR”). SNR mierzy
+rozrzut, a nie kolejność modeli, więc dobór testów po SNR nie faworyzuje żadnego z nich, jak w
+[Signal and Noise](https://arxiv.org/abs/2508.13144). Test ze znaną kontaminacją u danego modelu zostaje u tego modelu kolumną
 informacyjną, poza średnią ([OLMo, §4.3](https://arxiv.org/abs/2402.00838)); tak samo test polski z SE większym niż w
 oryginale (wiersz `+pl` tabeli typów). Jeden zbiór pytań (konfiguracja zbioru na HF; ARC-Easy i ARC-Challenge to dwa)
 to jedna pozycja, nawet z kilkoma metrykami. Test, który nie spełnia warunków, zostaje w tabeli jako kolumna

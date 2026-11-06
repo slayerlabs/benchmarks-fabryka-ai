@@ -171,7 +171,7 @@ wpisujesz dopiero po przeczytaniu kodu przypiętej wersji (sekcja „Wersja lm-e
 | Metryka decyzyjna | **jedna** metryka, po której porównujesz modele; pozostałe są pomocnicze |
 | Agregacja i grupy | średnia po pytaniach czy po podtestach, wagi; poziomy grup i ten, który wiąże (kolumna „Wiążący werdykt”) |
 | Bazy | baza losowa, stała odpowiedź i b według kolumn typu, dokładne wartości ze splitu |
-| SNR | „po przebiegu centralnym”, dopóki żaden przebieg centralny nie objął testu (panel w akapicie „Panel SNR” pod tabelą); potem rozrzut, czyli odchylenie standardowe wyników modeli panelu, z listą modeli i commitem przebiegu; SE jednego wyniku dla n pełnego splitu metodą z kolumny „SE”; iloraz; szum checkpointów (odchylenie standardowe 5 ostatnich checkpointów jednego modelu), gdy są opublikowane |
+| SNR | „po przebiegu centralnym”, dopóki przebieg nie objął testu; potem rozrzut na panelu (akapit pod tabelą) z listą modeli i commitem przebiegu; SE jednego wyniku dla n pełnego splitu metodą z kolumny „SE”; iloraz; szum checkpointów (odchylenie standardowe 5 ostatnich checkpointów jednego modelu), gdy są opublikowane |
 | MDE | dla panelu 200 i dla pełnego splitu (rdzeń, punkt 5) |
 | Wyniki referencyjne | co najmniej jeden opublikowany wynik modelu, który da się pobrać, z datą odczytu; bez takiego wyniku „brak” i miejsca, w których szukano (etap B idzie wtedy jako „bez kontroli”) |
 | Train policy | `eval_only` (domyślnie, żaden split nie trafia do treningu) albo `train_allowed` dla wymienionych splitów z numerem issue z decyzją |
@@ -179,11 +179,11 @@ wpisujesz dopiero po przeczytaniu kodu przypiętej wersji (sekcja „Wersja lm-e
 | Kontaminacja | „sprawdzona: metoda, odsetek pokrytych pytań”, „znana: źródło” albo „nieznana” |
 | Znane rozbieżności | czym implementacje (np. lm-eval) różnią się od kodu autorów, znane błędy danych; katalog zadania lm-eval w obu wersjach (sekcja „Wersja lm-eval”); gdy implementacja mierzy co innego niż praca, wpisujesz to, co mierzy implementacja, a rozbieżność z polem `domain` Space zgłaszasz w zadaniu |
 
-**Panel SNR.** Rozrzut SNR każdego testu liczysz na tym samym panelu: na modelach z listy `MODELE` w
-`tools/przebieg_centralny.sh` poza mierzonym modelem. Modele odniesienia i model kontrolny wchodzą do panelu. Wszystkie
-liczy jeden protokół, jak stały panel modeli w [Signal and Noise](https://arxiv.org/abs/2508.13144). Opublikowane
-wyniki innych modeli możesz podać w karcie informacyjnie, ale nie są podstawą werdyktu. Karty wypełnione przed tą
-regułą mają SNR z opublikowanych wyników i przechodzą na panel przy pierwszym przebiegu centralnym, który obejmuje test.
+**Panel SNR.** Rozrzut to odchylenie standardowe wyników modeli z `MODELE` w `tools/przebieg_centralny.sh` poza
+mierzonym, razem z modelami odniesienia i kontrolnym. Panel jest ten sam dla każdego testu, jak w
+[Signal and Noise](https://arxiv.org/abs/2508.13144). Panel krótszy niż 4 modele daje SNR „nieustalony”. Opublikowane
+wyniki innych modeli możesz podać informacyjnie, ale nie są podstawą werdyktu. Karty sprzed tej reguły mają SNR z
+publikacji i przechodzą na panel przy pierwszym przebiegu, który obejmuje test.
 
 ## B. Odtworzenie wyniku oryginalnym kodem (REPRODUCTION.md)
 
