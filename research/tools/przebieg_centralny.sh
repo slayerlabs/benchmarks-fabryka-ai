@@ -64,8 +64,12 @@ T45:medmcqa T46:social-iqa T48:paws-en"
 # (c): generation, groups with weights, corpus metrics, multi-context gold
 KATALOGI+=" T07:winogrande T14:wsc273 T17:lambada T32:mmlu T33:gsm8k T34:math T35:truthfulqa T36:ifeval T38:squad2"
 KATALOGI+=" T39:drop T41:coqa T42:nq-open T43:triviaqa T47:bbh T49:cola T50:record"
+KATALOGI+=" T51:arc-easy T52:blimp-supplement T53:ewok"
+# Tasks with their own code (`kod` in ZADANIA): `polecenie` runs this script with the ewaluuj.py flags instead
+KOD="T53:benchmarks/ewok/ewok.py"
 ZADANIA_ID=${ZADANIA_ID:-$(for p in $KATALOGI; do printf '%s ' "${p%%:*}"; done)}
 katalog() { local p; for p in $KATALOGI; do [[ ${p%%:*} == "$1" ]] && echo "${p#*:}" && return 0; done; return 1; }
+kod_zadania() { local p; for p in $KOD; do [[ ${p%%:*} == "$1" ]] && echo "${p#*:}" && return 0; done; return 0; }
 
 # python, not `date +%N` / `du -b`: proba_cpu also runs on macOS (BSD date and du)
 teraz() { python3 -c 'import time; print(time.time())'; }
@@ -91,9 +95,15 @@ model() {  # model LABEL -> sets REPO REV LOADER ENV
   return 1
 }
 
-polecenie() {  # polecenie LABEL TASK_ID -> ewaluuj.py command line
-  local L=$1 T=$2
+polecenie() {  # polecenie LABEL TASK_ID -> ewaluuj.py command line (own-code task: its script, same flags)
+  local L=$1 T=$2 kod
   model "$L"
+  kod=$(kod_zadania "$T")
+  if [[ -n $kod ]]; then
+    echo "$WS/venv-$ENV/bin/python $K/$kod przebieg --repo $REPO --revision $REV --model_path $WS/modele/$L --zadania $T" \
+      "--probka ${PROBKA:-pelna} --device ${DEVICE:-cuda} --batch $BATCH --etykieta $L --wyjscie ${WYNIKI:-$WS/wyniki}/$(katalog "$T")/$L"
+    return
+  fi
   local args=(--model "$([[ $LOADER == slayer ]] && echo slayer || echo hf)" --repo "$REPO" --revision "$REV"
               --model_path "$WS/modele/$L" --zadania "$T" --probka "$([[ $T == T03 && -n ${PROBKA_ROLLING:-} ]] && echo "$PROBKA_ROLLING" || echo "${PROBKA:-pelna}")" --device "${DEVICE:-cuda}" --batch "$BATCH"
               --eval_gpu "$(gpu_nazwa)" --etykieta "$L" --wyjscie "${WYNIKI:-$WS/wyniki}/$(katalog "$T")/$L")
