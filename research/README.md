@@ -41,11 +41,11 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`8tags`](benchmarks/8tags/README.md) | T23 | `mc +pl` | | T23 | nieustalone |
 | [`anli-r3`](benchmarks/anli-r3/README.md) | T16 | `mc` | | T16 | nieustalone |
 | [`arc-challenge`](benchmarks/arc-challenge/README.md) | T02 | `mc-k` | | T02 | nieustalone |
-| [`arc-easy`](benchmarks/arc-easy/ORIGINAL.md) | T51 | `mc-k` | | T51 | tak |
+| [`arc-easy`](benchmarks/arc-easy/README.md) | T51 | `mc-k` | | T51 | tak |
 | [`bbh`](benchmarks/bbh/README.md) | T47 | `gen +warstwy` | warstwy: 27 zadań, wagi populacji | T47 | nieustalone |
 | [`belebele-pl`](benchmarks/belebele-pl/README.md) | T24 | `mc +pl` | | T24 | nieustalone |
 | [`blimp`](benchmarks/blimp/README.md) | T01 | `para +klastry` | klastry: paradygmaty; zjawiska informacyjnie | T01 | tak |
-| [`blimp-supplement`](benchmarks/blimp-supplement/ORIGINAL.md) | T52 | `para +warstwy` | warstwy: podzadania, średnia bez wag (karta nie pokazuje, że podzadanie to jeden szablon) | T52 | nieustalone |
+| [`blimp-supplement`](benchmarks/blimp-supplement/README.md) | T52 | `para +warstwy` | warstwy: podzadania, średnia bez wag (karta nie pokazuje, że podzadanie to jeden szablon) | T52 | nieustalone |
 | [`boolq`](benchmarks/boolq/README.md) | T10 | `mc +klastry` | klastry: wspólny ustęp (3270 pytań, 2938 ustępów, 578 pytań dzieli ustęp, do 9 na ustęp) | T10 | nieustalone |
 | [`cb`](benchmarks/cb/README.md) | T12 | `mc` | | T12 | nieustalone |
 | [`cbd`](benchmarks/cbd/README.md) | T28 | `f1-korpus +pl` | | T28 | nieustalone |
