@@ -19,10 +19,10 @@ czegoś nie da się ustalić, wpis brzmi „nieustalone” i podaje, gdzie szuka
 | Bazy: losowa | 0,25 (cztery równe opcje w każdym pytaniu). <!-- liczba-spoza-wynikow: belebele_mc.yaml @ 21d0ea9c, 4 opcje; METODOLOGIA, typ mc --> |
 | Bazy: stała odpowiedź | zawsze pozycja `B` (indeks 1): 251 z 900 = 0,2789; rozkład poprawnej odpowiedzi: A 206, B 251, C 246, D 197. <!-- liczba-spoza-wynikow: data/pol_Latn.jsonl @ 7899cdfa, policzone 2026-11-05 --> |
 | Bazy: b | 0,2789 (większa z bazy losowej 0,25 i stałej odpowiedzi 0,2789). <!-- liczba-spoza-wynikow: data/pol_Latn.jsonl @ 7899cdfa, policzone 2026-11-05 --> |
-| SNR: źródło | po przebiegu centralnym (panel modeli przebiegu centralnego) |
+| SNR: źródło | po przebiegu centralnym, na panelu z METODOLOGII („Panel SNR”), komendą `python tools/snr_panelu.py results/central-run/belebele-pl --probki T24_space --metryka acc`. Przebieg nie ma jeszcze wyników `belebele-pl`, więc narzędzie zwraca „nieustalony” z pustym panelem. |
 | SNR: rozrzut | po przebiegu centralnym |
 | SNR: SE | po przebiegu centralnym |
-| SNR: iloraz | po przebiegu centralnym |
+| SNR: iloraz | po przebiegu centralnym, z przedziałem 95% i najmniejszym ilorazem bez jednego modelu panelu |
 | SNR: szum checkpointów | nieustalone. Szukano: `evals/pythia-v0`, `evals/pythia-v1`, `evals/bias-evals`, `evals/bloom`, `evals/opt` i `evals/csv` w [`EleutherAI/pythia` @ `main`](https://github.com/EleutherAI/pythia) — żaden plik nie ma zadania Belebele; tabela 5 i dodatek A.7 pracy — tylko końcowe wyniki bez per-checkpoint; karty HF `FacebookAI/xlm-roberta-large`, `microsoft/infoxlm-large` i `facebook/xlm-v-base` — brak wyników per checkpoint. Nie przeszukano: innych leaderboardów i cytowań pracy. |
 | MDE | pełny split: 6,7 pkt (n = 895); panel 200: 14,2 pkt. SE różnicy wzięte z `√2 · SE` pojedynczego wyniku przy p = 0,5 (największa wariancja), bo nie ma modelu kontrolnego z wynikami per pytanie: SE = 0,0167 dla n = 895 i 0,0354 dla n = 200; MDE = (2 + 0,84) · √2 · SE. <!-- liczba-spoza-wynikow: wyliczone z n = 895 i 200, wzór MDE z METODOLOGIA, rdzeń punkt 5 --> |
 | Kontaminacja | nieznana: własnego skanu korpusu Slayera ani modeli odniesienia pod kątem Belebele nie robiono; Space @ `2d3d73f` oznacza T24 dla `SlayerLab/Slayer1B-1.06` jako `clean` (receipt sha256 `bc6c168cf6ef35bce80b70f3bf582853526b558cb7f37e30101e35f3c2342de7`), a dla `LiquidAI/LFM2.5-1.2B-Base` jako `unknown`. <!-- liczba-spoza-wynikow: results.json Space @ 2d3d73f5, observations T24 --> |
