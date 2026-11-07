@@ -48,7 +48,7 @@ def test_loop_packs_copies_and_stops_when_idle():
 class AtrapaVast:
     """Stand-in vast.ai API on localhost: records (method, path, JSON body, Authorization) of every call."""
 
-    def __init__(self):
+    def __init__(self, kod=200, odpowiedz=b'{"success": true, "instances": {}}'):
         wywolania = self.wywolania = []
 
         class H(http.server.BaseHTTPRequestHandler):
@@ -56,9 +56,9 @@ class AtrapaVast:
                 n = int(self.headers.get("Content-Length") or 0)
                 cialo = json.loads(self.rfile.read(n)) if n else None
                 wywolania.append((self.command, self.path, cialo, self.headers.get("Authorization")))
-                self.send_response(200)
+                self.send_response(kod)
                 self.end_headers()
-                self.wfile.write(b'{"success": true, "instances": {}}')
+                self.wfile.write(odpowiedz)
 
             do_GET = do_PUT = do_DELETE = _zapisz
 
@@ -68,7 +68,7 @@ class AtrapaVast:
         self.serwer = http.server.HTTPServer(("127.0.0.1", 0), H)
         threading.Thread(target=self.serwer.serve_forever, daemon=True).start()
         self.env = {**os.environ, "BEZPIECZNIK_API": f"http://127.0.0.1:{self.serwer.server_port}/api/v0/instances/",
-                    "CONTAINER_ID": "123", "CONTAINER_API_KEY": "klucz"}
+                    "CONTAINER_ID": "123", "CONTAINER_API_KEY": "klucz", "BEZPIECZNIK_PAUZA": "0"}
 
     def metody(self):
         return [(m, p, c) for m, p, c, _ in self.wywolania]
@@ -105,19 +105,41 @@ def test_live_work_marker_counts_and_dead_one_does_not():
     assert SB.zywe_znaczniki(d) == 1
 
 
-def straznik(d, praca, czas, api):
+def straznik(d, praca, czas, api, wynik=None):
     """The guard loop as a process on stand-ins (idle GPU, no ewaluuj.py) with its default action against the stand-in
-    vast.ai API; returns the API calls made within `czas` s."""
+    vast.ai API; returns the API calls made within `czas` s (exit code and stdout into `wynik`, when given)."""
     p = subprocess.Popen([sys.executable, str(KORZEN / "tools" / "straznik_bezczynnosci.py"), "--wyjscie",
                           str(d / "wyjscie"), "--okno", "0.2", "--interwal", "0.05", "--gpu", "echo 0", "--kolejka",
-                          "echo 0", "--praca", str(praca), "--pakuj", "true", "--archiwum", str(d / "brak.tgz")],
-                         env=api.env)
+                          "echo 0", "--praca", str(praca), "--pakuj", "true", "--archiwum", str(d / "brak.tgz"),
+                          "--blad", str(d / "stan" / "STOP_NIEUDANY.txt")],
+                         env=api.env, stdout=subprocess.PIPE, text=True)
     try:
-        p.wait(timeout=czas)
+        out, _ = p.communicate(timeout=czas)
     except subprocess.TimeoutExpired:
         p.kill()
-        p.wait()
+        out, _ = p.communicate()
+    if wynik is not None:
+        wynik.update(kod=p.returncode, out=out)
     return api.metody()
+
+
+def test_failed_stop_exits_non_zero_with_a_readable_line_and_never_destroys():
+    """403 on every try, and 200 with {"success": false}: both are a failed stop, never a DELETE."""
+    for kod, odp in ((403, b'{"success": false, "msg": "forbidden"}'), (200, b'{"success": false, "msg": "no"}')):
+        d = Path(tempfile.mkdtemp())
+        api = AtrapaVast(kod, odp)
+        try:
+            wynik = {}
+            wywolania = straznik(d, d / "praca", 30.0, api, wynik)
+        finally:
+            api.zamknij()
+        assert wywolania and {m for m, _, _ in wywolania} == {"PUT"}, (kod, wywolania)
+        assert wynik["kod"] != 0 and "STOP NIEUDANY, instancja dalej dziala" in wynik["out"]
+        assert "STOP NIEUDANY" in (d / "stan" / "STOP_NIEUDANY.txt").read_text()
+        env = {**os.environ, "WS": str(d), "K": str(KORZEN)}
+        stan = subprocess.run(["bash", str(KORZEN / "tools" / "przebieg_centralny.sh"), "stan"], capture_output=True,
+                              text=True, env=env)
+        assert "STOP NIEUDANY, instancja dalej dziala" in stan.stdout
 
 
 def test_guard_waits_while_the_run_script_works_and_stops_not_destroys_when_idle():

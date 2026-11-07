@@ -40,10 +40,18 @@ def wywolaj(metoda, dane=None):
     req = urllib.request.Request(f"{API}{cid}/", method=metoda, headers=naglowki,
                                  data=None if dane is None else json.dumps(dane).encode())
     with urllib.request.urlopen(req, timeout=60) as r:
-        return r.status, r.read()[:300]
+        status, tresc = r.status, r.read()
+    try:
+        odp = json.loads(tresc)
+    except ValueError:
+        odp = None
+    # vast.ai answers some refusals with 2xx and {"success": false, "msg": ...}
+    if isinstance(odp, dict) and odp.get("success") is False:
+        raise RuntimeError(f"{metoda} {status}: success false: {tresc[:300]!r}")
+    return status, tresc[:300]
 
 
-def _ponawiaj(nazwa, powod, metoda, dane=None, pauza=30):
+def _ponawiaj(nazwa, powod, metoda, dane=None, pauza=float(os.environ.get("BEZPIECZNIK_PAUZA", 30))):
     for proba in range(20):
         try:
             print(time.strftime("%H:%M:%S"), f"{nazwa}:", powod, wywolaj(metoda, dane), flush=True)
@@ -51,6 +59,7 @@ def _ponawiaj(nazwa, powod, metoda, dane=None, pauza=30):
         except Exception as e:  # noqa: BLE001
             print(time.strftime("%H:%M:%S"), f"{nazwa} nieudany, ponawiam:", e, flush=True)
             time.sleep(pauza)
+    print(time.strftime("%H:%M:%S"), f"{nazwa}: wszystkie proby nieudane", flush=True)
     return False
 
 

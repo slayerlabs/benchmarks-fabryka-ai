@@ -485,7 +485,19 @@ wchodzi do obu środowisk).
    `ewaluuj.py`, bez żywego znacznika pracy skryptu (`/workspace/stan/praca/`: cały `przygotuj`, pobieranie i
    konwersja wag, każde zadanie, także `ewok.py`) i z GPU poniżej 5% pakuje wyniki do `/workspace/wyniki.tgz` (kopia
    w `/workspace/wyjscie/`) i zatrzymuje instancję. Zatrzymana instancja nie płaci za GPU, płaci za dysk, a dysk z
-   wynikami zostaje. Po zatrzymaniu nie działa już ani strażnik, ani limit z `przygotuj`.
+   wynikami zostaje. Uruchom `licz` w ciągu 600 s od końca `przygotuj`: dłuższa przerwa też zatrzyma instancję.
+   Po wznowieniu zatrzymanej instancji nie działa już ani strażnik, ani limit z `przygotuj`; przed dalszym
+   liczeniem uruchom je ponownie w `/workspace/kod` (z `export HF_TOKEN=…` jak w kroku 3):
+
+   ```bash
+   nohup python3 slayer-1b/wygaszanie/bezpiecznik.py po 172800 "bash /workspace/kod/tools/przebieg_centralny.sh pakuj" \
+     > /workspace/logi/bezpiecznik.log 2>&1 &
+   bash tools/przebieg_centralny.sh straznik
+   ```
+
+   Gdy zatrzymanie się nie uda (np. API odmówi), strażnik kończy się kodem 1, a linia „STOP NIEUDANY, instancja
+   dalej dziala” stoi w `/workspace/logi/straznik.log`, w `/workspace/stan/STOP_NIEUDANY.txt` i na początku
+   `stan`. Instancja dalej płaci za GPU do ręcznego zatrzymania albo limitu z `przygotuj`.
 5. **Wyniki.** `licz` pobiera `ckpt_22327.pt`, sprawdza jego sumę, konwertuje go do
    `/workspace/modele/slayer1b-1.07/` i liczy 52 zadania do `/workspace/wyniki/<benchmark>/slayer1b-1.07/`, na
    końcu kontrola sensu. Gdy instancja jest zatrzymana: `vastai start instance <ID>` (albo Start w panelu vast.ai),

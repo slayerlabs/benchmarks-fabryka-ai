@@ -68,7 +68,9 @@ def main(argv=None):
     p.add_argument("--pakuj", default=f"bash {KORZEN}/tools/przebieg_centralny.sh pakuj")
     p.add_argument("--archiwum", default="/workspace/wyniki.tgz")
     p.add_argument("--zatrzymaj", default=f"{sys.executable} -c \"import sys; sys.path.insert(0, '{KORZEN}/slayer-1b/wygaszanie'); "
-                                          f"import bezpiecznik; bezpiecznik.zatrzymaj('idle')\"")
+                                          f"import bezpiecznik; sys.exit(0 if bezpiecznik.zatrzymaj('idle') else 1)\"")
+    p.add_argument("--blad", default="/workspace/stan/STOP_NIEUDANY.txt",
+                   help="written when the stop command fails (shown by `przebieg_centralny.sh stan`)")
     a = p.parse_args(argv)
     probki = []
     while True:
@@ -81,7 +83,14 @@ def main(argv=None):
             Path(a.wyjscie).mkdir(parents=True, exist_ok=True)
             if Path(a.archiwum).exists():
                 shutil.copy(a.archiwum, a.wyjscie)
-            subprocess.run(a.zatrzymaj, shell=True)
+            kod = subprocess.run(a.zatrzymaj, shell=True).returncode
+            if kod:  # no destroy instead: the results on the disk would go with it
+                linia = (f"{time.strftime('%Y-%m-%d %H:%M:%S')} STOP NIEUDANY, instancja dalej dziala (kod {kod}); "
+                         f"wyniki w {a.archiwum}, zatrzymaj albo usun instancje recznie")
+                print(linia, flush=True)
+                Path(a.blad).parent.mkdir(parents=True, exist_ok=True)
+                Path(a.blad).write_text(linia + "\n")
+                return 1
             return 0
         time.sleep(a.interwal)
 

@@ -294,7 +294,7 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
   straznik)  # idle guard: GPU < 5% with no evaluation for STRAZNIK_OKNO s -> pack, copy to $WS/wyjscie, stop
     mkdir -p "$WS/logi"
     nohup python3 $K/tools/straznik_bezczynnosci.py --wyjscie "$WS/wyjscie" --okno "${STRAZNIK_OKNO:-600}" \
-      --archiwum "$WS/wyniki.tgz" --praca "$ST/praca" > $WS/logi/straznik.log 2>&1 &
+      --archiwum "$WS/wyniki.tgz" --praca "$ST/praca" --blad "$ST/STOP_NIEUDANY.txt" > $WS/logi/straznik.log 2>&1 &
     echo "idle guard pid $!"
     ;;
   proba_cpu)  # load test: PROBA_N questions (WikiText-2: 1 document) per model x task on CPU, every pair must finish
@@ -321,6 +321,7 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
     ls -la $WS/wyniki.tgz
     ;;
   stan)
+    cat $ST/STOP_NIEUDANY.txt 2>/dev/null || true
     ls -la $ST; cat $ST/pominiety_*.txt 2>/dev/null || true; for f in $WS/logi/*.log; do echo "== $f"; tail -n 2 "$f"; done; tail -n 5 $CZ 2>/dev/null
     nvidia-smi --query-gpu=index,utilization.gpu,memory.used --format=csv; df -h $WS | tail -1
     ;;
