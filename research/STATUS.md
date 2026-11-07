@@ -35,7 +35,7 @@ test `tests/test_<name>.py`.
 
 | benchmark | test | A | B | przebieg | uwaga |
 |---|---|---|---|---|---|
-| [BLiMP](benchmarks/blimp/README.md) | T01 | ✓ | ✓ | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia) |
+| [BLiMP](benchmarks/blimp/README.md) | T01 | ✓ | ✓ | ✓ | sprawdzone 07.11, błędu nie ma ([REPRODUCTION](benchmarks/blimp/REPRODUCTION.md)) |
 | [ARC-Challenge](benchmarks/arc-challenge/README.md) | T02 | ✓ | bez kontroli | ✓ | Slayer na poziomie bazy losowej |
 | [WikiText-2](benchmarks/wikitext-2/README.md) | T03 | ✓ | ✓ | ✓ | próg dla perpleksji: #41 |
 | [MultiBLiMP PL](benchmarks/multiblimp-pl/README.md) | T04 | ✓ | bez kontroli | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia): możliwy przeciek (#36) |
