@@ -1,11 +1,13 @@
 """ckpt.pt trenera Arka -> katalog modelu dla common/slayer_model.py (model.safetensors, config.json, tokenizer.json).
 
-python wygaszanie/konwertuj.py <ckpt.pt> <katalog_wzorca_1.06> <katalog_wyjścia> [--porownaj]
+python wygaszanie/konwertuj.py <ckpt.pt> <katalog_wzorca_1.06> <katalog_wyjścia> [--porownaj] [--sha256 HEX]
 
 Klucze i kształty brane ze wzorca (model.safetensors 1.06); head.weight (tied z tok.weight) pomijany.
 --porownaj: wypisuje max |różnicę| względem wag wzorca (dla ckpt_13848 ma wyjść 0).
-STOP także wtedy, gdy `config` checkpointu ma klucz o innej wartości niż config.json wzorca (inna architektura:
-config wzorca byłby zły). Przebieg centralny woła ten skrypt dla loadera `slayer-ckpt` (tools/przebieg_centralny.sh).
+--sha256: oczekiwana suma pliku ckpt (z karty checkpointów); STOP przed konwersją przy niezgodności.
+STOP także wtedy, gdy checkpoint nie ma `config` albo jego `config` ma klucz o innej wartości niż config.json wzorca
+(inna architektura: config wzorca byłby zły). Przebieg centralny woła ten skrypt dla loadera `slayer-ckpt`
+(tools/przebieg_centralny.sh).
 """
 
 import hashlib
@@ -24,7 +26,7 @@ POZA_ARCHITEKTURA = {"data_seed"}
 
 def rozne_od_wzorca(cfg_ckpt, cfg_wzorca):
     """Config keys of the checkpoint that change the model and differ from (or are missing in) the template config."""
-    return {k: (v, cfg_wzorca.get(k, "<brak>")) for k, v in sorted((cfg_ckpt or {}).items())
+    return {k: (v, cfg_wzorca.get(k, "<brak>")) for k, v in sorted(cfg_ckpt.items())
             if k not in POZA_ARCHITEKTURA and cfg_wzorca.get(k, "<brak>") != v}
 
 
@@ -38,10 +40,15 @@ def sha256_pliku(sciezka):
 
 def main():
     ckpt, wzor, wyj = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
+    sha_ckpt = sha256_pliku(ckpt)
+    if "--sha256" in sys.argv and sha_ckpt != sys.argv[sys.argv.index("--sha256") + 1].lower():
+        raise SystemExit(f"STOP: sha256 {ckpt.name} = {sha_ckpt}, oczekiwana {sys.argv[sys.argv.index('--sha256') + 1]}")
     # mmap: the 1.07 checkpoint is 8.9 GB (weights + optimizer state); only the weights are read
     ck = torch.load(ckpt, map_location="cpu", weights_only=True, mmap=True)
     cfg = json.loads((wzor / "config.json").read_text())
-    rozne = rozne_od_wzorca(ck.get("config"), cfg)
+    if not isinstance(ck.get("config"), dict) or not ck["config"]:
+        raise SystemExit("STOP: checkpoint bez `config`, architektury nie da się porównać ze wzorcem")
+    rozne = rozne_od_wzorca(ck["config"], cfg)
     if rozne:
         raise SystemExit(f"STOP: config checkpointu różni się od wzorca (ckpt, wzorzec): {rozne}")
     sd = {}
@@ -64,7 +71,7 @@ def main():
         assert torch.equal(sd["head.weight"], sd["tok.weight"]), "head.weight != tok.weight (nie tied?)"
     wyj.mkdir(parents=True, exist_ok=True)
     save_file(out, str(wyj / "model.safetensors"), metadata={"format": "pt"})
-    cfg.update({"step": int(ck["step"]), "ckpt_sha256": sha256_pliku(ckpt), "zrodlo_ckpt": str(ckpt),
+    cfg.update({"step": int(ck["step"]), "ckpt_sha256": sha_ckpt, "zrodlo_ckpt": str(ckpt),
                 "uwaga": "konwersja ckpt trenera (konwertuj.py)"})
     (wyj / "config.json").write_text(json.dumps(cfg, indent=1))
     shutil.copy(wzor / "tokenizer.json", wyj / "tokenizer.json")

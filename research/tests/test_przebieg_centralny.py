@@ -163,7 +163,9 @@ def test_slayer_ckpt_is_converted_against_the_template_then_evaluated_as_slayer(
     assert len(pobranie) == 1 and f"h('{repo}', '{ckpt}', revision='{rev}', local_dir='{d}.ckpt')" in pobranie[0]
     assert any(f"s('{wzorzec[0]}', revision='{wzorzec[1]}', local_dir='{d}.wzorzec'" in w for w in wywolania)
     konw = [i for i, w in enumerate(wywolania) if "wygaszanie/konwertuj.py" in w]
-    assert len(konw) == 1 and wywolania[konw[0]].endswith(f"{d}.ckpt/{ckpt} {d}.wzorzec {d}")
+    sha = zmienna_skryptu("SLAYER_CKPT_SHA256")
+    assert re.fullmatch(r"[0-9a-f]{64}", sha)
+    assert len(konw) == 1 and wywolania[konw[0]].endswith(f"{d}.ckpt/{ckpt} {d}.wzorzec {d} --sha256 {sha}")
     ewaluacje = [i for i, w in enumerate(wywolania) if f"--etykieta {etykieta}" in w]
     assert len(ewaluacje) == 2 and min(ewaluacje) > konw[0]
     assert all("--model slayer " in wywolania[i] and f"--model_path {d} " in wywolania[i] for i in ewaluacje)

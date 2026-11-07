@@ -29,9 +29,24 @@ def przygotuj(cfg_ckpt, extra=None):
     return d
 
 
-def konwertuj(d):
-    return subprocess.run([sys.executable, str(SKRYPT), str(d / "ckpt_200.pt"), str(d / "wzorzec"), str(d / "wyj")],
-                          capture_output=True, text=True)
+def konwertuj(d, *opcje):
+    return subprocess.run([sys.executable, str(SKRYPT), str(d / "ckpt_200.pt"), str(d / "wzorzec"), str(d / "wyj"),
+                           *opcje], capture_output=True, text=True)
+
+
+def test_expected_sha_matching_converts_and_mismatch_stops_before_output():
+    d = przygotuj(CFG)
+    sha = hashlib.sha256((d / "ckpt_200.pt").read_bytes()).hexdigest()
+    zly = konwertuj(d, "--sha256", "0" * 64)
+    assert zly.returncode != 0 and "STOP: sha256" in zly.stderr and not (d / "wyj").exists()
+    dobry = konwertuj(d, "--sha256", sha.upper())
+    assert dobry.returncode == 0, dobry.stderr
+
+
+def test_checkpoint_without_config_stops():
+    d = przygotuj(None)
+    wynik = konwertuj(d)
+    assert wynik.returncode != 0 and "STOP: checkpoint bez `config`" in wynik.stderr and not (d / "wyj").exists()
 
 
 def test_same_architecture_converts_weights_step_and_checkpoint_sha():

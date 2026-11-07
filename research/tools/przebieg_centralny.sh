@@ -60,6 +60,8 @@ MODELE=(
 )
 # slayer-ckpt: the 1.07 final step (model card: "training complete at step 22327") and the 1.06 model it continues
 SLAYER_CKPT=ckpt_22327.pt
+# sha256 of SLAYER_CKPT from the SlayerLab/Slayer1B-1.07-checkpoints card; konwertuj.py stops on a mismatch
+SLAYER_CKPT_SHA256=48cdb5eb16b69e0ee9a7a2ed72895ff47c0ba57aca0f4516b1f7e9cba286685c
 SLAYER_WZORZEC="SlayerLab/Slayer1B-1.06|ef81be58742544ad32e1afab38db011fec209609"
 
 # Task id -> <benchmark> directory name under wyniki/ and results/central-run/; the test checks that ZADANIA_ID equals the keys of ZADANIA.
@@ -150,7 +152,7 @@ pobierz_wagi() {  # pobierz_wagi LABEL (after `model`): $WS/modele/LABEL ready f
   local wzor_repo=${SLAYER_WZORZEC%%|*} wzor_rev=${SLAYER_WZORZEC#*|}
   "$py" -c "from huggingface_hub import hf_hub_download as h; h('$REPO', '$SLAYER_CKPT', revision='$REV', local_dir='$d.ckpt')"
   "$py" -c "from huggingface_hub import snapshot_download as s; s('$wzor_repo', revision='$wzor_rev', local_dir='$d.wzorzec', allow_patterns=['model.safetensors', 'config.json', 'tokenizer.json'])"
-  "$py" "$K/slayer-1b/wygaszanie/konwertuj.py" "$d.ckpt/$SLAYER_CKPT" "$d.wzorzec" "$d"
+  "$py" "$K/slayer-1b/wygaszanie/konwertuj.py" "$d.ckpt/$SLAYER_CKPT" "$d.wzorzec" "$d" --sha256 "$SLAYER_CKPT_SHA256"
   rm -rf "$d.ckpt" "$d.wzorzec"
 }
 
