@@ -15,6 +15,8 @@ split `test` (PQA-L), metryka decyzyjna `acc`.
 
 ## Wyniki
 
+Wyniki przebiegu centralnego z 03.11 policzył kod sprzed zmian z 04.11 (limit 4096 tokenów z BOS, budżet loglik jak HFLM), więc są do przeliczenia w przebiegu Slayera 1.07; bazy, SE i porównanie z b przeliczono 07.11 z próbek per pytanie bez modelu (`tools/podsumuj_ponownie.py`). <!-- liczba-spoza-wynikow: daty commitów 592c8af i 3ba8ae3 -->
+
 Pełny split, n = 500. b = 0,552 (stała odpowiedź „zawsze `yes`”), baza losowa 1/3. Różnica wobec b parowana po
 pytaniach.
 

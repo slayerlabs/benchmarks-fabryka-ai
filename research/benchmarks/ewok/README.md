@@ -26,8 +26,10 @@ porównań. Baza losowa to 0,5. Liczymy na wszystkich 4374 rekordach `ewok-core-
   rekord, bez tekstu: `results/<model>/ewok.jsonl.gz`.
 - Testy: [`../../tests/test_ewok.py`](../../tests/test_ewok.py) (czyste funkcje, próbka syntetyczna) i
   [`../../tests/test_ewok_zgodnosc.py`](../../tests/test_ewok_zgodnosc.py) (zgodność z kodem autorów, 16 rekordów).
-- Wersja polska: [`../ewok-pl/`](../ewok-pl/README.md). Liczy innym trybem (z BOS dla każdego modelu), więc jej liczb
-  nie zestawiaj z tymi.
+- Wersja polska: [`../ewok-pl/`](../ewok-pl/README.md). Od wersji 5 (`results/raport_ewok.json`) liczy tą samą regułą
+  autorów i tym samym kodem (`ewok.py`, `rule="authors"`), a jej wiersze EN dla Slayera 1.06, Bielika i LFM3 są kopiami
+  plików z tego katalogu. Tryb z BOS dla każdego modelu został tylko w starszej wersji 4
+  (`../ewok-pl/results/raport_ewok_bos.json`); jej liczb nie zestawiaj z tymi.
 
 Materiały EWoK autorzy udostępniają tylko w zipach z hasłem i proszą, by nie publikować ich jawnym tekstem
 (TERMS_OF_USE). W tym katalogu nie ma więc żadnego rekordu, tylko numery wierszy i liczby.

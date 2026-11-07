@@ -95,7 +95,18 @@
       "majority_prediction_share": 0.29978484341381784,
       "constant_prediction": false
      },
-     "udzial_najczestszej_predykcji": 0.29978484341381784
+     "udzial_najczestszej_predykcji": 0.29978484341381784,
+     "wobec_b": {
+      "b": 0.3222567535261774,
+      "baza": "stala odpowiedz",
+      "roznica": 0.08367200573750896,
+      "se": 0.010630068428697625,
+      "z": 7.871257489897484,
+      "t": null,
+      "df": null,
+      "werdykt": "pewne",
+      "metoda": "A parowane"
+     }
     },
     "cloze": {
      "acc": {
@@ -140,7 +151,18 @@
       "majority_prediction_share": 0.28591919674874494,
       "constant_prediction": false
      },
-     "udzial_najczestszej_predykcji": 0.28591919674874494
+     "udzial_najczestszej_predykcji": 0.28591919674874494,
+     "wobec_b": {
+      "b": 0.3222567535261774,
+      "baza": "stala odpowiedz",
+      "roznica": -0.04231412861582596,
+      "se": 0.009769191383950382,
+      "z": -4.331384958364418,
+      "t": null,
+      "df": null,
+      "werdykt": "pewne",
+      "metoda": "A parowane"
+     }
     }
    },
    "zrodlo_danych": {
@@ -170,5 +192,9 @@
  "probka": "pelna",
  "eval_gpu": "Apple_M5_Pro_mps",
  "sprzet": "mps",
- "max_length": 128000
+ "max_length": 128000,
+ "podsumowanie_ponowne": {
+  "narzedzie": "tools/podsumuj_ponownie.py",
+  "powod": "SE K dla testów +klastry i stała odpowiedź testów mc (METODOLOGIA, „Typy testów”)"
+ }
 }
