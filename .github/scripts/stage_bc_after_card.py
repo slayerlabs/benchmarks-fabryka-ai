@@ -40,8 +40,23 @@ def benchmark_name(card_title):
     return name or None
 
 
-def stage_bc_title(name):
+def stage_bc_title(name, in_central_run=False):
+    if in_central_run:
+        return f"{name} nie ma etapu B (REPRODUCTION.md)"
     return f"{name} nie jest podpięty do przebiegu centralnego"
+
+
+def central_run_catalogs(script_text):
+    """Directory names from the KATALOGI pairs ("T11:copa") in research/tools/przebieg_centralny.sh."""
+    return set(re.findall(r"\bT\d+:([A-Za-z0-9][A-Za-z0-9._-]*)", script_text or ""))
+
+
+def read_central_run_catalogs(path="research/tools/przebieg_centralny.sh"):
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return central_run_catalogs(fh.read())
+    except OSError:
+        return set()
 
 
 def card_catalog(card_body):
@@ -236,6 +251,7 @@ def main(argv=None):
         print(f"nothing to do: research/benchmarks/{card_catalog(card.get('body'))}/REPRODUCTION.md is on main")
         return 0
     body = stage_bc_body(repo, name, card["number"], catalog)
+    result = stage_bc_title(name, bool(catalog) and catalog in read_central_run_catalogs())
 
     if args.dry_run:
         print(f"[dry-run] would create: {result}\n\n{body}")

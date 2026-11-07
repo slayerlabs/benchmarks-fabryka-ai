@@ -6,7 +6,9 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from stage_bc_after_card import card_catalog, decide, files_decision, marker, stage_bc_body  # noqa: E402
+from stage_bc_after_card import (  # noqa: E402
+    card_catalog, central_run_catalogs, decide, files_decision, marker, stage_bc_body, stage_bc_title,
+)
 
 REPO = "slayerlabs/benchmarks-fabryka-ai"
 
@@ -22,6 +24,11 @@ class Decide(unittest.TestCase):
             ("PAWS (część angielska PAWS-X)",
              "PAWS (część angielska PAWS-X) nie jest podpięty do przebiegu centralnego"),
         )
+
+    def test_title_in_central_run_names_missing_stage_b(self):
+        self.assertEqual(stage_bc_title("COPA", True), "COPA nie ma etapu B (REPRODUCTION.md)")
+        self.assertEqual(central_run_catalogs('KATALOGI="T11:copa T23:8tags"\nKATALOGI+=" T24:belebele-pl"'),
+                         {"copa", "8tags", "belebele-pl"})
 
     def test_not_planned_creates_nothing(self):
         name, _ = decide(closed("Karta oryginału: COPA", reason="not_planned"), [])
