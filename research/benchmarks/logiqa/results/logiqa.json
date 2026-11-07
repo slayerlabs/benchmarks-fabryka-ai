@@ -1,0 +1,62 @@
+{
+ "slayer_panel200": {
+  "value": 0.26,
+  "n": 200,
+  "se": 0.031093957143700307,
+  "ci95": [
+   0.2,
+   0.325
+  ],
+  "bazy": {
+   "chance_value": 0.25,
+   "majority_value": 0.3,
+   "majority_prediction_share": 0.665,
+   "constant_prediction": false
+  },
+  "baza_wiekszosciowa_split": 0.3,
+  "wobec_losowej": {
+   "roznica": 0.010000000000000009,
+   "se": 0.031093957143700307,
+   "z": 0.32160589769211884,
+   "werdykt": "szum"
+  },
+  "wobec_wiekszosciowej": {
+   "roznica": -0.04,
+   "se": 0.04903080766724645,
+   "z": -0.8158136058346188,
+   "werdykt": "szum"
+  }
+ },
+ "slayer_pelny": {
+  "value": 0.2672811059907834,
+  "n": 651,
+  "se": 0.017357858622410197,
+  "ci95": [
+   0.23348694316436253,
+   0.3010752688172043
+  ],
+  "bazy": {
+   "chance_value": 0.25,
+   "majority_value": 0.2780337941628264,
+   "majority_prediction_share": 0.6144393241167435,
+   "constant_prediction": false
+  },
+  "baza_wiekszosciowa_split": 0.2780337941628264,
+  "wobec_losowej": {
+   "roznica": 0.01728110599078342,
+   "se": 0.017357858622410197,
+   "z": 0.9955782200272282,
+   "werdykt": "szum"
+  },
+  "wobec_wiekszosciowej": {
+   "roznica": -0.010752688172043012,
+   "se": 0.02622063157110639,
+   "z": -0.41008501808521836,
+   "werdykt": "szum"
+  }
+ },
+ "zgodnosc_panel_pelny": {
+  "max_roznica_loglik": 0.0,
+  "rozne_acc": 0
+ }
+}
