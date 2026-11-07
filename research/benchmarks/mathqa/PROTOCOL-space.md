@@ -28,7 +28,7 @@ punkt 1). Korekty po wyniku trafiają do osobnej sekcji na końcu pliku, bez zmi
   `38`, `27.675`, `30`, `data inadequate`, `none of these`.
 - Cel: `['a', 'b', 'c', 'd', 'e'].index(correct)`.
 - Metryka decyzyjna: `acc_norm`, 0-shot. Opcje różnią się długością (liczba obok zdania w rodzaju „none of these”),
-  więc normalizacja po znakach jest tu istotna; `acc` i `acc_pmi` idą obok jako pomocnicze.
+  więc normalizacja po znakach zmienia tu wybór opcji; `acc` i `acc_pmi` idą obok jako pomocnicze.
 
 ## Model
 
@@ -65,11 +65,26 @@ tabeli CodeSOTA ani do meta-oceny, a do Space trafia jako wstępny.
 
 ## Wynik (Slayer 1.06)
 
-Do uzupełnienia po pomiarze, osobnym commitem: `acc_norm` z n, SE i CI95 dla panelu i pełnego splitu, `acc` i
-`acc_pmi` obok, porównanie z bazą losową i większościową z SE parowanym i werdyktem, udział najczęstszej predykcji.
+Metryka decyzyjna `acc_norm`, liczby w [`results/mathqa.json`](results/mathqa.json), rozbiór
+w [`REPRODUCTION.md`](REPRODUCTION.md).
+
+- pełny split: `acc_norm` 0,2188 (n = 2985, SE 0,0076, CI95 0,2037–0,2338)
+- panel: `acc_norm` 0,1800 (n = 200, SE 0,0272, CI95 0,1300–0,2350)
+- obok, pełny split: `acc` 0,2198, `acc_pmi` 0,2402, BPB poprawnej odpowiedzi 3,598
+- wobec bazy losowej (pełny split): +1,88 pkt, SE parowane 0,0076, z = 2,48, prawdopodobne
+- wobec bazy większościowej (pełny split): −0,77 pkt, SE parowane 0,0109, z = −0,71, szum
+- udział najczęstszej predykcji: 0,2436 (pełny split), czyli bez stałej odpowiedzi
+- panel jest dokładnym podzbiorem pełnego przebiegu: 200 wspólnych pytań, największa różnica log P 0,0, zero
+  pytań z inną wartością `acc_norm`
 
 ## Czasy
 
-Do uzupełnienia po pomiarze: czas panelu i pełnego splitu, liczba żądań, sprzęt i środowisko.
+- panel 200: 2026-11-07 17:35:24–17:35:55 CET, 2000 żądań
+- pełny split: 2026-11-07 17:37:12–17:40:37 CET, 29 850 żądań
+- sprzęt: RTX 5080, Windows 11; środowisko `common/requirements.lock.txt` z torchem `2.8.0+cu128` zamiast
+  budowanej z PyPI wersji CPU (ta sama wersja, inny build); float32, batch 1, `NVIDIA_TF32_OVERRIDE=0`
 
 ## Korekty
+
+- 7.11.2026: w `notatki/REGULA.md` poprawiony próg kontroli dla odrzuconego wyniku LLaMA-7B — było 2 SE 0,0164 i próg 0,2429, jest 2 SE 0,0153 i próg 0,2418 (błąd arytmetyczny przy n = 2985). <!-- liczba-spoza-wynikow: próg policzony dla bazy większościowej przy n = 2985, dotyczy wyniku spoza repo -->
+  Wniosek bez zmian: wynik i tak odpada na braku rewizji i ustawień.

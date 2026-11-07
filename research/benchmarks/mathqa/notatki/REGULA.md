@@ -19,10 +19,9 @@ Lista „Model kontrolny etapu B” z METODOLOGII, po kolei:
      `results/`. Bez wyników do odczytu.
    - **Praca autorów zbioru** (Amini i in., NAACL 2019, arXiv 1905.13319) i strona `math-qa.github.io` — wyniki
      własnych modeli autorów, bez wag do pobrania w rozumieniu listy.
-   - **Zgłoszenie w lm-eval, issue #443** — LLaMA-7B, `acc` 0,2677 (SE 0,0081) i `acc_norm` 0,2787 (SE 0,0082).
-     Liczbowo przeszłoby kontrolę typu `mc` (b = 0,2265, 2 SE = 0,0164, próg 0,2429), ale **odrzucone**: to wpis
-     użytkownika w wątku zgłoszenia, bez rewizji modelu, bez wersji lm-eval i bez ustawień promptu, a wagi
-     LLaMA-7B nie są swobodnie do pobrania. Punkt 3 listy wymaga rewizji i ustawień.
+   - **Zgłoszenie w lm-eval, issue #443** — LLaMA-7B, `acc` 0,2677 (SE 0,0081) i `acc_norm` 0,2787 (SE 0,0082); przy b = 0,2265 próg kontroli typu `mc` wynosi 0,2418 (b + 2 SE, SE = 0,0077), więc liczbowo by przeszło. <!-- liczba-spoza-wynikow: liczby z wątku zgłoszenia github.com/EleutherAI/lm-evaluation-harness/issues/443 i próg policzony dla n = 2985 -->
+     **Odrzucone**: to wpis użytkownika w wątku zgłoszenia, bez rewizji modelu, bez wersji lm-eval i bez ustawień
+     promptu, a wagi LLaMA-7B nie są swobodnie do pobrania. Punkt 3 listy wymaga rewizji i ustawień.
    - **Praca „EasyMath” (arXiv 2505.14852)** — ma kolumnę MathQA dla modeli 70M–3B w trybie 0-shot, ale opisuje
      MathQA jako zadanie z czterema opcjami (ma pięć) i nie podaje metryki ani wersji kodu. Odrzucone z tego
      samego powodu: brak ustawień.
