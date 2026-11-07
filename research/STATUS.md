@@ -41,7 +41,7 @@ test `tests/test_<name>.py`.
 | [MultiBLiMP PL](benchmarks/multiblimp-pl/README.md) | T04 | ✓ | bez kontroli | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia): możliwy przeciek (#36) |
 | [PIQA](benchmarks/piqa/README.md) | T06 | ✓ | ✓ | ✓ | |
 | [WinoGrande](benchmarks/winogrande/README.md) | T07 | ✓ | ✓ | ✓ | |
-| [PubMedQA](benchmarks/pubmedqa/README.md) | T44 | ✓ | bez kontroli | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia) |
+| [PubMedQA](benchmarks/pubmedqa/README.md) | T44 | ✓ | bez kontroli | ✓ | Slayer pod b, prompt i mapowanie sprawdzone ([werdykt](benchmarks/pubmedqa/REPRODUCTION.md#werdykt-sprawdzenia)) |
 | [MedMCQA](benchmarks/medmcqa/README.md) | T45 | ✓ | bez kontroli | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia) |
 | [Social IQa](benchmarks/social-iqa/README.md) | T46 | ✓ | bez kontroli | ✓ | Slayer nad b, pod czterema modelami odniesienia |
 | [EWoK](benchmarks/ewok/README.md) | T53 | ✓ | ✓ | ✓ własny kod | zbiór za bramką zgody na HF: token przebiegu musi mieć dostęp |
@@ -94,7 +94,6 @@ Nie idzie do tabeli CodeSOTA, dopóki ktoś nie sprawdzi i nie przestawi wiersza
 |---|---|---|---|
 | **BLiMP** | wszystkie 5 modeli [przebiegu](results/central-run/scores.png) około 80%, checkpointy Slayera prawie płasko | druga osoba liczy od zera; per paradygmat: czy któryś stoi na 50% albo 100%; czy checkpointy nie czytają tych samych wag | [BLIMP](benchmarks/blimp/results/BLIMP.md) · [CHECKPOINTS](benchmarks/blimp/results/CHECKPOINTS.md) |
 | **MedMCQA** | Slayer wybiera „A” w 93% pytań; jego 0,316 to prawie dokładnie stała odpowiedź „zawsze A” (0,322), więc wynik nie mówi nic o wiedzy medycznej | sprawdzić ładowanie Slayera i format promptu w przebiegu | [REPRODUCTION](benchmarks/medmcqa/REPRODUCTION.md) | <!-- liczba-spoza-wynikow: results/central-run/medmcqa/slayer1b-1.06; b z benchmarks/medmcqa/ORIGINAL.md -->
-| **PubMedQA** | Slayer pod bazą większościową, żaden model nie wybiera `maybe` | sprawdzić prompt i mapowanie odpowiedzi | [REPRODUCTION](benchmarks/pubmedqa/REPRODUCTION.md) |
 | **MultiBLiMP PL** | Slayer blisko 100% | sprawdzić, czy zbiór nie jest w danych treningowych | [REPRODUCTION](benchmarks/multiblimp-pl/REPRODUCTION.md) · #36 |
 | **Belebele PL** | jedyny split to test: bank przykładów z testu, poza oceną; pełny split ocenia 895 z 900 | raport podaje n ocenianych, nie n splitu | [README](benchmarks/belebele-pl/README.md) |
 | **WSC273** | kontrola spoza listy, panel ≠ pełny split | kontrola z listy METODOLOGII | [REPRODUCTION](benchmarks/wsc273/REPRODUCTION.md) |
