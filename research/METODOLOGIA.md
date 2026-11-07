@@ -459,8 +459,9 @@ per pytanie w `probki/`. Wyniki poprzednich wersji zostają w swoich katalogach.
 **Benchmarki w przebiegu.** Przebieg liczy benchmarki z wpisem w `ZADANIA` w `common/zadania.py` i w `KATALOGI`
 (test pilnuje, że to ta sama lista); aktualną listę wypisuje `bash tools/przebieg_centralny.sh katalogi`. Wpis w obu
 listach dodaje autor w PR benchmarku (punkt 2 Definicji „zrobione”), a recenzent sprawdza go komendą `plan`. Sam wpis
-nie robi benchmarku gotowym: potrzebne są wszystkie punkty Definicji. EWoK i EWoK-PL mają własny kod bez wpisu w
-przebiegu; ich komenda stoi w `RECIPE.md`.
+nie robi benchmarku gotowym: potrzebne są wszystkie punkty Definicji. Benchmark z własnym kodem ma
+w `ZADANIA` pole `kod` i stoi w `KOD` skryptu; przebieg woła wtedy `<kod> przebieg` z tymi samymi flagami co
+`ewaluuj.py` (EWoK, T53). EWoK-PL nie ma wpisu w przebiegu; jego komenda stoi w `RECIPE.md`.
 
 **Porównanie N z N−1.** Obie wersje są na tych samych pytaniach, więc różnica ma SE parowane i werdykt per test, bez
 średniej po testach; tabela wielu testów ma kolumnę „po Holmie” (rdzeń, punkt 4). Zmianę uznajesz za
@@ -519,7 +520,8 @@ skali, SE i miejsca w rankingu: [LEADERBOARD.md](LEADERBOARD.md).
   `results.json`. Dzisiejsze wartości to przykład, który zostanie nadpisany wynikami repo, a nie wzorzec ustawień ani
   kontrola.
 - **T01–T50:** numer testu (38 angielskich, 12 polskich), nadany w Space; ustawienia testu stoją w karcie benchmarku i
-  we wpisie `ZADANIA` w `common/zadania.py` (sekcja „Ustawienia przebiegu centralnego”).
+  we wpisie `ZADANIA` w `common/zadania.py` (sekcja „Ustawienia przebiegu centralnego”). Benchmark spoza Space dostaje
+  przy wpisie do przebiegu następny wolny numer (T51 ARC-Easy, T52 BLiMP Supplement, T53 EWoK).
 - **Panel 200:** najwyżej 200 pytań testu wybranych po haszu SHA-256, tych samych dla wszystkich modeli (WikiText-2 w
   całości); reguła w sekcji „Ustawienia przebiegu centralnego”.
 - **Metryka decyzyjna:** jedna metryka z karty, według której porównujesz modele.

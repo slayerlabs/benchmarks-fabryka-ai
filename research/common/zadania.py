@@ -332,7 +332,33 @@ ZADANIA = {
                 metric="f1,none", unit="score", higher_is_better=True, lm_eval="record",
                 repo="aps/super_glue", rewizja="3de24cf8022e94f4ee4b9d55a6f539891524d646",
                 nazwa_hf="record", split="validation", rodzaj="proba", klucz="f1", baza="wybor_losowy"),
+    # --- T51-T53: settings from the card (ORIGINAL.md of each directory).
+    # ARC-Easy: lm-eval arc_easy (cloze, 0-shot), decision metric acc, not acc_norm as in ARC-Challenge.
+    "T51": dict(benchmark_id="arc_easy", task="arc_easy", family="arc", language="EN",
+                metric="acc,none", unit="score", higher_is_better=True,
+                repo="allenai/ai2_arc", rewizja="210d026faf9955653af8916fad021475a3f00453",
+                nazwa_hf="ARC-Easy", split="test", rodzaj="mc", klasy_stale=True, pole_id="id"),
+    # BLiMP Supplement: not on HF and not in lm-eval; the authors' 5 files from OSF, each pinned by SHA-256 (OSF
+    # has no revision), read as the authors' `json` split `train`. Prompt as BLiMP; decision metric = unweighted
+    # mean of the 5 subtask accuracies (`wagi="rowne"`).
+    "T52": dict(benchmark_id="blimp_supplement", task="blimp_supplement", family="blimp_supplement", language="EN",
+                metric="acc,none", unit="score", higher_is_better=True, repo="osf.io/ad7qg",
+                pliki_osf={
+                    "hypernym": ("jpuax", "4f8a46b377aa3c84275f3f812b14ed3266d0354aa13be9c94610eb287d17659f"),
+                    "qa_congruence_easy": ("egr56", "25c94dc5ef2ad7d8012a9695100e525a424135c94650e0dba1f74dbc10d44887"),
+                    "qa_congruence_tricky": ("yt2jg", "8df41ef003adb0ca43ba6b286cf406925f3f766c5a59b1c9a96e05326c0a2334"),
+                    "subject_aux_inversion": ("wzft7", "2a246a1ac90dd79d68e4c10e3f5ba81fd4a8563e385193a60c658c671aabb865"),
+                    "turn_taking": ("2g6jp", "a350fdbd8669e9f84e2608503ed94af1cfe5bf29ceda9a3e0a2c3efc9665c9db")},
+                split="train", rodzaj="mc", klasy_stale=False, wagi="rowne"),
+    # EWoK: own code (`kod`), not lm-eval; the run calls `benchmarks/ewok/ewok.py przebieg` (rule `authors`).
+    "T53": dict(benchmark_id="ewok", task="ewok", family="ewok", language="EN",
+                metric="ewok", unit="score", higher_is_better=True,
+                repo="ewok-core/ewok-core-1.0", rewizja="34d912a608066c92e2990a0328ffc3bd9a716042",
+                split="test", rodzaj="kod", kod="benchmarks/ewok/ewok.py"),
 }
+
+# Tasks the run evaluates through common/ewaluuj.py (lm-eval); the rest run their own `kod` command.
+ZADANIA_EWALUUJ = [t for t, m in ZADANIA.items() if not m.get("kod")]
 
 # ARC-C pierwszy: priorytet zespołu (wynik dosłownie losowy, potrzebny trace per pytanie).
 PIATKA = ["T02", "T03", "T04", "T44", "T45", "T46"]
@@ -350,6 +376,44 @@ def arc_mc_choices(doc):
 
 def arc_target(doc):
     return doc["choices"]["label"].index(doc["answerKey"])
+
+
+OSF_POBIERZ = "https://osf.io/download/{}/"
+
+
+def pobierz_osf(guid, sha256):
+    """OSF file `guid` in the cache ($OSF_CACHE, default ~/.cache/slayer-osf/<sha256>.jsonl), downloaded once; bytes
+    with another SHA-256 are an error, never a result (OSF has no revision to pin)."""
+    import hashlib
+    import os
+    import requests  # GOTCHA: not urllib, which on macOS python.org builds has no CA bundle (CERTIFICATE_VERIFY_FAILED)
+    p = Path(os.environ.get("OSF_CACHE", Path.home() / ".cache" / "slayer-osf")) / f"{sha256}.jsonl"
+    if not p.exists():
+        r = requests.get(OSF_POBIERZ.format(guid), timeout=300)
+        r.raise_for_status()
+        dane = r.content
+        if hashlib.sha256(dane).hexdigest() != sha256:
+            raise ValueError(f"OSF {guid}: SHA-256 {hashlib.sha256(dane).hexdigest()} != {sha256}")
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.with_suffix(".tmp").write_bytes(dane)
+        p.with_suffix(".tmp").replace(p)
+    return p
+
+
+def dane_osf(osf=None, sha256=None, **_):
+    """`custom_dataset` of an OSF-pinned task: the file as the authors' `json` split `train`."""
+    import datasets
+    return datasets.DatasetDict({"train": datasets.load_dataset("json", data_files=str(pobierz_osf(osf, sha256)),
+                                                                split="train")})
+
+
+def _zrodlo_osf(meta, zrodlo, podtest):
+    if zrodlo == "lokalne":
+        return {"dataset_path": "json", "dataset_name": None,
+                "dataset_kwargs": {"data_files": {"test": str(DANE_TESTOWE / f"{podtest}.jsonl")}}, "test_split": "test"}
+    guid, sha = meta["pliki_osf"][podtest]
+    return {"dataset_path": "json", "dataset_name": None, "custom_dataset": dane_osf,
+            "dataset_kwargs": {"osf": guid, "sha256": sha}, "test_split": meta["split"]}
 
 
 def _zrodlo(task_id, meta, zrodlo):
@@ -531,6 +595,16 @@ def konfiguracje(task_id, zrodlo="hf"):
 
 def _konfiguracje(task_id, zrodlo):
     meta = ZADANIA[task_id]
+    if meta.get("kod"):
+        raise KeyError(f"{task_id}: own code {meta['kod']}, not lm-eval; tools/przebieg_centralny.sh runs it directly")
+    if meta.get("pliki_osf"):
+        # BLiMP Supplement: the authors' _template_yaml (empty context, " " + sentence, gold = good sentence, acc)
+        return [("space", {"output_type": "multiple_choice", "num_fewshot": 0, "metric_list": [METRYKI_MC[0]],
+                           "metadata": {"version": 1.0, "task_id": task_id, "czlonek": p},
+                           **_zrodlo_osf(meta, zrodlo, p), "task": f"slayer_{meta['task']}_{p}", "doc_to_text": "",
+                           "target_delimiter": " ", "doc_to_choice": "{{[sentence_good, sentence_bad]}}",
+                           "doc_to_target": 0})
+                for p in meta["pliki_osf"]]
     baza = {"output_type": "multiple_choice", "num_fewshot": 0, "metric_list": METRYKI_MC,
             "metadata": {"version": 1.0, "task_id": task_id}, **_zrodlo(task_id, meta, zrodlo)}
     t = meta["task"]
@@ -541,6 +615,10 @@ def _konfiguracje(task_id, zrodlo):
         return [("space", {**baza, "task": "slayer_blimp", "doc_to_text": "", "target_delimiter": " ",
                            "doc_to_choice": "{{[sentence_good, sentence_bad]}}", "doc_to_target": 0,
                            "metric_list": [METRYKI_MC[0]]})]
+    if t == "arc_easy":
+        # lm-eval arc_easy.yaml (same blob in 6d2abda4 and 0.4.9.1, card "Znane rozbieżności"), rewritten here
+        return [("space", {**baza, "task": "slayer_arc_easy", "doc_to_text": "Question: {{question}}\nAnswer:",
+                           "doc_to_choice": "{{choices.text}}", "doc_to_target": arc_target})]
     if t == "arc_challenge":
         # Space liczy ARC-C jak lm-eval arc_challenge (cloze, metryka główna acc_norm).
         return [("space", {**baza, "task": "slayer_arc_challenge", "doc_to_text": "Question: {{question}}\nAnswer:",
