@@ -453,8 +453,8 @@ wchodzi do obu środowisk).
    `GatedRepoError`, pozostałe zadania liczą się dalej) i do `speakleash/Bielik-1.5B-v3` (bez niego Bielik zostaje
    pominięty z wpisem `POMINIETY` w logu). Dostęp zgłaszasz na stronie każdego repo, przed wynajęciem karty.
 2. **Instancja.** Dysk co najmniej 60 GB. Szczyt Slayera to 17,5 GB (checkpoint 8,9 GB, wzorzec 1.06 4,3 GB, wynik
-   konwersji 4,3 GB); pozostałe modele z `MODELE` to 16,2 GB (Qwen3.5 1,8, LFM2.5 2,3, Bielik 3,2, LFM3 3,5,
-   EuroLLM 3,3, Pythia 2,1). Przy jednej karcie na dysku leży naraz jeden model, przy N kartach do N modeli; suma
+   konwersji 4,3 GB); pozostałe modele z `MODELE` to 16,2 GB (Qwen3.5 1,8 GB, LFM2.5 2,3 GB, Bielik 3,2 GB,
+   LFM3 3,5 GB, EuroLLM 3,3 GB, Pythia 2,1 GB). Przy jednej karcie na dysku leży naraz jeden model, przy N kartach do N modeli; suma
    wszystkich to 33,7 GB. Resztę zajmują dwa środowiska i zbiory danych HF (rozmiaru dla 52 zadań nie mierzyliśmy).
 3. **Kod i token** (w powłoce na instancji):
 
@@ -491,7 +491,7 @@ wchodzi do obu środowisk).
 
 Punkt odniesienia z CPU: `proba_cpu "slayer1b-1.07"` (`PROBA_N=2`, 4 wątki, Apple M5 Pro, 07.11.2026): 49 zadań
 sprzed #154 w 1592 s (najdłuższe MMLU 319 s, MATH 192 s, IFEval 127 s, BBH 114 s), T51 i T52 razem 33 s, czyli 51
-z 52 zadań w ok. 27 min. T53 nie był liczony na prawdziwych danych (token bez dostępu do `ewok-core-1.0`). Na
+z 52 zadań w ok. 27 min. T53 nie był liczony na danych EWoK (token bez dostępu do `ewok-core-1.0`, `GatedRepoError`). Na
 instancji `ZOSTAW_WAGI=1 bash tools/przebieg_centralny.sh proba_cpu "slayer1b-1.07"` przed `licz` sprawdza
 ładowanie, a `licz` nie pobiera wag drugi raz.
 
