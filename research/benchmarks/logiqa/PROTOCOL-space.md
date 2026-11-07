@@ -35,7 +35,8 @@ Wynik: **bez kontroli, wynik wstępny.**
 - wobec bazy większościowej: panel −4,0 pkt (z −0,82, szum), pełny −1,1 pkt (z −0,41, szum)
 
 ## Czasy
-- panel200: ok. 5 min? (log: 1600 żądań), pełny: ok. 6 min (5208 żądań). Sprzęt: RTX 5050 (8 GB), WSL2 Ubuntu.
+- panel200: ok. 5 min (log: 1600 żądań), pełny: ok. 6 min (5208 żądań). Sprzęt: RTX 5050 (8 GB), WSL2 Ubuntu.
 
 ## Korekty
 - 6.11.2026: nagłówek zmieniony z „Ustalony przed pomiarem”: jedyny dowód czasu to commit `4a80f06` (11:46:35), już po obu pomiarach; decyzje i wyniki w środku bez zmian.
+- 7.11.2026: „panel Space” w wynikach to panel wybrany po indeksie wiersza (`common/ewaluuj.py`, wpis T18 bez `pole_id`), a nie po SHA-256 dokumentu kanonicznego z METHOD.md §3, więc nie musi być panelem Space (zob. „Brak natywnego id” wyżej). Wyniku pełnego splitu to nie dotyczy.
