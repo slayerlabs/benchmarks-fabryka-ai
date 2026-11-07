@@ -28,7 +28,7 @@ punkt 1). Korekty po wyniku trafiają do osobnej sekcji na końcu pliku, bez zmi
   `38`, `27.675`, `30`, `data inadequate`, `none of these`.
 - Cel: `['a', 'b', 'c', 'd', 'e'].index(correct)`.
 - Metryka decyzyjna: `acc_norm`, 0-shot. Opcje różnią się długością (liczba obok zdania w rodzaju „none of these”),
-  więc normalizacja po znakach jest tu istotna; `acc` i `acc_pmi` idą obok jako pomocnicze.
+  więc normalizacja po znakach zmienia tu wybór opcji; `acc` i `acc_pmi` idą obok jako pomocnicze.
 
 ## Model
 
@@ -88,3 +88,6 @@ w [`REPRODUCTION.md`](REPRODUCTION.md).
 
 - 7.11.2026: w `notatki/REGULA.md` poprawiony próg kontroli dla odrzuconego wyniku LLaMA-7B — było 2 SE 0,0164 i próg 0,2429, jest 2 SE 0,0153 i próg 0,2418 (błąd arytmetyczny przy n = 2985). <!-- liczba-spoza-wynikow: próg policzony dla bazy większościowej przy n = 2985, dotyczy wyniku spoza repo -->
   Wniosek bez zmian: wynik i tak odpada na braku rewizji i ustawień.
+- 7.11.2026: w sekcji „Zadanie” zdanie o metryce decyzyjnej dostało brzmienie „normalizacja po znakach zmienia
+  tu wybór opcji”; wersja z 366aa7e używała słowa o istotności bez SE, które bramka liczb odrzuca. Metryka
+  decyzyjna i protokół bez zmian.
