@@ -57,7 +57,7 @@ testu `tests/test_<name>.py`. Po zamknięciu karty automat zakłada zadanie B.
 |---|---|
 | tylko B | [BoolQ](benchmarks/boolq/) T10 #26 · [HellaSwag](benchmarks/hellaswag/) T05 #24 · [LAMBADA](benchmarks/lambada/) T17 #32 · [OpenBookQA](benchmarks/openbookqa/) T08 #31 · [SciQ](benchmarks/sciq/) T09 #30 · [ARC-Easy](benchmarks/arc-easy/ORIGINAL.md) T51 #23 · [BLiMP Supplement](benchmarks/blimp-supplement/ORIGINAL.md) T52 #33 |
 | tylko A | [WSC273](benchmarks/wsc273/) T14 #108 |
-| A i B, angielskie | COPA T11 #105 · CB T12 #106 · WiC T13 #107 · RTE T15 #109 · ANLI T16 #110 · LogiQA T18 #19 (PR #139) · MathQA T19 #28 · PROST T20 #111 · SST-2 T21 #112 · MMLU T32 #123 · GSM8K T33 #124 · MATH T34 #125 (PR #141) · TruthfulQA T35 #126 · IFEval T36 #40 · SQuAD 2.0 T38 #128 · DROP T39 #129 · RACE T40 #130 · CoQA T41 #131 · NQ-Open T42 #132 · TriviaQA T43 #133 · BBH T47 #135 · PAWS T48 #136 · CoLA T49 #137 · ReCoRD T50 #138 |
+| A i B, angielskie | COPA T11 #105 · CB T12 #106 · WiC T13 #107 · RTE T15 #109 · ANLI T16 #110 · LogiQA T18 #19 (PR #139) · MathQA T19 #28 (PR #158) · PROST T20 #111 · SST-2 T21 #112 · MMLU T32 #123 · GSM8K T33 #124 · MATH T34 #125 (PR #141) · TruthfulQA T35 #126 · IFEval T36 #40 · SQuAD 2.0 T38 #128 · DROP T39 #129 · RACE T40 #130 · CoQA T41 #131 · NQ-Open T42 #132 · TriviaQA T43 #133 · BBH T47 #135 · PAWS T48 #136 · CoLA T49 #137 · ReCoRD T50 #138 |
 | A i B, polskie | PolEmo 2.0 T22 #113 · 8TAGS T23 #114 · Belebele T24 #115 · DYK T25 #116 · PPC T26 #117 · PSC T27 #118 · CBD T28 #119 · NKJP-NER T29 #120 · PolQA T30 #121 · PoQuAD T31 #122 |
 
 Poza ARC-Easy i BLiMP Supplement (sama karta `ORIGINAL.md`) każdy z tych katalogów ma `README.md` i `RECIPE.md` ze
