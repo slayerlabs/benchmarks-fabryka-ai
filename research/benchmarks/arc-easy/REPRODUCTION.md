@@ -1,0 +1,23 @@
+# ARC-Easy: odtworzenie (etap B)
+
+Procedurę opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworzenie wyniku oryginalnym kodem (REPRODUCTION.md)”. Komenda i środowisko: [`RECIPE.md`](RECIPE.md). Model kontrolny, wartość referencyjną i warunek zapisano przed liczeniem; wynik, różnicę i werdykt wpisuje się po przebiegu centralnym.
+
+| | wartość |
+|---|---|
+| kod referencyjny @ commit | lm-eval `0.4.9.1` (`common/requirements.lock.txt`), definicja zadania `arc_easy.yaml` przepisana w `common/zadania.py` (`slayer_arc_easy`): prompt `Question: {{question}}\nAnswer:`, kontynuacja spacja + `choices.text`, cel `choices.label.index(answerKey)`. Blob `arc_easy.yaml` jest ten sam w `6d2abda4` i `v0.4.9.1` (`ORIGINAL.md`, „Znane rozbieżności”). |
+| dlaczego ten kod | Autorzy ARC nie mają kodu dla modelu językowego (punktują opcje metodami z tabeli 6 pracy). Wynik Pythii policzył harness z 2022 (`versions.arc_easy` = 0). Jego `arc.py` w `v0.2.0` i `v0.3.0` ma ten sam prompt `"Question: " + question + "\nAnswer:"` i te same opcje; cel liczy przez zamianę cyfr na litery i indeks w `A`–`E`. Na teście @ `210d026` daje to ten sam indeks co `label.index(answerKey)` w 2376 z 2376 pytań (`kodowanie_par.py`). To kod wskazany przez repo, nie harness z 2022 bajt w bajt. <!-- liczba-spoza-wynikow: kodowanie_par.py na teście ARC-Easy @ 210d026, 2026-11-07 --> |
+| model kontrolny @ rewizja | `EleutherAI/pythia-1b-v0` @ `step143000` (commit wag `f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0`, wiersz `pythia-1b-v0` w `MODELE` w `tools/przebieg_centralny.sh`), `HFLM`, float32, batch 1 |
+| dlaczego ten model | Pierwszy z listy w sekcji „Model kontrolny etapu B”; plik wyników Pythii v0 ma `arc_easy` z `acc` i `acc_norm`. |
+| BOS i kodowanie | Bez BOS po obu stronach. Przebieg: HFLM `0.4.9.1` ma `add_bos_token=False` i dokleja BOS tylko do pustego kontekstu, a tokenizer Pythii (post-processor `ByteLevel`) go nie dodaje: 0 z 2376 kontekstów zaczyna się od BOS. Harness z 2022: `eval_tasks/eval_adapter.py` w gpt-neox @ `dfc018a` (commit z pliku wyników Pythii) koduje `tokenizers` bez tokenów specjalnych, a `loglikelihood` w lm-eval `v0.2.0` i `v0.3.0` koduje kontekst i kontynuację osobno. HFLM koduje całość i dzieli ją na długości kontekstu; tokenizerem Pythii obie drogi dają te same tokeny w 9501 z 9501 par (`kodowanie_par.py`). <!-- liczba-spoza-wynikow: kodowanie_par.py na teście ARC-Easy @ 210d026 i tokenizerze pythia-1b-v0 @ f3f1b6d5, 2026-11-07 --> |
+| zbiór @ rewizja, split, n | `allenai/ai2_arc` @ `210d026faf9955653af8916fad021475a3f00453`, konfiguracja `ARC-Easy`, `test`, n = 2376 <!-- liczba-spoza-wynikow: ORIGINAL.md, pole „Dane” --> |
+| zbiór w 2022 a dziś | Harness z 2022 ładował `ai2_arc` skryptem HF bez przypiętej rewizji; która to była wersja, nieustalone. Wyników per pytanie z 2022 nie opublikowano, więc tej różnicy nie da się sprawdzić. |
+| wynik (SE) | po przebiegu centralnym (`results/central-run/arc-easy/pythia-1b-v0/`) |
+| wartość referencyjna i źródło: acc | 0,5585, SE 0,0102. [Plik Pythii v0 @ `a19eecb`](https://github.com/EleutherAI/pythia/blob/a19eecb807ec2c79a39ebf18108816e6ffffc1d5/evals/pythia-v0/pythia-1b/zero-shot/pythia-1b-0shot-global_step143000_eval_results_11-28-2022-15-14-35.json), odczyt w `ORIGINAL.md` („Wyniki referencyjne”, 2026-11-01) <!-- liczba-spoza-wynikow: results.arc_easy.acc i acc_stderr w pliku Pythii v0 @ a19eecb, przez ORIGINAL.md --> |
+| wartość referencyjna i źródło: acc_norm (pomocnicza) | 0,5004, SE 0,0103. Ten sam plik <!-- liczba-spoza-wynikow: results.arc_easy.acc_norm i acc_norm_stderr w pliku Pythii v0 @ a19eecb, przez ORIGINAL.md --> |
+| różnica | po przebiegu centralnym; ostrożne SE √(SE² + SE_ref²), bo wyników per pytanie z 2022 nie ma |
+| kontrola odróżnia działający kod od zepsutego (kolumna „kontrola” typu): b, wynik − b w SE, dodatkowy przebieg, jeśli typ go wymaga | Typ `mc-k`: b = 0,2664, stała odpowiedź „zawsze 3. opcja” (`ORIGINAL.md`, „Bazy”). Warunek: wynik > b + 2 SE, parowane po pytaniach, liczone po przebiegu. Wartość referencyjna minus 2 SE to 0,5381, ponad b. Typ nie wymaga dodatkowego przebiegu. <!-- liczba-spoza-wynikow: b z ORIGINAL.md; 0,5585 − 2 × 0,0102 z pliku Pythii v0 @ a19eecb --> |
+| warunek odtworzenia | ±2 pkt, a gdy 2 SE > 2 pkt, ±2 SE. SE z pliku Pythii: 0,0102 dla `acc`, więc 2 SE = 2,04 pkt i furtka `acc` to 0,5381–0,5789. `acc_norm` informacyjnie: 2 SE = 2,06 pkt, furtka 0,4798–0,5210. Wiąże `acc` (metryka decyzyjna karty). <!-- liczba-spoza-wynikow: 2 × SE z pliku Pythii v0 @ a19eecb --> |
+| werdykt | po przebiegu centralnym |
+
+Ładowania Slayera kontrola nie sprawdza ([METODOLOGIA, „Model kontrolny etapu B”](../../METODOLOGIA.md#model-kontrolny-etapu-b)):
+sprawdzają je testy kodu Slayera.
