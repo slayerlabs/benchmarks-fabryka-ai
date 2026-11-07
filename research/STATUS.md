@@ -1,6 +1,6 @@
 # Stan benchmarków
 
-Stan na **4.11.2026**. Benchmark jest zrobiony, gdy jest **opisany, przygotowany i podpięty do przebiegu
+Stan na **7.11.2026**. Benchmark jest zrobiony, gdy jest **opisany, przygotowany i podpięty do przebiegu
 centralnego** ([METODOLOGIA, „Definicja „zrobione””](METODOLOGIA.md#definicja-zrobione)). Wtedy jedno uruchomienie
 `tools/przebieg_centralny.sh` na wynajętej karcie liczy wszystkie naraz. Zmieniasz stan benchmarku? Przestaw jego
 wiersz w tym samym PR.
@@ -14,9 +14,9 @@ wiersz w tym samym PR.
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {'pie1': '#1a7f37', 'pie2': '#9a6700', 'pie3': '#bc4c00', 'pie4': '#6e7781', 'pieStrokeColor': '#ffffff', 'pieOuterStrokeWidth': '0px'}}}%%
 pie showData
-    "Gotowe" : 9
-    "W przebiegu, brak opisu" : 40
-    "Opisane, poza przebiegiem" : 5
+    "Gotowe" : 10
+    "W przebiegu, brak opisu" : 42
+    "Opisane, poza przebiegiem" : 2
     "Niezaczęte" : 30
 ```
 
@@ -28,7 +28,7 @@ i `KATALOGI` · ✓ jest · ✗ brak
 
 <a name="gotowe"></a>
 
-## ✅ Gotowe · 9
+## ✅ Gotowe · 10
 
 Każdy ma A, B, wpis w przebiegu, `RECIPE.md`, wiersz w [README, „Benchmarki i typy”](README.md#benchmarki-i-typy) i
 test `tests/test_<name>.py`.
@@ -44,34 +44,33 @@ test `tests/test_<name>.py`.
 | [PubMedQA](benchmarks/pubmedqa/README.md) | T44 | ✓ | bez kontroli | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia) |
 | [MedMCQA](benchmarks/medmcqa/README.md) | T45 | ✓ | bez kontroli | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia) |
 | [Social IQa](benchmarks/social-iqa/README.md) | T46 | ✓ | bez kontroli | ✓ | Slayer nad b, pod czterema modelami odniesienia |
+| [EWoK](benchmarks/ewok/README.md) | T53 | ✓ | ✓ | ✓ własny kod | zbiór za bramką zgody na HF: token przebiegu musi mieć dostęp |
 
 <a name="brak-opisu"></a>
 
-## 🟡 W przebiegu, brak opisu · 40
+## 🟡 W przebiegu, brak opisu · 42
 
-Wpis w przebiegu jest. Brakuje karty (A) albo zapisu kontroli (B), a poza WSC273 także testu `tests/test_<name>.py`.
-Po zamknięciu karty automat zakłada zadanie B.
+Wpis w przebiegu jest. Brakuje karty (A) albo zapisu kontroli (B), a poza WSC273, ARC-Easy i BLiMP Supplement także
+testu `tests/test_<name>.py`. Po zamknięciu karty automat zakłada zadanie B.
 
 | brakuje | benchmarki |
 |---|---|
-| tylko B | [BoolQ](benchmarks/boolq/) T10 #26 · [HellaSwag](benchmarks/hellaswag/) T05 #24 · [LAMBADA](benchmarks/lambada/) T17 #32 · [OpenBookQA](benchmarks/openbookqa/) T08 #31 · [SciQ](benchmarks/sciq/) T09 #30 |
+| tylko B | [BoolQ](benchmarks/boolq/) T10 #26 · [HellaSwag](benchmarks/hellaswag/) T05 #24 · [LAMBADA](benchmarks/lambada/) T17 #32 · [OpenBookQA](benchmarks/openbookqa/) T08 #31 · [SciQ](benchmarks/sciq/) T09 #30 · [ARC-Easy](benchmarks/arc-easy/ORIGINAL.md) T51 #23 · [BLiMP Supplement](benchmarks/blimp-supplement/ORIGINAL.md) T52 #33 |
 | tylko A | [WSC273](benchmarks/wsc273/) T14 #108 |
 | A i B, angielskie | COPA T11 #105 · CB T12 #106 · WiC T13 #107 · RTE T15 #109 · ANLI T16 #110 · LogiQA T18 #19 (PR #139) · MathQA T19 #28 · PROST T20 #111 · SST-2 T21 #112 · MMLU T32 #123 · GSM8K T33 #124 · MATH T34 #125 (PR #141) · TruthfulQA T35 #126 · IFEval T36 #40 · SQuAD 2.0 T38 #128 · DROP T39 #129 · RACE T40 #130 · CoQA T41 #131 · NQ-Open T42 #132 · TriviaQA T43 #133 · BBH T47 #135 · PAWS T48 #136 · CoLA T49 #137 · ReCoRD T50 #138 |
 | A i B, polskie | PolEmo 2.0 T22 #113 · 8TAGS T23 #114 · Belebele T24 #115 · DYK T25 #116 · PPC T26 #117 · PSC T27 #118 · CBD T28 #119 · NKJP-NER T29 #120 · PolQA T30 #121 · PoQuAD T31 #122 |
 
-Każdy z tych 40 katalogów ma `README.md` i `RECIPE.md` ze zbiorem, rewizją, splitem, metryką i licencją.
+Poza ARC-Easy i BLiMP Supplement (sama karta `ORIGINAL.md`) każdy z tych katalogów ma `README.md` i `RECIPE.md` ze
+zbiorem, rewizją, splitem, metryką i licencją.
 
 <a name="poza-przebiegiem"></a>
 
-## 🟠 Opisane, poza przebiegiem · 5
+## 🟠 Opisane, poza przebiegiem · 2
 
 | benchmark | A | B | czego brakuje | zadanie |
 |---|---|---|---|---|
-| [EWoK](benchmarks/ewok/README.md) | ✓ | ✓ | własny kod: wywołanie w przebiegu | |
-| [EWoK-PL](benchmarks/ewok-pl/README.md) | `POLISH.md` | — | wywołanie w przebiegu; przetłumaczona 1 domena z 11, tłumaczenie bez przeglądu | |
-| [ARC-Easy](benchmarks/arc-easy/ORIGINAL.md) | ✓ | ✗ | B, wpis w przebiegu | #23 |
-| [BLiMP Supplement](benchmarks/blimp-supplement/ORIGINAL.md) | ✓ | ✗ | B, wpis w przebiegu | #33 |
-| [UncheatableEval](benchmarks/uncheatable-eval/ORIGINAL.md) | ✓ | ✗ | B, wpis w przebiegu | #35 |
+| [EWoK-PL](benchmarks/ewok-pl/README.md) | `POLISH.md` | — | wpis w przebiegu: polskie rekordy leżą w zipie poza repo, bez miejsca pobrania i rewizji, a `POLISH.md` nie podaje autora tłumaczenia ani przeglądu (pole „Dane”); przetłumaczona 1 domena z 11 | |
+| [UncheatableEval](benchmarks/uncheatable-eval/ORIGINAL.md) | ✓ | ✗ | B i wpis w przebiegu: karta nie ustala tokenu startu (`bos_mode`) dla modeli przebiegu (wybiera go `bos_mode_finder.py` per model, karta podaje go tylko dla Qwen3-0.6B-Base i SmolLM2-1.7B), a etap B ma liczyć kodem autorów (okna 4000 tokenów, logity bf16), którego w repo nie ma | #35 |
 
 <a name="niezaczete"></a>
 

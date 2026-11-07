@@ -200,7 +200,14 @@ def test_plan_runs_full_set_for_every_model_and_task():
     modele, zadania = modele_skryptu(), klucze_zadan()
     assert len(linie) == len(modele) * len(zadania)
     for l in linie:
-        assert "--probka pelna" in l and f"{KORZEN}/common/ewaluuj.py" in l
+        assert "--probka pelna" in l and re.search(r" --eval_gpu \S+ ", l)  # own-code tasks too (T53)
+    # own-code tasks (EWoK T53) run their script with the ewaluuj.py flags; ewok.py picks the Slayer loader from
+    # config.json and always passes trust_remote_code, so it takes neither --model nor --trust_remote_code
+    ewok = [l for l in linie if "--zadania T53 " in l]
+    assert len(ewok) == len(modele) and all(f"{KORZEN}/benchmarks/ewok/ewok.py przebieg " in l
+                                            and f"--model_path {ws}/modele/" in l for l in ewok)
+    linie = [l for l in linie if l not in ewok]
+    assert all(f"{KORZEN}/common/ewaluuj.py " in l for l in linie)
     lfm3 = [l for l in linie if "LiquidAI/LFM3" in l]
     assert lfm3 and all("--trust_remote_code" in l for l in lfm3)
     wikitext_hf = [l for l in linie if "--zadania T03 " in l and "SlayerLab/" not in l]
@@ -210,6 +217,17 @@ def test_plan_runs_full_set_for_every_model_and_task():
     assert slayer and all("--model slayer" in l and f"--model_path {ws}/modele/" in l for l in slayer)
     assert all("--device cuda" in l for l in linie)
     assert all(" --batch 1 " in l for l in linie)  # METODOLOGIA "Ustawienia przebiegu centralnego": batch 1
+
+
+def test_own_code_list_of_the_script_matches_zadania():
+    """KOD in the script = the `kod` fields of ZADANIA (ast, so no lm-eval import)."""
+    tekst = SKRYPT.read_text(encoding="utf-8")
+    skrypt = dict(p.split(":") for p in re.search(r'^KOD="([^"]*)"', tekst, re.M).group(1).split())
+    drzewo = ast.parse((KORZEN / "common" / "zadania.py").read_text(encoding="utf-8"))
+    wpisy = next(w.value for w in drzewo.body
+                 if isinstance(w, ast.Assign) and any(getattr(t, "id", None) == "ZADANIA" for t in w.targets))
+    kod = {k.value: kw.value.value for k, v in zip(wpisy.keys, wpisy.values) for kw in v.keywords if kw.arg == "kod"}
+    assert skrypt == kod == {"T53": "benchmarks/ewok/ewok.py"}
 
 
 def plan_na_gpu(liczba):

@@ -33,9 +33,22 @@ def pliki_danych(cfg):
     return list((cfg.get("dataset_kwargs") or {}).get("data_files", {}).values())
 
 
+def test_own_code_tasks_are_not_built_as_lm_eval_configs():
+    kod = [t for t in Z.ZADANIA if t not in Z.ZADANIA_EWALUUJ]
+    assert kod == ["T53"]
+    for t in kod:
+        assert (KORZEN / Z.ZADANIA[t]["kod"]).is_file(), t
+        try:
+            Z.konfiguracje(t)
+        except KeyError as e:
+            assert Z.ZADANIA[t]["kod"] in str(e), t
+        else:
+            raise AssertionError(f"{t}: own-code task built an lm-eval config")
+
+
 def test_every_task_builds_a_valid_config():
     nazwy = []
-    for t in Z.ZADANIA:
+    for t in Z.ZADANIA_EWALUUJ:
         warianty = Z.konfiguracje(t)
         assert warianty and warianty[0][0] == "space", t
         for _, cfg in warianty:
@@ -46,10 +59,16 @@ def test_every_task_builds_a_valid_config():
 
 
 def test_source_is_pinned_to_the_zadania_revision():
-    for t, meta in Z.ZADANIA.items():
+    for t in Z.ZADANIA_EWALUUJ:
+        meta = Z.ZADANIA[t]
         cfg = Z.konfiguracje(t)[0][1]
         pliki = pliki_danych(cfg)
-        if pliki:
+        if meta.get("pliki_osf"):  # OSF: every member reads its file through the SHA-256 check
+            for _, c in Z.konfiguracje(t):
+                guid, sha = meta["pliki_osf"][c["metadata"]["czlonek"]]
+                assert c["custom_dataset"] is Z.dane_osf and c["dataset_kwargs"] == {"osf": guid, "sha256": sha}, t
+                assert c["test_split"] == meta["split"], t
+        elif pliki:
             przypiety = meta.get("rewizja_parquet") or meta["rewizja"]
             assert all(f"@{przypiety}/" in p for p in pliki), t
             if meta.get("rewizja_parquet"):
@@ -69,6 +88,9 @@ def test_zadania_entry_matches_the_benchmark_card():
     mapa = katalogi()
     sprawdzone = 0
     for t, meta in Z.ZADANIA.items():
+        if meta.get("pliki_osf"):
+            assert "rewizja" not in meta and all(re.fullmatch(r"[0-9a-f]{64}", s) for _, s in meta["pliki_osf"].values())
+            continue
         assert re.fullmatch(r"[0-9a-f]{40}", meta["rewizja"]), t
         karta = KORZEN / "benchmarks" / mapa[t] / "README.md"
         tekst = karta.read_text(encoding="utf-8") if karta.exists() else ""
@@ -80,7 +102,8 @@ def test_zadania_entry_matches_the_benchmark_card():
 
 
 def test_main_metric_is_in_the_config():
-    for t, meta in Z.ZADANIA.items():
+    for t in Z.ZADANIA_EWALUUJ:
+        meta = Z.ZADANIA[t]
         cfg = Z.konfiguracje(t)[0][1]
         glowna = meta["metric"].split(",")[0] if meta["rodzaj"] == "rolling" else meta.get("klucz", "acc")
         assert glowna in nazwy_metryk(cfg), t
@@ -121,7 +144,8 @@ def definicje(plik):
 
 
 def test_few_shot_demonstrations_do_not_come_from_the_scored_split():
-    for t, meta in Z.ZADANIA.items():
+    for t in Z.ZADANIA_EWALUUJ:
+        meta = Z.ZADANIA[t]
         cfg = Z.konfiguracje(t)[0][1]
         if not cfg.get("num_fewshot") or (cfg.get("fewshot_config") or {}).get("samples"):
             continue  # zero-shot, or fixed source demonstrations in the YAML (BBH)

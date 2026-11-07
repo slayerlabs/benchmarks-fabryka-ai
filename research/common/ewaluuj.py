@@ -390,8 +390,9 @@ def meta_srednia_makro(cfg):
 
 def podsumuj_wariant(meta, czlonkowie):
     """Metryki jednego wariantu. `czlonkowie` = [(podtest, cfg, zad, próbki)]; więcej niż jeden = grupa, średnia
-    podtestów z wagami populacji (MMLU, MATH, BBH) i bazy złożone tymi samymi wagami."""
-    wagi = {n: len(z.eval_docs) for n, _, z, _ in czlonkowie}
+    podtestów z wagami populacji (MMLU, MATH, BBH) i bazy złożone tymi samymi wagami; `wagi="rowne"` (BLiMP
+    Supplement, T52): średnia bez wag, jak u autorów."""
+    wagi = {n: 1 if meta.get("wagi") == "rowne" else len(z.eval_docs) for n, _, z, _ in czlonkowie}
     klasy_stale = meta.get("klasy_stale", False)
     if rodzaj(meta) == "mc":
         klucz = meta.get("klucz", "acc")
@@ -530,8 +531,10 @@ def ocen_zadanie(lm, task_id, dane, probka, licz_tokeny, wyj, runner, model_id, 
     digests = {"source_id": M.sha256_tekstu("\n".join(map(str, wybrane_ids))),
                "results": digest.hexdigest(), "runner": runner}
     obs = M.obserwacja(task_id, meta, model_id, protocol_id, glowna, bazy, n_pop, len(wybrane_ids), digests)
-    roz = {**obs, "dodatkowe": dodatkowe, "zrodlo_danych": {"repo": meta["repo"], "rewizja": meta["rewizja"],
-                                                             "tryb": dane}}
+    zrodlo = {"repo": meta["repo"], "rewizja": meta.get("rewizja"), "tryb": dane}
+    if meta.get("pliki_osf"):  # OSF has no revision: the SHA-256 of each file is the pin
+        zrodlo["sha256"] = {p: s for p, (_, s) in meta["pliki_osf"].items()}
+    roz = {**obs, "dodatkowe": dodatkowe, "zrodlo_danych": zrodlo}
     return obs, roz, bazy, digests["results"]
 
 
