@@ -33,9 +33,19 @@ Space @ `2d3d73f5c0ee431df9d38bd9619ccb05a26bf9a9` ma T45 dla Slayera 1.06: 0,24
 - Pełny split repo minus panel Space: +7,10 pkt. 2 SE panelu (SE A 0,0304) to 6,08 pkt, więc różnica wychodzi poza próg, ale pytania są inne. Ostrożne SE √(SE² + SE_panel²) = 0,0312, z = 2,27, prawdopodobne. <!-- liczba-spoza-wynikow: SE panelu z wartości Space 0,245 i n 200; SE pełnego splitu z results_rozszerzone.json -->
 - Na panelu wybranym kodem repo Slayer ma 0,310 i wybiera `A` w 191 z 200 pytań; Space podaje udział najczęstszej predykcji 0,88, repo na pełnym splicie 0,9331. <!-- liczba-spoza-wynikow: panel repo przeliczony z probki/T45_space.jsonl.gz; 0,88 z results.json Space -->
 - Ten sam przebieg daje LFM2.5-1.2B-Base 0,4059 na pełnym splicie, wobec 0,405 w Space (różnica 0,09 pkt). <!-- liczba-spoza-wynikow: results/central-run/medmcqa/lfm2.5-1.2b-base/results.json; 0,405 z results.json Space -->
-- Podejrzany sam w sobie jest wynik Slayera, nie różnica wobec Space: na pełnym splicie Slayer wybiera `A` w 93,3% pytań, więc jego `acc` to w praktyce stała odpowiedź (sekcja „Wyniki przy bazie”). Do sprawdzenia przed publikacją wyniku T45. <!-- liczba-spoza-wynikow: probki Slayera w results/central-run/medmcqa -->
+- Podejrzany sam w sobie jest wynik Slayera, nie różnica wobec Space: na pełnym splicie Slayer wybiera `A` w 93,3% pytań, więc jego `acc` to w praktyce stała odpowiedź (sekcja „Wyniki przy bazie”); przyczynę rozstrzyga sekcja „Format i ładowanie Slayera”. <!-- liczba-spoza-wynikow: probki Slayera w results/central-run/medmcqa -->
 
 ## Wyniki przy bazie
 
 - Slayer 1.06 wybiera `A` w 3903 z 4183 pytań (udział 0,9331), a `A` jest poprawne w 1348. Jego 0,3160 to prawie dokładnie stała odpowiedź „zawsze `A`” (0,3223): różnica −0,62 pkt, SE parowane 0,0030, z = −2,04, prawdopodobne. To samo opisuje `analyses/answer-format/README.md` (test T1). <!-- liczba-spoza-wynikow: probki Slayera w results/central-run/medmcqa -->
 - EuroLLM-1.7B ma 0,2582, przy bazie losowej 0,25 (z = 1,21, szum) i 6,41 pkt pod b (SE parowane 0,0109, z = −5,86, pewne). Wybiera `B` w 2631 z 4183 pytań (udział 0,6290), a `B` jest poprawne w 1085. W wariancie cloze (`results_rozszerzone.json`, `dodatkowe.cloze`) ma `acc_norm` 0,3091; to wynik informacyjny, metryką decyzyjną jest `acc` w formacie liter. <!-- liczba-spoza-wynikow: results/central-run/medmcqa/eurollm-1.7b (results_rozszerzone.json, probki) -->
+
+## Format i ładowanie Slayera (sprawdzone 07.11 na próbkach przebiegu centralnego, bez GPU)
+
+Werdykt: zachowanie modelu, nie błąd kodu. Przebiegu Slayera 1.07 nie blokuje.
+
+- Format: wariant liter w `common/zadania.py` (T45) bierze `doc_to_text` z `medmcqa/utils_medmcqa.py` lm-eval 0.4.9.1, opcje `["A", "B", "C", "D"]` i cel `cop`, tak jak YAML `medmcqa` tej wersji. Prompt i kontynuacje (` A` … ` D`) pilnuje `tests/test_medmcqa.py`. Pierwsza próbka Slayera w `probki/T45_space.jsonl.gz` ma dokładnie ten prompt.
+- Ładowanie: oba warianty (litery i cloze) liczy ten sam przebieg na tym samym załadowanym modelu. W cloze Slayer wybiera A, B, C, D w 24,6%, 22,5%, 23,4%, 29,5% pytań (`acc_norm` 0,2711), czyli bez preferencji pozycji, tak jak cztery modele odniesienia (A 25,4–27,0%). Model z zepsutymi wagami albo tokenizerem nie dałby w cloze rozkładu takiego jak pozostałe modele. <!-- liczba-spoza-wynikow: probki/T45_cloze.jsonl.gz pięciu modeli, argmax ll/len(kontynuacji) -->
+- Preferencja litery nie jest tylko u Slayera: EuroLLM-1.7B wybiera `B` w 62,9% pytań (sekcja wyżej). Qwen3.5-0.8B-Base, LFM2.5-1.2B-Base i LFM3-1.7B-Base mają najczęstszą literę w 26,7–32,5% pytań. <!-- liczba-spoza-wynikow: probki/T45_space.jsonl.gz pięciu modeli -->
+- Ta sama preferencja `A` u Slayera 1.06 jest na ARC-C w formacie liter (92,0%, `analyses/answer-format/README.md`, T1), a po przesunięciu treści odpowiedzi wybór zostaje na tej samej literze (T2). To cecha modelu w formacie liter, nie zadania MedMCQA. <!-- liczba-spoza-wynikow: analyses/answer-format/README.md, T1 i T2 -->
+- Dla 1.07: `acc` liter czytać wobec b (0,3223) razem z `udzial_najczestszej_predykcji` w `results_rozszerzone.json`. <!-- liczba-spoza-wynikow: b z ORIGINAL.md -->
