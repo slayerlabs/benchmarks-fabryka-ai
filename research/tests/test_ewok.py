@@ -8,6 +8,7 @@ import json
 import sys
 import tempfile
 from pathlib import Path
+from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "benchmarks" / "ewok"))
@@ -199,6 +200,53 @@ def test_holm_kolumny_tabel_porownan():
     rr = E.add_holm(_report([-3.06, -8.0], [0.3121, 0.0017], {"c": 0.29, "b": -3.84, "a": -2.10}))
     assert rr["contrasts"][1]["holm_by_domain_clusters"] == k0["holm_by_domain_clusters"]
     assert rr["contrasts"][1]["domains"]["a"]["holm"] == k0["domains"]["a"]["holm"]
+
+
+def _rekordy():
+    return [{"id": f"ewok-en-{r['source_id']:04d}", **{k: v for k, v in r.items() if k != "ll"}} for r in SAMPLE]
+
+
+def test_przebieg_wynik_srednia_se_po_szablonach_i_baza():
+    """`ewok.py przebieg` (tools/przebieg_centralny.sh, T53): the main score is the mean over records with the SE by
+    template, chance 1/2; kontrola_sensu reads `dodatkowe.space.glowna` and `bazy.chance_value`."""
+    recs = _rekordy()
+    rows = {r["id"]: {"ll": s["ll"]} for r, s in zip(recs, SAMPLE)}
+    tmpl = E.templates(recs)
+    obs = E.przebieg_wynik("T53", recs, rows, tmpl)
+    sredni = sum(E.evaluate(w)["ewok"] for w in rows.values()) / len(rows)
+    space = obs["dodatkowe"]["space"]
+    assert obs["state"] == "ok" and obs["task_id"] == "T53" and obs["n_scored"] == len(recs)
+    assert abs(obs["value"] - sredni) < 1e-12 and space["glowna"]["metryka"] == "ewok"
+    assert space["glowna"]["se"] == space["ewok_by_template"]["se"]
+    assert space["glowna"]["n_templates"] == len(set(tmpl.values()))
+    assert space["bazy"]["chance_value"] == 0.5
+
+
+def test_przebieg_blad_to_obserwacja_failed_i_kod_1():
+    """A failure (here: no weights directory) is a `failed` observation and exit code 1, never a missing file."""
+    out = Path(tempfile.mkdtemp()) / "wyj"
+    oryginal, E.load_records = E.load_records, _rekordy  # no network: the sample instead of ewok-core-1.0
+    try:
+        a = SimpleNamespace(wyjscie=str(out), probka="2", model_path=str(out / "brak"), device="cpu", batch=1,
+                            zadania="T53", etykieta="atrapa", repo="r", revision="v")
+        assert E.cmd_przebieg(a) == 1
+    finally:
+        E.load_records = oryginal
+    obs = json.loads((out / "results_rozszerzone.json").read_text())["observations"][0]
+    assert obs["state"] == "failed" and obs["task_id"] == "T53" and obs["model"] == "atrapa"
+    assert obs["protocol"]["rule"] == "authors" and obs["protocol"]["probka"] == "2"
+
+
+def test_wpis_przebiegu_zgodny_z_karta():
+    """ZADANIA T53 against benchmarks/ewok/ORIGINAL.md and this code (own code: the run calls ewok.py przebieg)."""
+    sys.path.insert(0, str(ROOT / "common"))
+    import zadania as Z
+    meta = Z.ZADANIA["T53"]
+    karta = (ROOT / "benchmarks" / "ewok" / "ORIGINAL.md").read_text(encoding="utf-8")
+    assert meta["kod"] == "benchmarks/ewok/ewok.py" and meta["metric"] == E.METRICS[0] == "ewok"
+    assert (meta["repo"], meta["rewizja"]) == (E.DATASET_REPO, E.DATASET_REV)
+    assert f"`{E.DATASET_REPO}`" in karta and E.DATASET_REV in karta and "split: `test`" in karta
+    assert "| Metryka decyzyjna | trafność LOGPROBS" in karta and "0-shot" in karta
 
 
 if __name__ == "__main__":
