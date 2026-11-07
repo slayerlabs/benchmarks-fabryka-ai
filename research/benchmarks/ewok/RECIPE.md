@@ -65,6 +65,22 @@ Bez wag: `report` czyta `results/<model>/ewok.jsonl.gz`, gdy nie ma surowego `ew
 zbiór z HF. `--rule` (domyślnie `authors`) wpisuje do `protocol` regułę, którą policzono pliki per rekord. Dla
 `results/ewok_plain.json` to `--rule plain`.
 
+## Przebieg centralny (T53)
+
+`tools/przebieg_centralny.sh` liczy EWoK jako T53 (`KOD` w skrypcie, pole `kod` w `common/zadania.py`). Dla każdego
+modelu woła, z tymi samymi flagami co `common/ewaluuj.py`:
+
+```bash
+<venv>/bin/python benchmarks/ewok/ewok.py przebieg --repo <repo HF> --revision <rewizja> --model_path <katalog wag> \
+  --zadania T53 --probka pelna --device cuda --batch 1 --etykieta <etykieta> --wyjscie <wyniki>/ewok/<etykieta>
+```
+
+Reguła `authors`, float32, wszystkie 4374 rekordy (`--probka N`: pierwsze N, tylko próba obciążenia). Wyjście:
+`probki/ewok.jsonl` (log P per rekord, przerwany przebieg wznawia się od brakujących rekordów) i
+`results_rozszerzone.json`: trafność z SE po szablonach (`dodatkowe.space.glowna`), baza losowa 0,5, remisy. Zbiór
+`ewok-core/ewok-core-1.0` jest za bramką zgody na HF: token przebiegu musi mieć zaakceptowane warunki, inaczej każda
+para kończy się stanem `failed` z `GatedRepoError`.
+
 ## Etap B: kod autorów (`authors_bf16` i `authors_fp32`)
 
 - Środowisko: osobny venv z [`reference/requirements-ref.txt`](reference/requirements-ref.txt) (Python 3.12.2,

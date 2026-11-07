@@ -1,0 +1,2 @@
+{"activity_label": "Cycling", "ctx_a": "A man", "ctx_b": "rides", "endings": ["the bike home.", "a sandwich.", "the bus.", "a book."], "label": "0"}
+{"activity_label": "Cooking [title]", "ctx_a": "Someone", "ctx_b": "chops", "endings": ["[header] onions", "ab", "abcdefgh", "salt"], "label": "2"}

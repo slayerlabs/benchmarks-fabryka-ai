@@ -1,9 +1,13 @@
 """Czyste funkcje EWoK-PL (benchmarks/ewok-pl/ewok.py), bez wag i bez danych. Uruchom: python tests/test_ewok_pl.py (albo pytest)."""
+import importlib.util
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "benchmarks" / "ewok-pl"))
-import ewok as E  # noqa: E402
+# own module name: tests/test_ewok.py imports benchmarks/ewok/ewok.py as `ewok`, and a pytest run keeps one `ewok`
+_SPEC = importlib.util.spec_from_file_location(
+    "ewok_pl", Path(__file__).resolve().parent.parent / "benchmarks" / "ewok-pl" / "ewok.py")
+E = importlib.util.module_from_spec(_SPEC)
+_SPEC.loader.exec_module(E)
 
 
 def rek(ll, bezw=(-10.0, -10.0)):

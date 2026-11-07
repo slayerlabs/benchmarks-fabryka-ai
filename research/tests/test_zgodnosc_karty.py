@@ -80,21 +80,24 @@ def zadanie_lm_eval(meta):
 def rozbieznosci(meta, tekst):
     seg = segmenty(tekst)
     rozne = {}
-    if meta["repo"] not in tekst or meta["rewizja"] not in tekst:
-        rozne["repo@rewizja"] = f"{meta['repo']} @ {meta['rewizja']} (pełny hash)"
+    # OSF (BLiMP Supplement, T52) has no revision: the SHA-256 of every file is the pin
+    piny = [meta["rewizja"]] if meta.get("rewizja") else [s for _, s in meta["pliki_osf"].values()]
+    if meta["repo"] not in tekst or any(p not in tekst for p in piny):
+        rozne["repo@rewizja"] = f"{meta['repo']} @ {', '.join(piny)} (pełny hash)"
     dane = tekst_pol(seg, SPLIT) or tekst
     if not slowo(meta["split"], dane):
         rozne["split"] = meta["split"]
     decyzyjna = tekst_pol(seg, re.compile(r"^Metryka decyzyjna")) or tekst_pol(seg, re.compile(r"^Ocena"))
     metryka = meta["metric"].split(",")[0]
-    if f"`{metryka}`" not in decyzyjna:
+    # own code (`kod`, EWoK T53): the card names the metric in words; tests/test_<name>.py checks the code's key
+    if not meta.get("kod") and f"`{metryka}`" not in decyzyjna:
         rozne["metryka decyzyjna"] = metryka
     n = shoty(meta)
     w_karcie = {int(a or b) if (a or b) else 0 for a, b, _ in SHOTY.findall(tekst_pol(seg, PROTOKOL))}
     if w_karcie != {n}:
         rozne["shots"] = (n, sorted(w_karcie))
     zad = zadanie_lm_eval(meta)
-    if not (slowo(zad, tekst) or f"/{zad}" in tekst):
+    if not meta.get("kod") and not (slowo(zad, tekst) or f"/{zad}" in tekst):
         rozne["zadanie lm-eval / YAML"] = zad
     return rozne
 
@@ -112,7 +115,7 @@ def test_entry_matches_card(task_id):
     assert not rozne, f"{p.relative_to(KORZEN)}: {rozne}"
 
 
-@pytest.mark.parametrize("task_id", sorted(Z.ZADANIA))
+@pytest.mark.parametrize("task_id", sorted(Z.ZADANIA_EWALUUJ))
 def test_run_passes_the_entry_shot_count(task_id):
     for wariant, cfg in Z.konfiguracje(task_id):
         assert (cfg.get("num_fewshot") or 0) == shoty(Z.ZADANIA[task_id]), (wariant, cfg.get("num_fewshot"))
