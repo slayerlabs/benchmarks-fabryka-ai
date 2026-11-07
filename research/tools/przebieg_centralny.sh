@@ -239,8 +239,14 @@ case "$etap" in
     ;;
   przygotuj)
     LIMIT=${2:?safety limit in seconds}
-    mkdir -p "$ST" "$WS/wyniki" "$WS/logi" "$WS/modele"
-    nohup python3 $K/slayer-1b/wygaszanie/bezpiecznik.py po "$LIMIT" > $WS/logi/bezpiecznik.log 2>&1 &
+    mkdir -p "$ST/praca" "$WS/wyniki" "$WS/logi" "$WS/modele"
+    # work marker for the whole stage: pip, NLTK and the network test leave the GPU idle longer than the guard window
+    ZN_PRZYG="$ST/praca/$$_przygotuj"
+    echo przygotuj > "$ZN_PRZYG"
+    trap 'rm -f "$ZN_PRZYG"' EXIT
+    # hard limit: pack, then destroy with the disk (the idle guard only stops the instance)
+    nohup python3 $K/slayer-1b/wygaszanie/bezpiecznik.py po "$LIMIT" "bash $K/tools/przebieg_centralny.sh pakuj" \
+      > $WS/logi/bezpiecznik.log 2>&1 &
     bash "$0" straznik
     python3 $K/slayer-1b/wygaszanie/bezpiecznik.py sprawdz
     t=$(teraz)
@@ -285,7 +291,7 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
     [[ -n $PARY ]] && w_tle ponow "set -e; source $K/tools/przebieg_centralny.sh _funkcje; \
       licz_rownolegle ponow $PARY"
     ;;
-  straznik)  # idle guard: GPU < 5% with no evaluation for STRAZNIK_OKNO s -> pack, copy to $WS/wyjscie, destroy
+  straznik)  # idle guard: GPU < 5% with no evaluation for STRAZNIK_OKNO s -> pack, copy to $WS/wyjscie, stop
     mkdir -p "$WS/logi"
     nohup python3 $K/tools/straznik_bezczynnosci.py --wyjscie "$WS/wyjscie" --okno "${STRAZNIK_OKNO:-600}" \
       --archiwum "$WS/wyniki.tgz" --praca "$ST/praca" > $WS/logi/straznik.log 2>&1 &

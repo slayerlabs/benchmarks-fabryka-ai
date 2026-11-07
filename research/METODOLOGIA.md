@@ -476,17 +476,23 @@ wchodzi do obu środowisk).
    bash tools/przebieg_centralny.sh stan               # postęp; `ponow` powtarza zadania zakończone błędem
    ```
 
-   `przygotuj <limit_s>` niszczy instancję po `<limit_s>` sekundach bez względu na stan. Czasu przebiegu 52 zadań na
+   `przygotuj <limit_s>` po `<limit_s>` sekundach pakuje wyniki i niszczy instancję razem z dyskiem, bez względu
+   na stan. Czasu przebiegu 52 zadań na
    GPU nie mierzyliśmy: jedyny pomiar na RTX 4090 (`results/central-run/times_rtx4090.jsonl`) to 7 zadań, dla
    Slayera 1.06 razem 0,34 h, a nowe zadania mają zbiory wielokrotnie większe (MMLU, BBH, zadania z generacją).
-   Dlatego limit to zabezpieczenie, nie prognoza: 172800 s (48 h) jest ustaleniem bez pomiaru. Instancję po
-   końcu niszczy strażnik bezczynności: po 600 s (`STRAZNIK_OKNO`, ustawiasz przed `przygotuj`) bez `ewaluuj.py`,
-   bez żywego znacznika pracy skryptu (`/workspace/stan/praca/`: pobieranie i konwersja wag, każde zadanie, także
-   `ewok.py`) i z GPU poniżej 5% pakuje wyniki do `/workspace/wyjscie/wyniki.tgz` i niszczy instancję razem z dyskiem.
+   Dlatego limit to zabezpieczenie, nie prognoza: 172800 s (48 h) jest ustaleniem bez pomiaru. Po końcu
+   instancję ZATRZYMUJE strażnik bezczynności: po 600 s (`STRAZNIK_OKNO`, ustawiasz przed `przygotuj`) bez
+   `ewaluuj.py`, bez żywego znacznika pracy skryptu (`/workspace/stan/praca/`: cały `przygotuj`, pobieranie i
+   konwersja wag, każde zadanie, także `ewok.py`) i z GPU poniżej 5% pakuje wyniki do `/workspace/wyniki.tgz` (kopia
+   w `/workspace/wyjscie/`) i zatrzymuje instancję. Zatrzymana instancja nie płaci za GPU, płaci za dysk, a dysk z
+   wynikami zostaje. Po zatrzymaniu nie działa już ani strażnik, ani limit z `przygotuj`.
 5. **Wyniki.** `licz` pobiera `ckpt_22327.pt`, sprawdza jego sumę, konwertuje go do
    `/workspace/modele/slayer1b-1.07/` i liczy 52 zadania do `/workspace/wyniki/<benchmark>/slayer1b-1.07/`, na
-   końcu kontrola sensu. Po końcu `bash tools/przebieg_centralny.sh pakuj` i pobierasz `/workspace/wyniki.tgz`
-   (np. `scp`) ZANIM strażnik zniszczy instancję. W repo rozpakowujesz go w `results/central-run/`. Pole `repo`
+   końcu kontrola sensu. Gdy instancja jest zatrzymana: `vastai start instance <ID>` (albo Start w panelu vast.ai),
+   po starcie `scp` pliku `/workspace/wyniki.tgz` na swój komputer, potem `vastai destroy instance <ID>` (albo
+   Destroy w panelu); usunięcie robisz ręcznie. Wznowienie zależy od wolnej karty na tej samej maszynie vast.ai
+   (opis `vastai start instance` w pakiecie vastai 1.11.0); gdy jej nie ma, dane z zatrzymanej instancji wyciągasz
+   sposobami z https://vast.ai/docs/gpu-instances/data-movement (odsyłacz z opisu `vastai stop instance`). W repo rozpakowujesz archiwum w `results/central-run/`. Pole `repo`
    w `results.json` to `SlayerLab/Slayer1B-1.07-checkpoints` @ `89630be…`, a `weights_sha256` to suma
    skonwertowanego `model.safetensors` (`d826b4a1…`).
 
