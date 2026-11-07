@@ -614,10 +614,13 @@ def test_regula_k_milczy_gdy_jest_liczba_po_paradygmatach():
     assert _reguly_ijk("Holm-significant: 17 of 36 on the pairs.") == []  # bez paradygmatów w pobliżu nie ma czego żądać
 
 
-def test_rozroznialny_bez_probek_jest_ostrozny(tmp_path):
+def test_rozroznialny_bez_probek_jest_ostrozny(tmp_path, monkeypatch):
     import wykres_przebiegu as Wp
     assert Wp.rozroznialny(tmp_path, "blimp", 1) is False
+    # próbki BLiMP w repo są dla 1.06; etykieta z MODELE wskazuje wersję, której wyników jeszcze może nie być
+    monkeypatch.setattr(Wp, "M", [("slayer1b-1.06", "Slayer 1B")] + Wp.M[1:])
     centralny = KORZEN / "results/central-run"
+    assert Wp.klastry_blimp(centralny, "blimp", "slayer1b-1.06")  # liczy na próbkach, nie na ich braku
     assert [Wp.rozroznialny(centralny, "blimp", i) for i in range(1, len(Wp.M))] == [False] * 4  # szum po paradygmatach
 
 
