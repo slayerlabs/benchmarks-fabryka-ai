@@ -46,5 +46,6 @@ kłopotliwą i czemu panel wyszedł niżej niż pełny split:
 i ustawieniami, więc werdykt etapu B brzmi „bez kontroli: nierozstrzygnięte”, a wynik jest wstępny i nie wchodzi do
 tabeli CodeSOTA ani do meta-oceny.
 
-**Kontaminacja:** `unscanned` dla Slayera 1.06 (pole `contamination` w `results_rozszerzone.json`); Space nie
-oznacza T19 jako kontaminowanego, a własnego skanu nie robiliśmy.
+**Kontaminacja:** `unscanned` dla Slayera 1.06 (pole `contamination` w `results_rozszerzone.json`); Space oznacza
+T19 dla Slayera 1.06 jako `flagged`, bez `hit_rate` ([`ORIGINAL.md`](ORIGINAL.md), pole „Kontaminacja”), a własnego
+skanu nie robiliśmy.
