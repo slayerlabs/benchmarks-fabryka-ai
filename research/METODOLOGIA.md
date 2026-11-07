@@ -456,6 +456,23 @@ bash tools/przebieg_centralny.sh licz "slayer1b-<wersja>"   # w tle: wagi, każd
 `przygotuj` stawia dwa środowiska (lock i nowsze transformers dla Qwen3.5 i LFM3) i bezpiecznik, który niszczy
 instancję po `<limit_s>` sekundach.
 
+**Slayer 1.07 dziś.** Kod bez zmian, w `/workspace/kod` na instancji:
+
+```bash
+bash tools/przebieg_centralny.sh przygotuj <limit_s>
+bash tools/przebieg_centralny.sh licz "slayer1b-1.07"
+```
+
+`licz` pobiera `ckpt_22327.pt` (8,9 GB) i wzorzec 1.06 (4,3 GB), konwertuje checkpoint do
+`/workspace/modele/slayer1b-1.07/` i liczy 49 zadań. Wyniki: `/workspace/wyniki/<benchmark>/slayer1b-1.07/`, po
+`pakuj` w `wyniki.tgz`, w repo w `results/central-run/<benchmark>/slayer1b-1.07/`. Pole `repo` w `results.json` to
+`SlayerLab/Slayer1B-1.07-checkpoints` @ `89630be…`, a `weights_sha256` to suma skonwertowanego `model.safetensors`
+(`d826b4a1…` dla `ckpt_22327.pt` o sumie `48cdb5eb…` z karty checkpointów). Punkt odniesienia: `proba_cpu
+"slayer1b-1.07"` (`PROBA_N=2`, 4 wątki CPU, Apple M5 Pro, 07.11.2026) przeszła 49 z 49 zadań w 26,5 min;
+najdłuższe MMLU (319 s), MATH (192 s), IFEval (127 s) i BBH (114 s). Na instancji `ZOSTAW_WAGI=1 bash
+tools/przebieg_centralny.sh proba_cpu "slayer1b-1.07"` przed `licz` sprawdza ładowanie, a `licz` nie pobiera wag
+drugi raz.
+
 `plan "slayer1b-<wersja>"` wypisuje komendy bez liczenia, także lokalnie (`K=$PWD WS=$(mktemp -d)`). `stan` pokazuje
 postęp, `ponow` powtarza zadania zakończone błędem, a `licz` kończy się `tools/kontrola_sensu.py` (zadanie bez
 wyniku, wynik równy 1, wynik pod bazą losową o ponad 5 pkt, perpleksja nieskończona). Przebieg liczy pełne zbiory.
