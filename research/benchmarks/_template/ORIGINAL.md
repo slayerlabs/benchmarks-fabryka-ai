@@ -26,7 +26,7 @@ wierszy tabeli albo na listę, jedna pozycja na linię. Przykład: `benchmarks/w
 | SNR: źródło | panel z METODOLOGII („Panel SNR”); do przebiegu, który obejmie test, w polach SNR wpisz „po przebiegu centralnym”; modele i commit przebiegu: |
 | SNR: rozrzut | odchylenie std. wyników modeli panelu: |
 | SNR: SE | SE jednego wyniku dla n pełnego splitu, metodą z kolumny „SE” typu: |
-| SNR: iloraz | rozrzut / SE: |
+| SNR: iloraz | rozrzut / SE: ; przedział 95%: ; najmniejszy bez jednego modelu panelu: |
 | SNR: szum checkpointów | odchylenie std. 5 ostatnich checkpointów jednego modelu (źródło) albo „nieustalone”: |
 | MDE | panel 200: ; pełny split: ; SE różnicy wzięte z: |
 | Kontaminacja | sprawdzona: metoda, odsetek / znana: źródło / nieznana |

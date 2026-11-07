@@ -171,7 +171,7 @@ wpisujesz dopiero po przeczytaniu kodu przypiętej wersji (sekcja „Wersja lm-e
 | Metryka decyzyjna | **jedna** metryka, po której porównujesz modele; pozostałe są pomocnicze |
 | Agregacja i grupy | średnia po pytaniach czy po podtestach, wagi; poziomy grup i ten, który wiąże (kolumna „Wiążący werdykt”) |
 | Bazy | baza losowa, stała odpowiedź i b według kolumn typu, dokładne wartości ze splitu |
-| SNR | „po przebiegu centralnym”, dopóki przebieg nie objął testu; potem rozrzut na panelu (akapit pod tabelą) z listą modeli i commitem przebiegu; SE jednego wyniku dla n pełnego splitu metodą z kolumny „SE”; iloraz; szum checkpointów (odchylenie standardowe 5 ostatnich checkpointów jednego modelu), gdy są opublikowane |
+| SNR | „po przebiegu centralnym”, dopóki przebieg nie objął testu; potem rozrzut na panelu (akapit pod tabelą) z listą modeli i commitem przebiegu; SE jednego wyniku dla n pełnego splitu metodą z kolumny „SE”; iloraz z przedziałem 95% i najmniejszym ilorazem bez jednego modelu panelu (`tools/snr_panelu.py`); szum checkpointów (odchylenie standardowe 5 ostatnich checkpointów jednego modelu), gdy są opublikowane |
 | MDE | dla panelu 200 i dla pełnego splitu (rdzeń, punkt 5) |
 | Wyniki referencyjne | co najmniej jeden opublikowany wynik modelu, który da się pobrać, z datą odczytu; bez takiego wyniku „brak” i miejsca, w których szukano (etap B idzie wtedy jako „bez kontroli”) |
 | Train policy | `eval_only` (domyślnie, żaden split nie trafia do treningu) albo `train_allowed` dla wymienionych splitów z numerem issue z decyzją |
@@ -179,11 +179,28 @@ wpisujesz dopiero po przeczytaniu kodu przypiętej wersji (sekcja „Wersja lm-e
 | Kontaminacja | „sprawdzona: metoda, odsetek pokrytych pytań”, „znana: źródło” albo „nieznana” |
 | Znane rozbieżności | czym implementacje (np. lm-eval) różnią się od kodu autorów, znane błędy danych; katalog zadania lm-eval w obu wersjach (sekcja „Wersja lm-eval”); gdy implementacja mierzy co innego niż praca, wpisujesz to, co mierzy implementacja, a rozbieżność z polem `domain` Space zgłaszasz w zadaniu |
 
-**Panel SNR.** Rozrzut to odchylenie standardowe wyników modeli z `MODELE` w `tools/przebieg_centralny.sh` poza
-mierzonym, razem z modelami odniesienia i kontrolnym. Panel jest ten sam dla każdego testu, jak w
-[Signal and Noise](https://arxiv.org/abs/2508.13144). Panel krótszy niż 4 modele daje SNR „nieustalony”. Opublikowane
-wyniki innych modeli możesz podać informacyjnie, ale nie są podstawą werdyktu. Karty sprzed tej reguły mają SNR z
-publikacji i przechodzą na panel przy pierwszym przebiegu, który obejmuje test.
+**Panel SNR.** Panel to wiersze `MODELE` w `tools/przebieg_centralny.sh` poza wierszem `SlayerLab/` (mierzony
+model), które mają wyniki per pytanie tego testu: modele odniesienia i `EleutherAI/pythia-1b-v0`, czyli model kontrolny
+etapu B wpisany do `MODELE` (sekcja „Kto liczy które modele”). Model kontrolny etapu B spoza `MODELE` do panelu nie
+wchodzi. Panel jest ten sam dla każdego testu, jak w [Signal and Noise](https://arxiv.org/abs/2508.13144). Rozrzut to
+odchylenie standardowe (mianownik n − 1) wyników metryki decyzyjnej modeli panelu, SE to średnia po modelach panelu SE
+jednego wyniku metodą z kolumny „SE”, SNR to ich iloraz. Panel krótszy niż 4 modele daje SNR „nieustalony”. Liczy
+`tools/snr_panelu.py` z `results/central-run/`, a karta podaje SNR, jego przedział 95%, najmniejszy SNR bez jednego
+modelu panelu, listę modeli i commit wyników. Opublikowane wyniki innych modeli możesz podać informacyjnie, ale nie są
+podstawą werdyktu. Karty sprzed tej reguły mają SNR z publikacji i przechodzą na panel przy pierwszym przebiegu, który
+obejmuje test.
+
+**Niepewność SNR.** Odchylenie standardowe z 4–7 modeli samo jest szumne, więc SNR karty to estymata. Narzędzie podaje
+ją na dwa sposoby: przedział 95% z bootstrapu po pytaniach (po klastrach przy SE klastrowym), z tym samym losowaniem
+pytań dla każdego modelu panelu, 2000 powtórzeń i ziarnem w wyniku; oraz SNR panelu bez każdego jednego modelu.
+Przedział mówi, ile SNR zależy od doboru pytań, a SNR bez jednego modelu, ile zależy od składu panelu.
+
+**Panel a ranking.** Modele odniesienia są w panelu i w rankingu, a panel rozdzielony od rankingu potrzebowałby co
+najmniej 4 modeli spoza rankingu (przebieg liczy jeden, Pythię). Dobór testów na tych samych wynikach szkodzi, gdy
+test wchodzi dzięki szumowi pytań albo dzięki jednemu odstającemu modelowi, bo wtedy ranking zawyża różnice albo
+wyróżnia ten model. Dlatego warunek SNR w [LEADERBOARD, „Który test wchodzi”](LEADERBOARD.md#który-test-wchodzi)
+spełnia test, u którego próg przekraczają dolna granica przedziału 95% i najmniejszy SNR bez jednego modelu panelu.
+Wtedy decyzja o teście nie zależy ani od szumu pytań, ani od żadnego pojedynczego modelu rankingu.
 
 ## B. Odtworzenie wyniku oryginalnym kodem (REPRODUCTION.md)
 
