@@ -19,7 +19,7 @@ Slayera). Podaje:
 - listę testów z typem z tabeli typów, kategorię każdego testu, wagi kategorii (sumują się do 1) i minimalną liczbę
   testów w kategorii;
 - metrykę decyzyjną każdego testu i split, z którego liczysz b;
-- próg SNR i źródło szumu (modele albo checkpointy), najwyższe dopuszczalne b;
+- próg SNR, skład panelu SNR (wiersze `MODELE` z commitem wyników, METODOLOGIA, „Panel SNR”), najwyższe dopuszczalne b;
 - liczbę powtórzeń bootstrapu i seed;
 - hash zbioru i konfiguracji ewaluacji każdego testu;
 - dla każdej pary model × test pole kontaminacji: „sprawdzona: metoda”, „znana: źródło” albo „nieznana”.
@@ -34,11 +34,13 @@ Test wchodzi do meta-oceny, gdy:
   kontroli: nierozstrzygnięte” nie wystarcza), wersja polska obie kontrole D3, a benchmark bez oryginału kontrolę
   karty zbioru;
 - ma skalę z dolną kotwicą b: typy `ppl` i `sedzia` nie wchodzą, `ppl` stoi w osobnej kolumnie;
-- jego SNR przekracza próg z pliku zestawu, a b nie przekracza najwyższego dopuszczalnego b (przy wysokim b dzielnik
+- próg SNR z pliku zestawu przekraczają dolna granica przedziału 95% jego SNR i najmniejszy SNR bez jednego modelu
+  panelu (akapit niżej), a b nie przekracza najwyższego dopuszczalnego b (przy wysokim b dzielnik
   1 − b mnoży SE testu i jeden test przejąłby zmienność całej oceny).
 
-SNR to pole SNR karty, które pomija modele z rankingu (METODOLOGIA, „A. Karta oryginału”), bo test dobrany na ich
-wynikach faworyzowałby te modele. Test ze znaną kontaminacją u danego modelu zostaje u tego modelu kolumną
+SNR to pole SNR karty, liczone na modelach przebiegu centralnego poza mierzonym (METODOLOGIA, „Panel SNR”). Kryterium
+bierze dolną granicę przedziału i minimum bez jednego modelu zamiast samego SNR, bo panel ma modele rankingu, a test dobrany na ich szumie albo na jednym odstającym modelu zawyżałby różnice albo wyróżniał ten model
+(METODOLOGIA, „Panel a ranking”). Test ze znaną kontaminacją u danego modelu zostaje u tego modelu kolumną
 informacyjną, poza średnią ([OLMo, §4.3](https://arxiv.org/abs/2402.00838)); tak samo test polski z SE większym niż w
 oryginale (wiersz `+pl` tabeli typów). Jeden zbiór pytań (konfiguracja zbioru na HF; ARC-Easy i ARC-Challenge to dwa)
 to jedna pozycja, nawet z kilkoma metrykami. Test, który nie spełnia warunków, zostaje w tabeli jako kolumna
