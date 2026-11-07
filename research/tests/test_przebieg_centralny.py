@@ -31,8 +31,16 @@ def tabela_metodologii():
 
 
 def slayer_metodologii():
+    """(repo, revision, checkpoint file or None) from the "Mierzony dziś model" line."""
     tekst = (KORZEN / "METODOLOGIA.md").read_text(encoding="utf-8")
-    return re.search(r"`(SlayerLab/Slayer1B-[0-9.]+)` @ `([0-9a-f]{40})`", tekst).groups()
+    return re.search(r"\*\*Mierzony dziś model:\*\* `(SlayerLab/Slayer1B-[0-9.]+(?:-checkpoints)?)` @ `([0-9a-f]{40})`"
+                     r"(?:, plik\s+`(ckpt_\d+\.pt)`)?", tekst).groups()
+
+
+def zmienna_skryptu(nazwa):
+    env = {**os.environ, "WS": tempfile.mkdtemp(), "K": str(KORZEN)}
+    return subprocess.run(["bash", "-c", f"source {SKRYPT} _funkcje; echo \"${nazwa}\""], capture_output=True,
+                          text=True, check=True, env=env).stdout.strip()
 
 
 def klucze_zadan():
@@ -127,13 +135,59 @@ def test_gated_model_with_access_is_counted_in_the_lock_env():
 
 def test_slayer_revision_matches_methodology():
     slayery = [(repo, rev, loader) for _, repo, rev, loader, _ in modele_skryptu() if repo.startswith("SlayerLab/")]
-    assert slayery == [(*slayer_metodologii(), "slayer")]
+    repo, rev, plik = slayer_metodologii()
+    loader = "slayer-ckpt" if plik else "slayer"
+    assert slayery == [(repo, rev, loader)]
+    if plik:
+        assert repo.endswith("-checkpoints") and zmienna_skryptu("SLAYER_CKPT") == plik
 
 
 def test_labels_unique_and_fields_valid():
     modele = modele_skryptu()
     assert len({m[0] for m in modele}) == len(modele)
-    assert all(m[3] in ("slayer", "hf", "hf-trust") and m[4] in ("lock", "new") for m in modele)
+    assert all(m[3] in ("slayer", "slayer-ckpt", "hf", "hf-trust") and m[4] in ("lock", "new") for m in modele)
+
+
+def test_slayer_ckpt_is_converted_against_the_template_then_evaluated_as_slayer():
+    """slayer-ckpt: checkpoint file from the -checkpoints repo at the pinned revision, the template model, konwertuj.py
+    into $WS/modele/<label>, both downloads deleted, ewaluuj.py with --model slayer on the converted directory."""
+    ws = tempfile.mkdtemp()
+    atrapa_srodowiska(ws, dostep=True)
+    etykieta, repo, rev, _, _ = next(m for m in modele_skryptu() if m[3] == "slayer-ckpt")
+    ckpt, wzorzec = zmienna_skryptu("SLAYER_CKPT"), zmienna_skryptu("SLAYER_WZORZEC").split("|")
+    wynik = kolejka(ws, etykieta)
+    assert wynik.returncode == 0, wynik.stderr
+    wywolania = (Path(ws) / "wywolania.log").read_text().splitlines()
+    d = f"{ws}/modele/{etykieta}"
+    pobranie = [w for w in wywolania if "hf_hub_download" in w]
+    assert len(pobranie) == 1 and f"h('{repo}', '{ckpt}', revision='{rev}', local_dir='{d}.ckpt')" in pobranie[0]
+    assert any(f"s('{wzorzec[0]}', revision='{wzorzec[1]}', local_dir='{d}.wzorzec'" in w for w in wywolania)
+    konw = [i for i, w in enumerate(wywolania) if "wygaszanie/konwertuj.py" in w]
+    sha = zmienna_skryptu("SLAYER_CKPT_SHA256")
+    assert re.fullmatch(r"[0-9a-f]{64}", sha)
+    assert len(konw) == 1 and wywolania[konw[0]].endswith(f"{d}.ckpt/{ckpt} {d}.wzorzec {d} --sha256 {sha}")
+    ewaluacje = [i for i, w in enumerate(wywolania) if f"--etykieta {etykieta}" in w]
+    assert len(ewaluacje) == 2 and min(ewaluacje) > konw[0]
+    assert all("--model slayer " in wywolania[i] and f"--model_path {d} " in wywolania[i] for i in ewaluacje)
+    assert not any(Path(f"{d}{s}").exists() for s in (".ckpt", ".wzorzec"))
+
+
+def test_slayer_ckpt_already_converted_is_not_downloaded_again():
+    ws = tempfile.mkdtemp()
+    atrapa_srodowiska(ws, dostep=True)
+    etykieta = next(m[0] for m in modele_skryptu() if m[3] == "slayer-ckpt")
+    d = Path(ws) / "modele" / etykieta
+    d.mkdir(parents=True)
+    (d / "model.safetensors").write_bytes(b"x")
+    (d / "config.json").write_text(json.dumps({"zrodlo_ckpt": f"/w/{zmienna_skryptu('SLAYER_CKPT')}"}, indent=1))
+    env = {**os.environ, "WS": ws, "K": str(KORZEN), "ZADANIA_ID": "T02", "ZOSTAW_WAGI": "1"}
+    wynik = subprocess.run(["bash", "-c", f"source {SKRYPT} _funkcje; licz_kolejke - {etykieta}"],
+                           capture_output=True, text=True, env=env)
+    assert wynik.returncode == 0, wynik.stderr
+    assert "juz skonwertowane" in wynik.stdout
+    wywolania = (Path(ws) / "wywolania.log").read_text()
+    assert "hf_hub_download" not in wywolania and "konwertuj.py" not in wywolania
+    assert f"--etykieta {etykieta}" in wywolania
 
 
 def test_task_dirs_cover_exactly_zadania():
@@ -148,7 +202,7 @@ def test_plan_runs_full_set_for_every_model_and_task():
     modele, zadania = modele_skryptu(), klucze_zadan()
     assert len(linie) == len(modele) * len(zadania)
     for l in linie:
-        assert "--probka pelna" in l
+        assert "--probka pelna" in l and re.search(r" --eval_gpu \S+ ", l)  # own-code tasks too (T53)
     # own-code tasks (EWoK T53) run their script with the ewaluuj.py flags; ewok.py picks the Slayer loader from
     # config.json and always passes trust_remote_code, so it takes neither --model nor --trust_remote_code
     ewok = [l for l in linie if "--zadania T53 " in l]

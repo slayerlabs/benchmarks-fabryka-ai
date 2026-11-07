@@ -404,7 +404,7 @@ def cmd_przebieg(a):
     out = Path(a.wyjscie)
     (out / "probki").mkdir(parents=True, exist_ok=True)
     protokol = {"dataset": f"{DATASET_REPO}@{DATASET_REV}", "rule": "authors", "mode": MODES["authors"],
-                "probka": a.probka, "batch": a.batch, "device": a.device}
+                "probka": a.probka, "batch": a.batch, "device": a.device, "eval_gpu": getattr(a, "eval_gpu", "")}
     try:
         recs = load_records()
         tmpl = templates(recs)
@@ -454,6 +454,7 @@ def main():
     c.add_argument("--probka", default="pelna", help="pelna | number of records (first in file order)")
     c.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     c.add_argument("--batch", type=int, default=1)
+    c.add_argument("--eval_gpu", default="", help="machine label, as common/ewaluuj.py --eval_gpu")
     c.add_argument("--etykieta", default="")
     c.add_argument("--repo", default="")
     c.add_argument("--revision", default="")
