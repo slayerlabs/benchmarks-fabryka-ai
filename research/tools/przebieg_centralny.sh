@@ -43,11 +43,14 @@ export NLTK_DATA=$NLTK_DANE
 # One list for the run; tests/test_przebieg_centralny.py checks it against METODOLOGIA.md ("Pięć modeli
 # odniesienia") and the Slayer revision named there.
 # loader: slayer = common/slayer_lm.py, hf = HFLM, hf-trust = HFLM with trust_remote_code. env: lock | new.
+# slayer-ckpt = common/slayer_lm.py on weights converted on the machine: the repo holds only native training
+# checkpoints, licz_model downloads $SLAYER_CKPT from it and converts it with slayer-1b/wygaszanie/konwertuj.py
+# against the $SLAYER_WZORZEC model (keys, shapes, config.json, tokenizer.json).
 # Bielik is a gated repo (LlamaForCausalLM, tokenizer.json, so the lock env loads it): counted when the HF token has
 # access, otherwise licz_model skips it with a message in the log and $ST/pominiety_<label>.txt (`dostep_hf`).
 # Last row: the stage B control model (METODOLOGIA "Model kontrolny etapu B", item 1); f3f1b6d5 is branch step143000.
 MODELE=(
-  "slayer1b-1.06|SlayerLab/Slayer1B-1.06|ef81be58742544ad32e1afab38db011fec209609|slayer|lock"
+  "slayer1b-1.07|SlayerLab/Slayer1B-1.07-checkpoints|89630be756618acbb47a78fa5cafd4e4aa6f1a63|slayer-ckpt|lock"
   "qwen3.5-0.8b-base|Qwen/Qwen3.5-0.8B-Base|dc7cdfe2ee4154fa7e30f5b51ca41bfa40174e68|hf|new"
   "lfm2.5-1.2b-base|LiquidAI/LFM2.5-1.2B-Base|7453bca97ca1e67754c4035a4b4c584e1c9dd725|hf|lock"
   "bielik-1.5b-v3|speakleash/Bielik-1.5B-v3|4b25049621bf3952a1fc9314c89773102eda0333|hf|lock"
@@ -55,6 +58,11 @@ MODELE=(
   "eurollm-1.7b|utter-project/EuroLLM-1.7B|c730cd9b616799ace3c65e927d63191446f59374|hf|lock"
   "pythia-1b-v0|EleutherAI/pythia-1b-v0|f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0|hf|lock"
 )
+# slayer-ckpt: the 1.07 final step (model card: "training complete at step 22327") and the 1.06 model it continues
+SLAYER_CKPT=ckpt_22327.pt
+# sha256 of SLAYER_CKPT from the SlayerLab/Slayer1B-1.07-checkpoints card; konwertuj.py stops on a mismatch
+SLAYER_CKPT_SHA256=48cdb5eb16b69e0ee9a7a2ed72895ff47c0ba57aca0f4516b1f7e9cba286685c
+SLAYER_WZORZEC="SlayerLab/Slayer1B-1.06|ef81be58742544ad32e1afab38db011fec209609"
 
 # Task id -> <benchmark> directory name under wyniki/ and results/central-run/; the test checks that ZADANIA_ID equals the keys of ZADANIA.
 KATALOGI="T01:blimp T02:arc-challenge T03:wikitext-2 T04:multiblimp-pl T05:hellaswag T06:piqa T08:openbookqa
@@ -64,8 +72,12 @@ T45:medmcqa T46:social-iqa T48:paws-en"
 # (c): generation, groups with weights, corpus metrics, multi-context gold
 KATALOGI+=" T07:winogrande T14:wsc273 T17:lambada T32:mmlu T33:gsm8k T34:math T35:truthfulqa T36:ifeval T38:squad2"
 KATALOGI+=" T39:drop T41:coqa T42:nq-open T43:triviaqa T47:bbh T49:cola T50:record"
+KATALOGI+=" T51:arc-easy T52:blimp-supplement T53:ewok"
+# Tasks with their own code (`kod` in ZADANIA): `polecenie` runs this script with the ewaluuj.py flags instead
+KOD="T53:benchmarks/ewok/ewok.py"
 ZADANIA_ID=${ZADANIA_ID:-$(for p in $KATALOGI; do printf '%s ' "${p%%:*}"; done)}
 katalog() { local p; for p in $KATALOGI; do [[ ${p%%:*} == "$1" ]] && echo "${p#*:}" && return 0; done; return 1; }
+kod_zadania() { local p; for p in $KOD; do [[ ${p%%:*} == "$1" ]] && echo "${p#*:}" && return 0; done; return 0; }
 
 # python, not `date +%N` / `du -b`: proba_cpu also runs on macOS (BSD date and du)
 teraz() { python3 -c 'import time; print(time.time())'; }
@@ -91,14 +103,21 @@ model() {  # model LABEL -> sets REPO REV LOADER ENV
   return 1
 }
 
-polecenie() {  # polecenie LABEL TASK_ID -> ewaluuj.py command line
-  local L=$1 T=$2
+polecenie() {  # polecenie LABEL TASK_ID -> ewaluuj.py command line (own-code task: its script, same flags)
+  local L=$1 T=$2 kod
   model "$L"
-  local args=(--model "$([[ $LOADER == slayer ]] && echo slayer || echo hf)" --repo "$REPO" --revision "$REV"
+  kod=$(kod_zadania "$T")
+  if [[ -n $kod ]]; then
+    echo "$WS/venv-$ENV/bin/python $K/$kod przebieg --repo $REPO --revision $REV --model_path $WS/modele/$L --zadania $T" \
+      "--probka ${PROBKA:-pelna} --device ${DEVICE:-cuda} --batch $BATCH --eval_gpu $(gpu_nazwa) --etykieta $L" \
+      "--wyjscie ${WYNIKI:-$WS/wyniki}/$(katalog "$T")/$L"
+    return
+  fi
+  local args=(--model "$([[ $LOADER == slayer* ]] && echo slayer || echo hf)" --repo "$REPO" --revision "$REV"
               --model_path "$WS/modele/$L" --zadania "$T" --probka "$([[ $T == T03 && -n ${PROBKA_ROLLING:-} ]] && echo "$PROBKA_ROLLING" || echo "${PROBKA:-pelna}")" --device "${DEVICE:-cuda}" --batch "$BATCH"
               --eval_gpu "$(gpu_nazwa)" --etykieta "$L" --wyjscie "${WYNIKI:-$WS/wyniki}/$(katalog "$T")/$L")
   [[ $LOADER == hf-trust ]] && args+=(--trust_remote_code)
-  [[ $T == T03 && $LOADER != slayer ]] && args+=(--max_length "$OKNO_ROLLING")
+  [[ $T == T03 && $LOADER != slayer* ]] && args+=(--max_length "$OKNO_ROLLING")
   echo "$WS/venv-$ENV/bin/python $K/common/ewaluuj.py ${args[*]}"
 }
 
@@ -120,6 +139,23 @@ except GatedRepoError as e:
     sys.exit(3)" "$REPO"
 }
 
+pobierz_wagi() {  # pobierz_wagi LABEL (after `model`): $WS/modele/LABEL ready for ewaluuj.py --model_path
+  local d=$WS/modele/$1 py="$WS/venv-$ENV/bin/python"
+  if [[ $LOADER != slayer-ckpt ]]; then
+    "$py" -c "from huggingface_hub import snapshot_download as s; s('$REPO', revision='$REV', local_dir='$d')"
+    return
+  fi
+  # converted earlier on this machine (proba_cpu with ZOSTAW_WAGI=1, then licz): no second 9 GB download
+  if [[ -s $d/model.safetensors ]] && grep -q "\"zrodlo_ckpt\": \".*/$SLAYER_CKPT\"" "$d/config.json" 2> /dev/null; then
+    echo "wagi $1: juz skonwertowane z $SLAYER_CKPT"; return
+  fi
+  local wzor_repo=${SLAYER_WZORZEC%%|*} wzor_rev=${SLAYER_WZORZEC#*|}
+  "$py" -c "from huggingface_hub import hf_hub_download as h; h('$REPO', '$SLAYER_CKPT', revision='$REV', local_dir='$d.ckpt')"
+  "$py" -c "from huggingface_hub import snapshot_download as s; s('$wzor_repo', revision='$wzor_rev', local_dir='$d.wzorzec', allow_patterns=['model.safetensors', 'config.json', 'tokenizer.json'])"
+  "$py" "$K/slayer-1b/wygaszanie/konwertuj.py" "$d.ckpt/$SLAYER_CKPT" "$d.wzorzec" "$d" --sha256 "$SLAYER_CKPT_SHA256"
+  rm -rf "$d.ckpt" "$d.wzorzec"
+}
+
 licz_model() {  # licz_model LABEL: download, every task, delete weights; a failed task does not stop the rest
   local L=$1 t T kod powod
   model "$L"
@@ -133,7 +169,12 @@ licz_model() {  # licz_model LABEL: download, every task, delete weights; a fail
     return 0
   fi
   rm -f "$ST/pominiety_$L.txt"
-  "$WS/venv-$ENV/bin/python" -c "from huggingface_hub import snapshot_download as s; s('$REPO', revision='$REV', local_dir='$WS/modele/$L')"
+  # work marker for the idle guard (tools/straznik_bezczynnosci.py --praca): download, conversion and own-code
+  # tasks (ewok.py) run no ewaluuj.py, and the guard would destroy the instance under them
+  # (macOS bash 3.2 has no BASHPID: $$ is the script, alive while its queues run)
+  local znacznik="$ST/praca/${BASHPID:-$$}_$L"
+  mkdir -p "$ST/praca"; echo "$L" > "$znacznik"
+  pobierz_wagi "$L"
   zapisz_czas pobranie "$t" "{\"model\": \"$L\", \"bajty\": $(bajty "$WS/modele/$L")}"
   for T in $ZADANIA_ID; do
     t=$(teraz)
@@ -144,6 +185,7 @@ licz_model() {  # licz_model LABEL: download, every task, delete weights; a fail
   done
   # ZOSTAW_WAGI=1: proba_cpu followed by licz on the same instance downloads each model once
   [[ ${ZOSTAW_WAGI:-0} == 1 ]] || rm -rf "$WS/modele/$L"
+  rm -f "$znacznik"
 }
 
 liczba_gpu() { nvidia-smi -L 2>/dev/null | grep -c '^GPU ' || true; }
@@ -197,8 +239,14 @@ case "$etap" in
     ;;
   przygotuj)
     LIMIT=${2:?safety limit in seconds}
-    mkdir -p "$ST" "$WS/wyniki" "$WS/logi" "$WS/modele"
-    nohup python3 $K/slayer-1b/wygaszanie/bezpiecznik.py po "$LIMIT" > $WS/logi/bezpiecznik.log 2>&1 &
+    mkdir -p "$ST/praca" "$WS/wyniki" "$WS/logi" "$WS/modele"
+    # work marker for the whole stage: pip, NLTK and the network test leave the GPU idle longer than the guard window
+    ZN_PRZYG="$ST/praca/$$_przygotuj"
+    echo przygotuj > "$ZN_PRZYG"
+    trap 'rm -f "$ZN_PRZYG"' EXIT
+    # hard limit: pack, then destroy with the disk (the idle guard only stops the instance)
+    nohup python3 $K/slayer-1b/wygaszanie/bezpiecznik.py po "$LIMIT" "bash $K/tools/przebieg_centralny.sh pakuj" \
+      > $WS/logi/bezpiecznik.log 2>&1 &
     bash "$0" straznik
     python3 $K/slayer-1b/wygaszanie/bezpiecznik.py sprawdz
     t=$(teraz)
@@ -243,10 +291,10 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
     [[ -n $PARY ]] && w_tle ponow "set -e; source $K/tools/przebieg_centralny.sh _funkcje; \
       licz_rownolegle ponow $PARY"
     ;;
-  straznik)  # idle guard: GPU < 5% with no evaluation for STRAZNIK_OKNO s -> pack, copy to $WS/wyjscie, destroy
+  straznik)  # idle guard: GPU < 5% with no evaluation for STRAZNIK_OKNO s -> pack, copy to $WS/wyjscie, stop
     mkdir -p "$WS/logi"
     nohup python3 $K/tools/straznik_bezczynnosci.py --wyjscie "$WS/wyjscie" --okno "${STRAZNIK_OKNO:-600}" \
-      --archiwum "$WS/wyniki.tgz" > $WS/logi/straznik.log 2>&1 &
+      --archiwum "$WS/wyniki.tgz" --praca "$ST/praca" --blad "$ST/STOP_NIEUDANY.txt" > $WS/logi/straznik.log 2>&1 &
     echo "idle guard pid $!"
     ;;
   proba_cpu)  # load test: PROBA_N questions (WikiText-2: 1 document) per model x task on CPU, every pair must finish
@@ -273,6 +321,7 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
     ls -la $WS/wyniki.tgz
     ;;
   stan)
+    cat $ST/STOP_NIEUDANY.txt 2>/dev/null || true
     ls -la $ST; cat $ST/pominiety_*.txt 2>/dev/null || true; for f in $WS/logi/*.log; do echo "== $f"; tail -n 2 "$f"; done; tail -n 5 $CZ 2>/dev/null
     nvidia-smi --query-gpu=index,utilization.gpu,memory.used --format=csv; df -h $WS | tail -1
     ;;

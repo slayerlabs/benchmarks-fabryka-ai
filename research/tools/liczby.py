@@ -60,6 +60,8 @@ USTAWIENIA_BENCHMARKOW = {
     "wikitext-2": {"aliasy": ["WikiText"], "skala": 100, "with_global": True,
                    "pomin": ["per_doc_bajty_page_detok"]},
     "wsc273": {"aliasy": ["WSC273"], "skala": 1, "pomin": []},
+    # with_global: ORIGINAL.md cytuje rozmiary modeli z pracy Mamby (0,8–1,5B). To nie są nasze wyniki.
+    "hellaswag": {"aliasy": ["HellaSwag", "hellaswag"], "skala": 1, "with_global": True, "pomin": []},
 }
 WYGASZANIE = "slayer-1b/wygaszanie/wyniki"
 BLIMP = "benchmarks/blimp/results/blimp.json"
