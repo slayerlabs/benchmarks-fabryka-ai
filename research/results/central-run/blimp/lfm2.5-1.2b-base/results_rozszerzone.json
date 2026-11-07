@@ -33,8 +33,8 @@
    "state": "ok",
    "value": 0.786,
    "ci95": {
-    "lower": 0.7828955223880597,
-    "upper": 0.7891194029850747,
+    "lower": 0.7452384328358209,
+    "upper": 0.8255388059701493,
     "level": 0.95,
     "method": "paired_bootstrap",
     "replicates": 10000,
@@ -56,29 +56,41 @@
      "acc": {
       "value": 0.786,
       "n": 67000,
-      "se": 0.0015844699219317703,
+      "se": 0.02058441709270839,
       "ci95": [
-       0.7828955223880597,
-       0.7891194029850747
-      ]
+       0.7452384328358209,
+       0.8255388059701493
+      ],
+      "se_a": 0.0015844699219317703,
+      "k": 67,
+      "df": 66,
+      "metoda_se": "K"
      },
      "acc_norm": {
       "value": 0.7346567164179104,
       "n": 67000,
-      "se": 0.0017057371802388377,
+      "se": 0.02519248874222333,
       "ci95": [
-       0.7313283582089553,
-       0.7380451492537313
-      ]
+       0.6834014925373134,
+       0.7819268656716417
+      ],
+      "se_a": 0.0017057371802388377,
+      "k": 67,
+      "df": 66,
+      "metoda_se": "K"
      },
      "bpb_poprawnej": {
       "value": 2.4583866455427903,
       "n": 67000,
-      "se": 0.0018587960731805968,
+      "se": 0.0379894127186509,
       "ci95": [
-       2.454753485173459,
-       2.462110512459763
-      ]
+       2.3847003219802003,
+       2.5327694819617483
+      ],
+      "se_a": 0.0018587960731805968,
+      "k": 67,
+      "df": 66,
+      "metoda_se": "K"
      },
      "bazy": {
       "chance_value": 0.5,
@@ -86,7 +98,17 @@
       "majority_prediction_share": null,
       "constant_prediction": null
      },
-     "udzial_najczestszej_predykcji": 0.786
+     "udzial_najczestszej_predykcji": 0.786,
+     "wobec_b": {
+      "b": 0.5,
+      "baza": "losowa",
+      "roznica": 0.28600000000000003,
+      "se": 0.02058441709270839,
+      "t": 13.894005291085444,
+      "df": 66,
+      "metoda": "K",
+      "werdykt": "pewne"
+     }
     }
    },
    "zrodlo_danych": {
@@ -116,5 +138,9 @@
  "probka": "pelna",
  "eval_gpu": "Apple_M5_Pro_mps",
  "sprzet": "mps",
- "max_length": 128000
+ "max_length": 128000,
+ "podsumowanie_ponowne": {
+  "narzedzie": "tools/podsumuj_ponownie.py",
+  "powod": "SE K dla testów +klastry i stała odpowiedź testów mc (METODOLOGIA, „Typy testów”)"
+ }
 }

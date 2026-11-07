@@ -19,11 +19,14 @@ test (T01) na panelu 200 par; tutaj oba modele liczone są na wszystkich 67 000.
 
 ## Wyniki
 
-| model | trafność | n | SE | CI95 (bootstrap, warstwowy) |
-|---|---:|---:|---:|---|
-| Slayer 1.06 | 0,7921 | 67000 | 0,0014 | 0,7892-0,7949 |
-| Pythia-1B | 0,8207 | 67000 | 0,0013 | 0,8181-0,8233 |
-| Pythia-1B v0 (model kontrolny) | 0,8244 | 67000 | 0,0013 | 0,8218-0,8269 |
+| model | trafność | n | SE K (67 paradygmatów) | t wobec b = 0,5 (df = 66) | SE warstwowe, informacyjnie | CI95 (bootstrap warstwowy), informacyjnie |
+|---|---:|---:|---:|---:|---:|---|
+| Slayer 1.06 | 0,7921 | 67000 | 0,0197 | 14,8 | 0,0014 | 0,7892-0,7949 |
+| Pythia-1B | 0,8207 | 67000 | 0,0206 | 15,5 | 0,0013 | 0,8181-0,8233 |
+| Pythia-1B v0 (model kontrolny) | 0,8244 | 67000 | 0,0208 | 15,6 | 0,0013 | 0,8218-0,8269 |
+
+Wiąże SE K: typ `para +klastry` liczy niepewność po paradygmatach, bo pary jednego paradygmatu dzielą szablon. SE
+warstwowe i CI95 obok opisują tylko te 67 000 par i są kilkanaście razy węższe.
 
 „Pythia-1B” bez dopisku to wagi v1 (`EleutherAI/pythia-1b`), model porównawczy tego raportu. Kontrolą kodu oceny
 jest v0 (sekcja „Kontrola” niżej).

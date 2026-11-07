@@ -25,6 +25,7 @@ KATALOG = Path(__file__).resolve().parent
 sys.path.insert(0, str(KATALOG))
 
 import metryki as M  # noqa: E402
+import statystyka as S  # noqa: E402  (research/tools, on the path through metryki)
 import zadania as Z  # noqa: E402
 
 PROTOKOLY = {"panel200": "bench50-v0.3.1-panel200", "pelna": "bench50-v0.3.1-fullB"}
@@ -388,6 +389,59 @@ def meta_srednia_makro(cfg):
     return any("macro" in getattr(m.get("aggregation"), "__name__", "") for m in cfg.get("metric_list") or [])
 
 
+def _klastry_winogrande(docs):
+    modul = Z._modul_lm_eval("winogrande/przelicz.py", Z.BENCHMARKI)
+    return modul.klastry_z_opcji([(d["option1"], d["option2"]) for d in docs])
+
+
+def _klastry_wsc273(docs):
+    return Z._modul_lm_eval("wsc273/wsc273.py", Z.BENCHMARKI).schematy(docs)
+
+
+# Rules over documents in split order, the same code the benchmark's own pipeline uses
+REGULY_KLASTROW = {"pary_winogrande": _klastry_winogrande, "schematy_wsc273": _klastry_wsc273}
+
+
+def klastry_probek(meta, probki):
+    """Cluster id of every sample of a `+klastry` test (README "Benchmarki i typy"), None without `meta["klastry"]`:
+    a document field (BLiMP `UID`, BoolQ `passage`, DYK `question`) or a rule of REGULY_KLASTROW applied to the
+    documents ordered by doc_id (twin pairs and schemas sit next to each other in the split)."""
+    regula = meta.get("klastry")
+    if not regula:
+        return None
+    if regula not in REGULY_KLASTROW:
+        return [p["doc"][regula] for p in probki]
+    kolejnosc = sorted(range(len(probki)), key=lambda i: probki[i]["doc_id"])
+    ids = [None] * len(probki)
+    for i, c in zip(kolejnosc, REGULY_KLASTROW[regula]([probki[i]["doc"] for i in kolejnosc])):
+        ids[i] = c
+    return ids
+
+
+def wobec_b(wyniki, zlote, glowna, bazy, klastry=None):
+    """Score against b (METODOLOGIA, "b"): the higher of the random baseline and the constant answer. A constant
+    answer above random is compared paired with its per-question results (statystyka.wobec_stalej; with `klastry`
+    SE K of the differences, t at df = k - 1); otherwise z = (score - b) / SE of the score (SE K and t when the
+    score is clustered). The type-table control "score > b + 2 SE" holds when the difference is positive and the
+    verdict is pewne or prawdopodobne."""
+    losowa, stala = bazy.get("chance_value"), bazy.get("majority_value")
+    if len(wyniki) < 2:  # one question (load test): no spread, nothing to compare
+        return {"b": max(losowa, stala or 0.0), "werdykt": S.NIEROZSTRZYGALNE}
+    if stala is not None and stala > losowa:
+        r = S.wobec_stalej(wyniki, zlote, klastry)
+        return {"b": r["b"], "baza": "stala odpowiedz", **{k: r.get(k) for k in ("roznica", "se", "z", "t", "df")},
+                "werdykt": r["werdykt"], "metoda": r["metoda"]}
+    roznica, se = glowna["value"] - losowa, glowna["se"]
+    out = {"b": losowa, "baza": "losowa", "roznica": roznica, "se": se}
+    if not se:
+        return {**out, "werdykt": S.NIEROZSTRZYGALNE}
+    if glowna.get("metoda_se") == "K":
+        t = roznica / se
+        return {**out, "t": t, "df": glowna["df"], "metoda": "K", "werdykt": S.werdykt_t(t, glowna["df"])
+                if glowna["k"] >= S.MIN_KLASTROW else S.NIEROZSTRZYGALNE}
+    return {**out, "z": roznica / se, "werdykt": S.werdykt(roznica / se), "metoda": "A"}
+
+
 def podsumuj_wariant(meta, czlonkowie):
     """Metryki jednego wariantu. `czlonkowie` = [(podtest, cfg, zad, próbki)]; więcej niż jeden = grupa, średnia
     podtestów z wagami populacji (MMLU, MATH, BBH) i bazy złożone tymi samymi wagami; `wagi="rowne"` (BLiMP
@@ -399,13 +453,19 @@ def podsumuj_wariant(meta, czlonkowie):
         korpus = klucz not in ("acc", "acc_norm")  # f1 of the OpenPL fork (T25, T27, T28)
         if len(czlonkowie) == 1:
             _, cfg, zad, probki = czlonkowie[0]
-            wynik = M.podsumuj_mc(probki, klasy_stale, z_pmi=z_pmi(cfg), klucz="acc" if korpus else klucz)
+            klastry = klastry_probek(meta, probki)
+            wynik = M.podsumuj_mc(probki, klasy_stale, z_pmi=z_pmi(cfg), klucz="acc" if korpus else klucz,
+                                  klastry=klastry)
             if korpus:
                 oceny = [M.oceny_mc(p, z_pmi(cfg)) for p in probki]
                 zlote, pred = [o["gold"] for o in oceny], [o["pred"] for o in oceny]
                 f = funkcja_korpusowa(cfg, klucz)
-                wynik["glowna"] = {**M.korpusowa_z_niepewnoscia(zlote, pred, f), "metryka": klucz}
+                wynik["glowna"] = {**M.korpusowa_z_niepewnoscia(zlote, pred, f, klastry=klastry), "metryka": klucz}
                 wynik["bazy"] = bazy_f1_korpus(zlote, max(o["k"] for o in oceny), f)
+            else:
+                oceny = [M.oceny_mc(p, z_pmi(cfg)) for p in probki]
+                wynik["wobec_b"] = wobec_b([o[klucz] for o in oceny], [o["gold"] for o in oceny], wynik[klucz],
+                                           wynik["bazy"], klastry)
             return wynik
         oceny = {n: [M.oceny_mc(p, z_pmi(cfg)) for p in probki] for n, cfg, _, probki in czlonkowie}
         wynik = {m: M.warstwy({n: [o[m] for o in oc] for n, oc in oceny.items()}, wagi)

@@ -58,8 +58,8 @@ per rekord (`analyses/data.zip`, `eval=logprobs/model=gpt2_xl`). Etap B porównu
   zdarza się, gdy kontekst nie zmienia rozkładu po sobie, czyli praktycznie tylko przy niskiej precyzji.
 - **BOS i precyzja.** Kod autorów daje BOS tylko wtedy, gdy dokleja go tokenizer (`add_special_tokens=True`), i
   liczy w bf16. Nasz kod domyślnie robi to samo z tokenami (reguła `authors`), ale liczy w float32. Pierwsze przebiegi
-  tego katalogu nie dawały BOS nigdy (`--rule plain`), a `benchmarks/ewok-pl` daje BOS każdemu modelowi
-  (`--rule bos`). Wpływ na decyzje mierzy `REPRODUCTION.md`.
+  tego katalogu nie dawały BOS nigdy (`--rule plain`). `benchmarks/ewok-pl` od wersji 5 liczy regułą `authors`, a BOS
+  każdemu modelowi (`--regula bos`) dawała tylko jego wersja 4. Wpływ na decyzje mierzy `REPRODUCTION.md`.
 - **Granica kontekstu.** Kod autorów tnie zapytanie na tokenach `tokenize(context)`. Gdy tokenizer skleja spację z
   następnym słowem inaczej w zapytaniu niż w samym kontekście, granica może się przesunąć o token. Nasz kod koduje
   parę jak lm-eval: całość raz, a długość kontekstu z osobnego kodowania.

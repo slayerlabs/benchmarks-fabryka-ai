@@ -485,6 +485,11 @@ def zbuduj(korzen=KORZEN):
         # per-paradigm values live in `porownania` (with SE and verdict), not twice in `wartosci`
         splaszcz({k: v for k, v in bl.items() if k != "porownanie"}, "blimp", wartosci,
                  pomin=("okna", "per_grupa", "per_grupa_acc_norm", "paradygmaty"))
+        # `se` of blimp.json is the stratified SE; the type `para +klastry` binds SE K over the 67 paradigms, t vs b
+        for m, v in bl["modele"].items():
+            r = klastrowe_wazone([(p["n"], p["acc"] - v["baza_losowa"]) for p in v["paradygmaty"].values()])
+            wartosci.update({f"blimp/modele/{m}/se_k": r["se"], f"blimp/modele/{m}/t_k": r["t"],
+                             f"blimp/modele/{m}/df_k": r["df"]})
         porownania += porownania_blimp(bl)
         raporty += raporty_blimp(bl)
     plik_krzywej = korzen / KRZYWA

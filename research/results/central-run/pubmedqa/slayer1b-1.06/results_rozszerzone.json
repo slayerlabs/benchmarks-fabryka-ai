@@ -95,7 +95,18 @@
       "majority_prediction_share": 0.552,
       "constant_prediction": false
      },
-     "udzial_najczestszej_predykcji": 0.552
+     "udzial_najczestszej_predykcji": 0.552,
+     "wobec_b": {
+      "b": 0.552,
+      "baza": "stala odpowiedz",
+      "roznica": -0.076,
+      "se": 0.0315981785832595,
+      "z": -2.4052019264257303,
+      "t": null,
+      "df": null,
+      "werdykt": "prawdopodobne",
+      "metoda": "A parowane"
+     }
     }
    },
    "zrodlo_danych": {
@@ -124,5 +135,9 @@
  "dane": "hf",
  "probka": "pelna",
  "eval_gpu": "NVIDIA_GeForce_RTX_4090",
- "sprzet": "NVIDIA GeForce RTX 4090"
+ "sprzet": "NVIDIA GeForce RTX 4090",
+ "podsumowanie_ponowne": {
+  "narzedzie": "tools/podsumuj_ponownie.py",
+  "powod": "SE K dla testów +klastry i stała odpowiedź testów mc (METODOLOGIA, „Typy testów”)"
+ }
 }
