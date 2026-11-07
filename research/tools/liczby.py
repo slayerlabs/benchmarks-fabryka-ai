@@ -60,6 +60,9 @@ USTAWIENIA_BENCHMARKOW = {
     "wikitext-2": {"aliasy": ["WikiText"], "skala": 100, "with_global": True,
                    "pomin": ["per_doc_bajty_page_detok"]},
     "wsc273": {"aliasy": ["WSC273"], "skala": 1, "pomin": []},
+    # MATH: the default alias "math" would also match words like "Math&code" in other cards (the match ignores case).
+    # Git shas and the most frequent gold answers are text, so they never enter the pool anyway.
+    "math": {"aliasy": ["hendrycks_math"], "skala": 1, "pomin": ["levels", "types"]},
     # with_global: ORIGINAL.md cytuje rozmiary modeli z pracy Mamby (0,8–1,5B). To nie są nasze wyniki.
     "hellaswag": {"aliasy": ["HellaSwag", "hellaswag"], "skala": 1, "with_global": True, "pomin": []},
 }
