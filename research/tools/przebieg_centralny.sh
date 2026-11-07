@@ -22,7 +22,7 @@
 # Instance files map to the repo as: wyniki/<benchmark>/<label>/ -> results/central-run/<benchmark>/<label>/,
 # czasy.jsonl -> results/central-run/times_<gpu>.jsonl. A run never writes under benchmarks/.
 set -euo pipefail
-K=${K:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
+K=${K:-$(CDPATH= cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}  # CDPATH: cd would also print the path into K
 WS=${WS:-/workspace}
 ST=$WS/stan
 CZ=$WS/czasy.jsonl

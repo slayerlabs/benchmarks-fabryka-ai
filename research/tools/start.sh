@@ -5,7 +5,7 @@
 # K (code) comes from this file's location, so the repo may be cloned anywhere. HF_TOKEN must be exported.
 # LIMIT_S (172800): safety limit of `przygotuj`. START_SUCHO=1: print the two commands instead of running them.
 set -euo pipefail
-K=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+K=$(CDPATH= cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)  # CDPATH: cd would also print the path into K
 export K
 WS=${WS:-/workspace}
 P=$K/tools/przebieg_centralny.sh
