@@ -74,8 +74,9 @@ dłuższe i rzadsze niż ` yes` i ` no`. Średnie log P kontynuacji na pełnym s
 | LFM3-1.7B-Base | −8,30 | −10,96 | −15,48 | 499 z 500 |
 | EuroLLM-1.7B | −8,29 | −7,49 | −14,72 | 500 z 500 |
 
-Odstęp ` maybe` od wyższej z dwóch pozostałych kontynuacji przekracza 5 natów u każdego z pięciu modeli, więc żadne
-pytanie nie stoi blisko wyboru `maybe`. Ten sam wzorzec dają modele, które przechodzą b z werdyktem „pewne”, więc to
+Średni odstęp ` maybe` od wyższej z dwóch pozostałych kontynuacji przekracza 5 natów u każdego z pięciu modeli, a w
+żadnym pytaniu żaden model nie daje ` maybe` najwyższego log P (w pojedynczych pytaniach odstęp bywa mniejszy niż
+średni, ale zawsze zostaje dodatni). Ten sam wzorzec dają modele, które przechodzą b z werdyktem „pewne”, więc to
 własność metryki i zestawu opcji, nie ślad błędu w prompcie. Konsekwencję zapisuje `ORIGINAL.md` („Decyzja
 treningowa”): test nie mierzy rozpoznawania niepewności.
 
