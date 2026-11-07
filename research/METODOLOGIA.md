@@ -431,22 +431,88 @@ nie w tym dokumencie.
 
 ## Następna wersja Slayera
 
-**Mierzony dziś model:** `SlayerLab/Slayer1B-1.06` @ `ef81be58742544ad32e1afab38db011fec209609`. Ta linia i wiersz
-Slayera w `MODELE` w `tools/przebieg_centralny.sh` muszą się zgadzać, pilnuje tego `tests/test_przebieg_centralny.py`.
+**Mierzony dziś model:** `SlayerLab/Slayer1B-1.07-checkpoints` @ `89630be756618acbb47a78fa5cafd4e4aa6f1a63`, plik
+`ckpt_22327.pt`. Ta linia i wiersz Slayera w `MODELE` w `tools/przebieg_centralny.sh` (z `SLAYER_CKPT`) muszą się
+zgadzać, pilnuje tego `tests/test_przebieg_centralny.py`. Krok 22327 to ostatni krok treningu 1.07 według karty
+`SlayerLab/Slayer1B-1.07` („training complete at step 22327”); repo modelu nie ma jeszcze wag w safetensors. Wyniki
+1.06 (`SlayerLab/Slayer1B-1.06` @ `ef81be58742544ad32e1afab38db011fec209609`) zostają w
+`results/central-run/<benchmark>/slayer1b-1.06/`.
 
 **Jedna komenda.** Nową wersję liczy przebieg centralny. Zmieniasz wiersz Slayera w `MODELE` na
-`slayer1b-<wersja>|SlayerLab/Slayer1B-<wersja>|<rewizja>|slayer|lock` i linię wyżej. Maszyna to instancja vast.ai
-z kartami GPU (bezpiecznik `slayer-1b/wygaszanie/bezpiecznik.py` niszczy ją przez API vast.ai). Kod `research/` kopiujesz
-ręcznie do `/workspace/kod`, a `wyniki.tgz` z `pakuj` ręcznie pobierasz i rozpakowujesz w `results/central-run/`;
-skryptu do tych dwóch kroków jeszcze nie ma.
+`slayer1b-<wersja>|SlayerLab/Slayer1B-<wersja>|<rewizja>|slayer|lock` i linię wyżej. Gdy wersja ma na HF tylko
+checkpointy trenera (`ckpt_N.pt`), wiersz ma loader `slayer-ckpt`, repo `SlayerLab/Slayer1B-<wersja>-checkpoints`, a
+nazwę pliku `SLAYER_CKPT`: `licz` pobiera ten plik, konwertuje go `slayer-1b/wygaszanie/konwertuj.py` względem modelu
+z `SLAYER_WZORZEC` (klucze, kształty, `config.json`, `tokenizer.json`) i liczy na wyniku. Konwersja zatrzymuje się,
+gdy konfiguracja architektury w checkpoincie różni się od wzorca, gdy checkpoint nie ma `config` i gdy suma pliku
+nie zgadza się z `SLAYER_CKPT_SHA256`.
 
-```bash
-bash tools/przebieg_centralny.sh przygotuj <limit_s>       # raz na maszynę: środowiska, bezpiecznik
-bash tools/przebieg_centralny.sh licz "slayer1b-<wersja>"   # w tle: wagi, każde zadanie, kontrola sensu
-```
+**Krok po kroku (Slayer 1.07).** Maszyna to instancja vast.ai z kartą GPU i obrazem PyTorch 2.8.0 (`torch` z obrazu
+wchodzi do obu środowisk).
 
-`przygotuj` stawia dwa środowiska (lock i nowsze transformers dla Qwen3.5 i LFM3) i bezpiecznik, który niszczy
-instancję po `<limit_s>` sekundach.
+1. **Konto HF.** Token HF musi mieć zaakceptowany dostęp do `ewok-core/ewok-core-1.0` (bez niego T53 kończy się
+   `GatedRepoError`, pozostałe zadania liczą się dalej) i do `speakleash/Bielik-1.5B-v3` (bez niego Bielik zostaje
+   pominięty z wpisem `POMINIETY` w logu). Dostęp zgłaszasz na stronie każdego repo, przed wynajęciem karty.
+2. **Instancja.** Dysk co najmniej 60 GB. Szczyt Slayera to 17,5 GB (checkpoint 8,9 GB, wzorzec 1.06 4,3 GB, wynik
+   konwersji 4,3 GB); pozostałe modele z `MODELE` to 16,2 GB (Qwen3.5 1,8 GB, LFM2.5 2,3 GB, Bielik 3,2 GB,
+   LFM3 3,5 GB, EuroLLM 3,3 GB, Pythia 2,1 GB). Przy jednej karcie na dysku leży naraz jeden model, przy N kartach do N modeli; suma
+   wszystkich to 33,7 GB. Resztę zajmują dwa środowiska i zbiory danych HF (rozmiaru dla 52 zadań nie mierzyliśmy).
+3. **Kod i token** (w powłoce na instancji):
+
+   ```bash
+   git clone --depth 1 https://github.com/slayerlabs/benchmarks-fabryka-ai /workspace/repo
+   cp -r /workspace/repo/research /workspace/kod
+   cd /workspace/kod
+   export HF_TOKEN=<token z kroku 1>
+   ```
+
+   Bezpiecznik czyta `CONTAINER_ID` i `CONTAINER_API_KEY`, które vast.ai daje każdej instancji (gdy sesja ssh ich nie
+   ma, czyta je z `/proc/1/environ`); `przygotuj` sprawdza klucz komendą `bezpiecznik.py sprawdz` i bez niego
+   kończy się błędem.
+4. **Przygotowanie i liczenie:**
+
+   ```bash
+   bash tools/przebieg_centralny.sh przygotuj 172800   # środowiska lock i new, bezpiecznik, strażnik bezczynności
+   bash tools/przebieg_centralny.sh licz "slayer1b-1.07"
+   bash tools/przebieg_centralny.sh stan               # postęp; `ponow` powtarza zadania zakończone błędem
+   ```
+
+   `przygotuj <limit_s>` po `<limit_s>` sekundach pakuje wyniki i niszczy instancję razem z dyskiem, bez względu
+   na stan. Czasu przebiegu 52 zadań na
+   GPU nie mierzyliśmy: jedyny pomiar na RTX 4090 (`results/central-run/times_rtx4090.jsonl`) to 7 zadań, dla
+   Slayera 1.06 razem 0,34 h, a nowe zadania mają zbiory wielokrotnie większe (MMLU, BBH, zadania z generacją).
+   Dlatego limit to zabezpieczenie, nie prognoza: 172800 s (48 h) jest ustaleniem bez pomiaru. Po końcu
+   instancję ZATRZYMUJE strażnik bezczynności: po 600 s (`STRAZNIK_OKNO`, ustawiasz przed `przygotuj`) bez
+   `ewaluuj.py`, bez żywego znacznika pracy skryptu (`/workspace/stan/praca/`: cały `przygotuj`, pobieranie i
+   konwersja wag, każde zadanie, także `ewok.py`) i z GPU poniżej 5% pakuje wyniki do `/workspace/wyniki.tgz` (kopia
+   w `/workspace/wyjscie/`) i zatrzymuje instancję. Zatrzymana instancja nie płaci za GPU, płaci za dysk, a dysk z
+   wynikami zostaje. Uruchom `licz` w ciągu 600 s od końca `przygotuj`: dłuższa przerwa też zatrzyma instancję.
+   Po wznowieniu zatrzymanej instancji nie działa już ani strażnik, ani limit z `przygotuj`; przed dalszym
+   liczeniem uruchom je ponownie w `/workspace/kod` (z `export HF_TOKEN=…` jak w kroku 3):
+
+   ```bash
+   nohup python3 slayer-1b/wygaszanie/bezpiecznik.py po 172800 "bash /workspace/kod/tools/przebieg_centralny.sh pakuj" \
+     > /workspace/logi/bezpiecznik.log 2>&1 &
+   bash tools/przebieg_centralny.sh straznik
+   ```
+
+   Gdy zatrzymanie się nie uda (np. API odmówi), strażnik kończy się kodem 1, a linia „STOP NIEUDANY, instancja
+   dalej dziala” stoi w `/workspace/logi/straznik.log`, w `/workspace/stan/STOP_NIEUDANY.txt` i na początku
+   `stan`. Instancja dalej płaci za GPU do ręcznego zatrzymania albo limitu z `przygotuj`.
+5. **Wyniki.** `licz` pobiera `ckpt_22327.pt`, sprawdza jego sumę, konwertuje go do
+   `/workspace/modele/slayer1b-1.07/` i liczy 52 zadania do `/workspace/wyniki/<benchmark>/slayer1b-1.07/`, na
+   końcu kontrola sensu. Gdy instancja jest zatrzymana: `vastai start instance <ID>` (albo Start w panelu vast.ai),
+   po starcie `scp` pliku `/workspace/wyniki.tgz` na swój komputer, potem `vastai destroy instance <ID>` (albo
+   Destroy w panelu); usunięcie robisz ręcznie. Wznowienie zależy od wolnej karty na tej samej maszynie vast.ai
+   (opis `vastai start instance` w pakiecie vastai 1.11.0); gdy jej nie ma, dane z zatrzymanej instancji wyciągasz
+   sposobami z https://vast.ai/docs/gpu-instances/data-movement (odsyłacz z opisu `vastai stop instance`). W repo rozpakowujesz archiwum w `results/central-run/`. Pole `repo`
+   w `results.json` to `SlayerLab/Slayer1B-1.07-checkpoints` @ `89630be…`, a `weights_sha256` to suma
+   skonwertowanego `model.safetensors` (`d826b4a1…`).
+
+Punkt odniesienia z CPU: `proba_cpu "slayer1b-1.07"` (`PROBA_N=2`, 4 wątki, Apple M5 Pro, 07.11.2026): 49 zadań
+sprzed #154 w 1592 s (najdłuższe MMLU 319 s, MATH 192 s, IFEval 127 s, BBH 114 s), T51 i T52 razem 33 s, czyli 51
+z 52 zadań w ok. 27 min. T53 nie był liczony na danych EWoK (token bez dostępu do `ewok-core-1.0`, `GatedRepoError`). Na
+instancji `ZOSTAW_WAGI=1 bash tools/przebieg_centralny.sh proba_cpu "slayer1b-1.07"` przed `licz` sprawdza
+ładowanie, a `licz` nie pobiera wag drugi raz.
 
 `plan "slayer1b-<wersja>"` wypisuje komendy bez liczenia, także lokalnie (`K=$PWD WS=$(mktemp -d)`). `stan` pokazuje
 postęp, `ponow` powtarza zadania zakończone błędem, a `licz` kończy się `tools/kontrola_sensu.py` (zadanie bez
@@ -459,8 +525,9 @@ per pytanie w `probki/`. Wyniki poprzednich wersji zostają w swoich katalogach.
 **Benchmarki w przebiegu.** Przebieg liczy benchmarki z wpisem w `ZADANIA` w `common/zadania.py` i w `KATALOGI`
 (test pilnuje, że to ta sama lista); aktualną listę wypisuje `bash tools/przebieg_centralny.sh katalogi`. Wpis w obu
 listach dodaje autor w PR benchmarku (punkt 2 Definicji „zrobione”), a recenzent sprawdza go komendą `plan`. Sam wpis
-nie robi benchmarku gotowym: potrzebne są wszystkie punkty Definicji. EWoK i EWoK-PL mają własny kod bez wpisu w
-przebiegu; ich komenda stoi w `RECIPE.md`.
+nie robi benchmarku gotowym: potrzebne są wszystkie punkty Definicji. Benchmark z własnym kodem ma
+w `ZADANIA` pole `kod` i stoi w `KOD` skryptu; przebieg woła wtedy `<kod> przebieg` z tymi samymi flagami co
+`ewaluuj.py` (EWoK, T53). EWoK-PL nie ma wpisu w przebiegu; jego komenda stoi w `RECIPE.md`.
 
 **Porównanie N z N−1.** Obie wersje są na tych samych pytaniach, więc różnica ma SE parowane i werdykt per test, bez
 średniej po testach; tabela wielu testów ma kolumnę „po Holmie” (rdzeń, punkt 4). Zmianę uznajesz za
@@ -519,7 +586,8 @@ skali, SE i miejsca w rankingu: [LEADERBOARD.md](LEADERBOARD.md).
   `results.json`. Dzisiejsze wartości to przykład, który zostanie nadpisany wynikami repo, a nie wzorzec ustawień ani
   kontrola.
 - **T01–T50:** numer testu (38 angielskich, 12 polskich), nadany w Space; ustawienia testu stoją w karcie benchmarku i
-  we wpisie `ZADANIA` w `common/zadania.py` (sekcja „Ustawienia przebiegu centralnego”).
+  we wpisie `ZADANIA` w `common/zadania.py` (sekcja „Ustawienia przebiegu centralnego”). Benchmark spoza Space dostaje
+  przy wpisie do przebiegu następny wolny numer (T51 ARC-Easy, T52 BLiMP Supplement, T53 EWoK).
 - **Panel 200:** najwyżej 200 pytań testu wybranych po haszu SHA-256, tych samych dla wszystkich modeli (WikiText-2 w
   całości); reguła w sekcji „Ustawienia przebiegu centralnego”.
 - **Metryka decyzyjna:** jedna metryka z karty, według której porównujesz modele.

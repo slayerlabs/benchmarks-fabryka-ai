@@ -27,7 +27,7 @@ Wszystkie komendy niżej uruchamiasz w katalogu `research/`.
 | `tests/` | testy kodu, bez sieci i bez wag |
 | `slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami: `dane/` (spis zbiorów: [`REJESTR_DATASETOW.md`](slayer-1b/dane/REJESTR_DATASETOW.md)), `testy_danych_slayer/`, `wygaszanie/`, `tokenizer/`, `lab/`, `paczka_testerzy/` (komendy w ich README uruchamiasz w `research/slayer-1b/`) |
 
-Jest też jedna analiza: [`analyses/answer-format/`](analyses/answer-format/README.md). Testy T01–T50 liczy kod
+Jest też jedna analiza: [`analyses/answer-format/`](analyses/answer-format/README.md). Testy T01–T52 liczy kod
 w `common/`, opisany w [`common/README.md`](common/README.md).
 
 ## Benchmarki i typy
@@ -41,11 +41,11 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`8tags`](benchmarks/8tags/README.md) | T23 | `mc +pl` | | T23 | nieustalone |
 | [`anli-r3`](benchmarks/anli-r3/README.md) | T16 | `mc` | | T16 | nieustalone |
 | [`arc-challenge`](benchmarks/arc-challenge/README.md) | T02 | `mc-k` | | T02 | nieustalone |
-| [`arc-easy`](benchmarks/arc-easy/ORIGINAL.md) | | `mc-k` | | nie | tak |
+| [`arc-easy`](benchmarks/arc-easy/ORIGINAL.md) | T51 | `mc-k` | | T51 | tak |
 | [`bbh`](benchmarks/bbh/README.md) | T47 | `gen +warstwy` | warstwy: 27 zadań, wagi populacji | T47 | nieustalone |
 | [`belebele-pl`](benchmarks/belebele-pl/README.md) | T24 | `mc +pl` | | T24 | nieustalone |
 | [`blimp`](benchmarks/blimp/README.md) | T01 | `para +klastry` | klastry: paradygmaty; zjawiska informacyjnie | T01 | tak |
-| [`blimp-supplement`](benchmarks/blimp-supplement/ORIGINAL.md) | | `para +warstwy` | warstwy: podzadania, średnia bez wag (karta nie pokazuje, że podzadanie to jeden szablon) | nie | nieustalone |
+| [`blimp-supplement`](benchmarks/blimp-supplement/ORIGINAL.md) | T52 | `para +warstwy` | warstwy: podzadania, średnia bez wag (karta nie pokazuje, że podzadanie to jeden szablon) | T52 | nieustalone |
 | [`boolq`](benchmarks/boolq/README.md) | T10 | `mc +klastry` | klastry: wspólny ustęp (3270 pytań, 2938 ustępów, 578 pytań dzieli ustęp, do 9 na ustęp) | T10 | nieustalone |
 | [`cb`](benchmarks/cb/README.md) | T12 | `mc` | | T12 | nieustalone |
 | [`cbd`](benchmarks/cbd/README.md) | T28 | `f1-korpus +pl` | | T28 | nieustalone |
@@ -54,7 +54,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`coqa`](benchmarks/coqa/README.md) | T41 | `ciagla` | | T41 | nieustalone |
 | [`drop`](benchmarks/drop/README.md) | T39 | `ciagla` | | T39 | nieustalone |
 | [`dyk`](benchmarks/dyk/README.md) | T25 | `f1-korpus +klastry +pl` | klastry: pytanie (1029 wierszy do 264 pytań) | T25 | nieustalone |
-| [`ewok`](benchmarks/ewok/README.md) | | `para +klastry` | klastry: szablony; domeny informacyjnie | nie, własny kod | nieustalone |
+| [`ewok`](benchmarks/ewok/README.md) | T53 | `para +klastry` | klastry: szablony; domeny informacyjnie | T53, własny kod | nieustalone |
 | [`ewok-pl`](benchmarks/ewok-pl/README.md) | | `para +klastry +pl` | klastry: szablony; domeny informacyjnie | nie, własny kod | nieustalone |
 | [`gsm8k`](benchmarks/gsm8k/README.md) | T33 | `gen` | | T33 | nieustalone |
 | [`hellaswag`](benchmarks/hellaswag/README.md) | T05 | `mc` | | T05 | nieustalone |

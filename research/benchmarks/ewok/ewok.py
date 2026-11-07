@@ -384,6 +384,44 @@ def cmd_report(a):
     Path(a.out).write_text(json.dumps(add_holm(report), indent=1, ensure_ascii=False), encoding="utf-8")
 
 
+def przebieg_wynik(task_id, recs, rows, tmpl):
+    """Observation of one (model, EWoK) pair for tools/przebieg_centralny.sh: the main score is the mean over records
+    with the SE by template (METODOLOGIA, type `para +klastry`), chance 0.5 (a constant preference gets exactly 1/2)."""
+    scores = {r["id"]: evaluate(rows[r["id"]]) for r in recs}
+    meta = {r["id"]: {"source_id": r["source_id"], "Domain": r["Domain"]} for r in recs}
+    space = summarize(scores, meta, tmpl)
+    space["glowna"] = {**space["ewok_by_template"], "metryka": "ewok"}
+    space["bazy"] = {"chance_value": 0.5, "majority_value": None}
+    space["ties"] = sum(ties(rows[r["id"]]) for r in recs)
+    return {"task_id": task_id, "metric": "ewok", "state": "ok", "value": space["glowna"]["value"],
+            "n_scored": len(recs), "dodatkowe": {"space": space}}
+
+
+def cmd_przebieg(a):
+    """One (model, task) pair of the central run, same flags as common/ewaluuj.py: rule `authors`, records in file
+    order (`--probka N`: the first N, a load test), per-record rows in <wyjscie>/probki/ewok.jsonl (a rerun resumes),
+    <wyjscie>/results_rozszerzone.json. A failure is an observation with state `failed` and exit code 1."""
+    out = Path(a.wyjscie)
+    (out / "probki").mkdir(parents=True, exist_ok=True)
+    protokol = {"dataset": f"{DATASET_REPO}@{DATASET_REV}", "rule": "authors", "mode": MODES["authors"],
+                "probka": a.probka, "batch": a.batch, "device": a.device, "eval_gpu": getattr(a, "eval_gpu", "")}
+    try:
+        recs = load_records()
+        tmpl = templates(recs)
+        wybrane = recs if a.probka == "pelna" else recs[:int(a.probka)]
+        plik = out / "probki" / "ewok.jsonl"
+        score(build_model(a.model_path, a.device), wybrane, plik, batch=a.batch)
+        obs = przebieg_wynik(a.zadania, wybrane, read_rows(plik), tmpl)
+        obs["n_population"] = len(recs)
+    except Exception as e:  # noqa: BLE001 - the run records the failure and goes on with the next pair
+        obs = {"task_id": a.zadania, "metric": "ewok", "state": "failed", "reason": f"{type(e).__name__}: {e}"}
+    obs.update(model=a.etykieta, repo=a.repo, revision=a.revision, protocol=protokol)
+    (out / "results_rozszerzone.json").write_text(json.dumps({"observations": [obs]}, indent=1, ensure_ascii=False),
+                                                  encoding="utf-8")
+    print(json.dumps({k: obs.get(k) for k in ("task_id", "model", "state", "value", "n_scored", "reason")}))
+    return 0 if obs["state"] == "ok" else 1
+
+
 def cmd_holm(a):
     """Holm columns on a report already in the repo (the records' text, and so the templates, are not in the repo)."""
     path = Path(a.report)
@@ -410,8 +448,20 @@ def main():
                    help="the rule the per-record files were scored with; only labels the report")
     h = sub.add_parser("holm", help="add the Holm columns to an existing report")
     h.add_argument("--report", default=str(HERE / "results" / "ewok.json"))
+    c = sub.add_parser("przebieg", help="one (model, task) pair of tools/przebieg_centralny.sh")
+    c.add_argument("--model_path", required=True)
+    c.add_argument("--zadania", required=True, help="task id of common/zadania.py ZADANIA")
+    c.add_argument("--probka", default="pelna", help="pelna | number of records (first in file order)")
+    c.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    c.add_argument("--batch", type=int, default=1)
+    c.add_argument("--eval_gpu", default="", help="machine label, as common/ewaluuj.py --eval_gpu")
+    c.add_argument("--etykieta", default="")
+    c.add_argument("--repo", default="")
+    c.add_argument("--revision", default="")
+    c.add_argument("--wyjscie", required=True)
     a = p.parse_args()
-    {"score": cmd_score, "report": cmd_report, "holm": cmd_holm}[a.cmd](a)
+    kod = {"score": cmd_score, "report": cmd_report, "holm": cmd_holm, "przebieg": cmd_przebieg}[a.cmd](a)
+    sys.exit(kod or 0)
 
 
 if __name__ == "__main__":

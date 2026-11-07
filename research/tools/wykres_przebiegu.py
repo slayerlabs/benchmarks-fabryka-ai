@@ -4,6 +4,7 @@ Run: python tools/wykres_przebiegu.py results/central-run results/central-run/sc
 """
 import gzip
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -14,7 +15,19 @@ T = [("T01", "blimp", "BLiMP", "acc"), ("T02", "arc-challenge", "ARC-Challenge",
      ("T03", "wikitext-2", "WikiText-2 (byte ppl, lower = better)", "byte_perplexity"),
      ("T04", "multiblimp-pl", "MultiBLiMP-PL", "acc"), ("T44", "pubmedqa", "PubMedQA", "acc"),
      ("T45", "medmcqa", "MedMCQA", "acc"), ("T46", "social-iqa", "Social IQa", "acc")]
-M = [("slayer1b-1.06", "Slayer 1B"), ("qwen3.5-0.8b-base", "Qwen3.5 0.8B"), ("lfm2.5-1.2b-base", "LFM2.5 1.2B"),
+
+
+def etykieta_slayera(skrypt=Path(__file__).resolve().parent / "przebieg_centralny.sh"):
+    """Label of the Slayer row in MODELE of the central-run script (one source for the measured version)."""
+    tekst = skrypt.read_text(encoding="utf-8")
+    blok = tekst.split("\nMODELE=(", 1)[1].split("\n)", 1)[0]
+    etykiety = re.findall(r'^\s*"([^"|]+)\|SlayerLab/', blok, re.MULTILINE)
+    if len(etykiety) != 1:
+        raise ValueError(f"MODELE in {skrypt} should have exactly one SlayerLab row, has {etykiety}")
+    return etykiety[0]
+
+
+M = [(etykieta_slayera(), "Slayer 1B"), ("qwen3.5-0.8b-base", "Qwen3.5 0.8B"), ("lfm2.5-1.2b-base", "LFM2.5 1.2B"),
      ("lfm3-1.7b-base", "LFM3 1.7B"), ("eurollm-1.7b", "EuroLLM 1.7B")]
 SLAYER, BEST, REST = "#2a78d6", "#3d3d3a", "#c3c2b7"
 INK, MUTED = "#1f1f1e", "#6b6a64"
