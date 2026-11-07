@@ -16,8 +16,7 @@ Liczby etapu B są w [`results/HELLASWAG.md`](results/HELLASWAG.md). Niżej prze
 - Smoke test: `bash tools/przebieg_centralny.sh proba_cpu` (2 pytania na parę model × zadanie)
 - Wynik: `results/central-run/hellaswag/<model>/results.json`
 
-
-Liczby są w [`results/HELLASWAG.md`](results/HELLASWAG.md). Niżej: skąd każdy przebieg i odczyt promptu przed wagami.
+Niżej: skąd każdy przebieg i odczyt promptu przed wagami.
 
 ## Co znaczą pola, zanim padnie jakikolwiek model
 
