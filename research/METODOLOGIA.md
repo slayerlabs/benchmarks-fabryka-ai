@@ -488,9 +488,8 @@ wchodzi do obu środowisk).
 3. **Kod i token** (w powłoce na instancji):
 
    ```bash
-   git clone --depth 1 https://github.com/slayerlabs/benchmarks-fabryka-ai /workspace/repo
-   cp -r /workspace/repo/research /workspace/kod
-   cd /workspace/kod
+   git clone https://github.com/slayerlabs/benchmarks-fabryka-ai
+   cd benchmarks-fabryka-ai/research
    export HF_TOKEN=<token z kroku 1>
    ```
 
@@ -500,10 +499,15 @@ wchodzi do obu środowisk).
 4. **Przygotowanie i liczenie:**
 
    ```bash
-   bash tools/przebieg_centralny.sh przygotuj 172800   # środowiska lock i new, bezpiecznik, strażnik bezczynności
-   bash tools/przebieg_centralny.sh licz "slayer1b-1.07"
-   bash tools/przebieg_centralny.sh stan               # postęp; `ponow` powtarza zadania zakończone błędem
+   bash tools/start.sh slayer1b-1.07   # przygotuj 172800, potem w tle licz testów z „Gotowe” w STATUS.md
+   bash tools/przebieg_centralny.sh stan   # postęp; `ponow` powtarza zadania zakończone błędem
    ```
+
+   `start.sh` to dwie komendy `przebieg_centralny.sh`: `przygotuj 172800` (środowiska lock i new, bezpiecznik,
+   strażnik bezczynności) i `licz "slayer1b-1.07:<GOTOWE>"`. Lista `GOTOWE` stoi w `przebieg_centralny.sh`, a
+   `tests/test_start.py` pilnuje, że to testy z sekcji „Gotowe” w `STATUS.md`. `start.sh slayer1b-1.07 wszystkie`
+   liczy wszystkie zadania przebiegu, `START_SUCHO=1` tylko wypisuje obie komendy. Kod skrypty biorą z katalogu, w
+   którym leżą (`K`), więc klon może stać gdziekolwiek.
 
    `przygotuj <limit_s>` po `<limit_s>` sekundach pakuje wyniki i niszczy instancję razem z dyskiem, bez względu
    na stan. Czasu przebiegu 52 zadań na
@@ -516,10 +520,10 @@ wchodzi do obu środowisk).
    w `/workspace/wyjscie/`) i zatrzymuje instancję. Zatrzymana instancja nie płaci za GPU, płaci za dysk, a dysk z
    wynikami zostaje. Uruchom `licz` w ciągu 600 s od końca `przygotuj`: dłuższa przerwa też zatrzyma instancję.
    Po wznowieniu zatrzymanej instancji nie działa już ani strażnik, ani limit z `przygotuj`; przed dalszym
-   liczeniem uruchom je ponownie w `/workspace/kod` (z `export HF_TOKEN=…` jak w kroku 3):
+   liczeniem uruchom je ponownie w `research/` klonu (z `export HF_TOKEN=…` jak w kroku 3):
 
    ```bash
-   nohup python3 slayer-1b/wygaszanie/bezpiecznik.py po 172800 "bash /workspace/kod/tools/przebieg_centralny.sh pakuj" \
+   nohup python3 slayer-1b/wygaszanie/bezpiecznik.py po 172800 "bash $PWD/tools/przebieg_centralny.sh pakuj" \
      > /workspace/logi/bezpiecznik.log 2>&1 &
    bash tools/przebieg_centralny.sh straznik
    ```
@@ -528,7 +532,7 @@ wchodzi do obu środowisk).
    dalej dziala” stoi w `/workspace/logi/straznik.log`, w `/workspace/stan/STOP_NIEUDANY.txt` i na początku
    `stan`. Instancja dalej płaci za GPU do ręcznego zatrzymania albo limitu z `przygotuj`.
 5. **Wyniki.** `licz` pobiera `ckpt_22327.pt`, sprawdza jego sumę, konwertuje go do
-   `/workspace/modele/slayer1b-1.07/` i liczy 52 zadania do `/workspace/wyniki/<benchmark>/slayer1b-1.07/`, na
+   `/workspace/modele/slayer1b-1.07/` i liczy zadania z `GOTOWE` (z `wszystkie`: 52) do `/workspace/wyniki/<benchmark>/slayer1b-1.07/`, na
    końcu kontrola sensu. Gdy instancja jest zatrzymana: `vastai start instance <ID>` (albo Start w panelu vast.ai),
    po starcie `scp` pliku `/workspace/wyniki.tgz` na swój komputer, potem `vastai destroy instance <ID>` (albo
    Destroy w panelu); usunięcie robisz ręcznie. Wznowienie zależy od wolnej karty na tej samej maszynie vast.ai
