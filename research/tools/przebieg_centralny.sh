@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Central run: every model in MODELE x every task in common/zadania.py ZADANIA, full sets
-# (common/ewaluuj.py --probka pelna), on a vast.ai instance. Code in $K (= research/).
+# (common/ewaluuj.py --probka pelna), on a vast.ai instance. Code in $K (= research/; by default the directory
+# above this script, also when sourced). One-command start: tools/start.sh.
 # Long stages run in the background (nohup) and end with $WS/stan/<name>.ok or .blad;
 # every timed step appends a JSON line to $WS/czasy.jsonl.
-#   lista                  model list: label|repo|revision|loader|env (read by tests/test_przebieg_centralny.py)
+#   gotowe                 task ids of the "✅ Gotowe" section of STATUS.md (GOTOWE), the default of tools/start.sh
+#   lista                 model list: label|repo|revision|loader|env (read by tests/test_przebieg_centralny.py)
 #   plan "LABEL ..."       ewaluuj.py commands that `licz` would run, without running them ("# GPU N:" per queue)
 #   przygotuj LIMIT_S      safety destroy after LIMIT_S, both venvs, HF download speed test
 #   licz "LABEL ..."       in the background: per model download weights, every task, delete weights (a gated
@@ -20,7 +22,7 @@
 # Instance files map to the repo as: wyniki/<benchmark>/<label>/ -> results/central-run/<benchmark>/<label>/,
 # czasy.jsonl -> results/central-run/times_<gpu>.jsonl. A run never writes under benchmarks/.
 set -euo pipefail
-K=${K:-/workspace/kod}
+K=${K:-$(CDPATH= cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}  # CDPATH: cd would also print the path into K
 WS=${WS:-/workspace}
 ST=$WS/stan
 CZ=$WS/czasy.jsonl
@@ -73,6 +75,9 @@ T45:medmcqa T46:social-iqa T48:paws-en"
 KATALOGI+=" T07:winogrande T14:wsc273 T17:lambada T32:mmlu T33:gsm8k T34:math T35:truthfulqa T36:ifeval T38:squad2"
 KATALOGI+=" T39:drop T41:coqa T42:nq-open T43:triviaqa T47:bbh T49:cola T50:record"
 KATALOGI+=" T51:arc-easy T52:blimp-supplement T53:ewok"
+# Tasks of the "✅ Gotowe" section of STATUS.md, counted by default by tools/start.sh. tests/test_start.py checks
+# this line against STATUS.md: a row moved there without changing GOTOWE (or the reverse) fails the test.
+GOTOWE="T01 T02 T03 T04 T05 T06 T07 T14 T17 T19 T44 T45 T46 T51 T53"
 # Tasks with their own code (`kod` in ZADANIA): `polecenie` runs this script with the ewaluuj.py flags instead
 KOD="T53:benchmarks/ewok/ewok.py"
 ZADANIA_ID=${ZADANIA_ID:-$(for p in $KATALOGI; do printf '%s ' "${p%%:*}"; done)}
@@ -222,6 +227,9 @@ licz_rownolegle() {  # licz_rownolegle NAME ITEM...: the `kolejki` queues side b
 
 etap=${1:-}
 case "$etap" in
+  gotowe)
+    echo $GOTOWE
+    ;;
   lista)
     printf '%s\n' "${MODELE[@]}"
     ;;
@@ -327,6 +335,6 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
     ;;
   _funkcje) ;;  # sourced: functions only
   *)
-    echo "stages: lista | katalogi | plan 'LABEL ...' | przygotuj LIMIT_S | licz 'LABEL ...' | ponow | straznik | proba_cpu ['LABEL ...'] | kontrola | pakuj | stan"; exit 2
+    echo "stages: gotowe | lista | katalogi | plan 'LABEL ...' | przygotuj LIMIT_S | licz 'LABEL ...' | ponow | straznik | proba_cpu ['LABEL ...'] | kontrola | pakuj | stan"; exit 2
     ;;
 esac

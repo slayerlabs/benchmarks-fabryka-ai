@@ -190,6 +190,29 @@ python analyses/answer-format/analiza_formatu.py --wyniki <dir>
 Na czym opiera się poprawność nakładki i czym różni się od Space: [`common/RECIPE.md`](common/RECIPE.md). Na Windows komendy są w
 `.venv-eval/Scripts/` zamiast `.venv-eval/bin/`.
 
+## Przebieg centralny na GPU
+
+Na instancji vast.ai (obraz PyTorch, katalog `/workspace`). Te komendy, inaczej niż reszta README, startują
+poza `research/`:
+
+```bash
+git clone https://github.com/slayerlabs/benchmarks-fabryka-ai
+cd benchmarks-fabryka-ai
+export HF_TOKEN=...            # token z dostępem do ewok-core/ewok-core-1.0
+bash research/tools/start.sh slayer1b-1.07
+```
+
+`start.sh` przygotowuje środowiska (limit 48 h, `LIMIT_S`) i w tle liczy testy z sekcji „Gotowe” w
+[`STATUS.md`](STATUS.md); `start.sh slayer1b-1.07 wszystkie` liczy wszystkie testy przebiegu.
+
+- Postęp: `bash research/tools/przebieg_centralny.sh stan`.
+- Wyniki: `/workspace/wyniki/<benchmark>/slayer1b-1.07/`, po końcu archiwum `/workspace/wyniki.tgz`.
+- Powtórka zadań zakończonych błędem: `bash research/tools/przebieg_centralny.sh ponow`.
+- Po końcu strażnik zatrzymuje instancję. Gdy się nie uda, `stan` zaczyna się linią „STOP NIEUDANY”
+  (`/workspace/stan/STOP_NIEUDANY.txt`) i instancję zatrzymujesz ręcznie.
+
+Szczegóły (dysk, dostęp HF, wznowienie, kopiowanie wyników): [METODOLOGIA, „Następna wersja Slayera”](METODOLOGIA.md#następna-wersja-slayera).
+
 ## Testy kodu
 
 Testy działają bez sieci i bez wag. Każdy kończy się kodem 0:
@@ -209,6 +232,7 @@ Testy działają bez sieci i bez wag. Każdy kończy się kodem 0:
 .venv-eval/bin/python -m pytest tests/test_wsc273.py
 .venv-eval/bin/python -m pytest tests/test_piqa.py
 .venv-eval/bin/python -m pytest tests/test_przebieg_centralny.py
+.venv-eval/bin/python -m pytest tests/test_start.py
 .venv-eval/bin/python tests/test_przebieg_c.py
 .venv-eval/bin/python tests/test_zadania_konfiguracja.py
 .venv-eval/bin/python tests/test_zgodnosc_karty.py
