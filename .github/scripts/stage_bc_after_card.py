@@ -41,7 +41,7 @@ def benchmark_name(card_title):
 
 
 def stage_bc_title(name):
-    return f"{name} nie ma wyniku Slayera 1.06 w repo benchmarków"
+    return f"{name} nie jest podpięty do przebiegu centralnego"
 
 
 def card_catalog(card_body):
@@ -122,15 +122,16 @@ def stage_bc_body(repo, name, card_number, catalog):
     return "\n".join([
         "## Cel",
         "",
-        f"Wynik {name} Slayera 1.06 i modelu kontrolnego z SE, kodem i testem w repo pokazuje, jak Slayer "
-        "wypada w tym teście wobec modelu kontrolnego.",
+        f"{name} jest opisany i podpięty do przebiegu centralnego, więc jedno uruchomienie przebiegu liczy go "
+        "razem z resztą benchmarków na Slayerze i modelach odniesienia. Na GPU niczego nie liczysz.",
         "",
         "## Co zrobić",
         "",
         f"Etap B i C benchmarku według [„B. Odtworzenie wyniku oryginalnym kodem (REPRODUCTION.md)”]"
         f"({met}#b-odtworzenie-wyniku-oryginalnym-kodem-reproductionmd) z modelem z "
         f"[„Model kontrolny etapu B”]({met}#model-kontrolny-etapu-b) i [„C. Kod w repo”]({met}#c-kod-w-repo), "
-        f"{where} ze [wzoru]({blob}research/benchmarks/_template/README.md).",
+        f"{where} ze [wzoru]({blob}research/benchmarks/_template/README.md). Wpis w `ZADANIA` "
+        "(`research/common/zadania.py`) i w `KATALOGI` (`research/tools/przebieg_centralny.sh`).",
         "",
         "## Dane wejściowe",
         "",
@@ -140,9 +141,11 @@ def stage_bc_body(repo, name, card_number, catalog):
         "",
         "## Gotowe, gdy",
         "",
-        "- [ ] `REPRODUCTION.md` ma werdykt etapu B według sekcji B METODOLOGII.",
-        f"- [ ] Spełnia [„Definicja „zrobione””]({blob}README.md#definicja-zrobione) z README repo. Każdy wynik "
-        f"ma wpis w `RECIPE.md`; [bramka liczb i testy]({blob}research/README.md#bramka-liczb) kończą się kodem 0.",
+        "- [ ] `REPRODUCTION.md` ma wartość referencyjną, model kontrolny i warunek odtworzenia albo „bez kontroli” "
+        "z listą przeszukanych miejsc; werdykt wpisuje się po przebiegu centralnym.",
+        "- [ ] Benchmark ma wpis w `ZADANIA` i `KATALOGI`, a test bez sieci i bez wag sprawdza ten wpis.",
+        f"- [ ] Spełnia [„Definicja „zrobione””]({met}#definicja-zrobione); "
+        f"[bramka liczb i testy]({blob}research/README.md#bramka-liczb) kończą się kodem 0.",
         f"- [ ] PR do `main` ma `Refs #N` z numerem tego zadania "
         f"([CONTRIBUTING, „PR”]({blob}CONTRIBUTING.md#pr)).",
         "",

@@ -1,0 +1,111 @@
+{
+ "zbior": {
+  "repo": "allenai/social_i_qa",
+  "rewizja": "8835ceb9141d7896d9d968634a9b21ae440e3ec5",
+  "rewizja_parquet": "refs/convert/parquet",
+  "split": "validation",
+  "n_population": 1954,
+  "test": "T46"
+ },
+ "model": {
+  "nazwa": "slayer-1.06",
+  "repo": "SlayerLab/Slayer1B-1.06",
+  "rewizja": "ef81be58742544ad32e1afab38db011fec209609"
+ },
+ "panel_space": {
+  "n": 200,
+  "n_population": 1954,
+  "acc": {
+   "value": 0.39,
+   "se": 0.03457567623250011,
+   "ci95": [
+    0.32,
+    0.46
+   ]
+  },
+  "acc_norm": {
+   "value": 0.435,
+   "se": 0.03514328173714403,
+   "ci95": [
+    0.37,
+    0.505
+   ]
+  },
+  "acc_pmi": {
+   "value": 0.36,
+   "se": 0.03402629784040012,
+   "ci95": [
+    0.295,
+    0.43
+   ]
+  },
+  "bpb_poprawnej": {
+   "value": 1.9392961280231151,
+   "se": 0.05067689943456566,
+   "ci95": [
+    1.8397740765123516,
+    2.039040829919873
+   ]
+  },
+  "bazy": {
+   "losowa": 0.333333333333334,
+   "stala_odpowiedz": 0.405,
+   "rozklad_gold": {
+    "0": 59,
+    "1": 60,
+    "2": 81
+   }
+  },
+  "udzial_najczestszej_predykcji": 0.345,
+  "source_id_digest": "a0535087a4dce1a9f798e2e7f9ab66f5325ea0642b7c2b5fbb66b4f8597c0272",
+  "results_sha256": "bc6393e1a27a1cb371386265512e666b718b2c548ed4ddf5ed8f7ee583cc7ea4"
+ },
+ "pelny_split": {
+  "n": 1954,
+  "n_population": 1954,
+  "acc": {
+   "value": 0.38945752302968273,
+   "se": 0.011034098821725876,
+   "ci95": [
+    0.3679631525076766,
+    0.41146366427840325
+   ]
+  },
+  "acc_norm": {
+   "value": 0.42374616171954965,
+   "se": 0.011181721793948603,
+   "ci95": [
+    0.4017400204708291,
+    0.44575230296827023
+   ]
+  },
+  "acc_pmi": {
+   "value": 0.37461617195496416,
+   "se": 0.010952555497351602,
+   "ci95": [
+    0.35363357215967245,
+    0.39561156601842357
+   ]
+  },
+  "bpb_poprawnej": {
+   "value": 1.944662845939951,
+   "se": 0.017401646572261932,
+   "ci95": [
+    1.9108334623078362,
+    1.9788602884187156
+   ]
+  },
+  "bazy": {
+   "losowa": 0.3333333333333354,
+   "stala_odpowiedz": 0.33623336745138177,
+   "rozklad_gold": {
+    "0": 643,
+    "1": 654,
+    "2": 657
+   }
+  },
+  "udzial_najczestszej_predykcji": 0.34800409416581374,
+  "source_id_digest": "e92365ff54129c93eb518df4c5544bb39847ea762c2b5c970cef0ad5afeef808",
+  "results_sha256": "d0c75d95cd8c52965150cf12e2c73b380d5a9b2819265039de99bdd21c8a79d4"
+ }
+}

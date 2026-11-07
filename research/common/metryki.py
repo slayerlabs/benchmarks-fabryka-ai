@@ -24,6 +24,16 @@ def ranking_panel(benchmark_id, member_task, source_ids, n=200):
     return sorted(sorted(range(len(source_ids)), key=klucz)[:n])
 
 
+def ranking_banku(benchmark_id, member_task, source_ids):
+    """Kolejność dokumentów banku demonstracji (METODOLOGIA, „Przykłady few-shot”).
+
+    Klucz panelu z przestrzenią `support`, która oddziela tę kolejność od panelu:
+    SHA-256 `20261028|benchmark|member|support|source_id`, rosnąco. Demonstracje to pierwsze dokumenty tej kolejności.
+    """
+    klucz = lambda i: hashlib.sha256(f"{SEED}|{benchmark_id}|{member_task}|support|{source_ids[i]}".encode()).hexdigest()
+    return sorted(range(len(source_ids)), key=klucz)
+
+
 # --- rozbiór próbki ---
 
 def rozbierz_mc(probka, z_pmi=True):
@@ -37,15 +47,24 @@ def rozbierz_mc(probka, z_pmi=True):
     k = len(lls) // 2 if z_pmi else len(lls)
     bezw = lls[k:] if z_pmi and any(a[0] != "" for a in args[:k]) else None
     konty = [a[1] for a in args[:k]]
-    return lls[:k], bezw, konty, indeks_celu(probka["target"], konty)
+    gold = int(probka["gold"]) if "gold" in probka else indeks_celu(probka["target"], konty)
+    return lls[:k], bezw, konty, gold
 
 
 def indeks_celu(target, konty):
-    """lm-eval zapisuje cel jako indeks albo jako tekst wyboru (PubMedQA: „yes"/„no"/„maybe")."""
+    """lm-eval zapisuje cel jako indeks albo jako tekst wyboru (PubMedQA: „yes"/„no"/„maybe").
+
+    GOTCHA: in a multi-context task (WinoGrande, WSC273) every choice has the same continuation and
+    `target` is that text, so `.index` gave 0 for every question; the gold index comes from the task's
+    `doc_to_text` and travels as `probka["gold"]` (ewaluuj.py sets it).
+    """
     try:
         return int(target)
     except (TypeError, ValueError):
-        return [c.strip() for c in konty].index(str(target).strip())
+        konty = [c.strip() for c in konty]
+        if len(konty) > 1 and len(set(konty)) == 1:
+            raise ValueError("multi-context task: target is the shared continuation, pass probka['gold']")
+        return konty.index(str(target).strip())
 
 
 def argmax(wartosci):
@@ -159,6 +178,138 @@ def podsumuj_rolling(probki, proces, licz_tokeny=None):
     return perplexity(ll, w, b, t if licz_tokeny is not None else None)
 
 
+# --- grupy z wagami (+warstwy), METODOLOGIA „Ustawienia przebiegu centralnego” ---
+
+def przydzial_grupy(populacje, budzet):
+    """Liczba dokumentów panelu per podtest: min(2, N_i), potem każdy slot do podtestu o największym
+    budzet·w_i − przydzielone (w_i = N_i / N), remis po nazwie podtestu."""
+    nazwy = sorted(populacje)
+    suma = sum(populacje.values())
+    przydz = {m: min(2, populacje[m]) for m in nazwy}
+    while sum(przydz.values()) < min(budzet, suma):
+        wolne = [m for m in nazwy if przydz[m] < populacje[m]]
+        m = max(wolne, key=lambda m: (budzet * populacje[m] / suma - przydz[m], -nazwy.index(m)))
+        przydz[m] += 1
+    return przydz
+
+
+def warstwy(wartosci, wagi, seed=SEED, powtorzenia=POWTORZENIA):
+    """Średnia podtestów ze stałymi wagami: SE W = √(Σ wᵢ² SEᵢ²), CI95 z bootstrapu losującego wewnątrz podtestów.
+
+    `wartosci`: {podtest: wyniki per pytanie}; `wagi`: {podtest: waga} (normalizowane do sumy 1 po obecnych podtestach).
+    """
+    suma_w = sum(wagi[m] for m in wartosci)
+    rng = np.random.default_rng(seed)
+    wartosc, wariancja, boot, czlonkowie = 0.0, 0.0, np.zeros(powtorzenia), {}
+    for m in sorted(wartosci):
+        x = np.asarray(wartosci[m], dtype=float)
+        if len(x) == 0:
+            raise ValueError(f"pusty podtest {m}")  # brak członka grupy to jawny błąd (METODOLOGIA, panel)
+        w = wagi[m] / suma_w
+        se = float(x.std(ddof=1) / math.sqrt(len(x))) if len(x) > 1 else 0.0
+        wartosc += w * x.mean()
+        wariancja += w * w * se * se
+        boot += w * x[rng.integers(0, len(x), size=(powtorzenia, len(x)))].mean(axis=1)
+        czlonkowie[m] = {"value": float(x.mean()), "n": len(x), "se": se, "waga": w}
+    lo, hi = np.percentile(boot, [2.5, 97.5])
+    return {"value": float(wartosc), "n": sum(c["n"] for c in czlonkowie.values()), "se": math.sqrt(wariancja),
+            "ci95": [float(lo), float(hi)], "czlonkowie": czlonkowie}
+
+
+def wazona_baza(bazy, wagi):
+    """Bazy podtestów złożone wagami oryginału (typ `+warstwy`: baza w każdym podteście osobno, potem średnia)."""
+    suma_w = sum(wagi[m] for m in bazy)
+    wynik = {}
+    for k in ("chance_value", "majority_value"):
+        v = [bazy[m][k] for m in bazy]
+        wynik[k] = None if any(x is None for x in v) else sum(wagi[m] / suma_w * bazy[m][k] for m in bazy)
+    udzialy = [bazy[m].get("majority_prediction_share") for m in bazy]
+    wynik["majority_prediction_share"] = None if None in udzialy else max(udzialy)
+    wynik["constant_prediction"] = None if None in udzialy else all(u == 1.0 for u in udzialy)
+    return wynik
+
+
+# --- metryki korpusowe (typy `mcc`, `f1-korpus`): SE B z bootstrapu po pytaniach ---
+
+def mcc(zlote, pred):
+    """Współczynnik Matthewsa dla k klas (wzór Gorodkina, jak sklearn); 0, gdy mianownik jest zerowy."""
+    klasy = sorted(set(zlote) | set(pred), key=str)
+    poz = {k: i for i, k in enumerate(klasy)}
+    c = np.zeros((len(klasy), len(klasy)))
+    for z, p in zip(zlote, pred):
+        c[poz[z], poz[p]] += 1
+    t, p, s = c.sum(axis=1), c.sum(axis=0), c.sum()
+    licznik = np.trace(c) * s - (t * p).sum()
+    mianownik = math.sqrt(s * s - (p * p).sum()) * math.sqrt(s * s - (t * t).sum())
+    return float(licznik / mianownik) if mianownik else 0.0
+
+
+def f1_korpus(zlote, pred, srednia="binary", pozytywna=1):
+    """F1 na całym zbiorze: `binary` dla klasy `pozytywna` albo `macro` po klasach złotych i przewidzianych."""
+    def f1_klasy(k):
+        tp = sum(1 for z, p in zip(zlote, pred) if z == k and p == k)
+        fp = sum(1 for z, p in zip(zlote, pred) if z != k and p == k)
+        fn = sum(1 for z, p in zip(zlote, pred) if z == k and p != k)
+        return 2 * tp / (2 * tp + fp + fn) if tp else 0.0
+    if srednia == "binary":
+        return f1_klasy(pozytywna)
+    klasy = sorted(set(zlote) | set(pred), key=str)
+    return sum(f1_klasy(k) for k in klasy) / len(klasy)
+
+
+def korpusowa_z_niepewnoscia(zlote, pred, funkcja, seed=SEED, powtorzenia=POWTORZENIA):
+    """Metryka korpusowa: wartość na całym zbiorze, SE i CI95 z bootstrapu pytań liczonego od nowa (SE B)."""
+    z, p = list(zlote), list(pred)
+    n = len(z)
+    rng = np.random.default_rng(seed)
+    boot = np.array([funkcja([z[i] for i in idx], [p[i] for i in idx])
+                     for idx in rng.integers(0, n, size=(powtorzenia, n))])
+    lo, hi = np.percentile(boot, [2.5, 97.5])
+    return {"value": funkcja(z, p), "n": n, "se": float(boot.std(ddof=1)), "ci95": [float(lo), float(hi)]}
+
+
+# --- TruthfulQA MC2 (masa) i SQuAD 2.0 per pytanie ---
+
+def mc2(logliki, etykiety):
+    """Masa prawdopodobieństwa poprawnych opcji jak `process_results_mc2` lm-eval 6d2abda4: opcje do pierwszego 0
+    w etykietach są prawdziwe. Odjęcie maksimum przed exp nie zmienia ilorazu, a chroni przed 0/0."""
+    podzial = list(etykiety).index(0)
+    p = np.exp(np.asarray(logliki, dtype=float) - max(logliki))
+    return float(p[:podzial].sum() / p.sum())
+
+
+def squad_normalizuj(tekst):
+    """normalize_answer oficjalnego skryptu SQuAD 2.0 (ten sam kod liczy moduł `evaluate` squad_v2)."""
+    import re
+    import string
+    tekst = "".join(ch for ch in tekst.lower() if ch not in set(string.punctuation))
+    tekst = re.sub(r"\b(a|an|the)\b", " ", tekst)
+    return " ".join(tekst.split())
+
+
+def _squad_zlote(zlote):
+    zlote = [z for z in zlote if squad_normalizuj(z)]
+    return zlote or [""]
+
+
+def squad_em(pred, zlote):
+    return float(max(squad_normalizuj(pred) == squad_normalizuj(z) for z in _squad_zlote(zlote)))
+
+
+def squad_f1(pred, zlote):
+    """F1 tokenów najlepszej złotej odpowiedzi; pytanie bez odpowiedzi daje 1 tylko za pustą predykcję."""
+    def f1(z):
+        tz, tp = squad_normalizuj(z).split(), squad_normalizuj(pred).split()
+        if not tz or not tp:
+            return float(tz == tp)
+        wspolne = sum((Counter(tz) & Counter(tp)).values())
+        if wspolne == 0:
+            return 0.0
+        precyzja, czulosc = wspolne / len(tp), wspolne / len(tz)
+        return 2 * precyzja * czulosc / (precyzja + czulosc)
+    return max(f1(z) for z in _squad_zlote(zlote))
+
+
 # --- obserwacja w schemacie Space (urn:fabryka-ai:benchmark-results:2:protocol-0.3.1) ---
 
 def skala(wartosc, unit):
@@ -248,6 +399,11 @@ def tabela_md(rozszerzone):
                 continue
             b = d["bazy"]
             maj = f"{b['majority_value']:.3f}" if b["majority_value"] is not None else "—"
+            if "glowna" in d:  # generation, mass, corpus metric: one main metric instead of acc/acc_norm/PMI
+                g, udz = d["glowna"], d.get("udzial_najczestszej_predykcji")
+                wiersze.append(f"| {o['task_id']} | {wariant} | {g['n']} | {g['metryka']} {_fmt(g)} | | | | "
+                               f"{b['chance_value']:.3f} | {maj} | {'—' if udz is None else f'{udz:.2f}'} |")
+                continue
             wiersze.append(f"| {o['task_id']} | {wariant} | {d['acc']['n']} | {_fmt(d['acc'])} | {_fmt(d['acc_norm'])} | "
                            f"{_fmt(d.get('acc_pmi'))} | {_fmt(d['bpb_poprawnej'])} | {b['chance_value']:.3f} | {maj} | "
                            f"{d['udzial_najczestszej_predykcji']:.2f} |")
