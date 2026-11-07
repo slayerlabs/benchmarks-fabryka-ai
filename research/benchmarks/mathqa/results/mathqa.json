@@ -1,0 +1,176 @@
+{
+ "zbior": {
+  "repo": "allenai/math_qa",
+  "rewizja": "c4f1cc784c04c4957b50c97858f23893b633eea6",
+  "nazwa_hf": "default",
+  "rewizja_parquet": "fafb9f7ee5b9ec4da9499f9c4177a4c91389f2d6",
+  "split": "test",
+  "n_population": 2985,
+  "test": "T19"
+ },
+ "slayer_panel200": {
+  "acc": {
+   "value": 0.225,
+   "se": 0.029601626330440615,
+   "ci95": [
+    0.17,
+    0.285
+   ]
+  },
+  "acc_norm": {
+   "value": 0.18,
+   "se": 0.02723432655149688,
+   "ci95": [
+    0.13,
+    0.235
+   ]
+  },
+  "acc_pmi": {
+   "value": 0.24,
+   "se": 0.030275120389073013,
+   "ci95": [
+    0.18,
+    0.3
+   ]
+  },
+  "bpb_poprawnej": {
+   "value": 3.57282456214533,
+   "se": 0.0734615752128391,
+   "ci95": [
+    3.42930259766053,
+    3.7139425113273186
+   ]
+  },
+  "n": 200,
+  "n_population": 2985,
+  "bazy": {
+   "losowa": 0.2,
+   "wiekszosciowa_tego_przebiegu": 0.27,
+   "klasa_wiekszosciowa": "c",
+   "rozklad_celu": {
+    "a": 45,
+    "b": 39,
+    "c": 54,
+    "d": 37,
+    "e": 25
+   }
+  },
+  "rozklad_predykcji": {
+   "a": 54,
+   "b": 47,
+   "c": 36,
+   "d": 23,
+   "e": 40
+  },
+  "udzial_najczestszej_predykcji": 0.27,
+  "acc_norm_wobec_losowej": {
+   "roznica": -0.02,
+   "se": 0.02723432655149688,
+   "z": -0.7343673419712573,
+   "werdykt": "szum"
+  },
+  "acc_norm_wobec_wiekszosciowej": {
+   "roznica": -0.09,
+   "se": 0.04323013094018485,
+   "z": -2.081881272220249,
+   "werdykt": "prawdopodobne"
+  },
+  "dlugosc_opcji": {
+   "srednia_dlugosc_opcji": 4.248,
+   "srednia_dlugosc_wybranej": 4.835,
+   "pytan_z_jedna_najkrotsza": 20,
+   "wybrana_najkrotsza": 0,
+   "udzial_wybranej_najkrotszej": 0.0,
+   "gold_najkrotsza": 7,
+   "udzial_gold_najkrotszej": 0.35
+  },
+  "source_id_digest": "928e8884855546b4d63f8a439fddf8e9300ca3890649f269464072483d7df7df",
+  "results_sha256": "b85a0c177ad711b1100f455ff46ea7d515d56e5f6c8a84c2581a802d028aa166"
+ },
+ "slayer_pelny": {
+  "acc": {
+   "value": 0.21976549413735344,
+   "se": 0.007580413896381596,
+   "ci95": [
+    0.20469011725293132,
+    0.23484087102177553
+   ]
+  },
+  "acc_norm": {
+   "value": 0.2187604690117253,
+   "se": 0.007567930216682508,
+   "ci95": [
+    0.20368509212730318,
+    0.2338358458961474
+   ]
+  },
+  "acc_pmi": {
+   "value": 0.24020100502512562,
+   "se": 0.007820551099979324,
+   "ci95": [
+    0.22512562814070353,
+    0.2559463986599665
+   ]
+  },
+  "bpb_poprawnej": {
+   "value": 3.597894511692757,
+   "se": 0.01839802945563076,
+   "ci95": [
+    3.561744689000609,
+    3.634652367206614
+   ]
+  },
+  "n": 2985,
+  "n_population": 2985,
+  "bazy": {
+   "losowa": 0.2,
+   "wiekszosciowa_tego_przebiegu": 0.22646566164154103,
+   "klasa_wiekszosciowa": "c",
+   "rozklad_celu": {
+    "a": 614,
+    "b": 605,
+    "c": 676,
+    "d": 628,
+    "e": 462
+   }
+  },
+  "rozklad_predykcji": {
+   "a": 727,
+   "b": 547,
+   "c": 522,
+   "d": 485,
+   "e": 704
+  },
+  "udzial_najczestszej_predykcji": 0.24355108877721943,
+  "acc_norm_wobec_losowej": {
+   "roznica": 0.018760469011725293,
+   "se": 0.007567930216682509,
+   "z": 2.478943181898044,
+   "werdykt": "prawdopodobne"
+  },
+  "acc_norm_wobec_wiekszosciowej": {
+   "roznica": -0.007705192629815745,
+   "se": 0.010861583930521248,
+   "z": -0.709398618019607,
+   "werdykt": "szum"
+  },
+  "dlugosc_opcji": {
+   "srednia_dlugosc_opcji": 4.319731993299833,
+   "srednia_dlugosc_wybranej": 4.930318257956449,
+   "pytan_z_jedna_najkrotsza": 430,
+   "wybrana_najkrotsza": 32,
+   "udzial_wybranej_najkrotszej": 0.07441860465116279,
+   "gold_najkrotsza": 93,
+   "udzial_gold_najkrotszej": 0.21627906976744185
+  },
+  "source_id_digest": "c52a9d6dffc6acdbc03a59a3717fc843232c910f30445df54edfa8ce95f27bdf",
+  "results_sha256": "cb63e6714088caf91c9986ef66f003e0269cfa676b3986e66d8541419255cbe4"
+ },
+ "zgodnosc_panel_pelny": {
+  "panel_jest_podzbiorem": true,
+  "wspolnych_pytan": 200,
+  "max_roznica_loglik": 0.0,
+  "rozne_acc_norm": 0,
+  "acc_norm_panelu_w_przebiegu_pelnym": 0.18
+ }
+}
