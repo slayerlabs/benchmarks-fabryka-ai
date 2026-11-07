@@ -169,6 +169,11 @@ licz_model() {  # licz_model LABEL: download, every task, delete weights; a fail
     return 0
   fi
   rm -f "$ST/pominiety_$L.txt"
+  # work marker for the idle guard (tools/straznik_bezczynnosci.py --praca): download, conversion and own-code
+  # tasks (ewok.py) run no ewaluuj.py, and the guard would destroy the instance under them
+  # (macOS bash 3.2 has no BASHPID: $$ is the script, alive while its queues run)
+  local znacznik="$ST/praca/${BASHPID:-$$}_$L"
+  mkdir -p "$ST/praca"; echo "$L" > "$znacznik"
   pobierz_wagi "$L"
   zapisz_czas pobranie "$t" "{\"model\": \"$L\", \"bajty\": $(bajty "$WS/modele/$L")}"
   for T in $ZADANIA_ID; do
@@ -180,6 +185,7 @@ licz_model() {  # licz_model LABEL: download, every task, delete weights; a fail
   done
   # ZOSTAW_WAGI=1: proba_cpu followed by licz on the same instance downloads each model once
   [[ ${ZOSTAW_WAGI:-0} == 1 ]] || rm -rf "$WS/modele/$L"
+  rm -f "$znacznik"
 }
 
 liczba_gpu() { nvidia-smi -L 2>/dev/null | grep -c '^GPU ' || true; }
@@ -282,7 +288,7 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
   straznik)  # idle guard: GPU < 5% with no evaluation for STRAZNIK_OKNO s -> pack, copy to $WS/wyjscie, destroy
     mkdir -p "$WS/logi"
     nohup python3 $K/tools/straznik_bezczynnosci.py --wyjscie "$WS/wyjscie" --okno "${STRAZNIK_OKNO:-600}" \
-      --archiwum "$WS/wyniki.tgz" > $WS/logi/straznik.log 2>&1 &
+      --archiwum "$WS/wyniki.tgz" --praca "$ST/praca" > $WS/logi/straznik.log 2>&1 &
     echo "idle guard pid $!"
     ;;
   proba_cpu)  # load test: PROBA_N questions (WikiText-2: 1 document) per model x task on CPU, every pair must finish

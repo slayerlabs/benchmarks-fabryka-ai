@@ -480,8 +480,9 @@ wchodzi do obu środowisk).
    GPU nie mierzyliśmy: jedyny pomiar na RTX 4090 (`results/central-run/times_rtx4090.jsonl`) to 7 zadań, dla
    Slayera 1.06 razem 0,34 h, a nowe zadania mają zbiory wielokrotnie większe (MMLU, BBH, zadania z generacją).
    Dlatego limit to zabezpieczenie, nie prognoza: 172800 s (48 h) jest ustaleniem bez pomiaru. Instancję po
-   końcu niszczy strażnik bezczynności: po 600 s (`STRAZNIK_OKNO`, ustawiasz przed `przygotuj`) bez `ewaluuj.py` i
-   z GPU poniżej 5% pakuje wyniki do `/workspace/wyjscie/wyniki.tgz` i niszczy instancję razem z dyskiem.
+   końcu niszczy strażnik bezczynności: po 600 s (`STRAZNIK_OKNO`, ustawiasz przed `przygotuj`) bez `ewaluuj.py`,
+   bez żywego znacznika pracy skryptu (`/workspace/stan/praca/`: pobieranie i konwersja wag, każde zadanie, także
+   `ewok.py`) i z GPU poniżej 5% pakuje wyniki do `/workspace/wyjscie/wyniki.tgz` i niszczy instancję razem z dyskiem.
 5. **Wyniki.** `licz` pobiera `ckpt_22327.pt`, sprawdza jego sumę, konwertuje go do
    `/workspace/modele/slayer1b-1.07/` i liczy 52 zadania do `/workspace/wyniki/<benchmark>/slayer1b-1.07/`, na
    końcu kontrola sensu. Po końcu `bash tools/przebieg_centralny.sh pakuj` i pobierasz `/workspace/wyniki.tgz`
