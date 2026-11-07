@@ -443,35 +443,57 @@ zgadzać, pilnuje tego `tests/test_przebieg_centralny.py`. Krok 22327 to ostatni
 checkpointy trenera (`ckpt_N.pt`), wiersz ma loader `slayer-ckpt`, repo `SlayerLab/Slayer1B-<wersja>-checkpoints`, a
 nazwę pliku `SLAYER_CKPT`: `licz` pobiera ten plik, konwertuje go `slayer-1b/wygaszanie/konwertuj.py` względem modelu
 z `SLAYER_WZORZEC` (klucze, kształty, `config.json`, `tokenizer.json`) i liczy na wyniku. Konwersja zatrzymuje się,
-gdy konfiguracja architektury w checkpoincie różni się od wzorca. Maszyna to instancja vast.ai
-z kartami GPU (bezpiecznik `slayer-1b/wygaszanie/bezpiecznik.py` niszczy ją przez API vast.ai). Kod `research/` kopiujesz
-ręcznie do `/workspace/kod`, a `wyniki.tgz` z `pakuj` ręcznie pobierasz i rozpakowujesz w `results/central-run/`;
-skryptu do tych dwóch kroków jeszcze nie ma.
+gdy konfiguracja architektury w checkpoincie różni się od wzorca, gdy checkpoint nie ma `config` i gdy suma pliku
+nie zgadza się z `SLAYER_CKPT_SHA256`.
 
-```bash
-bash tools/przebieg_centralny.sh przygotuj <limit_s>       # raz na maszynę: środowiska, bezpiecznik
-bash tools/przebieg_centralny.sh licz "slayer1b-<wersja>"   # w tle: wagi, każde zadanie, kontrola sensu
-```
+**Krok po kroku (Slayer 1.07).** Maszyna to instancja vast.ai z kartą GPU i obrazem PyTorch 2.8.0 (`torch` z obrazu
+wchodzi do obu środowisk).
 
-`przygotuj` stawia dwa środowiska (lock i nowsze transformers dla Qwen3.5 i LFM3) i bezpiecznik, który niszczy
-instancję po `<limit_s>` sekundach.
+1. **Konto HF.** Token HF musi mieć zaakceptowany dostęp do `ewok-core/ewok-core-1.0` (bez niego T53 kończy się
+   `GatedRepoError`, pozostałe zadania liczą się dalej) i do `speakleash/Bielik-1.5B-v3` (bez niego Bielik zostaje
+   pominięty z wpisem `POMINIETY` w logu). Dostęp zgłaszasz na stronie każdego repo, przed wynajęciem karty.
+2. **Instancja.** Dysk co najmniej 60 GB. Szczyt Slayera to 17,5 GB (checkpoint 8,9 GB, wzorzec 1.06 4,3 GB, wynik
+   konwersji 4,3 GB); pozostałe modele z `MODELE` to 16,2 GB (Qwen3.5 1,8, LFM2.5 2,3, Bielik 3,2, LFM3 3,5,
+   EuroLLM 3,3, Pythia 2,1). Przy jednej karcie na dysku leży naraz jeden model, przy N kartach do N modeli; suma
+   wszystkich to 33,7 GB. Resztę zajmują dwa środowiska i zbiory danych HF (rozmiaru dla 52 zadań nie mierzyliśmy).
+3. **Kod i token** (w powłoce na instancji):
 
-**Slayer 1.07 dziś.** Kod bez zmian, w `/workspace/kod` na instancji:
+   ```bash
+   git clone --depth 1 https://github.com/slayerlabs/benchmarks-fabryka-ai /workspace/repo
+   cp -r /workspace/repo/research /workspace/kod
+   cd /workspace/kod
+   export HF_TOKEN=<token z kroku 1>
+   ```
 
-```bash
-bash tools/przebieg_centralny.sh przygotuj <limit_s>
-bash tools/przebieg_centralny.sh licz "slayer1b-1.07"
-```
+   Bezpiecznik czyta `CONTAINER_ID` i `CONTAINER_API_KEY`, które vast.ai daje każdej instancji (gdy sesja ssh ich nie
+   ma, czyta je z `/proc/1/environ`); `przygotuj` sprawdza klucz komendą `bezpiecznik.py sprawdz` i bez niego
+   kończy się błędem.
+4. **Przygotowanie i liczenie:**
 
-`licz` pobiera `ckpt_22327.pt` (8,9 GB) i wzorzec 1.06 (4,3 GB), konwertuje checkpoint do
-`/workspace/modele/slayer1b-1.07/` i liczy 49 zadań. Wyniki: `/workspace/wyniki/<benchmark>/slayer1b-1.07/`, po
-`pakuj` w `wyniki.tgz`, w repo w `results/central-run/<benchmark>/slayer1b-1.07/`. Pole `repo` w `results.json` to
-`SlayerLab/Slayer1B-1.07-checkpoints` @ `89630be…`, a `weights_sha256` to suma skonwertowanego `model.safetensors`
-(`d826b4a1…` dla `ckpt_22327.pt` o sumie `48cdb5eb…` z karty checkpointów). Punkt odniesienia: `proba_cpu
-"slayer1b-1.07"` (`PROBA_N=2`, 4 wątki CPU, Apple M5 Pro, 07.11.2026) przeszła 49 z 49 zadań w 26,5 min;
-najdłuższe MMLU (319 s), MATH (192 s), IFEval (127 s) i BBH (114 s). Na instancji `ZOSTAW_WAGI=1 bash
-tools/przebieg_centralny.sh proba_cpu "slayer1b-1.07"` przed `licz` sprawdza ładowanie, a `licz` nie pobiera wag
-drugi raz.
+   ```bash
+   bash tools/przebieg_centralny.sh przygotuj 172800   # środowiska lock i new, bezpiecznik, strażnik bezczynności
+   bash tools/przebieg_centralny.sh licz "slayer1b-1.07"
+   bash tools/przebieg_centralny.sh stan               # postęp; `ponow` powtarza zadania zakończone błędem
+   ```
+
+   `przygotuj <limit_s>` niszczy instancję po `<limit_s>` sekundach bez względu na stan. Czasu przebiegu 52 zadań na
+   GPU nie mierzyliśmy: jedyny pomiar na RTX 4090 (`results/central-run/times_rtx4090.jsonl`) to 7 zadań, dla
+   Slayera 1.06 razem 0,34 h, a nowe zadania mają zbiory wielokrotnie większe (MMLU, BBH, zadania z generacją).
+   Dlatego limit to zabezpieczenie, nie prognoza: 172800 s (48 h) jest ustaleniem bez pomiaru. Instancję po
+   końcu niszczy strażnik bezczynności: po 600 s (`STRAZNIK_OKNO`, ustawiasz przed `przygotuj`) bez `ewaluuj.py` i
+   z GPU poniżej 5% pakuje wyniki do `/workspace/wyjscie/wyniki.tgz` i niszczy instancję razem z dyskiem.
+5. **Wyniki.** `licz` pobiera `ckpt_22327.pt`, sprawdza jego sumę, konwertuje go do
+   `/workspace/modele/slayer1b-1.07/` i liczy 52 zadania do `/workspace/wyniki/<benchmark>/slayer1b-1.07/`, na
+   końcu kontrola sensu. Po końcu `bash tools/przebieg_centralny.sh pakuj` i pobierasz `/workspace/wyniki.tgz`
+   (np. `scp`) ZANIM strażnik zniszczy instancję. W repo rozpakowujesz go w `results/central-run/`. Pole `repo`
+   w `results.json` to `SlayerLab/Slayer1B-1.07-checkpoints` @ `89630be…`, a `weights_sha256` to suma
+   skonwertowanego `model.safetensors` (`d826b4a1…`).
+
+Punkt odniesienia z CPU: `proba_cpu "slayer1b-1.07"` (`PROBA_N=2`, 4 wątki, Apple M5 Pro, 07.11.2026): 49 zadań
+sprzed #154 w 1592 s (najdłuższe MMLU 319 s, MATH 192 s, IFEval 127 s, BBH 114 s), T51 i T52 razem 33 s, czyli 51
+z 52 zadań w ok. 27 min. T53 nie był liczony na prawdziwych danych (token bez dostępu do `ewok-core-1.0`). Na
+instancji `ZOSTAW_WAGI=1 bash tools/przebieg_centralny.sh proba_cpu "slayer1b-1.07"` przed `licz` sprawdza
+ładowanie, a `licz` nie pobiera wag drugi raz.
 
 `plan "slayer1b-<wersja>"` wypisuje komendy bez liczenia, także lokalnie (`K=$PWD WS=$(mktemp -d)`). `stan` pokazuje
 postęp, `ponow` powtarza zadania zakończone błędem, a `licz` kończy się `tools/kontrola_sensu.py` (zadanie bez
