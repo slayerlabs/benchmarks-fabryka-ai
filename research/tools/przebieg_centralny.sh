@@ -43,11 +43,14 @@ export NLTK_DATA=$NLTK_DANE
 # One list for the run; tests/test_przebieg_centralny.py checks it against METODOLOGIA.md ("Pięć modeli
 # odniesienia") and the Slayer revision named there.
 # loader: slayer = common/slayer_lm.py, hf = HFLM, hf-trust = HFLM with trust_remote_code. env: lock | new.
+# slayer-ckpt = common/slayer_lm.py on weights converted on the machine: the repo holds only native training
+# checkpoints, licz_model downloads $SLAYER_CKPT from it and converts it with slayer-1b/wygaszanie/konwertuj.py
+# against the $SLAYER_WZORZEC model (keys, shapes, config.json, tokenizer.json).
 # Bielik is a gated repo (LlamaForCausalLM, tokenizer.json, so the lock env loads it): counted when the HF token has
 # access, otherwise licz_model skips it with a message in the log and $ST/pominiety_<label>.txt (`dostep_hf`).
 # Last row: the stage B control model (METODOLOGIA "Model kontrolny etapu B", item 1); f3f1b6d5 is branch step143000.
 MODELE=(
-  "slayer1b-1.06|SlayerLab/Slayer1B-1.06|ef81be58742544ad32e1afab38db011fec209609|slayer|lock"
+  "slayer1b-1.07|SlayerLab/Slayer1B-1.07-checkpoints|89630be756618acbb47a78fa5cafd4e4aa6f1a63|slayer-ckpt|lock"
   "qwen3.5-0.8b-base|Qwen/Qwen3.5-0.8B-Base|dc7cdfe2ee4154fa7e30f5b51ca41bfa40174e68|hf|new"
   "lfm2.5-1.2b-base|LiquidAI/LFM2.5-1.2B-Base|7453bca97ca1e67754c4035a4b4c584e1c9dd725|hf|lock"
   "bielik-1.5b-v3|speakleash/Bielik-1.5B-v3|4b25049621bf3952a1fc9314c89773102eda0333|hf|lock"
@@ -55,6 +58,9 @@ MODELE=(
   "eurollm-1.7b|utter-project/EuroLLM-1.7B|c730cd9b616799ace3c65e927d63191446f59374|hf|lock"
   "pythia-1b-v0|EleutherAI/pythia-1b-v0|f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0|hf|lock"
 )
+# slayer-ckpt: the 1.07 final step (model card: "training complete at step 22327") and the 1.06 model it continues
+SLAYER_CKPT=ckpt_22327.pt
+SLAYER_WZORZEC="SlayerLab/Slayer1B-1.06|ef81be58742544ad32e1afab38db011fec209609"
 
 # Task id -> <benchmark> directory name under wyniki/ and results/central-run/; the test checks that ZADANIA_ID equals the keys of ZADANIA.
 KATALOGI="T01:blimp T02:arc-challenge T03:wikitext-2 T04:multiblimp-pl T05:hellaswag T06:piqa T08:openbookqa
@@ -94,11 +100,11 @@ model() {  # model LABEL -> sets REPO REV LOADER ENV
 polecenie() {  # polecenie LABEL TASK_ID -> ewaluuj.py command line
   local L=$1 T=$2
   model "$L"
-  local args=(--model "$([[ $LOADER == slayer ]] && echo slayer || echo hf)" --repo "$REPO" --revision "$REV"
+  local args=(--model "$([[ $LOADER == slayer* ]] && echo slayer || echo hf)" --repo "$REPO" --revision "$REV"
               --model_path "$WS/modele/$L" --zadania "$T" --probka "$([[ $T == T03 && -n ${PROBKA_ROLLING:-} ]] && echo "$PROBKA_ROLLING" || echo "${PROBKA:-pelna}")" --device "${DEVICE:-cuda}" --batch "$BATCH"
               --eval_gpu "$(gpu_nazwa)" --etykieta "$L" --wyjscie "${WYNIKI:-$WS/wyniki}/$(katalog "$T")/$L")
   [[ $LOADER == hf-trust ]] && args+=(--trust_remote_code)
-  [[ $T == T03 && $LOADER != slayer ]] && args+=(--max_length "$OKNO_ROLLING")
+  [[ $T == T03 && $LOADER != slayer* ]] && args+=(--max_length "$OKNO_ROLLING")
   echo "$WS/venv-$ENV/bin/python $K/common/ewaluuj.py ${args[*]}"
 }
 
@@ -120,6 +126,23 @@ except GatedRepoError as e:
     sys.exit(3)" "$REPO"
 }
 
+pobierz_wagi() {  # pobierz_wagi LABEL (after `model`): $WS/modele/LABEL ready for ewaluuj.py --model_path
+  local d=$WS/modele/$1 py="$WS/venv-$ENV/bin/python"
+  if [[ $LOADER != slayer-ckpt ]]; then
+    "$py" -c "from huggingface_hub import snapshot_download as s; s('$REPO', revision='$REV', local_dir='$d')"
+    return
+  fi
+  # converted earlier on this machine (proba_cpu with ZOSTAW_WAGI=1, then licz): no second 9 GB download
+  if [[ -s $d/model.safetensors ]] && grep -q "\"zrodlo_ckpt\": \".*/$SLAYER_CKPT\"" "$d/config.json" 2> /dev/null; then
+    echo "wagi $1: juz skonwertowane z $SLAYER_CKPT"; return
+  fi
+  local wzor_repo=${SLAYER_WZORZEC%%|*} wzor_rev=${SLAYER_WZORZEC#*|}
+  "$py" -c "from huggingface_hub import hf_hub_download as h; h('$REPO', '$SLAYER_CKPT', revision='$REV', local_dir='$d.ckpt')"
+  "$py" -c "from huggingface_hub import snapshot_download as s; s('$wzor_repo', revision='$wzor_rev', local_dir='$d.wzorzec', allow_patterns=['model.safetensors', 'config.json', 'tokenizer.json'])"
+  "$py" "$K/slayer-1b/wygaszanie/konwertuj.py" "$d.ckpt/$SLAYER_CKPT" "$d.wzorzec" "$d"
+  rm -rf "$d.ckpt" "$d.wzorzec"
+}
+
 licz_model() {  # licz_model LABEL: download, every task, delete weights; a failed task does not stop the rest
   local L=$1 t T kod powod
   model "$L"
@@ -133,7 +156,7 @@ licz_model() {  # licz_model LABEL: download, every task, delete weights; a fail
     return 0
   fi
   rm -f "$ST/pominiety_$L.txt"
-  "$WS/venv-$ENV/bin/python" -c "from huggingface_hub import snapshot_download as s; s('$REPO', revision='$REV', local_dir='$WS/modele/$L')"
+  pobierz_wagi "$L"
   zapisz_czas pobranie "$t" "{\"model\": \"$L\", \"bajty\": $(bajty "$WS/modele/$L")}"
   for T in $ZADANIA_ID; do
     t=$(teraz)
