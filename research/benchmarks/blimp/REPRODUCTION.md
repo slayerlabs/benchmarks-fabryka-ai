@@ -95,3 +95,11 @@ wypisanych cyfr, więc to prawdopodobnie panel Space (wniosek z jednej wartości
 | etap B kodem autorów (jiant) | nie zrobiony |
 | nasz forward Slayera wobec oficjalnego | 0 zmienionych par z 200 |
 | panel Space | nie odtworzony (odczyt z protokołu); odczyt SHA-256 równy |
+
+## Pięć modeli około 80% i płaskie checkpointy (sprawdzone 07.11 na zapisanych próbkach, bez GPU)
+
+Werdykt: brak błędu kodu i ładowania. Przebiegu Slayera 1.07 nie blokuje.
+
+- Paradygmaty, przebieg centralny (`results/central-run/blimp/<model>/probki/T01_space.jsonl.gz`, 67 paradygmatów po 1000 par). Żaden nie stoi na 50% u wszystkich pięciu modeli. Trzy leżą u wszystkich na 55% albo niżej: `principle_A_reconstruction` (32,7–51,9%), `sentential_subject_island` (32,2–55,0%), `wh_vs_that_with_gap_long_distance` (30,8–47,4%, pod 50% u każdego). Jeden stoi na 99% albo wyżej u wszystkich: `principle_A_case_1` (99,8–100%). Najsłabszy paradygmat modelu leży między 13,8% (LFM3-1.7B-Base) a 40,0% (EuroLLM-1.7B). Te same paradygmaty są trudne albo łatwe dla modeli pięciu różnych rodzin, więc to własność par, nie ładowania jednego modelu. <!-- liczba-spoza-wynikow: probki przebiegu centralnego, pięć modeli, trafność per UID -->
+- Checkpointy (`results/checkpoints/*.jsonl.gz` i `results/1.06/blimp.jsonl.gz`): każda para różnych punktów (k1430, k2860, k7150, k8600, k10010, k13848, avg3, avg5, avg10) różni się decyzją na 1752–12902 z 67 000 par i nie ma ani jednej pary z identycznymi log-prawdopodobieństwami obu zdań. Wyjątek zgodny z oczekiwaniem: k13848 to wagi Slayera 1.06 (konwersja z różnicą 0, `results/CHECKPOINTS.md`), a przebieg 1.06 na MPS różni się od niego decyzją na 1 parze. Checkpointy nie czytają więc tych samych wag. Trafność rośnie od 0,7381 (k1430) do 0,7920 (k13848); avg10 ma 0,8029. <!-- liczba-spoza-wynikow: results/checkpoints/*.jsonl.gz i results/1.06/blimp.jsonl.gz, decyzja ll[0] > ll[1] -->
+- Poziom około 80% zgadza się z kontrolą: opublikowana wartość Pythii-1B v0 to 0,8234, a lm-eval i nasz kod dają 0,8244 (sekcja „Kontrola: Pythia-1B v0, nasz kod, lm-eval i wartość opublikowana”). Liczenie krzywej od zera drugą implementacją robi `tests/test_blimp_checkpoints_independent.py`. <!-- liczba-spoza-wynikow: sekcja Kontrola tego pliku -->
