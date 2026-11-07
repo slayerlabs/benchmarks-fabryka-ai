@@ -18,6 +18,7 @@
   "benchmarks/ewok-pl/results/raport_ewok.json",
   "benchmarks/ewok-pl/results/raport_ewok_bos.json",
   "benchmarks/hellaswag/results/hellaswag.json",
+  "benchmarks/logiqa/results/logiqa.json",
   "benchmarks/piqa/results/piqa.json",
   "benchmarks/social-iqa/results/social_iqa.json",
   "benchmarks/wikitext-2/results/bajty.json",
@@ -6255,6 +6256,53 @@
     "hellaswag/hellaswag/space_acc_norm": 0.365,
     "hellaswag/hellaswag/roznica_space": 0.07,
     "hellaswag/hellaswag/dwa_se_panelu": 0.0701106268692557
+   }
+  },
+  "logiqa": {
+   "zrodla": [
+    "benchmarks/logiqa/results/logiqa.json"
+   ],
+   "aliasy": [
+    "logiqa"
+   ],
+   "pliki": [
+    "benchmarks/logiqa/"
+   ],
+   "skala": 1,
+   "with_global": false,
+   "wartosci": {
+    "logiqa/logiqa/slayer_panel200/value": 0.26,
+    "logiqa/logiqa/slayer_panel200/n": 200,
+    "logiqa/logiqa/slayer_panel200/se": 0.031093957143700307,
+    "logiqa/logiqa/slayer_panel200/ci95/0": 0.2,
+    "logiqa/logiqa/slayer_panel200/ci95/1": 0.325,
+    "logiqa/logiqa/slayer_panel200/bazy/chance_value": 0.25,
+    "logiqa/logiqa/slayer_panel200/bazy/majority_value": 0.3,
+    "logiqa/logiqa/slayer_panel200/bazy/majority_prediction_share": 0.665,
+    "logiqa/logiqa/slayer_panel200/baza_wiekszosciowa_split": 0.3,
+    "logiqa/logiqa/slayer_panel200/wobec_losowej/roznica": 0.010000000000000009,
+    "logiqa/logiqa/slayer_panel200/wobec_losowej/se": 0.031093957143700307,
+    "logiqa/logiqa/slayer_panel200/wobec_losowej/z": 0.32160589769211884,
+    "logiqa/logiqa/slayer_panel200/wobec_wiekszosciowej/roznica": -0.04,
+    "logiqa/logiqa/slayer_panel200/wobec_wiekszosciowej/se": 0.04903080766724645,
+    "logiqa/logiqa/slayer_panel200/wobec_wiekszosciowej/z": -0.8158136058346188,
+    "logiqa/logiqa/slayer_pelny/value": 0.2672811059907834,
+    "logiqa/logiqa/slayer_pelny/n": 651,
+    "logiqa/logiqa/slayer_pelny/se": 0.017357858622410197,
+    "logiqa/logiqa/slayer_pelny/ci95/0": 0.23348694316436253,
+    "logiqa/logiqa/slayer_pelny/ci95/1": 0.3010752688172043,
+    "logiqa/logiqa/slayer_pelny/bazy/chance_value": 0.25,
+    "logiqa/logiqa/slayer_pelny/bazy/majority_value": 0.2780337941628264,
+    "logiqa/logiqa/slayer_pelny/bazy/majority_prediction_share": 0.6144393241167435,
+    "logiqa/logiqa/slayer_pelny/baza_wiekszosciowa_split": 0.2780337941628264,
+    "logiqa/logiqa/slayer_pelny/wobec_losowej/roznica": 0.01728110599078342,
+    "logiqa/logiqa/slayer_pelny/wobec_losowej/se": 0.017357858622410197,
+    "logiqa/logiqa/slayer_pelny/wobec_losowej/z": 0.9955782200272282,
+    "logiqa/logiqa/slayer_pelny/wobec_wiekszosciowej/roznica": -0.010752688172043012,
+    "logiqa/logiqa/slayer_pelny/wobec_wiekszosciowej/se": 0.02622063157110639,
+    "logiqa/logiqa/slayer_pelny/wobec_wiekszosciowej/z": -0.41008501808521836,
+    "logiqa/logiqa/zgodnosc_panel_pelny/max_roznica_loglik": 0.0,
+    "logiqa/logiqa/zgodnosc_panel_pelny/rozne_acc": 0
    }
   },
   "piqa": {
@@ -12626,7 +12674,7 @@
    "z": 4.469363698650997,
    "se": 0.04752540345341488,
    "df": 13,
-   "p_t": 0.0006317704046163538
+   "p_t": 0.0006317704046163555
   },
   {
    "id": "slayer_vs_pythia/siqa_cloze/acc",

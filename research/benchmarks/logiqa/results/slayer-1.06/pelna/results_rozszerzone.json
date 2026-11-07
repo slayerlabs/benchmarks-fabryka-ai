@@ -1,0 +1,129 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-SlayerLab_Slayer1B-1.06-ef81be58-20261106T102020Z",
+ "models": [
+  {
+   "model_id": "SlayerLab/Slayer1B-1.06",
+   "repo": "SlayerLab/Slayer1B-1.06",
+   "revision": "ef81be58742544ad32e1afab38db011fec209609",
+   "weights_sha256": "e10df6d50101d8424ff7338c97373ab9e151e359a6fcb23108023ac4a6400214"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T18",
+   "task": "logiqa",
+   "family": "logiqa",
+   "language": "EN",
+   "split": "test"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T18",
+   "model_id": "SlayerLab/Slayer1B-1.06",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc_norm,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 651,
+   "n_selected": 651,
+   "n_scored": 651,
+   "state": "ok",
+   "value": 0.2672811059907834,
+   "ci95": {
+    "lower": 0.23348694316436253,
+    "upper": 0.3010752688172043,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "b96f36a0c96deec2a7781f89325f8098aba759593f74c25085b0756323659c14",
+   "results_sha256": "a6d0ed72a49c9a0c813c66adc2adf5e76332dff48805021f3be24e2ac526a4c5",
+   "runner_sha256": "4c93fb2695478487ca87a4d064ff273b1f2e3f48df8f81e8ad4a797cfba38a73",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.25,
+    "majority_value": null,
+    "majority_prediction_share": null,
+    "constant_prediction": null
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.2012288786482335,
+      "n": 651,
+      "se": 0.015725325827428235,
+      "ci95": [
+       0.17050691244239632,
+       0.23195084485407066
+      ]
+     },
+     "acc_norm": {
+      "value": 0.2672811059907834,
+      "n": 651,
+      "se": 0.017357858622410197,
+      "ci95": [
+       0.23348694316436253,
+       0.3010752688172043
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.31336405529953915,
+      "n": 651,
+      "se": 0.018194125178020708,
+      "ci95": [
+       0.2780337941628264,
+       0.3486943164362519
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 0.32052692697846397,
+      "n": 651,
+      "se": 0.022107915994933638,
+      "ci95": [
+       0.2794399656686877,
+       0.3656714894648396
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.25,
+      "majority_value": null,
+      "majority_prediction_share": null,
+      "constant_prediction": null
+     },
+     "udzial_najczestszej_predykcji": 0.6144393241167435
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "EleutherAI/logiqa",
+    "rewizja": "c1eee1b2fd0ddc87777e36490f7ad54d0b97d141",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "e4dd54f7104c28fb5b19015a58b215892d975175",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-SlayerLab_Slayer1B-1.06-ef81be58-20261106T102020Z",
+    "results_sha256": "a6d0ed72a49c9a0c813c66adc2adf5e76332dff48805021f3be24e2ac526a4c5"
+   }
+  ],
+  "qualification_sha256": "fa84ae05194a40f550d1c34432ab6f3f417c6746873e28fda230750b9f8bb4a6",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "ced455901960afcd262f41c3cd66355d40f68abdf5fe47fc4ec6278db8596959"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "",
+ "sprzet": "NVIDIA GeForce RTX 5050 Laptop GPU",
+ "max_length": 4096
+}
