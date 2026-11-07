@@ -95,7 +95,18 @@
       "majority_prediction_share": 0.26703322973942145,
       "constant_prediction": false
      },
-     "udzial_najczestszej_predykcji": 0.26703322973942145
+     "udzial_najczestszej_predykcji": 0.26703322973942145,
+     "wobec_b": {
+      "b": 0.3222567535261774,
+      "baza": "stala odpowiedz",
+      "roznica": 0.05594071240736314,
+      "se": 0.010964135231808857,
+      "z": 5.102154545218435,
+      "t": null,
+      "df": null,
+      "werdykt": "pewne",
+      "metoda": "A parowane"
+     }
     },
     "cloze": {
      "acc": {
@@ -140,7 +151,18 @@
       "majority_prediction_share": 0.2835285680133875,
       "constant_prediction": false
      },
-     "udzial_najczestszej_predykcji": 0.2835285680133875
+     "udzial_najczestszej_predykcji": 0.2835285680133875,
+     "wobec_b": {
+      "b": 0.3222567535261774,
+      "baza": "stala odpowiedz",
+      "roznica": -0.06789385608415013,
+      "se": 0.00967277313616738,
+      "z": -7.01906838177449,
+      "t": null,
+      "df": null,
+      "werdykt": "pewne",
+      "metoda": "A parowane"
+     }
     }
    },
    "zrodlo_danych": {
@@ -169,5 +191,9 @@
  "dane": "hf",
  "probka": "pelna",
  "eval_gpu": "NVIDIA_GeForce_RTX_4090",
- "sprzet": "NVIDIA GeForce RTX 4090"
+ "sprzet": "NVIDIA GeForce RTX 4090",
+ "podsumowanie_ponowne": {
+  "narzedzie": "tools/podsumuj_ponownie.py",
+  "powod": "SE K dla testów +klastry i stała odpowiedź testów mc (METODOLOGIA, „Typy testów”)"
+ }
 }

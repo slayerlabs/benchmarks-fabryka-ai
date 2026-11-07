@@ -15,6 +15,8 @@ decyzyjna `acc`.
 
 ## Wyniki
 
+Wyniki przebiegu centralnego z 03.11 policzył kod sprzed zmian z 04.11 (limit 4096 tokenów z BOS, budżet loglik jak HFLM), więc są do przeliczenia w przebiegu Slayera 1.07; bazy, SE i porównanie z b przeliczono 07.11 z próbek per pytanie bez modelu (`tools/podsumuj_ponownie.py`). <!-- liczba-spoza-wynikow: daty commitów 592c8af i 3ba8ae3 -->
+
 Pełny split, n = 1954. b = 0,3362 (stała odpowiedź „zawsze trzecia opcja”, 657 z 1954), baza losowa 0,3333.
 Różnica wobec b parowana po pytaniach. <!-- liczba-spoza-wynikow: rozkład celu z probki/ przebiegu centralnego -->
 
@@ -27,7 +29,9 @@ Różnica wobec b parowana po pytaniach. <!-- liczba-spoza-wynikow: rozkład cel
 | EuroLLM-1.7B | 0,4150 | 1954 | 0,0111 | opcja 3: 0,3408 | +7,88 pkt | 0,0155 | 5,08 | pewne | <!-- liczba-spoza-wynikow: results/central-run/social-iqa/eurollm-1.7b -->
 
 Wszystkie modele rozkładają odpowiedzi prawie równo na trzy opcje, więc żaden wynik nie jest stałą odpowiedzią.
-Slayer 1.06 jest nad b i pod czterema modelami odniesienia (najbliższy, Qwen3.5-0.8B-Base, o 2,91 pkt wyżej). <!-- liczba-spoza-wynikow: results/central-run/social-iqa -->
+Slayer 1.06 jest nad b i pod czterema modelami odniesienia.
+Najbliższy jest EuroLLM-1.7B, o 2,56 pkt wyżej, a różnica parowana po pytaniach ma z = −2,81, więc ta przewaga jest prawdopodobna, nie pewna; przewagi Qwen3.5-0.8B-Base (2,92 pkt, z = −3,03), LFM2.5-1.2B-Base (z = −3,97) i LFM3-1.7B-Base (z = −7,07) są pewne. <!-- liczba-spoza-wynikow: results/central-run/social-iqa, probki/T46_space.jsonl.gz, różnice parowane po pytaniach -->
+
 Modele odniesienia mieszczą się w przedziale, który MobileLLM podaje dla modeli około 1 mld (42–45, bez promptu
 i wersji kodu, więc tylko rząd wielkości; `REPRODUCTION.md`). <!-- liczba-spoza-wynikow: arXiv:2402.14905v2, tabela 8 -->
 

@@ -33,8 +33,8 @@
    "state": "ok",
    "value": 0.7920597014925373,
    "ci95": {
-    "lower": 0.789,
-    "upper": 0.795134328358209,
+    "lower": 0.7530134328358209,
+    "upper": 0.8296723880597016,
     "level": 0.95,
     "method": "paired_bootstrap",
     "replicates": 10000,

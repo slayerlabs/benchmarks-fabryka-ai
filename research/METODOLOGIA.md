@@ -536,6 +536,7 @@ wchodzi do obu środowisk).
    sposobami z https://vast.ai/docs/gpu-instances/data-movement (odsyłacz z opisu `vastai stop instance`). W repo rozpakowujesz archiwum w `results/central-run/`. Pole `repo`
    w `results.json` to `SlayerLab/Slayer1B-1.07-checkpoints` @ `89630be…`, a `weights_sha256` to suma
    skonwertowanego `model.safetensors` (`d826b4a1…`).
+   Komenda z kroku 4 liczy tylko Slayera 1.07; LFM2.5 (jak każdy model odniesienia) przebieg liczy od nowa tylko z jego etykietą w `licz` (np. `licz "slayer1b-1.07 lfm2.5-1.2b-base"`), w środowisku z `MODELE` (`lock`, lm-eval 0.4.9.1), a dzisiejsze wyniki LFM2.5 w `results/central-run/*/lfm2.5-1.2b-base/` (lm-eval 0.4.13, Apple MPS) nie są z tak policzonymi porównywalne.
 
 Punkt odniesienia z CPU: `proba_cpu "slayer1b-1.07"` (`PROBA_N=2`, 4 wątki, Apple M5 Pro, 07.11.2026): 49 zadań
 sprzed #154 w 1592 s (najdłuższe MMLU 319 s, MATH 192 s, IFEval 127 s, BBH 114 s), T51 i T52 razem 33 s, czyli 51
@@ -545,7 +546,9 @@ instancji `ZOSTAW_WAGI=1 bash tools/przebieg_centralny.sh proba_cpu "slayer1b-1.
 
 `plan "slayer1b-<wersja>"` wypisuje komendy bez liczenia, także lokalnie (`K=$PWD WS=$(mktemp -d)`). `stan` pokazuje
 postęp, `ponow` powtarza zadania zakończone błędem, a `licz` kończy się `tools/kontrola_sensu.py` (zadanie bez
-wyniku, wynik równy 1, wynik pod bazą losową o ponad 5 pkt, perpleksja nieskończona). Przebieg liczy pełne zbiory.
+wyniku, wynik równy 1, wynik pod bazą losową o ponad 5 pkt, perpleksja nieskończona); osobno, bez błędu, wypisuje wyniki
+„at baseline level”, które nie przechodzą kontroli z tabeli typów (wynik > b + 2 SE; przy testach MC z porównania
+`wobec_b`, parowanego ze stałą odpowiedzią). Przebieg liczy pełne zbiory.
 
 **Gdzie trafiają wyniki.** `pakuj` tworzy `wyniki.tgz`; jego zawartość trafia do
 `results/central-run/<benchmark>/<etykieta>/`: `results.json` w schemacie Space, `results_rozszerzone.json` i wyniki

@@ -101,6 +101,30 @@ def test_zadania_entry_matches_the_benchmark_card():
     assert sprawdzone >= 25  # T05-T31, T40, T48 except T06 (benchmarks/piqa/README.md is the card of its own pipeline)
 
 
+def typy_z_readme():
+    """{task id: type} from the README table "Benchmarki i typy", the one place a test's type is written."""
+    wiersz = re.compile(r"^\| \[`[^`]+`\]\([^)]+\) \| (T\d+) \| `([^`]+)` \|", re.M)
+    return dict(wiersz.findall((KORZEN / "README.md").read_text(encoding="utf-8")))
+
+
+def test_constant_answer_baseline_follows_the_test_type():
+    """METODOLOGIA "Typy testów": `mc`, `mc-k` and `f1-korpus` have a constant answer (share of the most frequent
+    correct position); `para` and `poz` have N/A there. `klasy_stale` must say the same, or b loses that baseline."""
+    typy = typy_z_readme()
+    for t, meta in Z.ZADANIA.items():
+        if meta["rodzaj"] != "mc":
+            continue
+        bazowy = typy[t].split()[0]
+        assert meta["klasy_stale"] == (bazowy not in ("para", "poz")), (t, typy[t])
+
+
+def test_clustered_tests_carry_their_cluster_rule():
+    """`+klastry` in the README type <=> `klastry` in ZADANIA, so the run's SE is SE K (METODOLOGIA)."""
+    typy = typy_z_readme()
+    for t in Z.ZADANIA_EWALUUJ:
+        assert ("+klastry" in typy[t]) == bool(Z.ZADANIA[t].get("klastry")), (t, typy[t])
+
+
 def test_main_metric_is_in_the_config():
     for t in Z.ZADANIA_EWALUUJ:
         meta = Z.ZADANIA[t]

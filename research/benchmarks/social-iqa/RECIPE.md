@@ -43,7 +43,7 @@ zgadzają się z przebiegiem centralnym we wszystkich 1954 pytaniach. <!-- liczb
 
 - Plik liczb: `python benchmarks/social-iqa/zbierz_wyniki.py <katalog panelu> <katalog pełnego splitu>` przepisuje z
   `results_rozszerzone.json` wartości, SE i CI95 (nie liczy metryk ponownie) i dokłada bazy policzone z goldów, bo
-  `ewaluuj.py` zostawia je puste przy `klasy_stale=False`.
+  wyjścia `ewaluuj.py` sprzed `klasy_stale=True` dla T46 mają je puste.
 - Wynik: `results/social_iqa.json`; per pytanie `results/slayer-1.06/social_iqa.jsonl.gz` (panel) i
   `results/slayer-1.06/social_iqa_full.jsonl.gz` (pełny split). `source_id_digest` pełnego splitu
   `e92365ff54129c93eb518df4c5544bb39847ea762c2b5c970cef0ad5afeef808`, ten sam co w przebiegu centralnym.

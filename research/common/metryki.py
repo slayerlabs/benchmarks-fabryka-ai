@@ -7,9 +7,14 @@ Przy `acc_mutual_info` lista ma 2k pozycji: k warunkowych, potem k bezwarunkowyc
 
 import hashlib
 import math
+import sys
 from collections import Counter
+from pathlib import Path
 
 import numpy as np
+
+sys.path.append(str(Path(__file__).resolve().parent.parent / "tools"))
+from statystyka import se_k  # noqa: E402
 
 SEED = 20261028
 POWTORZENIA = 10000
@@ -151,10 +156,12 @@ def bazy_mc(oceny, klasy_stale, klucz="acc"):
             "majority_prediction_share": udzial, "constant_prediction": udzial == 1.0}
 
 
-def podsumuj_mc(probki, klasy_stale, z_pmi=True, klucz="acc"):
-    """Wszystkie metryki wariantu MC: acc, acc_norm, acc_pmi, BPB poprawnej + bazy (dla metryki głównej `klucz`)."""
+def podsumuj_mc(probki, klasy_stale, z_pmi=True, klucz="acc", klastry=None):
+    """Wszystkie metryki wariantu MC: acc, acc_norm, acc_pmi, BPB poprawnej + bazy (dla metryki głównej `klucz`).
+    `klastry` (id klastra każdej próbki, test `+klastry`): niepewność z `srednia_klastrowa`, nie po pytaniach."""
     oceny = [oceny_mc(p, z_pmi) for p in probki]
-    wynik = {m: srednia_z_niepewnoscia([o[m] for o in oceny])
+    srednia = srednia_z_niepewnoscia if klastry is None else lambda x: srednia_klastrowa(x, klastry)
+    wynik = {m: srednia([o[m] for o in oceny])
              for m in ("acc", "acc_norm", "acc_pmi", "bpb_poprawnej") if all(m in o for o in oceny)}
     wynik["bazy"] = bazy_mc(oceny, klasy_stale, klucz)
     # udział najczęstszej predykcji liczony zawsze — to sygnał „stałej litery" także bez stałych klas
@@ -257,15 +264,49 @@ def f1_korpus(zlote, pred, srednia="binary", pozytywna=1):
     return sum(f1_klasy(k) for k in klasy) / len(klasy)
 
 
-def korpusowa_z_niepewnoscia(zlote, pred, funkcja, seed=SEED, powtorzenia=POWTORZENIA):
-    """Metryka korpusowa: wartość na całym zbiorze, SE i CI95 z bootstrapu pytań liczonego od nowa (SE B)."""
+def korpusowa_z_niepewnoscia(zlote, pred, funkcja, seed=SEED, powtorzenia=POWTORZENIA, klastry=None):
+    """Metryka korpusowa: wartość na całym zbiorze, SE i CI95 z bootstrapu liczonego od nowa (SE B). Bootstrap
+    losuje pytania, a z `klastry` (id klastra każdego pytania) całe klastry (METODOLOGIA, `+klastry`)."""
     z, p = list(zlote), list(pred)
     n = len(z)
     rng = np.random.default_rng(seed)
-    boot = np.array([funkcja([z[i] for i in idx], [p[i] for i in idx])
-                     for idx in rng.integers(0, n, size=(powtorzenia, n))])
+    if klastry is None:
+        losowania = rng.integers(0, n, size=(powtorzenia, n))
+    else:
+        grupy = list(_grupy(klastry).values())
+        losowania = ([i for g in wybor for i in grupy[g]]
+                     for wybor in rng.integers(0, len(grupy), size=(powtorzenia, len(grupy))))
+    boot = np.array([funkcja([z[i] for i in idx], [p[i] for i in idx]) for idx in losowania])
     lo, hi = np.percentile(boot, [2.5, 97.5])
-    return {"value": funkcja(z, p), "n": n, "se": float(boot.std(ddof=1)), "ci95": [float(lo), float(hi)]}
+    wynik = {"value": funkcja(z, p), "n": n, "se": float(boot.std(ddof=1)), "ci95": [float(lo), float(hi)]}
+    if klastry is not None:
+        wynik.update({"k": len(grupy), "metoda_se": "B po klastrach"})
+    return wynik
+
+
+def _grupy(klastry):
+    """{id klastra: [indeksy pozycji]} w kolejności pierwszego wystąpienia."""
+    grupy = {}
+    for i, c in enumerate(klastry):
+        grupy.setdefault(c, []).append(i)
+    return grupy
+
+
+def srednia_klastrowa(wartosci, klastry, seed=SEED, powtorzenia=POWTORZENIA):
+    """Średnia po pozycjach testu `+klastry` (METODOLOGIA, „SE K”): SE K z `tools/statystyka.se_k` (werdykt z t
+    przy df = k − 1), CI95 z bootstrapu losującego całe klastry, SE A po pozycjach obok w `se_a`, informacyjnie."""
+    x = np.asarray(wartosci, dtype=float)
+    if len(x) != len(klastry):
+        raise ValueError("wartosci i klastry: ta sama długość")
+    r = se_k([float(v) for v in x], list(klastry))
+    grupy = list(_grupy(klastry).values())
+    sumy = np.array([x[g].sum() for g in grupy])
+    liczby = np.array([len(g) for g in grupy], dtype=float)
+    idx = np.random.default_rng(seed).integers(0, len(grupy), size=(powtorzenia, len(grupy)))
+    lo, hi = np.percentile(sumy[idx].sum(axis=1) / liczby[idx].sum(axis=1), [2.5, 97.5])
+    return {"value": float(x.mean()), "n": len(x), "se": r["se"], "ci95": [float(lo), float(hi)],
+            "se_a": float(x.std(ddof=1) / math.sqrt(len(x))) if len(x) > 1 else None,
+            "k": r["k"], "df": r["df"], "metoda_se": "K"}
 
 
 # --- TruthfulQA MC2 (masa) i SQuAD 2.0 per pytanie ---

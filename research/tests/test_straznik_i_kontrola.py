@@ -239,6 +239,48 @@ def test_sanity_perplexity_and_exit_code():
     assert KS.main([str(d / "brak")]) == 1
 
 
+def obs_se(value, se, chance, majority=None, task="T45"):
+    space = {"acc": {"value": value, "se": se}, "bazy": {"chance_value": chance, "majority_value": majority}}
+    return {"task_id": task, "metric": "acc,none", "state": "ok", "dodatkowe": {"space": space}}
+
+
+def test_baseline_control_uses_the_higher_baseline_plus_two_se():
+    # MedMCQA-like: random 0.25, constant answer 0.3223; 0.316 is far above random but not above b + 2 SE
+    assert "baseline level" in KS.na_poziomie_bazy(obs_se(0.316, 0.0072, 0.25, 0.3223))
+    assert KS.na_poziomie_bazy(obs_se(0.34, 0.0072, 0.25, 0.3223)) is None  # 0.34 > 0.3223 + 0.0144
+    assert KS.na_poziomie_bazy(obs_se(0.27, 0.01, 0.25)) is not None  # no constant answer: b = random
+    assert KS.na_poziomie_bazy(obs_se(0.30, 0.01, 0.25)) is None
+    assert KS.na_poziomie_bazy(obs_se(0.30, None, 0.25)) is None  # no SE: nothing to check
+
+
+def test_baseline_control_reads_the_paired_comparison_when_the_run_wrote_it():
+    # PubMedQA LFM3-like: 0.594 is not above 0.552 + 2 x 0.022 unpaired, but the paired difference is 4.3 SE
+    o = obs_se(0.594, 0.022, 1 / 3, 0.552, task="T44")
+    o["dodatkowe"]["space"]["wobec_b"] = {"b": 0.552, "baza": "stala odpowiedz", "roznica": 0.042, "se": 0.0098,
+                                          "z": 4.27, "werdykt": "pewne"}
+    assert KS.na_poziomie_bazy(o) is None
+    o["dodatkowe"]["space"]["wobec_b"].update(roznica=-0.0062, z=-2.04, werdykt="prawdopodobne")  # under b
+    assert "baseline level" in KS.na_poziomie_bazy(o)
+    o["dodatkowe"]["space"]["wobec_b"].update(roznica=0.01, z=None, t=1.5, df=66, werdykt="szum")
+    assert "t 1.50 df 66" in KS.na_poziomie_bazy(o)
+
+
+def test_baseline_control_on_the_subset_and_skips_perplexity():
+    squad = {"task_id": "T38", "metric": "f1", "state": "ok", "dodatkowe": {"space": {
+        "glowna": {"value": 0.5, "se": 0.01, "metryka": "f1"}, "bazy": {"chance_value": 0.0, "majority_value": 0.5},
+        "podzbior": {"glowna": {"value": 0.05, "se": 0.01}, "bazy": {"chance_value": 0.0, "majority_value": 0.0}}}}}
+    assert KS.na_poziomie_bazy(squad) is None  # HasAns: 0.05 > 0 + 0.02, the empty-answer b of the full set ignored
+    ppl = {"task_id": "T03", "state": "ok", "dodatkowe": {"space": {"byte_perplexity": {"value": 1.8, "se": 0.01}}}}
+    assert KS.na_poziomie_bazy(ppl) is None
+
+
+def test_baseline_flag_is_listed_but_does_not_fail_the_run(capsys):
+    d = Path(tempfile.mkdtemp())
+    (d / "results_rozszerzone.json").write_text(json.dumps({"observations": [obs_se(0.316, 0.0072, 0.25, 0.3223)]}))
+    assert KS.main([str(d)]) == 0
+    assert "at baseline level" in capsys.readouterr().out
+
+
 if __name__ == "__main__":
     import pytest
 
