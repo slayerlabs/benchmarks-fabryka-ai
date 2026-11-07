@@ -92,6 +92,15 @@ def test_bootstrap_draws_the_same_questions_for_every_model():
     assert w["snr"] == 0 and w["przedzial95"] == [0, 0]
 
 
+def test_interval_is_basic_not_percentile(przebieg):
+    # mutation: percentile interval (the bootstrap quantiles themselves) instead of 2θ̂ − q
+    assert S.przedzial_basic(1.0, [1.0 + i / 100 for i in range(100)]) == pytest.approx([0.03, 0.98])  # q = 1.02, 1.97
+    kod, w = cli(przebieg)
+    q_lo, q_hi = w["kwantyle_bootstrap"]
+    assert q_lo != pytest.approx(2 * w["snr"] - q_hi)  # dummy bootstrap is skewed, so the two intervals differ
+    assert w["przedzial95"] == pytest.approx([2 * w["snr"] - q_hi, 2 * w["snr"] - q_lo])
+
+
 def test_short_panel_is_undetermined_with_exit_code_3(przebieg):
     # mutation: SNR reported from 3 models, or exit code 0 for an undetermined SNR
     kod, w = cli(przebieg, "--modele", "m1,m2,m3")

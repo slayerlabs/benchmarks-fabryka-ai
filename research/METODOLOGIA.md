@@ -193,7 +193,13 @@ obejmuje test.
 **Niepewność SNR.** Odchylenie standardowe z 4–7 modeli samo jest szumne, więc SNR karty to estymata. Narzędzie podaje
 ją na dwa sposoby: przedział 95% z bootstrapu po pytaniach (po klastrach przy SE klastrowym), z tym samym losowaniem
 pytań dla każdego modelu panelu, 2000 powtórzeń i ziarnem w wyniku; oraz SNR panelu bez każdego jednego modelu.
-Przedział mówi, ile SNR zależy od doboru pytań, a SNR bez jednego modelu, ile zależy od składu panelu.
+Przedział jest typu „basic”: [2·SNR − q₉₇,₅; 2·SNR − q₂,₅], gdzie q to kwantyle SNR z powtórzeń. Losowanie pytań
+dokłada ich szum do rozrzutu, więc SNR z powtórzeń leżą wyżej niż SNR karty i przedział z samych kwantyli
+(percentylowy) byłby przesunięty w górę; „basic” odbija to przesunięcie. Dolna granica poniżej zera znaczy, że rozrzut
+panelu nie odróżnia się od szumu pytań. Przedział mówi, ile SNR zależy od doboru pytań, a SNR bez jednego modelu, ile
+zależy od składu panelu. Dziś panel ma 4 modele, bo Bielik i Pythia nie mają jeszcze próbek w `results/central-run/`,
+więc SNR bez jednego modelu liczy się z 3 modeli i jest surowy. Próg 4 modeli to najmniejszy panel, przy którym to
+kryterium ma sens: bez jednego z 3 modeli rozrzut liczyłby się z 2.
 
 **Panel a ranking.** Modele odniesienia są w panelu i w rankingu, a panel rozdzielony od rankingu potrzebowałby co
 najmniej 4 modeli spoza rankingu (przebieg liczy jeden, Pythię). Dobór testów na tych samych wynikach szkodzi, gdy

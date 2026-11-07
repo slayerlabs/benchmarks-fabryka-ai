@@ -3,7 +3,7 @@
 Panel: models of MODELE in tools/przebieg_centralny.sh except the SlayerLab row, that have per-question samples of the
 test in results/central-run/<benchmark>/<model>/probki/. Spread = standard deviation (n - 1) of the panel scores,
 SE = mean over the panel of the SE of one score from the per-question values (clustered with --klaster),
-SNR = spread / SE. Uncertainty: 95% percentile interval from a paired bootstrap over questions (or clusters), the same
+SNR = spread / SE. Uncertainty: 95% basic interval from a paired bootstrap over questions (or clusters), the same
 draws for every model, and SNR without each single panel model (the smallest of them decides with the interval).
 Fewer than 4 panel models: SNR "nieustalony".
 
@@ -66,6 +66,19 @@ def snr(klastry_modeli, wybor=None):
     return rozrzut, sr_se, (rozrzut / sr_se if sr_se else math.inf)
 
 
+def kwantyle(proby, alfa=0.05):
+    """[q_{α/2}, q_{1−α/2}] of sorted bootstrap SNRs."""
+    n = len(proby)
+    return [proby[int(alfa / 2 * n)], proby[int(math.ceil((1 - alfa / 2) * n)) - 1]]
+
+
+def przedzial_basic(theta, proby, alfa=0.05):
+    """Basic bootstrap interval [2θ̂ − q_{1−α/2}, 2θ̂ − q_{α/2}]. Resampling questions adds their noise to the spread,
+    so bootstrap SNRs sit above θ̂ and the percentile interval would be shifted up; the basic one reflects it back."""
+    q_lo, q_hi = kwantyle(proby, alfa)
+    return [2 * theta - q_hi, 2 * theta - q_lo]
+
+
 def policz(dane, powtorzenia=POWTORZENIA, ziarno=ZIARNO):
     """dane: {model: {doc_id: (value, cluster)}} of the panel. Returns the result dict of the CLI."""
     modele = sorted(dane)
@@ -94,7 +107,7 @@ def policz(dane, powtorzenia=POWTORZENIA, ziarno=ZIARNO):
             "wyniki": {m: _wynik_i_se([a for a, _ in klastry_modeli[m]], [b for _, b in klastry_modeli[m]])[0]
                        for m in modele},
             "rozrzut": rozrzut, "se": se, "snr": s,
-            "przedzial95": [proby[int(0.025 * powtorzenia)], proby[int(math.ceil(0.975 * powtorzenia)) - 1]],
+            "przedzial95": przedzial_basic(s, proby), "kwantyle_bootstrap": kwantyle(proby),
             "powtorzenia": powtorzenia, "ziarno": ziarno,
             "bez_jednego": bez, "snr_min_bez_jednego": min(bez.values())}
 
