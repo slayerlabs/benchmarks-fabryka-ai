@@ -28,7 +28,7 @@ punkt 1). Korekty po wyniku trafiają do osobnej sekcji na końcu pliku, bez zmi
   `38`, `27.675`, `30`, `data inadequate`, `none of these`.
 - Cel: `['a', 'b', 'c', 'd', 'e'].index(correct)`.
 - Metryka decyzyjna: `acc_norm`, 0-shot. Opcje różnią się długością (liczba obok zdania w rodzaju „none of these”),
-  więc normalizacja po znakach zmienia tu wybór opcji; `acc` i `acc_pmi` idą obok jako pomocnicze.
+  więc normalizacja po znakach jest tu istotna; `acc` i `acc_pmi` idą obok jako pomocnicze.
 
 ## Model
 

@@ -54,7 +54,7 @@ efekt ma tu realną siłę.
 
 Widać go w liczbach. Na pełnym splicie średnia długość opcji wynosi 4,32 znaku, a średnia długość opcji wybranej
 przez `acc_norm` 4,93. Wśród 430 pytań, w których jedna opcja jest krótsza od wszystkich pozostałych, `acc_norm`
-wybiera tę najkrótszą 32 razy, czyli w 0,0744 pytań, przy 0,2000 oczekiwanych z losowania. Dane same takiej
+wybiera tę najkrótszą 32 razy, czyli w 0,0744 pytań, przy 0,2000 oczekiwanych z losowania. Dane same takiego
 skrzywienia nie mają: poprawna odpowiedź jest tą jedyną najkrótszą w 93 z tych 430 pytań, czyli w 0,2163, a więc
 mniej więcej tyle, ile wychodzi z losowania.
 
