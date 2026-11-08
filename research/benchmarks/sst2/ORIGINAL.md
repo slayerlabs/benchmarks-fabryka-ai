@@ -1,0 +1,69 @@
+# SST-2: karta oryginału (etap A)
+
+Znaczenie pól opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „A. Karta oryginału (ORIGINAL.md)”. Gdy
+czegoś nie da się ustalić, wpis brzmi „nieustalone” i podaje, gdzie szukano. Wszystkie źródła odczytano 2026-11-08.
+
+| pole | wartość |
+|---|---|
+| Co mierzy | Słowami autorów GLUE: „The task is to predict the sentiment of a given sentence.” Zdania pochodzą z recenzji filmowych (Rotten Tomatoes) i mają ludzkie oceny sentymentu; GLUE używa dwuklasowego podziału (negative/positive) i tylko etykiet na poziomie zdania, choć oryginał etykietuje też frazy drzewa składniowego. <!-- liczba-spoza-wynikow: Wang i in. 2018, arXiv:1804.07461, sekcja 3.1; Socher i in. 2013, abstrakt i sekcja 2 --> |
+| Źródła | praca: Socher, Perelygin, Wu, Chuang, Manning, Ng, Potts, „Recursive Deep Models for Semantic Compositionality Over a Sentiment Treebank”, EMNLP 2013, [ACL Anthology D13-1170](https://aclanthology.org/D13-1170/); zbiór przenosi do GLUE: Wang, Singh, Michael, Hill, Levy, Bowman, „GLUE: A Multi-Task Benchmark and Analysis Platform for Natural Language Understanding”, [arXiv:1804.07461](https://arxiv.org/abs/1804.07461); repo autorów GLUE @ commit: [`nyu-mll/GLUE-baselines` @ `b1c82396d960fd9725517089822d15e31b9882f5`](https://github.com/nyu-mll/GLUE-baselines/tree/b1c82396d960fd9725517089822d15e31b9882f5) (skrypt `download_glue_data.py` pobiera `SST-2.zip` z `dl.fbaipublicfiles.com/glue/data/`); zbiór HF @ rewizja: [`nyu-mll/glue` @ `bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c`](https://huggingface.co/datasets/nyu-mll/glue/tree/bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c), konfiguracja `sst2`. <!-- liczba-spoza-wynikow: tytuły i linki z ACl Anthology, arXiv, GitHub API i HF API, odczyt 2026-11-08 --> |
+| Dane: split w pracy | split: `train`/`dev`/`test`; n: 11 855 zdań i 215 154 fraz w całym treebanku; dwuklasowy podzbiór bez klasy neutralnej (positive/negative) ma 6920/872/1821 zdań, czyli dzieli się dokładnie na `dev` 872 i `test` 1821, których używa GLUE. <!-- liczba-spoza-wynikow: Socher i in. 2013, sekcja 2 (11 855 zdań, 215 154 fraz) i sekcja 5, akapit „The sentences in the treebank were split…” --> |
+| Dane: split w Space/repo | split: `validation`; n: 872; pełny split, bez panelu 200 (wpis `T21` w `common/zadania.py`; `--probka pelna` w [`RECIPE.md`](RECIPE.md)). Split `test` ma 1821 wierszy i wszystkie etykiety puste (`label` = −1). Split `train` ma 67 349 wierszy, ale to fragmenty zdań, nie zdania: pierwszy wiersz brzmi „hide new secretions from the parental units” (bez wielkiej litery i kropki). <!-- liczba-spoza-wynikow: datasets-server HF, konfiguracja sst2 @ bcdcba79, splity train/validation/test, odczyt 2026-11-08 --> |
+| Dane: licencja | tag HF: `other`; karta zbioru @ `bcdcba79` nie podaje tekstu licencji, tylko odsyła do licencji zbiorów źródłowych („We refer users to the original licenses accompanying each dataset”); praca SST podaje wyłącznie adres danych. licencja autorów: nieustalone — szukano w karcie HF `nyu-mll/glue` @ `bcdcba79`, w plikach repo @ `bcdcba79` (brak pliku `LICENSE`), w pracy SST @ D13-1170 i w pracy GLUE; strony `nlp.stanford.edu/sentiment` nie udało się otworzyć (błąd transportu, 2026-11-08). ukryte odpowiedzi w teście: tak, wszystkie 1821 etykiet `test` są puste, a etykiety trzyma serwer GLUE. <!-- liczba-spoza-wynikow: karta HF nyu-mll/glue @ bcdcba79; lista plików repo @ bcdcba79 przez HF API; Wang i in. 2018, tabela 1 (test pogrubiony = etykiety nigdy niepubliczne) --> |
+| Typ testu | [README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy), wiersz `sst2` (`mc`) |
+| Format zadania i prompt | Wybór jednej z 2 opcji, 0-shot (YAML nie ma `num_fewshot`). Szablon z `sst2/default.yaml` @ `6d2abda4`: `doc_to_text` = `{{sentence}}\nQuestion: Is this sentence positive or negative?\nAnswer:`, `doc_to_choice` = `["negative", "positive"]`, `doc_to_target` = `label`. Domyślny `target_delimiter` = spacja (`lm_eval/api/task.py` @ `v0.4.9.1`: `target_delimiter: str = " "`), więc oceniana kontynuacja to `" negative"` albo `" positive"` — treść opcji, nie litera. Wpis `T21` w `common/zadania.py` przepisuje ten sam szablon 1:1. Przykład renderowania: sekcja „Przykład promptu”. <!-- liczba-spoza-wynikow: sst2/default.yaml @ 6d2abda4; lm_eval/api/task.py @ v0.4.9.1; common/zadania.py, wpis T21 --> |
+| Ocena | lm-eval `output_type: multiple_choice`: `acc` = udział pytań, w których opcja o najwyższej sumie log-prawdopodobieństw kontynuacji jest poprawna; bez normalizacji długości; przy remisie wygrywa wcześniejsza opcja (`np.argmax`). `metric_list` ma tylko `acc`, więc lm-eval nie liczy `acc_norm`. Praca podaje wynik po dostrojeniu (85,4 dla RNTN na zdaniach binarnych), więc jej metryka nie jest metryką tego przebiegu. <!-- liczba-spoza-wynikow: sst2/default.yaml @ 6d2abda4; lm_eval/api/task.py @ v0.4.9.1, process_results; Socher i in. 2013, tabela 1 --> |
+| Metryka decyzyjna | `acc` (pole `metric` w `tasks_50.json` Space @ `2d3d73f5`: `acc,none`; wpis `T21` w `common/zadania.py`: `acc,none`). `acc_norm` nie istnieje w `metric_list`, więc nie jest nawet pomocnicza. <!-- liczba-spoza-wynikow: tasks_50.json Space @ 2d3d73f5; common/zadania.py --> |
+| Agregacja i grupy | Średnia po pytaniach; brak podtestów, wag i grup; jeden poziom werdyktu (cały split `validation`). |
+| Bazy: losowa | 0,5 (dwie równe opcje w każdym pytaniu). <!-- liczba-spoza-wynikow: sst2/default.yaml @ 6d2abda4, 2 opcje; METODOLOGIA, typ mc --> |
+| Bazy: stała odpowiedź | zawsze `positive` (druga opcja, indeks 1): 444 z 872 = 0,5092; rozkład etykiet na `validation`: negative 428, positive 444. <!-- liczba-spoza-wynikow: datasets-server HF, konfiguracja sst2, split validation @ bcdcba79, odczyt 2026-11-08 --> |
+| Bazy: b | 0,5092 (większa z bazy losowej 0,5 i stałej odpowiedzi 0,5092). <!-- liczba-spoza-wynikow: wyliczone z rozkładu etykiet validation @ bcdcba79, odczyt 2026-11-08 --> |
+| SNR: źródło | po przebiegu centralnym, na panelu z METODOLOGII („Panel SNR”), komendą `python tools/snr_panelu.py results/central-run/sst2 --probki T21_space --metryka acc`; przebieg nie ma jeszcze wyników `sst2` (`results/central-run/` nie zawiera katalogu `sst2`), więc panel jest pusty i SNR jest nieustalony. |
+| SNR: rozrzut | po przebiegu centralnym |
+| SNR: SE | po przebiegu centralnym |
+| SNR: iloraz | po przebiegu centralnym, z przedziałem 95% i najmniejszym ilorazem bez jednego modelu panelu |
+| SNR: szum checkpointów | nieustalone: brak opublikowanych wyników `sst2` per checkpoint. Szukano: plik `evals/pythia-v0/pythia-1b/zero-shot/pythia-1b-0shot-global_step143000_eval_results_11-28-2022-15-14-35.json` w `EleutherAI/pythia` @ `a19eecb` — ma tylko `arc_challenge`, `arc_easy`, `lambada_openai`, `logiqa`, `piqa`, `sciq`, `winogrande`, `wsc`, `blimp_*` i `hendrycksTest_*`; katalogi `evals/pythia-v1`, `evals/bloom`, `evals/opt`, `evals/csv` w tym samym repo — ten sam zestaw zadań; karta `utter-project/EuroLLM-1.7B` @ `c730cd9b` — brak `sst2` i brak wyników per checkpoint. Nie przeszukano: innych repo modeli z checkpointami i leaderboardów. <!-- liczba-spoza-wynikow: plik wyników Pythii v0 @ a19eecb; karta EuroLLM @ c730cd9b; METODOLOGIA, „Model kontrolny etapu B” --> |
+| MDE | pełny split: 6,8 pkt (n = 872); panel 200: 14,2 pkt. SE różnicy wzięte z `√2 · SE` pojedynczego wyniku przy p = 0,5 (największa wariancja), bo nie ma modelu kontrolnego z wynikami per pytanie: SE = 0,0169 dla n = 872 i 0,0354 dla n = 200; MDE = (2 + 0,84) · √2 · SE. <!-- liczba-spoza-wynikow: wyliczone z n = 872 i 200, wzór MDE z METODOLOGIA, rdzeń punkt 5 --> |
+| Kontaminacja | własnego skanu korpusu Slayera ani modeli odniesienia pod kątem SST-2 nie robiono. Space @ `2d3d73f5` oznacza dla `SlayerLab/Slayer1B-1.06` zadanie T21 jako `flagged` (hit rate 0,01, receipt sha256 `bc6c168cf6ef35bce80b70f3bf582853526b558cb7f37e30101e35f3c2342de7`), a dla `LiquidAI/LFM2.5-1.2B-Base` jako `unknown`. Zbiór jest publiczny od 2013 roku, a GLUE od 2018, więc pytania mogły trafić do danych treningowych. <!-- liczba-spoza-wynikow: results.json Space @ 2d3d73f5, observations T21; Socher i in. 2013; Wang i in. 2018 --> |
+| Wyniki referencyjne (odczyt 2026-11-08) | brak. Szukano (METODOLOGIA, „Model kontrolny etapu B”): 1) `EleutherAI/pythia-1b-v0` @ `step143000` — plik 0-shot nie ma `sst2` (zadania: `arc_challenge`, `arc_easy`, `lambada_openai`, `logiqa`, `piqa`, `sciq`, `winogrande`, `wsc`, `blimp_*`, `hendrycksTest_*`); 2) `utter-project/EuroLLM-1.7B` @ `c730cd9b` — karta podaje tylko FLORES-200, WMT-23, WMT-24, ARC-Challenge i HellaSwag; 3) prace z tabelami: SST (tabela 1: RNTN 85,4 po dostrojeniu), GLUE (tabela 4: BiLSTM/ELMo po dostrojeniu), The Pile, OLMo 2 i Pythia — żadna nie ma wyniku 0-shot `sst2` dla modelu, który da się pobrać; 4) Space @ `2d3d73f5` (T21, panel 200: `LiquidAI/LFM2.5-1.2B-Base` → 0,7; `SlayerLab/Slayer1B-1.06` → 0,505 przy jednej klasie na każdym pytaniu) — to nie jest referencja ani kontrola (METODOLOGIA, „Space i panel 200”). Nie przeszukano: kart HF innych modeli 1–2 mld parametrów, leaderboardów poza Space i cytowań pracy. Etap B idzie więc jako „bez kontroli”. <!-- liczba-spoza-wynikow: plik Pythii v0 @ a19eecb; karta EuroLLM @ c730cd9b; Socher i in. 2013 tabela 1; Wang i in. 2018 tabela 4; arXiv:2101.00027; arXiv:2501.00656; arXiv:2304.01373; results.json Space @ 2d3d73f5 --> |
+| Train policy | `eval_only`: żaden split (`train`, `validation`, `test`) nie trafia do treningu. Split `train` jest opisany tylko dla kompletności (jego wiersze to fragmenty zdań). Zbioru wolno użyć do dekontaminacji. |
+| Decyzja treningowa | Niski `acc` znaczy, że model nie wybiera treści etykiety sentymentu w zdaniu z recenzji; wynik blisko b = 0,5092 nie mówi nic o umiejętności, bo tyle daje zawsze `positive`. W Space (panel 200) Slayer 1.06 wybrał jedną klasę na każdym pytaniu (`constant_prediction` = true, `acc` 0,505 równe udziałowi klasy większościowej), więc jego wynik jest pomiarem bez informacji o zdolności. Ten zbiór nie mówi nic o języku polskim ani o generowaniu. Różnica w pkt, która zmieniłaby decyzję: nieustalona, więc MDE jest informacyjne. <!-- liczba-spoza-wynikow: datasets-server @ bcdcba79; results.json Space @ 2d3d73f5, observations T21 --> |
+| Znane rozbieżności | lista niżej |
+
+## Przykład promptu
+
+Wiersz `validation` o `idx` 0 (etykieta `positive`, czyli indeks 1). <!-- liczba-spoza-wynikow: datasets-server HF, konfiguracja sst2, split validation @ bcdcba79, odczyt 2026-11-08 -->
+Tekst po tokenizacji GLUE (spacje przed interpunkcją) trafia do promptu bez zmian; `\n` jest częścią `doc_to_text`. <!-- liczba-spoza-wynikow: sst2/default.yaml @ 6d2abda4 -->
+```
+it 's a charming and often affecting journey . 
+Question: Is this sentence positive or negative?
+Answer:
+```
+Oceniane są dwie kontynuacje: `" negative"` i `" positive"` (z wiodącą spacją z `target_delimiter`); dla tego wiersza poprawna jest `" positive"`. <!-- liczba-spoza-wynikow: lm_eval/api/task.py @ v0.4.9.1; datasets-server HF, split validation @ bcdcba79, odczyt 2026-11-08 -->
+Drugi przykład, `idx` 462, etykieta `negative` (indeks 0), zdanie „yes , dull .”, pokazuje, że krótkie zdania też są w splcie. <!-- liczba-spoza-wynikow: datasets-server HF, konfiguracja sst2, split validation @ bcdcba79, odczyt 2026-11-08 -->
+
+## Notatka: brak wyniku referencyjnego
+
+Lista miejsc i to, czego w nich nie ma, stoi w wierszu „Wyniki referencyjne”. Najważniejsze: zaprojektowany model kontrolny
+etapu B, `EleutherAI/pythia-1b-v0` @ `step143000`, nie ma `sst2` w opublikowanym pliku 0-shot, a karta EuroLLM-1.7B
+podaje tylko tłumaczenie i dwa zadania (ARC-Challenge, HellaSwag). Wynik Space nie jest ani referencją, ani kontrolą
+(METODOLOGIA, „Space i panel 200”), więc etap B pójdzie jako „bez kontroli”.
+
+## Znane rozbieżności
+
+1. **Plik zadania lm-eval w dwóch wersjach.** `lm_eval/tasks/glue/sst2/default.yaml` @ `6d2abda4` ma blob
+   `160e3e08a205bc8c369852b54d926c59a34d0f6b`, a @ `v0.4.9.1` blob `1a1ae26fb4f255ca37d403c66ce7885f7f73698d`. Jedyna
+   różnica w treści to `dataset_path: glue` (Space) wobec `dataset_path: nyu-mll/glue` (repo); `dataset_name: sst2`,
+   prompt, opcje, `doc_to_target` i `metric_list` są identyczne. Katalog ma tylko ten jeden plik w obu wersjach.
+2. **Rewizja zbioru.** YAML nie przypina rewizji; karta i wpis `T21` przypinają `bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c`,
+   tę samą, którą podaje Space @ `2d3d73f5`.
+3. **Split `train` inny niż w pracy.** Praca podaje 6920 zdań treningowych (po odrzuceniu neutralnych), a plik GLUE ma 67 349 wierszy, których treść to fragmenty zdań (frazy), nie zdania; `dev` 872 i `test` 1821 się zgadzają. Przebieg liczy `validation`, więc to nie zmienia pomiaru, ale trening na tym splicie nie byłby tym samym zbiorem co w pracy. <!-- liczba-spoza-wynikow: Socher i in. 2013, sekcja 5; datasets-server HF, split train @ bcdcba79, odczyt 2026-11-08 -->
+4. **Metryka pracy to nie metryka przebiegu.** 85,4 (RNTN, zdania binarne) i tabele GLUE to wyniki po dostrojeniu na zbiorze, a przebieg liczy 0-shot log-prawdopodobieństwem kontynuacji. <!-- liczba-spoza-wynikow: Socher i in. 2013, tabela 1; Wang i in. 2018, tabela 4 -->
+5. **Test bez etykiet.** `test` ma 1821 pustych etykiet, więc jedynym liczonym splitem jest `validation` (872); Space
+   dodatkowo ogranicza się do panelu 200 (METHOD.md), a repo liczy pełny split.
+6. **Wersja harnessu.** Space używa instrumentu `lm_eval_0.4.8`, a `RECIPE.md` przebiegu centralnego pinuje lm-eval
+   0.4.9.1 (`lock`) i 0.4.13 (`new`).
+7. **Katalog w zadaniu a katalog w repo.** Zadanie #112 podaje ścieżkę `research/benchmarks/sst-2/ORIGINAL.md`, a na
+   `main` test T21 ma katalog `research/benchmarks/sst2/` (README `benchmarks/sst2/README.md`, wpis `T21` w
+   `common/zadania.py`, `KATALOGI` w `tools/przebieg_centralny.sh`). Karta jest w `sst2/`, żeby test zgodności karty
+   (`tests/test_zgodnosc_karty.py`) ją znalazł.
