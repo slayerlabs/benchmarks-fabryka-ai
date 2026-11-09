@@ -1,0 +1,109 @@
+{
+ "_opis": "Kontrole etapu B z fabryka/research/benchmarks/<b>/REPRODUCTION.md (main @ 026f613). opublikowana = wartość z publikacji/pliku autorów; fabryka = wynik, który fabryka sama zmierzyła; prog = |nasz - opublikowana| <= max(0.02, 2*se_opublikowanej) chyba że podano prog wprost. kod: pipeline = common/ewaluuj.py (nasz runner), inne = osobny skrypt benchmarka.",
+ "kontrole": [
+  {
+   "benchmark": "piqa",
+   "task": "T06",
+   "model": "pythia-1b-v0",
+   "metryka": "acc_norm",
+   "opublikowana": 0.7051,
+   "se_opublikowanej": 0.0106,
+   "fabryka": 0.7095,
+   "kod_fabryki": "benchmarks/piqa/piqa.py score (HFLM, bez BOS)",
+   "zrodlo": "Pythia v0 @ a19eecb, results.piqa.acc_norm",
+   "pomocnicze": {
+    "acc": {
+     "opublikowana": 0.704,
+     "se_opublikowanej": 0.0107,
+     "fabryka": 0.7051
+    }
+   }
+  },
+  {
+   "benchmark": "winogrande",
+   "task": "T07",
+   "model": "pythia-1b-v0",
+   "metryka": "acc",
+   "opublikowana": 0.5375,
+   "se_opublikowanej": 0.014,
+   "fabryka": 0.5446,
+   "kod_fabryki": "lm_eval --tasks winogrande --include_path benchmarks/winogrande/lm_eval_tasks",
+   "zrodlo": "Pythia v0 @ a19eecb"
+  },
+  {
+   "benchmark": "lambada",
+   "task": "T17",
+   "model": "pythia-1b-v0",
+   "metryka": "acc",
+   "opublikowana": 0.5622,
+   "se_opublikowanej": 0.0069,
+   "fabryka": null,
+   "kod_fabryki": "pipeline (werdykt po przebiegu centralnym)",
+   "zrodlo": "Pythia v0 @ a19eecb, results.lambada_openai.acc"
+  },
+  {
+   "benchmark": "arc-easy",
+   "task": "T51",
+   "model": "pythia-1b-v0",
+   "metryka": "acc",
+   "opublikowana": 0.5585,
+   "se_opublikowanej": 0.0102,
+   "fabryka": null,
+   "kod_fabryki": "pipeline (werdykt po przebiegu centralnym)",
+   "zrodlo": "Pythia v0 @ a19eecb, results.arc_easy.acc",
+   "pomocnicze": {
+    "acc_norm": {
+     "opublikowana": 0.5004,
+     "se_opublikowanej": 0.0103,
+     "fabryka": null
+    }
+   }
+  },
+  {
+   "benchmark": "blimp",
+   "task": "T01",
+   "model": "pythia-1b-v0",
+   "metryka": "acc",
+   "opublikowana": 0.8234,
+   "se_opublikowanej": null,
+   "fabryka": 0.8244,
+   "kod_fabryki": "hipoteza_formatu.py licz --zadania blimp / lm-eval 0.4.9.1 blimp",
+   "zrodlo": "Pythia v0 step143000, średnia 67 blimp_*"
+  },
+  {
+   "benchmark": "hellaswag-10shot",
+   "task": "T05",
+   "model": "eurollm-1.7b",
+   "metryka": "acc_norm",
+   "opublikowana": 0.6057,
+   "se_opublikowanej": null,
+   "fabryka": 0.6074,
+   "kod_fabryki": "benchmarks/hellaswag/hellaswag.py score --fewshot 10; u nas: ewaluacja.py licz --zadania T05 --fewshot 10",
+   "zrodlo": "karta modelu EuroLLM-1.7B"
+  },
+  {
+   "benchmark": "wsc273",
+   "task": "T14",
+   "model": "bloom-560m",
+   "metryka": "acc",
+   "opublikowana": 0.667,
+   "se_opublikowanej": 0.0286,
+   "fabryka": 0.623,
+   "kod_fabryki": "benchmarks/wsc273/wsc273.py",
+   "zrodlo": "lm-eval results/bloom/bloom-560m @ afbf8e66",
+   "uwaga": "kontrola spoza listy METODOLOGII; bloom-560m nie jest w MODELE"
+  },
+  {
+   "benchmark": "ewok",
+   "task": "T53",
+   "model": "gpt2-xl",
+   "metryka": "ewok",
+   "opublikowana": 0.656,
+   "se_opublikowanej": null,
+   "fabryka": 0.6536,
+   "kod_fabryki": "benchmarks/ewok/ewok.py, ten sam kod w fp32 (bf16 autorów: 0,6547); u nas: pipeline ewok.py przebieg, fp32",
+   "zrodlo": "praca EWoK, tabela 20240429_mean_accuracy_allmodels.tex",
+   "uwaga": "gpt2-xl nie jest w MODELE"
+  }
+ ]
+}

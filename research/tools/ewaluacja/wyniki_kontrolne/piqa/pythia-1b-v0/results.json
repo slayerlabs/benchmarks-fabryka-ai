@@ -1,0 +1,70 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-EleutherAI_pythia-1b-v0-f3f1b6d5-20261108T110601Z",
+ "models": [
+  {
+   "model_id": "EleutherAI/pythia-1b-v0",
+   "repo": "EleutherAI/pythia-1b-v0",
+   "revision": "f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0",
+   "weights_sha256": "92589a02cfd745884f8473b0a975a93cea4cdaacf8333b0c047dab41623396b2"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T06",
+   "task": "piqa",
+   "family": "piqa",
+   "language": "EN",
+   "split": "validation"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T06",
+   "model_id": "EleutherAI/pythia-1b-v0",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc_norm,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 1838,
+   "n_selected": 1838,
+   "n_scored": 1838,
+   "state": "ok",
+   "value": 0.7094668117519043,
+   "ci95": {
+    "lower": 0.6882480957562568,
+    "upper": 0.7301414581066377,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "98d8ca1d7ff33dfb7b5893c9ca1c48e9d87736b58196cd6ad941f7520fd660b8",
+   "results_sha256": "d2525da3bc9036b38fc1d372d3d6dd28cd080e9216521f7cbc9ece90338bd977",
+   "runner_sha256": "7c9092d0e0163c498212c5271adcdc17d2b5cef4a514beff5449166eef6335a0",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.5,
+    "majority_value": 0.5048966267682263,
+    "majority_prediction_share": 0.5081610446137106,
+    "constant_prediction": false
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "026f6132b073de130235fda2c5a8bb2e42ab95f9",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-EleutherAI_pythia-1b-v0-f3f1b6d5-20261108T110601Z",
+    "results_sha256": "d2525da3bc9036b38fc1d372d3d6dd28cd080e9216521f7cbc9ece90338bd977"
+   }
+  ],
+  "qualification_sha256": "d47dc0a8aaa8b927d961547c331b9754a32a3af3fa6fb16e688f7afe44390b65",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "45d32a7d6d3a03ed51f454dfc5e69797f7dad2f616d22b46ab90ac067dd11eac"
+ }
+}

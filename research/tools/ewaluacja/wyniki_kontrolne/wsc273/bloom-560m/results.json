@@ -1,0 +1,70 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-bigscience_bloom-560m-ac2ae5fa-20261108T113122Z",
+ "models": [
+  {
+   "model_id": "bigscience/bloom-560m",
+   "repo": "bigscience/bloom-560m",
+   "revision": "ac2ae5fab2ce3f9f40dc79b5ca9f637430d24971",
+   "weights_sha256": "a8702498162c95d68d2724e7f333c83d7be08de81cfc091455c38730682116d3"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T14",
+   "task": "wsc273",
+   "family": "wsc273",
+   "language": "EN",
+   "split": "test"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T14",
+   "model_id": "bigscience/bloom-560m",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 273,
+   "n_selected": 273,
+   "n_scored": 273,
+   "state": "ok",
+   "value": 0.6227106227106227,
+   "ci95": {
+    "lower": 0.5814814814814815,
+    "upper": 0.6642066420664207,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "18fff568f90bc8e1f2187325a1ab070e30099b9482e9dccc629ad377a8defd08",
+   "results_sha256": "2cedbfc6db8f06e1eec5bb655d46042516847f6ce7447ed5902d9678e2182bab",
+   "runner_sha256": "7c9092d0e0163c498212c5271adcdc17d2b5cef4a514beff5449166eef6335a0",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.5,
+    "majority_value": 0.5018315018315018,
+    "majority_prediction_share": 0.5311355311355311,
+    "constant_prediction": false
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "026f6132b073de130235fda2c5a8bb2e42ab95f9",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-bigscience_bloom-560m-ac2ae5fa-20261108T113122Z",
+    "results_sha256": "2cedbfc6db8f06e1eec5bb655d46042516847f6ce7447ed5902d9678e2182bab"
+   }
+  ],
+  "qualification_sha256": "d47dc0a8aaa8b927d961547c331b9754a32a3af3fa6fb16e688f7afe44390b65",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "34a17f01583a6f13245357c717a9b86700759cb7ca73d23139d9aa30a7e51323"
+ }
+}
