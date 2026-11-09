@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import gzip
+import hashlib
 import json
 import os
 import re
@@ -47,6 +48,10 @@ MODELE_DODATKOWE = [
 ]
 # Testy z zapisanymi wynikami przebiegu centralnego (7 katalogów results/central-run).
 CENTRAL = ["T01", "T02", "T03", "T04", "T44", "T45", "T46"]
+# Początek sumy skonwertowanego model.safetensors (METODOLOGIA, krok „Wyniki”). Konwersję robi się poza tym runnerem.
+SUMY_WAG_CKPT = {"slayer1b-1.07": "d826b4a1"}
+# Różnica sum loglik dopuszczona w ZGODNE ~num; smoke EuroLLM: do 5e-4, a inny prompt: od 3,5 wzwyż.
+TOL_ZGODNE = 0.1
 
 
 # --------------------------------------------------------------------------- konfiguracja z przebieg_centralny.sh
@@ -147,6 +152,17 @@ def sciezka_wag(m: Model) -> Path | None:
     return d if any(d.glob("*.safetensors")) or any(d.glob("pytorch_model*.bin")) else None
 
 
+def wagi_ckpt_zgodne(m: Model, wagi: Path) -> bool:
+    prefiks = SUMY_WAG_CKPT.get(m.etykieta)
+    if prefiks is None:
+        return True
+    h = hashlib.sha256()
+    with open(wagi / "model.safetensors", "rb") as f:
+        for blok in iter(lambda: f.read(1 << 24), b""):
+            h.update(blok)
+    return h.hexdigest().startswith(prefiks)
+
+
 def nazwa_gpu() -> str:
     try:
         n = subprocess.run(["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"],
@@ -184,9 +200,13 @@ class SzczytVram:
 
 # --------------------------------------------------------------------------- komendy ewaluacji
 
+def probka_zadania(task: str, a) -> str:
+    return a.probka_rolling if (task == "T03" and a.probka_rolling) else a.probka
+
+
 def polecenie(m: Model, task: str, a, py: Path, wagi: Path, wyj: Path) -> list[str]:
     """Ta sama linia, którą buduje `polecenie()` w przebieg_centralny.sh (dla lokalnych ścieżek)."""
-    probka = a.probka_rolling if (task == "T03" and a.probka_rolling) else a.probka
+    probka = probka_zadania(task, a)
     wspolne = ["--repo", m.repo, "--revision", m.rewizja, "--model_path", str(wagi), "--zadania", task,
                "--probka", str(probka), "--device", a.device, "--batch", "1", "--eval_gpu", nazwa_gpu(),
                "--etykieta", m.etykieta, "--wyjscie", str(wyj)]
@@ -219,16 +239,42 @@ def katalog_wynikow(a) -> Path:
     return Path(a.wyniki).resolve()
 
 
-def wynik_gotowy(wyj: Path) -> bool:
-    """results.json z obserwacją state=ok (failed / blocked liczymy jeszcze raz)."""
+def probka_wyniku(wyj: Path) -> str | None:
+    """`probka` zapisana przy wyniku; ewok.py trzyma ją w observations[0].protocol."""
+    try:
+        r = json.loads((wyj / "results_rozszerzone.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if "probka" in r:
+        return str(r["probka"])
+    protokol = ((r.get("observations") or [{}])[0].get("protocol"))
+    p = protokol.get("probka") if isinstance(protokol, dict) else None
+    return None if p is None else str(p)
+
+
+def wynik_gotowy(wyj: Path, probka: str | None = None) -> bool:
+    """Obserwacje state=ok (failed / blocked liczymy jeszcze raz) z tej samej próbki albo z pełnego splitu."""
     p = wyj / "results.json"
+    if not p.exists():
+        p = wyj / "results_rozszerzone.json"            # ewok.py nie pisze results.json
     if not p.exists():
         return False
     try:
         obs = json.loads(p.read_text(encoding="utf-8"))["observations"]
-        return bool(obs) and all(o.get("state") == "ok" for o in obs)
     except Exception:
         return False
+    if not obs or not all(o.get("state") == "ok" for o in obs):
+        return False
+    return probka is None or probka_wyniku(wyj) in (str(probka), "pelna")
+
+
+def kontrola_sensu(katalogi: list[Path], a) -> int:
+    """Ta sama kontrola, którą przebieg centralny robi na końcu `licz`; kod wyjścia tools/kontrola_sensu.py."""
+    gotowe_kat = [str(d) for d in katalogi if (d / "results_rozszerzone.json").exists()]
+    if not gotowe_kat:
+        return 0
+    flaga = [] if a.probka == "pelna" else ["--tylko-stan"]
+    return subprocess.run([sys.executable, str(FABRYKA / "tools" / "kontrola_sensu.py"), *flaga, *gotowe_kat]).returncode
 
 
 def zapisz_czas(a, wpis: dict):
@@ -332,6 +378,7 @@ def cmd_licz(a) -> int:
 
     # 1) lista prac (model x test), bez gotowych
     kolejka: list[Praca] = []
+    pominiete = 0
     for etyk in a.modele:
         if etyk not in ms:
             raise SystemExit(f"nieznany model {etyk}; dostępne: {' '.join(ms)}")
@@ -341,15 +388,21 @@ def cmd_licz(a) -> int:
         if py is None or wagi is None:
             print(f"POMINIETY {etyk}: " + ("brak interpretera env " + m.env if py is None else
                   f"brak kompletnych wag {m.repo}@{m.rewizja[:8]} w cache HF"))
+            pominiete += 1
+            continue
+        if not wagi_ckpt_zgodne(m, wagi):
+            print(f"POMINIETY {etyk}: suma {wagi / 'model.safetensors'} inna niż {SUMY_WAG_CKPT[etyk]}… z METODOLOGII")
+            pominiete += 1
             continue
         for t in zadania:
             wyj = wyniki / (kat[t] + (f"-{a.fewshot}shot" if a.fewshot is not None else "")) / etyk
-            if wynik_gotowy(wyj) and not a.nadpisz:
+            if wynik_gotowy(wyj, probka_zadania(t, a)) and not a.nadpisz:
                 print(f"[{etyk} {t}] już policzone - pomijam (--nadpisz liczy od nowa)")
                 continue
             kolejka.append(Praca(m, t, py, wagi, wyj, szacunek_vram(etyk, t, wagi)))
     if not kolejka:
-        return 0
+        return 1 if pominiete else 0
+    katalogi_pracy = [p.wyj for p in kolejka]
 
     # 2) CPU w tle przygotowuje zbiory (od razu wszystkie testy, po a.cpu naraz); GPU czeka tylko na swój test
     py_przyg = python_env("lock", a) or kolejka[0].py
@@ -425,7 +478,8 @@ def cmd_licz(a) -> int:
             time.sleep(0.5)
     finally:
         vram_mon.__exit__(None, None, None)
-    return 1 if bledy else 0
+    sensu = kontrola_sensu(katalogi_pracy, a)
+    return 1 if bledy or pominiete or sensu else 0
 
 
 def cmd_plan(a) -> int:
@@ -551,7 +605,7 @@ def werdykt(w: dict, tol_loglik: float) -> str:
     pelne = w["n_lok"] == w["n_ref"]
     if w["max_dloglik"] <= tol_loglik and w["zgodnosc_pred"] == 1.0:
         return "IDENTYCZNE" if pelne else "IDENTYCZNE (na próbce)"
-    if w["zgodnosc_pred"] >= 0.99:
+    if w["zgodnosc_pred"] >= 0.99 and w["max_dloglik"] <= TOL_ZGODNE:
         return "ZGODNE ~num" + ("" if pelne else " (próbka)")
     return "ROZNE"
 
@@ -581,29 +635,16 @@ def cmd_porownaj(a) -> int:
         Path(a.json).write_text(json.dumps([{"benchmark": b, "model": m, **w, "werdykt": v} for b, m, w, v in rows],
                                            ensure_ascii=False, indent=1), encoding="utf-8")
         print(f"\nzapisano {a.json}")
-    return 0
-
-
-def _ostatnia_probka(model: str, task: str, katalog: Path):
-    """`probka` z ostatniego udanego przebiegu pary model × test w czasy.jsonl."""
-    wynik = None
-    for p in (TU / "czasy.jsonl", katalog / "czasy.jsonl"):
-        if not p.exists():
-            continue
-        for linia in p.read_text(encoding="utf-8").splitlines():
-            try:
-                r = json.loads(linia)
-            except ValueError:
-                continue
-            if r.get("etap") == "ewaluacja" and r.get("model") == model and r.get("zadanie") == task and r.get("kod") == 0:
-                wynik = r.get("probka")
-    return wynik
+    return 1 if any(v == "ROZNE" or w.get("stan_lok") != "ok" for _, _, w, v in rows) else 0
 
 
 def cmd_kontrola(a) -> int:
-    """Pełne przebiegi modeli kontrolnych vs wartości opublikowane (kontrole.json z REPRODUCTION.md)."""
+    """Pełne przebiegi modeli kontrolnych vs wartości opublikowane (kontrole.json z REPRODUCTION.md).
+
+    Kod wyjścia: 0 komplet w progu, 1 metryka główna poza progiem albo nie z pełnego splitu, 3 brak części przebiegów."""
     k = json.loads((TU / "kontrole.json").read_text(encoding="utf-8"))["kontrole"]
     wyniki = katalog_wynikow(a)
+    poza, brak = False, False
     print(f"{'benchmark':11s} {'model':13s} {'metryka':9s} {'nasz':>7s} {'SE':>6s} {'n':>6s} {'opubl.':>7s} "
           f"{'Δ pkt':>6s} {'próg':>5s} {'fabryka':>7s} {'Δfab':>6s}  werdykt")
     for c in k:
@@ -618,14 +659,10 @@ def cmd_kontrola(a) -> int:
             if not o or o.get("state") != "ok":
                 stan = "brak pełnego przebiegu" if not o else o.get("state")
                 print(f"{c['benchmark']:11s} {c['model']:13s} {met:9s} {'-':>7s}  {stan}")
+                brak = brak or not o
+                poza = poza or bool(o)
                 break
-            try:
-                rozsz = json.loads((d / "results_rozszerzone.json").read_text(encoding="utf-8"))
-                pelna = rozsz.get("probka") == "pelna"
-            except Exception:
-                rozsz, pelna = {}, False
-            if "probka" not in rozsz:   # zadania z własnym kodem (ewok.py) nie zapisują próbki - bierzemy z czasy.jsonl
-                pelna = _ostatnia_probka(c["model"], c["task"], wyniki) == "pelna"
+            pelna = probka_wyniku(d) == "pelna"
             sp = (o.get("dodatkowe") or {}).get("space") or {}
             v = sp.get(met) or {}
             if not v and (sp.get("glowna") or {}).get("metryka") == met:   # testy z metryką w `glowna` (LAMBADA)
@@ -633,6 +670,7 @@ def cmd_kontrola(a) -> int:
             wart = v.get("value", o["value"] if i == 0 else None)
             if wart is None:
                 print(f"{c['benchmark']:11s} {c['model']:13s} {met:9s} brak metryki w wyniku")
+                poza = poza or i == 0
                 continue
             if wart > 1.5:          # procenty (np. ewok 65.4)
                 wart /= 100
@@ -643,10 +681,11 @@ def cmd_kontrola(a) -> int:
             w = ("W PROGU" if abs(delta) <= prog else "POZA PROGIEM") + ("" if i == 0 else " (pomocnicza)")
             if not pelna:
                 w += " [NIE pełny split!]"
+            poza = poza or (i == 0 and (abs(delta) > prog or not pelna))
             print(f"{c['benchmark']:11s} {c['model']:13s} {met:9s} {wart:7.4f} {v.get('se') or 0:6.4f} "
                   f"{v.get('n') or o.get('n_scored'):>6} {ref['opublikowana']:7.4f} {100*delta:+6.2f} {100*prog:5.2f} "
                   f"{('-' if fab is None else f'{fab:.4f}'):>7s} {('-' if fab is None else f'{100*(wart-fab):+.2f}'):>6s}  {w}")
-    return 0
+    return 1 if poza else 3 if brak else 0
 
 
 def cmd_stan(a) -> int:

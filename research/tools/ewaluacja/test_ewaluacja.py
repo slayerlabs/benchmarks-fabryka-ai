@@ -95,3 +95,100 @@ def test_subset_comparison_uses_only_common_questions(tmp_path):
     w = E.porownaj_pare(lok, ref)
     assert w["n_wspolnych"] == 20 and E.werdykt(w, 1e-3) == "IDENTYCZNE (na próbce)"
     assert w["metryka_lok_wspolne"] == w["metryka_ref_wspolne"]
+
+
+KONTROLNE = Path(E.__file__).parent / "wyniki_kontrolne"
+
+
+def _wynik(d, probka):
+    d.mkdir(parents=True)
+    (d / "results.json").write_text(json.dumps({"observations": [{"state": "ok"}]}), encoding="utf-8")
+    (d / "results_rozszerzone.json").write_text(json.dumps({"probka": probka}), encoding="utf-8")
+    return d
+
+
+def test_resume_needs_the_same_sample_or_a_full_split(tmp_path):
+    proba, pelna = _wynik(tmp_path / "a", "20"), _wynik(tmp_path / "b", "pelna")
+    assert not E.wynik_gotowy(proba, "pelna")
+    assert E.wynik_gotowy(proba, "20")
+    assert E.wynik_gotowy(pelna, "pelna") and E.wynik_gotowy(pelna, "20")
+    assert not E.wynik_gotowy(tmp_path / "brak", "pelna")
+
+
+def test_resume_reads_the_sample_of_own_code_tasks():
+    ewok = KONTROLNE / "ewok" / "gpt2-xl"
+    assert E.probka_wyniku(ewok) == "pelna" and E.wynik_gotowy(ewok, "pelna")
+
+
+def _porownanie(dll, zgodnosc):
+    return {"stan_lok": "ok", "wartosc_ref": 1.0, "n_wspolnych": 62, "n_lok": 62, "n_ref": 62,
+            "max_dloglik": dll, "zgodnosc_pred": zgodnosc}
+
+
+def test_numeric_agreement_needs_close_logliks():
+    assert E.werdykt(_porownanie(500.0, 1.0), 1e-3) == "ROZNE"       # jedna wartość na dokument: zgodność zawsze 1,0
+    assert E.werdykt(_porownanie(0.01, 0.995), 1e-3) == "ZGODNE ~num"
+
+
+def test_compare_exits_nonzero_on_a_different_run(tmp_path):
+    import gzip
+    model = "eurollm-1.7b"
+    lok = tmp_path / "w" / "wikitext-2" / model
+    shutil.copytree(E.ODNIESIENIE / "wikitext-2" / model, lok)
+    argumenty = ["--wyniki", str(tmp_path / "w"), "porownaj"]
+    assert E.main(argumenty) == 0
+    p = lok / "probki" / "T03_space.jsonl.gz"
+    rows = [json.loads(l) for l in gzip.open(p, "rt", encoding="utf-8")]
+    fr = rows[0]["filtered_resps"]
+    rows[0]["filtered_resps"] = json.dumps([json.loads(fr)[0] - 500.0]) if isinstance(fr, str) else [fr[0] - 500.0]
+    with gzip.open(p, "wt", encoding="utf-8") as f:
+        f.writelines(json.dumps(r) + "\n" for r in rows)
+    assert E.main(argumenty) == 1
+
+
+def test_control_exit_codes(tmp_path):
+    w = tmp_path / "w"
+    shutil.copytree(KONTROLNE, w)
+    argumenty = ["--wyniki", str(w), "kontrola"]
+    assert E.main(argumenty) == 0
+    shutil.rmtree(w / "piqa")
+    assert E.main(argumenty) == 3
+    p = w / "arc-easy" / "pythia-1b-v0" / "results_rozszerzone.json"
+    j = json.loads(p.read_text(encoding="utf-8"))
+    j["observations"][0]["dodatkowe"]["space"]["acc"]["value"] = 0.30
+    p.write_text(json.dumps(j), encoding="utf-8")
+    assert E.main(argumenty) == 1
+
+
+def test_control_fails_on_a_sample(tmp_path):
+    w = tmp_path / "w"
+    shutil.copytree(KONTROLNE, w)
+    p = w / "blimp" / "pythia-1b-v0" / "results_rozszerzone.json"
+    j = json.loads(p.read_text(encoding="utf-8"))
+    j["probka"] = "20"
+    p.write_text(json.dumps(j), encoding="utf-8")
+    assert E.main(["--wyniki", str(w), "kontrola"]) == 1
+
+
+def test_skipped_model_fails_the_run(tmp_path, monkeypatch):
+    monkeypatch.setattr(E, "sciezka_wag", lambda m: None)
+    assert E.main(["--wyniki", str(tmp_path / "w"), "--python-lock", "py", "licz", "pythia-1b-v0", "--zadania", "T01"]) == 1
+
+
+def test_checkpoint_weights_need_the_documented_sum(tmp_path):
+    (tmp_path / "model.safetensors").write_bytes(b"inne wagi")
+    ms = E.modele()
+    assert not E.wagi_ckpt_zgodne(ms["slayer1b-1.07"], tmp_path)
+    assert E.wagi_ckpt_zgodne(ms["pythia-1b-v0"], tmp_path)
+
+
+def test_sanity_check_reports_a_failed_task(tmp_path):
+    d = tmp_path / "arc-easy" / "pythia-1b-v0"
+    shutil.copytree(KONTROLNE / "arc-easy" / "pythia-1b-v0", d)
+    a = types.SimpleNamespace(probka="pelna")
+    assert E.kontrola_sensu([d], a) == 0
+    p = d / "results_rozszerzone.json"
+    j = json.loads(p.read_text(encoding="utf-8"))
+    j["observations"][0]["state"] = "failed"
+    p.write_text(json.dumps(j), encoding="utf-8")
+    assert E.kontrola_sensu([d], a) != 0
