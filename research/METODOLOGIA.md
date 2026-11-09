@@ -344,7 +344,8 @@ który ma taki wynik i przechodzi kontrolę z tabeli typów**:
 3. **Opublikowany wynik dowolnego modelu, który da się pobrać,** z dowolnego publicznego źródła z rewizją i
    ustawieniami (prompt, liczba przykładów, metryka, wersja kodu), np. tabela w pracy autorów,
    [Open LLM Leaderboard](https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard), praca modelu z
-   otwartymi wagami albo katalog wyników w repo lm-eval.
+   otwartymi wagami albo katalog `results/` w repo lm-eval (jest w starszych commitach, np. `afbf8e66`, a w v0.4.8 i
+   nowszych już nie).
 
 Model z wynikiem, który nie przechodzi kontroli z tabeli typów (np. Pythia v0 przy poziomie losowym na ARC-Challenge
 i LogiQA albo znany wynik 1B pod bazą większościową na BoolQ), pomijasz i bierzesz następny. Benchmark polski albo bez
