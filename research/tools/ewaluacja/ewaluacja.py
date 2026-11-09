@@ -10,6 +10,8 @@ drugiej kopii konfiguracji.
     python ewaluacja.py plan slayer1b-1.06 --zadania gotowe --probka 20
     python ewaluacja.py licz slayer1b-1.06 --zadania T02,T04 --probka 20
     python ewaluacja.py licz slayer1b-1.06 pythia-1b-v0 --zadania central --probka pelna
+    python ewaluacja.py licz slayer1b-1.00 slayer1b-1.01 --zadania gotowe --pobierz --usun-wagi
+    python ewaluacja.py eksport --bez-probek          # manifest.jsonl + srodowisko.json + wyniki + logi -> .tgz
     python ewaluacja.py porownaj                       # lokalne wyniki vs results/central-run, pytanie po pytaniu
     python ewaluacja.py stan
 
@@ -39,8 +41,25 @@ ODNIESIENIE = FABRYKA / "results" / "central-run"
 OKNO_ROLLING = 4096
 
 # Modele spoza MODELE skryptu, z zapisanymi wynikami w results/central-run (1.06 zastąpiono tam przez 1.07).
+# Format jak MODELE: etykieta|repo|rewizja|loader|env, opcjonalnie |dtype (domyślnie float32 = metodologia).
 MODELE_DODATKOWE = [
     "slayer1b-1.06|SlayerLab/Slayer1B-1.06|ef81be58742544ad32e1afab38db011fec209609|slayer|lock",
+    # pozostałe wersje Slayer1B (ten sam config: 20 warstw, 2048, tokenizer 0640d3bd), opublikowane wagi HF
+    "slayer1b-1.00|SlayerLab/Slayer1B-1.00|43e7ca2022dbd96a1bd0ed448f1ebb78209dbbfc|slayer|lock",
+    "slayer1b-1.01|SlayerLab/Slayer1B-1.01|727b5f5ea4598e685af98d7aac2f3d4aad7f72d5|slayer|lock",
+    "slayer1b-1.02|SlayerLab/Slayer1B-1.02|bf7117b97417b22c6a76710a91038724f2be927d|slayer|lock",
+    "slayer1b-1.03|SlayerLab/Slayer1B-1.03|fee113efcad47f48dd0b80aa37952434f00bed43|slayer|lock",
+    "slayer1b-1.04|SlayerLab/Slayer1B-1.04|09aa8abf19e8a6edc00615e739c949578b6b1021|slayer|lock",
+    "slayer1b-1.05|SlayerLab/Slayer1B-1.05|21a05bc59932b54ac90da995e3ffb994c427ae16|slayer|lock",
+    # 1.07 jako wagi HF: config.ckpt_sha256 = SLAYER_CKPT_SHA256 (ckpt_22327) z przebieg_centralny.sh, bez konwersji
+    "slayer1b-1.07-hf|SlayerLab/Slayer1B-1.07|a090b54e658fb57dc5166c1fcc90cc6bf5c80106|slayer|lock",
+    # 1.08 w trakcie publikacji (krok 1709 przy tej rewizji); nowsza rewizja = nowa linia z nową etykietą
+    "slayer1b-1.08|SlayerLab/Slayer1B-1.08|5f854a0cc7160594d54d1788d37a44e8ebabe16c|slayer|lock",
+    "lfm3-1.7b|LiquidAI/LFM3-1.7B|1da06bec6a819da10b54c67e5c90972b46d81871|hf-trust|new",
+    # Bielik 11B (gated): fp32 to ~44 GB wag, więcej niż 32 GB karty -> bfloat16, oznaczone w wynikach (dtype).
+    # T53 (ewok.py) liczy tylko float32, więc dla tych modeli jest pomijany.
+    "bielik-11b-v3-base|speakleash/Bielik-11B-v3-Base-20250730|3cdb602aaced3e481761907cfb58434c27732f8b|hf|lock|bfloat16",
+    "bielik-11b-v3-instruct|speakleash/Bielik-11B-v3.0-Instruct|735bfee1125fe8b497ac2769de94822a11f77167|hf|lock|bfloat16",
     # modele kontrolne etapu B spoza MODELE (REPRODUCTION.md): EWoK i WSC273
     "gpt2-xl|openai-community/gpt2-xl|15ea56dee5df4983c59b2538573817e1667135e2|hf|lock",
     "bloom-560m|bigscience/bloom-560m|ac2ae5fab2ce3f9f40dc79b5ca9f637430d24971|hf|lock",
@@ -58,6 +77,7 @@ class Model:
     rewizja: str
     loader: str     # slayer | slayer-ckpt | hf | hf-trust
     env: str        # lock | new
+    dtype: str = "float32"
 
 
 def _tekst_skryptu() -> str:
@@ -80,8 +100,8 @@ def modele() -> dict[str, Model]:
     wiersze = re.findall(r'^\s*"([^"]+)"', blok, re.MULTILINE) + MODELE_DODATKOWE
     out = {}
     for w in wiersze:
-        e, repo, rew, loader, env = w.split("|")
-        out[e] = Model(e, repo, rew, loader, env)
+        pola = w.split("|")
+        out[pola[0]] = Model(*pola)
     return out
 
 
@@ -201,6 +221,8 @@ def polecenie(m: Model, task: str, a, py: Path, wagi: Path, wyj: Path) -> list[s
         cmd += ["--dane", a.dane]
     if m.loader == "hf-trust":
         cmd.append("--trust_remote_code")
+    if m.dtype != "float32":
+        cmd += ["--dtype", m.dtype]
     if task == "T03" and not m.loader.startswith("slayer"):
         cmd += ["--max_length", str(OKNO_ROLLING)]
     return cmd
@@ -231,8 +253,12 @@ def wynik_gotowy(wyj: Path) -> bool:
         return False
 
 
+def plik_czasow(a) -> Path:
+    return Path(a.wyniki).resolve().parent / "czasy.jsonl"
+
+
 def zapisz_czas(a, wpis: dict):
-    with open(Path(a.wyniki).resolve().parent / "czasy.jsonl", "a", encoding="utf-8") as f:
+    with open(plik_czasow(a), "a", encoding="utf-8") as f:
         f.write(json.dumps(wpis, ensure_ascii=False) + "\n")
 
 
@@ -258,9 +284,9 @@ def vram_used_mib() -> int:
         return 0
 
 
-def szacunek_vram(etyk: str, task: str, wagi: Path | None) -> int:
-    """MiB na proces: najwyższy szczyt z czasy.jsonl dla modelu (bez rolling), inaczej z rozmiaru wag (fp32)."""
-    p = TU / "czasy.jsonl"
+def szacunek_vram(etyk: str, task: str, wagi: Path | None, czasy: Path | None = None, dtype: str = "float32") -> int:
+    """MiB na proces: najwyższy szczyt z czasy.jsonl dla modelu (bez rolling), inaczej z rozmiaru wag."""
+    p = czasy or TU / "czasy.jsonl"
     szczyty = []
     if p.exists():
         for l in p.read_text(encoding="utf-8").splitlines():
@@ -272,6 +298,8 @@ def szacunek_vram(etyk: str, task: str, wagi: Path | None) -> int:
         return max(szczyty) + 300
     bajty = sum(f.stat().st_size for f in wagi.glob("*") if f.suffix in (".safetensors", ".bin")) if wagi else 0
     mnoznik = 2 if bajty and next(wagi.glob("*.safetensors"), None) and bajty < 3e9 else 1  # bf16 na dysku -> fp32
+    if dtype != "float32":
+        mnoznik = 1
     return int(bajty * mnoznik / 2**20 * 1.25) + 1500 if bajty else 9000
 
 
@@ -312,6 +340,7 @@ class Praca:
     proc: subprocess.Popen | None = None
     log_f: object = None
     t0: float = 0.0
+    start_czas: str = ""
 
 
 def cmd_przygotuj(a) -> int:
@@ -324,48 +353,151 @@ def cmd_przygotuj(a) -> int:
     return 0 if len(ok) == len(futures) else 1
 
 
+def katalog_repo_w_cache(wagi: Path) -> Path | None:
+    """.../models--org--name/snapshots/<rew> -> .../models--org--name (całe repo w cache HF: blobs + snapshots)."""
+    if wagi.parent.name != "snapshots":
+        return None
+    d = wagi.parent.parent
+    return d if d.name.startswith("models--") else None
+
+
+PLIKI_MODELU = ["*.json", "*.txt", "*.model", "*.py", "*.tiktoken", "*.jinja", "tokenizer*"]
+
+
+def wzorce_wag(m: Model) -> list[str]:
+    """allow_patterns do snapshot_download: config/tokenizer + JEDEN format wag (safetensors, inaczej pytorch .bin).
+    Bez tego repo typu gpt2-xl ściąga też tf_model.h5, rust_model.ot, flax (~4x więcej dysku)."""
+    from huggingface_hub import HfApi
+    pliki = HfApi().list_repo_files(m.repo, revision=m.rewizja)
+    if any(p.endswith(".safetensors") for p in pliki):
+        return PLIKI_MODELU + ["*.safetensors"]
+    return PLIKI_MODELU + ["pytorch_model*.bin"]
+
+
+class Wagi:
+    """Wagi modeli kolejki: gotowe z cache albo pobierane w tle (jeden model naraz, w kolejności kolejki).
+
+    Przy --usun-wagi na dysku są naraz co najwyżej 1 + `wyprzedzenie` modeli pobranych w tym przebiegu: model liczony
+    i następny, który ściąga się w tle, zanim GPU skończy bieżący."""
+
+    def __init__(self, a, modele_kolejki: list[tuple[Model, Path | None]]):
+        from concurrent.futures import Future
+        self.a, self.cv = a, threading.Condition()
+        self.na_dysku: set[str] = set()          # pobrane w tym przebiegu i jeszcze nieusunięte
+        self.fut: dict[str, Future] = {}
+        do_pobrania = []
+        for m, w in modele_kolejki:
+            f = Future()
+            self.fut[m.etykieta] = f
+            if w is not None:
+                f.set_result(w)
+            else:
+                do_pobrania.append(m)
+        if do_pobrania:
+            threading.Thread(target=self._pobieraj, args=(do_pobrania,), daemon=True).start()
+
+    def _pobieraj(self, modele_lista: list[Model]):
+        from huggingface_hub import snapshot_download
+        for m in modele_lista:
+            with self.cv:
+                while self.a.usun_wagi and len(self.na_dysku) >= 1 + self.a.wyprzedzenie:
+                    self.cv.wait()
+            t0 = time.time()
+            print(f"  [pobierz {m.etykieta}] {m.repo}@{m.rewizja[:8]}", flush=True)
+            try:
+                snapshot_download(m.repo, revision=m.rewizja, allow_patterns=wzorce_wag(m))
+                w = sciezka_wag(m)
+            except Exception as e:     # brak dostępu (gated), sieć, dysk
+                print(f"  [pobierz {m.etykieta}] BLAD: {type(e).__name__}: {str(e).splitlines()[0][:200]}", flush=True)
+                w = None
+            s = round(time.time() - t0, 1)
+            if w is not None:
+                with self.cv:
+                    self.na_dysku.add(m.etykieta)
+                gb = sum(f.stat().st_size for f in w.glob("*") if f.is_file()) / 1e9
+                print(f"  [pobierz {m.etykieta}] gotowe {gb:.1f} GB, {s} s", flush=True)
+            zapisz_czas(self.a, {"etap": "pobieranie", "model": m.etykieta, "repo": m.repo, "rewizja": m.rewizja,
+                                 "kod": 0 if w else 1, "s": s, "czas": time.strftime("%Y-%m-%dT%H:%M:%S")})
+            self.fut[m.etykieta].set_result(w)
+
+    def zwolnij(self, m: Model, wagi: Path | None, usun: bool):
+        """Model skończony (wszystkie pary). usun=True: kasuje całe repo modelu z cache HF."""
+        if usun and wagi is not None and m.loader != "slayer-ckpt":
+            d = katalog_repo_w_cache(wagi)
+            if d is not None:
+                gb = sum(f.stat().st_size for f in d.rglob("*") if f.is_file()) / 1e9
+                shutil.rmtree(d, ignore_errors=True)
+                print(f"  [usun-wagi {m.etykieta}] usunięto {d.name} ({gb:.1f} GB)", flush=True)
+        with self.cv:
+            self.na_dysku.discard(m.etykieta)
+            self.cv.notify_all()
+
+
 def cmd_licz(a) -> int:
     ms, kat = modele(), katalogi()
     zadania = rozwin_zadania(a.zadania)
     (TU / "logi").mkdir(exist_ok=True)
     wyniki = katalog_wynikow(a)
+    kody = kod_zadan()
 
-    # 1) lista prac (model x test), bez gotowych
+    # 1) lista prac (model x test), bez gotowych; wagi z cache albo (--pobierz) pobierane w tle
     kolejka: list[Praca] = []
+    modele_kolejki: list[tuple[Model, Path | None]] = []
+    pozostale: dict[str, int] = {}
     for etyk in a.modele:
         if etyk not in ms:
             raise SystemExit(f"nieznany model {etyk}; dostępne: {' '.join(ms)}")
         m = ms[etyk]
         py = python_env(m.env, a)
         wagi = sciezka_wag(m)
-        if py is None or wagi is None:
+        if py is None or (wagi is None and not (a.pobierz and m.loader != "slayer-ckpt")):
             print(f"POMINIETY {etyk}: " + ("brak interpretera env " + m.env if py is None else
-                  f"brak kompletnych wag {m.repo}@{m.rewizja[:8]} w cache HF"))
+                  f"brak kompletnych wag {m.repo}@{m.rewizja[:8]} w cache HF (--pobierz pobiera)"))
             continue
+        pary = []
         for t in zadania:
+            if t in kody and m.dtype != "float32":
+                print(f"[{etyk} {t}] POMINIETY: {kody[t]} liczy tylko float32, model jest {m.dtype}")
+                continue
             wyj = wyniki / (kat[t] + (f"-{a.fewshot}shot" if a.fewshot is not None else "")) / etyk
             if wynik_gotowy(wyj) and not a.nadpisz:
                 print(f"[{etyk} {t}] już policzone - pomijam (--nadpisz liczy od nowa)")
                 continue
-            kolejka.append(Praca(m, t, py, wagi, wyj, szacunek_vram(etyk, t, wagi)))
+            pary.append(Praca(m, t, py, wagi, wyj, 0))
+        if pary:
+            kolejka += pary
+            modele_kolejki.append((m, wagi))
+            pozostale[etyk] = len(pary)
     if not kolejka:
         return 0
 
-    # 2) CPU w tle przygotowuje zbiory (od razu wszystkie testy, po a.cpu naraz); GPU czeka tylko na swój test
+    # 2) CPU w tle przygotowuje zbiory (od razu wszystkie testy, po a.cpu naraz), a wagi kolejnych modeli
+    #    ściągają się w tle; GPU czeka tylko na swój test i swój model
     py_przyg = python_env("lock", a) or kolejka[0].py
     gotowe = przygotuj_w_tle(sorted({p.task for p in kolejka}, key=zadania.index), a, py_przyg)
+    wagi_modeli = Wagi(a, modele_kolejki)
+    udane: dict[str, bool] = {e: True for e in pozostale}
 
     # 3) harmonogram GPU: kilka procesów naraz w budżecie VRAM; rolling sam
     total = vram_total_mib() or 16000
     budzet = total - vram_used_mib() - a.zapas_vram
     print(f"VRAM {total} MiB, budżet na liczenie {budzet} MiB, max {a.rownolegle} procesów naraz; "
-          f"{len(kolejka)} par model x test", flush=True)
+          f"{len(kolejka)} par model x test, {len(modele_kolejki)} modeli", flush=True)
     biegnace: list[Praca] = []
     bledy = 0
     # Bez wymuszonego offline: datasets 3.6.0 przy przypiętej rewizji pyta hub o metadane nawet z pełnym cache
     # (OfflineModeIsEnabled). Dane są już w cache po przygotowaniu, sieć dostaje tylko lekkie zapytania.
     env = srodowisko_procesu(a)
     vram_mon = SzczytVram(co=2.0).__enter__()
+
+    def para_skonczona(p: Praca, ok: bool):
+        e = p.m.etykieta
+        pozostale[e] -= 1
+        udane[e] = udane[e] and ok
+        if pozostale[e] == 0:
+            if a.usun_wagi and not udane[e]:
+                print(f"  [usun-wagi {e}] zostawiam wagi: nie wszystkie testy się udały (do powtórki)", flush=True)
+            wagi_modeli.zwolnij(p.m, p.wagi, a.usun_wagi and udane[e])
 
     def start(p: Praca):
         if p.wyj.exists():
@@ -376,6 +508,7 @@ def cmd_licz(a) -> int:
         p.log_f.write(" ".join(cmd) + "\n\n")
         p.log_f.flush()
         p.t0 = time.time()
+        p.start_czas = time.strftime("%Y-%m-%dT%H:%M:%S")
         p.proc = subprocess.Popen(cmd, stdout=p.log_f, stderr=subprocess.STDOUT, env=env, cwd=str(FABRYKA))
         print(f"[{p.m.etykieta} {p.task}] start (~{p.vram} MiB, naraz {len(biegnace) + 1})", flush=True)
 
@@ -392,8 +525,10 @@ def cmd_licz(a) -> int:
         zapisz_czas(a, {"etap": "ewaluacja", "model": p.m.etykieta, "zadanie": p.task, "kod": kod, "s": s,
                         "vram_szczyt_mib": vram_mon.szczyt_mib if a.rownolegle == 1 else None,
                         "rownolegle": a.rownolegle, "gpu": nazwa_gpu(), "probka": str(a.probka), "env": p.m.env,
-                        "wyniki": str(wyniki), "czas": time.strftime("%Y-%m-%dT%H:%M:%S")})
+                        "dtype": p.m.dtype, "fewshot": a.fewshot, "wyniki": str(wyniki), "start": p.start_czas,
+                        "czas": time.strftime("%Y-%m-%dT%H:%M:%S")})
         vram_mon.szczyt_mib = None
+        para_skonczona(p, kod == 0)
 
     try:
         while kolejka or biegnace:
@@ -403,6 +538,15 @@ def cmd_licz(a) -> int:
             zajete = sum(p.vram for p in biegnace)
             rolling_biegnie = any(p.task in ROLLING for p in biegnace)
             for p in list(kolejka):
+                fw = wagi_modeli.fut[p.m.etykieta]
+                if not fw.done():
+                    continue                                   # wagi jeszcze się pobierają
+                if fw.result() is None:
+                    kolejka.remove(p)
+                    bledy += 1
+                    print(f"[{p.m.etykieta} {p.task}] POMINIETY: brak wag (pobieranie nieudane)")
+                    para_skonczona(p, False)
+                    continue
                 f = gotowe[p.task]
                 if not f.done():
                     continue                                   # CPU jeszcze przygotowuje ten test
@@ -410,7 +554,12 @@ def cmd_licz(a) -> int:
                     kolejka.remove(p)
                     bledy += 1
                     print(f"[{p.m.etykieta} {p.task}] POMINIETY: przygotowanie nieudane (logi/przygotuj_{p.task}.log)")
+                    para_skonczona(p, False)
                     continue
+                if p.wagi is None:
+                    p.wagi = fw.result()
+                if not p.vram:
+                    p.vram = szacunek_vram(p.m.etykieta, p.task, p.wagi, plik_czasow(a), p.m.dtype)
                 if len(biegnace) >= a.rownolegle or rolling_biegnie:
                     break
                 if p.task in ROLLING and biegnace:
@@ -587,7 +736,7 @@ def cmd_porownaj(a) -> int:
 def _ostatnia_probka(model: str, task: str, katalog: Path):
     """`probka` z ostatniego udanego przebiegu pary model × test w czasy.jsonl."""
     wynik = None
-    for p in (TU / "czasy.jsonl", katalog / "czasy.jsonl"):
+    for p in (TU / "czasy.jsonl", katalog / "czasy.jsonl", katalog.parent / "czasy.jsonl"):
         if not p.exists():
             continue
         for linia in p.read_text(encoding="utf-8").splitlines():
@@ -664,6 +813,158 @@ def cmd_stan(a) -> int:
     return 0
 
 
+# --------------------------------------------------------------------------- eksport
+
+def _git(*args) -> str:
+    try:
+        return subprocess.run(["git", "-C", str(FABRYKA), *args], capture_output=True, text=True, timeout=30).stdout.strip()
+    except Exception:
+        return ""
+
+
+def _sha256_pliku(p: Path) -> str:
+    import hashlib
+    h = hashlib.sha256()
+    with open(p, "rb") as f:
+        for kawalek in iter(lambda: f.read(1 << 20), b""):
+            h.update(kawalek)
+    return h.hexdigest()
+
+
+def zbierz_srodowisko(a) -> dict:
+    """Commit fabryki, karta, sterownik i dla każdego env: wersje + pip freeze (do odtworzenia przebiegu)."""
+    import platform
+    gpu = ""
+    try:
+        gpu = subprocess.run(["nvidia-smi", "--query-gpu=name,memory.total,driver_version", "--format=csv,noheader"],
+                             capture_output=True, text=True, timeout=20).stdout.strip()
+    except Exception:
+        pass
+    out = {"czas": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "platforma": platform.platform(), "gpu": gpu,
+           "fabryka_commit": _git("rev-parse", "HEAD"), "fabryka_galaz": _git("rev-parse", "--abbrev-ref", "HEAD"),
+           "fabryka_zmiany": _git("status", "--porcelain", "--untracked-files=no").splitlines(), "srodowiska": {}}
+    wersje = ("import json, sys, torch, transformers, lm_eval, datasets; print(json.dumps({'python': sys.version.split()[0], "
+              "'torch': torch.__version__, 'cuda': torch.version.cuda, 'transformers': transformers.__version__, "
+              "'lm_eval': lm_eval.__version__, 'datasets': datasets.__version__}))")
+    for env in ("lock", "new"):
+        py = python_env(env, a)
+        if py is None:
+            continue
+        r = subprocess.run([str(py), "-c", wersje], capture_output=True, text=True, timeout=300)
+        try:
+            info = json.loads(r.stdout.strip().splitlines()[-1])
+        except Exception:
+            info = {"blad": (r.stderr or r.stdout).strip()[-300:]}
+        freeze = subprocess.run([str(py), "-m", "pip", "freeze"], capture_output=True, text=True, timeout=300).stdout
+        out["srodowiska"][env] = {**info, "pip_freeze": freeze.splitlines()}
+    return out
+
+
+def _czasy(a) -> list[dict]:
+    rek = []
+    for p in dict.fromkeys([plik_czasow(a), TU / "czasy.jsonl", katalog_wynikow(a) / "czasy.jsonl"]):
+        if p.exists():
+            for linia in p.read_text(encoding="utf-8").splitlines():
+                try:
+                    rek.append(json.loads(linia))
+                except ValueError:
+                    pass
+    return rek
+
+
+def wiersze_manifestu(a) -> list[dict]:
+    """Jeden wiersz na parę benchmark x model w katalogu wyników: wynik, model@rewizja, komenda, czasy, pliki."""
+    wyniki, ms = katalog_wynikow(a), modele()
+    t_z_katalogu = {b: t for t, b in katalogi().items()}
+    ostatnie = {}
+    for r in _czasy(a):
+        if r.get("etap") == "ewaluacja" and r.get("kod") == 0:
+            ostatnie[(r["model"], r["zadanie"])] = r
+    filtr = set(a.modele or [])
+    out = []
+    for d in sorted(p for p in wyniki.glob("*/*") if (p / "results_rozszerzone.json").exists()):
+        bench, etyk = d.parent.name, d.name
+        if filtr and etyk not in filtr:
+            continue
+        rozsz = json.loads((d / "results_rozszerzone.json").read_text(encoding="utf-8"))
+        o = (rozsz.get("observations") or [{}])[0]
+        task = o.get("task_id") or t_z_katalogu.get(re.sub(r"-\d+shot$", "", bench))
+        met = (o.get("metric") or "").split(",")[0]
+        sp = (o.get("dodatkowe") or {}).get("space") or {}
+        v = sp.get(met) or ({} if (sp.get("glowna") or {}).get("metryka") != met else sp["glowna"])
+        m = ms.get(etyk)
+        cz = ostatnie.get((etyk, task), {})
+        log = TU / "logi" / f"{etyk}_{task}.log"
+        komenda = log.read_text(encoding="utf-8", errors="replace").splitlines()[0] if log.exists() else None
+        model_w = (rozsz.get("models") or [{}])[0]
+        out.append({
+            "benchmark": bench, "zadanie": task, "model": etyk,
+            "repo": m.repo if m else model_w.get("repo"), "rewizja": m.rewizja if m else model_w.get("revision"),
+            "loader": m.loader if m else None, "env": m.env if m else None,
+            "dtype": rozsz.get("dtype") or (m.dtype if m else None), "fewshot": rozsz.get("shoty"),
+            "metryka": o.get("metric"), "wartosc": o.get("value"), "se": v.get("se"),
+            "n": o.get("n_scored"), "stan": o.get("state"),
+            "probka": rozsz.get("probka") or cz.get("probka"),
+            "start": cz.get("start"), "koniec": cz.get("czas"), "s": cz.get("s"), "gpu": cz.get("gpu"),
+            "vram_szczyt_mib": cz.get("vram_szczyt_mib"), "komenda": komenda,
+            "weights_sha256": model_w.get("weights_sha256"), "runner_sha256": o.get("runner_sha256"),
+            "results_sha256": o.get("results_sha256"), "lm_eval": rozsz.get("lm_eval"),
+            "katalog": f"wyniki/{bench}/{etyk}",
+            "pliki": {str(f.relative_to(d)).replace("\\", "/"): _sha256_pliku(f)
+                      for f in sorted(d.rglob("*")) if f.is_file()},
+        })
+    return out
+
+
+def cmd_eksport(a) -> int:
+    """manifest.jsonl + srodowisko.json + czasy.jsonl + wyniki/ + logi/ w jednej paczce .tgz."""
+    import tarfile
+    wyniki = katalog_wynikow(a)
+    wiersze = wiersze_manifestu(a)
+    if not wiersze:
+        print(f"brak wyników w {wyniki}")
+        return 1
+    sr = zbierz_srodowisko(a)
+    znacznik = time.strftime("%Y%m%dT%H%M%S")
+    cel = Path(a.wyjscie) if a.wyjscie else wyniki.parent / f"eksport_{wyniki.name}_{znacznik}.tgz"
+    rdzen = f"eksport_{wyniki.name}_{znacznik}"
+    manifest = "".join(json.dumps(w, ensure_ascii=False) + "\n" for w in wiersze)
+    pary = {(w["model"], w["zadanie"]) for w in wiersze}
+    czasy = "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in _czasy(a)
+                    if (r.get("model"), r.get("zadanie")) in pary or (r.get("etap") == "pobieranie"
+                                                                       and r.get("model") in {m for m, _ in pary}))
+
+    def dodaj_tekst(tar, nazwa, tekst):
+        import io
+        b = tekst.encode("utf-8")
+        ti = tarfile.TarInfo(f"{rdzen}/{nazwa}")
+        ti.size, ti.mtime = len(b), int(time.time())
+        tar.addfile(ti, io.BytesIO(b))
+
+    with tarfile.open(cel, "w:gz") as tar:
+        dodaj_tekst(tar, "manifest.jsonl", manifest)
+        dodaj_tekst(tar, "srodowisko.json", json.dumps(sr, ensure_ascii=False, indent=1))
+        dodaj_tekst(tar, "czasy.jsonl", czasy)
+        for w in wiersze:
+            d = wyniki / w["benchmark"] / w["model"]
+            for f in sorted(d.rglob("*")):
+                if f.is_file() and not (a.bez_probek and "probki" in f.relative_to(d).parts):
+                    tar.add(f, arcname=f"{rdzen}/{w['katalog']}/{f.relative_to(d).as_posix()}")
+            log = TU / "logi" / f"{w['model']}_{w['zadanie']}.log"
+            if log.exists():
+                tar.add(log, arcname=f"{rdzen}/logi/{log.name}")
+    (wyniki / "manifest.jsonl").write_text(manifest, encoding="utf-8")
+    (wyniki / "srodowisko.json").write_text(json.dumps(sr, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(f"{len(wiersze)} par, commit fabryki {sr['fabryka_commit'][:8] or '?'}"
+          + (" (z lokalnymi zmianami!)" if sr["fabryka_zmiany"] else ""))
+    for w in wiersze:
+        wart = "-" if w["wartosc"] is None else f"{w['wartosc']:.4f}"
+        print(f"  {w['benchmark']:18s} {w['model']:22s} {str(w['metryka']):16s} {wart:>7s}  n={w['n']}  "
+              f"{w['dtype'] or ''} {w['probka'] or ''}")
+    print(f"zapisano {cel} ({cel.stat().st_size / 1e6:.1f} MB) i {wyniki / 'manifest.jsonl'}")
+    return 0
+
+
 # --------------------------------------------------------------------------- CLI
 
 def main(argv=None) -> int:
@@ -691,13 +992,25 @@ def main(argv=None) -> int:
         p.add_argument("--fewshot", type=int, default=None,
                        help="nadpisz num_fewshot (np. kontrola HellaSwag 10-shot); wynik w <benchmark>-<N>shot/")
 
-    wspolne(sub.add_parser("licz", help="potok: CPU przygotowuje zbiory w tle, GPU liczy kilka par naraz"))
+    pl = sub.add_parser("licz", help="potok: CPU przygotowuje zbiory i pobiera wagi w tle, GPU liczy kilka par naraz")
+    wspolne(pl)
+    pl.add_argument("--pobierz", action="store_true", help="brakujące wagi pobierz w tle (model po modelu)")
+    pl.add_argument("--usun-wagi", dest="usun_wagi", action="store_true",
+                    help="po policzeniu wszystkich testów modelu skasuj jego repo z cache HF (gdy któryś test padł: "
+                    "wagi zostają do powtórki)")
+    pl.add_argument("--wyprzedzenie", type=int, default=1,
+                    help="przy --usun-wagi: ile modeli naprzód może leżeć na dysku poza liczonym")
     wspolne(sub.add_parser("plan", help="pokaż komendy bez liczenia"))
     pp = sub.add_parser("przygotuj", help="tylko przygotowanie zbiorów (sieć, CPU)")
     pp.add_argument("--zadania", default="gotowe")
     pp.add_argument("--cpu", type=int, default=3)
     pp.add_argument("--przygotuj-od-nowa", dest="przygotuj_od_nowa", action="store_true")
     pp.add_argument("--offline", action="store_true")
+    pe = sub.add_parser("eksport", help="manifest.jsonl + srodowisko.json + wyniki + logi w jednej paczce .tgz")
+    pe.add_argument("modele", nargs="*", help="tylko te modele (domyślnie wszystkie w katalogu wyników)")
+    pe.add_argument("--wyjscie", help="ścieżka .tgz (domyślnie obok katalogu wyników)")
+    pe.add_argument("--bez-probek", dest="bez_probek", action="store_true",
+                    help="bez probki/ (pytanie po pytaniu, setki MB) - wersja na GitHub")
     sub.add_parser("lista", help="modele, wagi w cache, zadania")
     sub.add_parser("stan", help="ostatnie przebiegi z czasy.jsonl")
     sub.add_parser("kontrola", help="pełne przebiegi modeli kontrolnych vs wartości opublikowane (kontrole.json)")
@@ -707,7 +1020,8 @@ def main(argv=None) -> int:
     p.add_argument("--json")
     a = ap.parse_args(argv)
     return {"licz": cmd_licz, "plan": cmd_plan, "lista": cmd_lista, "stan": cmd_stan,
-            "porownaj": cmd_porownaj, "przygotuj": cmd_przygotuj, "kontrola": cmd_kontrola}[a.cmd](a)
+            "porownaj": cmd_porownaj, "przygotuj": cmd_przygotuj, "kontrola": cmd_kontrola,
+            "eksport": cmd_eksport}[a.cmd](a)
 
 
 if __name__ == "__main__":

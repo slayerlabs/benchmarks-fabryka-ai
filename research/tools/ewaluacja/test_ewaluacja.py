@@ -95,3 +95,51 @@ def test_subset_comparison_uses_only_common_questions(tmp_path):
     w = E.porownaj_pare(lok, ref)
     assert w["n_wspolnych"] == 20 and E.werdykt(w, 1e-3) == "IDENTYCZNE (na próbce)"
     assert w["metryka_lok_wspolne"] == w["metryka_ref_wspolne"]
+
+
+def test_added_models_and_dtype():
+    ms = E.modele()
+    for v in ("1.00", "1.01", "1.02", "1.03", "1.04", "1.05", "1.06", "1.08"):
+        assert ms[f"slayer1b-{v}"].loader == "slayer" and ms[f"slayer1b-{v}"].dtype == "float32"
+    assert ms["slayer1b-1.07-hf"].repo == "SlayerLab/Slayer1B-1.07"
+    assert ms["lfm3-1.7b"].loader == "hf-trust" and ms["lfm3-1.7b"].env == "new"
+    for e in ("bielik-11b-v3-base", "bielik-11b-v3-instruct"):
+        assert ms[e].dtype == "bfloat16"
+    for m in ms.values():
+        assert len(m.rewizja) == 40, m.etykieta          # każda rewizja przypięta pełnym sha
+    py, w, out = Path("py"), Path("wagi"), Path("out")
+    c = E.polecenie(ms["bielik-11b-v3-base"], "T02", _args(), py, w, out)
+    assert c[c.index("--dtype") + 1] == "bfloat16"
+    assert "--dtype" not in E.polecenie(ms["pythia-1b-v0"], "T02", _args(), py, w, out)
+
+
+def test_hf_cache_repo_dir():
+    snap = Path("/x/hub/models--org--name/snapshots/abc")
+    assert E.katalog_repo_w_cache(snap) == Path("/x/hub/models--org--name")
+    assert E.katalog_repo_w_cache(Path("/x/modele/slayer1b-1.07")) is None
+
+
+def test_export_manifest_of_control_results(tmp_path):
+    import tarfile
+    a = types.SimpleNamespace(wyniki=str(TU_K), modele=[], wyjscie=str(tmp_path / "e.tgz"), bez_probek=True,
+                              python_lock=None, python_new=None)
+    wiersze = E.wiersze_manifestu(a)
+    pary = {(w["benchmark"], w["model"]) for w in wiersze}
+    assert ("piqa", "pythia-1b-v0") in pary and ("ewok", "gpt2-xl") in pary and len(wiersze) == 8
+    piqa = next(w for w in wiersze if w["benchmark"] == "piqa")
+    assert piqa["zadanie"] == "T06" and piqa["rewizja"].startswith("f3f1b6d5") and piqa["n"] == 1838
+    assert abs(piqa["wartosc"] - 0.7095) < 1e-4 and piqa["se"] and piqa["s"] == 304.7
+    hs = next(w for w in wiersze if w["benchmark"] == "hellaswag-10shot")
+    assert hs["zadanie"] == "T05" and hs["fewshot"] == 10
+    try:
+        assert E.cmd_eksport(a) == 0
+        with tarfile.open(tmp_path / "e.tgz") as t:
+            nazwy = t.getnames()
+        assert any(n.endswith("/manifest.jsonl") for n in nazwy) and any(n.endswith("/srodowisko.json") for n in nazwy)
+        assert any("/wyniki/piqa/pythia-1b-v0/results.json" in n for n in nazwy)
+    finally:
+        for f in ("manifest.jsonl", "srodowisko.json"):
+            (TU_K / f).unlink(missing_ok=True)
+
+
+TU_K = Path(__file__).resolve().parent / "wyniki_kontrolne"
