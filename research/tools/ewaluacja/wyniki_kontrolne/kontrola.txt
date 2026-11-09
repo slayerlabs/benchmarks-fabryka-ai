@@ -1,0 +1,11 @@
+benchmark   model         metryka      nasz     SE      n  opubl.  Δ pkt  próg fabryka   Δfab  werdykt
+piqa        pythia-1b-v0  acc_norm   0.7095 0.0106   1838  0.7051  +0.44  2.12  0.7095  -0.00  W PROGU
+piqa        pythia-1b-v0  acc        0.7051 0.0106   1838  0.7040  +0.11  2.14  0.7051  +0.00  W PROGU (pomocnicza)
+winogrande  pythia-1b-v0  acc        0.5446 0.0125   1267  0.5375  +0.71  2.80  0.5446  -0.00  W PROGU
+lambada     pythia-1b-v0  acc        0.5657 0.0069   5153  0.5622  +0.35  2.00       -      -  W PROGU
+arc-easy    pythia-1b-v0  acc        0.5585 0.0102   2376  0.5585  +0.00  2.04       -      -  W PROGU
+arc-easy    pythia-1b-v0  acc_norm   0.5042 0.0103   2376  0.5004  +0.38  2.06       -      -  W PROGU (pomocnicza)
+blimp       pythia-1b-v0  acc        0.8244 0.0208  67000  0.8234  +0.10  2.00  0.8244  -0.00  W PROGU
+hellaswag-10shot eurollm-1.7b  acc_norm   0.6067 0.0049  10042  0.6057  +0.10  2.00  0.6074  -0.07  W PROGU
+wsc273      bloom-560m    acc        0.6227 0.0211    273  0.6670  -4.43  5.72  0.6230  -0.03  W PROGU
+ewok        gpt2-xl       ewok       0.6536 0.0045   4374  0.6560  -0.24  2.00  0.6536  +0.00  W PROGU
