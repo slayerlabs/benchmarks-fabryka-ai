@@ -67,9 +67,11 @@ MODELE_DODATKOWE = [
 ]
 # Testy z zapisanymi wynikami przebiegu centralnego (7 katalogów results/central-run).
 CENTRAL = ["T01", "T02", "T03", "T04", "T44", "T45", "T46"]
-# Suma skonwertowanego model.safetensors (METODOLOGIA, krok „Wyniki”: `d826b4a1…`; pełna z weights_sha256
-# results/full-run-2026-11/*/slayer1b-1.07-hf). Konwersję robi się poza tym runnerem.
-SUMY_WAG_CKPT = {"slayer1b-1.07": "d826b4a11bf4eaccee10fe43ec19a4f6d515dfc5f3e5c859adb631f1a0b76ad5"}
+# Suma model.safetensors 1.07 (METODOLOGIA, krok „Wyniki”: `d826b4a1…`; pełna z weights_sha256
+# results/full-run-2026-11/*/slayer1b-1.07-hf). Ten sam plik w obu wariantach: skonwertowany checkpoint
+# (konwersja poza tym runnerem) i model.safetensors repo SlayerLab/Slayer1B-1.07@a090b54e (sha256 LFS na hubie).
+SUMA_107 = "d826b4a11bf4eaccee10fe43ec19a4f6d515dfc5f3e5c859adb631f1a0b76ad5"
+SUMY_WAG_CKPT = {"slayer1b-1.07": SUMA_107, "slayer1b-1.07-hf": SUMA_107}
 # Różnica sum loglik dopuszczona w ZGODNE ~num; smoke EuroLLM: do 5e-4, a inny prompt: od 3,5 wzwyż.
 TOL_ZGODNE = 0.1
 
@@ -177,6 +179,8 @@ def wagi_ckpt_zgodne(m: Model, wagi: Path) -> bool:
     suma = SUMY_WAG_CKPT.get(m.etykieta)
     if suma is None:
         return True
+    if not (wagi / "model.safetensors").is_file():
+        return False
     h = hashlib.sha256()
     with open(wagi / "model.safetensors", "rb") as f:
         for blok in iter(lambda: f.read(1 << 24), b""):
@@ -472,6 +476,10 @@ class Wagi:
             except Exception as e:     # brak dostępu (gated), sieć, dysk
                 print(f"  [pobierz {m.etykieta}] BLAD: {type(e).__name__}: {str(e).splitlines()[0][:200]}", flush=True)
                 w = None
+            if w is not None and not wagi_ckpt_zgodne(m, w):
+                print(f"  [pobierz {m.etykieta}] BLAD: suma {w / 'model.safetensors'} inna niż "
+                      f"{SUMY_WAG_CKPT[m.etykieta][:8]}… z METODOLOGII", flush=True)
+                w = None
             s = round(time.time() - t0, 1)
             if w is not None:
                 with self.cv:
@@ -518,7 +526,7 @@ def cmd_licz(a) -> int:
                   f"brak kompletnych wag {m.repo}@{m.rewizja[:8]} w cache HF (--pobierz pobiera)"))
             pominiete += 1
             continue
-        # wagi None tylko przy --pobierz, a ono nie dotyczy slayer-ckpt (jedynego modelu z SUMY_WAG_CKPT)
+        # wagi None tylko przy --pobierz: sumę sprawdza wtedy Wagi._pobieraj po pobraniu, przed liczeniem
         if wagi is not None and not wagi_ckpt_zgodne(m, wagi):
             print(f"POMINIETY {etyk}: suma {wagi / 'model.safetensors'} inna niż {SUMY_WAG_CKPT[etyk]}… z METODOLOGII")
             pominiete += 1
