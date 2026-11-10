@@ -212,7 +212,7 @@ ZADANIA = {
     "T27": dict(benchmark_id="psc", task="polish_psc_multiple_choice", family="psc", language="PL",
                 metric="f1,none", unit="score", higher_is_better=True, klucz="f1",
                 repo="allegro/klej-psc", rewizja="9585582aef37e7747ef174b0ec3b74855da8bad2",
-                split="test", rodzaj="mc", klasy_stale=True, shoty=5,
+                split="test", rodzaj="mc", klasy_stale=True, klastry="extract_text", shoty=5,
                 yaml="psc/lm_eval_tasks/polish_psc/psc_mc.yaml"),
     "T28": dict(benchmark_id="cbd", task="polish_cbd_multiple_choice", family="cbd", language="PL",
                 metric="f1,none", unit="score", higher_is_better=True, klucz="f1",
