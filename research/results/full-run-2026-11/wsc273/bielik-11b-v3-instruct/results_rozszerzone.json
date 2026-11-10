@@ -1,0 +1,144 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-speakleash_Bielik-11B-v3.0-Instruct-735bfee1-20261109T231545Z",
+ "models": [
+  {
+   "model_id": "speakleash/Bielik-11B-v3.0-Instruct",
+   "repo": "speakleash/Bielik-11B-v3.0-Instruct",
+   "revision": "735bfee1125fe8b497ac2769de94822a11f77167",
+   "weights_sha256": null
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T14",
+   "task": "wsc273",
+   "family": "wsc273",
+   "language": "EN",
+   "split": "test"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T14",
+   "model_id": "speakleash/Bielik-11B-v3.0-Instruct",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 273,
+   "n_selected": 273,
+   "n_scored": 273,
+   "state": "ok",
+   "value": 0.8241758241758241,
+   "ci95": {
+    "lower": 0.7757352941176471,
+    "upper": 0.8703703703703703,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "18fff568f90bc8e1f2187325a1ab070e30099b9482e9dccc629ad377a8defd08",
+   "results_sha256": "5a739324b464c88a9266930befcf5beaf40cdbaef7d5a52df706dfbd93b74d2c",
+   "runner_sha256": "7597c0de7273004dcd099c7e2fb7083b6232e43c17e1822fc291923210d5c1fa",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.5,
+    "majority_value": 0.5018315018315018,
+    "majority_prediction_share": 0.5238095238095238,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.8241758241758241,
+      "n": 273,
+      "se": 0.024403167107009616,
+      "ci95": [
+       0.7757352941176471,
+       0.8703703703703703
+      ],
+      "se_a": 0.023081539846615547,
+      "k": 135,
+      "df": 134,
+      "metoda_se": "K"
+     },
+     "acc_norm": {
+      "value": 0.8241758241758241,
+      "n": 273,
+      "se": 0.024403167107009616,
+      "ci95": [
+       0.7757352941176471,
+       0.8703703703703703
+      ],
+      "se_a": 0.023081539846615547,
+      "k": 135,
+      "df": 134,
+      "metoda_se": "K"
+     },
+     "bpb_poprawnej": {
+      "value": 2.062818509981422,
+      "n": 273,
+      "se": 0.1429537262194162,
+      "ci95": [
+       1.8052036066277288,
+       2.352730368275029
+      ],
+      "se_a": 0.10147653740651466,
+      "k": 135,
+      "df": 134,
+      "metoda_se": "K"
+     },
+     "bazy": {
+      "chance_value": 0.5,
+      "majority_value": 0.5018315018315018,
+      "majority_prediction_share": 0.5238095238095238,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.5238095238095238,
+     "wobec_b": {
+      "b": 0.5018315018315018,
+      "baza": "stala odpowiedz",
+      "roznica": 0.32234432234432236,
+      "se": 0.02432308480658564,
+      "z": null,
+      "t": 13.25260857771813,
+      "df": 134,
+      "werdykt": "pewne",
+      "metoda": "K"
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "ErnestSDavis/winograd_wsc",
+    "rewizja": "8052c534a4cecd8328c0bc879f6a5aa07404c4da",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "fe82b632887857585cc5482741d19b500868698d",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-speakleash_Bielik-11B-v3.0-Instruct-735bfee1-20261109T231545Z",
+    "results_sha256": "5a739324b464c88a9266930befcf5beaf40cdbaef7d5a52df706dfbd93b74d2c"
+   }
+  ],
+  "qualification_sha256": "22160388386eeac6aede48e2ea7ec5300aceb22e4b114e40a4fae02e817a77c6",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "d0581ebb68ba305204fc1d607e12a28215cc94d31319c424ee868e0a2c357ac8"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_5090",
+ "sprzet": "NVIDIA GeForce RTX 5090",
+ "max_length": 32768,
+ "dtype": "bfloat16"
+}

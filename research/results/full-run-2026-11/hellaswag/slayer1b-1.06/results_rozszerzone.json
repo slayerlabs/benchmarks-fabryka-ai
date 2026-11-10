@@ -1,0 +1,141 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-SlayerLab_Slayer1B-1.06-ef81be58-20261109T224319Z",
+ "models": [
+  {
+   "model_id": "SlayerLab/Slayer1B-1.06",
+   "repo": "SlayerLab/Slayer1B-1.06",
+   "revision": "ef81be58742544ad32e1afab38db011fec209609",
+   "weights_sha256": "e10df6d50101d8424ff7338c97373ab9e151e359a6fcb23108023ac4a6400214"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T05",
+   "task": "hellaswag",
+   "family": "hellaswag",
+   "language": "EN",
+   "split": "validation"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T05",
+   "model_id": "SlayerLab/Slayer1B-1.06",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc_norm,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 10042,
+   "n_selected": 10042,
+   "n_scored": 10042,
+   "state": "ok",
+   "value": 0.39314877514439356,
+   "ci95": {
+    "lower": 0.3835889265086636,
+    "upper": 0.40300736904999,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "6e06230bb2d69924a23142a52b771c5a888eb1296e12408c6398bcbe203d59c1",
+   "results_sha256": "5c5b3d5107fa1c7611874661e4d60e5f6fbe71e12056bcf6bc326a9bf222090c",
+   "runner_sha256": "7597c0de7273004dcd099c7e2fb7083b6232e43c17e1822fc291923210d5c1fa",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.25,
+    "majority_value": 0.25731925911173076,
+    "majority_prediction_share": 0.25960963951404104,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.32443736307508464,
+      "n": 10042,
+      "se": 0.004672074496749171,
+      "ci95": [
+       0.31537542322246565,
+       0.333698466440948
+      ]
+     },
+     "acc_norm": {
+      "value": 0.39314877514439356,
+      "n": 10042,
+      "se": 0.004874511466836482,
+      "ci95": [
+       0.3835889265086636,
+       0.40300736904999
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.3584943238398725,
+      "n": 10042,
+      "se": 0.004785781979354623,
+      "ci95": [
+       0.34913363871738695,
+       0.3679545907189803
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 0.9500923129401189,
+      "n": 10042,
+      "se": 0.0021981926086880777,
+      "ci95": [
+       0.9457307989781809,
+       0.9543054928269395
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.25,
+      "majority_value": 0.25731925911173076,
+      "majority_prediction_share": 0.25960963951404104,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.25960963951404104,
+     "wobec_b": {
+      "b": 0.25731925911173076,
+      "baza": "stala odpowiedz",
+      "roznica": 0.13582951603266283,
+      "se": 0.006546058750288261,
+      "z": 20.74981621982563,
+      "t": null,
+      "df": null,
+      "werdykt": "pewne",
+      "metoda": "A parowane"
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "Rowan/hellaswag",
+    "rewizja": "218ec52e09a7e7462a5400043bb9a69a41d06b76",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "fe82b632887857585cc5482741d19b500868698d",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-SlayerLab_Slayer1B-1.06-ef81be58-20261109T224319Z",
+    "results_sha256": "5c5b3d5107fa1c7611874661e4d60e5f6fbe71e12056bcf6bc326a9bf222090c"
+   }
+  ],
+  "qualification_sha256": "22160388386eeac6aede48e2ea7ec5300aceb22e4b114e40a4fae02e817a77c6",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "d307c82452cc6057fe3738c451ef8ae0048bdfef6affd402123790f17b5c235a"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_5090",
+ "sprzet": "NVIDIA GeForce RTX 5090",
+ "max_length": 4096,
+ "dtype": "float32"
+}

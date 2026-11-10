@@ -1,0 +1,314 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-speakleash_Bielik-1.5B-v3-4b250496-20261109T235937Z",
+ "models": [
+  {
+   "model_id": "speakleash/Bielik-1.5B-v3",
+   "repo": "speakleash/Bielik-1.5B-v3",
+   "revision": "4b25049621bf3952a1fc9314c89773102eda0333",
+   "weights_sha256": "691558032d8d1fd264d27c32c914d11691cc06a7f43170176e5a7030f92aa658"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T02",
+   "task": "arc_challenge",
+   "family": "arc",
+   "language": "EN",
+   "split": "test"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T02",
+   "model_id": "speakleash/Bielik-1.5B-v3",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc_norm,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 1172,
+   "n_selected": 1172,
+   "n_scored": 1172,
+   "state": "ok",
+   "value": 0.3609215017064846,
+   "ci95": {
+    "lower": 0.33361774744027306,
+    "upper": 0.3890784982935154,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "e27b72037814d2c6c1e5e9eba2706103cd4b35834bb3fac12b9254c5890da01a",
+   "results_sha256": "e0b5c89eeedcabc7221b3d07c8d7cddf40163c34dc545d41e1d608bc3fd9b0f6",
+   "runner_sha256": "7597c0de7273004dcd099c7e2fb7083b6232e43c17e1822fc291923210d5c1fa",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.25015642775881686,
+    "majority_value": 0.26535836177474403,
+    "majority_prediction_share": 0.310580204778157,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.3216723549488055,
+      "n": 1172,
+      "se": 0.013650488084494075,
+      "ci95": [
+       0.295221843003413,
+       0.34897610921501704
+      ]
+     },
+     "acc_norm": {
+      "value": 0.3609215017064846,
+      "n": 1172,
+      "se": 0.014034761386175525,
+      "ci95": [
+       0.33361774744027306,
+       0.3890784982935154
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.37627986348122866,
+      "n": 1172,
+      "se": 0.01415702255540725,
+      "ci95": [
+       0.34812286689419797,
+       0.4044368600682594
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 1.4217365554765435,
+      "n": 1172,
+      "se": 0.025918245827514504,
+      "ci95": [
+       1.3713189210067585,
+       1.473302243904391
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.25015642775881686,
+      "majority_value": 0.26535836177474403,
+      "majority_prediction_share": 0.310580204778157,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.310580204778157,
+     "wobec_b": {
+      "b": 0.26535836177474403,
+      "baza": "stala odpowiedz",
+      "roznica": 0.09556313993174062,
+      "se": 0.019526834228798303,
+      "z": 4.893939222918351,
+      "t": null,
+      "df": null,
+      "werdykt": "pewne",
+      "metoda": "A parowane"
+     },
+     "rozklad_wyborow": {
+      "n": 1172,
+      "poprawne_pozycje": {
+       "A": 266,
+       "B": 311,
+       "C": 310,
+       "D": 285
+      },
+      "poprawna_najkrotsza": 0.19197952218430034,
+      "poprawna_najdluzsza": 0.2721843003412969,
+      "reguly": {
+       "acc": {
+        "trafnosc": 0.3216723549488055,
+        "pozycje": {
+         "A": 392,
+         "B": 327,
+         "C": 255,
+         "D": 197,
+         "E": 1
+        },
+        "najkrotsza": 0.37627986348122866,
+        "najdluzsza": 0.15187713310580206
+       },
+       "acc_norm": {
+        "trafnosc": 0.3609215017064846,
+        "pozycje": {
+         "A": 231,
+         "B": 267,
+         "C": 309,
+         "D": 364,
+         "E": 1
+        },
+        "najkrotsza": 0.0878839590443686,
+        "najdluzsza": 0.47525597269624575
+       },
+       "bpb": {
+        "trafnosc": 0.3575085324232082,
+        "pozycje": {
+         "A": 232,
+         "B": 269,
+         "C": 312,
+         "D": 358,
+         "E": 1
+        },
+        "najkrotsza": 0.09300341296928327,
+        "najdluzsza": 0.46331058020477817
+       },
+       "pmi": {
+        "trafnosc": 0.37627986348122866,
+        "pozycje": {
+         "A": 249,
+         "B": 301,
+         "C": 311,
+         "D": 311
+        },
+        "najkrotsza": 0.17235494880546076,
+        "najdluzsza": 0.33532423208191126
+       }
+      }
+     }
+    },
+    "mc": {
+     "acc": {
+      "value": 0.6535836177474402,
+      "n": 1172,
+      "se": 0.013905011180063254,
+      "ci95": [
+       0.6262798634812287,
+       0.6800341296928327
+      ]
+     },
+     "acc_norm": {
+      "value": 0.6535836177474402,
+      "n": 1172,
+      "se": 0.013905011180063254,
+      "ci95": [
+       0.6262798634812287,
+       0.6800341296928327
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.5631399317406144,
+      "n": 1172,
+      "se": 0.01449442158425651,
+      "ci95": [
+       0.5349829351535836,
+       0.591296928327645
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 2.2918568878300443,
+      "n": 1172,
+      "se": 0.0223842739370422,
+      "ci95": [
+       2.2485880571871326,
+       2.336244820822624
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.25015642775881686,
+      "majority_value": 0.26535836177474403,
+      "majority_prediction_share": 0.2935153583617747,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.2935153583617747,
+     "wobec_b": {
+      "b": 0.26535836177474403,
+      "baza": "stala odpowiedz",
+      "roznica": 0.38822525597269625,
+      "se": 0.019283905782461967,
+      "z": 20.13208632899324,
+      "t": null,
+      "df": null,
+      "werdykt": "pewne",
+      "metoda": "A parowane"
+     },
+     "rozklad_wyborow": {
+      "n": 1172,
+      "poprawne_pozycje": {
+       "A": 266,
+       "B": 311,
+       "C": 310,
+       "D": 285
+      },
+      "poprawna_najkrotsza": 0.22696245733788395,
+      "poprawna_najdluzsza": 0.22696245733788395,
+      "reguly": {
+       "acc": {
+        "trafnosc": 0.6535836177474402,
+        "pozycje": {
+         "A": 344,
+         "B": 281,
+         "C": 341,
+         "D": 206
+        },
+        "najkrotsza": 0.2935153583617747,
+        "najdluzsza": 0.2935153583617747
+       },
+       "acc_norm": {
+        "trafnosc": 0.6535836177474402,
+        "pozycje": {
+         "A": 344,
+         "B": 281,
+         "C": 341,
+         "D": 206
+        },
+        "najkrotsza": 0.2935153583617747,
+        "najdluzsza": 0.2935153583617747
+       },
+       "bpb": {
+        "trafnosc": 0.6535836177474402,
+        "pozycje": {
+         "A": 344,
+         "B": 281,
+         "C": 341,
+         "D": 206
+        },
+        "najkrotsza": 0.2935153583617747,
+        "najdluzsza": 0.2935153583617747
+       },
+       "pmi": {
+        "trafnosc": 0.5631399317406144,
+        "pozycje": {
+         "A": 145,
+         "B": 709,
+         "C": 179,
+         "D": 139
+        },
+        "najkrotsza": 0.12372013651877133,
+        "najdluzsza": 0.12372013651877133
+       }
+      }
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "allenai/ai2_arc",
+    "rewizja": "210d026faf9955653af8916fad021475a3f00453",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "fe82b632887857585cc5482741d19b500868698d",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-speakleash_Bielik-1.5B-v3-4b250496-20261109T235937Z",
+    "results_sha256": "e0b5c89eeedcabc7221b3d07c8d7cddf40163c34dc545d41e1d608bc3fd9b0f6"
+   }
+  ],
+  "qualification_sha256": "22160388386eeac6aede48e2ea7ec5300aceb22e4b114e40a4fae02e817a77c6",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "17fb53e7e94d921ebf9f95643cbb97e60fd5807c900a4c6f3de28d14508b26aa"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_5090",
+ "sprzet": "NVIDIA GeForce RTX 5090",
+ "max_length": 8192,
+ "dtype": "float32"
+}

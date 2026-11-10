@@ -1,0 +1,315 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-EleutherAI_pythia-1b-v0-f3f1b6d5-20261109T213258Z",
+ "models": [
+  {
+   "model_id": "EleutherAI/pythia-1b-v0",
+   "repo": "EleutherAI/pythia-1b-v0",
+   "revision": "f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0",
+   "weights_sha256": "92589a02cfd745884f8473b0a975a93cea4cdaacf8333b0c047dab41623396b2"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T02",
+   "task": "arc_challenge",
+   "family": "arc",
+   "language": "EN",
+   "split": "test"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T02",
+   "model_id": "EleutherAI/pythia-1b-v0",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc_norm,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 1172,
+   "n_selected": 1172,
+   "n_scored": 1172,
+   "state": "ok",
+   "value": 0.27474402730375425,
+   "ci95": {
+    "lower": 0.25,
+    "upper": 0.30204778156996587,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "e27b72037814d2c6c1e5e9eba2706103cd4b35834bb3fac12b9254c5890da01a",
+   "results_sha256": "7081a9e0a759260f32ea50a9bd5689d406e63ac622c3d3c30e1eb7a8b2a32360",
+   "runner_sha256": "7597c0de7273004dcd099c7e2fb7083b6232e43c17e1822fc291923210d5c1fa",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.25015642775881686,
+    "majority_value": 0.26535836177474403,
+    "majority_prediction_share": 0.30119453924914674,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.2431740614334471,
+      "n": 1172,
+      "se": 0.012536554144587002,
+      "ci95": [
+       0.21843003412969283,
+       0.26791808873720135
+      ]
+     },
+     "acc_norm": {
+      "value": 0.27474402730375425,
+      "n": 1172,
+      "se": 0.013044617212771208,
+      "ci95": [
+       0.25,
+       0.30204778156996587
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.30716723549488056,
+      "n": 1172,
+      "se": 0.013481034054980981,
+      "ci95": [
+       0.28071672354948807,
+       0.33361774744027306
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 1.2912797087711583,
+      "n": 1172,
+      "se": 0.019870893265114355,
+      "ci95": [
+       1.2525901143631013,
+       1.3318619730937358
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.25015642775881686,
+      "majority_value": 0.26535836177474403,
+      "majority_prediction_share": 0.30119453924914674,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.30119453924914674,
+     "wobec_b": {
+      "b": 0.26535836177474403,
+      "baza": "stala odpowiedz",
+      "roznica": 0.00938566552901024,
+      "se": 0.018719044257933196,
+      "z": 0.5013966204515256,
+      "t": null,
+      "df": null,
+      "werdykt": "szum",
+      "metoda": "A parowane"
+     },
+     "rozklad_wyborow": {
+      "n": 1172,
+      "poprawne_pozycje": {
+       "A": 266,
+       "B": 311,
+       "C": 310,
+       "D": 285
+      },
+      "poprawna_najkrotsza": 0.19197952218430034,
+      "poprawna_najdluzsza": 0.2721843003412969,
+      "reguly": {
+       "acc": {
+        "trafnosc": 0.2431740614334471,
+        "pozycje": {
+         "A": 405,
+         "B": 329,
+         "C": 243,
+         "D": 193,
+         "E": 2
+        },
+        "najkrotsza": 0.4087030716723549,
+        "najdluzsza": 0.14249146757679182
+       },
+       "acc_norm": {
+        "trafnosc": 0.27474402730375425,
+        "pozycje": {
+         "A": 243,
+         "B": 276,
+         "C": 299,
+         "D": 353,
+         "E": 1
+        },
+        "najkrotsza": 0.10665529010238908,
+        "najdluzsza": 0.44880546075085326
+       },
+       "bpb": {
+        "trafnosc": 0.27474402730375425,
+        "pozycje": {
+         "A": 244,
+         "B": 284,
+         "C": 294,
+         "D": 349,
+         "E": 1
+        },
+        "najkrotsza": 0.11348122866894197,
+        "najdluzsza": 0.439419795221843
+       },
+       "pmi": {
+        "trafnosc": 0.30716723549488056,
+        "pozycje": {
+         "A": 277,
+         "B": 267,
+         "C": 311,
+         "D": 316,
+         "E": 1
+        },
+        "najkrotsza": 0.2022184300341297,
+        "najdluzsza": 0.32593856655290104
+       }
+      }
+     }
+    },
+    "mc": {
+     "acc": {
+      "value": 0.2687713310580205,
+      "n": 1172,
+      "se": 0.012955065963710854,
+      "ci95": [
+       0.2440273037542662,
+       0.29436860068259385
+      ]
+     },
+     "acc_norm": {
+      "value": 0.2687713310580205,
+      "n": 1172,
+      "se": 0.012955065963710854,
+      "ci95": [
+       0.2440273037542662,
+       0.29436860068259385
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.26109215017064846,
+      "n": 1172,
+      "se": 0.012835523909473706,
+      "ci95": [
+       0.2363481228668942,
+       0.28668941979522183
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 1.4639171733085659,
+      "n": 1172,
+      "se": 0.014609668169561312,
+      "ci95": [
+       1.4358580883070577,
+       1.4929271768939607
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.25015642775881686,
+      "majority_value": 0.26535836177474403,
+      "majority_prediction_share": 0.43856655290102387,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.43856655290102387,
+     "wobec_b": {
+      "b": 0.26535836177474403,
+      "baza": "stala odpowiedz",
+      "roznica": 0.0034129692832764505,
+      "se": 0.02090876738323013,
+      "z": 0.16323149139885795,
+      "t": null,
+      "df": null,
+      "werdykt": "szum",
+      "metoda": "A parowane"
+     },
+     "rozklad_wyborow": {
+      "n": 1172,
+      "poprawne_pozycje": {
+       "A": 266,
+       "B": 311,
+       "C": 310,
+       "D": 285
+      },
+      "poprawna_najkrotsza": 0.22696245733788395,
+      "poprawna_najdluzsza": 0.22696245733788395,
+      "reguly": {
+       "acc": {
+        "trafnosc": 0.2687713310580205,
+        "pozycje": {
+         "A": 205,
+         "B": 52,
+         "C": 401,
+         "D": 514
+        },
+        "najkrotsza": 0.17491467576791808,
+        "najdluzsza": 0.17491467576791808
+       },
+       "acc_norm": {
+        "trafnosc": 0.2687713310580205,
+        "pozycje": {
+         "A": 205,
+         "B": 52,
+         "C": 401,
+         "D": 514
+        },
+        "najkrotsza": 0.17491467576791808,
+        "najdluzsza": 0.17491467576791808
+       },
+       "bpb": {
+        "trafnosc": 0.2687713310580205,
+        "pozycje": {
+         "A": 205,
+         "B": 52,
+         "C": 401,
+         "D": 514
+        },
+        "najkrotsza": 0.17491467576791808,
+        "najdluzsza": 0.17491467576791808
+       },
+       "pmi": {
+        "trafnosc": 0.26109215017064846,
+        "pozycje": {
+         "A": 7,
+         "C": 1124,
+         "D": 40,
+         "E": 1
+        },
+        "najkrotsza": 0.005972696245733789,
+        "najdluzsza": 0.005972696245733789
+       }
+      }
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "allenai/ai2_arc",
+    "rewizja": "210d026faf9955653af8916fad021475a3f00453",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "fe82b632887857585cc5482741d19b500868698d",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-EleutherAI_pythia-1b-v0-f3f1b6d5-20261109T213258Z",
+    "results_sha256": "7081a9e0a759260f32ea50a9bd5689d406e63ac622c3d3c30e1eb7a8b2a32360"
+   }
+  ],
+  "qualification_sha256": "22160388386eeac6aede48e2ea7ec5300aceb22e4b114e40a4fae02e817a77c6",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "fc5a053d2fc87de63364bee3b5cb967103e61a319221f3e4dead6acd837e94cb"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_5090",
+ "sprzet": "NVIDIA GeForce RTX 5090",
+ "max_length": 2048,
+ "dtype": "float32"
+}
