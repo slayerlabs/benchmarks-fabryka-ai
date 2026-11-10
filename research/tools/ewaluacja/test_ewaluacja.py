@@ -97,6 +97,238 @@ def test_subset_comparison_uses_only_common_questions(tmp_path):
     assert w["metryka_lok_wspolne"] == w["metryka_ref_wspolne"]
 
 
+KONTROLNE =Path(E.__file__).parent / "wyniki_kontrolne"
+
+
+def _wynik(d, probka):
+    d.mkdir(parents=True)
+    (d / "results.json").write_text(json.dumps({"observations": [{"state": "ok"}]}), encoding="utf-8")
+    (d / "results_rozszerzone.json").write_text(json.dumps({"probka": probka}), encoding="utf-8")
+    return d
+
+
+def test_resume_needs_the_same_sample_or_a_full_split(tmp_path):
+    proba, pelna = _wynik(tmp_path / "a", "20"), _wynik(tmp_path / "b", "pelna")
+    assert not E.wynik_gotowy(proba, "pelna")
+    assert E.wynik_gotowy(proba, "20")
+    assert E.wynik_gotowy(pelna, "pelna") and E.wynik_gotowy(pelna, "20")
+    assert not E.wynik_gotowy(tmp_path / "brak", "pelna")
+
+
+def test_resume_reads_the_sample_of_own_code_tasks():
+    ewok = KONTROLNE / "ewok" / "gpt2-xl"
+    assert E.probka_wyniku(ewok) == "pelna" and E.wynik_gotowy(ewok, "pelna")
+
+
+def _porownanie(dll, zgodnosc):
+    return {"stan_lok": "ok", "wartosc_ref": 1.0, "n_wspolnych": 62, "n_lok": 62, "n_ref": 62,
+            "max_dloglik": dll, "zgodnosc_pred": zgodnosc}
+
+
+def test_numeric_agreement_needs_close_logliks():
+    assert E.werdykt(_porownanie(500.0, 1.0), 1e-3) == "ROZNE"       # jedna wartość na dokument: zgodność zawsze 1,0
+    assert E.werdykt(_porownanie(0.01, 0.995), 1e-3) == "ZGODNE ~num"
+
+
+def test_compare_exits_nonzero_on_a_different_run(tmp_path):
+    import gzip
+    model = "eurollm-1.7b"
+    lok = tmp_path / "w" / "wikitext-2" / model
+    shutil.copytree(E.ODNIESIENIE / "wikitext-2" / model, lok)
+    argumenty = ["--wyniki", str(tmp_path / "w"), "porownaj"]
+    assert E.main(argumenty) == 0
+    p = lok / "probki" / "T03_space.jsonl.gz"
+    rows = [json.loads(l) for l in gzip.open(p, "rt", encoding="utf-8")]
+    fr = rows[0]["filtered_resps"]
+    rows[0]["filtered_resps"] = json.dumps([json.loads(fr)[0] - 500.0]) if isinstance(fr, str) else [fr[0] - 500.0]
+    with gzip.open(p, "wt", encoding="utf-8") as f:
+        f.writelines(json.dumps(r) + "\n" for r in rows)
+    assert E.main(argumenty) == 1
+
+
+def test_control_exit_codes(tmp_path):
+    w = tmp_path / "w"
+    shutil.copytree(KONTROLNE, w)
+    argumenty = ["--wyniki", str(w), "kontrola"]
+    assert E.main(argumenty) == 0
+    shutil.rmtree(w / "piqa")
+    assert E.main(argumenty) == 3
+    p = w / "arc-easy" / "pythia-1b-v0" / "results_rozszerzone.json"
+    j = json.loads(p.read_text(encoding="utf-8"))
+    j["observations"][0]["dodatkowe"]["space"]["acc"]["value"] = 0.30
+    p.write_text(json.dumps(j), encoding="utf-8")
+    assert E.main(argumenty) == 1
+
+
+def test_control_fails_on_a_sample(tmp_path):
+    w = tmp_path / "w"
+    shutil.copytree(KONTROLNE, w)
+    p = w / "blimp" / "pythia-1b-v0" / "results_rozszerzone.json"
+    j = json.loads(p.read_text(encoding="utf-8"))
+    j["probka"] = "20"
+    p.write_text(json.dumps(j), encoding="utf-8")
+    assert E.main(["--wyniki", str(w), "kontrola"]) == 1
+
+
+def test_skipped_model_fails_the_run(tmp_path, monkeypatch):
+    monkeypatch.setattr(E, "sciezka_wag", lambda m: None)
+    assert E.main(["--wyniki", str(tmp_path / "w"), "--python-lock", "py", "licz", "pythia-1b-v0", "--zadania", "T01"]) == 1
+
+
+def test_checkpoint_weights_need_the_documented_sum(tmp_path):
+    (tmp_path / "model.safetensors").write_bytes(b"inne wagi")
+    ms = E.modele()
+    assert not E.wagi_ckpt_zgodne(ms["slayer1b-1.07"], tmp_path)
+    assert E.wagi_ckpt_zgodne(ms["pythia-1b-v0"], tmp_path)
+
+
+def test_sanity_check_reports_a_failed_task(tmp_path):
+    d = tmp_path / "arc-easy" / "pythia-1b-v0"
+    shutil.copytree(KONTROLNE / "arc-easy" / "pythia-1b-v0", d)
+    a = types.SimpleNamespace(probka="pelna")
+    assert E.kontrola_sensu([d], a) == 0
+    p = d / "results_rozszerzone.json"
+    j = json.loads(p.read_text(encoding="utf-8"))
+    j["observations"][0]["state"] = "failed"
+    p.write_text(json.dumps(j), encoding="utf-8")
+    assert E.kontrola_sensu([d], a) != 0
+
+
+def _zmien(p, fn):
+    j = json.loads(p.read_text(encoding="utf-8"))
+    fn(j)
+    p.write_text(json.dumps(j), encoding="utf-8")
+
+
+def _kopia_kontrolnych(tmp_path):
+    w = tmp_path / "w"
+    shutil.copytree(KONTROLNE, w)
+    return w
+
+
+def test_control_fails_on_a_nan_score(tmp_path):
+    w = _kopia_kontrolnych(tmp_path)
+    p = w / "arc-easy" / "pythia-1b-v0" / "results_rozszerzone.json"
+    _zmien(p, lambda j: j["observations"][0]["dodatkowe"]["space"]["acc"].update(value=float("nan")))
+    assert E.main(["--wyniki", str(w), "kontrola"]) == 1
+
+
+def test_control_counts_a_failed_run_as_a_failure(tmp_path):
+    w = _kopia_kontrolnych(tmp_path)
+    p = w / "arc-easy" / "pythia-1b-v0" / "results_rozszerzone.json"
+    _zmien(p, lambda j: j["observations"][0].update(state="failed"))
+    assert E.main(["--wyniki", str(w), "kontrola"]) == 1
+
+
+def test_control_reports_a_broken_file_as_missing(tmp_path):
+    w = _kopia_kontrolnych(tmp_path)
+    (w / "piqa" / "pythia-1b-v0" / "results_rozszerzone.json").write_text("{", encoding="utf-8")
+    assert E.main(["--wyniki", str(w), "kontrola"]) == 3
+
+
+def test_resume_needs_the_same_model_revision_and_weights(tmp_path):
+    ms = E.modele()
+    d = tmp_path / "piqa" / "pythia-1b-v0"
+    shutil.copytree(KONTROLNE / "piqa" / "pythia-1b-v0", d)
+    assert E.wynik_gotowy(d, "pelna", ms["pythia-1b-v0"])
+    assert not E.wynik_gotowy(d, "pelna", ms["eurollm-1.7b"])
+    _zmien(d / "results.json", lambda j: j["models"][0].update(revision="0" * 40))
+    assert not E.wynik_gotowy(d, "pelna", ms["pythia-1b-v0"])
+    assert E.wynik_gotowy(KONTROLNE / "ewok" / "gpt2-xl", "pelna", ms["gpt2-xl"])   # ewok.py: model w observations
+
+    m = ms["slayer1b-1.07"]
+    ck = _wynik(tmp_path / "ck", "pelna")
+    for suma, gotowy in ((E.SUMY_WAG_CKPT[m.etykieta], True), ("f" * 64, False), (None, True)):
+        _zmien(ck / "results.json", lambda j: j.update(models=[{"repo": m.repo, "revision": m.rewizja,
+                                                                "weights_sha256": suma}]))
+        assert E.wynik_gotowy(ck, "pelna", m) is gotowy, suma
+
+
+def test_compare_exits_nonzero_without_common_samples(tmp_path):
+    model = "eurollm-1.7b"
+    lok = tmp_path / "w" / "wikitext-2" / model
+    shutil.copytree(E.ODNIESIENIE / "wikitext-2" / model, lok)
+    for f in (lok / "probki").glob("*"):
+        f.rename(f.with_name(f.name.replace("_space", "_inne")))
+    assert E.main(["--wyniki", str(tmp_path / "w"), "porownaj"]) == 1
+
+
+def test_compare_exits_nonzero_on_a_missing_local_result(tmp_path):
+    model = "eurollm-1.7b"
+    lok = tmp_path / "w" / "wikitext-2" / model
+    shutil.copytree(E.ODNIESIENIE / "wikitext-2" / model, lok)
+    (lok / "results_rozszerzone.json").unlink()
+    assert E.main(["--wyniki", str(tmp_path / "w"), "porownaj"]) == 1
+
+
+def test_looser_loglik_tolerance_does_not_tighten_agreement():
+    assert E.werdykt(_porownanie(0.3, 0.995), 0.5) == "ZGODNE ~num"
+    assert E.werdykt(_porownanie(0.3, 1.0), 0.5) == "IDENTYCZNE"
+    assert E.werdykt(_porownanie(0.3, 0.995), 1e-3) == "ROZNE"
+
+
+def test_checkpoint_weights_need_the_whole_sum(tmp_path, monkeypatch):
+    import hashlib
+    assert E.SUMY_WAG_CKPT["slayer1b-1.07"].startswith("d826b4a1") and len(E.SUMY_WAG_CKPT["slayer1b-1.07"]) == 64
+    (tmp_path / "model.safetensors").write_bytes(b"wagi")
+    suma = hashlib.sha256(b"wagi").hexdigest()
+    m = E.modele()["slayer1b-1.07"]
+    monkeypatch.setitem(E.SUMY_WAG_CKPT, m.etykieta, suma)
+    assert E.wagi_ckpt_zgodne(m, tmp_path)
+    monkeypatch.setitem(E.SUMY_WAG_CKPT, m.etykieta, suma[:8])
+    assert not E.wagi_ckpt_zgodne(m, tmp_path)
+
+
+def test_full_split_sanity_check_looks_at_the_score(tmp_path):
+    d = tmp_path / "arc-easy" / "pythia-1b-v0"
+    shutil.copytree(KONTROLNE / "arc-easy" / "pythia-1b-v0", d)
+    _zmien(d / "results_rozszerzone.json", lambda j: j["observations"][0]["dodatkowe"]["space"]["acc"].update(value=1.0))
+    assert E.kontrola_sensu([d], types.SimpleNamespace(probka="pelna")) != 0
+    assert E.kontrola_sensu([d], types.SimpleNamespace(probka="20")) == 0
+
+
+def _licz_bez_gpu(tmp_path, monkeypatch):
+    """`licz` z udawanym przygotowaniem i procesem `pass`; zwraca listę (model, test) wysłanych do liczenia."""
+    import sys
+    from concurrent.futures import Future
+    wagi = tmp_path / "wagi"
+    wagi.mkdir()
+    monkeypatch.setattr(E, "TU", tmp_path)
+    monkeypatch.setattr(E, "sciezka_wag", lambda m: wagi if m.etykieta == "pythia-1b-v0" else None)
+
+    def przygotowane(zadania, a, py):
+        f = Future()
+        f.set_result(True)
+        return {t: f for t in zadania}
+
+    liczone = []
+
+    def polecenie(m, task, *reszta):
+        liczone.append((m.etykieta, task))
+        return [sys.executable, "-c", "pass"]
+
+    monkeypatch.setattr(E, "przygotuj_w_tle", przygotowane)
+    monkeypatch.setattr(E, "polecenie", polecenie)
+    return ["--wyniki", str(tmp_path / "w"), "--python-lock", sys.executable, "licz"], liczone
+
+
+def test_skipped_model_fails_a_run_that_computed_the_other(tmp_path, monkeypatch):
+    poczatek, _ = _licz_bez_gpu(tmp_path, monkeypatch)
+    assert E.main(poczatek + ["pythia-1b-v0", "--zadania", "T01"]) == 0
+    assert E.main(poczatek + ["pythia-1b-v0", "gpt2-xl", "--zadania", "T01"]) == 1
+
+
+def test_run_recomputes_a_result_of_another_revision(tmp_path, monkeypatch):
+    poczatek, liczone = _licz_bez_gpu(tmp_path, monkeypatch)
+    d = tmp_path / "w" / "piqa" / "pythia-1b-v0"
+    shutil.copytree(KONTROLNE / "piqa" / "pythia-1b-v0", d)
+    t = next(t for t, k in E.katalogi().items() if k == "piqa")
+    assert E.main(poczatek + ["pythia-1b-v0", "--zadania", t]) == 0 and liczone == []
+    _zmien(d / "results.json", lambda j: j["models"][0].update(revision="0" * 40))
+    E.main(poczatek + ["pythia-1b-v0", "--zadania", t])
+    assert liczone == [("pythia-1b-v0", t)]
+
+
 def test_added_models_and_dtype():
     ms = E.modele()
     for v in ("1.00", "1.01", "1.02", "1.03", "1.04", "1.05", "1.06", "1.08"):
