@@ -48,8 +48,9 @@ MODELE_DODATKOWE = [
 ]
 # Testy z zapisanymi wynikami przebiegu centralnego (7 katalogów results/central-run).
 CENTRAL = ["T01", "T02", "T03", "T04", "T44", "T45", "T46"]
-# Początek sumy skonwertowanego model.safetensors (METODOLOGIA, krok „Wyniki”). Konwersję robi się poza tym runnerem.
-SUMY_WAG_CKPT = {"slayer1b-1.07": "d826b4a1"}
+# Suma skonwertowanego model.safetensors (METODOLOGIA, krok „Wyniki”: `d826b4a1…`; pełna z weights_sha256
+# results/full-run-2026-11/*/slayer1b-1.07-hf). Konwersję robi się poza tym runnerem.
+SUMY_WAG_CKPT = {"slayer1b-1.07": "d826b4a11bf4eaccee10fe43ec19a4f6d515dfc5f3e5c859adb631f1a0b76ad5"}
 # Różnica sum loglik dopuszczona w ZGODNE ~num; smoke EuroLLM: do 5e-4, a inny prompt: od 3,5 wzwyż.
 TOL_ZGODNE = 0.1
 
@@ -153,14 +154,14 @@ def sciezka_wag(m: Model) -> Path | None:
 
 
 def wagi_ckpt_zgodne(m: Model, wagi: Path) -> bool:
-    prefiks = SUMY_WAG_CKPT.get(m.etykieta)
-    if prefiks is None:
+    suma = SUMY_WAG_CKPT.get(m.etykieta)
+    if suma is None:
         return True
     h = hashlib.sha256()
     with open(wagi / "model.safetensors", "rb") as f:
         for blok in iter(lambda: f.read(1 << 24), b""):
             h.update(blok)
-    return h.hexdigest().startswith(prefiks)
+    return h.hexdigest() == suma
 
 
 def nazwa_gpu() -> str:
@@ -252,19 +253,34 @@ def probka_wyniku(wyj: Path) -> str | None:
     return None if p is None else str(p)
 
 
-def wynik_gotowy(wyj: Path, probka: str | None = None) -> bool:
-    """Obserwacje state=ok (failed / blocked liczymy jeszcze raz) z tej samej próbki albo z pełnego splitu."""
+def model_wyniku(r: dict) -> dict:
+    """repo / revision / weights_sha256 wyniku: ewaluuj.py pisze je w models[0], ewok.py w observations[0]."""
+    zrodlo = (r.get("models") or [None])[0] or (r.get("observations") or [{}])[0]
+    return {k: zrodlo.get(k) for k in ("repo", "revision", "weights_sha256")} if isinstance(zrodlo, dict) else {}
+
+
+def wynik_gotowy(wyj: Path, probka: str | None = None, m: Model | None = None) -> bool:
+    """Obserwacje state=ok (failed / blocked liczymy jeszcze raz) z tej samej próbki albo z pełnego splitu, a z `m`
+    także z tego samego repo i rewizji oraz z sumą wag z SUMY_WAG_CKPT, gdy wynik ją zapisał (ewok.py jej nie pisze)."""
     p = wyj / "results.json"
     if not p.exists():
         p = wyj / "results_rozszerzone.json"            # ewok.py nie pisze results.json
     if not p.exists():
         return False
     try:
-        obs = json.loads(p.read_text(encoding="utf-8"))["observations"]
+        r = json.loads(p.read_text(encoding="utf-8"))
+        obs = r["observations"]
     except Exception:
         return False
     if not obs or not all(o.get("state") == "ok" for o in obs):
         return False
+    if m is not None:
+        mw = model_wyniku(r)
+        if mw.get("repo") != m.repo or mw.get("revision") != m.rewizja:
+            return False
+        suma = SUMY_WAG_CKPT.get(m.etykieta)
+        if suma and mw.get("weights_sha256") and mw["weights_sha256"] != suma:
+            return False
     return probka is None or probka_wyniku(wyj) in (str(probka), "pelna")
 
 
@@ -396,7 +412,7 @@ def cmd_licz(a) -> int:
             continue
         for t in zadania:
             wyj = wyniki / (kat[t] + (f"-{a.fewshot}shot" if a.fewshot is not None else "")) / etyk
-            if wynik_gotowy(wyj, probka_zadania(t, a)) and not a.nadpisz:
+            if wynik_gotowy(wyj, probka_zadania(t, a), m) and not a.nadpisz:
                 print(f"[{etyk} {t}] już policzone - pomijam (--nadpisz liczy od nowa)")
                 continue
             kolejka.append(Praca(m, t, py, wagi, wyj, szacunek_vram(etyk, t, wagi)))
@@ -605,7 +621,8 @@ def werdykt(w: dict, tol_loglik: float) -> str:
     pelne = w["n_lok"] == w["n_ref"]
     if w["max_dloglik"] <= tol_loglik and w["zgodnosc_pred"] == 1.0:
         return "IDENTYCZNE" if pelne else "IDENTYCZNE (na próbce)"
-    if w["zgodnosc_pred"] >= 0.99 and w["max_dloglik"] <= TOL_ZGODNE:
+    # ZGODNE jest słabsze od IDENTYCZNE, więc jego limit loglik nie może być ciaśniejszy niż --tol-loglik
+    if w["zgodnosc_pred"] >= 0.99 and w["max_dloglik"] <= max(TOL_ZGODNE, tol_loglik):
         return "ZGODNE ~num" + ("" if pelne else " (próbka)")
     return "ROZNE"
 
@@ -635,13 +652,15 @@ def cmd_porownaj(a) -> int:
         Path(a.json).write_text(json.dumps([{"benchmark": b, "model": m, **w, "werdykt": v} for b, m, w, v in rows],
                                            ensure_ascii=False, indent=1), encoding="utf-8")
         print(f"\nzapisano {a.json}")
-    return 1 if any(v == "ROZNE" or w.get("stan_lok") != "ok" for _, _, w, v in rows) else 0
+    # "brak wspólnych próbek": odniesienie jest, a nic nie porównano; "brak odniesienia" (np. 1.07) nie psuje kodu
+    return 1 if any(v in ("ROZNE", "brak wspólnych próbek") or w.get("stan_lok") != "ok" for _, _, w, v in rows) else 0
 
 
 def cmd_kontrola(a) -> int:
     """Pełne przebiegi modeli kontrolnych vs wartości opublikowane (kontrole.json z REPRODUCTION.md).
 
-    Kod wyjścia: 0 komplet w progu, 1 metryka główna poza progiem albo nie z pełnego splitu, 3 brak części przebiegów."""
+    Kod wyjścia: 0 komplet w progu, 1 metryka główna poza progiem (także NaN), nieudany przebieg albo nie z pełnego
+    splitu, 3 brak części przebiegów albo uszkodzony results_rozszerzone.json."""
     k = json.loads((TU / "kontrole.json").read_text(encoding="utf-8"))["kontrole"]
     wyniki = katalog_wynikow(a)
     poza, brak = False, False
@@ -653,11 +672,15 @@ def cmd_kontrola(a) -> int:
             print(f"{c['benchmark']:11s} {c['model']:13s} {c['metryka']:9s} {'-':>7s}  kontrola tylko osobnym kodem: "
                   f"{c['kod_fabryki']} (wynik pipeline'u nie jest tą kontrolą)")
             continue
-        o = _obserwacja(d)
+        try:
+            o, uszkodzony = _obserwacja(d), False
+        except (ValueError, KeyError, IndexError, TypeError):
+            o, uszkodzony = None, True
         wiersze = [(c["metryka"], c)] + [(m, v) for m, v in (c.get("pomocnicze") or {}).items()]
         for i, (met, ref) in enumerate(wiersze):
             if not o or o.get("state") != "ok":
-                stan = "brak pełnego przebiegu" if not o else o.get("state")
+                stan = "uszkodzony results_rozszerzone.json" if uszkodzony else \
+                    "brak pełnego przebiegu" if not o else o.get("state")
                 print(f"{c['benchmark']:11s} {c['model']:13s} {met:9s} {'-':>7s}  {stan}")
                 brak = brak or not o
                 poza = poza or bool(o)
@@ -681,7 +704,7 @@ def cmd_kontrola(a) -> int:
             w = ("W PROGU" if abs(delta) <= prog else "POZA PROGIEM") + ("" if i == 0 else " (pomocnicza)")
             if not pelna:
                 w += " [NIE pełny split!]"
-            poza = poza or (i == 0 and (abs(delta) > prog or not pelna))
+            poza = poza or (i == 0 and (not abs(delta) <= prog or not pelna))   # NaN: porównanie daje False
             print(f"{c['benchmark']:11s} {c['model']:13s} {met:9s} {wart:7.4f} {v.get('se') or 0:6.4f} "
                   f"{v.get('n') or o.get('n_scored'):>6} {ref['opublikowana']:7.4f} {100*delta:+6.2f} {100*prog:5.2f} "
                   f"{('-' if fab is None else f'{fab:.4f}'):>7s} {('-' if fab is None else f'{100*(wart-fab):+.2f}'):>6s}  {w}")
