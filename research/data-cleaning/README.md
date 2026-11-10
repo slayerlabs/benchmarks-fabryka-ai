@@ -26,7 +26,7 @@ Reguła pisana pod ostatnie znalezisko przepuszcza tę samą wadę w innym zapis
 |---|---|---|
 | Identyczne | hash tekstu po normalizacji (NFKC, casefold, zwinięcie białych znaków) | próg 0 par |
 | Bliskie kopie | MinHash LSH na 5-gramach słów, potem dokładny Jaccard | 128 funkcji, pasma 32x4, J >= 0,8 |
-| Rodziny wydań książek | autor i tytuł plus MinHash, zostaje najczystsze wydanie | 112 funkcji, pasma 14x8, J >= 0,75 |
+| Rodziny wydań książek | autor i tytuł plus MinHash, zostaje najczystsze wydanie | 112 funkcji, pasma 14x8, J >= 0,75 | <!-- liczba-spoza-wynikow: próg techniki, nie wynik modelu -->
 | Powtórzone fragmenty | podciągi wspólne | od 50 słów albo 500 bajtów |
 | Pokrycie z bazami | MinHash i szkic 13-gramów | `hash % 16 == 0`, udział >= 0,5, min. 4 próbki |
 | Przecieki testów | 13-gramy słów, każde trafienie usuwa wiersz | krótsze odpowiedzi tylko licz; n-gramy nie łapią parafraz |
