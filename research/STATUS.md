@@ -37,18 +37,18 @@ test `tests/test_<name>.py`.
 |---|---|---|---|---|---|
 | [BLiMP](benchmarks/blimp/README.md) | T01 | ✓ | ✓ | ✓ | sprawdzone 07.11, błędu nie ma ([REPRODUCTION](benchmarks/blimp/REPRODUCTION.md)) |
 | [ARC-Challenge](benchmarks/arc-challenge/README.md) | T02 | ✓ | bez kontroli | ✓ | Slayer na poziomie bazy losowej |
-| [WikiText-2](benchmarks/wikitext-2/README.md) | T03 | ✓ | ✓ | ✓ | próg dla perpleksji: #41 |
+| [WikiText-2](benchmarks/wikitext-2/README.md) | T03 | ✓ | bez kontroli | ✓ | próg dla perpleksji: #41 |
 | [MultiBLiMP PL](benchmarks/multiblimp-pl/README.md) | T04 | ✓ | bez kontroli | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia): możliwy przeciek (#36) |
 | [HellaSwag](benchmarks/hellaswag/README.md) | T05 | ✓ | ✓ | ✓ | kontrolę (EuroLLM, spełniona) liczono 10-shot osobnym kodem poza przebiegiem; przebieg liczy T05 0-shot |
 | [PIQA](benchmarks/piqa/README.md) | T06 | ✓ | ✓ | ✓ | |
 | [WinoGrande](benchmarks/winogrande/README.md) | T07 | ✓ | ✓ | ✓ | |
-| [WSC273](benchmarks/wsc273/README.md) | T14 | ✓ | ✓ | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia): kontrola spoza listy |
-| [LAMBADA](benchmarks/lambada/README.md) | T17 | ✓ | ✓ | ✓ | kontrola Pythia v0 w przebiegu, werdykt po przebiegu |
+| [WSC273](benchmarks/wsc273/README.md) | T14 | ✓ | bez kontroli | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia): kontrola spoza listy |
+| [LAMBADA](benchmarks/lambada/README.md) | T17 | ✓ | ✓ | ✓ | kontrola Pythia v0: spełniony, pełny przebieg 2026-11 |
 | [MathQA](benchmarks/mathqa/README.md) | T19 | ✓ | bez kontroli | ✓ | Slayer na poziomie bazy większościowej |
 | [PubMedQA](benchmarks/pubmedqa/README.md) | T44 | ✓ | bez kontroli | ✓ | Slayer pod b, prompt i mapowanie sprawdzone ([werdykt](benchmarks/pubmedqa/REPRODUCTION.md#werdykt-sprawdzenia)) |
 | [MedMCQA](benchmarks/medmcqa/README.md) | T45 | ✓ | bez kontroli | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia) |
 | [Social IQa](benchmarks/social-iqa/README.md) | T46 | ✓ | bez kontroli | ✓ | Slayer nad b, pod czterema modelami odniesienia |
-| [ARC-Easy](benchmarks/arc-easy/README.md) | T51 | ✓ | ✓ | ✓ | kontrola Pythia v0 w przebiegu, werdykt po przebiegu |
+| [ARC-Easy](benchmarks/arc-easy/README.md) | T51 | ✓ | ✓ | ✓ | kontrola Pythia v0: spełniony, pełny przebieg 2026-11 |
 | [EWoK](benchmarks/ewok/README.md) | T53 | ✓ | ✓ | ✓ własny kod | zbiór za bramką zgody na HF: token przebiegu musi mieć dostęp |
 
 <a name="brak-opisu"></a>

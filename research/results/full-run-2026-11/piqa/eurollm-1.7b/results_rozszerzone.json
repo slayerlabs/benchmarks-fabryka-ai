@@ -1,0 +1,141 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-utter-project_EuroLLM-1.7B-c730cd9b-20261109T224402Z",
+ "models": [
+  {
+   "model_id": "utter-project/EuroLLM-1.7B",
+   "repo": "utter-project/EuroLLM-1.7B",
+   "revision": "c730cd9b616799ace3c65e927d63191446f59374",
+   "weights_sha256": "bfe9be53d19031a71d013ded9939747ae8e0c5dd7f07b9173cfa25521d7a9bc8"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T06",
+   "task": "piqa",
+   "family": "piqa",
+   "language": "EN",
+   "split": "validation"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T06",
+   "model_id": "utter-project/EuroLLM-1.7B",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc_norm,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 1838,
+   "n_selected": 1838,
+   "n_scored": 1838,
+   "state": "ok",
+   "value": 0.73449401523395,
+   "ci95": {
+    "lower": 0.7138193688792165,
+    "upper": 0.7540805223068553,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "98d8ca1d7ff33dfb7b5893c9ca1c48e9d87736b58196cd6ad941f7520fd660b8",
+   "results_sha256": "0c67f2ef3bbc5ff6462f9cb30013dbecad1420fb8ce0133f7b4b7497c24affdb",
+   "runner_sha256": "7597c0de7273004dcd099c7e2fb7083b6232e43c17e1822fc291923210d5c1fa",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.5,
+    "majority_value": 0.5048966267682263,
+    "majority_prediction_share": 0.5038084874863983,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.7230685527747551,
+      "n": 1838,
+      "se": 0.010440499969334648,
+      "ci95": [
+       0.7023939064200218,
+       0.7431991294885746
+      ]
+     },
+     "acc_norm": {
+      "value": 0.73449401523395,
+      "n": 1838,
+      "se": 0.010303308653024442,
+      "ci95": [
+       0.7138193688792165,
+       0.7540805223068553
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.6088139281828074,
+      "n": 1838,
+      "se": 0.011386215606728629,
+      "ci95": [
+       0.5859630032644179,
+       0.6311207834602829
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 1.050631008939688,
+      "n": 1838,
+      "se": 0.011276756156384312,
+      "ci95": [
+       1.0280190576975463,
+       1.0727339717579871
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.5,
+      "majority_value": 0.5048966267682263,
+      "majority_prediction_share": 0.5038084874863983,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.5038084874863983,
+     "wobec_b": {
+      "b": 0.5048966267682263,
+      "baza": "stala odpowiedz",
+      "roznica": 0.2295973884657236,
+      "se": 0.015537486089841223,
+      "z": 14.776997201358064,
+      "t": null,
+      "df": null,
+      "werdykt": "pewne",
+      "metoda": "A parowane"
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "ybisk/piqa",
+    "rewizja": "2e8ac2dffd59bac8c3c6714948f4c551a0848bb0",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "fe82b632887857585cc5482741d19b500868698d",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-utter-project_EuroLLM-1.7B-c730cd9b-20261109T224402Z",
+    "results_sha256": "0c67f2ef3bbc5ff6462f9cb30013dbecad1420fb8ce0133f7b4b7497c24affdb"
+   }
+  ],
+  "qualification_sha256": "22160388386eeac6aede48e2ea7ec5300aceb22e4b114e40a4fae02e817a77c6",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "2ae5c58936c350056ec9df1f175f3e2f7c332ac9de0188d7a3b307436b06ccae"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_5090",
+ "sprzet": "NVIDIA GeForce RTX 5090",
+ "max_length": 4096,
+ "dtype": "float32"
+}

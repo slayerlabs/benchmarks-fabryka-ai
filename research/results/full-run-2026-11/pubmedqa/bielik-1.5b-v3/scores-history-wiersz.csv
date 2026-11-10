@@ -1,0 +1,2 @@
+model,step,tokens,checkpoint_sha256,arc_easy,blimp,wikitext2_token_ppl,wikitext2_byte_ppl,eff,multiblimp_pl,arc_easy_pl,eval_gpu
+bielik-1.5b-v3,,,691558032d8d1fd264d27c32c914d11691cc06a7f43170176e5a7030f92aa658,,,,,,,,NVIDIA_GeForce_RTX_5090

@@ -1,0 +1,2 @@
+model,step,tokens,checkpoint_sha256,arc_easy,blimp,wikitext2_token_ppl,wikitext2_byte_ppl,eff,multiblimp_pl,arc_easy_pl,eval_gpu
+pythia-1b-v0,,,92589a02cfd745884f8473b0a975a93cea4cdaacf8333b0c047dab41623396b2,,,,,,,,NVIDIA_GeForce_RTX_5090

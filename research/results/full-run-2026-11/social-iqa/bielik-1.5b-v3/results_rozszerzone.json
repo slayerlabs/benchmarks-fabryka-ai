@@ -1,0 +1,141 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-speakleash_Bielik-1.5B-v3-4b250496-20261110T011008Z",
+ "models": [
+  {
+   "model_id": "speakleash/Bielik-1.5B-v3",
+   "repo": "speakleash/Bielik-1.5B-v3",
+   "revision": "4b25049621bf3952a1fc9314c89773102eda0333",
+   "weights_sha256": "691558032d8d1fd264d27c32c914d11691cc06a7f43170176e5a7030f92aa658"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T46",
+   "task": "social_iqa",
+   "family": "social_iqa",
+   "language": "EN",
+   "split": "validation"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T46",
+   "model_id": "speakleash/Bielik-1.5B-v3",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 1954,
+   "n_selected": 1954,
+   "n_scored": 1954,
+   "state": "ok",
+   "value": 0.436028659160696,
+   "ci95": {
+    "lower": 0.413510747185261,
+    "upper": 0.458546571136131,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "e92365ff54129c93eb518df4c5544bb39847ea762c2b5c970cef0ad5afeef808",
+   "results_sha256": "ec069ff653789b3163b21b8af8c1b698b80861c1b49207c712e944d5f814ead8",
+   "runner_sha256": "7597c0de7273004dcd099c7e2fb7083b6232e43c17e1822fc291923210d5c1fa",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.3333333333333333,
+    "majority_value": 0.33623336745138177,
+    "majority_prediction_share": 0.34032753326509724,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.436028659160696,
+      "n": 1954,
+      "se": 0.011221086587510792,
+      "ci95": [
+       0.413510747185261,
+       0.458546571136131
+      ]
+     },
+     "acc_norm": {
+      "value": 0.4744114636642784,
+      "n": 1954,
+      "se": 0.01129924454081495,
+      "ci95": [
+       0.4518935516888434,
+       0.49641760491299897
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.4278403275332651,
+      "n": 1954,
+      "se": 0.011195625418198171,
+      "ci95": [
+       0.40583418628454454,
+       0.4498464687819857
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 1.4868896316909754,
+      "n": 1954,
+      "se": 0.013905644118432222,
+      "ci95": [
+       1.4598757880350037,
+       1.5146694613069418
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.3333333333333333,
+      "majority_value": 0.33623336745138177,
+      "majority_prediction_share": 0.34032753326509724,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.34032753326509724,
+     "wobec_b": {
+      "b": 0.33623336745138177,
+      "baza": "stala odpowiedz",
+      "roznica": 0.09979529170931423,
+      "se": 0.015387223813514433,
+      "z": 6.48559434234427,
+      "t": null,
+      "df": null,
+      "werdykt": "pewne",
+      "metoda": "A parowane"
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "allenai/social_i_qa",
+    "rewizja": "8835ceb9141d7896d9d968634a9b21ae440e3ec5",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "fe82b632887857585cc5482741d19b500868698d",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-speakleash_Bielik-1.5B-v3-4b250496-20261110T011008Z",
+    "results_sha256": "ec069ff653789b3163b21b8af8c1b698b80861c1b49207c712e944d5f814ead8"
+   }
+  ],
+  "qualification_sha256": "22160388386eeac6aede48e2ea7ec5300aceb22e4b114e40a4fae02e817a77c6",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "c99dd599746a7943543f9d2f6e5a373905fd49d39eb090fd1f8c0aecd1320d7b"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_5090",
+ "sprzet": "NVIDIA GeForce RTX 5090",
+ "max_length": 8192,
+ "dtype": "float32"
+}

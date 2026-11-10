@@ -1,0 +1,70 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-LiquidAI_LFM3-1.7B-Base-545fc8f4-20261110T021130Z",
+ "models": [
+  {
+   "model_id": "LiquidAI/LFM3-1.7B-Base",
+   "repo": "LiquidAI/LFM3-1.7B-Base",
+   "revision": "545fc8f4c7b5fa9f405105274cd29c4f8f44b526",
+   "weights_sha256": "61a3f541d65b03a2180d08964bf0d55e349463a2706032814d455ae046bc8b59"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T06",
+   "task": "piqa",
+   "family": "piqa",
+   "language": "EN",
+   "split": "validation"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T06",
+   "model_id": "LiquidAI/LFM3-1.7B-Base",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc_norm,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 1838,
+   "n_selected": 1838,
+   "n_scored": 1838,
+   "state": "ok",
+   "value": 0.6855277475516867,
+   "ci95": {
+    "lower": 0.6643090315560392,
+    "upper": 0.7067464635473341,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "98d8ca1d7ff33dfb7b5893c9ca1c48e9d87736b58196cd6ad941f7520fd660b8",
+   "results_sha256": "2a18169132547242448e85d35fae7d29de99505f24fd23369728c0d92320f897",
+   "runner_sha256": "7597c0de7273004dcd099c7e2fb7083b6232e43c17e1822fc291923210d5c1fa",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.5,
+    "majority_value": 0.5048966267682263,
+    "majority_prediction_share": 0.5212187159956474,
+    "constant_prediction": false
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "fe82b632887857585cc5482741d19b500868698d",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-LiquidAI_LFM3-1.7B-Base-545fc8f4-20261110T021130Z",
+    "results_sha256": "2a18169132547242448e85d35fae7d29de99505f24fd23369728c0d92320f897"
+   }
+  ],
+  "qualification_sha256": "347cb48955a60bebba7d426a3095cf296d7d39cea44e358ce4a343011371aeb0",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "a3e31cef5900a7bf7fed4bb20fbb8faf40da22a006cd3ea96e8477551686f08e"
+ }
+}

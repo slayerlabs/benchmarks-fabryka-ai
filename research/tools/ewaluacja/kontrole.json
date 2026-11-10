@@ -37,8 +37,8 @@
    "metryka": "acc",
    "opublikowana": 0.5622,
    "se_opublikowanej": 0.0069,
-   "fabryka": null,
-   "kod_fabryki": "pipeline (werdykt po przebiegu centralnym)",
+   "fabryka": 0.5657,
+   "kod_fabryki": "pipeline, pełny przebieg 2026-11 (bez BOS)",
    "zrodlo": "Pythia v0 @ a19eecb, results.lambada_openai.acc"
   },
   {
@@ -48,14 +48,14 @@
    "metryka": "acc",
    "opublikowana": 0.5585,
    "se_opublikowanej": 0.0102,
-   "fabryka": null,
-   "kod_fabryki": "pipeline (werdykt po przebiegu centralnym)",
+   "fabryka": 0.5585,
+   "kod_fabryki": "pipeline, pełny przebieg 2026-11 (bez BOS)",
    "zrodlo": "Pythia v0 @ a19eecb, results.arc_easy.acc",
    "pomocnicze": {
     "acc_norm": {
      "opublikowana": 0.5004,
      "se_opublikowanej": 0.0103,
-     "fabryka": null
+     "fabryka": 0.5042
     }
    }
   },
