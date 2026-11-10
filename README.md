@@ -47,5 +47,6 @@ Jak powstaje test: [METODOLOGIA, „Etapy pracy”](research/METODOLOGIA.md#etap
 | <a href="research/slayer-1b/dane/DANE_TRENINGOWE.md"><img src="docs/img/dane-treningowe.svg" alt="Dane treningowe" height="36"></a> | na czym trenowano każdą wersję Slayera 1B (1.00–1.06) i znane przecieki testów do danych |
 | `research/common/`, `research/tools/`, `research/tests/` | kod wspólny, bramka liczb i przebieg centralny, testy bez sieci i bez wag |
 | `research/slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami |
+| <a href="research/data-cleaning/README.md"><img src="docs/img/czyszczenie-danych.svg" alt="Czyszczenie danych" height="36"></a> | jak budować i czyścić zbiory danych: techniki, lista kontroli przed publikacją, rejestr wad |
 
 Pełny układ: [`research/README.md`, „Układ”](research/README.md#układ).
