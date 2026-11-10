@@ -1,0 +1,144 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-EleutherAI_pythia-1b-v0-f3f1b6d5-20261109T215510Z",
+ "models": [
+  {
+   "model_id": "EleutherAI/pythia-1b-v0",
+   "repo": "EleutherAI/pythia-1b-v0",
+   "revision": "f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0",
+   "weights_sha256": "92589a02cfd745884f8473b0a975a93cea4cdaacf8333b0c047dab41623396b2"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T07",
+   "task": "winogrande",
+   "family": "winogrande",
+   "language": "EN",
+   "split": "validation"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T07",
+   "model_id": "EleutherAI/pythia-1b-v0",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 1267,
+   "n_selected": 1267,
+   "n_scored": 1267,
+   "state": "ok",
+   "value": 0.5445935280189423,
+   "ci95": {
+    "lower": 0.5195922728901518,
+    "upper": 0.5697115384615384,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "51090e4bd363c098f6fba50bd8901ee1ffd5bc39a7ca7723d9f077664a6dbe5d",
+   "results_sha256": "88ba2b0cad18074643dde76e6e1fbd75e95fd950ed6218e46507612daae20672",
+   "runner_sha256": "7597c0de7273004dcd099c7e2fb7083b6232e43c17e1822fc291923210d5c1fa",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.5,
+    "majority_value": 0.5043409629044988,
+    "majority_prediction_share": 0.5351223362273086,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.5445935280189423,
+      "n": 1267,
+      "se": 0.012547695078394582,
+      "ci95": [
+       0.5195922728901518,
+       0.5697115384615384
+      ],
+      "se_a": 0.013996485037729767,
+      "k": 983,
+      "df": 982,
+      "metoda_se": "K"
+     },
+     "acc_norm": {
+      "value": 0.5445935280189423,
+      "n": 1267,
+      "se": 0.012547695078394582,
+      "ci95": [
+       0.5195922728901518,
+       0.5697115384615384
+      ],
+      "se_a": 0.013996485037729767,
+      "k": 983,
+      "df": 982,
+      "metoda_se": "K"
+     },
+     "bpb_poprawnej": {
+      "value": 1.2415955355508295,
+      "n": 1267,
+      "se": 0.03067397534280706,
+      "ci95": [
+       1.1833454734606788,
+       1.3047416925508117
+      ],
+      "se_a": 0.025586345828849347,
+      "k": 983,
+      "df": 982,
+      "metoda_se": "K"
+     },
+     "bazy": {
+      "chance_value": 0.5,
+      "majority_value": 0.5043409629044988,
+      "majority_prediction_share": 0.5351223362273086,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.5351223362273086,
+     "wobec_b": {
+      "b": 0.5043409629044988,
+      "baza": "stala odpowiedz",
+      "roznica": 0.04025256511444357,
+      "se": 0.015914828756373022,
+      "z": null,
+      "t": 2.5292490249588524,
+      "df": 982,
+      "werdykt": "prawdopodobne",
+      "metoda": "K"
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "allenai/winogrande",
+    "rewizja": "01e74176c63542e6b0bcb004dcdea22d94fb67b5",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "fe82b632887857585cc5482741d19b500868698d",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-EleutherAI_pythia-1b-v0-f3f1b6d5-20261109T215510Z",
+    "results_sha256": "88ba2b0cad18074643dde76e6e1fbd75e95fd950ed6218e46507612daae20672"
+   }
+  ],
+  "qualification_sha256": "22160388386eeac6aede48e2ea7ec5300aceb22e4b114e40a4fae02e817a77c6",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "45c70c5df2b99efb423224e51a7d38f57ae54b69c359c00ac5b9d965d84c566f"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_5090",
+ "sprzet": "NVIDIA GeForce RTX 5090",
+ "max_length": 2048,
+ "dtype": "float32"
+}

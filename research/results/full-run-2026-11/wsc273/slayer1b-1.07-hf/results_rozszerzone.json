@@ -1,0 +1,144 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-SlayerLab_Slayer1B-1.07-a090b54e-20261109T233111Z",
+ "models": [
+  {
+   "model_id": "SlayerLab/Slayer1B-1.07",
+   "repo": "SlayerLab/Slayer1B-1.07",
+   "revision": "a090b54e658fb57dc5166c1fcc90cc6bf5c80106",
+   "weights_sha256": "d826b4a11bf4eaccee10fe43ec19a4f6d515dfc5f3e5c859adb631f1a0b76ad5"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T14",
+   "task": "wsc273",
+   "family": "wsc273",
+   "language": "EN",
+   "split": "test"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T14",
+   "model_id": "SlayerLab/Slayer1B-1.07",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 273,
+   "n_selected": 273,
+   "n_scored": 273,
+   "state": "ok",
+   "value": 0.6153846153846154,
+   "ci95": {
+    "lower": 0.5745454545454546,
+    "upper": 0.6555555555555556,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "18fff568f90bc8e1f2187325a1ab070e30099b9482e9dccc629ad377a8defd08",
+   "results_sha256": "eef2c13f4954cadffb6a1651d132e85b48dce9e1ea46305900e5f4e04f715f04",
+   "runner_sha256": "7597c0de7273004dcd099c7e2fb7083b6232e43c17e1822fc291923210d5c1fa",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.5,
+    "majority_value": 0.5018315018315018,
+    "majority_prediction_share": 0.5018315018315018,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.6153846153846154,
+      "n": 273,
+      "se": 0.02055064451949619,
+      "ci95": [
+       0.5745454545454546,
+       0.6555555555555556
+      ],
+      "se_a": 0.029498653417206557,
+      "k": 135,
+      "df": 134,
+      "metoda_se": "K"
+     },
+     "acc_norm": {
+      "value": 0.6153846153846154,
+      "n": 273,
+      "se": 0.02055064451949619,
+      "ci95": [
+       0.5745454545454546,
+       0.6555555555555556
+      ],
+      "se_a": 0.029498653417206557,
+      "k": 135,
+      "df": 134,
+      "metoda_se": "K"
+     },
+     "bpb_poprawnej": {
+      "value": 2.4007985298217442,
+      "n": 273,
+      "se": 0.13293775533618737,
+      "ci95": [
+       2.152838209624288,
+       2.6687668893575713
+      ],
+      "se_a": 0.09454693922448673,
+      "k": 135,
+      "df": 134,
+      "metoda_se": "K"
+     },
+     "bazy": {
+      "chance_value": 0.5,
+      "majority_value": 0.5018315018315018,
+      "majority_prediction_share": 0.5018315018315018,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.5018315018315018,
+     "wobec_b": {
+      "b": 0.5018315018315018,
+      "baza": "stala odpowiedz",
+      "roznica": 0.11355311355311355,
+      "se": 0.020904781217484795,
+      "z": null,
+      "t": 5.431920687031038,
+      "df": 134,
+      "werdykt": "pewne",
+      "metoda": "K"
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "ErnestSDavis/winograd_wsc",
+    "rewizja": "8052c534a4cecd8328c0bc879f6a5aa07404c4da",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "fe82b632887857585cc5482741d19b500868698d",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-SlayerLab_Slayer1B-1.07-a090b54e-20261109T233111Z",
+    "results_sha256": "eef2c13f4954cadffb6a1651d132e85b48dce9e1ea46305900e5f4e04f715f04"
+   }
+  ],
+  "qualification_sha256": "22160388386eeac6aede48e2ea7ec5300aceb22e4b114e40a4fae02e817a77c6",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "866915a4925f2cb6b760ca68403c687e55028808dc4915a9984161e6da013efc"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_5090",
+ "sprzet": "NVIDIA GeForce RTX 5090",
+ "max_length": 4096,
+ "dtype": "float32"
+}

@@ -1,0 +1,197 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-LiquidAI_LFM2.5-1.2B-Base-7453bca9-20261109T234826Z",
+ "models": [
+  {
+   "model_id": "LiquidAI/LFM2.5-1.2B-Base",
+   "repo": "LiquidAI/LFM2.5-1.2B-Base",
+   "revision": "7453bca97ca1e67754c4035a4b4c584e1c9dd725",
+   "weights_sha256": "7678ab9546a0c51c1fca161876b1efc4f0906277f170b5822045f40fdaf9eeff"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T45",
+   "task": "medmcqa",
+   "family": "medmcqa",
+   "language": "EN",
+   "split": "validation"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T45",
+   "model_id": "LiquidAI/LFM2.5-1.2B-Base",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 4183,
+   "n_selected": 4183,
+   "n_scored": 4183,
+   "state": "ok",
+   "value": 0.26105665790102794,
+   "ci95": {
+    "lower": 0.24766913698302653,
+    "upper": 0.2744441788190294,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "2526d854e044f18477dd4464917e26b796e6b6ab6102fe8d6a9711385203cf7a",
+   "results_sha256": "e9ff7bfd997bc325c491d9d5546d7aad52a2d7aec97598e4709c9f7f9df5d3a7",
+   "runner_sha256": "7597c0de7273004dcd099c7e2fb7083b6232e43c17e1822fc291923210d5c1fa",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.25,
+    "majority_value": 0.3222567535261774,
+    "majority_prediction_share": 0.43748505857040404,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.26105665790102794,
+      "n": 4183,
+      "se": 0.006791738294034637,
+      "ci95": [
+       0.24766913698302653,
+       0.2744441788190294
+      ]
+     },
+     "acc_norm": {
+      "value": 0.26105665790102794,
+      "n": 4183,
+      "se": 0.006791738294034637,
+      "ci95": [
+       0.24766913698302653,
+       0.2744441788190294
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.2634472866363854,
+      "n": 4183,
+      "se": 0.006811719684474289,
+      "ci95": [
+       0.25029882859191965,
+       0.27683480755438683
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 2.1237618644218585,
+      "n": 4183,
+      "se": 0.016867025789361216,
+      "ci95": [
+       2.09069763047985,
+       2.1563917076999104
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.25,
+      "majority_value": 0.3222567535261774,
+      "majority_prediction_share": 0.43748505857040404,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.43748505857040404,
+     "wobec_b": {
+      "b": 0.3222567535261774,
+      "baza": "stala odpowiedz",
+      "roznica": -0.061200095625149414,
+      "se": 0.010150362294357122,
+      "z": -6.029350859640972,
+      "t": null,
+      "df": null,
+      "werdykt": "pewne",
+      "metoda": "A parowane"
+     }
+    },
+    "cloze": {
+     "acc": {
+      "value": 0.20870188859670094,
+      "n": 4183,
+      "se": 0.006284073267202065,
+      "ci95": [
+       0.19627061917284247,
+       0.22137222089409514
+      ]
+     },
+     "acc_norm": {
+      "value": 0.2522113315802056,
+      "n": 4183,
+      "se": 0.006715521180494361,
+      "ci95": [
+       0.2390628735357399,
+       0.26512072675113557
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.2216112837676309,
+      "n": 4183,
+      "se": 0.006422471509133171,
+      "ci95": [
+       0.20894095147023667,
+       0.2342816160650251
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 3.3716838789764574,
+      "n": 4183,
+      "se": 0.022807863579752743,
+      "ci95": [
+       3.3270282965182596,
+       3.416678554067042
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.25,
+      "majority_value": 0.3222567535261774,
+      "majority_prediction_share": 0.28424575663399476,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.28424575663399476,
+     "wobec_b": {
+      "b": 0.3222567535261774,
+      "baza": "stala odpowiedz",
+      "roznica": -0.11355486492947645,
+      "se": 0.00951290015713057,
+      "z": -11.936934378982134,
+      "t": null,
+      "df": null,
+      "werdykt": "pewne",
+      "metoda": "A parowane"
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "openlifescienceai/medmcqa",
+    "rewizja": "91c6572c454088bf71b679ad90aa8dffcd0d5868",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "fe82b632887857585cc5482741d19b500868698d",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-LiquidAI_LFM2.5-1.2B-Base-7453bca9-20261109T234826Z",
+    "results_sha256": "e9ff7bfd997bc325c491d9d5546d7aad52a2d7aec97598e4709c9f7f9df5d3a7"
+   }
+  ],
+  "qualification_sha256": "22160388386eeac6aede48e2ea7ec5300aceb22e4b114e40a4fae02e817a77c6",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "3c22957f11d6c00fa9d1235b7fc1deb7c87e09ef4ef0e92687c1ff47533a18f2"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_5090",
+ "sprzet": "NVIDIA GeForce RTX 5090",
+ "max_length": 128000,
+ "dtype": "float32"
+}

@@ -1,0 +1,141 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-LiquidAI_LFM3-1.7B-1da06bec-20261110T032547Z",
+ "models": [
+  {
+   "model_id": "LiquidAI/LFM3-1.7B",
+   "repo": "LiquidAI/LFM3-1.7B",
+   "revision": "1da06bec6a819da10b54c67e5c90972b46d81871",
+   "weights_sha256": "135922caef64e81e52af88ede8b7c3ddaa9d6da220a9737fb3065275dbfb4330"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T44",
+   "task": "pubmedqa",
+   "family": "pubmedqa",
+   "language": "EN",
+   "split": "test"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T44",
+   "model_id": "LiquidAI/LFM3-1.7B",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 500,
+   "n_selected": 500,
+   "n_scored": 500,
+   "state": "ok",
+   "value": 0.64,
+   "ci95": {
+    "lower": 0.598,
+    "upper": 0.682,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "eeb568cad42bf5ff7c98e5afd57080b9af0c2933e1284c7f632b9071024d8b63",
+   "results_sha256": "0448a0b5621f47b1b10c92361302463a7d357165a77dd1af0631381046bca728",
+   "runner_sha256": "7597c0de7273004dcd099c7e2fb7083b6232e43c17e1822fc291923210d5c1fa",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.3333333333333333,
+    "majority_value": 0.552,
+    "majority_prediction_share": 0.866,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.64,
+      "n": 500,
+      "se": 0.02148775108972057,
+      "ci95": [
+       0.598,
+       0.682
+      ]
+     },
+     "acc_norm": {
+      "value": 0.526,
+      "n": 500,
+      "se": 0.022352791650914177,
+      "ci95": [
+       0.482,
+       0.57
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.574,
+      "n": 500,
+      "se": 0.022136577335085575,
+      "ci95": [
+       0.53,
+       0.616
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 3.3044784953118054,
+      "n": 500,
+      "se": 0.042940866813570164,
+      "ci95": [
+       3.222420812308896,
+       3.3884607634777852
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.3333333333333333,
+      "majority_value": 0.552,
+      "majority_prediction_share": 0.866,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.866,
+     "wobec_b": {
+      "b": 0.552,
+      "baza": "stala odpowiedz",
+      "roznica": 0.088,
+      "se": 0.015523981060795968,
+      "z": 5.668649018274951,
+      "t": null,
+      "df": null,
+      "werdykt": "pewne",
+      "metoda": "A parowane"
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "bigbio/pubmed_qa",
+    "rewizja": "15578e80ef02c2c9636d33fdd7eb6b05b987ba60",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "fe82b632887857585cc5482741d19b500868698d",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-LiquidAI_LFM3-1.7B-1da06bec-20261110T032547Z",
+    "results_sha256": "0448a0b5621f47b1b10c92361302463a7d357165a77dd1af0631381046bca728"
+   }
+  ],
+  "qualification_sha256": "347cb48955a60bebba7d426a3095cf296d7d39cea44e358ce4a343011371aeb0",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "c09c7e7d48cb75dfd22832e77905c505e0ddfd598368faa4261da4ce9e9d1bdb"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.13",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_5090",
+ "sprzet": "NVIDIA GeForce RTX 5090",
+ "max_length": 262144,
+ "dtype": "float32"
+}

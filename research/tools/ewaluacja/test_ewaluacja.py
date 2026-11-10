@@ -142,4 +142,31 @@ def test_export_manifest_of_control_results(tmp_path):
             (TU_K / f).unlink(missing_ok=True)
 
 
+def test_report_from_exported_control_results(tmp_path):
+    """raport.py na paczce z wyników kontrolnych: kopie bez próbek, specyfikacje wykresów i README z tabelami."""
+    import subprocess
+    import sys
+    import tarfile
+    a = types.SimpleNamespace(wyniki=str(TU_K), modele=[], wyjscie=str(tmp_path / "e.tgz"), bez_probek=True,
+                              python_lock=None, python_new=None)
+    try:
+        assert E.cmd_eksport(a) == 0
+    finally:
+        for f in ("manifest.jsonl", "srodowisko.json"):
+            (TU_K / f).unlink(missing_ok=True)
+    with tarfile.open(tmp_path / "e.tgz") as t:
+        t.extractall(tmp_path / "x", filter="data")
+    paczka = next((tmp_path / "x").iterdir())
+    cel = tmp_path / "raport"
+    r = subprocess.run([sys.executable, str(Path(E.__file__).with_name("raport.py")), str(paczka), str(cel),
+                        "--bez-porownan"], capture_output=True, text=True, env={**__import__("os").environ,
+                                                                                "PYTHONUTF8": "1"})
+    assert r.returncode == 0, r.stderr
+    assert (cel / "piqa" / "pythia-1b-v0" / "results_rozszerzone.json").exists()
+    assert not list(cel.rglob("probki"))
+    assert not (cel / "charts" / "src").exists()
+    md = (cel / "README.md").read_text(encoding="utf-8")
+    assert "### PIQA" in md and "0,7095" in md and "Pythia-1B v0" in md
+
+
 TU_K = Path(__file__).resolve().parent / "wyniki_kontrolne"

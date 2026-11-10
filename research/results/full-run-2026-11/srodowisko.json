@@ -1,0 +1,9 @@
+{
+ "czas": "2026-11-10T04:53:58+0000",
+ "platforma": "Linux-5.15.0-203-generic-x86_64-with-glibc2.39",
+ "gpu": "NVIDIA GeForce RTX 5090, 32607 MiB, 615.71.09\nNVIDIA GeForce RTX 5090, 32607 MiB, 615.71.09\nNVIDIA GeForce RTX 5090, 32607 MiB, 615.71.09\nNVIDIA GeForce RTX 5090, 32607 MiB, 615.71.09",
+ "fabryka_commit": "fe82b632887857585cc5482741d19b500868698d",
+ "fabryka_galaz": "main",
+ "fabryka_zmiany": [],
+ "srodowiska": {}
+}

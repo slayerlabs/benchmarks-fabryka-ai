@@ -1,0 +1,197 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-speakleash_Bielik-1.5B-v3-4b250496-20261110T011810Z",
+ "models": [
+  {
+   "model_id": "speakleash/Bielik-1.5B-v3",
+   "repo": "speakleash/Bielik-1.5B-v3",
+   "revision": "4b25049621bf3952a1fc9314c89773102eda0333",
+   "weights_sha256": "691558032d8d1fd264d27c32c914d11691cc06a7f43170176e5a7030f92aa658"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T45",
+   "task": "medmcqa",
+   "family": "medmcqa",
+   "language": "EN",
+   "split": "validation"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T45",
+   "model_id": "speakleash/Bielik-1.5B-v3",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 4183,
+   "n_selected": 4183,
+   "n_scored": 4183,
+   "state": "ok",
+   "value": 0.3913459239780062,
+   "ci95": {
+    "lower": 0.37652402581879035,
+    "upper": 0.4061678221372221,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "2526d854e044f18477dd4464917e26b796e6b6ab6102fe8d6a9711385203cf7a",
+   "results_sha256": "600f42956397c3822499c7be431c0b6f8f8beacaae6b2a3445d2ac223c352af7",
+   "runner_sha256": "7597c0de7273004dcd099c7e2fb7083b6232e43c17e1822fc291923210d5c1fa",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.25,
+    "majority_value": 0.3222567535261774,
+    "majority_prediction_share": 0.5132679894812335,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.3913459239780062,
+      "n": 4183,
+      "se": 0.007546988019050117,
+      "ci95": [
+       0.37652402581879035,
+       0.4061678221372221
+      ]
+     },
+     "acc_norm": {
+      "value": 0.3913459239780062,
+      "n": 4183,
+      "se": 0.007546988019050117,
+      "ci95": [
+       0.37652402581879035,
+       0.4061678221372221
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.31125986134353334,
+      "n": 4183,
+      "se": 0.007159739849703497,
+      "ci95": [
+       0.2971551518049247,
+       0.3251255080086063
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 2.6758078645749053,
+      "n": 4183,
+      "se": 0.014534547215417493,
+      "ci95": [
+       2.6472295925313456,
+       2.704582517927493
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.25,
+      "majority_value": 0.3222567535261774,
+      "majority_prediction_share": 0.5132679894812335,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.5132679894812335,
+     "wobec_b": {
+      "b": 0.3222567535261774,
+      "baza": "stala odpowiedz",
+      "roznica": 0.06908917045182883,
+      "se": 0.008676856595212295,
+      "z": 7.962465403652144,
+      "t": null,
+      "df": null,
+      "werdykt": "pewne",
+      "metoda": "A parowane"
+     }
+    },
+    "cloze": {
+     "acc": {
+      "value": 0.2318909873296677,
+      "n": 4183,
+      "se": 0.006526214608957929,
+      "ci95": [
+       0.21922065503227348,
+       0.24503944537413339
+      ]
+     },
+     "acc_norm": {
+      "value": 0.2880707626105666,
+      "n": 4183,
+      "se": 0.007002868824230298,
+      "ci95": [
+       0.2744441788190294,
+       0.3019364092756395
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.2990676547932106,
+      "n": 4183,
+      "se": 0.007079959265880551,
+      "ci95": [
+       0.28544107100167343,
+       0.31341142720535503
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 2.087259693208238,
+      "n": 4183,
+      "se": 0.01950989812650186,
+      "ci95": [
+       2.0489919611807372,
+       2.125958928556176
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.25,
+      "majority_value": 0.3222567535261774,
+      "majority_prediction_share": 0.2835285680133875,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.2835285680133875,
+     "wobec_b": {
+      "b": 0.3222567535261774,
+      "baza": "stala odpowiedz",
+      "roznica": -0.09036576619650968,
+      "se": 0.009545235583138538,
+      "z": -9.467106957123084,
+      "t": null,
+      "df": null,
+      "werdykt": "pewne",
+      "metoda": "A parowane"
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "openlifescienceai/medmcqa",
+    "rewizja": "91c6572c454088bf71b679ad90aa8dffcd0d5868",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "fe82b632887857585cc5482741d19b500868698d",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-speakleash_Bielik-1.5B-v3-4b250496-20261110T011810Z",
+    "results_sha256": "600f42956397c3822499c7be431c0b6f8f8beacaae6b2a3445d2ac223c352af7"
+   }
+  ],
+  "qualification_sha256": "22160388386eeac6aede48e2ea7ec5300aceb22e4b114e40a4fae02e817a77c6",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "9f6982f913f9779a4ff56089dcb3e0cb1cdcec595629a3d51dee0b81a5a367ec"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_5090",
+ "sprzet": "NVIDIA GeForce RTX 5090",
+ "max_length": 8192,
+ "dtype": "float32"
+}
