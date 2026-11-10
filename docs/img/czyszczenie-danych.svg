@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="204" height="36" viewBox="0 0 204 36" role="img" aria-label="Czyszczenie danych">
+<title>Czyszczenie danych</title>
+<rect x="0.5" y="0.5" width="203" height="35" rx="8" fill="#0969da" stroke="#ffffff" stroke-opacity="0.25"/>
+<g transform="translate(14 9)"><path d="M1.5 2h15l-5.8 7v6.2l-3.4 1.8V9z" fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></g>
+<text x="40" y="23" fill="#ffffff" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600">Czyszczenie danych</text>
+</svg>
