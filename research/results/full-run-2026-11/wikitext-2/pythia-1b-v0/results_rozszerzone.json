@@ -1,7 +1,7 @@
 {
  "schema_version": 2,
  "protocol_id": "bench50-v0.3.1-fullB",
- "run_id": "niezalezny-EleutherAI_pythia-1b-v0-f3f1b6d5-20261109T230626Z",
+ "run_id": "niezalezny-EleutherAI_pythia-1b-v0-f3f1b6d5-20261110T102858Z",
  "models": [
   {
    "model_id": "EleutherAI/pythia-1b-v0",
@@ -31,17 +31,17 @@
    "n_selected": 62,
    "n_scored": 62,
    "state": "ok",
-   "value": 2.423435045622985,
+   "value": 1.6877009701817696,
    "ci95": {
-    "lower": 2.3109597010374183,
-    "upper": 2.5131652585434057,
+    "lower": 1.6607451442611925,
+    "upper": 1.715210108807695,
     "level": 0.95,
     "method": "paired_bootstrap",
     "replicates": 10000,
     "seed": 20261028
    },
    "source_id_digest": "46858cfa7cbb51fd96956dca1fcdfe11fa20ba30c0432cc023cafcf7a78ed872",
-   "results_sha256": "9d7ebc84ffc383d571e751b218a59b25de7eafa27afe527178c6a6c82f47dc39",
+   "results_sha256": "1dfecff90969fa71a24e2a7dde2aef7ffde78034bd4fc77d2a7b2a105ad5d89a",
    "runner_sha256": "7597c0de7273004dcd099c7e2fb7083b6232e43c17e1822fc291923210d5c1fa",
    "contamination": "unscanned",
    "contamination_receipt_sha256": null,
@@ -49,39 +49,39 @@
    "dodatkowe": {
     "space": {
      "word_perplexity": {
-      "value": 113.69146167528174,
+      "value": 16.42296120616581,
       "n": 62,
-      "se": 13.222107085058017,
+      "se": 0.7775122138832162,
       "ci95": [
-       87.41301729863585,
-       139.73115978525925
+       14.925424342340383,
+       17.970108743846023
       ]
      },
      "byte_perplexity": {
-      "value": 2.423435045622985,
+      "value": 1.6877009701817696,
       "n": 62,
-      "se": 0.05140812727799117,
+      "se": 0.013899183224847138,
       "ci95": [
-       2.3109597010374183,
-       2.5131652585434057
+       1.6607451442611925,
+       1.715210108807695
       ]
      },
      "bits_per_byte": {
-      "value": 1.2770534150343646,
+      "value": 0.7550593074500334,
       "n": 62,
-      "se": 0.030769930252119382,
+      "se": 0.01188178301176685,
       "ci95": [
-       1.2084921017518522,
-       1.3295055418240183
+       0.7318306962234272,
+       0.778385313637421
       ]
      },
      "token_perplexity": {
-      "value": 61.62512736706032,
+      "value": 11.433952540480831,
       "n": 62,
-      "se": 5.884776342991673,
+      "se": 0.500929394263876,
       "ci95": [
-       49.59934824319262,
-       72.70839572558033
+       10.505248368206582,
+       12.455321749049824
       ]
      }
     }
@@ -99,11 +99,11 @@
   "kind": "measurement",
   "sources": [
    {
-    "run_id": "niezalezny-EleutherAI_pythia-1b-v0-f3f1b6d5-20261109T230626Z",
-    "results_sha256": "9d7ebc84ffc383d571e751b218a59b25de7eafa27afe527178c6a6c82f47dc39"
+    "run_id": "niezalezny-EleutherAI_pythia-1b-v0-f3f1b6d5-20261110T102858Z",
+    "results_sha256": "1dfecff90969fa71a24e2a7dde2aef7ffde78034bd4fc77d2a7b2a105ad5d89a"
    }
   ],
-  "qualification_sha256": "22160388386eeac6aede48e2ea7ec5300aceb22e4b114e40a4fae02e817a77c6",
+  "qualification_sha256": "9c26852b439412e065bf9a1a43c986d8efb19f02e18bfcbcf6f8cbaacab736e4",
   "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
   "references_sha256": "eca1f90714008611a9d1606b9ebe23cb737f60ff7d3eb2c274ea6e2aeae0d1f8"
  },
@@ -113,6 +113,6 @@
  "probka": "pelna",
  "eval_gpu": "NVIDIA_GeForce_RTX_5090",
  "sprzet": "NVIDIA GeForce RTX 5090",
- "max_length": 4096,
+ "max_length": 2048,
  "dtype": "float32"
 }

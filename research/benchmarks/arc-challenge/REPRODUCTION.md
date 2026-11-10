@@ -18,7 +18,8 @@ Procedurę opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworze
 | różnica | nie dotyczy |
 | kontrola odróżnia działający kod od zepsutego | bez modelu kontrolnego nie ma kontroli. Informacyjnie niżej: cztery modele przebiegu leżą wysoko nad b, Slayer nie. |
 | warunek odtworzenia | ±2 pkt w skali metryki; gdy 2 SE > 2 pkt, w granicach 2 SE |
-| werdykt | bez kontroli: nierozstrzygnięte. Wynik T02 z przebiegu centralnego nie idzie do tabeli CodeSOTA ani do meta-oceny, dopóki model kontrolny (Pythia-2.8b-v0 0-shot albo EuroLLM-1.7B 25-shot) nie zostanie policzony tym kodem. |
+| policzona kontrola EuroLLM-1.7B 25-shot | `acc_norm` 0,4087, SE 0,0144, n = 1172; odniesienie 0,4061 (karta EuroLLM), różnica +0,0026, warunek ±2 SE (0,0286) spełniony liczbowo. Ustawienia referencji nie odtworzono: `common/zadania.py` dla T02 nie ustawia `fewshot_split`, więc demonstracje pochodzą z testu (log runnera: `num_fewshot > 0 but fewshot_split is None`), a źródła demonstracji w Open LLM Leaderboard v1 nie ustalono. Wynik: `results/full-run-2026-11/bos-window-check/`. <!-- liczba-spoza-wynikow: bos-window-check/LICZBY.json, kontrola_arc; odniesienie z ORIGINAL.md --> |
+| werdykt | bez kontroli: nierozstrzygnięte. Kontrola EuroLLM-1.7B 25-shot jest nierozstrzygnięta (wiersz wyżej), więc wynik T02 nie idzie do tabeli CodeSOTA ani do meta-oceny, dopóki model kontrolny (Pythia-2.8b-v0 0-shot albo EuroLLM-1.7B 25-shot na demonstracjach z właściwego splitu) nie zostanie policzony tym kodem. |
 
 ## Modele przebiegu wobec bazy (informacyjnie, to nie jest kontrola)
 

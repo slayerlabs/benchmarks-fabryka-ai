@@ -1,72 +1,164 @@
-# Pełny przebieg 2026-11-09: Slayer 1B 1.00–1.08 i modele odniesienia
+# Pełny przebieg 2026-11-09: Slayer 1B 1.07 i modele odniesienia
 
 <!-- Plik wygenerowany przez tools/ewaluacja/raport.py. Nie edytuj ręcznie: zmień generator albo dane. -->
 
-17 modeli × 15 testów z listy `GOTOWE` (`tools/przebieg_centralny.sh`), pełne splity, runner `tools/ewaluacja/ewaluacja.py licz --zadania gotowe` na fabryce @ `fe82b632`. Karta: NVIDIA GeForce RTX 5090, 32607 MiB, 615.71.09 (4 karty, jedna kolejka modeli na kartę). Protokół jak w przebiegu centralnym: float32, batch 1, jeden BOS, limit 4096 tokenów dla WikiText. Wyjątek: Bielik-11B w bfloat16, bo w float32 nie mieści się na karcie; EWoK liczy tylko float32, więc Bielik-11B go nie ma.
+17 modeli, 15 testów, pełne zbiory. Karta NVIDIA GeForce RTX 5090, float32, batch 1. Wyjątek: Bielik-11B w bfloat16, bez EWoK.
 
-## Spis
+<a href="../../STATUS.md"><img src="../../../docs/img/stan-benchmarkow.svg" alt="Stan benchmarków" height="36"></a> <a href="../../METODOLOGIA.md"><img src="../../../docs/img/metodologia.svg" alt="Metodologia" height="36"></a> <a href="https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks"><img src="../../../docs/img/wyniki-na-hf.svg" alt="Wyniki na HF" height="36"></a>
 
-- [Weryfikacja](#weryfikacja)
-- [Wszystkie wyniki](#wszystkie-wyniki)
-- [Slayer 1B: wersje 1.00–1.08](#slayer-1b-wersje-100108)
-- [Leaderboard per test](#leaderboard-per-test)
-- [Do sprawdzenia i niepoliczone](#do-sprawdzenia-i-niepoliczone)
-- [Pliki i odtworzenie](#pliki-i-odtworzenie)
+> [!WARNING]
+> **BOS nie jest liczony jednakowo.** Slayer ma jeden wiodący BOS, a modele odniesienia były liczone bez BOS. Wpływ zmierzono wyłącznie na Pythii-1B v0: [najwyżej 0,0105 na testach z pomiaru BOS](#bos-okno-wikitext-i-kontrola-arc-challenge). Pozostałe zastrzeżenia: [Zastrzeżenia](#zastrzeżenia).
 
-## Weryfikacja
+<p align="center"><img src="charts/przemiana-wersji.svg" alt="Animacja: Slayer 1B od wersji 1.00 do 1.07 na tle modeli odniesienia" width="100%"></p>
 
-- Każdy plik wyników ma sumę sha256 w `manifest.jsonl` (pole `pliki`); paczka z próbkami przeszła ją w całości przed rozpakowaniem tutaj.
-- Każda wartość została przeliczona od nowa z zapisanych logprobów per pytanie (te same reguły co `common/metryki.py` i `benchmarks/ewok/ewok.py`): wszystkie pary zgodne co do bitu.
-- Wspólne pary z `results/central-run` (przebieg centralny fabryki): 28 z 32 identycznych do 4 miejsc po przecinku. Różne tylko: LFM2.5-1.2B-Base (sekcja [Do sprawdzenia](#do-sprawdzenia-i-niepoliczone)).
-- Kontrole etapu B z `tools/ewaluacja/kontrole.json` (Pythia-1B v0: PIQA, WinoGrande, LAMBADA, ARC-Easy, BLiMP) dały tu te same wartości co lokalny przebieg kontrolny w `tools/ewaluacja/wyniki_kontrolne/`.
+**Slayer 1.07**: ostatnia przyjęta wersja, bez wygaszania LR. **1.08**: [karta modelu](https://huggingface.co/SlayerLab/Slayer1B-1.08/blob/5f854a0cc7160594d54d1788d37a44e8ebabe16c/README.md), checkpoint eksperymentalny: bramka przyjęcia niezaliczona (ARC-Easy), nie jest następcą 1.07.
 
-## Wszystkie wyniki
+## Tabela CodeSOTA
 
-Ułamek poprawnych odpowiedzi (WikiText: byte perplexity, niżej = lepiej). MultiBLiMP-PL zapisuje wynik w procentach; tu jest ułamkiem. Kursywa: wynik do sprawdzenia, poza leaderboardami.
+| Test | n | Slayer 1.07 | Pythia-1B | Qwen 0.8B | Baza b | Miejsce | 1.00 → 1.08 |
+|---|---:|---:|---:|---:|---:|:---:|---|
+| [ARC-Easy](#arc-easy) | 2 376 | **0,5981&nbsp;±&nbsp;0,0101** | 0,5585&nbsp;±&nbsp;0,0102 | 0,7054&nbsp;±&nbsp;0,0094 | 0,2664 (stała odpowiedź) | 5/7 | ▲&nbsp;pewna |
+| [BLiMP](#blimp) | 67 000 | **0,7982&nbsp;±&nbsp;0,0212** | 0,8244&nbsp;±&nbsp;0,0208 | 0,7986&nbsp;±&nbsp;0,0223 | 0,5000 (losowa) | 6/7 | ▲&nbsp;pewna |
+| [EWoK](#ewok) | 4 374 | **0,6089&nbsp;±&nbsp;0,0074** | 0,6471&nbsp;±&nbsp;0,0080 | 0,6757&nbsp;±&nbsp;0,0083 | 0,5000 (losowa) | 6/6 | ▲&nbsp;pewna |
+| [HellaSwag](#hellaswag) | 10 042 | **0,4337&nbsp;±&nbsp;0,0049** | 0,4679&nbsp;±&nbsp;0,0050 | 0,5482&nbsp;±&nbsp;0,0050 | 0,2573 (stała odpowiedź) | 7/7 | ▲&nbsp;pewna |
+| [LAMBADA](#lambada) | 5 153 | **0,4122&nbsp;±&nbsp;0,0069** | 0,5657&nbsp;±&nbsp;0,0069 | 0,5119&nbsp;±&nbsp;0,0070 | 0,0031 (stała odpowiedź) | 7/7 | ▲&nbsp;pewna |
+| [PIQA](#piqa) | 1 838 | **0,6697&nbsp;±&nbsp;0,0110** | 0,7095&nbsp;±&nbsp;0,0106 | 0,7133&nbsp;±&nbsp;0,0106 | 0,5049 (stała odpowiedź) | 7/7 | ▲&nbsp;pewna |
+| [WikiText-2](#wikitext-2) | 62 | **1,782&nbsp;±&nbsp;0,0147** | 1,688&nbsp;±&nbsp;0,0139 | 1,717&nbsp;±&nbsp;0,0130 | nie dotyczy | 7/7 | ▲&nbsp;pewna |
+| [WinoGrande](#winogrande) | 1 267 | **0,5359&nbsp;±&nbsp;0,0129** | 0,5446&nbsp;±&nbsp;0,0125 | 0,6006&nbsp;±&nbsp;0,0129 | 0,5043 (stała odpowiedź) | 7/7 | ≈&nbsp;szum |
+| [WSC273](#wsc273) | 273 | **0,6154&nbsp;±&nbsp;0,0206** | 0,6740&nbsp;±&nbsp;0,0211 | 0,7143&nbsp;±&nbsp;0,0233 | 0,5018 (stała odpowiedź) | 7/7 | △&nbsp;prawdopodobna |
 
-![Macierz modele × testy](charts/macierz.png)
+<details>
+<summary><b>Wiersze tabeli</b> (62)</summary>
 
-| test | Slayer 1B 1.00 | Slayer 1B 1.01 | Slayer 1B 1.02 | Slayer 1B 1.03 | Slayer 1B 1.04 | Slayer 1B 1.05 | Slayer 1B 1.06 | Slayer 1B 1.07 | Slayer 1B 1.08 | Bielik-1.5B-v3 | Bielik-11B-v3.0-Instruct | EuroLLM-1.7B | LFM2.5-1.2B-Base | LFM3-1.7B (Instruct) | LFM3-1.7B-Base | Pythia-1B v0 | Qwen3.5-0.8B-Base |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| ARC-Challenge | 0,2176 | 0,2415 | 0,2466 | 0,2560 | 0,2551 | 0,2602 | 0,2577 | 0,2730 | 0,3003 | 0,3609 | 0,5811 | 0,3746 | *0,2517* | *0,2628* | 0,4292 | 0,2747 | 0,4044 |
-| ARC-Easy | 0,4242 | 0,4735 | 0,4836 | 0,4945 | 0,5147 | 0,5316 | 0,5261 | 0,5981 | 0,5838 | 0,5459 | 0,8186 | 0,6852 | *0,4289* | *0,4032* | 0,7172 | 0,5585 | 0,7054 |
-| BLiMP | 0,7382 | 0,7616 | 0,7665 | 0,7743 | 0,7707 | 0,7915 | 0,7921 | 0,7982 | 0,8047 | 0,8191 | 0,8318 | 0,8036 | *0,7860* | *0,7730* | 0,7930 | 0,8244 | 0,7986 |
-| EWoK | 0,5296 | 0,5541 | 0,5620 | 0,5658 | 0,5738 | 0,5841 | 0,5897 | 0,6089 | 0,5990 | 0,6946 | – | 0,6621 | *0,6129* | *0,6159* | 0,6596 | 0,6471 | 0,6757 |
-| HellaSwag | 0,2846 | 0,3077 | 0,3398 | 0,3507 | 0,3674 | 0,3823 | 0,3931 | 0,4337 | 0,4341 | 0,6372 | 0,7940 | 0,5927 | *0,3623* | *0,5370* | 0,5891 | 0,4679 | 0,5482 |
-| LAMBADA (OpenAI) | 0,2073 | 0,2779 | 0,3190 | 0,3307 | 0,3532 | 0,3627 | 0,3644 | 0,4122 | 0,4013 | 0,6107 | 0,7140 | 0,5302 | *0,1302* | *0,4056* | 0,5069 | 0,5657 | 0,5119 |
-| MathQA | 0,2104 | 0,2157 | 0,2171 | 0,2154 | 0,2087 | 0,2161 | 0,2188 | 0,2345 | 0,2281 | 0,3240 | 0,4848 | 0,2422 | *0,2429* | *0,2432* | 0,3906 | 0,2352 | 0,3337 |
-| MedMCQA | 0,3180 | 0,3132 | 0,3175 | 0,3206 | 0,3108 | 0,3153 | 0,3160 | 0,2991 | 0,3122 | 0,3913 | 0,5357 | 0,2582 | *0,2611* | *0,2972* | 0,3782 | 0,2811 | 0,4026 |
-| MultiBLiMP-PL | 0,9798 | 0,9850 | 0,9869 | 0,9856 | 0,9924 | 0,9875 | 0,9859 | 0,9887 | 0,9875 | 0,9447 | 0,9957 | 0,9386 | *0,8295* | *0,8035* | 0,8915 | 0,8013 | 0,8450 |
-| PIQA | 0,5762 | 0,5876 | 0,6055 | 0,6219 | 0,6257 | 0,6382 | 0,6415 | 0,6697 | 0,6621 | 0,7187 | 0,7889 | 0,7345 | *0,5816* | *0,5936* | 0,6855 | 0,7095 | 0,7133 |
-| PubMedQA | 0,4980 | 0,5440 | 0,5380 | 0,5240 | 0,5280 | 0,5000 | 0,4760 | 0,5360 | 0,4340 | 0,6240 | 0,7300 | 0,5300 | *0,5680* | *0,6400* | 0,5940 | 0,5660 | 0,6760 |
-| Social IQa | 0,3577 | 0,3582 | 0,3690 | 0,3741 | 0,3797 | 0,3905 | 0,3895 | 0,3910 | 0,3966 | 0,4360 | 0,5113 | 0,4150 | *0,3398* | *0,4371* | 0,4545 | 0,4023 | 0,4186 |
-| WikiText-2 | 2,071 | 1,959 | 1,917 | 1,899 | 1,870 | 1,851 | 1,846 | 1,782 | 1,780 | 1,674 | 1,566 | 1,608 | *1,735* | *1,724* | 1,616 | 2,423 | 1,717 |
-| WinoGrande | 0,5051 | 0,5201 | 0,5107 | 0,5351 | 0,5114 | 0,5225 | 0,5217 | 0,5359 | 0,5367 | 0,6235 | 0,7301 | 0,5904 | *0,5107* | *0,5541* | 0,5856 | 0,5446 | 0,6006 |
-| WSC273 | 0,5385 | 0,5531 | 0,5714 | 0,5604 | 0,5604 | 0,5861 | 0,5897 | 0,6154 | 0,6154 | 0,7656 | 0,8242 | 0,7106 | *0,5018* | *0,6447* | 0,7143 | 0,6740 | 0,7143 |
+| Test | Model | Etykieta | Parametry | Klasa | Wartość | SE | CI95 | b | lm_eval | Kontaminacja | Wyniki |
+|---|---|---|---:|---|---:|---:|---|---:|---|---|---|
+| ARC-Easy | Bielik-11B-v3.0-Instruct | model instruct, surowy tekst | 11,17B | poza klasą | 0,8186 | 0,0079 | 0,8030 – 0,8338 | 0,2664 | 0.4.9.1 | nieznana | [plik](arc-easy/bielik-11b-v3-instruct/results_rozszerzone.json) |
+| ARC-Easy | LFM3-1.7B-Base | – | 1,73B | poza klasą | 0,7172 | 0,0092 | 0,6991 – 0,7353 | 0,2664 | 0.4.13 | nieznana | [plik](arc-easy/lfm3-1.7b-base/results_rozszerzone.json) |
+| ARC-Easy | Qwen3.5-0.8B-Base | – | 0,87B | ok. 1B | 0,7054 | 0,0094 | 0,6869 – 0,7235 | 0,2664 | 0.4.13 | nieznana | [plik](arc-easy/qwen3.5-0.8b-base/results_rozszerzone.json) |
+| ARC-Easy | EuroLLM-1.7B | – | 1,66B | poza klasą | 0,6852 | 0,0095 | 0,6667 – 0,7037 | 0,2664 | 0.4.9.1 | nieznana | [plik](arc-easy/eurollm-1.7b/results_rozszerzone.json) |
+| ARC-Easy | Slayer 1B 1.07 | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | ok. 1B | 0,5981 | 0,0101 | 0,5787 – 0,6174 | 0,2664 | 0.4.9.1 | nieznana | [plik](arc-easy/slayer1b-1.07-hf/results_rozszerzone.json) |
+| ARC-Easy | Pythia-1B v0 | – | 1,08B | ok. 1B | 0,5585 | 0,0102 | 0,5383 – 0,5787 | 0,2664 | 0.4.9.1 | nieznana | [plik](arc-easy/pythia-1b-v0/results_rozszerzone.json) |
+| ARC-Easy | Bielik-1.5B-v3 | – | 1,60B | poza klasą | 0,5459 | 0,0102 | 0,5261 – 0,5661 | 0,2664 | 0.4.9.1 | nieznana | [plik](arc-easy/bielik-1.5b-v3/results_rozszerzone.json) |
+| BLiMP | Bielik-11B-v3.0-Instruct | model instruct, surowy tekst | 11,17B | poza klasą | 0,8318 | 0,0178 | 0,7966 – 0,8658 | 0,5000 | 0.4.9.1 | nieznana | [plik](blimp/bielik-11b-v3-instruct/results_rozszerzone.json) |
+| BLiMP | Pythia-1B v0 | – | 1,08B | ok. 1B | 0,8244 | 0,0208 | 0,7827 – 0,8627 | 0,5000 | 0.4.9.1 | nieznana | [plik](blimp/pythia-1b-v0/results_rozszerzone.json) |
+| BLiMP | Bielik-1.5B-v3 | – | 1,60B | poza klasą | 0,8191 | 0,0201 | 0,7797 – 0,8563 | 0,5000 | 0.4.9.1 | nieznana | [plik](blimp/bielik-1.5b-v3/results_rozszerzone.json) |
+| BLiMP | EuroLLM-1.7B | – | 1,66B | poza klasą | 0,8036 | 0,0182 | 0,7679 – 0,8383 | 0,5000 | 0.4.9.1 | nieznana | [plik](blimp/eurollm-1.7b/results_rozszerzone.json) |
+| BLiMP | Qwen3.5-0.8B-Base | – | 0,87B | ok. 1B | 0,7986 | 0,0223 | 0,7541 – 0,8408 | 0,5000 | 0.4.13 | nieznana | [plik](blimp/qwen3.5-0.8b-base/results_rozszerzone.json) |
+| BLiMP | Slayer 1B 1.07 | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | ok. 1B | 0,7982 | 0,0212 | 0,7554 – 0,8384 | 0,5000 | 0.4.9.1 | nieznana | [plik](blimp/slayer1b-1.07-hf/results_rozszerzone.json) |
+| BLiMP | LFM3-1.7B-Base | – | 1,73B | poza klasą | 0,7930 | 0,0230 | 0,7478 – 0,8361 | 0,5000 | 0.4.13 | nieznana | [plik](blimp/lfm3-1.7b-base/results_rozszerzone.json) |
+| EWoK | Bielik-1.5B-v3 | – | 1,60B | poza klasą | 0,6946 | 0,0080 | 0,6787 – 0,7101 | 0,5000 | nie dotyczy (własny kod testu) | nieznana | [plik](ewok/bielik-1.5b-v3/results_rozszerzone.json) |
+| EWoK | Qwen3.5-0.8B-Base | – | 0,87B | ok. 1B | 0,6757 | 0,0083 | 0,6596 – 0,6921 | 0,5000 | nie dotyczy (własny kod testu) | nieznana | [plik](ewok/qwen3.5-0.8b-base/results_rozszerzone.json) |
+| EWoK | EuroLLM-1.7B | – | 1,66B | poza klasą | 0,6621 | 0,0080 | 0,6463 – 0,6778 | 0,5000 | nie dotyczy (własny kod testu) | nieznana | [plik](ewok/eurollm-1.7b/results_rozszerzone.json) |
+| EWoK | LFM3-1.7B-Base | – | 1,73B | poza klasą | 0,6596 | 0,0077 | 0,6449 – 0,6747 | 0,5000 | nie dotyczy (własny kod testu) | nieznana | [plik](ewok/lfm3-1.7b-base/results_rozszerzone.json) |
+| EWoK | Pythia-1B v0 | – | 1,08B | ok. 1B | 0,6471 | 0,0080 | 0,6314 – 0,6630 | 0,5000 | nie dotyczy (własny kod testu) | nieznana | [plik](ewok/pythia-1b-v0/results_rozszerzone.json) |
+| EWoK | Slayer 1B 1.07 | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | ok. 1B | 0,6089 | 0,0074 | 0,5944 – 0,6235 | 0,5000 | nie dotyczy (własny kod testu) | nieznana | [plik](ewok/slayer1b-1.07-hf/results_rozszerzone.json) |
+| HellaSwag | Bielik-11B-v3.0-Instruct | model instruct, surowy tekst | 11,17B | poza klasą | 0,7940 | 0,0040 | 0,7860 – 0,8018 | 0,2573 | 0.4.9.1 | nieznana | [plik](hellaswag/bielik-11b-v3-instruct/results_rozszerzone.json) |
+| HellaSwag | Bielik-1.5B-v3 | – | 1,60B | poza klasą | 0,6372 | 0,0048 | 0,6280 – 0,6467 | 0,2573 | 0.4.9.1 | nieznana | [plik](hellaswag/bielik-1.5b-v3/results_rozszerzone.json) |
+| HellaSwag | EuroLLM-1.7B | – | 1,66B | poza klasą | 0,5927 | 0,0049 | 0,5833 – 0,6023 | 0,2573 | 0.4.9.1 | nieznana | [plik](hellaswag/eurollm-1.7b/results_rozszerzone.json) |
+| HellaSwag | LFM3-1.7B-Base | – | 1,73B | poza klasą | 0,5891 | 0,0049 | 0,5797 – 0,5989 | 0,2573 | 0.4.13 | nieznana | [plik](hellaswag/lfm3-1.7b-base/results_rozszerzone.json) |
+| HellaSwag | Qwen3.5-0.8B-Base | – | 0,87B | ok. 1B | 0,5482 | 0,0050 | 0,5386 – 0,5581 | 0,2573 | 0.4.13 | nieznana | [plik](hellaswag/qwen3.5-0.8b-base/results_rozszerzone.json) |
+| HellaSwag | Pythia-1B v0 | – | 1,08B | ok. 1B | 0,4679 | 0,0050 | 0,4582 – 0,4777 | 0,2573 | 0.4.9.1 | nieznana | [plik](hellaswag/pythia-1b-v0/results_rozszerzone.json) |
+| HellaSwag | Slayer 1B 1.07 | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | ok. 1B | 0,4337 | 0,0049 | 0,4240 – 0,4433 | 0,2573 | 0.4.9.1 | nieznana | [plik](hellaswag/slayer1b-1.07-hf/results_rozszerzone.json) |
+| LAMBADA | Bielik-11B-v3.0-Instruct | model instruct, surowy tekst | 11,17B | poza klasą | 0,7140 | 0,0063 | 0,7015 – 0,7264 | 0,0031 | 0.4.9.1 | nieznana | [plik](lambada/bielik-11b-v3-instruct/results_rozszerzone.json) |
+| LAMBADA | Bielik-1.5B-v3 | – | 1,60B | poza klasą | 0,6107 | 0,0068 | 0,5975 – 0,6241 | 0,0031 | 0.4.9.1 | nieznana | [plik](lambada/bielik-1.5b-v3/results_rozszerzone.json) |
+| LAMBADA | Pythia-1B v0 | – | 1,08B | ok. 1B | 0,5657 | 0,0069 | 0,5519 – 0,5791 | 0,0031 | 0.4.9.1 | nieznana | [plik](lambada/pythia-1b-v0/results_rozszerzone.json) |
+| LAMBADA | EuroLLM-1.7B | – | 1,66B | poza klasą | 0,5302 | 0,0070 | 0,5164 – 0,5436 | 0,0031 | 0.4.9.1 | nieznana | [plik](lambada/eurollm-1.7b/results_rozszerzone.json) |
+| LAMBADA | Qwen3.5-0.8B-Base | – | 0,87B | ok. 1B | 0,5119 | 0,0070 | 0,4984 – 0,5255 | 0,0031 | 0.4.13 | nieznana | [plik](lambada/qwen3.5-0.8b-base/results_rozszerzone.json) |
+| LAMBADA | LFM3-1.7B-Base | – | 1,73B | poza klasą | 0,5069 | 0,0070 | 0,4933 – 0,5207 | 0,0031 | 0.4.13 | nieznana | [plik](lambada/lfm3-1.7b-base/results_rozszerzone.json) |
+| LAMBADA | Slayer 1B 1.07 | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | ok. 1B | 0,4122 | 0,0069 | 0,3984 – 0,4254 | 0,0031 | 0.4.9.1 | nieznana | [plik](lambada/slayer1b-1.07-hf/results_rozszerzone.json) |
+| PIQA | Bielik-11B-v3.0-Instruct | model instruct, surowy tekst | 11,17B | poza klasą | 0,7889 | 0,0095 | 0,7704 – 0,8074 | 0,5049 | 0.4.9.1 | nieznana | [plik](piqa/bielik-11b-v3-instruct/results_rozszerzone.json) |
+| PIQA | EuroLLM-1.7B | – | 1,66B | poza klasą | 0,7345 | 0,0103 | 0,7138 – 0,7541 | 0,5049 | 0.4.9.1 | nieznana | [plik](piqa/eurollm-1.7b/results_rozszerzone.json) |
+| PIQA | Bielik-1.5B-v3 | – | 1,60B | poza klasą | 0,7187 | 0,0105 | 0,6980 – 0,7394 | 0,5049 | 0.4.9.1 | nieznana | [plik](piqa/bielik-1.5b-v3/results_rozszerzone.json) |
+| PIQA | Qwen3.5-0.8B-Base | – | 0,87B | ok. 1B | 0,7133 | 0,0106 | 0,6926 – 0,7339 | 0,5049 | 0.4.13 | nieznana | [plik](piqa/qwen3.5-0.8b-base/results_rozszerzone.json) |
+| PIQA | Pythia-1B v0 | – | 1,08B | ok. 1B | 0,7095 | 0,0106 | 0,6882 – 0,7301 | 0,5049 | 0.4.9.1 | nieznana | [plik](piqa/pythia-1b-v0/results_rozszerzone.json) |
+| PIQA | LFM3-1.7B-Base | – | 1,73B | poza klasą | 0,6855 | 0,0108 | 0,6643 – 0,7067 | 0,5049 | 0.4.13 | nieznana | [plik](piqa/lfm3-1.7b-base/results_rozszerzone.json) |
+| PIQA | Slayer 1B 1.07 | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | ok. 1B | 0,6697 | 0,0110 | 0,6485 – 0,6910 | 0,5049 | 0.4.9.1 | nieznana | [plik](piqa/slayer1b-1.07-hf/results_rozszerzone.json) |
+| WikiText-2 | Bielik-11B-v3.0-Instruct | model instruct, surowy tekst | 11,17B | poza klasą | 1,566 | 0,0110 | 1,545 – 1,588 | nie dotyczy | 0.4.9.1 | nieznana | [plik](wikitext-2/bielik-11b-v3-instruct/results_rozszerzone.json) |
+| WikiText-2 | EuroLLM-1.7B | – | 1,66B | poza klasą | 1,608 | 0,0137 | 1,582 – 1,635 | nie dotyczy | 0.4.9.1 | nieznana | [plik](wikitext-2/eurollm-1.7b/results_rozszerzone.json) |
+| WikiText-2 | LFM3-1.7B-Base | – | 1,73B | poza klasą | 1,616 | 0,0142 | 1,588 – 1,644 | nie dotyczy | 0.4.13 | nieznana | [plik](wikitext-2/lfm3-1.7b-base/results_rozszerzone.json) |
+| WikiText-2 | Bielik-1.5B-v3 | – | 1,60B | poza klasą | 1,674 | 0,0109 | 1,653 – 1,695 | nie dotyczy | 0.4.9.1 | nieznana | [plik](wikitext-2/bielik-1.5b-v3/results_rozszerzone.json) |
+| WikiText-2 | Pythia-1B v0 | – | 1,08B | ok. 1B | 1,688 | 0,0139 | 1,661 – 1,715 | nie dotyczy | 0.4.9.1 | nieznana | [plik](wikitext-2/pythia-1b-v0/results_rozszerzone.json) |
+| WikiText-2 | Qwen3.5-0.8B-Base | – | 0,87B | ok. 1B | 1,717 | 0,0130 | 1,692 – 1,743 | nie dotyczy | 0.4.13 | nieznana | [plik](wikitext-2/qwen3.5-0.8b-base/results_rozszerzone.json) |
+| WikiText-2 | Slayer 1B 1.07 | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | ok. 1B | 1,782 | 0,0147 | 1,754 – 1,811 | nie dotyczy | 0.4.9.1 | nieznana | [plik](wikitext-2/slayer1b-1.07-hf/results_rozszerzone.json) |
+| WinoGrande | Bielik-11B-v3.0-Instruct | model instruct, surowy tekst | 11,17B | poza klasą | 0,7301 | 0,0124 | 0,7063 – 0,7546 | 0,5043 | 0.4.9.1 | nieznana | [plik](winogrande/bielik-11b-v3-instruct/results_rozszerzone.json) |
+| WinoGrande | Bielik-1.5B-v3 | – | 1,60B | poza klasą | 0,6235 | 0,0129 | 0,5987 – 0,6491 | 0,5043 | 0.4.9.1 | nieznana | [plik](winogrande/bielik-1.5b-v3/results_rozszerzone.json) |
+| WinoGrande | Qwen3.5-0.8B-Base | – | 0,87B | ok. 1B | 0,6006 | 0,0129 | 0,5751 – 0,6255 | 0,5043 | 0.4.13 | nieznana | [plik](winogrande/qwen3.5-0.8b-base/results_rozszerzone.json) |
+| WinoGrande | EuroLLM-1.7B | – | 1,66B | poza klasą | 0,5904 | 0,0127 | 0,5658 – 0,6154 | 0,5043 | 0.4.9.1 | nieznana | [plik](winogrande/eurollm-1.7b/results_rozszerzone.json) |
+| WinoGrande | LFM3-1.7B-Base | – | 1,73B | poza klasą | 0,5856 | 0,0132 | 0,5595 – 0,6116 | 0,5043 | 0.4.13 | nieznana | [plik](winogrande/lfm3-1.7b-base/results_rozszerzone.json) |
+| WinoGrande | Pythia-1B v0 | – | 1,08B | ok. 1B | 0,5446 | 0,0125 | 0,5196 – 0,5697 | 0,5043 | 0.4.9.1 | nieznana | [plik](winogrande/pythia-1b-v0/results_rozszerzone.json) |
+| WinoGrande | Slayer 1B 1.07 | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | ok. 1B | 0,5359 | 0,0129 | 0,5107 – 0,5614 | 0,5043 | 0.4.9.1 | nieznana | [plik](winogrande/slayer1b-1.07-hf/results_rozszerzone.json) |
+| WSC273 | Bielik-11B-v3.0-Instruct | model instruct, surowy tekst | 11,17B | poza klasą | 0,8242 | 0,0244 | 0,7757 – 0,8704 | 0,5018 | 0.4.9.1 | nieznana | [plik](wsc273/bielik-11b-v3-instruct/results_rozszerzone.json) |
+| WSC273 | Bielik-1.5B-v3 | – | 1,60B | poza klasą | 0,7656 | 0,0243 | 0,7159 – 0,8118 | 0,5018 | 0.4.9.1 | nieznana | [plik](wsc273/bielik-1.5b-v3/results_rozszerzone.json) |
+| WSC273 | LFM3-1.7B-Base | – | 1,73B | poza klasą | 0,7143 | 0,0242 | 0,6666 – 0,7610 | 0,5018 | 0.4.13 | nieznana | [plik](wsc273/lfm3-1.7b-base/results_rozszerzone.json) |
+| WSC273 | Qwen3.5-0.8B-Base | – | 0,87B | ok. 1B | 0,7143 | 0,0233 | 0,6691 – 0,7591 | 0,5018 | 0.4.13 | nieznana | [plik](wsc273/qwen3.5-0.8b-base/results_rozszerzone.json) |
+| WSC273 | EuroLLM-1.7B | – | 1,66B | poza klasą | 0,7106 | 0,0263 | 0,6593 – 0,7609 | 0,5018 | 0.4.9.1 | nieznana | [plik](wsc273/eurollm-1.7b/results_rozszerzone.json) |
+| WSC273 | Pythia-1B v0 | – | 1,08B | ok. 1B | 0,6740 | 0,0211 | 0,6327 – 0,7143 | 0,5018 | 0.4.9.1 | nieznana | [plik](wsc273/pythia-1b-v0/results_rozszerzone.json) |
+| WSC273 | Slayer 1B 1.07 | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | ok. 1B | 0,6154 | 0,0206 | 0,5745 – 0,6556 | 0,5018 | 0.4.9.1 | nieznana | [plik](wsc273/slayer1b-1.07-hf/results_rozszerzone.json) |
 
-## Slayer 1B: wersje 1.00–1.08
+</details>
 
-Wszystkie wersje mają tę samą architekturę i tokenizer; rewizje HF w `manifest.jsonl`. 1.07 to wagi z HF (sha256 checkpointu zgodne z `SLAYER_CKPT_SHA256`), 1.08 to rewizja z publikacji w toku.
+<details>
+<summary><b>Typ testu i kontrola etapu B</b></summary>
 
-| test | 1.00 | 1.01 | 1.02 | 1.03 | 1.04 | 1.05 | 1.06 | 1.07 | 1.08 |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| ARC-Challenge | 0,2176 | 0,2415 | 0,2466 | 0,2560 | 0,2551 | 0,2602 | 0,2577 | 0,2730 | 0,3003 |
-| ARC-Easy | 0,4242 | 0,4735 | 0,4836 | 0,4945 | 0,5147 | 0,5316 | 0,5261 | 0,5981 | 0,5838 |
-| BLiMP | 0,7382 | 0,7616 | 0,7665 | 0,7743 | 0,7707 | 0,7915 | 0,7921 | 0,7982 | 0,8047 |
-| EWoK | 0,5296 | 0,5541 | 0,5620 | 0,5658 | 0,5738 | 0,5841 | 0,5897 | 0,6089 | 0,5990 |
-| HellaSwag | 0,2846 | 0,3077 | 0,3398 | 0,3507 | 0,3674 | 0,3823 | 0,3931 | 0,4337 | 0,4341 |
-| LAMBADA (OpenAI) | 0,2073 | 0,2779 | 0,3190 | 0,3307 | 0,3532 | 0,3627 | 0,3644 | 0,4122 | 0,4013 |
-| MathQA | 0,2104 | 0,2157 | 0,2171 | 0,2154 | 0,2087 | 0,2161 | 0,2188 | 0,2345 | 0,2281 |
-| MedMCQA | 0,3180 | 0,3132 | 0,3175 | 0,3206 | 0,3108 | 0,3153 | 0,3160 | 0,2991 | 0,3122 |
-| MultiBLiMP-PL | 0,9798 | 0,9850 | 0,9869 | 0,9856 | 0,9924 | 0,9875 | 0,9859 | 0,9887 | 0,9875 |
-| PIQA | 0,5762 | 0,5876 | 0,6055 | 0,6219 | 0,6257 | 0,6382 | 0,6415 | 0,6697 | 0,6621 |
-| PubMedQA | 0,4980 | 0,5440 | 0,5380 | 0,5240 | 0,5280 | 0,5000 | 0,4760 | 0,5360 | 0,4340 |
-| Social IQa | 0,3577 | 0,3582 | 0,3690 | 0,3741 | 0,3797 | 0,3905 | 0,3895 | 0,3910 | 0,3966 |
-| WikiText-2 | 2,071 | 1,959 | 1,917 | 1,899 | 1,870 | 1,851 | 1,846 | 1,782 | 1,780 |
-| WinoGrande | 0,5051 | 0,5201 | 0,5107 | 0,5351 | 0,5114 | 0,5225 | 0,5217 | 0,5359 | 0,5367 |
-| WSC273 | 0,5385 | 0,5531 | 0,5714 | 0,5604 | 0,5604 | 0,5861 | 0,5897 | 0,6154 | 0,6154 |
+| Test | Typ | Kontrola etapu B |
+|---|---|---|
+| ARC-Easy | `mc-k` | spełniony: `acc` w furtce 0,5381–0,5789 i nad b + 2 SE; przebieg bez BOS, tak jak harness z 2022 <!-- liczba-spoza-wynikow: furtka z wiersza „warunek odtworzenia” --> |
+| BLiMP | `para +klastry` | spełniony, 0,10 pkt |
+| EWoK | `para +klastry` | spełniony |
+| HellaSwag | `mc` | spełniony |
+| LAMBADA | `cloze` | spełniony: `acc` w furtce 0,5422–0,5822 i nad b + 2 SE; przebieg bez BOS, tak jak harness z 2022 <!-- liczba-spoza-wynikow: furtka z wiersza „warunek odtworzenia” --> |
+| PIQA | `mc` | spełniony: obie metryki w furtce |
+| WikiText-2 | `ppl` | zgodne; dla perpleksji nie ma formalnego progu ([METODOLOGIA.md, „Próg dla perpleksji i BPB”](../../METODOLOGIA.md#próg-dla-perpleksji-i-bpb)), więc wobec spisanej reguły werdykt jest nierozstrzygalny |
+| WinoGrande | `mc +klastry` | spełniony |
+| WSC273 | `mc +klastry` | kontrola spoza listy źródeł `METODOLOGIA.md`, liczbowo w progu 2 SE; wynik Slayera wstępny |
 
-### Pierwsza → ostatnia wersja (15 porównań, Holm w tej rodzinie)
+</details>
+
+### Poza tabelą
+
+- ARC-Challenge, MathQA, MedMCQA, MultiBLiMP-PL, PubMedQA, Social IQa: bez kontroli, nierozstrzygnięte.
+- LFM2.5-1.2B-Base: reguła kontekstu: acc_pmi poniżej bazy losowej na 2 testach PMI (ARC-Challenge, PIQA); próg 2 ustalony po obejrzeniu tego przebiegu; reguła przebiegu centralnego: wynik różni się od results/central-run dla tej samej rewizji i wag.
+- LFM3-1.7B (Instruct): reguła kontekstu: acc_pmi poniżej bazy losowej na 2 testach PMI (ARC-Challenge, PIQA); próg 2 ustalony po obejrzeniu tego przebiegu.
+- Slayer 1.00, 1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.08: inne wersje niż główna, wartości w [postępie wersji](#postęp-wersji-slayera).
+
+<details>
+<summary><b>6 testów bez kontroli</b> (wyniki wstępne)</summary>
+
+| Test | n | Slayer 1.07 | Pythia-1B | Qwen 0.8B | Baza b | Miejsce | 1.00 → 1.08 |
+|---|---:|---:|---:|---:|---:|:---:|---|
+| [ARC-Challenge](#arc-challenge) | 1 172 | **0,2730&nbsp;±&nbsp;0,0130** | 0,2747&nbsp;±&nbsp;0,0130 | 0,4044&nbsp;±&nbsp;0,0143 | 0,2654 (stała odpowiedź) | 7/7 | ▲&nbsp;pewna |
+| [MathQA](#mathqa) | 2 985 | **0,2345&nbsp;±&nbsp;0,0078** | 0,2352&nbsp;±&nbsp;0,0078 | 0,3337&nbsp;±&nbsp;0,0086 | 0,2265 (stała odpowiedź) | 7/7 | ≈&nbsp;szum |
+| [MedMCQA](#medmcqa) | 4 183 | **0,2991&nbsp;±&nbsp;0,0071** | 0,2811&nbsp;±&nbsp;0,0070 | 0,4026&nbsp;±&nbsp;0,0076 | 0,3223 (stała odpowiedź) | 5/7 | ≈&nbsp;szum |
+| [MultiBLiMP-PL](#multiblimp-pl) | 3 272 | **0,9887&nbsp;±&nbsp;0,0018** | 0,8013&nbsp;±&nbsp;0,0070 | 0,8450&nbsp;±&nbsp;0,0063 | 0,5000 (losowa) | 2/7 | △&nbsp;prawdopodobna |
+| [PubMedQA](#pubmedqa) | 500 | **0,5360&nbsp;±&nbsp;0,0223** | 0,5660&nbsp;±&nbsp;0,0222 | 0,6760&nbsp;±&nbsp;0,0210 | 0,5520 (stała odpowiedź) | 6/7 | ≈&nbsp;szum |
+| [Social IQa](#social-iqa) | 1 954 | **0,3910&nbsp;±&nbsp;0,0110** | 0,4023&nbsp;±&nbsp;0,0111 | 0,4186&nbsp;±&nbsp;0,0112 | 0,3362 (stała odpowiedź) | 7/7 | ▲&nbsp;pewna |
+
+</details>
+
+## Mapa modeli
+
+<p align="center"><img src="charts/macierz.svg" alt="Macierz modeli i testów" width="100%"></p>
+
+| Model | Parametry (z wag) | Klasa |
+|---|---:|---|
+| Slayer 1B 1.07 | 1,07B | ok. 1B |
+| Bielik-1.5B-v3 | 1,60B | poza klasą |
+| Bielik-11B-v3.0-Instruct | 11,17B | poza klasą |
+| EuroLLM-1.7B | 1,66B | poza klasą |
+| LFM2.5-1.2B-Base | 1,17B | poza klasą |
+| LFM3-1.7B (Instruct) | 1,73B | poza klasą |
+| LFM3-1.7B-Base | 1,73B | poza klasą |
+| Pythia-1B v0 | 1,08B | ok. 1B |
+| Qwen3.5-0.8B-Base | 0,87B | ok. 1B |
+
+Klasa „ok. 1B”: do 1,10B parametrów policzonych z wag ([`sizes.json`](sizes.json)).
+
+## Postęp wersji Slayera
+
+<p align="center"><img src="charts/postep-wersji.svg" alt="Postęp wersji Slayera na każdym teście" width="100%"></p>
+
+<details>
+<summary><b>Pierwsza → ostatnia wersja</b> (15 porównań, Holm w tej rodzinie)</summary>
 
 Δ = nowsza − starsza na tych samych pytaniach. SE parowane po pytaniach (z) albo po klastrach testu (t, df = k − 1): BLiMP po paradygmatach, WinoGrande po parach zdań, WSC273 po schematach, EWoK po szablonach. WikiText: Δ w byte perplexity, SE i t na bits per byte z dokumentem jako klastrem. Werdykt: |z| ≥ 3 pewne, 2–3 prawdopodobne, < 2 szum (t przez p przy tym samym progu).
 
@@ -88,7 +180,10 @@ Wszystkie wersje mają tę samą architekturę i tokenizer; rewizje HF w `manife
 | WinoGrande | 1.00 → 1.08 | 0,0316 | 0,0170 | t = 1,86, df = 982 | szum | nie (szum) |
 | WSC273 | 1.00 → 1.08 | 0,0769 | 0,0283 | t = 2,72, df = 134 | prawdopodobne | tak (prawdopodobne) |
 
-### Kolejne wersje (120 porównań, Holm w tej rodzinie)
+</details>
+
+<details>
+<summary><b>Kolejne wersje</b> (120 porównań)</summary>
 
 | test | wersje | Δ | SE Δ | statystyka | werdykt | po Holmie |
 |---|---|---:|---:|---|---|---|
@@ -213,375 +308,307 @@ Wszystkie wersje mają tę samą architekturę i tokenizer; rewizje HF w `manife
 | WSC273 | 1.06 → 1.07 | 0,0256 | 0,0197 | t = 1,30, df = 134 | szum | nie (szum) |
 | WSC273 | 1.07 → 1.08 | 0,0000 | 0,0201 | t = 0,00, df = 134 | szum | nie (szum) |
 
-## Leaderboard per test
+</details>
 
-Kolejność po wartości. Miejsce w tabeli nie mówi, czy różnica do sąsiada wychodzi poza szum: to mówią SE i CI95 (porównania parowane są tylko dla wersji Slayera). Bez modeli z sekcji „Do sprawdzenia”.
+<details>
+<summary><b>Wszystkie wersje Slayera</b>, wartości</summary>
 
-### ARC-Challenge
+Wszystkie wersje mają tę samą architekturę i tokenizer; rewizje HF w `manifest.jsonl`. 1.07 to wagi z HF (sha256 checkpointu zgodne z `SLAYER_CKPT_SHA256`), etykieta: ostatnia przyjęta wersja, bez wygaszania LR. 1.08: checkpoint eksperymentalny: bramka przyjęcia niezaliczona (ARC-Easy), nie jest następcą 1.07; z wygaszaniem LR ([karta modelu](https://huggingface.co/SlayerLab/Slayer1B-1.08/blob/5f854a0cc7160594d54d1788d37a44e8ebabe16c/README.md)). Pozostałe wersje: bez wygaszania LR.
 
-acc_norm; `T02`, n = 1172, wynik losowy 0,2502.
+| test | 1.00 | 1.01 | 1.02 | 1.03 | 1.04 | 1.05 | 1.06 | 1.07 | 1.08 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| ARC-Challenge | 0,2176 | 0,2415 | 0,2466 | 0,2560 | 0,2551 | 0,2602 | 0,2577 | 0,2730 | 0,3003 |
+| ARC-Easy | 0,4242 | 0,4735 | 0,4836 | 0,4945 | 0,5147 | 0,5316 | 0,5261 | 0,5981 | 0,5838 |
+| BLiMP | 0,7382 | 0,7616 | 0,7665 | 0,7743 | 0,7707 | 0,7915 | 0,7921 | 0,7982 | 0,8047 |
+| EWoK | 0,5296 | 0,5541 | 0,5620 | 0,5658 | 0,5738 | 0,5841 | 0,5897 | 0,6089 | 0,5990 |
+| HellaSwag | 0,2846 | 0,3077 | 0,3398 | 0,3507 | 0,3674 | 0,3823 | 0,3931 | 0,4337 | 0,4341 |
+| LAMBADA (OpenAI) | 0,2073 | 0,2779 | 0,3190 | 0,3307 | 0,3532 | 0,3627 | 0,3644 | 0,4122 | 0,4013 |
+| MathQA | 0,2104 | 0,2157 | 0,2171 | 0,2154 | 0,2087 | 0,2161 | 0,2188 | 0,2345 | 0,2281 |
+| MedMCQA | 0,3180 | 0,3132 | 0,3175 | 0,3206 | 0,3108 | 0,3153 | 0,3160 | 0,2991 | 0,3122 |
+| MultiBLiMP-PL | 0,9798 | 0,9850 | 0,9869 | 0,9856 | 0,9924 | 0,9875 | 0,9859 | 0,9887 | 0,9875 |
+| PIQA | 0,5762 | 0,5876 | 0,6055 | 0,6219 | 0,6257 | 0,6382 | 0,6415 | 0,6697 | 0,6621 |
+| PubMedQA | 0,4980 | 0,5440 | 0,5380 | 0,5240 | 0,5280 | 0,5000 | 0,4760 | 0,5360 | 0,4340 |
+| Social IQa | 0,3577 | 0,3582 | 0,3690 | 0,3741 | 0,3797 | 0,3905 | 0,3895 | 0,3910 | 0,3966 |
+| WikiText-2 | 2,071 | 1,959 | 1,917 | 1,899 | 1,870 | 1,851 | 1,846 | 1,782 | 1,780 |
+| WinoGrande | 0,5051 | 0,5201 | 0,5107 | 0,5351 | 0,5114 | 0,5225 | 0,5217 | 0,5359 | 0,5367 |
+| WSC273 | 0,5385 | 0,5531 | 0,5714 | 0,5604 | 0,5604 | 0,5861 | 0,5897 | 0,6154 | 0,6154 |
 
-![ARC-Challenge](charts/arc-challenge.png)
+</details>
 
-| # | model | wartość | SE | CI95 | dtype | wyniki |
-|---:|---|---:|---:|---|---|---|
-| 1 | Bielik-11B-v3.0-Instruct | 0,5811 | 0,0144 | 0,5529 – 0,6101 | bfloat16 | [arc-challenge/bielik-11b-v3-instruct](arc-challenge/bielik-11b-v3-instruct/results_rozszerzone.json) |
-| 2 | LFM3-1.7B-Base | 0,4292 | 0,0145 | 0,4010 – 0,4582 | float32 | [arc-challenge/lfm3-1.7b-base](arc-challenge/lfm3-1.7b-base/results_rozszerzone.json) |
-| 3 | Qwen3.5-0.8B-Base | 0,4044 | 0,0143 | 0,3763 – 0,4326 | float32 | [arc-challenge/qwen3.5-0.8b-base](arc-challenge/qwen3.5-0.8b-base/results_rozszerzone.json) |
-| 4 | EuroLLM-1.7B | 0,3746 | 0,0141 | 0,3473 – 0,4027 | float32 | [arc-challenge/eurollm-1.7b](arc-challenge/eurollm-1.7b/results_rozszerzone.json) |
-| 5 | Bielik-1.5B-v3 | 0,3609 | 0,0140 | 0,3336 – 0,3891 | float32 | [arc-challenge/bielik-1.5b-v3](arc-challenge/bielik-1.5b-v3/results_rozszerzone.json) |
-| 6 | Slayer 1B 1.08 | 0,3003 | 0,0134 | 0,2739 – 0,3276 | float32 | [arc-challenge/slayer1b-1.08](arc-challenge/slayer1b-1.08/results_rozszerzone.json) |
-| 7 | Pythia-1B v0 | 0,2747 | 0,0130 | 0,2500 – 0,3020 | float32 | [arc-challenge/pythia-1b-v0](arc-challenge/pythia-1b-v0/results_rozszerzone.json) |
-| 8 | Slayer 1B 1.07 | 0,2730 | 0,0130 | 0,2474 – 0,2995 | float32 | [arc-challenge/slayer1b-1.07-hf](arc-challenge/slayer1b-1.07-hf/results_rozszerzone.json) |
-| 9 | Slayer 1B 1.05 | 0,2602 | 0,0128 | 0,2355 – 0,2867 | float32 | [arc-challenge/slayer1b-1.05](arc-challenge/slayer1b-1.05/results_rozszerzone.json) |
-| 10 | Slayer 1B 1.06 | 0,2577 | 0,0128 | 0,2329 – 0,2833 | float32 | [arc-challenge/slayer1b-1.06](arc-challenge/slayer1b-1.06/results_rozszerzone.json) |
-| 11 | Slayer 1B 1.03 | 0,2560 | 0,0128 | 0,2312 – 0,2816 | float32 | [arc-challenge/slayer1b-1.03](arc-challenge/slayer1b-1.03/results_rozszerzone.json) |
-| 12 | Slayer 1B 1.04 | 0,2551 | 0,0127 | 0,2304 – 0,2807 | float32 | [arc-challenge/slayer1b-1.04](arc-challenge/slayer1b-1.04/results_rozszerzone.json) |
-| 13 | Slayer 1B 1.02 | 0,2466 | 0,0126 | 0,2218 – 0,2713 | float32 | [arc-challenge/slayer1b-1.02](arc-challenge/slayer1b-1.02/results_rozszerzone.json) |
-| 14 | Slayer 1B 1.01 | 0,2415 | 0,0125 | 0,2167 – 0,2662 | float32 | [arc-challenge/slayer1b-1.01](arc-challenge/slayer1b-1.01/results_rozszerzone.json) |
-| 15 | Slayer 1B 1.00 | 0,2176 | 0,0121 | 0,1945 – 0,2415 | float32 | [arc-challenge/slayer1b-1.00](arc-challenge/slayer1b-1.00/results_rozszerzone.json) |
+<a id="bos-okno-wikitext-i-kontrola-arc-challenge"></a>
+<details>
+<summary><b>BOS, okno WikiText, kontrola ARC-Challenge</b> (<a href="bos-window-check/README.md">pliki pomiaru</a>)</summary>
 
-### ARC-Easy
+BOS, sprawdzona wyłącznie Pythia-1B v0: próg protokołu 0,04, SE niezależne. Tabele raportu zostawiają Pythię bez BOS.
 
-acc; `T51`, n = 2376, wynik losowy 0,2502.
+| Test | bez BOS | z BOS | Δ | SE Δ | z | werdykt |
+|---|---:|---:|---:|---:|---:|---|
+| ARC-Easy | 0,5585 | 0,5690 | +0,0105 | 0,0144 | 0,73 | szum |
+| HellaSwag | 0,4679 | 0,4695 | +0,0016 | 0,0070 | 0,23 | szum |
+| LAMBADA | 0,5657 | 0,5605 | −0,0052 | 0,0098 | −0,54 | szum |
+| PIQA | 0,7095 | 0,7095 | 0,0000 | 0,0150 | 0,00 | szum |
+| WinoGrande | 0,5446 | 0,5438 | −0,0008 | 0,0177 | −0,04 | szum |
+| WSC273 | 0,6740 | 0,6813 | +0,0073 | 0,0303 | 0,24 | szum |
 
-![ARC-Easy](charts/arc-easy.png)
+- ARC-Easy: Slayer 1.07 − Pythia z BOS = 0,0290, z = 2,03, SE niezależne, prawdopodobne.
+- WikiText: Pythia oknem 2048 ma 1,6877 (0,0139) zamiast 2,4234 przy `--max_length 4096`; wobec Slayera 1.07 (1,7817) różnica −0,0940, z = −4,64, SE niezależne, pewne, eksploracyjnie.
+- Kontrola ARC-Challenge nierozstrzygnięta: EuroLLM-1.7B 25-shot 0,4087 wobec 0,4061, próg 0,0286; demonstracje pochodzą z testu, a ustawienia referencji nie odtworzono.
 
-| # | model | wartość | SE | CI95 | dtype | wyniki |
-|---:|---|---:|---:|---|---|---|
-| 1 | Bielik-11B-v3.0-Instruct | 0,8186 | 0,0079 | 0,8030 – 0,8338 | bfloat16 | [arc-easy/bielik-11b-v3-instruct](arc-easy/bielik-11b-v3-instruct/results_rozszerzone.json) |
-| 2 | LFM3-1.7B-Base | 0,7172 | 0,0092 | 0,6991 – 0,7353 | float32 | [arc-easy/lfm3-1.7b-base](arc-easy/lfm3-1.7b-base/results_rozszerzone.json) |
-| 3 | Qwen3.5-0.8B-Base | 0,7054 | 0,0094 | 0,6869 – 0,7235 | float32 | [arc-easy/qwen3.5-0.8b-base](arc-easy/qwen3.5-0.8b-base/results_rozszerzone.json) |
-| 4 | EuroLLM-1.7B | 0,6852 | 0,0095 | 0,6667 – 0,7037 | float32 | [arc-easy/eurollm-1.7b](arc-easy/eurollm-1.7b/results_rozszerzone.json) |
-| 5 | Slayer 1B 1.07 | 0,5981 | 0,0101 | 0,5787 – 0,6174 | float32 | [arc-easy/slayer1b-1.07-hf](arc-easy/slayer1b-1.07-hf/results_rozszerzone.json) |
-| 6 | Slayer 1B 1.08 | 0,5838 | 0,0101 | 0,5640 – 0,6031 | float32 | [arc-easy/slayer1b-1.08](arc-easy/slayer1b-1.08/results_rozszerzone.json) |
-| 7 | Pythia-1B v0 | 0,5585 | 0,0102 | 0,5383 – 0,5787 | float32 | [arc-easy/pythia-1b-v0](arc-easy/pythia-1b-v0/results_rozszerzone.json) |
-| 8 | Bielik-1.5B-v3 | 0,5459 | 0,0102 | 0,5261 – 0,5661 | float32 | [arc-easy/bielik-1.5b-v3](arc-easy/bielik-1.5b-v3/results_rozszerzone.json) |
-| 9 | Slayer 1B 1.05 | 0,5316 | 0,0102 | 0,5118 – 0,5522 | float32 | [arc-easy/slayer1b-1.05](arc-easy/slayer1b-1.05/results_rozszerzone.json) |
-| 10 | Slayer 1B 1.06 | 0,5261 | 0,0102 | 0,5059 – 0,5463 | float32 | [arc-easy/slayer1b-1.06](arc-easy/slayer1b-1.06/results_rozszerzone.json) |
-| 11 | Slayer 1B 1.04 | 0,5147 | 0,0103 | 0,4949 – 0,5354 | float32 | [arc-easy/slayer1b-1.04](arc-easy/slayer1b-1.04/results_rozszerzone.json) |
-| 12 | Slayer 1B 1.03 | 0,4945 | 0,0103 | 0,4743 – 0,5143 | float32 | [arc-easy/slayer1b-1.03](arc-easy/slayer1b-1.03/results_rozszerzone.json) |
-| 13 | Slayer 1B 1.02 | 0,4836 | 0,0103 | 0,4630 – 0,5038 | float32 | [arc-easy/slayer1b-1.02](arc-easy/slayer1b-1.02/results_rozszerzone.json) |
-| 14 | Slayer 1B 1.01 | 0,4735 | 0,0102 | 0,4533 – 0,4933 | float32 | [arc-easy/slayer1b-1.01](arc-easy/slayer1b-1.01/results_rozszerzone.json) |
-| 15 | Slayer 1B 1.00 | 0,4242 | 0,0101 | 0,4040 – 0,4440 | float32 | [arc-easy/slayer1b-1.00](arc-easy/slayer1b-1.00/results_rozszerzone.json) |
+</details>
 
-### BLiMP
+## Rankingi testów
 
-acc, SE po 67 paradygmatach; `T01`, n = 67000, wynik losowy 0,5000.
+<a id="arc-easy"></a>
+<details>
+<summary><b>ARC-Easy</b>: Slayer 1.07 0,5981, miejsce 5 z 7</summary>
 
-![BLiMP](charts/blimp.png)
+acc, `T51`, n = 2 376, wynik losowy 0,2502, najczęstsza odpowiedź 0,2664.
 
-| # | model | wartość | SE | CI95 | dtype | wyniki |
-|---:|---|---:|---:|---|---|---|
-| 1 | Bielik-11B-v3.0-Instruct | 0,8318 | 0,0178 | 0,7966 – 0,8658 | bfloat16 | [blimp/bielik-11b-v3-instruct](blimp/bielik-11b-v3-instruct/results_rozszerzone.json) |
-| 2 | Pythia-1B v0 | 0,8244 | 0,0208 | 0,7827 – 0,8627 | float32 | [blimp/pythia-1b-v0](blimp/pythia-1b-v0/results_rozszerzone.json) |
-| 3 | Bielik-1.5B-v3 | 0,8191 | 0,0201 | 0,7797 – 0,8563 | float32 | [blimp/bielik-1.5b-v3](blimp/bielik-1.5b-v3/results_rozszerzone.json) |
-| 4 | Slayer 1B 1.08 | 0,8047 | 0,0213 | 0,7619 – 0,8449 | float32 | [blimp/slayer1b-1.08](blimp/slayer1b-1.08/results_rozszerzone.json) |
-| 5 | EuroLLM-1.7B | 0,8036 | 0,0182 | 0,7679 – 0,8383 | float32 | [blimp/eurollm-1.7b](blimp/eurollm-1.7b/results_rozszerzone.json) |
-| 6 | Qwen3.5-0.8B-Base | 0,7986 | 0,0223 | 0,7541 – 0,8408 | float32 | [blimp/qwen3.5-0.8b-base](blimp/qwen3.5-0.8b-base/results_rozszerzone.json) |
-| 7 | Slayer 1B 1.07 | 0,7982 | 0,0212 | 0,7554 – 0,8384 | float32 | [blimp/slayer1b-1.07-hf](blimp/slayer1b-1.07-hf/results_rozszerzone.json) |
-| 8 | LFM3-1.7B-Base | 0,7930 | 0,0230 | 0,7478 – 0,8361 | float32 | [blimp/lfm3-1.7b-base](blimp/lfm3-1.7b-base/results_rozszerzone.json) |
-| 9 | Slayer 1B 1.06 | 0,7921 | 0,0197 | 0,7530 – 0,8297 | float32 | [blimp/slayer1b-1.06](blimp/slayer1b-1.06/results_rozszerzone.json) |
-| 10 | Slayer 1B 1.05 | 0,7915 | 0,0212 | 0,7493 – 0,8318 | float32 | [blimp/slayer1b-1.05](blimp/slayer1b-1.05/results_rozszerzone.json) |
-| 11 | Slayer 1B 1.03 | 0,7743 | 0,0220 | 0,7305 – 0,8165 | float32 | [blimp/slayer1b-1.03](blimp/slayer1b-1.03/results_rozszerzone.json) |
-| 12 | Slayer 1B 1.04 | 0,7707 | 0,0225 | 0,7261 – 0,8132 | float32 | [blimp/slayer1b-1.04](blimp/slayer1b-1.04/results_rozszerzone.json) |
-| 13 | Slayer 1B 1.02 | 0,7665 | 0,0231 | 0,7202 – 0,8108 | float32 | [blimp/slayer1b-1.02](blimp/slayer1b-1.02/results_rozszerzone.json) |
-| 14 | Slayer 1B 1.01 | 0,7616 | 0,0231 | 0,7159 – 0,8054 | float32 | [blimp/slayer1b-1.01](blimp/slayer1b-1.01/results_rozszerzone.json) |
-| 15 | Slayer 1B 1.00 | 0,7382 | 0,0256 | 0,6876 – 0,7866 | float32 | [blimp/slayer1b-1.00](blimp/slayer1b-1.00/results_rozszerzone.json) |
+<p align="center"><img src="charts/arc-easy.svg" alt="ARC-Easy: ranking z przedziałami 95%" width="100%"></p>
 
-### EWoK
 
-trafność par kontekst × cel, SE po szablonach; `T53`, n = 4374, wynik losowy 0,5000.
+</details>
 
-![EWoK](charts/ewok.png)
+<a id="blimp"></a>
+<details>
+<summary><b>BLiMP</b>: Slayer 1.07 0,7982, miejsce 6 z 7</summary>
 
-| # | model | wartość | SE | CI95 | dtype | wyniki |
-|---:|---|---:|---:|---|---|---|
-| 1 | Bielik-1.5B-v3 | 0,6946 | 0,0080 | 0,6787 – 0,7101 | float32 | [ewok/bielik-1.5b-v3](ewok/bielik-1.5b-v3/results_rozszerzone.json) |
-| 2 | Qwen3.5-0.8B-Base | 0,6757 | 0,0083 | 0,6596 – 0,6921 | float32 | [ewok/qwen3.5-0.8b-base](ewok/qwen3.5-0.8b-base/results_rozszerzone.json) |
-| 3 | EuroLLM-1.7B | 0,6621 | 0,0080 | 0,6463 – 0,6778 | float32 | [ewok/eurollm-1.7b](ewok/eurollm-1.7b/results_rozszerzone.json) |
-| 4 | LFM3-1.7B-Base | 0,6596 | 0,0077 | 0,6449 – 0,6747 | float32 | [ewok/lfm3-1.7b-base](ewok/lfm3-1.7b-base/results_rozszerzone.json) |
-| 5 | Pythia-1B v0 | 0,6471 | 0,0080 | 0,6314 – 0,6630 | float32 | [ewok/pythia-1b-v0](ewok/pythia-1b-v0/results_rozszerzone.json) |
-| 6 | Slayer 1B 1.07 | 0,6089 | 0,0074 | 0,5944 – 0,6235 | float32 | [ewok/slayer1b-1.07-hf](ewok/slayer1b-1.07-hf/results_rozszerzone.json) |
-| 7 | Slayer 1B 1.08 | 0,5990 | 0,0075 | 0,5842 – 0,6136 | float32 | [ewok/slayer1b-1.08](ewok/slayer1b-1.08/results_rozszerzone.json) |
-| 8 | Slayer 1B 1.06 | 0,5897 | 0,0071 | 0,5758 – 0,6036 | float32 | [ewok/slayer1b-1.06](ewok/slayer1b-1.06/results_rozszerzone.json) |
-| 9 | Slayer 1B 1.05 | 0,5841 | 0,0072 | 0,5702 – 0,5985 | float32 | [ewok/slayer1b-1.05](ewok/slayer1b-1.05/results_rozszerzone.json) |
-| 10 | Slayer 1B 1.04 | 0,5738 | 0,0071 | 0,5599 – 0,5880 | float32 | [ewok/slayer1b-1.04](ewok/slayer1b-1.04/results_rozszerzone.json) |
-| 11 | Slayer 1B 1.03 | 0,5658 | 0,0075 | 0,5508 – 0,5804 | float32 | [ewok/slayer1b-1.03](ewok/slayer1b-1.03/results_rozszerzone.json) |
-| 12 | Slayer 1B 1.02 | 0,5620 | 0,0077 | 0,5469 – 0,5771 | float32 | [ewok/slayer1b-1.02](ewok/slayer1b-1.02/results_rozszerzone.json) |
-| 13 | Slayer 1B 1.01 | 0,5541 | 0,0077 | 0,5390 – 0,5691 | float32 | [ewok/slayer1b-1.01](ewok/slayer1b-1.01/results_rozszerzone.json) |
-| 14 | Slayer 1B 1.00 | 0,5296 | 0,0076 | 0,5146 – 0,5448 | float32 | [ewok/slayer1b-1.00](ewok/slayer1b-1.00/results_rozszerzone.json) |
+acc, `T01`, n = 67 000, wynik losowy 0,5000.
 
-### HellaSwag
+<p align="center"><img src="charts/blimp.svg" alt="BLiMP: ranking z przedziałami 95%" width="100%"></p>
 
-acc_norm; `T05`, n = 10042, wynik losowy 0,2500.
 
-![HellaSwag](charts/hellaswag.png)
+</details>
 
-| # | model | wartość | SE | CI95 | dtype | wyniki |
-|---:|---|---:|---:|---|---|---|
-| 1 | Bielik-11B-v3.0-Instruct | 0,7940 | 0,0040 | 0,7860 – 0,8018 | bfloat16 | [hellaswag/bielik-11b-v3-instruct](hellaswag/bielik-11b-v3-instruct/results_rozszerzone.json) |
-| 2 | Bielik-1.5B-v3 | 0,6372 | 0,0048 | 0,6280 – 0,6467 | float32 | [hellaswag/bielik-1.5b-v3](hellaswag/bielik-1.5b-v3/results_rozszerzone.json) |
-| 3 | EuroLLM-1.7B | 0,5927 | 0,0049 | 0,5833 – 0,6023 | float32 | [hellaswag/eurollm-1.7b](hellaswag/eurollm-1.7b/results_rozszerzone.json) |
-| 4 | LFM3-1.7B-Base | 0,5891 | 0,0049 | 0,5797 – 0,5989 | float32 | [hellaswag/lfm3-1.7b-base](hellaswag/lfm3-1.7b-base/results_rozszerzone.json) |
-| 5 | Qwen3.5-0.8B-Base | 0,5482 | 0,0050 | 0,5386 – 0,5581 | float32 | [hellaswag/qwen3.5-0.8b-base](hellaswag/qwen3.5-0.8b-base/results_rozszerzone.json) |
-| 6 | Pythia-1B v0 | 0,4679 | 0,0050 | 0,4582 – 0,4777 | float32 | [hellaswag/pythia-1b-v0](hellaswag/pythia-1b-v0/results_rozszerzone.json) |
-| 7 | Slayer 1B 1.08 | 0,4341 | 0,0049 | 0,4244 – 0,4437 | float32 | [hellaswag/slayer1b-1.08](hellaswag/slayer1b-1.08/results_rozszerzone.json) |
-| 8 | Slayer 1B 1.07 | 0,4337 | 0,0049 | 0,4240 – 0,4433 | float32 | [hellaswag/slayer1b-1.07-hf](hellaswag/slayer1b-1.07-hf/results_rozszerzone.json) |
-| 9 | Slayer 1B 1.06 | 0,3931 | 0,0049 | 0,3836 – 0,4030 | float32 | [hellaswag/slayer1b-1.06](hellaswag/slayer1b-1.06/results_rozszerzone.json) |
-| 10 | Slayer 1B 1.05 | 0,3823 | 0,0048 | 0,3727 – 0,3919 | float32 | [hellaswag/slayer1b-1.05](hellaswag/slayer1b-1.05/results_rozszerzone.json) |
-| 11 | Slayer 1B 1.04 | 0,3674 | 0,0048 | 0,3580 – 0,3767 | float32 | [hellaswag/slayer1b-1.04](hellaswag/slayer1b-1.04/results_rozszerzone.json) |
-| 12 | Slayer 1B 1.03 | 0,3507 | 0,0048 | 0,3414 – 0,3603 | float32 | [hellaswag/slayer1b-1.03](hellaswag/slayer1b-1.03/results_rozszerzone.json) |
-| 13 | Slayer 1B 1.02 | 0,3398 | 0,0047 | 0,3304 – 0,3492 | float32 | [hellaswag/slayer1b-1.02](hellaswag/slayer1b-1.02/results_rozszerzone.json) |
-| 14 | Slayer 1B 1.01 | 0,3077 | 0,0046 | 0,2989 – 0,3168 | float32 | [hellaswag/slayer1b-1.01](hellaswag/slayer1b-1.01/results_rozszerzone.json) |
-| 15 | Slayer 1B 1.00 | 0,2846 | 0,0045 | 0,2758 – 0,2936 | float32 | [hellaswag/slayer1b-1.00](hellaswag/slayer1b-1.00/results_rozszerzone.json) |
+<a id="ewok"></a>
+<details>
+<summary><b>EWoK</b>: Slayer 1.07 0,6089, miejsce 6 z 6</summary>
 
-### LAMBADA (OpenAI)
+ewok, `T53`, n = 4 374, wynik losowy 0,5000.
 
-acc, greedy ostatniego słowa; `T17`, n = 5153.
+<p align="center"><img src="charts/ewok.svg" alt="EWoK: ranking z przedziałami 95%" width="100%"></p>
 
-![LAMBADA (OpenAI)](charts/lambada.png)
 
-| # | model | wartość | SE | CI95 | dtype | wyniki |
-|---:|---|---:|---:|---|---|---|
-| 1 | Bielik-11B-v3.0-Instruct | 0,7140 | 0,0063 | 0,7015 – 0,7264 | bfloat16 | [lambada/bielik-11b-v3-instruct](lambada/bielik-11b-v3-instruct/results_rozszerzone.json) |
-| 2 | Bielik-1.5B-v3 | 0,6107 | 0,0068 | 0,5975 – 0,6241 | float32 | [lambada/bielik-1.5b-v3](lambada/bielik-1.5b-v3/results_rozszerzone.json) |
-| 3 | Pythia-1B v0 | 0,5657 | 0,0069 | 0,5519 – 0,5791 | float32 | [lambada/pythia-1b-v0](lambada/pythia-1b-v0/results_rozszerzone.json) |
-| 4 | EuroLLM-1.7B | 0,5302 | 0,0070 | 0,5164 – 0,5436 | float32 | [lambada/eurollm-1.7b](lambada/eurollm-1.7b/results_rozszerzone.json) |
-| 5 | Qwen3.5-0.8B-Base | 0,5119 | 0,0070 | 0,4984 – 0,5255 | float32 | [lambada/qwen3.5-0.8b-base](lambada/qwen3.5-0.8b-base/results_rozszerzone.json) |
-| 6 | LFM3-1.7B-Base | 0,5069 | 0,0070 | 0,4933 – 0,5207 | float32 | [lambada/lfm3-1.7b-base](lambada/lfm3-1.7b-base/results_rozszerzone.json) |
-| 7 | Slayer 1B 1.07 | 0,4122 | 0,0069 | 0,3984 – 0,4254 | float32 | [lambada/slayer1b-1.07-hf](lambada/slayer1b-1.07-hf/results_rozszerzone.json) |
-| 8 | Slayer 1B 1.08 | 0,4013 | 0,0068 | 0,3879 – 0,4145 | float32 | [lambada/slayer1b-1.08](lambada/slayer1b-1.08/results_rozszerzone.json) |
-| 9 | Slayer 1B 1.06 | 0,3644 | 0,0067 | 0,3511 – 0,3775 | float32 | [lambada/slayer1b-1.06](lambada/slayer1b-1.06/results_rozszerzone.json) |
-| 10 | Slayer 1B 1.05 | 0,3627 | 0,0067 | 0,3495 – 0,3757 | float32 | [lambada/slayer1b-1.05](lambada/slayer1b-1.05/results_rozszerzone.json) |
-| 11 | Slayer 1B 1.04 | 0,3532 | 0,0067 | 0,3400 – 0,3662 | float32 | [lambada/slayer1b-1.04](lambada/slayer1b-1.04/results_rozszerzone.json) |
-| 12 | Slayer 1B 1.03 | 0,3307 | 0,0066 | 0,3179 – 0,3435 | float32 | [lambada/slayer1b-1.03](lambada/slayer1b-1.03/results_rozszerzone.json) |
-| 13 | Slayer 1B 1.02 | 0,3190 | 0,0065 | 0,3062 – 0,3317 | float32 | [lambada/slayer1b-1.02](lambada/slayer1b-1.02/results_rozszerzone.json) |
-| 14 | Slayer 1B 1.01 | 0,2779 | 0,0062 | 0,2655 – 0,2903 | float32 | [lambada/slayer1b-1.01](lambada/slayer1b-1.01/results_rozszerzone.json) |
-| 15 | Slayer 1B 1.00 | 0,2073 | 0,0056 | 0,1958 – 0,2185 | float32 | [lambada/slayer1b-1.00](lambada/slayer1b-1.00/results_rozszerzone.json) |
+</details>
 
-### MathQA
+<a id="hellaswag"></a>
+<details>
+<summary><b>HellaSwag</b>: Slayer 1.07 0,4337, miejsce 7 z 7</summary>
 
-acc_norm; `T19`, n = 2985, wynik losowy 0,2000.
+acc_norm, `T05`, n = 10 042, wynik losowy 0,2500, najczęstsza odpowiedź 0,2573.
 
-![MathQA](charts/mathqa.png)
+<p align="center"><img src="charts/hellaswag.svg" alt="HellaSwag: ranking z przedziałami 95%" width="100%"></p>
 
-| # | model | wartość | SE | CI95 | dtype | wyniki |
-|---:|---|---:|---:|---|---|---|
-| 1 | Bielik-11B-v3.0-Instruct | 0,4848 | 0,0091 | 0,4670 – 0,5025 | bfloat16 | [mathqa/bielik-11b-v3-instruct](mathqa/bielik-11b-v3-instruct/results_rozszerzone.json) |
-| 2 | LFM3-1.7B-Base | 0,3906 | 0,0089 | 0,3735 – 0,4084 | float32 | [mathqa/lfm3-1.7b-base](mathqa/lfm3-1.7b-base/results_rozszerzone.json) |
-| 3 | Qwen3.5-0.8B-Base | 0,3337 | 0,0086 | 0,3169 – 0,3511 | float32 | [mathqa/qwen3.5-0.8b-base](mathqa/qwen3.5-0.8b-base/results_rozszerzone.json) |
-| 4 | Bielik-1.5B-v3 | 0,3240 | 0,0086 | 0,3075 – 0,3407 | float32 | [mathqa/bielik-1.5b-v3](mathqa/bielik-1.5b-v3/results_rozszerzone.json) |
-| 5 | EuroLLM-1.7B | 0,2422 | 0,0078 | 0,2271 – 0,2580 | float32 | [mathqa/eurollm-1.7b](mathqa/eurollm-1.7b/results_rozszerzone.json) |
-| 6 | Pythia-1B v0 | 0,2352 | 0,0078 | 0,2204 – 0,2503 | float32 | [mathqa/pythia-1b-v0](mathqa/pythia-1b-v0/results_rozszerzone.json) |
-| 7 | Slayer 1B 1.07 | 0,2345 | 0,0078 | 0,2194 – 0,2499 | float32 | [mathqa/slayer1b-1.07-hf](mathqa/slayer1b-1.07-hf/results_rozszerzone.json) |
-| 8 | Slayer 1B 1.08 | 0,2281 | 0,0077 | 0,2134 – 0,2432 | float32 | [mathqa/slayer1b-1.08](mathqa/slayer1b-1.08/results_rozszerzone.json) |
-| 9 | Slayer 1B 1.06 | 0,2188 | 0,0076 | 0,2037 – 0,2338 | float32 | [mathqa/slayer1b-1.06](mathqa/slayer1b-1.06/results_rozszerzone.json) |
-| 10 | Slayer 1B 1.02 | 0,2171 | 0,0075 | 0,2027 – 0,2318 | float32 | [mathqa/slayer1b-1.02](mathqa/slayer1b-1.02/results_rozszerzone.json) |
-| 11 | Slayer 1B 1.05 | 0,2161 | 0,0075 | 0,2017 – 0,2308 | float32 | [mathqa/slayer1b-1.05](mathqa/slayer1b-1.05/results_rozszerzone.json) |
-| 12 | Slayer 1B 1.01 | 0,2157 | 0,0075 | 0,2010 – 0,2305 | float32 | [mathqa/slayer1b-1.01](mathqa/slayer1b-1.01/results_rozszerzone.json) |
-| 13 | Slayer 1B 1.03 | 0,2154 | 0,0075 | 0,2007 – 0,2302 | float32 | [mathqa/slayer1b-1.03](mathqa/slayer1b-1.03/results_rozszerzone.json) |
-| 14 | Slayer 1B 1.00 | 0,2104 | 0,0075 | 0,1956 – 0,2251 | float32 | [mathqa/slayer1b-1.00](mathqa/slayer1b-1.00/results_rozszerzone.json) |
-| 15 | Slayer 1B 1.04 | 0,2087 | 0,0074 | 0,1940 – 0,2235 | float32 | [mathqa/slayer1b-1.04](mathqa/slayer1b-1.04/results_rozszerzone.json) |
 
-### MedMCQA
+</details>
 
-acc; `T45`, n = 4183, wynik losowy 0,2500.
+<a id="lambada"></a>
+<details>
+<summary><b>LAMBADA</b>: Slayer 1.07 0,4122, miejsce 7 z 7</summary>
 
-![MedMCQA](charts/medmcqa.png)
+acc, `T17`, n = 5 153, wynik losowy 0,0000, najczęstsza odpowiedź 0,0031.
 
-| # | model | wartość | SE | CI95 | dtype | wyniki |
-|---:|---|---:|---:|---|---|---|
-| 1 | Bielik-11B-v3.0-Instruct | 0,5357 | 0,0077 | 0,5209 – 0,5508 | bfloat16 | [medmcqa/bielik-11b-v3-instruct](medmcqa/bielik-11b-v3-instruct/results_rozszerzone.json) |
-| 2 | Qwen3.5-0.8B-Base | 0,4026 | 0,0076 | 0,3880 – 0,4176 | float32 | [medmcqa/qwen3.5-0.8b-base](medmcqa/qwen3.5-0.8b-base/results_rozszerzone.json) |
-| 3 | Bielik-1.5B-v3 | 0,3913 | 0,0075 | 0,3765 – 0,4062 | float32 | [medmcqa/bielik-1.5b-v3](medmcqa/bielik-1.5b-v3/results_rozszerzone.json) |
-| 4 | LFM3-1.7B-Base | 0,3782 | 0,0075 | 0,3636 – 0,3930 | float32 | [medmcqa/lfm3-1.7b-base](medmcqa/lfm3-1.7b-base/results_rozszerzone.json) |
-| 5 | Slayer 1B 1.03 | 0,3206 | 0,0072 | 0,3065 – 0,3344 | float32 | [medmcqa/slayer1b-1.03](medmcqa/slayer1b-1.03/results_rozszerzone.json) |
-| 6 | Slayer 1B 1.00 | 0,3180 | 0,0072 | 0,3041 – 0,3321 | float32 | [medmcqa/slayer1b-1.00](medmcqa/slayer1b-1.00/results_rozszerzone.json) |
-| 7 | Slayer 1B 1.02 | 0,3175 | 0,0072 | 0,3034 – 0,3313 | float32 | [medmcqa/slayer1b-1.02](medmcqa/slayer1b-1.02/results_rozszerzone.json) |
-| 8 | Slayer 1B 1.06 | 0,3160 | 0,0072 | 0,3019 – 0,3299 | float32 | [medmcqa/slayer1b-1.06](medmcqa/slayer1b-1.06/results_rozszerzone.json) |
-| 9 | Slayer 1B 1.05 | 0,3153 | 0,0072 | 0,3015 – 0,3292 | float32 | [medmcqa/slayer1b-1.05](medmcqa/slayer1b-1.05/results_rozszerzone.json) |
-| 10 | Slayer 1B 1.01 | 0,3132 | 0,0072 | 0,2991 – 0,3270 | float32 | [medmcqa/slayer1b-1.01](medmcqa/slayer1b-1.01/results_rozszerzone.json) |
-| 11 | Slayer 1B 1.08 | 0,3122 | 0,0072 | 0,2984 – 0,3261 | float32 | [medmcqa/slayer1b-1.08](medmcqa/slayer1b-1.08/results_rozszerzone.json) |
-| 12 | Slayer 1B 1.04 | 0,3108 | 0,0072 | 0,2967 – 0,3246 | float32 | [medmcqa/slayer1b-1.04](medmcqa/slayer1b-1.04/results_rozszerzone.json) |
-| 13 | Slayer 1B 1.07 | 0,2991 | 0,0071 | 0,2854 – 0,3125 | float32 | [medmcqa/slayer1b-1.07-hf](medmcqa/slayer1b-1.07-hf/results_rozszerzone.json) |
-| 14 | Pythia-1B v0 | 0,2811 | 0,0070 | 0,2678 – 0,2948 | float32 | [medmcqa/pythia-1b-v0](medmcqa/pythia-1b-v0/results_rozszerzone.json) |
-| 15 | EuroLLM-1.7B | 0,2582 | 0,0068 | 0,2450 – 0,2713 | float32 | [medmcqa/eurollm-1.7b](medmcqa/eurollm-1.7b/results_rozszerzone.json) |
+<p align="center"><img src="charts/lambada.svg" alt="LAMBADA: ranking z przedziałami 95%" width="100%"></p>
 
-### MultiBLiMP-PL
 
-acc; `T04`, n = 3272, wynik losowy 0,5000.
+</details>
 
-![MultiBLiMP-PL](charts/multiblimp-pl.png)
+<a id="piqa"></a>
+<details>
+<summary><b>PIQA</b>: Slayer 1.07 0,6697, miejsce 7 z 7</summary>
 
-| # | model | wartość | SE | CI95 | dtype | wyniki |
-|---:|---|---:|---:|---|---|---|
-| 1 | Bielik-11B-v3.0-Instruct | 0,9957 | 0,0011 | 0,9933 – 0,9979 | bfloat16 | [multiblimp-pl/bielik-11b-v3-instruct](multiblimp-pl/bielik-11b-v3-instruct/results_rozszerzone.json) |
-| 2 | Slayer 1B 1.04 | 0,9924 | 0,0015 | 0,9893 – 0,9951 | float32 | [multiblimp-pl/slayer1b-1.04](multiblimp-pl/slayer1b-1.04/results_rozszerzone.json) |
-| 3 | Slayer 1B 1.07 | 0,9887 | 0,0018 | 0,9850 – 0,9921 | float32 | [multiblimp-pl/slayer1b-1.07-hf](multiblimp-pl/slayer1b-1.07-hf/results_rozszerzone.json) |
-| 4 | Slayer 1B 1.05 | 0,9875 | 0,0019 | 0,9835 – 0,9911 | float32 | [multiblimp-pl/slayer1b-1.05](multiblimp-pl/slayer1b-1.05/results_rozszerzone.json) |
-| 5 | Slayer 1B 1.08 | 0,9875 | 0,0019 | 0,9835 – 0,9911 | float32 | [multiblimp-pl/slayer1b-1.08](multiblimp-pl/slayer1b-1.08/results_rozszerzone.json) |
-| 6 | Slayer 1B 1.02 | 0,9869 | 0,0020 | 0,9829 – 0,9905 | float32 | [multiblimp-pl/slayer1b-1.02](multiblimp-pl/slayer1b-1.02/results_rozszerzone.json) |
-| 7 | Slayer 1B 1.06 | 0,9859 | 0,0021 | 0,9817 – 0,9899 | float32 | [multiblimp-pl/slayer1b-1.06](multiblimp-pl/slayer1b-1.06/results_rozszerzone.json) |
-| 8 | Slayer 1B 1.03 | 0,9856 | 0,0021 | 0,9814 – 0,9896 | float32 | [multiblimp-pl/slayer1b-1.03](multiblimp-pl/slayer1b-1.03/results_rozszerzone.json) |
-| 9 | Slayer 1B 1.01 | 0,9850 | 0,0021 | 0,9807 – 0,9890 | float32 | [multiblimp-pl/slayer1b-1.01](multiblimp-pl/slayer1b-1.01/results_rozszerzone.json) |
-| 10 | Slayer 1B 1.00 | 0,9798 | 0,0025 | 0,9746 – 0,9847 | float32 | [multiblimp-pl/slayer1b-1.00](multiblimp-pl/slayer1b-1.00/results_rozszerzone.json) |
-| 11 | Bielik-1.5B-v3 | 0,9447 | 0,0040 | 0,9364 – 0,9526 | float32 | [multiblimp-pl/bielik-1.5b-v3](multiblimp-pl/bielik-1.5b-v3/results_rozszerzone.json) |
-| 12 | EuroLLM-1.7B | 0,9386 | 0,0042 | 0,9303 – 0,9468 | float32 | [multiblimp-pl/eurollm-1.7b](multiblimp-pl/eurollm-1.7b/results_rozszerzone.json) |
-| 13 | LFM3-1.7B-Base | 0,8915 | 0,0054 | 0,8808 – 0,9022 | float32 | [multiblimp-pl/lfm3-1.7b-base](multiblimp-pl/lfm3-1.7b-base/results_rozszerzone.json) |
-| 14 | Qwen3.5-0.8B-Base | 0,8450 | 0,0063 | 0,8325 – 0,8576 | float32 | [multiblimp-pl/qwen3.5-0.8b-base](multiblimp-pl/qwen3.5-0.8b-base/results_rozszerzone.json) |
-| 15 | Pythia-1B v0 | 0,8013 | 0,0070 | 0,7873 – 0,8148 | float32 | [multiblimp-pl/pythia-1b-v0](multiblimp-pl/pythia-1b-v0/results_rozszerzone.json) |
+acc_norm, `T06`, n = 1 838, wynik losowy 0,5000, najczęstsza odpowiedź 0,5049.
 
-### PIQA
+<p align="center"><img src="charts/piqa.svg" alt="PIQA: ranking z przedziałami 95%" width="100%"></p>
 
-acc_norm; `T06`, n = 1838, wynik losowy 0,5000.
 
-![PIQA](charts/piqa.png)
+</details>
 
-| # | model | wartość | SE | CI95 | dtype | wyniki |
-|---:|---|---:|---:|---|---|---|
-| 1 | Bielik-11B-v3.0-Instruct | 0,7889 | 0,0095 | 0,7704 – 0,8074 | bfloat16 | [piqa/bielik-11b-v3-instruct](piqa/bielik-11b-v3-instruct/results_rozszerzone.json) |
-| 2 | EuroLLM-1.7B | 0,7345 | 0,0103 | 0,7138 – 0,7541 | float32 | [piqa/eurollm-1.7b](piqa/eurollm-1.7b/results_rozszerzone.json) |
-| 3 | Bielik-1.5B-v3 | 0,7187 | 0,0105 | 0,6980 – 0,7394 | float32 | [piqa/bielik-1.5b-v3](piqa/bielik-1.5b-v3/results_rozszerzone.json) |
-| 4 | Qwen3.5-0.8B-Base | 0,7133 | 0,0106 | 0,6926 – 0,7339 | float32 | [piqa/qwen3.5-0.8b-base](piqa/qwen3.5-0.8b-base/results_rozszerzone.json) |
-| 5 | Pythia-1B v0 | 0,7095 | 0,0106 | 0,6882 – 0,7301 | float32 | [piqa/pythia-1b-v0](piqa/pythia-1b-v0/results_rozszerzone.json) |
-| 6 | LFM3-1.7B-Base | 0,6855 | 0,0108 | 0,6643 – 0,7067 | float32 | [piqa/lfm3-1.7b-base](piqa/lfm3-1.7b-base/results_rozszerzone.json) |
-| 7 | Slayer 1B 1.07 | 0,6697 | 0,0110 | 0,6485 – 0,6910 | float32 | [piqa/slayer1b-1.07-hf](piqa/slayer1b-1.07-hf/results_rozszerzone.json) |
-| 8 | Slayer 1B 1.08 | 0,6621 | 0,0110 | 0,6409 – 0,6839 | float32 | [piqa/slayer1b-1.08](piqa/slayer1b-1.08/results_rozszerzone.json) |
-| 9 | Slayer 1B 1.06 | 0,6415 | 0,0112 | 0,6197 – 0,6632 | float32 | [piqa/slayer1b-1.06](piqa/slayer1b-1.06/results_rozszerzone.json) |
-| 10 | Slayer 1B 1.05 | 0,6382 | 0,0112 | 0,6159 – 0,6600 | float32 | [piqa/slayer1b-1.05](piqa/slayer1b-1.05/results_rozszerzone.json) |
-| 11 | Slayer 1B 1.04 | 0,6257 | 0,0113 | 0,6039 – 0,6480 | float32 | [piqa/slayer1b-1.04](piqa/slayer1b-1.04/results_rozszerzone.json) |
-| 12 | Slayer 1B 1.03 | 0,6219 | 0,0113 | 0,6001 – 0,6442 | float32 | [piqa/slayer1b-1.03](piqa/slayer1b-1.03/results_rozszerzone.json) |
-| 13 | Slayer 1B 1.02 | 0,6055 | 0,0114 | 0,5838 – 0,6279 | float32 | [piqa/slayer1b-1.02](piqa/slayer1b-1.02/results_rozszerzone.json) |
-| 14 | Slayer 1B 1.01 | 0,5876 | 0,0115 | 0,5653 – 0,6099 | float32 | [piqa/slayer1b-1.01](piqa/slayer1b-1.01/results_rozszerzone.json) |
-| 15 | Slayer 1B 1.00 | 0,5762 | 0,0115 | 0,5539 – 0,5985 | float32 | [piqa/slayer1b-1.00](piqa/slayer1b-1.00/results_rozszerzone.json) |
+<a id="wikitext-2"></a>
+<details>
+<summary><b>WikiText-2</b>: Slayer 1.07 1,782, miejsce 7 z 7</summary>
 
-### PubMedQA
+byte perplexity, `T03`, n = 62.
 
-acc; `T44`, n = 500, wynik losowy 0,3333.
+<p align="center"><img src="charts/wikitext-2.svg" alt="WikiText-2: ranking z przedziałami 95%" width="100%"></p>
 
-![PubMedQA](charts/pubmedqa.png)
 
-| # | model | wartość | SE | CI95 | dtype | wyniki |
-|---:|---|---:|---:|---|---|---|
-| 1 | Bielik-11B-v3.0-Instruct | 0,7300 | 0,0199 | 0,6900 – 0,7680 | bfloat16 | [pubmedqa/bielik-11b-v3-instruct](pubmedqa/bielik-11b-v3-instruct/results_rozszerzone.json) |
-| 2 | Qwen3.5-0.8B-Base | 0,6760 | 0,0210 | 0,6360 – 0,7160 | float32 | [pubmedqa/qwen3.5-0.8b-base](pubmedqa/qwen3.5-0.8b-base/results_rozszerzone.json) |
-| 3 | Bielik-1.5B-v3 | 0,6240 | 0,0217 | 0,5820 – 0,6660 | float32 | [pubmedqa/bielik-1.5b-v3](pubmedqa/bielik-1.5b-v3/results_rozszerzone.json) |
-| 4 | LFM3-1.7B-Base | 0,5940 | 0,0220 | 0,5500 – 0,6360 | float32 | [pubmedqa/lfm3-1.7b-base](pubmedqa/lfm3-1.7b-base/results_rozszerzone.json) |
-| 5 | Pythia-1B v0 | 0,5660 | 0,0222 | 0,5220 – 0,6080 | float32 | [pubmedqa/pythia-1b-v0](pubmedqa/pythia-1b-v0/results_rozszerzone.json) |
-| 6 | Slayer 1B 1.01 | 0,5440 | 0,0223 | 0,5000 – 0,5880 | float32 | [pubmedqa/slayer1b-1.01](pubmedqa/slayer1b-1.01/results_rozszerzone.json) |
-| 7 | Slayer 1B 1.02 | 0,5380 | 0,0223 | 0,4940 – 0,5820 | float32 | [pubmedqa/slayer1b-1.02](pubmedqa/slayer1b-1.02/results_rozszerzone.json) |
-| 8 | Slayer 1B 1.07 | 0,5360 | 0,0223 | 0,4920 – 0,5800 | float32 | [pubmedqa/slayer1b-1.07-hf](pubmedqa/slayer1b-1.07-hf/results_rozszerzone.json) |
-| 9 | EuroLLM-1.7B | 0,5300 | 0,0223 | 0,4860 – 0,5740 | float32 | [pubmedqa/eurollm-1.7b](pubmedqa/eurollm-1.7b/results_rozszerzone.json) |
-| 10 | Slayer 1B 1.04 | 0,5280 | 0,0223 | 0,4840 – 0,5720 | float32 | [pubmedqa/slayer1b-1.04](pubmedqa/slayer1b-1.04/results_rozszerzone.json) |
-| 11 | Slayer 1B 1.03 | 0,5240 | 0,0224 | 0,4800 – 0,5680 | float32 | [pubmedqa/slayer1b-1.03](pubmedqa/slayer1b-1.03/results_rozszerzone.json) |
-| 12 | Slayer 1B 1.05 | 0,5000 | 0,0224 | 0,4560 – 0,5440 | float32 | [pubmedqa/slayer1b-1.05](pubmedqa/slayer1b-1.05/results_rozszerzone.json) |
-| 13 | Slayer 1B 1.00 | 0,4980 | 0,0224 | 0,4540 – 0,5420 | float32 | [pubmedqa/slayer1b-1.00](pubmedqa/slayer1b-1.00/results_rozszerzone.json) |
-| 14 | Slayer 1B 1.06 | 0,4760 | 0,0224 | 0,4320 – 0,5200 | float32 | [pubmedqa/slayer1b-1.06](pubmedqa/slayer1b-1.06/results_rozszerzone.json) |
-| 15 | Slayer 1B 1.08 | 0,4340 | 0,0222 | 0,3920 – 0,4780 | float32 | [pubmedqa/slayer1b-1.08](pubmedqa/slayer1b-1.08/results_rozszerzone.json) |
+</details>
 
-### Social IQa
+<a id="winogrande"></a>
+<details>
+<summary><b>WinoGrande</b>: Slayer 1.07 0,5359, miejsce 7 z 7</summary>
 
-acc; `T46`, n = 1954, wynik losowy 0,3333.
+acc, `T07`, n = 1 267, wynik losowy 0,5000, najczęstsza odpowiedź 0,5043.
 
-![Social IQa](charts/social-iqa.png)
+<p align="center"><img src="charts/winogrande.svg" alt="WinoGrande: ranking z przedziałami 95%" width="100%"></p>
 
-| # | model | wartość | SE | CI95 | dtype | wyniki |
-|---:|---|---:|---:|---|---|---|
-| 1 | Bielik-11B-v3.0-Instruct | 0,5113 | 0,0113 | 0,4893 – 0,5338 | bfloat16 | [social-iqa/bielik-11b-v3-instruct](social-iqa/bielik-11b-v3-instruct/results_rozszerzone.json) |
-| 2 | LFM3-1.7B-Base | 0,4545 | 0,0113 | 0,4324 – 0,4770 | float32 | [social-iqa/lfm3-1.7b-base](social-iqa/lfm3-1.7b-base/results_rozszerzone.json) |
-| 3 | Bielik-1.5B-v3 | 0,4360 | 0,0112 | 0,4135 – 0,4585 | float32 | [social-iqa/bielik-1.5b-v3](social-iqa/bielik-1.5b-v3/results_rozszerzone.json) |
-| 4 | Qwen3.5-0.8B-Base | 0,4186 | 0,0112 | 0,3966 – 0,4406 | float32 | [social-iqa/qwen3.5-0.8b-base](social-iqa/qwen3.5-0.8b-base/results_rozszerzone.json) |
-| 5 | EuroLLM-1.7B | 0,4150 | 0,0111 | 0,3930 – 0,4371 | float32 | [social-iqa/eurollm-1.7b](social-iqa/eurollm-1.7b/results_rozszerzone.json) |
-| 6 | Pythia-1B v0 | 0,4023 | 0,0111 | 0,3808 – 0,4237 | float32 | [social-iqa/pythia-1b-v0](social-iqa/pythia-1b-v0/results_rozszerzone.json) |
-| 7 | Slayer 1B 1.08 | 0,3966 | 0,0111 | 0,3751 – 0,4186 | float32 | [social-iqa/slayer1b-1.08](social-iqa/slayer1b-1.08/results_rozszerzone.json) |
-| 8 | Slayer 1B 1.07 | 0,3910 | 0,0110 | 0,3695 – 0,4130 | float32 | [social-iqa/slayer1b-1.07-hf](social-iqa/slayer1b-1.07-hf/results_rozszerzone.json) |
-| 9 | Slayer 1B 1.05 | 0,3905 | 0,0110 | 0,3690 – 0,4125 | float32 | [social-iqa/slayer1b-1.05](social-iqa/slayer1b-1.05/results_rozszerzone.json) |
-| 10 | Slayer 1B 1.06 | 0,3895 | 0,0110 | 0,3680 – 0,4115 | float32 | [social-iqa/slayer1b-1.06](social-iqa/slayer1b-1.06/results_rozszerzone.json) |
-| 11 | Slayer 1B 1.04 | 0,3797 | 0,0110 | 0,3582 – 0,4007 | float32 | [social-iqa/slayer1b-1.04](social-iqa/slayer1b-1.04/results_rozszerzone.json) |
-| 12 | Slayer 1B 1.03 | 0,3741 | 0,0109 | 0,3526 – 0,3951 | float32 | [social-iqa/slayer1b-1.03](social-iqa/slayer1b-1.03/results_rozszerzone.json) |
-| 13 | Slayer 1B 1.02 | 0,3690 | 0,0109 | 0,3475 – 0,3905 | float32 | [social-iqa/slayer1b-1.02](social-iqa/slayer1b-1.02/results_rozszerzone.json) |
-| 14 | Slayer 1B 1.01 | 0,3582 | 0,0108 | 0,3373 – 0,3792 | float32 | [social-iqa/slayer1b-1.01](social-iqa/slayer1b-1.01/results_rozszerzone.json) |
-| 15 | Slayer 1B 1.00 | 0,3577 | 0,0108 | 0,3367 – 0,3787 | float32 | [social-iqa/slayer1b-1.00](social-iqa/slayer1b-1.00/results_rozszerzone.json) |
 
-### WikiText-2
+</details>
 
-byte perplexity, niżej = lepiej; `T03`, n = 62.
+<a id="wsc273"></a>
+<details>
+<summary><b>WSC273</b>: Slayer 1.07 0,6154, miejsce 7 z 7</summary>
 
-![WikiText-2](charts/wikitext-2.png)
+acc, `T14`, n = 273, wynik losowy 0,5000, najczęstsza odpowiedź 0,5018.
 
-| # | model | wartość | SE | CI95 | dtype | wyniki |
-|---:|---|---:|---:|---|---|---|
-| 1 | Bielik-11B-v3.0-Instruct | 1,566 | 0,0110 | 1,545 – 1,588 | bfloat16 | [wikitext-2/bielik-11b-v3-instruct](wikitext-2/bielik-11b-v3-instruct/results_rozszerzone.json) |
-| 2 | EuroLLM-1.7B | 1,608 | 0,0137 | 1,582 – 1,635 | float32 | [wikitext-2/eurollm-1.7b](wikitext-2/eurollm-1.7b/results_rozszerzone.json) |
-| 3 | LFM3-1.7B-Base | 1,616 | 0,0142 | 1,588 – 1,644 | float32 | [wikitext-2/lfm3-1.7b-base](wikitext-2/lfm3-1.7b-base/results_rozszerzone.json) |
-| 4 | Bielik-1.5B-v3 | 1,674 | 0,0109 | 1,653 – 1,695 | float32 | [wikitext-2/bielik-1.5b-v3](wikitext-2/bielik-1.5b-v3/results_rozszerzone.json) |
-| 5 | Qwen3.5-0.8B-Base | 1,717 | 0,0130 | 1,692 – 1,743 | float32 | [wikitext-2/qwen3.5-0.8b-base](wikitext-2/qwen3.5-0.8b-base/results_rozszerzone.json) |
-| 6 | Slayer 1B 1.08 | 1,780 | 0,0149 | 1,752 – 1,810 | float32 | [wikitext-2/slayer1b-1.08](wikitext-2/slayer1b-1.08/results_rozszerzone.json) |
-| 7 | Slayer 1B 1.07 | 1,782 | 0,0147 | 1,754 – 1,811 | float32 | [wikitext-2/slayer1b-1.07-hf](wikitext-2/slayer1b-1.07-hf/results_rozszerzone.json) |
-| 8 | Slayer 1B 1.06 | 1,846 | 0,0162 | 1,816 – 1,879 | float32 | [wikitext-2/slayer1b-1.06](wikitext-2/slayer1b-1.06/results_rozszerzone.json) |
-| 9 | Slayer 1B 1.05 | 1,851 | 0,0161 | 1,821 – 1,884 | float32 | [wikitext-2/slayer1b-1.05](wikitext-2/slayer1b-1.05/results_rozszerzone.json) |
-| 10 | Slayer 1B 1.04 | 1,870 | 0,0163 | 1,840 – 1,903 | float32 | [wikitext-2/slayer1b-1.04](wikitext-2/slayer1b-1.04/results_rozszerzone.json) |
-| 11 | Slayer 1B 1.03 | 1,899 | 0,0168 | 1,867 – 1,932 | float32 | [wikitext-2/slayer1b-1.03](wikitext-2/slayer1b-1.03/results_rozszerzone.json) |
-| 12 | Slayer 1B 1.02 | 1,917 | 0,0168 | 1,885 – 1,951 | float32 | [wikitext-2/slayer1b-1.02](wikitext-2/slayer1b-1.02/results_rozszerzone.json) |
-| 13 | Slayer 1B 1.01 | 1,959 | 0,0178 | 1,926 – 1,995 | float32 | [wikitext-2/slayer1b-1.01](wikitext-2/slayer1b-1.01/results_rozszerzone.json) |
-| 14 | Slayer 1B 1.00 | 2,071 | 0,0194 | 2,034 – 2,110 | float32 | [wikitext-2/slayer1b-1.00](wikitext-2/slayer1b-1.00/results_rozszerzone.json) |
-| 15 | Pythia-1B v0 | 2,423 | 0,0514 | 2,311 – 2,513 | float32 | [wikitext-2/pythia-1b-v0](wikitext-2/pythia-1b-v0/results_rozszerzone.json) |
+<p align="center"><img src="charts/wsc273.svg" alt="WSC273: ranking z przedziałami 95%" width="100%"></p>
 
-### WinoGrande
 
-acc, SE po parach zdań; `T07`, n = 1267, wynik losowy 0,5000.
+</details>
 
-![WinoGrande](charts/winogrande.png)
+<a id="arc-challenge"></a>
+<details>
+<summary><b>ARC-Challenge</b> (wstępny): Slayer 1.07 0,2730, miejsce 7 z 7</summary>
 
-| # | model | wartość | SE | CI95 | dtype | wyniki |
-|---:|---|---:|---:|---|---|---|
-| 1 | Bielik-11B-v3.0-Instruct | 0,7301 | 0,0124 | 0,7063 – 0,7546 | bfloat16 | [winogrande/bielik-11b-v3-instruct](winogrande/bielik-11b-v3-instruct/results_rozszerzone.json) |
-| 2 | Bielik-1.5B-v3 | 0,6235 | 0,0129 | 0,5987 – 0,6491 | float32 | [winogrande/bielik-1.5b-v3](winogrande/bielik-1.5b-v3/results_rozszerzone.json) |
-| 3 | Qwen3.5-0.8B-Base | 0,6006 | 0,0129 | 0,5751 – 0,6255 | float32 | [winogrande/qwen3.5-0.8b-base](winogrande/qwen3.5-0.8b-base/results_rozszerzone.json) |
-| 4 | EuroLLM-1.7B | 0,5904 | 0,0127 | 0,5658 – 0,6154 | float32 | [winogrande/eurollm-1.7b](winogrande/eurollm-1.7b/results_rozszerzone.json) |
-| 5 | LFM3-1.7B-Base | 0,5856 | 0,0132 | 0,5595 – 0,6116 | float32 | [winogrande/lfm3-1.7b-base](winogrande/lfm3-1.7b-base/results_rozszerzone.json) |
-| 6 | Pythia-1B v0 | 0,5446 | 0,0125 | 0,5196 – 0,5697 | float32 | [winogrande/pythia-1b-v0](winogrande/pythia-1b-v0/results_rozszerzone.json) |
-| 7 | Slayer 1B 1.08 | 0,5367 | 0,0127 | 0,5113 – 0,5612 | float32 | [winogrande/slayer1b-1.08](winogrande/slayer1b-1.08/results_rozszerzone.json) |
-| 8 | Slayer 1B 1.07 | 0,5359 | 0,0129 | 0,5107 – 0,5614 | float32 | [winogrande/slayer1b-1.07-hf](winogrande/slayer1b-1.07-hf/results_rozszerzone.json) |
-| 9 | Slayer 1B 1.03 | 0,5351 | 0,0129 | 0,5096 – 0,5602 | float32 | [winogrande/slayer1b-1.03](winogrande/slayer1b-1.03/results_rozszerzone.json) |
-| 10 | Slayer 1B 1.05 | 0,5225 | 0,0124 | 0,4980 – 0,5468 | float32 | [winogrande/slayer1b-1.05](winogrande/slayer1b-1.05/results_rozszerzone.json) |
-| 11 | Slayer 1B 1.06 | 0,5217 | 0,0122 | 0,4976 – 0,5457 | float32 | [winogrande/slayer1b-1.06](winogrande/slayer1b-1.06/results_rozszerzone.json) |
-| 12 | Slayer 1B 1.01 | 0,5201 | 0,0126 | 0,4957 – 0,5452 | float32 | [winogrande/slayer1b-1.01](winogrande/slayer1b-1.01/results_rozszerzone.json) |
-| 13 | Slayer 1B 1.04 | 0,5114 | 0,0128 | 0,4860 – 0,5368 | float32 | [winogrande/slayer1b-1.04](winogrande/slayer1b-1.04/results_rozszerzone.json) |
-| 14 | Slayer 1B 1.02 | 0,5107 | 0,0125 | 0,4865 – 0,5353 | float32 | [winogrande/slayer1b-1.02](winogrande/slayer1b-1.02/results_rozszerzone.json) |
-| 15 | Slayer 1B 1.00 | 0,5051 | 0,0127 | 0,4801 – 0,5303 | float32 | [winogrande/slayer1b-1.00](winogrande/slayer1b-1.00/results_rozszerzone.json) |
+acc_norm, `T02`, n = 1 172, wynik losowy 0,2502, najczęstsza odpowiedź 0,2654.
 
-### WSC273
+<p align="center"><img src="charts/arc-challenge.svg" alt="ARC-Challenge: ranking z przedziałami 95%" width="100%"></p>
 
-acc, SE po schematach; `T14`, n = 273, wynik losowy 0,5000.
+| # | Model | Etykieta | Rozmiar | Wartość | SE | CI95 | lm_eval | Precyzja | Kontaminacja | Wyniki |
+|---:|---|---|---:|---:|---:|---|---|---|---|---|
+| 1 | Bielik-11B-v3.0-Instruct | instruct, surowy tekst | 11,17B | 0,5811 | 0,0144 | 0,5529 – 0,6101 | 0.4.9.1 | bfloat16 | nieznana | [plik](arc-challenge/bielik-11b-v3-instruct/results_rozszerzone.json) |
+| 2 | LFM3-1.7B-Base | – | 1,73B | 0,4292 | 0,0145 | 0,4010 – 0,4582 | 0.4.13 | float32 | nieznana | [plik](arc-challenge/lfm3-1.7b-base/results_rozszerzone.json) |
+| 3 | Qwen3.5-0.8B-Base | – | 0,87B | 0,4044 | 0,0143 | 0,3763 – 0,4326 | 0.4.13 | float32 | nieznana | [plik](arc-challenge/qwen3.5-0.8b-base/results_rozszerzone.json) |
+| 4 | EuroLLM-1.7B | – | 1,66B | 0,3746 | 0,0141 | 0,3473 – 0,4027 | 0.4.9.1 | float32 | nieznana | [plik](arc-challenge/eurollm-1.7b/results_rozszerzone.json) |
+| 5 | Bielik-1.5B-v3 | – | 1,60B | 0,3609 | 0,0140 | 0,3336 – 0,3891 | 0.4.9.1 | float32 | nieznana | [plik](arc-challenge/bielik-1.5b-v3/results_rozszerzone.json) |
+| 6 | Pythia-1B v0 | – | 1,08B | 0,2747 | 0,0130 | 0,2500 – 0,3020 | 0.4.9.1 | float32 | nieznana | [plik](arc-challenge/pythia-1b-v0/results_rozszerzone.json) |
+| 7 | **Slayer 1B 1.07** | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | **0,2730** | 0,0130 | 0,2474 – 0,2995 | 0.4.9.1 | float32 | nieznana | [plik](arc-challenge/slayer1b-1.07-hf/results_rozszerzone.json) |
 
-![WSC273](charts/wsc273.png)
+</details>
 
-| # | model | wartość | SE | CI95 | dtype | wyniki |
-|---:|---|---:|---:|---|---|---|
-| 1 | Bielik-11B-v3.0-Instruct | 0,8242 | 0,0244 | 0,7757 – 0,8704 | bfloat16 | [wsc273/bielik-11b-v3-instruct](wsc273/bielik-11b-v3-instruct/results_rozszerzone.json) |
-| 2 | Bielik-1.5B-v3 | 0,7656 | 0,0243 | 0,7159 – 0,8118 | float32 | [wsc273/bielik-1.5b-v3](wsc273/bielik-1.5b-v3/results_rozszerzone.json) |
-| 3 | LFM3-1.7B-Base | 0,7143 | 0,0242 | 0,6666 – 0,7610 | float32 | [wsc273/lfm3-1.7b-base](wsc273/lfm3-1.7b-base/results_rozszerzone.json) |
-| 4 | Qwen3.5-0.8B-Base | 0,7143 | 0,0233 | 0,6691 – 0,7591 | float32 | [wsc273/qwen3.5-0.8b-base](wsc273/qwen3.5-0.8b-base/results_rozszerzone.json) |
-| 5 | EuroLLM-1.7B | 0,7106 | 0,0263 | 0,6593 – 0,7609 | float32 | [wsc273/eurollm-1.7b](wsc273/eurollm-1.7b/results_rozszerzone.json) |
-| 6 | Pythia-1B v0 | 0,6740 | 0,0211 | 0,6327 – 0,7143 | float32 | [wsc273/pythia-1b-v0](wsc273/pythia-1b-v0/results_rozszerzone.json) |
-| 7 | Slayer 1B 1.07 | 0,6154 | 0,0206 | 0,5745 – 0,6556 | float32 | [wsc273/slayer1b-1.07-hf](wsc273/slayer1b-1.07-hf/results_rozszerzone.json) |
-| 8 | Slayer 1B 1.08 | 0,6154 | 0,0221 | 0,5720 – 0,6593 | float32 | [wsc273/slayer1b-1.08](wsc273/slayer1b-1.08/results_rozszerzone.json) |
-| 9 | Slayer 1B 1.06 | 0,5897 | 0,0201 | 0,5498 – 0,6287 | float32 | [wsc273/slayer1b-1.06](wsc273/slayer1b-1.06/results_rozszerzone.json) |
-| 10 | Slayer 1B 1.05 | 0,5861 | 0,0222 | 0,5435 – 0,6277 | float32 | [wsc273/slayer1b-1.05](wsc273/slayer1b-1.05/results_rozszerzone.json) |
-| 11 | Slayer 1B 1.02 | 0,5714 | 0,0219 | 0,5290 – 0,6140 | float32 | [wsc273/slayer1b-1.02](wsc273/slayer1b-1.02/results_rozszerzone.json) |
-| 12 | Slayer 1B 1.03 | 0,5604 | 0,0218 | 0,5166 – 0,6036 | float32 | [wsc273/slayer1b-1.03](wsc273/slayer1b-1.03/results_rozszerzone.json) |
-| 13 | Slayer 1B 1.04 | 0,5604 | 0,0225 | 0,5166 – 0,6037 | float32 | [wsc273/slayer1b-1.04](wsc273/slayer1b-1.04/results_rozszerzone.json) |
-| 14 | Slayer 1B 1.01 | 0,5531 | 0,0210 | 0,5110 – 0,5949 | float32 | [wsc273/slayer1b-1.01](wsc273/slayer1b-1.01/results_rozszerzone.json) |
-| 15 | Slayer 1B 1.00 | 0,5385 | 0,0204 | 0,5000 – 0,5778 | float32 | [wsc273/slayer1b-1.00](wsc273/slayer1b-1.00/results_rozszerzone.json) |
+<a id="mathqa"></a>
+<details>
+<summary><b>MathQA</b> (wstępny): Slayer 1.07 0,2345, miejsce 7 z 7</summary>
 
-## Do sprawdzenia i niepoliczone
+acc_norm, `T19`, n = 2 985, wynik losowy 0,2000, najczęstsza odpowiedź 0,2265.
 
-- **LFM2.5-1.2B-Base**: liczony w env lock (transformers 4.57.6, lm_eval 0.4.9.1); przebieg centralny liczył go w env new (lm_eval 0.4.13) i ma inne wyniki we wszystkich testach z kontekstem, a identyczne w BLiMP i MultiBLiMP-PL (bez kontekstu); w testach z PMI kontekst obniża logprob poprawnej odpowiedzi (HellaSwag, PIQA), więc kontekst jest przetwarzany źle; do powtórki w env new.
-- **LFM3-1.7B (Instruct)**: model instruct liczony na surowym tekście, bez chat template; w PIQA kontekst obniża logprob poprawnej odpowiedzi, w ARC prawie nic nie wnosi; brak wyniku odniesienia, więc nie wiadomo, czy to cecha modelu, czy błąd przebiegu.
-- **Bielik-11B-v3-Base**: tokenizer: add_prefix_space=true w tokenizer_config wymusza budowę slow tokenizera, a repo nie ma tokenizer.model (transformers 4.57.6).
-- **Bielik-11B-v3.0-Instruct**: ewok.py liczy tylko float32.
+<p align="center"><img src="charts/mathqa.svg" alt="MathQA: ranking z przedziałami 95%" width="100%"></p>
+
+| # | Model | Etykieta | Rozmiar | Wartość | SE | CI95 | lm_eval | Precyzja | Kontaminacja | Wyniki |
+|---:|---|---|---:|---:|---:|---|---|---|---|---|
+| 1 | Bielik-11B-v3.0-Instruct | instruct, surowy tekst | 11,17B | 0,4848 | 0,0091 | 0,4670 – 0,5025 | 0.4.9.1 | bfloat16 | nieznana | [plik](mathqa/bielik-11b-v3-instruct/results_rozszerzone.json) |
+| 2 | LFM3-1.7B-Base | – | 1,73B | 0,3906 | 0,0089 | 0,3735 – 0,4084 | 0.4.13 | float32 | nieznana | [plik](mathqa/lfm3-1.7b-base/results_rozszerzone.json) |
+| 3 | Qwen3.5-0.8B-Base | – | 0,87B | 0,3337 | 0,0086 | 0,3169 – 0,3511 | 0.4.13 | float32 | nieznana | [plik](mathqa/qwen3.5-0.8b-base/results_rozszerzone.json) |
+| 4 | Bielik-1.5B-v3 | – | 1,60B | 0,3240 | 0,0086 | 0,3075 – 0,3407 | 0.4.9.1 | float32 | nieznana | [plik](mathqa/bielik-1.5b-v3/results_rozszerzone.json) |
+| 5 | EuroLLM-1.7B | – | 1,66B | 0,2422 | 0,0078 | 0,2271 – 0,2580 | 0.4.9.1 | float32 | nieznana | [plik](mathqa/eurollm-1.7b/results_rozszerzone.json) |
+| 6 | Pythia-1B v0 | – | 1,08B | 0,2352 | 0,0078 | 0,2204 – 0,2503 | 0.4.9.1 | float32 | nieznana | [plik](mathqa/pythia-1b-v0/results_rozszerzone.json) |
+| 7 | **Slayer 1B 1.07** | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | **0,2345** | 0,0078 | 0,2194 – 0,2499 | 0.4.9.1 | float32 | nieznana | [plik](mathqa/slayer1b-1.07-hf/results_rozszerzone.json) |
+
+</details>
+
+<a id="medmcqa"></a>
+<details>
+<summary><b>MedMCQA</b> (wstępny): Slayer 1.07 0,2991, miejsce 5 z 7</summary>
+
+acc, `T45`, n = 4 183, wynik losowy 0,2500, najczęstsza odpowiedź 0,3223.
+
+<p align="center"><img src="charts/medmcqa.svg" alt="MedMCQA: ranking z przedziałami 95%" width="100%"></p>
+
+| # | Model | Etykieta | Rozmiar | Wartość | SE | CI95 | lm_eval | Precyzja | Kontaminacja | Wyniki |
+|---:|---|---|---:|---:|---:|---|---|---|---|---|
+| 1 | Bielik-11B-v3.0-Instruct | instruct, surowy tekst | 11,17B | 0,5357 | 0,0077 | 0,5209 – 0,5508 | 0.4.9.1 | bfloat16 | nieznana | [plik](medmcqa/bielik-11b-v3-instruct/results_rozszerzone.json) |
+| 2 | Qwen3.5-0.8B-Base | – | 0,87B | 0,4026 | 0,0076 | 0,3880 – 0,4176 | 0.4.13 | float32 | nieznana | [plik](medmcqa/qwen3.5-0.8b-base/results_rozszerzone.json) |
+| 3 | Bielik-1.5B-v3 | – | 1,60B | 0,3913 | 0,0075 | 0,3765 – 0,4062 | 0.4.9.1 | float32 | nieznana | [plik](medmcqa/bielik-1.5b-v3/results_rozszerzone.json) |
+| 4 | LFM3-1.7B-Base | – | 1,73B | 0,3782 | 0,0075 | 0,3636 – 0,3930 | 0.4.13 | float32 | nieznana | [plik](medmcqa/lfm3-1.7b-base/results_rozszerzone.json) |
+| 5 | **Slayer 1B 1.07** | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | **0,2991** | 0,0071 | 0,2854 – 0,3125 | 0.4.9.1 | float32 | nieznana | [plik](medmcqa/slayer1b-1.07-hf/results_rozszerzone.json) |
+| 6 | Pythia-1B v0 | – | 1,08B | 0,2811 | 0,0070 | 0,2678 – 0,2948 | 0.4.9.1 | float32 | nieznana | [plik](medmcqa/pythia-1b-v0/results_rozszerzone.json) |
+| 7 | EuroLLM-1.7B | – | 1,66B | 0,2582 | 0,0068 | 0,2450 – 0,2713 | 0.4.9.1 | float32 | nieznana | [plik](medmcqa/eurollm-1.7b/results_rozszerzone.json) |
+
+</details>
+
+<a id="multiblimp-pl"></a>
+<details>
+<summary><b>MultiBLiMP-PL</b> (wstępny): Slayer 1.07 0,9887, miejsce 2 z 7</summary>
+
+acc, `T04`, n = 3 272, wynik losowy 0,5000.
+
+<p align="center"><img src="charts/multiblimp-pl.svg" alt="MultiBLiMP-PL: ranking z przedziałami 95%" width="100%"></p>
+
+| # | Model | Etykieta | Rozmiar | Wartość | SE | CI95 | lm_eval | Precyzja | Kontaminacja | Wyniki |
+|---:|---|---|---:|---:|---:|---|---|---|---|---|
+| 1 | Bielik-11B-v3.0-Instruct | instruct, surowy tekst | 11,17B | 0,9957 | 0,0011 | 0,9933 – 0,9979 | 0.4.9.1 | bfloat16 | nieznana | [plik](multiblimp-pl/bielik-11b-v3-instruct/results_rozszerzone.json) |
+| 2 | **Slayer 1B 1.07** | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | **0,9887** | 0,0018 | 0,9850 – 0,9921 | 0.4.9.1 | float32 | nieznana | [plik](multiblimp-pl/slayer1b-1.07-hf/results_rozszerzone.json) |
+| 3 | Bielik-1.5B-v3 | – | 1,60B | 0,9447 | 0,0040 | 0,9364 – 0,9526 | 0.4.9.1 | float32 | nieznana | [plik](multiblimp-pl/bielik-1.5b-v3/results_rozszerzone.json) |
+| 4 | EuroLLM-1.7B | – | 1,66B | 0,9386 | 0,0042 | 0,9303 – 0,9468 | 0.4.9.1 | float32 | nieznana | [plik](multiblimp-pl/eurollm-1.7b/results_rozszerzone.json) |
+| 5 | LFM3-1.7B-Base | – | 1,73B | 0,8915 | 0,0054 | 0,8808 – 0,9022 | 0.4.13 | float32 | nieznana | [plik](multiblimp-pl/lfm3-1.7b-base/results_rozszerzone.json) |
+| 6 | Qwen3.5-0.8B-Base | – | 0,87B | 0,8450 | 0,0063 | 0,8325 – 0,8576 | 0.4.13 | float32 | nieznana | [plik](multiblimp-pl/qwen3.5-0.8b-base/results_rozszerzone.json) |
+| 7 | Pythia-1B v0 | – | 1,08B | 0,8013 | 0,0070 | 0,7873 – 0,8148 | 0.4.9.1 | float32 | nieznana | [plik](multiblimp-pl/pythia-1b-v0/results_rozszerzone.json) |
+
+</details>
+
+<a id="pubmedqa"></a>
+<details>
+<summary><b>PubMedQA</b> (wstępny): Slayer 1.07 0,5360, miejsce 6 z 7</summary>
+
+acc, `T44`, n = 500, wynik losowy 0,3333, najczęstsza odpowiedź 0,5520.
+
+<p align="center"><img src="charts/pubmedqa.svg" alt="PubMedQA: ranking z przedziałami 95%" width="100%"></p>
+
+| # | Model | Etykieta | Rozmiar | Wartość | SE | CI95 | lm_eval | Precyzja | Kontaminacja | Wyniki |
+|---:|---|---|---:|---:|---:|---|---|---|---|---|
+| 1 | Bielik-11B-v3.0-Instruct | instruct, surowy tekst | 11,17B | 0,7300 | 0,0199 | 0,6900 – 0,7680 | 0.4.9.1 | bfloat16 | nieznana | [plik](pubmedqa/bielik-11b-v3-instruct/results_rozszerzone.json) |
+| 2 | Qwen3.5-0.8B-Base | – | 0,87B | 0,6760 | 0,0210 | 0,6360 – 0,7160 | 0.4.13 | float32 | nieznana | [plik](pubmedqa/qwen3.5-0.8b-base/results_rozszerzone.json) |
+| 3 | Bielik-1.5B-v3 | – | 1,60B | 0,6240 | 0,0217 | 0,5820 – 0,6660 | 0.4.9.1 | float32 | nieznana | [plik](pubmedqa/bielik-1.5b-v3/results_rozszerzone.json) |
+| 4 | LFM3-1.7B-Base | – | 1,73B | 0,5940 | 0,0220 | 0,5500 – 0,6360 | 0.4.13 | float32 | nieznana | [plik](pubmedqa/lfm3-1.7b-base/results_rozszerzone.json) |
+| 5 | Pythia-1B v0 | – | 1,08B | 0,5660 | 0,0222 | 0,5220 – 0,6080 | 0.4.9.1 | float32 | nieznana | [plik](pubmedqa/pythia-1b-v0/results_rozszerzone.json) |
+| 6 | **Slayer 1B 1.07** | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | **0,5360** | 0,0223 | 0,4920 – 0,5800 | 0.4.9.1 | float32 | nieznana | [plik](pubmedqa/slayer1b-1.07-hf/results_rozszerzone.json) |
+| 7 | EuroLLM-1.7B | – | 1,66B | 0,5300 | 0,0223 | 0,4860 – 0,5740 | 0.4.9.1 | float32 | nieznana | [plik](pubmedqa/eurollm-1.7b/results_rozszerzone.json) |
+
+</details>
+
+<a id="social-iqa"></a>
+<details>
+<summary><b>Social IQa</b> (wstępny): Slayer 1.07 0,3910, miejsce 7 z 7</summary>
+
+acc, `T46`, n = 1 954, wynik losowy 0,3333, najczęstsza odpowiedź 0,3362.
+
+<p align="center"><img src="charts/social-iqa.svg" alt="Social IQa: ranking z przedziałami 95%" width="100%"></p>
+
+| # | Model | Etykieta | Rozmiar | Wartość | SE | CI95 | lm_eval | Precyzja | Kontaminacja | Wyniki |
+|---:|---|---|---:|---:|---:|---|---|---|---|---|
+| 1 | Bielik-11B-v3.0-Instruct | instruct, surowy tekst | 11,17B | 0,5113 | 0,0113 | 0,4893 – 0,5338 | 0.4.9.1 | bfloat16 | nieznana | [plik](social-iqa/bielik-11b-v3-instruct/results_rozszerzone.json) |
+| 2 | LFM3-1.7B-Base | – | 1,73B | 0,4545 | 0,0113 | 0,4324 – 0,4770 | 0.4.13 | float32 | nieznana | [plik](social-iqa/lfm3-1.7b-base/results_rozszerzone.json) |
+| 3 | Bielik-1.5B-v3 | – | 1,60B | 0,4360 | 0,0112 | 0,4135 – 0,4585 | 0.4.9.1 | float32 | nieznana | [plik](social-iqa/bielik-1.5b-v3/results_rozszerzone.json) |
+| 4 | Qwen3.5-0.8B-Base | – | 0,87B | 0,4186 | 0,0112 | 0,3966 – 0,4406 | 0.4.13 | float32 | nieznana | [plik](social-iqa/qwen3.5-0.8b-base/results_rozszerzone.json) |
+| 5 | EuroLLM-1.7B | – | 1,66B | 0,4150 | 0,0111 | 0,3930 – 0,4371 | 0.4.9.1 | float32 | nieznana | [plik](social-iqa/eurollm-1.7b/results_rozszerzone.json) |
+| 6 | Pythia-1B v0 | – | 1,08B | 0,4023 | 0,0111 | 0,3808 – 0,4237 | 0.4.9.1 | float32 | nieznana | [plik](social-iqa/pythia-1b-v0/results_rozszerzone.json) |
+| 7 | **Slayer 1B 1.07** | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | **0,3910** | 0,0110 | 0,3695 – 0,4130 | 0.4.9.1 | float32 | nieznana | [plik](social-iqa/slayer1b-1.07-hf/results_rozszerzone.json) |
+
+</details>
+
+## Zastrzeżenia
+
+- BOS: Slayer ma jeden wiodący BOS, modele odniesienia były liczone bez BOS, EWoK liczy kod autorów z tokenami specjalnymi tokenizera; wpływ zmierzono wyłącznie na Pythii-1B v0.
+- Dwa środowiska, wpływu wersji nie mierzono: lm_eval 0.4.13: LFM3-1.7B (Instruct), LFM3-1.7B-Base, Qwen3.5-0.8B-Base, pozostałe lm_eval 0.4.9.1.
+- Różnice między modelami pokazują tylko przedziały; porównania parowane są wyłącznie między wersjami Slayera, a miejsce w tabeli nie mówi o istotności.
+- Slayer jest uczony głównie po polsku, a testy poza MultiBLiMP-PL są po angielsku; bez oceny łącznej, bo zestaw testów i wagi nie są ustalone.
+- Slayer 1.00–1.07 to checkpointy bez wygaszania LR; wniosek „słabszy od modelu X” wymaga porównania z Pythią przy tej samej liczbie tokenów, którego tu nie ma.
+- Kontaminacja: nieznana przy każdym wyniku, skanu nie było.
+- Slayer na WikiText-2 mieści się w oknie modelu: 4096 tokenów = `block`, wszystkie wersje (9).
+- Pythia-1B na WikiText-2: wynik z limitem 2048 tokenów (okno modelu), poprzedni w polu `poprawka` manifestu.
+
+<details>
+<summary><b>Weryfikacja</b></summary>
+
+### Weryfikacja
+
+- Każdy plik wyników ma sumę sha256 w `manifest.jsonl` (pole `pliki`); paczka z próbkami przeszła ją w całości przed rozpakowaniem tutaj.
+- Każda wartość została przeliczona od nowa z zapisanych logprobów per pytanie (te same reguły co `common/metryki.py` i `benchmarks/ewok/ewok.py`): wszystkie pary zgodne co do bitu.
+- Wspólne pary z `results/central-run` (przebieg centralny fabryki): 28 z 32 identycznych do 4 miejsc po przecinku. Różne tylko: LFM2.5-1.2B-Base (sekcja [Do sprawdzenia](#do-sprawdzenia-i-niepoliczone)).
+- Kontrole etapu B z `tools/ewaluacja/kontrole.json` (Pythia-1B v0: PIQA, WinoGrande, LAMBADA, ARC-Easy, BLiMP) dały tu te same wartości co lokalny przebieg kontrolny w `tools/ewaluacja/wyniki_kontrolne/`.
+
+</details>
+
+<details>
+<summary><b>Do sprawdzenia i niepoliczone</b></summary>
+
+### Do sprawdzenia i niepoliczone
+
+Flagi nadają reguły `flag_rules` i `window_exceeded` w `tools/ewaluacja/raport.py`, te same dla każdego modelu: (1) `acc_pmi` poniżej bazy losowej na co najmniej 2 testach z PMI (kontekst obniża prawdopodobieństwo poprawnej odpowiedzi); próg ustalony po obejrzeniu tego przebiegu, nie przed nim; (2) wynik różni się od `results/central-run` przy tej samej rewizji i wagach; (3) WikiText liczony oknem dłuższym niż okno modelu. Spełnienie (1) albo (2) flaguje wszystkie wyniki modelu.
+
+- **Bielik-11B-v3-Base** (wszystkie testy), niepoliczone: tokenizer: add_prefix_space=true w tokenizer_config wymusza budowę slow tokenizera, a repo nie ma tokenizer.model (transformers 4.57.6).
+- **Bielik-11B-v3.0-Instruct** (EWoK), niepoliczone: ewok.py liczy tylko float32.
 
 Różnice wobec `results/central-run` (ten sam model, rewizja i sha256 wag; tam lm_eval 0.4.13, tu 0.4.9.1):
 
@@ -592,19 +619,26 @@ Różnice wobec `results/central-run` (ten sam model, rewizja i sha256 wag; tam 
 | PubMedQA | LFM2.5-1.2B-Base | 0,5680 | 0,6380 |
 | Social IQa | LFM2.5-1.2B-Base | 0,3398 | 0,4284 |
 
-## Pliki i odtworzenie
+</details>
+
+<details>
+<summary><b>Pliki i odtworzenie</b></summary>
+
+### Pliki i odtworzenie
 
 | plik | zawartość |
 |---|---|
 | `<test>/<model>/results.json` | wynik w schemacie Space (obserwacja, protokół, provenance) |
 | `<test>/<model>/results_rozszerzone.json` | to samo + metryki dodatkowe, SE, CI95, bazy, wersja lm_eval, dtype |
 | `<test>/<model>/scores-history-wiersz.csv` | wiersz w formacie scores-history.csv |
-| `manifest.jsonl` | jedna linia na parę model × test: repo, rewizja, env, dtype, komenda, czas, karta, sha256 wag, runnera i każdego pliku |
-| `srodowisko.json` | commit fabryki, karta, wersje i `pip freeze` środowisk `lock` i `new` |
+| `manifest.jsonl` | jedna linia na parę model × test: repo, rewizja, env, dtype, komenda, czas, karta, sha256 wag, runnera i każdego pliku; SE w skali wartości z tego wiersza |
+| `srodowisko.json` | commit fabryki, karta i stan środowisk `lock` i `new` |
 | `czasy.jsonl` | start, koniec i czas każdej pary oraz pobierania wag |
-| `przeglad.jsonl` | flaga każdego wyniku (`ok`, `do_sprawdzenia`, `niepoliczone`) z uwagami |
+| `przeglad.jsonl` | flaga, uwagi, kontaminacja, baza b, wersja lm_eval i `w_tabeli_codesota` każdego wyniku |
+| `sizes.json` | liczba parametrów każdego modelu policzona z wag |
 | `progresja.json` | porównania parowane wersji Slayera z tabel wyżej |
-| `charts/` | wykresy PNG z wartości tego pliku |
+| `bos-window-check/` | pomiar BOS i okna na Pythii oraz kontrola ARC-Challenge: protokół, raport, liczby, kod, wyniki bez próbek |
+| `charts/` | wykresy SVG z wartości tego katalogu |
 
 Próbki per pytanie (logprob każdej odpowiedzi, prompt, hash dokumentu) i logi par są w paczce `eksport_glowny_pelny.tgz` (sha256 `c91c940b8843a102399f1bc1052d564728781df85071f3701660ea5ccecd4317`), poza repo, bo skompresowane mają kilkaset MB.
 
@@ -614,4 +648,6 @@ Odtworzenie jednej pary (komenda z `manifest.jsonl`, pole `komenda`, albo przez 
 python tools/ewaluacja/ewaluacja.py --wyniki wyniki licz slayer1b-1.06 --zadania T02 --pobierz
 ```
 
-Cały przebieg: te same kolejki co tutaj, jedna na kartę (`CUDA_VISIBLE_DEVICES`), `--zadania gotowe --pobierz --usun-wagi`, potem `ewaluacja.py eksport`. Ten plik i wykresy: `python tools/ewaluacja/raport.py` (opis w nagłówku skryptu).
+Cały przebieg: te same kolejki co tutaj, jedna na kartę (`CUDA_VISIBLE_DEVICES`), `--zadania gotowe --pobierz --usun-wagi`, potem `ewaluacja.py eksport`. Ten plik i wykresy: `python tools/ewaluacja/raport.py results/full-run-2026-11 results/full-run-2026-11 --bez-porownan --odniesienie results/central-run`.
+
+</details>
