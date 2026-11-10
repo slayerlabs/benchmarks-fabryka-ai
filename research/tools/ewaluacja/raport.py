@@ -264,7 +264,14 @@ INSTRUCT_MODELS = {"bielik-11b-v3-instruct", "lfm3-1.7b"}
 AUTO_NOTES = ("reguła ", "liczony w env lock", "w testach z PMI", "do powtórki", "model instruct liczony",
               "w PIQA kontekst", "rewizja 5f854a0c", "checkpoint eksperymentalny")
 SHORT_NAMES = {"pythia-1b-v0": "Pythia", "qwen3.5-0.8b-base": "Qwen"}
-VERDICT_STATES = {"no_control": "bez kontroli: nierozstrzygnięte", "pending": "po przebiegu centralnym"}
+VERDICT_NO_CONTROL = "bez kontroli: nierozstrzygnięte"
+VERDICT_PENDING = "po przebiegu centralnym"
+VERDICT_MET = "spełnion"
+"""Only a stage B verdict starting with this stem (METODOLOGIA, warunek odtworzenia spełniony) enters the table."""
+OUT_OF_TABLE_REASONS = {
+    "wikitext-2": "werdykt etapu B „nierozstrzygalny”: perpleksja nie ma progu zapisanego przed pomiarem (METODOLOGIA, „Próg dla perpleksji i BPB”)",
+    "wsc273": "źródło kontroli nie podaje rewizji modelu, a wartość policzył inny kod zadania (METODOLOGIA, „Model kontrolny etapu B”, punkt 3: wynik „z rewizją i ustawieniami”); wynik wstępny",
+}
 PROTOCOL_BOS_THRESHOLD = 0.04
 
 CARD_1_08 = ("https://huggingface.co/SlayerLab/Slayer1B-1.08/blob/5f854a0cc7160594d54d1788d37a44e8ebabe16c/README.md")
@@ -294,22 +301,63 @@ def parse_verdict(card_text: str) -> str:
 
 
 def control_state(verdict: str) -> str:
-    """`no_control`, or `control` for any other final verdict; a card still waiting for its run is an error."""
+    """`control` only for a met stage B condition, `no_control` otherwise; a card still waiting for its run is an error."""
     low = verdict.lower()
-    if low.startswith(VERDICT_STATES["no_control"]):
-        return "no_control"
-    if low.startswith(VERDICT_STATES["pending"]):
+    if low.startswith(VERDICT_PENDING):
         raise ValueError(f"card without a stage B verdict: {verdict}")
-    return "control"
+    return "control" if low.startswith(VERDICT_MET) else "no_control"
 
 
 def read_cards(benchmarks: Path, names) -> dict:
-    """{test: {verdict, state}} read from `benchmarks/<test>/REPRODUCTION.md`."""
+    """{test: {verdict, state, text}} read from `benchmarks/<test>/REPRODUCTION.md`."""
     out = {}
     for name in names:
-        verdict = parse_verdict((benchmarks / name / "REPRODUCTION.md").read_text(encoding="utf-8"))
-        out[name] = {"verdict": verdict, "state": control_state(verdict)}
+        text = (benchmarks / name / "REPRODUCTION.md").read_text(encoding="utf-8")
+        verdict = parse_verdict(text)
+        out[name] = {"verdict": verdict, "state": control_state(verdict), "text": text}
     return out
+
+
+def hellaswag_control_note(card_text: str) -> str:
+    """Control and table of HellaSwag differ in few-shot; the two values come from the card."""
+    value = re.search(r"^\| wynik \(SE\) \| `acc_norm` (\d,\d+)", card_text, re.M).group(1)
+    reference = re.search(r"^\| wartość referencyjna i źródło \| (\d,\d+)", card_text, re.M).group(1)
+    return (f"Kontrola HellaSwag to EuroLLM-1.7B 10-shot `acc_norm` ({value} wobec {reference}), a tabela to 0-shot, "
+            "którego opublikowanej wartości nikt nie odtworzył.")
+
+
+def pmi_below_chance(results) -> list:
+    """Every result with `acc_pmi` below the random baseline, with z of that difference, in reading order."""
+    rows = []
+    for r in results:
+        pmi, chance = r.get("pmi"), r.get("chance")
+        if pmi is not None and chance is not None and pmi["value"] < chance:
+            z = (pmi["value"] - chance) / pmi["se"]
+            rows.append({"model": r["model"], "benchmark": r["benchmark"], "value": pmi["value"], "se": pmi["se"],
+                         "chance": chance, "z": z, "verdict": S.werdykt(z)})
+    return sorted(rows, key=lambda x: (x["model"], x["benchmark"]))
+
+
+def models_at_threshold(rows, threshold) -> list:
+    """Models with at least `threshold` entries of `pmi_below_chance`."""
+    counts = {}
+    for row in rows:
+        counts[row["model"]] = counts.get(row["model"], 0) + 1
+    return sorted(m for m, n in counts.items() if n >= threshold)
+
+
+def environment_gap(central) -> dict | None:
+    """Largest difference among results computed in both lm_eval versions: {models, diff, benchmark}."""
+    both = [z for z in central if z["lm_eval"] and z["lm_eval_odn"] and z["lm_eval"] != z["lm_eval_odn"]]
+    if not both:
+        return None
+    top = max(both, key=lambda z: abs(z["nasz"] - z["odniesienie"]))
+    return {"models": sorted({z["model"] for z in both}), "diff": abs(top["nasz"] - top["odniesienie"]), "benchmark": top["benchmark"]}
+
+
+def first_to_front(t: dict, first: dict, front: dict) -> str:
+    """Slayer 1.00 → 1.07 as a plain difference: METODOLOGIA pairs the same questions, and those samples are not in the repository."""
+    return format_number(front["v"] - first["v"], digits_of(t), plus=True)
 
 
 def read_test_types(readme_text: str) -> dict:
@@ -638,7 +686,7 @@ class Charts:
             b.append(f'<text x="{x}" y="{Y0 - 12}" class="m b" text-anchor="middle">{E(t["sk"] + ("°" if t["bk"] else ""))}</text>')
         if r_.TW:
             xs = X0 + len(r_.TK) * cw - 1
-            b.append(f'<line class="gl" x1="{xs}" x2="{xs}" y1="16" y2="{Y0 + ch * len(rows)}"/><text x="{xs + 8}" y="26" class="m">° bez kontroli, poza tabelą CodeSOTA</text>')
+            b.append(f'<line class="gl" x1="{xs}" x2="{xs}" y1="16" y2="{Y0 + ch * len(rows)}"/><text x="{xs + 8}" y="26" class="m">° poza tabelą CodeSOTA</text>')
         for i, (mid, lab, sl) in enumerate(rows):
             y = Y0 + i * ch
             cls = "b sl" if sl else ("" if self.ok_any(mid) else "m")
@@ -758,9 +806,11 @@ def result_row(run: Run, charts: Charts, t):
     entries = charts.entries(t)
     place = next(n for n, (i, _) in enumerate(entries, 1) if i == front)
     base = f"{format_number(t['b'], 4)} ({t['b_name']})" if t["b"] is not None else "nie dotyczy"
-    verdict = verdict_label(run.P1M[t["id"]], t).replace(" poprawa", "").replace(" ", "&nbsp;")
-    return md_row(f"[{t['nazwa']}](#{t['id']})", format_count(t["n"]), f"**{cell(d(front))}**", cell(d("pythia-1b-v0")), cell(d("qwen3.5-0.8b-base")), base,
-                  f"{place}/{len(entries)}", verdict)
+    in_class = [i for i, _ in entries if run.MN[i]["cl"] == "ok. 1B"]
+    progress = first_to_front(t, d(run.SL[0]), d(front))
+    mark = ROW_MARKS.get(t["id"], "") if not t["bk"] else ""
+    return md_row(f"[{t['nazwa']}](#{t['id']}){mark}", format_count(t["n"]), f"**{cell(d(front))}**", cell(d("pythia-1b-v0")), cell(d("qwen3.5-0.8b-base")), base,
+                  f"{place}/{len(entries)}", f"{in_class.index(front) + 1}/{len(in_class)}", progress)
 
 
 def rel(path, root: Path):
@@ -770,6 +820,9 @@ def rel(path, root: Path):
 # --------------------------------------------------------------------------- README
 
 BOS_DIR = "bos-window-check"
+ROW_MARKS = {"hellaswag": "¹"}
+BOS_SCOPE = ("Testy z niepustym kontekstem: Slayer ma jeden wiodący BOS, modele odniesienia były liczone bez BOS; wpływ zmierzono wyłącznie na Pythii-1B v0. "
+             "Nie dotyczy BLiMP i WikiText-2 (pusty kontekst). EWoK: reguła z karty, BOS jest wtedy, gdy dokleja go tokenizer modelu.")
 
 
 def bos_summary(numbers: dict) -> dict:
@@ -892,7 +945,7 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
       '<a href="https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks"><img src="../../../docs/img/wyniki-na-hf.svg" alt="Wyniki na HF" height="36"></a>')
     a("")
     a("> [!WARNING]")
-    a("> **BOS nie jest liczony jednakowo.** Slayer ma jeden wiodący BOS, a modele odniesienia były liczone bez BOS. Wpływ zmierzono wyłącznie na Pythii-1B v0: "
+    a(f"> **BOS nie jest liczony jednakowo.** {BOS_SCOPE} Zmiana u Pythii: "
       f"[najwyżej {format_number(bos_summary(bos)['max_change'], 4)} na testach z pomiaru BOS](#bos-okno-wikitext-i-kontrola-arc-challenge). Pozostałe zastrzeżenia: [Zastrzeżenia](#zastrzeżenia).")
     a("")
     a(f'<p align="center"><img src="charts/przemiana-wersji.svg" alt="Animacja: Slayer 1B od wersji {run.SLN[0]} do {front_name} na tle modeli odniesienia" width="100%"></p>')
@@ -901,9 +954,14 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     a("")
     a("## Tabela CodeSOTA")
     a("")
-    header = md_row("Test", "n", f"Slayer {front_name}", "Pythia-1B", "Qwen 0.8B", "Baza b", "Miejsce", f"{run.SLN[0]} → 1.08")
-    sep = "|---|---:|---:|---:|---:|---:|:---:|---|"
+    header = md_row("Test", "n", f"Slayer {front_name}", "Pythia-1B", "Qwen 0.8B", "Baza b", "Miejsce", "W klasie ok. 1B", f"{run.SLN[0]} → {front_name}")
+    sep = "|---|---:|---:|---:|---:|---:|:---:|:---:|---|"
     L += [header, sep] + [result_row(run, charts, t) for t in run.TK] + [""]
+    hellaswag_note = hellaswag_control_note(run.cards["hellaswag"]["text"])
+    a(f"¹ {hellaswag_note}")
+    a("")
+    a(f"Porównanie parowane {run.SLN[0]} → {front_name} wymaga próbek spoza repo; parowane {run.SLN[0]} → 1.08 jest w [postępie wersji](#postęp-wersji-slayera).")
+    a("")
     a(f"<details>\n<summary><b>Wiersze tabeli</b> ({len(in_table)})</summary>\n")
     a(md_row("Test", "Model", "Etykieta", "Parametry", "Klasa", "Wartość", "SE", "CI95", "b", "lm_eval", "Kontaminacja", "Wyniki"))
     a("|---|---|---|---:|---|---:|---:|---|---:|---|---|---|")
@@ -927,13 +985,17 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     a("\n</details>\n")
     a("### Poza tabelą")
     a("")
-    a(f"- {', '.join(t['nazwa'] for t in run.TW)}: bez kontroli, nierozstrzygnięte.")
+    no_control = [t for t in run.TW if t["verdict"].lower().startswith(VERDICT_NO_CONTROL)]
+    a(f"- {', '.join(t['nazwa'] for t in no_control)}: bez kontroli, nierozstrzygnięte.")
+    for t in run.TW:
+        if t not in no_control:
+            a(f"- {t['nazwa']}: {OUT_OF_TABLE_REASONS.get(t['id'], t['verdict'])}.")
     for model in flagged_models:
         reasons = sorted({n for r in rows if r.get("model") == model for n in r.get("uwagi", []) if n.startswith("reguła ")})
         a(f"- {nazwa(model)}: " + "; ".join(reasons) + ".")
     a(f"- Slayer {', '.join(v for v in run.SLN if v != front_name)}: inne wersje niż główna, wartości w [postępie wersji](#postęp-wersji-slayera).")
     a("")
-    a(f"<details>\n<summary><b>{len(run.TW)} testów bez kontroli</b> (wyniki wstępne)</summary>\n")
+    a(f"<details>\n<summary><b>{len(run.TW)} testów poza tabelą</b> (wyniki wstępne)</summary>\n")
     L += [header, sep] + [result_row(run, charts, t) for t in run.TW] + ["", "</details>", ""]
     a("## Mapa modeli")
     a("")
@@ -996,9 +1058,13 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     newer = sorted(v for v in envs if v and v != "0.4.9.1")
     lm_note = "; ".join(f"lm_eval {k}: {', '.join(sorted(nazwa(m) for m in envs[k]))}" for k in newer)
     window = slayer_window_check(run.results)
+    gap = environment_gap(central)
+    gap_note = (f" {'Jedyny model policzony' if len(gap['models']) == 1 else 'Modele policzone'} w obu środowiskach: {', '.join(nazwa(m) for m in gap['models'])}, "
+                f"różnica do {format_number(gap['diff'], 4)} ({TEST_NAMES[gap['benchmark']][0]}), przyczyna nieustalona (mogą to być też inne pakiety).") if gap else ""
     notes = [
-        "BOS: Slayer ma jeden wiodący BOS, modele odniesienia były liczone bez BOS, EWoK liczy kod autorów z tokenami specjalnymi tokenizera; wpływ zmierzono wyłącznie na Pythii-1B v0.",
-        f"Dwa środowiska, wpływu wersji nie mierzono: {lm_note}, pozostałe lm_eval 0.4.9.1.",
+        f"BOS. {BOS_SCOPE}",
+        hellaswag_note,
+        f"Dwa środowiska: {lm_note}, pozostałe lm_eval 0.4.9.1.{gap_note}",
         "Różnice między modelami pokazują tylko przedziały; porównania parowane są wyłącznie między wersjami Slayera, a miejsce w tabeli nie mówi o istotności.",
         "Slayer jest uczony głównie po polsku, a testy poza MultiBLiMP-PL są po angielsku; bez oceny łącznej, bo zestaw testów i wagi nie są ustalone.",
         "Slayer 1.00–1.07 to checkpointy bez wygaszania LR; wniosek „słabszy od modelu X” wymaga porównania z Pythią przy tej samej liczbie tokenów, którego tu nie ma.",
@@ -1018,6 +1084,21 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     a("Flagi nadają reguły `flag_rules` i `window_exceeded` w `tools/ewaluacja/raport.py`, te same dla każdego modelu: "
       f"(1) `acc_pmi` poniżej bazy losowej na co najmniej {PMI_BELOW_CHANCE_TESTS} testach z PMI (kontekst obniża prawdopodobieństwo poprawnej odpowiedzi); próg ustalony po obejrzeniu tego przebiegu, nie przed nim; "
       "(2) wynik różni się od `results/central-run` przy tej samej rewizji i wagach; (3) WikiText liczony oknem dłuższym niż okno modelu. Spełnienie (1) albo (2) flaguje wszystkie wyniki modelu.")
+    a("")
+    below = pmi_below_chance(run.results)
+    a("Wrażliwość reguły (1), `acc_pmi` poniżej bazy losowej, z = (wartość − baza) / SE:")
+    a("")
+    a(md_row("Model", "Test", "acc_pmi", "SE", "Baza losowa", "z", "werdykt"))
+    a("|---|---|---:|---:|---:|---:|---|")
+    for x in below:
+        a(md_row(nazwa(x["model"]), TEST_NAMES[x["benchmark"]][0], format_number(x["value"], 4), format_number(x["se"], 4),
+                 format_number(x["chance"], 4), format_number(x["z"], 2), x["verdict"]))
+    a("")
+    at_rule = models_at_threshold(below, PMI_BELOW_CHANCE_TESTS)
+    weak = [m for m in at_rule if all(abs(x["z"]) < 2 for x in below if x["model"] == m)]
+    extra = [m for m in models_at_threshold(below, 1) if m not in at_rule]
+    a(f"Przy progu {PMI_BELOW_CHANCE_TESTS} wypadają {', '.join(nazwa(m) for m in at_rule)}; "
+      f"{', '.join(nazwa(m) for m in weak)} przez wartości z |z| < 2. Przy progu 1 wypadłyby też {', '.join(nazwa(m) for m in extra)}.")
     a("")
     for r in rows:
         if r.get("flaga") == "niepoliczone":

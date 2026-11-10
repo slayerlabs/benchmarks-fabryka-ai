@@ -1,4 +1,5 @@
 """Rules of the full-run report: stage B verdicts from cards, baselines, flags and consistency of the run files."""
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -12,7 +13,7 @@ import count_params  # noqa: E402
 import raport  # noqa: E402
 
 RUN = ROOT / "results" / "full-run-2026-11"
-NO_CONTROL = {"arc-challenge", "medmcqa", "mathqa", "multiblimp-pl", "pubmedqa", "social-iqa"}
+NO_CONTROL = {"arc-challenge", "medmcqa", "mathqa", "multiblimp-pl", "pubmedqa", "social-iqa", "wikitext-2", "wsc273"}
 FLAGGED = {"lfm2.5-1.2b-base", "lfm3-1.7b"}
 
 
@@ -36,6 +37,8 @@ def test_verdict_from_section():
 def test_control_state():
     assert raport.control_state("**bez kontroli: nierozstrzygnięte** — powód".replace("*", "")) == "no_control"
     assert raport.control_state("spełniony") == "control"
+    for verdict in ("niespełniony", "zgodne; werdykt jest nierozstrzygalny", "kontrola spoza listy źródeł; wynik wstępny"):
+        assert raport.control_state(verdict) == "no_control"
     with pytest.raises(ValueError):
         raport.control_state("po przebiegu centralnym")
 
@@ -130,3 +133,48 @@ def test_environment_record_states_what_is_unknown():
     for name in ("lock", "new"):
         assert env["srodowiska"][name]["pip_freeze"] == "nieustalone"
         assert env["srodowiska"][name]["powod"]
+
+
+def test_pmi_sensitivity_does_not_depend_on_input_order():
+    results = [{"model": "b", "benchmark": "piqa", "pmi": {"value": 0.48, "se": 0.01}, "chance": 0.5},
+               {"model": "a", "benchmark": "piqa", "pmi": {"value": 0.49, "se": 0.01}, "chance": 0.5},
+               {"model": "b", "benchmark": "arc-challenge", "pmi": {"value": 0.24, "se": 0.01}, "chance": 0.25},
+               {"model": "c", "benchmark": "piqa", "pmi": {"value": 0.60, "se": 0.01}, "chance": 0.5}]
+    below = raport.pmi_below_chance(results)
+    assert below == raport.pmi_below_chance(results[::-1])
+    assert [(x["model"], x["benchmark"]) for x in below] == [("a", "piqa"), ("b", "arc-challenge"), ("b", "piqa")]
+    assert below[2]["z"] == pytest.approx(-2)
+    assert raport.models_at_threshold(below, 2) == ["b"]
+    assert raport.models_at_threshold(below, 1) == ["a", "b"]
+
+
+def test_environment_gap_takes_only_results_from_both_versions():
+    central = [{"model": "x", "benchmark": "piqa", "nasz": 0.5, "odniesienie": 0.1, "lm_eval": "1", "lm_eval_odn": "1"},
+               {"model": "y", "benchmark": "arc-easy", "nasz": 0.5, "odniesienie": 0.4, "lm_eval": "1", "lm_eval_odn": "2"},
+               {"model": "y", "benchmark": "piqa", "nasz": 0.2, "odniesienie": 0.4, "lm_eval": "1", "lm_eval_odn": "2"}]
+    gap = raport.environment_gap(central)
+    assert gap["models"] == ["y"] and gap["benchmark"] == "piqa" and gap["diff"] == pytest.approx(0.2)
+    assert raport.environment_gap(central[:1]) is None
+
+
+@pytest.mark.parametrize("higher,first,front,expected", [
+    (True, 0.5, 0.6, "+0,1000"), (True, 0.6, 0.5, "−0,1000"), (False, 0.6, 0.5, "−0,100")])
+def test_first_to_front_is_a_plain_difference(higher, first, front, expected):
+    assert raport.first_to_front({"higher": higher}, {"v": first}, {"v": front}) == expected
+
+
+def test_hellaswag_note_reads_values_from_the_card():
+    text = raport.read_cards(ROOT / "benchmarks", ["hellaswag"])["hellaswag"]["text"]
+    note = raport.hellaswag_control_note(text)
+    assert "0,6074 wobec 0,6057" in note and "10-shot" in note and "0-shot" in note
+
+
+def test_csv_checksums_match_the_bytes_in_the_repository():
+    checked = 0
+    for row in rows("manifest.jsonl"):
+        expected = row["pliki"].get("scores-history-wiersz.csv")
+        if expected:
+            data = (RUN / row["benchmark"] / row["model"] / "scores-history-wiersz.csv").read_bytes()
+            assert hashlib.sha256(data).hexdigest() == expected, row["katalog"]
+            checked += 1
+    assert checked == 238
