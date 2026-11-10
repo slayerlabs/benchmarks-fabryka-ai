@@ -356,13 +356,8 @@ def environment_gap(central) -> dict | None:
 
 
 def first_to_front(t: dict, first: dict, front: dict) -> str:
-    """Slayer 1.00 → 1.07 from the reported values: paired comparisons need samples kept outside the repository."""
-    diff = front["v"] - first["v"]
-    z = diff / math.hypot(front["se"], first["se"])
-    verdict = S.werdykt(z)
-    up = diff > 0 if t["higher"] else diff < 0
-    mark = "≈" if verdict == "szum" else ("▲" if up else "▼")
-    return f"{mark}&nbsp;{format_number(diff, 4, plus=True)}&nbsp;(z&nbsp;=&nbsp;{format_number(z, 2)},&nbsp;{verdict})"
+    """Slayer 1.00 → 1.07 as a plain difference: METODOLOGIA pairs the same questions, and those samples are not in the repository."""
+    return format_number(front["v"] - first["v"], digits_of(t), plus=True)
 
 
 def read_test_types(readme_text: str) -> dict:
@@ -965,7 +960,7 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     hellaswag_note = hellaswag_control_note(run.cards["hellaswag"]["text"])
     a(f"¹ {hellaswag_note}")
     a("")
-    a(f"Kolumna {run.SLN[0]} → {front_name}: różnica wartości z SE niezależnym (próbek per pytanie nie ma w repo); porównania parowane {run.SLN[0]} → 1.08 i kolejnych wersji są w [postępie wersji](#postęp-wersji-slayera).")
+    a(f"Porównanie parowane {run.SLN[0]} → {front_name} wymaga próbek spoza repo; parowane {run.SLN[0]} → 1.08 jest w [postępie wersji](#postęp-wersji-slayera).")
     a("")
     a(f"<details>\n<summary><b>Wiersze tabeli</b> ({len(in_table)})</summary>\n")
     a(md_row("Test", "Model", "Etykieta", "Parametry", "Klasa", "Wartość", "SE", "CI95", "b", "lm_eval", "Kontaminacja", "Wyniki"))

@@ -17,17 +17,17 @@
 
 | Test | n | Slayer 1.07 | Pythia-1B | Qwen 0.8B | Baza b | Miejsce | W klasie ok. 1B | 1.00 → 1.07 |
 |---|---:|---:|---:|---:|---:|:---:|:---:|---|
-| [ARC-Easy](#arc-easy) | 2 376 | **0,5981&nbsp;±&nbsp;0,0101** | 0,5585&nbsp;±&nbsp;0,0102 | 0,7054&nbsp;±&nbsp;0,0094 | 0,2664 (stała odpowiedź) | 5/7 | 2/3 | ▲&nbsp;+0,1738&nbsp;(z&nbsp;=&nbsp;12,17,&nbsp;pewne) |
-| [BLiMP](#blimp) | 67 000 | **0,7982&nbsp;±&nbsp;0,0212** | 0,8244&nbsp;±&nbsp;0,0208 | 0,7986&nbsp;±&nbsp;0,0223 | 0,5000 (losowa) | 6/7 | 3/3 | ≈&nbsp;+0,0601&nbsp;(z&nbsp;=&nbsp;1,81,&nbsp;szum) |
-| [EWoK](#ewok) | 4 374 | **0,6089&nbsp;±&nbsp;0,0074** | 0,6471&nbsp;±&nbsp;0,0080 | 0,6757&nbsp;±&nbsp;0,0083 | 0,5000 (losowa) | 6/6 | 3/3 | ▲&nbsp;+0,0793&nbsp;(z&nbsp;=&nbsp;7,46,&nbsp;pewne) |
-| [HellaSwag](#hellaswag)¹ | 10 042 | **0,4337&nbsp;±&nbsp;0,0049** | 0,4679&nbsp;±&nbsp;0,0050 | 0,5482&nbsp;±&nbsp;0,0050 | 0,2573 (stała odpowiedź) | 7/7 | 3/3 | ▲&nbsp;+0,1491&nbsp;(z&nbsp;=&nbsp;22,29,&nbsp;pewne) |
-| [LAMBADA](#lambada) | 5 153 | **0,4122&nbsp;±&nbsp;0,0069** | 0,5657&nbsp;±&nbsp;0,0069 | 0,5119&nbsp;±&nbsp;0,0070 | 0,0031 (stała odpowiedź) | 7/7 | 3/3 | ▲&nbsp;+0,2049&nbsp;(z&nbsp;=&nbsp;23,07,&nbsp;pewne) |
-| [PIQA](#piqa) | 1 838 | **0,6697&nbsp;±&nbsp;0,0110** | 0,7095&nbsp;±&nbsp;0,0106 | 0,7133&nbsp;±&nbsp;0,0106 | 0,5049 (stała odpowiedź) | 7/7 | 3/3 | ▲&nbsp;+0,0936&nbsp;(z&nbsp;=&nbsp;5,88,&nbsp;pewne) |
-| [WinoGrande](#winogrande) | 1 267 | **0,5359&nbsp;±&nbsp;0,0129** | 0,5446&nbsp;±&nbsp;0,0125 | 0,6006&nbsp;±&nbsp;0,0129 | 0,5043 (stała odpowiedź) | 7/7 | 3/3 | ≈&nbsp;+0,0308&nbsp;(z&nbsp;=&nbsp;1,70,&nbsp;szum) |
+| [ARC-Easy](#arc-easy) | 2 376 | **0,5981&nbsp;±&nbsp;0,0101** | 0,5585&nbsp;±&nbsp;0,0102 | 0,7054&nbsp;±&nbsp;0,0094 | 0,2664 (stała odpowiedź) | 5/7 | 2/3 | +0,1738 |
+| [BLiMP](#blimp) | 67 000 | **0,7982&nbsp;±&nbsp;0,0212** | 0,8244&nbsp;±&nbsp;0,0208 | 0,7986&nbsp;±&nbsp;0,0223 | 0,5000 (losowa) | 6/7 | 3/3 | +0,0601 |
+| [EWoK](#ewok) | 4 374 | **0,6089&nbsp;±&nbsp;0,0074** | 0,6471&nbsp;±&nbsp;0,0080 | 0,6757&nbsp;±&nbsp;0,0083 | 0,5000 (losowa) | 6/6 | 3/3 | +0,0793 |
+| [HellaSwag](#hellaswag)¹ | 10 042 | **0,4337&nbsp;±&nbsp;0,0049** | 0,4679&nbsp;±&nbsp;0,0050 | 0,5482&nbsp;±&nbsp;0,0050 | 0,2573 (stała odpowiedź) | 7/7 | 3/3 | +0,1491 |
+| [LAMBADA](#lambada) | 5 153 | **0,4122&nbsp;±&nbsp;0,0069** | 0,5657&nbsp;±&nbsp;0,0069 | 0,5119&nbsp;±&nbsp;0,0070 | 0,0031 (stała odpowiedź) | 7/7 | 3/3 | +0,2049 |
+| [PIQA](#piqa) | 1 838 | **0,6697&nbsp;±&nbsp;0,0110** | 0,7095&nbsp;±&nbsp;0,0106 | 0,7133&nbsp;±&nbsp;0,0106 | 0,5049 (stała odpowiedź) | 7/7 | 3/3 | +0,0936 |
+| [WinoGrande](#winogrande) | 1 267 | **0,5359&nbsp;±&nbsp;0,0129** | 0,5446&nbsp;±&nbsp;0,0125 | 0,6006&nbsp;±&nbsp;0,0129 | 0,5043 (stała odpowiedź) | 7/7 | 3/3 | +0,0308 |
 
 ¹ Kontrola HellaSwag to EuroLLM-1.7B 10-shot `acc_norm` (0,6074 wobec 0,6057), a tabela to 0-shot, którego opublikowanej wartości nikt nie odtworzył.
 
-Kolumna 1.00 → 1.07: różnica wartości z SE niezależnym (próbek per pytanie nie ma w repo); porównania parowane 1.00 → 1.08 i kolejnych wersji są w [postępie wersji](#postęp-wersji-slayera).
+Porównanie parowane 1.00 → 1.07 wymaga próbek spoza repo; parowane 1.00 → 1.08 jest w [postępie wersji](#postęp-wersji-slayera).
 
 <details>
 <summary><b>Wiersze tabeli</b> (48)</summary>
@@ -114,14 +114,14 @@ Kolumna 1.00 → 1.07: różnica wartości z SE niezależnym (próbek per pytani
 
 | Test | n | Slayer 1.07 | Pythia-1B | Qwen 0.8B | Baza b | Miejsce | W klasie ok. 1B | 1.00 → 1.07 |
 |---|---:|---:|---:|---:|---:|:---:|:---:|---|
-| [ARC-Challenge](#arc-challenge) | 1 172 | **0,2730&nbsp;±&nbsp;0,0130** | 0,2747&nbsp;±&nbsp;0,0130 | 0,4044&nbsp;±&nbsp;0,0143 | 0,2654 (stała odpowiedź) | 7/7 | 3/3 | ▲&nbsp;+0,0555&nbsp;(z&nbsp;=&nbsp;3,13,&nbsp;pewne) |
-| [MathQA](#mathqa) | 2 985 | **0,2345&nbsp;±&nbsp;0,0078** | 0,2352&nbsp;±&nbsp;0,0078 | 0,3337&nbsp;±&nbsp;0,0086 | 0,2265 (stała odpowiedź) | 7/7 | 3/3 | ▲&nbsp;+0,0241&nbsp;(z&nbsp;=&nbsp;2,24,&nbsp;prawdopodobne) |
-| [MedMCQA](#medmcqa) | 4 183 | **0,2991&nbsp;±&nbsp;0,0071** | 0,2811&nbsp;±&nbsp;0,0070 | 0,4026&nbsp;±&nbsp;0,0076 | 0,3223 (stała odpowiedź) | 5/7 | 2/3 | ≈&nbsp;−0,0189&nbsp;(z&nbsp;=&nbsp;−1,87,&nbsp;szum) |
-| [MultiBLiMP-PL](#multiblimp-pl) | 3 272 | **0,9887&nbsp;±&nbsp;0,0018** | 0,8013&nbsp;±&nbsp;0,0070 | 0,8450&nbsp;±&nbsp;0,0063 | 0,5000 (losowa) | 2/7 | 1/3 | ▲&nbsp;+0,0089&nbsp;(z&nbsp;=&nbsp;2,88,&nbsp;prawdopodobne) |
-| [PubMedQA](#pubmedqa) | 500 | **0,5360&nbsp;±&nbsp;0,0223** | 0,5660&nbsp;±&nbsp;0,0222 | 0,6760&nbsp;±&nbsp;0,0210 | 0,5520 (stała odpowiedź) | 6/7 | 3/3 | ≈&nbsp;+0,0380&nbsp;(z&nbsp;=&nbsp;1,20,&nbsp;szum) |
-| [Social IQa](#social-iqa) | 1 954 | **0,3910&nbsp;±&nbsp;0,0110** | 0,4023&nbsp;±&nbsp;0,0111 | 0,4186&nbsp;±&nbsp;0,0112 | 0,3362 (stała odpowiedź) | 7/7 | 3/3 | ▲&nbsp;+0,0333&nbsp;(z&nbsp;=&nbsp;2,15,&nbsp;prawdopodobne) |
-| [WikiText-2](#wikitext-2) | 62 | **1,782&nbsp;±&nbsp;0,0147** | 1,688&nbsp;±&nbsp;0,0139 | 1,717&nbsp;±&nbsp;0,0130 | nie dotyczy | 7/7 | 3/3 | ▲&nbsp;−0,2889&nbsp;(z&nbsp;=&nbsp;−11,87,&nbsp;pewne) |
-| [WSC273](#wsc273) | 273 | **0,6154&nbsp;±&nbsp;0,0206** | 0,6740&nbsp;±&nbsp;0,0211 | 0,7143&nbsp;±&nbsp;0,0233 | 0,5018 (stała odpowiedź) | 7/7 | 3/3 | ▲&nbsp;+0,0769&nbsp;(z&nbsp;=&nbsp;2,66,&nbsp;prawdopodobne) |
+| [ARC-Challenge](#arc-challenge) | 1 172 | **0,2730&nbsp;±&nbsp;0,0130** | 0,2747&nbsp;±&nbsp;0,0130 | 0,4044&nbsp;±&nbsp;0,0143 | 0,2654 (stała odpowiedź) | 7/7 | 3/3 | +0,0555 |
+| [MathQA](#mathqa) | 2 985 | **0,2345&nbsp;±&nbsp;0,0078** | 0,2352&nbsp;±&nbsp;0,0078 | 0,3337&nbsp;±&nbsp;0,0086 | 0,2265 (stała odpowiedź) | 7/7 | 3/3 | +0,0241 |
+| [MedMCQA](#medmcqa) | 4 183 | **0,2991&nbsp;±&nbsp;0,0071** | 0,2811&nbsp;±&nbsp;0,0070 | 0,4026&nbsp;±&nbsp;0,0076 | 0,3223 (stała odpowiedź) | 5/7 | 2/3 | −0,0189 |
+| [MultiBLiMP-PL](#multiblimp-pl) | 3 272 | **0,9887&nbsp;±&nbsp;0,0018** | 0,8013&nbsp;±&nbsp;0,0070 | 0,8450&nbsp;±&nbsp;0,0063 | 0,5000 (losowa) | 2/7 | 1/3 | +0,0089 |
+| [PubMedQA](#pubmedqa) | 500 | **0,5360&nbsp;±&nbsp;0,0223** | 0,5660&nbsp;±&nbsp;0,0222 | 0,6760&nbsp;±&nbsp;0,0210 | 0,5520 (stała odpowiedź) | 6/7 | 3/3 | +0,0380 |
+| [Social IQa](#social-iqa) | 1 954 | **0,3910&nbsp;±&nbsp;0,0110** | 0,4023&nbsp;±&nbsp;0,0111 | 0,4186&nbsp;±&nbsp;0,0112 | 0,3362 (stała odpowiedź) | 7/7 | 3/3 | +0,0333 |
+| [WikiText-2](#wikitext-2) | 62 | **1,782&nbsp;±&nbsp;0,0147** | 1,688&nbsp;±&nbsp;0,0139 | 1,717&nbsp;±&nbsp;0,0130 | nie dotyczy | 7/7 | 3/3 | −0,289 |
+| [WSC273](#wsc273) | 273 | **0,6154&nbsp;±&nbsp;0,0206** | 0,6740&nbsp;±&nbsp;0,0211 | 0,7143&nbsp;±&nbsp;0,0233 | 0,5018 (stała odpowiedź) | 7/7 | 3/3 | +0,0769 |
 
 </details>
 

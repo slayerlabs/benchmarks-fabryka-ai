@@ -157,11 +157,10 @@ def test_environment_gap_takes_only_results_from_both_versions():
     assert raport.environment_gap(central[:1]) is None
 
 
-@pytest.mark.parametrize("higher,first,front,mark", [
-    (True, 0.5, 0.6, "▲"), (True, 0.6, 0.5, "▼"), (False, 0.6, 0.5, "▲"), (True, 0.5, 0.5001, "≈")])
-def test_first_to_front_direction(higher, first, front, mark):
-    cell = raport.first_to_front({"higher": higher}, {"v": first, "se": 0.01}, {"v": front, "se": 0.01})
-    assert cell.startswith(mark)
+@pytest.mark.parametrize("higher,first,front,expected", [
+    (True, 0.5, 0.6, "+0,1000"), (True, 0.6, 0.5, "−0,1000"), (False, 0.6, 0.5, "−0,100")])
+def test_first_to_front_is_a_plain_difference(higher, first, front, expected):
+    assert raport.first_to_front({"higher": higher}, {"v": first}, {"v": front}) == expected
 
 
 def test_hellaswag_note_reads_values_from_the_card():
