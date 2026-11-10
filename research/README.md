@@ -77,7 +77,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`poquad`](benchmarks/poquad/README.md) | T31 | `ciagla +pl` | | T31 | nieustalone |
 | [`ppc`](benchmarks/ppc/README.md) | T26 | `mc +pl` | | T26 | nieustalone |
 | [`prost`](benchmarks/prost/README.md) | T20 | `mc` | | T20 | nieustalone |
-| [`psc`](benchmarks/psc/README.md) | T27 | `f1-korpus +pl` | | T27 | nieustalone |
+| [`psc`](benchmarks/psc/README.md) | T27 | `f1-korpus +klastry +pl` | klastry: `extract_text` (1078 wierszy do 507 tekstów) | T27 | nieustalone |
 | [`pubmedqa`](benchmarks/pubmedqa/README.md) | T44 | `mc` | | T44 | nieustalone |
 | [`race`](benchmarks/race/README.md) | T40 | `mc` | | T40 | nieustalone |
 | [`record`](benchmarks/record/README.md) | T50 | `ciagla` | | T50 | nieustalone |
@@ -112,7 +112,7 @@ Testy T01–T50 według typu:
 | `ppl` | T03 WikiText-2 |
 | `gen` | T33 GSM8K, T34 MATH (`+warstwy`), T42 NQ, T43 TriviaQA, T47 BBH (`+warstwy`) |
 | `ifeval` | T36 IFEval |
-| `f1-korpus` | T25 DYK (`+klastry`: 1029 wierszy do 264 pytań), T27 PSC, T28 CBD (wszystkie `+pl`) |
+| `f1-korpus` | T25 DYK (`+klastry`: 1029 wierszy do 264 pytań), T27 PSC (`+klastry`: 1078 wierszy do 507 tekstów), T28 CBD (wszystkie `+pl`) |
 | `ciagla` | T30 PolQA, T31 PoQuAD (Levenshtein, `+pl`), T38 SQuAD2 (`+proc`, b i kontrola na HasAns), T39 DROP, T41 CoQA, T50 ReCoRD |
 | `masa` | T35 TruthfulQA MC2 |
 | `mcc` | T49 CoLA |
