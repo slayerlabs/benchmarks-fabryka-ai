@@ -244,6 +244,35 @@ def test_resume_needs_the_same_model_revision_and_weights(tmp_path):
         assert E.wynik_gotowy(ck, "pelna", m) is gotowy, suma
 
 
+def test_hf_weights_of_107_need_the_same_sum_as_the_checkpoint(tmp_path):
+    """1.07-hf to ten sam model.safetensors co skonwertowany checkpoint: inna suma = odmowa i liczenie od nowa."""
+    m = E.modele()["slayer1b-1.07-hf"]
+    assert E.SUMY_WAG_CKPT[m.etykieta] == E.SUMY_WAG_CKPT["slayer1b-1.07"]
+    (tmp_path / "model.safetensors").write_bytes(b"inne wagi")
+    assert not E.wagi_ckpt_zgodne(m, tmp_path)
+    assert not E.wagi_ckpt_zgodne(m, tmp_path / "brak")                      # snapshot bez model.safetensors
+    ck = _wynik(tmp_path / "hf", "pelna")
+    for suma, gotowy in ((E.SUMY_WAG_CKPT[m.etykieta], True), ("f" * 64, False)):
+        _zmien(ck / "results.json", lambda j: j.update(models=[{"repo": m.repo, "revision": m.rewizja,
+                                                                "weights_sha256": suma}]))
+        assert E.wynik_gotowy(ck, "pelna", m) is gotowy, suma
+
+
+def test_downloaded_weights_with_another_sum_are_not_computed(tmp_path, monkeypatch):
+    """--pobierz: wagi 1.07-hf są None przy budowie kolejki, więc sumę sprawdza pobieranie, zanim GPU je dostanie."""
+    import huggingface_hub
+    m = E.modele()["slayer1b-1.07-hf"]
+    (tmp_path / "model.safetensors").write_bytes(b"inne wagi")
+    monkeypatch.setattr(huggingface_hub, "snapshot_download", lambda *a, **k: str(tmp_path))
+    monkeypatch.setattr(E, "wzorce_wag", lambda m: [])
+    monkeypatch.setattr(E, "sciezka_wag", lambda m: tmp_path)
+    monkeypatch.setattr(E, "zapisz_czas", lambda a, wpis: None)
+    a = types.SimpleNamespace(usun_wagi=False, wyprzedzenie=1)
+    assert E.Wagi(a, [(m, None)]).fut[m.etykieta].result(timeout=30) is None
+    monkeypatch.setitem(E.SUMY_WAG_CKPT, m.etykieta, E._sha256_pliku(tmp_path / "model.safetensors"))
+    assert E.Wagi(a, [(m, None)]).fut[m.etykieta].result(timeout=30) == tmp_path
+
+
 def test_compare_exits_nonzero_without_common_samples(tmp_path):
     model = "eurollm-1.7b"
     lok = tmp_path / "w" / "wikitext-2" / model
@@ -351,10 +380,24 @@ def test_hf_cache_repo_dir():
     assert E.katalog_repo_w_cache(Path("/x/modele/slayer1b-1.07")) is None
 
 
-def test_export_manifest_of_control_results(tmp_path):
+def _eksport_kontrolnych(tmp_path, monkeypatch):
+    """Kopia wyników kontrolnych z własnym czasy.jsonl. Czas pary brał się z lokalnego, gitignorowanego
+    tools/ewaluacja/czasy.jsonl, którego w świeżym klonie nie ma: test go teraz buduje, a TU wskazuje na tmp_path,
+    żeby lokalny plik czasów i logi nie zmieniały wyniku."""
+    w = tmp_path / "wyniki_kontrolne"
+    shutil.copytree(TU_K, w)
+    monkeypatch.setattr(E, "TU", tmp_path)
+    t = next(t for t, k in E.katalogi().items() if k == "piqa")
+    czasy = [{"etap": "ewaluacja", "model": "pythia-1b-v0", "zadanie": t, "kod": 0, "s": 304.7},
+             {"etap": "ewaluacja", "model": "pythia-1b-v0", "zadanie": t, "kod": 1, "s": 1.0}]   # nieudana: nie liczy się
+    (tmp_path / "czasy.jsonl").write_text("".join(json.dumps(r) + "\n" for r in czasy), encoding="utf-8")
+    return types.SimpleNamespace(wyniki=str(w), modele=[], wyjscie=str(tmp_path / "e.tgz"), bez_probek=True,
+                                 python_lock=None, python_new=None)
+
+
+def test_export_manifest_of_control_results(tmp_path, monkeypatch):
     import tarfile
-    a = types.SimpleNamespace(wyniki=str(TU_K), modele=[], wyjscie=str(tmp_path / "e.tgz"), bez_probek=True,
-                              python_lock=None, python_new=None)
+    a = _eksport_kontrolnych(tmp_path, monkeypatch)
     wiersze = E.wiersze_manifestu(a)
     pary = {(w["benchmark"], w["model"]) for w in wiersze}
     assert ("piqa", "pythia-1b-v0") in pary and ("ewok", "gpt2-xl") in pary and len(wiersze) == 8
@@ -363,42 +406,34 @@ def test_export_manifest_of_control_results(tmp_path):
     assert abs(piqa["wartosc"] - 0.7095) < 1e-4 and piqa["se"] and piqa["s"] == 304.7
     hs = next(w for w in wiersze if w["benchmark"] == "hellaswag-10shot")
     assert hs["zadanie"] == "T05" and hs["fewshot"] == 10
-    try:
-        assert E.cmd_eksport(a) == 0
-        with tarfile.open(tmp_path / "e.tgz") as t:
-            nazwy = t.getnames()
-        assert any(n.endswith("/manifest.jsonl") for n in nazwy) and any(n.endswith("/srodowisko.json") for n in nazwy)
-        assert any("/wyniki/piqa/pythia-1b-v0/results.json" in n for n in nazwy)
-    finally:
-        for f in ("manifest.jsonl", "srodowisko.json"):
-            (TU_K / f).unlink(missing_ok=True)
+    assert E.cmd_eksport(a) == 0
+    with tarfile.open(tmp_path / "e.tgz") as t:
+        nazwy = t.getnames()
+    assert any(n.endswith("/manifest.jsonl") for n in nazwy) and any(n.endswith("/srodowisko.json") for n in nazwy)
+    assert any("/wyniki/piqa/pythia-1b-v0/results.json" in n for n in nazwy)
 
 
-def test_report_from_exported_control_results(tmp_path):
-    """raport.py na paczce z wyników kontrolnych: kopie bez próbek, specyfikacje wykresów i README z tabelami."""
+def test_report_from_the_full_run(tmp_path):
+    """raport.py na zapisanym przebiegu, do osobnego katalogu: kopie bez próbek i README taki jak w repo.
+
+    Od 57e7219 raport opisuje przebieg Slayera (wymaga wyniku 1.07, pomiaru BOS i sizes.json z katalogu przebiegu),
+    więc wyniki kontrolne (Pythia, GPT-2 XL, bez Slayera) nie są już dla niego paczką. Wejścia spoza paczki
+    (bos-window-check/LICZBY.json, sizes.json, progresja.json, przeglad.jsonl) test kopiuje z results/full-run-2026-11."""
     import subprocess
     import sys
-    import tarfile
-    a = types.SimpleNamespace(wyniki=str(TU_K), modele=[], wyjscie=str(tmp_path / "e.tgz"), bez_probek=True,
-                              python_lock=None, python_new=None)
-    try:
-        assert E.cmd_eksport(a) == 0
-    finally:
-        for f in ("manifest.jsonl", "srodowisko.json"):
-            (TU_K / f).unlink(missing_ok=True)
-    with tarfile.open(tmp_path / "e.tgz") as t:
-        t.extractall(tmp_path / "x", filter="data")
-    paczka = next((tmp_path / "x").iterdir())
+    przebieg = E.FABRYKA / "results" / "full-run-2026-11"
     cel = tmp_path / "raport"
-    r = subprocess.run([sys.executable, str(Path(E.__file__).with_name("raport.py")), str(paczka), str(cel),
-                        "--bez-porownan"], capture_output=True, text=True, env={**__import__("os").environ,
-                                                                                "PYTHONUTF8": "1"})
+    (cel / "bos-window-check").mkdir(parents=True)
+    for f in ("bos-window-check/LICZBY.json", "sizes.json", "progresja.json", "przeglad.jsonl"):
+        shutil.copy(przebieg / f, cel / f)
+    r = subprocess.run([sys.executable, str(Path(E.__file__).with_name("raport.py")), str(przebieg), str(cel),
+                        "--bez-porownan", "--odniesienie", str(E.FABRYKA / "results" / "central-run")],
+                       capture_output=True, text=True, env={**__import__("os").environ, "PYTHONUTF8": "1"})
     assert r.returncode == 0, r.stderr
-    assert (cel / "piqa" / "pythia-1b-v0" / "results_rozszerzone.json").exists()
+    assert (cel / "piqa" / "slayer1b-1.07-hf" / "results_rozszerzone.json").exists()
     assert not list(cel.rglob("probki"))
-    assert not (cel / "charts" / "src").exists()
     md = (cel / "README.md").read_text(encoding="utf-8")
-    assert "### PIQA" in md and "0,7095" in md and "Pythia-1B v0" in md
+    assert md == (przebieg / "README.md").read_text(encoding="utf-8")
 
 
 TU_K = Path(__file__).resolve().parent / "wyniki_kontrolne"

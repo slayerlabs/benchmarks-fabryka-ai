@@ -614,14 +614,19 @@ def test_regula_k_milczy_gdy_jest_liczba_po_paradygmatach():
     assert _reguly_ijk("Holm-significant: 17 of 36 on the pairs.") == []  # bez paradygmatów w pobliżu nie ma czego żądać
 
 
-def test_rozroznialny_bez_probek_jest_ostrozny(tmp_path, monkeypatch):
+def test_rozroznialny_bez_probek_jest_ostrozny(tmp_path):
     import wykres_przebiegu as Wp
     assert Wp.rozroznialny(tmp_path, "blimp", 1) is False
-    # próbki BLiMP w repo są dla 1.06; etykieta z MODELE wskazuje wersję, której wyników jeszcze może nie być
-    monkeypatch.setattr(Wp, "M", [("slayer1b-1.06", "Slayer 1B")] + Wp.M[1:])
-    centralny = KORZEN / "results/central-run"
-    assert Wp.klastry_blimp(centralny, "blimp", "slayer1b-1.06")  # liczy na próbkach, nie na ich braku
-    assert [Wp.rozroznialny(centralny, "blimp", i) for i in range(1, len(Wp.M))] == [False] * 4  # szum po paradygmatach
+    # próbki BLiMP w repo są dla 1.06; etykieta z MODELE wskazuje wersję, której wyników jeszcze może nie być.
+    # Podmiana z przywróceniem w finally, nie fixture monkeypatch: plik uruchamia się też skryptem, bez pytesta.
+    stare_m = Wp.M
+    Wp.M = [("slayer1b-1.06", "Slayer 1B")] + stare_m[1:]
+    try:
+        centralny = KORZEN / "results/central-run"
+        assert Wp.klastry_blimp(centralny, "blimp", "slayer1b-1.06")  # liczy na próbkach, nie na ich braku
+        assert [Wp.rozroznialny(centralny, "blimp", i) for i in range(1, len(Wp.M))] == [False] * 4  # szum po paradygmatach
+    finally:
+        Wp.M = stare_m
 
 
 def test_rozroznialny_widzi_roznice_po_paradygmatach(tmp_path):
@@ -728,8 +733,8 @@ if __name__ == "__main__":
             else:
                 f()
             print(f"PASS {n}")
-        except AssertionError as e:
+        except Exception as e:  # nie tylko AssertionError: np. brakująca fixture nie przerywa reszty testów
             zle += 1
-            print(f"FAIL {n}: {e}")
+            print(f"FAIL {n}: {type(e).__name__}: {e}")
     print(f"{len(testy) - zle}/{len(testy)}")
     sys.exit(1 if zle else 0)

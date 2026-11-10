@@ -109,9 +109,11 @@ def kopiuj(paczka: Path, cel: Path):
     for w in map(json.loads, (paczka / "manifest.jsonl").read_text(encoding="utf-8").splitlines()):
         d = cel / w["benchmark"] / w["model"]
         d.mkdir(parents=True, exist_ok=True)
+        # jak w wczytaj_wyniki: katalog przebiegu trzyma wyniki w <benchmark>/<model>, nie w wyniki/... z eksportu
+        zrodlo = paczka / w["katalog"] if (paczka / w["katalog"]).exists() else paczka / w["benchmark"] / w["model"]
         for f in KOPIUJ:
-            if (paczka / w["katalog"] / f).exists():
-                shutil.copy2(paczka / w["katalog"] / f, d / f)
+            if (zrodlo / f).exists():
+                shutil.copy2(zrodlo / f, d / f)
     for f in ("manifest.jsonl", "srodowisko.json", "czasy.jsonl"):
         shutil.copy2(paczka / f, cel / f)
 
