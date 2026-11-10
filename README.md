@@ -5,6 +5,14 @@ oryginałem, i budujemy polskie benchmarki.
 
 <a href="research/STATUS.md"><img src="docs/img/stan-benchmarkow.svg" alt="Stan benchmarków" height="36"></a>
 
+## Aktualne wyniki
+
+<p align="center"><img src="research/results/full-run-2026-11/charts/przemiana-wersji.svg" alt="Animacja: Slayer 1B od wersji 1.00 do 1.07 na tle modeli odniesienia" width="100%"></p>
+
+<p align="center"><img src="research/results/full-run-2026-11/charts/macierz.svg" alt="Macierz modeli i testów" width="100%"></p>
+
+Tabela, SE i zastrzeżenia: [pełny przebieg 2026-11-09](research/results/full-run-2026-11/README.md).
+
 ## Pierwsze kroki
 
 1. **Dołącz.** Napisz na Discordzie na kanale #bench-team i podaj swój login GitHub. Zasady pracy są w „Jak dołączyć”.
