@@ -8,6 +8,7 @@ poleceniach 10 000 losowań, seed 20261112). Analizy wrażliwości (6 reguł oce
 jako eksploracyjne albo wtórne zgodnie z protokołem.
 """
 import copy
+import gzip
 import hashlib
 import json
 import math
@@ -96,6 +97,14 @@ class Dane:
         self.poz = {p["id"]: p for p in jsonl(BADANIE / "dane/polecenia.jsonl")}
         self.ids = list(self.poz)
         self.gen = wczytaj_gen()
+        # runda poprawek 2: p każdego tokenu EOS osobno (code/sonda_tokeny.py); Slayer ma jeden token EOS (id 0)
+        self.sonda_tokeny = {}
+        for m in ("bielik", "lfm"):
+            p = BADANIE / f"wyniki/surowe/sonda_tokeny_{m}.jsonl.gz"
+            if p.exists():
+                for x in gzip.decompress(p.read_bytes()).decode("utf-8").splitlines():
+                    r = json.loads(x)
+                    self.sonda_tokeny[(m, r["id"])] = r
 
     def tekst(self, m, i, s):
         return self.gen[(m, i)][s[2:]]
@@ -141,6 +150,12 @@ class Dane:
             return float(np.mean([d[s]["format_gsm8k"] for s in SEEDY + ["A_greedy"]]))
         if metryka == "bajty_odpowiedzi":
             return float(np.mean([d[s]["bajty"] for s in SEEDY]))
+        if metryka in ("log10_p_konca_dok", "log10_p_konca_dok_po_nl"):
+            # tylko token końca dokumentu: S id 0 (cały zbiór EOS), B </s> id 2, L <|endoftext|> id 2
+            if m == "slayer":
+                return r["log10_p_eos" if metryka == "log10_p_konca_dok" else "log10_p_eos_po_nl"]
+            st = self.sonda_tokeny[(m, i)]["bez_nl" if metryka == "log10_p_konca_dok" else "nl"]
+            return math.log10(st["2"])
         if metryka == "pusta":  # runda poprawek 1: pusta = brak treści po obcięciu białych znaków (jak u sędziów)
             return float(np.mean([int(not self.tekst(m, i, s).strip()) for s in SEEDY]))
         if metryka == "koniec_bez_pustych":  # eksploracyjna: naturalny koniec liczony tylko dla niepustej odpowiedzi
@@ -156,6 +171,7 @@ TYPY = {
     "rep3": {"otwarte"}, "rep3_greedy_A": {"otwarte"}, "distinct2": {"otwarte"},
     "log10_p_eos_po_nl": {"krotka", "zdanie", "liczba"}, "log10_p_eos": {"krotka", "zdanie", "liczba"},
     "przeciek": None, "format_gsm8k": None, "bajty_odpowiedzi": None, "pusta": None, "koniec_bez_pustych": None,
+    "log10_p_konca_dok": {"krotka", "zdanie", "liczba"}, "log10_p_konca_dok_po_nl": {"krotka", "zdanie", "liczba"},
 }
 
 
@@ -493,6 +509,25 @@ def runda1(dane, hip, por):
     para = [(bez_nl("slayer", i), bez_nl("bielik", i)) for i in ids]
     para = [(x, y) for x, y in para if x is not None and y is not None]
     r = porownaj([x for x, _ in para], [y for _, y in para])
+    # (6) runda 2: udział <|im_end|> w p(EOS) B i L (sonda bez „\n”), per kategoria i w polskich kategoriach razem
+    udzial = {}
+    for m, im in (("bielik", "4"), ("lfm", "7")):
+        udzial[m] = {}
+        for zakres in ["angielski", "pl"]:
+            kats = PL_KROTKIE if zakres == "pl" else [zakres]
+            v = [dane.sonda_tokeny[(m, i)]["bez_nl"] for k in kats for i in dane.ids_kat(k, TYPY["log10_p_eos"])]
+            u = [x[im] / sum(x.values()) for x in v]
+            udzial[m][zakres] = dict(mediana=float(np.median(u)), srednia=float(np.mean(u)), n=len(u))
+    out["udzial_im_end"] = udzial
+    # (7) runda 2: puste odpowiedzi B w angielskim, które są zatrzymaniem na znaczniku szablonu („\n\nTask:”)
+    ids = dane.ids_kat("angielski")
+    puste = [(i, s) for i in ids for s in SEEDY if not dane.tekst("bielik", i, s).strip()]
+    surowe = {}
+    for wiersz in jsonl(BADANIE / "wyniki/surowe/gen_bielik_A.jsonl"):
+        if not wiersz.get("naglowek"):
+            surowe[wiersz["id"]] = {w["dekodowanie"]: w["surowa"] for w in wiersz["wyniki"]}
+    out["bielik_angielski_puste"] = dict(puste=len(puste), znacznik_szablonu=sum(
+        surowe[i][s[2:]].startswith("\n\nTask:") for i, s in puste))
     out["pl_jezyk_bez_nl"] = dict(probek=len(ids) * len(SEEDY), probek_nl=nl, polecen=len(para),
                                   roznica_s_b=r["roznica"], se=r["se"], z=r["z"], werdykt=r["werdykt"])
     return out

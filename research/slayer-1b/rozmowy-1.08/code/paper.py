@@ -367,28 +367,38 @@ def tresc(L):
            rows)
     o("Kategorie z SE = 0 (te same końce u obu modeli) pominęłam w tabeli, ale liczą się do m Holma. Przy tej "
       "definicji teza H1.2 jest obalona także w kodzie: S kończy odpowiedź z treścią częściej niż L. Wniosek dla H1 "
-      "się nie odwraca: S nie kończy rzadziej niż B ani L w żadnej kategorii.")
+      "się nie odwraca: S nie kończy rzadziej niż B ani L w żadnej kategorii. Wiersz H1.1 w angielskim (obalona) to "
+      f"artefakt szablonu: {R1['bielik_angielski_puste']['znacznik_szablonu']} z "
+      f"{R1['bielik_angielski_puste']['puste']} pustych odpowiedzi B w angielskim to „\\n\\nTask:”, czyli zatrzymanie "
+      "na znaczniku szablonu.")
     o("")
     sn = R1["eos_efekt_nl"]
     o(f"**Sonda EOS a znak nowej linii** (eksploracyjna, po pomiarze). W {sn['slayer']['n']} poleceniach krótkich "
       f"polskich kategorii dopisanie „\\n” po wzorcu zmienia log10 p(EOS) średnio o {f(sn['slayer']['srednia'], 2)} "
       f"(SE {f(sn['slayer']['se'], 2)}) u S, {f(sn['bielik']['srednia'], 2)} (SE {f(sn['bielik']['se'], 2)}) u B i "
-      f"{f(sn['lfm']['srednia'], 2)} (SE {f(sn['lfm']['se'], 2)}) u L. Duża część różnic H1.3–H1.4 wynika więc z tego, "
-      f"jak modele traktują nową linię przed końcem dokumentu. Ta sama sonda bez „\\n” (log10 p zbioru EOS, Holm "
-      f"m = 6):")
+      f"{f(sn['lfm']['srednia'], 2)} (SE {f(sn['lfm']['se'], 2)}) u L.")
+    o("")
+    ui = R1["udzial_im_end"]
+    o(f"**Rozbicie p(EOS) na tokeny** (runda poprawek 2, `code/sonda_tokeny.py`, ten sam tekst sondy, p każdego tokenu "
+      f"zbioru EOS osobno, `wyniki/surowe/sonda_tokeny_*.jsonl.gz`). Udział `<|im_end|>` w p(EOS) bez „\\n”: Bielik w "
+      f"angielskim mediana {f(ui['bielik']['angielski']['mediana'])}, średnia {f(ui['bielik']['angielski']['srednia'])}; "
+      f"w polskich kategoriach mediana {f(ui['bielik']['pl']['mediana'])}; LFM w polskich kategoriach mediana "
+      f"{f(ui['lfm']['pl']['mediana'])}, w angielskim {f(ui['lfm']['angielski']['mediana'])}. Sonda bez „\\n” "
+      f"liczona tylko tokenem końca dokumentu (S `<|endoftext|>` id 0, B `</s>`, L `<|endoftext|>`), Holm m = 6:")
     o("")
     rows = []
-    for k in [k for k in KAT if k in L["porownania"]["log10_p_eos"]]:
+    for k in [k for k in KAT if k in L["porownania"]["log10_p_konca_dok"]]:
         for p in ("slayer-bielik", "slayer-lfm"):
-            r = por("log10_p_eos", k, p)
+            r = por("log10_p_konca_dok", k, p)
             rows.append([ET[k], PARA_ET[p], f(r["roznica"], 2), f(r["se"], 2), f(r["z"], 2), r["werdykt"],
                          fp(r["p_holm"]), r["werdykt_holm"]])
     tabela(["kategoria", "para", "różnica log10 p", "SE", "z", "werdykt", "p Holma", "werdykt po Holmie"], rows)
-    o("W polskich kategoriach różnice S−B bez „\\n” są mniejsze niż w H1.3 (najmniejsza w wiedzy o Polsce); w "
-      "angielskim odwrotnie: bez „\\n” S−B jest silnie ujemne, a z „\\n” nie. Zbiór EOS B i L "
-      "zawiera `<|im_end|>`, więc część ich p(EOS) to token czatu, nie koniec dokumentu; rozdzielenia na tokeny nie "
-      "liczyłam (NOT RUN). W generacji ze znacznikiem szablonu S kończy odpowiedzi tak samo często jak B i L (wyżej). "
-      "Sonda nie jest więc dowodem swoistej wady generacji S, tylko innej konwencji końca dokumentu.")
+    o("Nowa linia i token czatu `<|im_end|>` wyjaśniają dużą część różnic H1.3–H1.4, ale nie całą. Bez „\\n” i tylko z "
+      "tokenem końca dokumentu S nadal daje niższe p końca dokumentu niż B w języku polskim, wiedzy ogólnej, "
+      "rozumowaniu i matematyce oraz niż L we wszystkich pięciu kategoriach polskich (tabela). W wiedzy o Polsce wobec "
+      "B i w angielskim wobec obu modeli różnica to szum. W generacji ze znacznikiem szablonu S kończy odpowiedzi "
+      "równie często jak B i L (wyżej), więc słabsza teza dotyczy prawdopodobieństwa końca dokumentu, nie "
+      "obserwowanej wady generacji.")
     o("")
     pj = R1["pl_jezyk_bez_nl"]
     o(f"**Język polski a ostatni przykład few-shot** (eksploracyjna, po pomiarze). Ostatni przykład w tej kategorii to "
@@ -516,15 +526,21 @@ def tresc(L):
       f"{f(bo['slayer']['srednia'], 1)} u S) i częściej dochodzą do limitu, a limit liczony w tokenach różnych "
       f"tokenizerów daje różną długość w bajtach. Metryka nie mierzy więc umiejętności zakończenia bez podpowiedzi "
       f"szablonu.")
+    bap = R1["bielik_angielski_puste"]
+    o(f"  W wariancie (c) bez pustych odpowiedzi teza H1.1 jest obalona także w angielskim (sekcja 5). To artefakt "
+      f"szablonu: {bap['znacznik_szablonu']} z {bap['puste']} pustych odpowiedzi B w angielskim to od razu "
+      f"„\\n\\nTask:”, czyli zatrzymanie na znaczniku następnego polecenia.")
     r3 = wiersz_h("H1.3", "matematyka")
     r4 = wiersz_h("H1.4", "matematyka")
+    rk = por("log10_p_konca_dok", "matematyka", "slayer-bielik")
     o(f"- **H1.3–H1.4 (sonda EOS).** Po wzorcowej odpowiedzi zakończonej „\\n” S daje EOS niższe prawdopodobieństwo: "
       f"w matematyce log10 p różni się od B o {zz(r3)}, od L o {zz(r4)}; teza potwierdzona w "
       f"{sum(x['teza'] == 'potwierdzona' for x in hip('H1.3')['wiersze'])} z 6 kategorii wobec B i w "
-      f"{sum(x['teza'] == 'potwierdzona' for x in hip('H1.4')['wiersze'])} z 6 wobec L. Teza dotyczy jednak "
-      f"sondy, nie generacji: dużą część różnicy daje samo „\\n” przed EOS (u S log10 p spada po nim średnio o "
-      f"{f(sn['slayer']['srednia'], 2)}, u B o {f(sn['bielik']['srednia'], 2)}), zbiór EOS B i L zawiera token czatu "
-      f"`<|im_end|>`, a w generacji S kończy odpowiedzi równie często jak B i L (sekcja 5). Zastępcze wyjaśnienie: "
+      f"{sum(x['teza'] == 'potwierdzona' for x in hip('H1.4')['wiersze'])} z 6 wobec L. Nowa linia i token czatu "
+      f"wyjaśniają dużą część różnicy, ale nie całą: u S log10 p spada po „\\n” średnio o "
+      f"{f(sn['slayer']['srednia'], 2)}, u B o {f(sn['bielik']['srednia'], 2)}, a bez „\\n” i tylko z tokenem końca "
+      f"dokumentu S−B w matematyce wynosi {zz(rk)} (sekcja 5). Stoi słabsza teza: niższe p końca dokumentu u S w "
+      f"części kategorii polskich; w generacji S kończy odpowiedzi równie często jak B i L. Zastępcze wyjaśnienie: "
       f"inna konwencja nowej linii przed końcem dokumentu w danych S; to hipoteza bez sprawdzenia w danych.")
     o(f"- **H2.1–H2.2 (powtórzenia).** Wszystkie różnice rep3 to szum po Holmie; teza nierozstrzygnięta. Powtórzenia z "
       f"pilota mogły wynikać z dłuższych odpowiedzi bez znacznika stopu.")
@@ -677,11 +693,14 @@ def tresc(L):
     o("")
     mu = L.get("mutacje")
     if mu:
-        o(f"Mutacje kodu pomiaru (runda poprawek 1, `code/mutacje.py`): każda mutacja wprowadzona osobno, potem "
-          f"`code/test_rozmowy.py`; zapalone {sum(x['zapalona'] for x in mu)} z {len(mu)}:")
+        nr = [x for x in mu if not x.get("adnotacja")]
+        o(f"Mutacje kodu pomiaru (rundy poprawek 1 i 2, `code/mutacje.py`): każda mutacja wprowadzona osobno, potem "
+          f"`code/test_rozmowy.py`; zapalone {sum(x['zapalona'] for x in nr)} z {len(nr)} nierównoważnych. Test bez "
+          f"wag modeli kończy się kodem 2 (NIEPEŁNE), nie 0, i nie liczy się jako zapalenie mutacji:")
         o("")
         for x in mu:
-            o(f"- {x['opis']}: {'test czerwony' if x['zapalona'] else 'test ZIELONY (niewykryta)'}")
+            st = 'test czerwony' if x['zapalona'] else 'test ZIELONY (niewykryta)'
+            o(f"- {x['opis']}: {st}" + (f"; {x['adnotacja']}" if x.get("adnotacja") else ""))
         o("")
     o("NOT RUN:")
     o("")
@@ -689,7 +708,6 @@ def tresc(L):
     o("- Ocena sędziów z zamienionymi stronami (wpływ pozycji mierzony tylko odsetkiem wyborów A i odwrotną kolejnością "
       "par u sędziego 2).")
     o("- Niezależne odtworzenie ocen sędziów (pochodzenie poświadcza tylko zgodność sha256, sekcja 5).")
-    o("- Rozdzielenie p(EOS) na token końca dokumentu i `<|im_end|>` w sondzie EOS.")
     o("- Regeneracja kodu LFM bez `<|im_end|>` w zbiorze EOS.")
     o("- Przeliczenie `needs-recheck` na innym sprzęcie.")
     o("")

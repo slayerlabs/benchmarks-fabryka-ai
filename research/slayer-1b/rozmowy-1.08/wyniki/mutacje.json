@@ -3,54 +3,85 @@
   "opis": "Slayer bez BOS",
   "plik": "modele.py",
   "zapalona": true,
+  "kod": 1,
   "ostatnia_linia": "AssertionError: [2588, 2362, 566]"
  },
  {
   "opis": "Slayer z BOS = 1",
   "plik": "slayer_model.py",
   "zapalona": true,
+  "kod": 1,
   "ostatnia_linia": "AssertionError: [1, 2588, 2362]"
  },
  {
   "opis": "transformers z add_special_tokens=False",
   "plik": "modele.py",
   "zapalona": true,
+  "kod": 1,
   "ostatnia_linia": "AssertionError: ('bielik', [9960, 2818, 31937])"
  },
  {
   "opis": "EOS LFM bez 7",
   "plik": "modele.py",
   "zapalona": true,
+  "kod": 1,
   "ostatnia_linia": "AssertionError"
  },
  {
   "opis": "top-p odcina po skumulowanym p z tokenem",
   "plik": "generuj.py",
   "zapalona": true,
+  "kod": 1,
   "ostatnia_linia": "AssertionError"
  },
  {
   "opis": "top-p 0,95 zamiast 0,9",
   "plik": "generuj.py",
   "zapalona": true,
+  "kod": 1,
   "ostatnia_linia": "AssertionError"
  },
  {
   "opis": "seed bez numeru pozycji",
   "plik": "generuj.py",
   "zapalona": true,
+  "kod": 1,
   "ostatnia_linia": "AssertionError: (5, 294, 62)"
  },
  {
   "opis": "tolerancja liczby 0,5",
   "plik": "ocena.py",
   "zapalona": true,
+  "kod": 1,
   "ostatnia_linia": "AssertionError"
  },
  {
   "opis": "Holm wyłączony",
   "plik": "analiza.py",
   "zapalona": true,
+  "kod": 1,
+  "ostatnia_linia": "AssertionError: [0.01, 0.011]"
+ },
+ {
+  "opis": "M11: pusta = 0 bajtów",
+  "plik": "analiza.py",
+  "zapalona": true,
+  "kod": 1,
   "ostatnia_linia": "AssertionError"
+ },
+ {
+  "opis": "Holm bez kroku monotonii",
+  "plik": "analiza.py",
+  "zapalona": true,
+  "kod": 1,
+  "ostatnia_linia": "AssertionError: [0.02, 0.011]"
+ },
+ {
+  "opis": "top-p >= zamiast >",
+  "plik": "generuj.py",
+  "zapalona": false,
+  "kod": 0,
+  "ostatnia_linia": "18 testów OK",
+  "adnotacja": "prawie równoważna: różnica tylko przy skumulowanym p == top_p"
  }
 ]

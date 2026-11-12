@@ -27,7 +27,17 @@ MUTACJE = [
      "def ocen_liczba(odp, cel, tol=0.5):"),
     ("Holm wyłączony", KOD / "analiza.py", "        out[i] = biezace if ps[i] is not None else None",
      "        out[i] = ps[i]"),
+    ("M11: pusta = 0 bajtów", KOD / "analiza.py",
+     "return float(np.mean([int(not self.tekst(m, i, s).strip()) for s in SEEDY]))",
+     'return float(np.mean([int(d[s]["bajty"] == 0 or not d[s].get("bajty")) for s in SEEDY]))'),
+    ("Holm bez kroku monotonii", KOD / "analiza.py", "biezace = max(biezace, min(1.0, (m - r) * p))",
+     "biezace = min(1.0, (m - r) * p)"),
+    ("top-p >= zamiast >", KOD / "generuj.py", 'ps[(cum - ps) > dek["top_p"]] = 0',
+     'ps[(cum - ps) >= dek["top_p"]] = 0'),
 ]
+# Mutacje prawie równoważne: różnią się tylko przy skumulowanym p dokładnie równym top_p (zbiór miary zero przy
+# logitach float), więc test ich nie łapie z założenia; raportowane, ale poza kryterium kodu wyjścia.
+ROWNOWAZNE = {"top-p >= zamiast >": "prawie równoważna: różnica tylko przy skumulowanym p == top_p"}
 
 
 def main():
@@ -43,12 +53,17 @@ def main():
         finally:
             plik.write_bytes(oryg)
         ostatnia = (r.stdout + r.stderr).strip().splitlines()[-1:] or [""]
-        wyn.append(dict(opis=opis, plik=plik.name, zapalona=r.returncode != 0, ostatnia_linia=ostatnia[0][:200]))
-        print(("ZAPALONA " if r.returncode else "ZIELONA  ") + opis)
+        # kod 1 = test padł; kod 2 = NOT RUN (brak wag), to nie jest zapalenie
+        w = dict(opis=opis, plik=plik.name, zapalona=r.returncode == 1, kod=r.returncode,
+                 ostatnia_linia=ostatnia[0][:200])
+        if opis in ROWNOWAZNE:
+            w["adnotacja"] = ROWNOWAZNE[opis]
+        wyn.append(w)
+        print(("ZAPALONA " if r.returncode == 1 else f"ZIELONA(kod {r.returncode}) ") + opis)
     r = subprocess.run([sys.executable, "-I", str(KOD / "test_rozmowy.py")], capture_output=True, text=True)
-    assert r.returncode == 0, "po przywróceniu testy muszą przechodzić"
+    assert r.returncode == 0, f"po przywróceniu testy muszą przechodzić w pełni (kod {r.returncode})"
     (BADANIE / "wyniki/mutacje.json").write_text(json.dumps(wyn, ensure_ascii=False, indent=1), encoding="utf-8")
-    sys.exit(0 if all(x["zapalona"] for x in wyn) else 1)
+    sys.exit(0 if all(x["zapalona"] for x in wyn if x["opis"] not in ROWNOWAZNE) else 1)
 
 
 if __name__ == "__main__":

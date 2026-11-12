@@ -149,6 +149,7 @@ def test_jakosc():
 
 
 MODELE_DIR = modele.MODELE  # tokenizery z katalogów wag (bez wczytywania wag)
+NOT_RUN = []  # brak wag: przebieg niepełny, kod wyjścia 2 (nie wygląda jak zielony)
 
 
 def _tokenizer_hf(klucz):
@@ -156,6 +157,7 @@ def _tokenizer_hf(klucz):
     kat = MODELE_DIR / modele.REJESTR[klucz][0]
     if not (kat / "tokenizer.json").exists():
         print(f"  NOT RUN {klucz}: brak {kat}")
+        NOT_RUN.append(f"{klucz}: brak {kat}")
         return None
     return AutoTokenizer.from_pretrained(str(kat))
 
@@ -179,6 +181,7 @@ def test_bos_z_tokenizera_slayer():
     kat = MODELE_DIR / modele.REJESTR["slayer"][0]
     if not (kat / "tokenizer.json").exists():
         print(f"  NOT RUN slayer: brak {kat}")
+        NOT_RUN.append(f"slayer: brak {kat}")
         return
     import slayer_model
     from tokenizers import Tokenizer
@@ -247,9 +250,33 @@ def test_holm_wszystkie_kategorie():
     assert odw[3] is None and all(abs(x - y) < 1e-12 for x, y in zip(odw[:3], ph[:3]))
 
 
+def test_holm_monotonia():
+    """Krok monotonii Holma: (m - r) · p rośnie nie wolniej niż poprzednia skorygowana p (0,011 · 1 < 0,01 · 2)."""
+    import analiza
+    h = analiza.holm_m([0.01, 0.011])
+    assert all(abs(x - 0.02) < 1e-12 for x in h), h
+    assert all(abs(x - 0.02) < 1e-12 for x in analiza.holm_m([0.011, 0.01])), "odwrócona kolejność"
+
+
+def test_pusta_po_bialych_znakach():
+    """Pusta = brak treści po strip() (runda 1), nie 0 bajtów: „\\n” jest pusta mimo 1 bajtu, „ x” nie."""
+    import analiza
+    d = analiza.Dane.__new__(analiza.Dane)
+    d.idx = {("bielik", "p1"): {"dekodowania": {"A_s1": {"bajty": 1}, "A_s2": {"bajty": 2}, "A_s3": {"bajty": 0}}}}
+    d.gen = {("bielik", "p1"): {"s1": "\n", "s2": " x", "s3": ""}}
+    assert abs(d.wartosc("pusta", "bielik", "p1") - 2 / 3) < 1e-12
+    # odwrócona kolejność seedów daje ten sam wynik
+    d.gen = {("bielik", "p1"): {"s1": "", "s2": " x", "s3": "\n"}}
+    d.idx[("bielik", "p1")]["dekodowania"]["A_s1"]["bajty"], d.idx[("bielik", "p1")]["dekodowania"]["A_s3"]["bajty"] = 0, 1
+    assert abs(d.wartosc("pusta", "bielik", "p1") - 2 / 3) < 1e-12
+
+
 if __name__ == "__main__":
     testy = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for t in testy:
         t()
         print("OK", t.__name__)
+    if NOT_RUN:
+        print(f"NIEPEŁNE: {len(testy)} testów bez błędu, ale NOT RUN (brak wag/tokenizera): " + "; ".join(NOT_RUN))
+        sys.exit(2)
     print(f"{len(testy)} testów OK")
