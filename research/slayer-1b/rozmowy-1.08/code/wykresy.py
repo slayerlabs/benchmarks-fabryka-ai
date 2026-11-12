@@ -1,9 +1,11 @@
-"""Wykresy SVG badania z wyniki/LICZBY.json (bez matplotlib: ręcznie składane SVG, ta sama paleta co raporty).
+"""Wykresy SVG badania z wyniki/LICZBY.json (bez matplotlib: ręcznie składane SVG).
 
 python -I code/wykresy.py  -> charts/*.svg
 
-Każdy znacznik ma <title> z wartością (podpowiedź po najechaniu), każdy wykres legendę z nazwą modelu,
-więc tożsamość nie stoi na samym kolorze. Przedziały: średnia ± 1,96 SE po poleceniach.
+Styl jak główne wykresy zespołu (tools/ewaluacja/raport.py, results/full-run-2026-11/charts/): paleta GitHuba
+w zmiennych CSS z trybem ciemnym, Slayer wyróżniony kolorem --sl i grubszą kreską, modele odniesienia w --ref.
+Bielik i LFM mają ten sam kolor, więc różnią się kształtem i wypełnieniem znacznika (kwadrat pełny, romb pusty).
+Każdy znacznik ma <title> z wartością, każdy wykres legendę z nazwą modelu. Przedziały: średnia ± 1,96 SE.
 """
 import json
 from html import escape
@@ -11,13 +13,20 @@ from pathlib import Path
 
 BADANIE = Path(__file__).resolve().parent.parent
 MODELE = ["slayer", "bielik", "lfm"]
-KOLOR = {"slayer": "#2a78d6", "bielik": "#eb6834", "lfm": "#1baf7a"}
+KOLOR = {"slayer": "var(--sl)", "bielik": "var(--ref)", "lfm": "var(--ref)"}
 ZNAK = {"slayer": "circle", "bielik": "square", "lfm": "diamond"}  # druga cecha obok koloru
-TLO, TEKST, TEKST2, SIATKA = "#fcfcfb", "#0b0b0b", "#52514e", "#e4e3df"
+PUSTY = {"lfm"}  # znacznik pusty w środku: trzecia cecha, bo B i L dzielą kolor
+GRUBOSC = {"slayer": 3, "bielik": 2, "lfm": 2}
+TLO, TEKST, TEKST2, SIATKA = "var(--bg)", "var(--ink)", "var(--mut)", "var(--grid)"
 ETYKIETA = {"pl_jezyk": "język polski", "pl_wiedza": "wiedza o Polsce", "wiedza_ogolna": "wiedza ogólna",
             "rozumowanie": "rozumowanie", "matematyka": "matematyka", "kod": "kod", "angielski": "angielski",
             "tekst_techniczny": "tekst techniczny", "razem": "razem"}
-FONT = "font-family='Inter, Helvetica, Arial, sans-serif'"
+STYL = """<style>
+svg{--bg:#ffffff;--ink:#1f2328;--mut:#59636e;--grid:#d1d9e0;--sl:#0969da;--ref:#59636e;--band:rgba(9,105,218,.1)}
+@media (prefers-color-scheme:dark){svg{--bg:#0d1117;--ink:#f0f6fc;--mut:#9198a1;--grid:#3d444d;--sl:#4493f8;--ref:#c9d1d9;--band:rgba(68,147,248,.16)}}
+text{font-family:system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;fill:var(--ink);font-variant-numeric:tabular-nums}
+line{stroke-linecap:round}
+</style>"""
 
 
 def liczba(x, cyfr=3):
@@ -27,14 +36,14 @@ def liczba(x, cyfr=3):
 class Svg:
     def __init__(self, w, h, tytul, opis):
         self.w, self.h, self.el = w, h, []
-        self.el.append(f"<rect width='{w}' height='{h}' fill='{TLO}'/>")
-        self.tekst(24, 30, tytul, 16, TEKST, waga=600)
-        self.tekst(24, 50, opis, 12, TEKST2)
+        self.el.append(f"<rect x='0.5' y='0.5' width='{w - 1}' height='{h - 1}' rx='8' fill='{TLO}' stroke='{SIATKA}'/>")
+        self.tekst(24, 32, tytul, 18, TEKST, waga=600)
+        self.tekst(24, 52, opis, 12, TEKST2)
         self.tytul = tytul
 
     def tekst(self, x, y, s, rozmiar=12, kolor=TEKST2, kotwica="start", waga=400):
-        self.el.append(f"<text x='{x:.1f}' y='{y:.1f}' font-size='{rozmiar}' fill='{kolor}' text-anchor='{kotwica}' "
-                       f"font-weight='{waga}' {FONT}>{escape(s)}</text>")
+        self.el.append(f"<text x='{x:.1f}' y='{y:.1f}' text-anchor='{kotwica}' "
+                       f"style='font-size:{rozmiar}px;fill:{kolor};font-weight:{waga}'>{escape(s)}</text>")
 
     def linia(self, x1, y1, x2, y2, kolor=SIATKA, grubosc=1, kreska=None):
         d = f" stroke-dasharray='{kreska}'" if kreska else ""
@@ -43,7 +52,13 @@ class Svg:
 
     def znacznik(self, m, x, y, podpowiedz, r=5):
         k = KOLOR[m]
-        ring = f"stroke='{TLO}' stroke-width='2'"
+        if k == "var(--sl)":  # wyróżnienie Slayera (wykres sędziów podmienia kolor na neutralny)
+            r += 1.5
+        if m in PUSTY:
+            ring = f"stroke='{k}' stroke-width='2'"
+            k = TLO
+        else:
+            ring = f"stroke='{TLO}' stroke-width='2'"
         if ZNAK[m] == "circle":
             ksztalt = f"<circle cx='{x:.1f}' cy='{y:.1f}' r='{r}' fill='{k}' {ring}/>"
         elif ZNAK[m] == "square":
@@ -57,11 +72,13 @@ class Svg:
     def legenda(self, x, y, nazwy):
         for j, m in enumerate(MODELE):
             self.znacznik(m, x + j * 150, y, nazwy[m])
-            self.tekst(x + j * 150 + 12, y + 4, nazwy[m], 12, TEKST)
+            sl = m == "slayer"
+            self.tekst(x + j * 150 + 12, y + 4, nazwy[m], 12, KOLOR[m] if sl else TEKST, waga=600 if sl else 400)
 
     def zapisz(self, nazwa):
         s = (f"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 {self.w} {self.h}' width='{self.w}' "
-             f"height='{self.h}' role='img' aria-label='{escape(self.tytul)}'>\n" + "\n".join(self.el) + "\n</svg>\n")
+             f"height='{self.h}' role='img' aria-label='{escape(self.tytul)}'><title>{escape(self.tytul)}</title>"
+             f"{STYL}\n" + "\n".join(self.el) + "\n</svg>\n")
         (BADANIE / "charts" / nazwa).write_text(s, encoding="utf-8")
 
 
@@ -88,7 +105,7 @@ def kropki_z_ci(nazwa, tytul, opis, dane, kategorie, nazwy, xmin, xmax, os_x, ti
             o = dane[kat][m]
             y = y0 + (j - 1) * 11
             lo, hi = o["srednia"] - 1.96 * o["se"], o["srednia"] + 1.96 * o["se"]
-            s.linia(X(lo), y, X(hi), y, KOLOR[m], 2)
+            s.linia(X(lo), y, X(hi), y, KOLOR[m], GRUBOSC[m])
             s.znacznik(m, X(o["srednia"]), y, f"{nazwy[m]}, {ETYKIETA[kat]}: {liczba(o['srednia'])} "
                                               f"(SE {liczba(o['se'])}, n {o['n']})", r=4)
     s.zapisz(nazwa)
@@ -120,7 +137,7 @@ def male_wielokrotne(nazwa, tytul, opis, panele, nazwy):
                 o = p["dane"][kat][m]
                 y = y0 + (j - 1) * 9
                 lo, hi = o["srednia"] - 1.96 * o["se"], o["srednia"] + 1.96 * o["se"]
-                s.linia(X(lo), y, X(hi), y, KOLOR[m], 2)
+                s.linia(X(lo), y, X(hi), y, KOLOR[m], GRUBOSC[m])
                 s.znacznik(m, X(o["srednia"]), y, f"{nazwy[m]}, {ETYKIETA[kat]}, {p['os']}: {liczba(o['srednia'])} "
                                                   f"(SE {liczba(o['se'])})", r=4)
     s.zapisz(nazwa)
@@ -202,8 +219,8 @@ def trudnosc(L):
             dx = (c % 8) * 4 * (-1 if x > 0.5 else 1)
             dy = -(c // 8) * 5 if y < 0.5 else (c // 8) * 5
             s.el.append(f"<g><title>{escape(pid)}: Slayer {liczba(v[0], 2)}, Bielik {liczba(v[1], 2)}, LFM {liczba(v[2], 2)}"
-                        f"</title><circle cx='{x0 + x * pw + dx:.1f}' cy='{y0 + ph - y * ph + dy:.1f}' r='3' fill='{KOLOR['slayer']}' "
-                        f"fill-opacity='0.75' stroke='{TLO}' stroke-width='1.5'/></g>")
+                        f"</title><circle cx='{x0 + x * pw + dx:.1f}' cy='{y0 + ph - y * ph + dy:.1f}' r='3' fill='{TEKST2}' "
+                        f"fill-opacity='0.6' stroke='{TLO}' stroke-width='1.5'/></g>")
     s.tekst(lewa, h - 14, "Linia przerywana: próg rozstępu 2/3 z aneksu A1 (pozycja „rozróżnia”).", 11, TEKST2)
     s.zapisz("trudnosc.svg")
 
