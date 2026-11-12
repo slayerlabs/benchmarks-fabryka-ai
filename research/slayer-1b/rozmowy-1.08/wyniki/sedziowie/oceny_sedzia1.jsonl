@@ -1,0 +1,126 @@
+{"para_id": "P001", "werdykt": "B", "uzasadnienie": "B to pełny opis sprzedażowy z wszystkimi danymi, A to jedno zdanie-fragment z doklejonym imieniem."}
+{"para_id": "P002", "werdykt": "B", "uzasadnienie": "Obie błędne, ale A zawiera błędny rachunek (100 + 23% = 113) i bełkot, B przynajmniej poprawnie i spójnie definiuje cenę brutto."}
+{"para_id": "P003", "werdykt": "A", "uzasadnienie": "A poprawnie wyjaśnia kopię i zasadę 3-2-1 z zagrożeniem, B ma absurd „na pokładzie statku”."}
+{"para_id": "P004", "werdykt": "A", "uzasadnienie": "A ma 4 zdania z powodami, B tylko 2 zdania wbrew wymogowi 3-4."}
+{"para_id": "P005", "werdykt": "A", "uzasadnienie": "A wspomina wzmocnienie na rozciąganie, B to zapętlony, sprzeczny bełkot."}
+{"para_id": "P006", "werdykt": "remis", "uzasadnienie": "Obie odpowiedzi są merytorycznie bezużyteczne: A to bełkot, B podaje fałszywe liczby i błędny wniosek o braku zagrożenia."}
+{"para_id": "P007", "werdykt": "A", "uzasadnienie": "A poprawnie opisuje drugi składnik i to, że samo hasło nie wystarcza, B myli 2FA z loginem i hasłem."}
+{"para_id": "P008", "werdykt": "A", "uzasadnienie": "A wskazuje ograniczanie naprężeń rozciągających i pękanie, B ogólnikowa z błędem (zbrojenie z betonu)."}
+{"para_id": "P009", "werdykt": "B", "uzasadnienie": "B poprawnie definiuje kogenerację i wykorzystanie ciepła, A zawiera błąd o paliwach gazowych i ciekłych."}
+{"para_id": "P010", "werdykt": "B", "uzasadnienie": "B pełniej porównuje budowę, szybkość, odporność i cenę bez błędów."}
+{"para_id": "P011", "werdykt": "A", "uzasadnienie": "Obie słabe, ale B jest absurdalna (silnik spalinowy nie potrzebuje paliwa), A przynajmniej poprawnie wskazuje wyższą efektywność napędu elektrycznego."}
+{"para_id": "P012", "werdykt": "B", "uzasadnienie": "B ma formę e-maila z powitaniem, prośbą o wymianę i zwrot, A nie ma formy e-maila i ma błąd językowy."}
+{"para_id": "P013", "werdykt": "A", "uzasadnienie": "A krótko, ale trafnie wskazuje wzrost ruchu i problem bazy, B to zapętlony bełkot."}
+{"para_id": "P014", "werdykt": "A", "uzasadnienie": "Obie spełniają kryteria, A płynniej i z wyraźnymi korzyściami, B dopisuje niepodane kolory i powtarza się."}
+{"para_id": "P015", "werdykt": "remis", "uzasadnienie": "Obie odpowiedzi są całkowicie błędne merytorycznie i nie spełniają żadnego kryterium."}
+{"para_id": "P016", "werdykt": "A", "uzasadnienie": "A poprawnie opisuje IP i rolę DNS z poprawnym przykładem, B twierdzi błędnie, że DNS generuje adresy IP."}
+{"para_id": "P017", "werdykt": "A", "uzasadnienie": "A to poprawny formalny e-mail z prośbą, powodem i zastępstwem, B to bełkot."}
+{"para_id": "P018", "werdykt": "B", "uzasadnienie": "B poprawnie opisuje indeks, korzyść i koszt, A to bełkot."}
+{"para_id": "P019", "werdykt": "A", "uzasadnienie": "A poprawnie wskazuje wzrost rat, B zawiera poważne błędy (spadek oprocentowania lokat, wzrost inflacji)."}
+{"para_id": "P020", "werdykt": "B", "uzasadnienie": "B jest spójna choć ogólnikowa, A to zapętlony bełkot."}
+{"para_id": "P021", "werdykt": "A", "uzasadnienie": "A poprawnie definiuje netto i brutto i liczy przykład, B myli definicję netto."}
+{"para_id": "P022", "werdykt": "A", "uzasadnienie": "A poprawnie definiuje COP z przykładem mimo uciętego końca, B podaje błędną definicję COP."}
+{"para_id": "P023", "werdykt": "A", "uzasadnienie": "A wymienia substraty, produkty, chloroplasty i znaczenie, B nie podaje substratów ani produktów."}
+{"para_id": "P024", "werdykt": "A", "uzasadnienie": "Obie definicje błędne, ale A jest spójna językowo, B to bełkot z niezrozumiałymi przykładami."}
+{"para_id": "P025", "werdykt": "B", "uzasadnienie": "B poprawnie opisuje wyłącznik nadprądowy i ogólną różnicę, A ma bełkotliwy opis różnicówki."}
+{"para_id": "P026", "werdykt": "B", "uzasadnienie": "B poprawnie opisuje indeks, korzyść i koszt, A myli indeks z identyfikatorem elementu."}
+{"para_id": "P027", "werdykt": "A", "uzasadnienie": "A wskazuje koszt energii z sieci i zasilanie awaryjne, B pisze nie na temat o odległości zbiornika."}
+{"para_id": "P028", "werdykt": "B", "uzasadnienie": "B poprawnie porównuje dyski, A twierdzi błędnie, że SSD są tańsze."}
+{"para_id": "P029", "werdykt": "B", "uzasadnienie": "B poprawnie opisuje kierunek tłumaczenia DNS, A odwraca go (IP na DNS)."}
+{"para_id": "P030", "werdykt": "B", "uzasadnienie": "B wyjaśnia, że wykradzione hasło nie wystarcza, A tego nie robi i ma niespójne zakończenie."}
+{"para_id": "P031", "werdykt": "A", "uzasadnienie": "A wskazuje koszt energii z sieci i awaryjność, B jest wewnętrznie sprzeczna i nie analizuje opłacalności."}
+{"para_id": "P032", "werdykt": "A", "uzasadnienie": "A poprawnie opisuje wyłącznik nadprądowy i różnicę, B podaje absurdalne wartości napięć."}
+{"para_id": "P033", "werdykt": "B", "uzasadnienie": "B poprawnie rozróżnia kW i kWh, A powtarza zdanie i ma błędny przykład."}
+{"para_id": "P034", "werdykt": "B", "uzasadnienie": "B zawiera temat wiadomości (22:00, pranie) mimo błędów form, A jest całkowicie nie na temat."}
+{"para_id": "P035", "werdykt": "B", "uzasadnienie": "B poprawnie podaje przykład kodu SMS jako drugiego składnika, A myli 2FA z loginem i hasłem."}
+{"para_id": "P036", "werdykt": "A", "uzasadnienie": "A poprawnie definiuje kogenerację, B zawiera błąd o paliwach gazowych i ciekłych."}
+{"para_id": "P037", "werdykt": "A", "uzasadnienie": "A rozwija zasadę 3-2-1 (trzy kopie, dwa nośniki) mimo absurdu o statku, B w ogóle jej nie wyjaśnia."}
+{"para_id": "P038", "werdykt": "B", "uzasadnienie": "B poprawnie liczy 3000 zł i 3310 zł odsetek, A ma błędne rachunki i definicje."}
+{"para_id": "P039", "werdykt": "B", "uzasadnienie": "B to swobodna wiadomość z poprawnymi formami, A myli osobę i formy czasownika."}
+{"para_id": "P040", "werdykt": "A", "uzasadnienie": "A wspomina pull request i przegląd, B to ogólnikowe powtórzenia bez kroków."}
+{"para_id": "P041", "werdykt": "A", "uzasadnienie": "A trafnie wiąże problem z ruchem i serwerem bazy, B wskazuje nietrafne przyczyny (prędkość internetu)."}
+{"para_id": "P042", "werdykt": "A", "uzasadnienie": "A poprawnie łączy niższe ciśnienie z niższą temperaturą wrzenia, B to bełkot."}
+{"para_id": "P043", "werdykt": "A", "uzasadnienie": "A ma formę ogłoszenia zarządcy i wszystkie dane, B ma błędną formę „przeproś” i brak formy ogłoszenia."}
+{"para_id": "P044", "werdykt": "B", "uzasadnienie": "B to komunikat do kolegów z prośbą o mycie kubków, A nie jest na temat."}
+{"para_id": "P045", "werdykt": "B", "uzasadnienie": "A podaje błędne rachunki i błędnie nazywa procent prosty składanym, B jest ogólnikowa, ale bez błędnych liczb."}
+{"para_id": "P046", "werdykt": "B", "uzasadnienie": "B to spójny opis z wszystkimi faktami, A powtarza te same dwa zdania i pomija 750 ml."}
+{"para_id": "P047", "werdykt": "B", "uzasadnienie": "B wskazuje mutacje i brak działania na wirusy, A jest zapętlona i niespójna."}
+{"para_id": "P048", "werdykt": "remis", "uzasadnienie": "Obie odpowiedzi nie wyjaśniają mechanizmu strat i zawierają fałszywe twierdzenia."}
+{"para_id": "P049", "werdykt": "B", "uzasadnienie": "B wymienia substraty, produkty i znaczenie, A ich nie podaje."}
+{"para_id": "P050", "werdykt": "A", "uzasadnienie": "A poprawnie opisuje skalę z pH 7 jako obojętnym, B podaje rażąco błędne przykłady (woda kwaśna, napoje gazowane zasadowe)."}
+{"para_id": "P051", "werdykt": "B", "uzasadnienie": "B poprawnie wyjaśnia kogenerację i lepsze wykorzystanie paliwa, A ma niespójne wyjaśnienie."}
+{"para_id": "P052", "werdykt": "B", "uzasadnienie": "B to płynny opis z wszystkimi faktami, A powtarza dwa zdania i pomija 750 ml."}
+{"para_id": "P053", "werdykt": "A", "uzasadnienie": "A przynajmniej dotyczy gita w zespole, B to powtórzone zdanie nie na temat."}
+{"para_id": "P054", "werdykt": "A", "uzasadnienie": "A poprawnie opisuje parę kluczy asymetrycznych, B nie opisuje kluczy i podaje błędne uzasadnienia."}
+{"para_id": "P055", "werdykt": "B", "uzasadnienie": "B wskazuje niezawodność TCP i szybkość UDP, A błędnie twierdzi, że UDP jest bardziej niezawodny."}
+{"para_id": "P056", "werdykt": "A", "uzasadnienie": "A poprawnie rozróżnia kW i kWh, B podaje błędny przelicznik 1 kWh = 1000 W."}
+{"para_id": "P057", "werdykt": "B", "uzasadnienie": "B wskazuje zmniejszenie strat przy wyższym napięciu, A podaje fałszywą zależność od kwadratu odległości."}
+{"para_id": "P058", "werdykt": "A", "uzasadnienie": "A to pełny opis sprzedażowy, B to jedno zdanie-fragment z błędem „udźywanie”."}
+{"para_id": "P059", "werdykt": "B", "uzasadnienie": "B jasno wyjaśnia spadek siły nabywczej gotówki, A jest mniej precyzyjna."}
+{"para_id": "P060", "werdykt": "A", "uzasadnienie": "A jest poprawna i zwięzła, B ma błędną definicję i niespójny przykład liczbowy."}
+{"para_id": "P061", "werdykt": "A", "uzasadnienie": "A to uprzejmy e-mail z zapytaniem o pokój, B pisany z perspektywy hotelu i nie na temat."}
+{"para_id": "P062", "werdykt": "B", "uzasadnienie": "B to uprzejmy e-mail z zapytaniem, A myli role nadawcy i odbiorcy."}
+{"para_id": "P063", "werdykt": "A", "uzasadnienie": "Obie z błędnymi rachunkami, ale A przynajmniej stosuje strukturę rachunku progu rentowności, B to bełkot."}
+{"para_id": "P064", "werdykt": "B", "uzasadnienie": "B poprawnie wskazuje wzrost rat, A to bełkot o wartości pieniądza."}
+{"para_id": "P065", "werdykt": "B", "uzasadnienie": "B poprawnie opisuje pobieranie ciepła z otoczenia i COP, A ma bełkotliwy opis działania i jest ucięta."}
+{"para_id": "P066", "werdykt": "A", "uzasadnienie": "A wyjaśnia zasadę 3-2-1 i zagrożenia, B jej nie wyjaśnia."}
+{"para_id": "P067", "werdykt": "B", "uzasadnienie": "B to uprzejmy komunikat do kolegów, A nie jest na temat."}
+{"para_id": "P068", "werdykt": "A", "uzasadnienie": "A przynajmniej dotyczy progu rentowności, B jest całkowicie nie na temat."}
+{"para_id": "P069", "werdykt": "B", "uzasadnienie": "B wskazuje mutacje i brak działania na wirusy, A pisze o fotosyntezie bakterii."}
+{"para_id": "P070", "werdykt": "A", "uzasadnienie": "A jest zaproszeniem do przyjaciela ze wszystkimi danymi, B to jedno zdanie w trzeciej osobie bez formy zaproszenia."}
+{"para_id": "P071", "werdykt": "B", "uzasadnienie": "B poprawnie łączy CO2 z zatrzymywaniem ciepła i działalnością człowieka, A twierdzi błędnie, że efekt zmniejsza dopływ energii."}
+{"para_id": "P072", "werdykt": "B", "uzasadnienie": "B to notatka ze wszystkimi ustaleniami, A jest nie na temat."}
+{"para_id": "P073", "werdykt": "A", "uzasadnienie": "A poprawnie wiąże niższe ciśnienie z temperaturą wrzenia, B to bełkot."}
+{"para_id": "P074", "werdykt": "A", "uzasadnienie": "A podaje powody, B to jedno zdanie bez powodu."}
+{"para_id": "P075", "werdykt": "A", "uzasadnienie": "A to kompletne ogłoszenie, B jest pusta."}
+{"para_id": "P076", "werdykt": "B", "uzasadnienie": "B jasno opisuje problem i deklaruje zwrot, A ma błąd językowy i nie podaje sposobu zwrotu."}
+{"para_id": "P077", "werdykt": "B", "uzasadnienie": "B przynajmniej próbuje opisać rolę DNS z poprawnym formatem IP, A w ogóle nie wyjaśnia DNS i twierdzi, że DNS generuje adresy IP."}
+{"para_id": "P078", "werdykt": "A", "uzasadnienie": "A wskazuje ograniczanie naprężeń rozciągających, B to zapętlony bełkot."}
+{"para_id": "P079", "werdykt": "B", "uzasadnienie": "B wymienia substraty, produkty i znaczenie jasno i bez bełkotu, A ma wtrącone nieprawidłowe terminy."}
+{"para_id": "P080", "werdykt": "A", "uzasadnienie": "A jest poprawna i jasna, B ma błędną definicję i niespójny przykład."}
+{"para_id": "P081", "werdykt": "B", "uzasadnienie": "B ma formę notatki z nagłówkiem i punktami, A to jedno zdanie bez nagłówka."}
+{"para_id": "P082", "werdykt": "A", "uzasadnienie": "A zawiera temat wiadomości, B jest nie na temat."}
+{"para_id": "P083", "werdykt": "B", "uzasadnienie": "B przynajmniej poprawnie określa logarytmiczny charakter skali, A podaje fałszywy wzór i brak przykładów."}
+{"para_id": "P084", "werdykt": "B", "uzasadnienie": "B zawiera prośbę o zapas wody i formę ogłoszenia, A jest skierowana do jednej osoby i pomija prośbę."}
+{"para_id": "P085", "werdykt": "B", "uzasadnienie": "B jest czytelna i poprawnie wskazuje niezawodność TCP i szybkość UDP, A jest bełkotliwa, ucięta i sprzeczna."}
+{"para_id": "P086", "werdykt": "B", "uzasadnienie": "B poprawnie definiuje koszt alternatywny z przykładem, A to bełkot."}
+{"para_id": "P087", "werdykt": "A", "uzasadnienie": "A poprawnie wskazuje niezawodność TCP i szybkość UDP, B błędnie twierdzi, że UDP jest bardziej niezawodny."}
+{"para_id": "P088", "werdykt": "B", "uzasadnienie": "B podaje sprawność silnika spalinowego 30-40%, A błędnie twierdzi, że silnik spalinowy zamienia energię elektryczną."}
+{"para_id": "P089", "werdykt": "A", "uzasadnienie": "Obie to fragmenty, ale A zachowuje poprawne dane, B przekręca „udźwig”."}
+{"para_id": "P090", "werdykt": "B", "uzasadnienie": "B jest spójna i bez rażących błędów, A zawiera fałszywe twierdzenia o mechanizmie i powodziach."}
+{"para_id": "P091", "werdykt": "A", "uzasadnienie": "A poprawnie opisuje parę kluczy asymetrycznych, B myli szyfrowanie symetryczne z asymetrycznym."}
+{"para_id": "P092", "werdykt": "A", "uzasadnienie": "A poprawnie definiuje koszt alternatywny z przykładem, B podaje błędną definicję."}
+{"para_id": "P093", "werdykt": "B", "uzasadnienie": "B przynajmniej dotyczy gita i pull requesta, A to powtórzone zdanie nie na temat."}
+{"para_id": "P094", "werdykt": "A", "uzasadnienie": "Obie błędne, ale A jest spójna językowo, B to bełkot."}
+{"para_id": "P095", "werdykt": "B", "uzasadnienie": "B zawiera prośbę o kontakt i numer, A jest pusta."}
+{"para_id": "P096", "werdykt": "A", "uzasadnienie": "A poprawnie łączy oba rodzaje w TLS, B myli szyfrowanie symetryczne z asymetrycznym."}
+{"para_id": "P097", "werdykt": "B", "uzasadnienie": "B to przyjacielskie zaproszenie bez sprzeczności, A podaje 6 PM sprzeczne z popołudniem."}
+{"para_id": "P098", "werdykt": "B", "uzasadnienie": "B poprawnie definiuje kWh jako 1 kW przez godzinę, A podaje błędny przelicznik."}
+{"para_id": "P099", "werdykt": "B", "uzasadnienie": "B wspomina enzymy i ewolucję oporności, A pisze o fotosyntezie bakterii."}
+{"para_id": "P100", "werdykt": "B", "uzasadnienie": "B to kompletne ogłoszenie, A pomija miejsce i dodaje nieprawdę o policji."}
+{"para_id": "P101", "werdykt": "B", "uzasadnienie": "B poprawnie opisuje półprzewodnik, prąd stały i rolę falownika, A błędnie opisuje falownik."}
+{"para_id": "P102", "werdykt": "A", "uzasadnienie": "A podaje powody w 4 zdaniach, B to jedno zdanie bez powodu."}
+{"para_id": "P103", "werdykt": "B", "uzasadnienie": "B zawiera ustalenia spotkania, A jest nie na temat."}
+{"para_id": "P104", "werdykt": "B", "uzasadnienie": "B poprawnie porównuje dyski, A twierdzi błędnie, że SSD są tańsze."}
+{"para_id": "P105", "werdykt": "A", "uzasadnienie": "A jest zaproszeniem do przyjaciela, B to jedno zdanie w trzeciej osobie."}
+{"para_id": "P106", "werdykt": "B", "uzasadnienie": "B zawiera prośbę o dzień wolny w piątek i powód zbliżony do wizyty, A to bełkot."}
+{"para_id": "P107", "werdykt": "B", "uzasadnienie": "B wymienia dwa gazy i działalność człowieka, A zawiera błąd o zmniejszaniu dopływu energii."}
+{"para_id": "P108", "werdykt": "B", "uzasadnienie": "B opisuje półprzewodnik, prąd stały i rolę falownika, A nie wspomina falownika."}
+{"para_id": "P109", "werdykt": "B", "uzasadnienie": "B to formalny e-mail z prośbą, powodem i zastępstwem, A pomija zastępstwo i wizytę u lekarza."}
+{"para_id": "P110", "werdykt": "B", "uzasadnienie": "B poprawnie opisuje skalę z pH 7 jako obojętnym, A podaje fałszywy wzór."}
+{"para_id": "P111", "werdykt": "B", "uzasadnienie": "B podaje poprawne liczby odsetek, A jest ogólnikowa i niespójna."}
+{"para_id": "P112", "werdykt": "B", "uzasadnienie": "B wnioskuje przeciążenie i proponuje rozwiązanie mimo błędnych liczb, A podaje fałszywy wniosek o braku zagrożenia."}
+{"para_id": "P113", "werdykt": "B", "uzasadnienie": "B poprawnie wskazuje wzrost rat, A to bełkot."}
+{"para_id": "P114", "werdykt": "A", "uzasadnienie": "A zawiera prośbę o niezostawianie kubków w zlewie, B ją pomija."}
+{"para_id": "P115", "werdykt": "B", "uzasadnienie": "B przynajmniej dotyczy progu rentowności, A jest nie na temat."}
+{"para_id": "P116", "werdykt": "B", "uzasadnienie": "B ma formę e-maila z zakończeniem, A pisze z perspektywy hotelu i jest niespójna."}
+{"para_id": "P117", "werdykt": "A", "uzasadnienie": "A wnioskuje przeciążenie i proponuje rozwiązanie mimo błędnych liczb, B to bełkot."}
+{"para_id": "P118", "werdykt": "A", "uzasadnienie": "A poprawnie definiuje netto i brutto i liczy przykład, B ma błędny rachunek."}
+{"para_id": "P119", "werdykt": "A", "uzasadnienie": "A poprawnie stwierdza, że panel wytwarza prąd stały i wspomina falownik, B nie spełnia żadnego kryterium."}
+{"para_id": "P120", "werdykt": "A", "uzasadnienie": "A poprawnie definiuje COP, B podaje błędną definicję COP."}
+{"para_id": "P121", "werdykt": "B", "uzasadnienie": "B poprawnie opisuje cel wyłącznika nadprądowego, A podaje absurdalne wartości napięć."}
+{"para_id": "P122", "werdykt": "B", "uzasadnienie": "B wskazuje zmniejszenie strat przy wyższym napięciu, A jest nie na temat."}
+{"para_id": "P123", "werdykt": "B", "uzasadnienie": "B zawiera prośbę o zapas wody, A jest skierowana do jednej osoby i pomija prośbę."}
+{"para_id": "P124", "werdykt": "A", "uzasadnienie": "A to formalny e-mail z prośbą o wymianę i zwrot, B ma błędne powitanie „Dear customer”."}
+{"para_id": "P125", "werdykt": "A", "uzasadnienie": "A podaje sprawność silnika spalinowego 30-40%, B jest absurdalna."}
+{"para_id": "P126", "werdykt": "B", "uzasadnienie": "B wskazuje magazynowanie nadwyżek z dnia, A pisze nie na temat o odległości zbiornika."}

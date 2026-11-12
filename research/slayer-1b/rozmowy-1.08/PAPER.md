@@ -4,7 +4,7 @@ Plik generuje `code/paper.py` z `wyniki/LICZBY.json` (ten z kolei `code/analiza.
 
 ## Streszczenie
 
-Na 240 nowych poleceniach po polsku i angielsku Slayer 1.08 odpowiada poprawnie rzadziej niż Bielik 1.5B (łącznie 0,325 wobec 0,598, różnica −0,273 (SE 0,029, z = −9,53, pewne)), najmocniej w matematyce i języku polskim, i przypisuje wzorcowym odpowiedziom mniejsze prawdopodobieństwo (wyższe BPB) we wszystkich 8 kategoriach. Od LFM2.5 Slayer różni się mniej (poprawność łącznie −0,066 (SE 0,032, z = −2,08, prawdopodobne)): ma niższe BPB polskiego tekstu i więcej trafień w wiedzy o Polsce, a niższą poprawność w matematyce i angielskim. Najsilniejszy sygnał swoistej wady Slayera to bardzo niskie prawdopodobieństwo końca dokumentu po zakończonej odpowiedzi (sonda EOS); powtórzeń i przecieków znaczników z pilota ten pomiar nie potwierdził.
+Na 240 nowych poleceniach po polsku i angielsku Slayer 1.08 odpowiada poprawnie rzadziej niż Bielik 1.5B (łącznie 0,325 wobec 0,598, różnica −0,273 (SE 0,029, z = −9,53, pewne)), najmocniej w matematyce i języku polskim, i przypisuje wzorcowym odpowiedziom mniejsze prawdopodobieństwo (wyższe BPB) we wszystkich 8 kategoriach. Wobec LFM2.5 wynik łączny jest nierozstrzygnięty (poprawność −0,066 (SE 0,032, z = −2,08, prawdopodobne), ale po klastrach kategorii t = −0,87, df = 6, szum, a w szablonie B różnica −0,217), a stoją różnice w kategoriach: Slayer ma niższe BPB polskiego tekstu i więcej trafień w wiedzy o Polsce, a mniej w matematyce; powtórzeń, przecieków znaczników i braku naturalnego końca odpowiedzi z pilota ten pomiar nie potwierdził.
 
 ## 1. Pytania i hipotezy
 
@@ -27,7 +27,7 @@ Hipotezy pochodzą z pilota (45 poleceń, jedna próbka, bez protokołu, poza re
 | H9.1, H9.2 | sędziowie wolą B od S i L od S | odsetek wygranych | 42 polecenia otwarte |
 | H10 | angielski: BPB S wyższe niż L | BPB | angielski |
 
-Reguła werdyktu (protokół, sekcja 1): różnica parowana po poleceniach, SE = sd/√n po poleceniach, z = różnica/SE; |z| od 3 „pewne”, od 2 do 3 „prawdopodobne”, poniżej 2 „szum”. Poprawka Holma w rodzinie hipoteza × para × metryka po kategoriach. Teza jest potwierdzona, gdy znak się zgadza i po Holmie jest co najmniej „prawdopodobna”, obalona przy znaku przeciwnym i tej samej sile, w pozostałych przypadkach nierozstrzygnięta. Wynik pod progiem nie znaczy „brak różnicy”.
+Reguła werdyktu (protokół, sekcja 1): różnica parowana po poleceniach, SE = sd/√n po poleceniach, z = różnica/SE; |z| od 3 „pewne”, od 2 do 3 „prawdopodobne”, poniżej 2 „szum”. Poprawka Holma w rodzinie hipoteza × para × metryka po kategoriach, m = wszystkie kategorie z metryką, także te z SE = 0 (poprawione w rundzie poprawek 1: pierwsza wersja liczyła m bez nich). Teza jest potwierdzona, gdy znak się zgadza i po Holmie jest co najmniej „prawdopodobna”, obalona przy znaku przeciwnym i tej samej sile, w pozostałych przypadkach nierozstrzygnięta. Wynik pod progiem nie znaczy „brak różnicy”.
 
 ## 2. Metoda
 
@@ -46,9 +46,10 @@ Wagi leżą poza repo, ich sha256 jest w nagłówku każdego surowego pliku (`wy
 **Prompt i dekodowanie.** Few-shot z 3 przykładami tej samej kategorii. Szablon A (główny) „Polecenie: / Odpowiedź:” (angielski „Task: / Answer:”), szablon B (kontrola) „### Zadanie / ### Rozwiązanie”. W szablonie A trzy próbki (temperatura 0,7, top-p 0,9, seedy 1–3) i greedy, w szablonie B greedy. <!-- liczba-spoza-wynikow: stała protokołu -->
 Odpowiedź kończy się na tokenie końca dokumentu (EOS), na znaczniku następnego polecenia albo na limicie tokenów.
 
-**Metryki** (`code/ocena.py`, protokół sekcja 4): (a) poprawność automatyczna, wartość polecenia = średnia 3 próbek; (b) BPB wzorca = −Σ log p(tokenów wzorca | prompt) / (ln 2 · bajty UTF-8), na bajt, bo tokenizery są różne; (c) naturalny koniec przed limitem tokenów i (c2) sonda EOS: log10 p(EOS) po tekście „Pytanie: … Odpowiedź: <wzorzec>\n” bez przykładów; (d) rep3 = udział 3-gramów słów powtórzonych w tej samej odpowiedzi; (e) ślepa ocena parami przez dwóch sędziów (osobne agenty Claude), A / B / remis.
+**Metryki** (`code/ocena.py`, protokół sekcja 4): (a) poprawność automatyczna, wartość polecenia = średnia 3 próbek; (b) BPB wzorca = −Σ log p(tokenów wzorca | prompt) / (ln 2 · bajty UTF-8), na bajt, bo tokenizery są różne; (c) naturalny koniec przed limitem tokenów i (c2) sonda EOS: log10 p(EOS) po tekście „Pytanie: … Odpowiedź: <wzorzec>\n” bez przykładów; (d) rep3 = udział 3-gramów słów powtórzonych w tej samej odpowiedzi; (e) ślepa ocena parami przez dwóch sędziów (osobne agenty Claude), A / B / remis. Metryka (c) liczy jako naturalny koniec także pustą odpowiedź zakończoną EOS; wariant bez pustych podaję w sekcji 5. „Pusta odpowiedź” w całym tekście znaczy: brak treści po obcięciu białych znaków (metryka opisowa, eksploracyjna).
 
 **Statystyka.** Różnice parowane po poleceniach (te same polecenia dla wszystkich modeli), SE po poleceniach (próbki jednego polecenia uśrednione przed różnicą), z, werdykt i Holm jak w sekcji 1. Bootstrap po poleceniach jako kontrola wrażliwości (10 000 losowań, seed 20261112). <!-- liczba-spoza-wynikow: stała protokołu -->
+Protokół wiąże werdykt z z. Wrażliwość (eksploracyjna, po pomiarze): z rozkładem t o df = n − 1 zamiast z słabnie surowy werdykt w 3 z 54 wierszy tabeli hipotez, werdykt po Holmie zmienia się w 1, a stan tezy w 0.
 
 **Moc (MDE).** Najmniejsza różnica wykrywalna z mocą 80% pod Holmem przy 8 kategoriach to (z_Holm + z_moc) · SE, z_Holm = 2,765, z_moc = 0,842, SE z danych. Różnica mniejsza od MDE w danej kategorii mogła istnieć i nie zostać wykryta:
 
@@ -69,6 +70,9 @@ Poprawność w jednej kategorii (n = 24 albo 30) wykrywa tylko różnice rzędu 
 
 **Narzędzie.** Tym samym kodem log p, który liczy BPB, policzyłam dla Slayera 1.08 `ARC-Challenge` (n = 1172) i `OpenBookQA` (n = 500) z promptami karty modelu. Wynik: acc 0,271331 i acc_norm 0,300341 wobec 0,271331 i 0,300341 w `EVALUATION.json`; `OpenBookQA` acc 0,230 i acc_norm 0,348, identycznie jak referencja. Warunek odtworzenia (różnica do 0,02) spełniony dla wszystkich czterech wartości. <!-- liczba-spoza-wynikow: próg etapu B -->
 Dla Bielika i LFM opublikowanych liczb w tym ustawieniu nie ma; ich ścieżkę sprawdza test spójności log p z pełnym forwardem i próba dymna (greedy w batchu 4 wobec batchu 1: 0 różnic na 10 pozycjach każdego modelu). To test spójności, nie odtworzenie cudzej liczby.
+Po pomiarze (runda poprawek 1, eksploracyjnie) powtórzyłam porównanie greedy batch 4 wobec batch 1 dla Bielik 1.5B na 32 pozycjach z pełnym limitem tokenów (`code/batch_vs_1.py`): 0 różnych odpowiedzi.
+
+**Testy kodu pomiaru** (`code/test_rozmowy.py`, bez wag): scorer log p na atrapie, BOS z tokenizera dla ścieżki Slayera i ścieżki transformers, zbiory EOS z protokołu z nazwami tokenów, seed wiersza z numerem pozycji, odcięcie top-p, tolerancja oceny liczby, Holm z m = wszystkie kategorie. Testy BOS, EOS, seeda, top-p, tolerancji i Holma dopisałam w rundzie poprawek 1, bo pierwsza wersja testów przechodziła na zielono przy mutacjach tych miejsc; każdą mutację sprawdziłam (wynik w podsumowaniu rundy, sekcja 10).
 
 **Skażenie.** Wspólne 13-gramy słów (polecenie + wzorzec + testy) z `GSM8K`, `ARC`, `OpenBookQA`, `HumanEval`, `MBPP`: 0 trafień na 240 poleceń. Przy 8-gramach 4 trafienia w dwóch pozycjach (`kod-15`, `kod-28`), wyłącznie ciągi liczb i liter z danych testów, nie treść. Skan nie łapie tłumaczeń ani parafraz, a krótkie polecenia (rozumowanie) mają mniej niż 13 słów, więc wynik 0 nie wyklucza skażenia treścią.
 
@@ -162,19 +166,60 @@ Zgodność jest słaba poza matematyką i `arc-challenge`. W języku polskim kie
 
 | kategoria | naturalny koniec S | B | L | rep3 S | B | L | pusta odpowiedź S | B | L |
 |---|---|---|---|---|---|---|---|---|---|
-| język polski | 0,944 (0,023) | 1,000 (0,000) | 0,956 (0,021) | 0,058 (0,055) | 0,007 (0,006) | 0,000 (0,000) | 0,000 (0,000) | 0,000 (0,000) | 0,000 (0,000) |
+| język polski | 0,944 (0,023) | 1,000 (0,000) | 0,956 (0,021) | 0,058 (0,055) | 0,007 (0,006) | 0,000 (0,000) | 0,000 (0,000) | 0,000 (0,000) | 0,011 (0,011) |
 | wiedza o Polsce | 1,000 (0,000) | 1,000 (0,000) | 1,000 (0,000) | — | — | — | 0,000 (0,000) | 0,000 (0,000) | 0,000 (0,000) |
 | wiedza ogólna | 1,000 (0,000) | 1,000 (0,000) | 0,989 (0,011) | — | — | — | 0,000 (0,000) | 0,000 (0,000) | 0,000 (0,000) |
 | rozumowanie | 1,000 (0,000) | 1,000 (0,000) | 0,989 (0,011) | — | — | — | 0,000 (0,000) | 0,000 (0,000) | 0,000 (0,000) |
 | matematyka | 0,989 (0,011) | 1,000 (0,000) | 1,000 (0,000) | — | — | — | 0,000 (0,000) | 0,000 (0,000) | 0,000 (0,000) |
 | kod (Python) | 0,989 (0,011) | 0,778 (0,065) | 0,967 (0,025) | — | — | — | 0,000 (0,000) | 0,000 (0,000) | 0,478 (0,050) |
-| angielski | 1,000 (0,000) | 1,000 (0,000) | 1,000 (0,000) | 0,040 (0,025) | 0,005 (0,002) | 0,005 (0,003) | 0,000 (0,000) | 0,011 (0,011) | 0,000 (0,000) |
+| angielski | 1,000 (0,000) | 1,000 (0,000) | 1,000 (0,000) | 0,040 (0,025) | 0,005 (0,002) | 0,005 (0,003) | 0,000 (0,000) | 0,089 (0,032) | 0,000 (0,000) |
 | tekst techniczny | 0,989 (0,011) | 0,967 (0,025) | 0,889 (0,033) | 0,047 (0,010) | 0,037 (0,011) | 0,083 (0,014) | 0,000 (0,000) | 0,011 (0,011) | 0,000 (0,000) |
-| razem | 0,989 (0,004) | 0,968 (0,010) | 0,974 (0,006) | 0,048 (0,011) | 0,028 (0,008) | 0,060 (0,011) | 0,000 (0,000) | 0,003 (0,002) | 0,060 (0,012) |
+| razem | 0,989 (0,004) | 0,968 (0,010) | 0,974 (0,006) | 0,048 (0,011) | 0,028 (0,008) | 0,060 (0,011) | 0,000 (0,000) | 0,013 (0,005) | 0,061 (0,012) |
 
 ![Naturalny koniec i powtórzenia](charts/koniec_powtorzenia.svg)
 
 Prawie wszystkie odpowiedzi kończą się przed limitem tokenów, bo szablon daje modelom znacznik następnego polecenia, który zatrzymuje generację. Wyjątek to kod Bielika (naturalny koniec 0,778): długie funkcje dochodzą do limitu. Odsetek pustych odpowiedzi LFM w kodzie to 0,478: pierwszym tokenem jest `<|im_end|>` (id 7), który protokół liczy jako EOS LFM. Sonda eksploracyjna (`code/sonda_eos_kod.py`, 30 poleceń) daje medianę p tego tokenu na starcie odpowiedzi 0,36. Wynik LFM w kodzie zależy więc od definicji EOS; zostaje według protokołu.
+
+**Wrażliwość metryki (c) na puste odpowiedzi** (eksploracyjna, po pomiarze). Ta sama reguła werdyktu i Holm (m = 8), ale pusta odpowiedź nie liczy się jako naturalny koniec. Naturalny koniec LFM w kodzie spada z 0,967 do 0,489:
+
+| teza | para | kategoria | różnica | SE | z | werdykt | p Holma | werdykt po Holmie | stan tezy |
+|---|---|---|---|---|---|---|---|---|---|
+| H1.1 | S−B | język polski | −0,056 | 0,023 | −2,41 | prawdopodobne | 0,0962 | szum | nierozstrzygnięta |
+| H1.1 | S−B | matematyka | −0,011 | 0,011 | −1,00 | szum | 1,0000 | szum | nierozstrzygnięta |
+| H1.1 | S−B | kod (Python) | 0,211 | 0,061 | 3,47 | pewne | 0,0041 | prawdopodobne | obalona |
+| H1.1 | S−B | angielski | 0,089 | 0,032 | 2,80 | prawdopodobne | 0,0353 | prawdopodobne | obalona |
+| H1.1 | S−B | tekst techniczny | 0,033 | 0,019 | 1,80 | szum | 0,3632 | szum | nierozstrzygnięta |
+| H1.2 | S−L | język polski | 0,000 | 0,036 | 0,00 | szum | 1,0000 | szum | nierozstrzygnięta |
+| H1.2 | S−L | wiedza ogólna | 0,011 | 0,011 | 1,00 | szum | 1,0000 | szum | nierozstrzygnięta |
+| H1.2 | S−L | rozumowanie | 0,011 | 0,011 | 1,00 | szum | 1,0000 | szum | nierozstrzygnięta |
+| H1.2 | S−L | matematyka | −0,011 | 0,011 | −1,00 | szum | 1,0000 | szum | nierozstrzygnięta |
+| H1.2 | S−L | kod (Python) | 0,500 | 0,050 | 10,02 | pewne | 0,0000 | pewne | obalona |
+| H1.2 | S−L | tekst techniczny | 0,100 | 0,033 | 3,07 | pewne | 0,0149 | prawdopodobne | obalona |
+
+Kategorie z SE = 0 (te same końce u obu modeli) pominęłam w tabeli, ale liczą się do m Holma. Przy tej definicji teza H1.2 jest obalona także w kodzie: S kończy odpowiedź z treścią częściej niż L. Wniosek dla H1 się nie odwraca: S nie kończy rzadziej niż B ani L w żadnej kategorii.
+
+**Sonda EOS a znak nowej linii** (eksploracyjna, po pomiarze). W 144 poleceniach krótkich polskich kategorii dopisanie „\n” po wzorcu zmienia log10 p(EOS) średnio o −1,99 (SE 0,08) u S, −0,45 (SE 0,06) u B i −1,54 (SE 0,05) u L. Duża część różnic H1.3–H1.4 wynika więc z tego, jak modele traktują nową linię przed końcem dokumentu. Ta sama sonda bez „\n” (log10 p zbioru EOS, Holm m = 6):
+
+| kategoria | para | różnica log10 p | SE | z | werdykt | p Holma | werdykt po Holmie |
+|---|---|---|---|---|---|---|---|
+| język polski | S−B | −0,86 | 0,07 | −11,85 | pewne | 0,0000 | pewne |
+| język polski | S−L | −1,07 | 0,07 | −15,70 | pewne | 0,0000 | pewne |
+| wiedza o Polsce | S−B | −0,17 | 0,07 | −2,58 | prawdopodobne | 0,0099 | prawdopodobne |
+| wiedza o Polsce | S−L | −0,73 | 0,06 | −11,59 | pewne | 0,0000 | pewne |
+| wiedza ogólna | S−B | −0,54 | 0,11 | −4,94 | pewne | 0,0000 | pewne |
+| wiedza ogólna | S−L | −1,25 | 0,09 | −13,52 | pewne | 0,0000 | pewne |
+| rozumowanie | S−B | −1,16 | 0,18 | −6,53 | pewne | 0,0000 | pewne |
+| rozumowanie | S−L | −1,40 | 0,13 | −10,80 | pewne | 0,0000 | pewne |
+| matematyka | S−B | −0,54 | 0,16 | −3,33 | pewne | 0,0017 | pewne |
+| matematyka | S−L | −0,99 | 0,14 | −6,94 | pewne | 0,0000 | pewne |
+| angielski | S−B | −1,82 | 0,12 | −15,16 | pewne | 0,0000 | pewne |
+| angielski | S−L | 0,04 | 0,27 | 0,16 | szum | 0,8748 | szum |
+
+W polskich kategoriach różnice S−B bez „\n” są mniejsze niż w H1.3 (najmniejsza w wiedzy o Polsce); w angielskim odwrotnie: bez „\n” S−B jest silnie ujemne, a z „\n” nie. Zbiór EOS B i L zawiera `<|im_end|>`, więc część ich p(EOS) to token czatu, nie koniec dokumentu; rozdzielenia na tokeny nie liczyłam (NOT RUN). W generacji ze znacznikiem szablonu S kończy odpowiedzi tak samo często jak B i L (wyżej). Sonda nie jest więc dowodem swoistej wady generacji S, tylko innej konwencji końca dokumentu.
+
+**Język polski a ostatni przykład few-shot** (eksploracyjna, po pomiarze). Ostatni przykład w tej kategorii to polecenie otwarte (list), a część próbek zaczyna się od nowej linii (część z nich kopiuje formę listu, wskazanie obalającego). Próbek zaczynających się od „\n” na 72 sprawdzalnych: S 21, B 3, L 0. Bez wszystkich tych próbek (średnia z pozostałych seedów, liczba poleceń z próbkami obu modeli: 23) różnica poprawności S−B wynosi −0,399 (SE 0,082, z = −4,88, pewne), więc wynik języka polskiego nie wynika z tego artefaktu.
+
+**S−L łącznie** (eksploracyjna, po pomiarze). Różnica poprawności łącznie −0,066 (SE 0,032, z = −2,08, prawdopodobne) nie wytrzymuje sprawdzeń: po klastrach 7 kategorii t = −0,87, df = 6, szum; znak ujemny w 5 z 7 kategorii; usunięcie jednego polecenia daje najmniejsze |z| 1,94; greedy w szablonie B daje −0,217 (z = −5,14, pewne). Wynik łączny S−L jest nierozstrzygnięty i zależy od szablonu. Po usunięciu 3 poleceń najmocniej ciągnących średnią: wiedza o Polsce 0,247 (z = 3,06, pewne), matematyka −0,259 (z = −3,40, pewne), angielski −0,175 (z = −2,59, prawdopodobne).
 
 **Mapa różnic par (eksploracyjna poza wierszami z tabeli hipotez).** Poprawność, różnica X−Y, Holm w rodzinie para × metryka po kategoriach:
 
@@ -232,6 +277,8 @@ BPB, różnica X−Y (ujemna = X przypisuje wzorcowi wyższe prawdopodobieństwo
 | tekst techniczny | B−L | −0,272 | 0,010 | −28,17 | pewne | 0,0000 | pewne |
 
 **Ocena sędziów** (42 polecenia otwarte × 3 pary = 126 par, odpowiedź seed 1 szablonu A, strony i kolejność losowane, klucz poza paczką).
+
+**Pochodzenie ocen.** Pliki ocen leżą w `wyniki/sedziowie/` (sha256 w `wyniki/SHA256SUMS` i w `LICZBY.json`, pole `wejscia`). Sędzia 2 zapisał swoje werdykty skryptem `zapisz_oceny.py`, który sam napisał (zgłosił to w raporcie). Atestacja orkiestratora: sha256 obu plików ocen (`6cad0ed9…` i `4ef3cb7a…`) zgadzają się z tymi, które sędziowie podali w swoich raportach (sprawdzone `shasum` 12.11.2026). Niezależnego odtworzenia ocen nie było.
 
 Zgodność dwóch sędziów: kappa Cohena 0,859, zgodność surowa 0,929 (po przełożeniu stron na tożsamość modeli). Sędzia 2 dostał pary w odwrotnej kolejności. Skłonność do strony A (odsetek wyborów A wśród werdyktów bez remisu):
 
@@ -295,14 +342,14 @@ Każde porównanie osobno, Holm w rodzinie jednej hipotezy (kategorie). „Znak 
 
 | teza | para | kategoria | różnica | SE | z | werdykt | p Holma | werdykt po Holmie | stan tezy | znak w greedy / B |
 |---|---|---|---|---|---|---|---|---|---|---|
-| H1.1 | S−B | język polski | −0,056 | 0,023 | −2,41 | prawdopodobne | 0,0481 | szum | nierozstrzygnięta | tak |
+| H1.1 | S−B | język polski | −0,056 | 0,023 | −2,41 | prawdopodobne | 0,1122 | szum | nierozstrzygnięta | tak |
 | H1.1 | S−B | wiedza o Polsce | 0,000 | 0,000 | — | nierozstrzygalne | — | nierozstrzygalne | nierozstrzygnięta | tak |
 | H1.1 | S−B | wiedza ogólna | 0,000 | 0,000 | — | nierozstrzygalne | — | nierozstrzygalne | nierozstrzygnięta | tak |
 | H1.1 | S−B | rozumowanie | 0,000 | 0,000 | — | nierozstrzygalne | — | nierozstrzygalne | nierozstrzygnięta | tak |
-| H1.1 | S−B | matematyka | −0,011 | 0,011 | −1,00 | szum | 0,3173 | szum | nierozstrzygnięta | nie |
-| H1.1 | S−B | kod (Python) | 0,211 | 0,061 | 3,47 | pewne | 0,0021 | pewne | obalona | tak |
+| H1.1 | S−B | matematyka | −0,011 | 0,011 | −1,00 | szum | 1,0000 | szum | nierozstrzygnięta | nie |
+| H1.1 | S−B | kod (Python) | 0,211 | 0,061 | 3,47 | pewne | 0,0041 | prawdopodobne | obalona | tak |
 | H1.1 | S−B | angielski | 0,000 | 0,000 | — | nierozstrzygalne | — | nierozstrzygalne | nierozstrzygnięta | tak |
-| H1.1 | S−B | tekst techniczny | 0,022 | 0,015 | 1,44 | szum | 0,3002 | szum | nierozstrzygnięta | nie |
+| H1.1 | S−B | tekst techniczny | 0,022 | 0,015 | 1,44 | szum | 0,9005 | szum | nierozstrzygnięta | nie |
 | H1.2 | S−L | język polski | −0,011 | 0,034 | −0,33 | szum | 1,0000 | szum | nierozstrzygnięta | tak |
 | H1.2 | S−L | wiedza o Polsce | 0,000 | 0,000 | — | nierozstrzygalne | — | nierozstrzygalne | nierozstrzygnięta | tak |
 | H1.2 | S−L | wiedza ogólna | 0,011 | 0,011 | 1,00 | szum | 1,0000 | szum | nierozstrzygnięta | nie |
@@ -310,7 +357,7 @@ Każde porównanie osobno, Holm w rodzinie jednej hipotezy (kategorie). „Znak 
 | H1.2 | S−L | matematyka | −0,011 | 0,011 | −1,00 | szum | 1,0000 | szum | nierozstrzygnięta | nie |
 | H1.2 | S−L | kod (Python) | 0,022 | 0,027 | 0,81 | szum | 1,0000 | szum | nierozstrzygnięta | nie |
 | H1.2 | S−L | angielski | 0,000 | 0,000 | — | nierozstrzygalne | — | nierozstrzygalne | nierozstrzygnięta | tak |
-| H1.2 | S−L | tekst techniczny | 0,100 | 0,033 | 3,07 | pewne | 0,0128 | prawdopodobne | obalona | tak |
+| H1.2 | S−L | tekst techniczny | 0,100 | 0,033 | 3,07 | pewne | 0,0170 | prawdopodobne | obalona | tak |
 | H1.3 | S−B | język polski | −2,485 | 0,116 | −21,42 | pewne | 0,0000 | pewne | potwierdzona | — |
 | H1.3 | S−B | wiedza o Polsce | −2,016 | 0,115 | −17,47 | pewne | 0,0000 | pewne | potwierdzona | — |
 | H1.3 | S−B | wiedza ogólna | −2,077 | 0,103 | −20,26 | pewne | 0,0000 | pewne | potwierdzona | — |
@@ -354,7 +401,7 @@ H6.1 (równoważność, bez Holma): teza potwierdzona, gdy górna granica bootst
 
 | kategoria | różnica S−B | SE | z | werdykt | CI95 bootstrap | stan tezy |
 |---|---|---|---|---|---|---|
-| język polski | 0,197 | 0,064 | 3,09 | pewne | [0,086; 0,329] | obalona |
+| język polski | 0,197 | 0,064 | 3,09 | pewne | [0,085; 0,328] | obalona |
 | tekst techniczny | 0,117 | 0,008 | 14,04 | pewne | [0,102; 0,134] | obalona |
 
 **H7 (przecieki):** żadna z 240 × 4 odpowiedzi szablonu A (3 próbki i greedy) żadnego modelu nie zawiera `<think>` ani znaczników czatu; teza nierozstrzygnięta. Przeciek z pilota się nie powtórzył; możliwe wyjaśnienie to inny format promptu w pilocie (nie sprawdzone).
@@ -368,8 +415,8 @@ H6.1 (równoważność, bez Holma): teza potwierdzona, gdy górna granica bootst
 
 **Wyjaśnienia zastępcze, teza po tezie.**
 
-- **H1.1–H1.2 (koniec).** W żadnej kategorii S nie kończy rzadziej niż B ani L po Holmie, bo znacznik następnego polecenia zatrzymuje generację każdego modelu. W kodzie S kończy częściej niż B, różnica 0,211 (SE 0,061, z = 3,47, pewne; po Holmie: pewne), a w tekście technicznym częściej niż L, 0,100 (SE 0,033, z = 3,07, pewne; po Holmie: prawdopodobne); w tych kategoriach teza jest obalona. Zastępcze wyjaśnienie dla kodu: odpowiedzi B są dłuższe (średnio 345,5 bajtów wobec 226,3 u S) i częściej dochodzą do limitu, a limit liczony w tokenach różnych tokenizerów daje różną długość w bajtach. Metryka nie mierzy więc umiejętności zakończenia bez podpowiedzi szablonu.
-- **H1.3–H1.4 (sonda EOS).** Po wzorcowej odpowiedzi S daje EOS prawdopodobieństwo o rzędy wielkości niższe: w matematyce log10 p różni się od B o −2,283 (SE 0,081, z = −28,18, pewne; po Holmie: pewne), od L o −1,275 (SE 0,093, z = −13,75, pewne; po Holmie: pewne); teza potwierdzona w 5 z 6 kategorii wobec B i w 6 z 6 wobec L. Zastępcze wyjaśnienie: sonda mierzy koniec dokumentu po tekście „Pytanie/Odpowiedź” bez przykładów, a B i L mogły widzieć dużo krótkich dokumentów tego kształtu (dane instrukcyjne), S mniej; to wskazuje na dane, nie na architekturę.
+- **H1.1–H1.2 (koniec).** W żadnej kategorii S nie kończy rzadziej niż B ani L po Holmie, bo znacznik następnego polecenia zatrzymuje generację każdego modelu. W kodzie S kończy częściej niż B, różnica 0,211 (SE 0,061, z = 3,47, pewne; po Holmie: prawdopodobne), a w tekście technicznym częściej niż L, 0,100 (SE 0,033, z = 3,07, pewne; po Holmie: prawdopodobne); w tych kategoriach teza jest obalona. Zastępcze wyjaśnienie dla kodu: odpowiedzi B są dłuższe (średnio 345,5 bajtów wobec 226,3 u S) i częściej dochodzą do limitu, a limit liczony w tokenach różnych tokenizerów daje różną długość w bajtach. Metryka nie mierzy więc umiejętności zakończenia bez podpowiedzi szablonu.
+- **H1.3–H1.4 (sonda EOS).** Po wzorcowej odpowiedzi zakończonej „\n” S daje EOS niższe prawdopodobieństwo: w matematyce log10 p różni się od B o −2,283 (SE 0,081, z = −28,18, pewne; po Holmie: pewne), od L o −1,275 (SE 0,093, z = −13,75, pewne; po Holmie: pewne); teza potwierdzona w 5 z 6 kategorii wobec B i w 6 z 6 wobec L. Teza dotyczy jednak sondy, nie generacji: dużą część różnicy daje samo „\n” przed EOS (u S log10 p spada po nim średnio o −1,99, u B o −0,45), zbiór EOS B i L zawiera token czatu `<|im_end|>`, a w generacji S kończy odpowiedzi równie często jak B i L (sekcja 5). Zastępcze wyjaśnienie: inna konwencja nowej linii przed końcem dokumentu w danych S; to hipoteza bez sprawdzenia w danych.
 - **H2.1–H2.2 (powtórzenia).** Wszystkie różnice rep3 to szum po Holmie; teza nierozstrzygnięta. Powtórzenia z pilota mogły wynikać z dłuższych odpowiedzi bez znacznika stopu.
 - **H3.1–H3.2 (wiedza).** Wiedza ogólna: poprawność S−B −0,222 (SE 0,074, z = −3,01, pewne; po Holmie: prawdopodobne); BPB wiedzy o Polsce S−B 0,093 (SE 0,022, z = 4,14, pewne; po Holmie: pewne). Zastępcze wyjaśnienia: B ma 1,5 mld parametrów wobec ok. 1 mld i jest po pełnym treningu na korpusie z dużym udziałem polskiego, a 1.08 jest checkpointem w toku. Wzorce w stylu Claude obniżają BPB modelu, który widział podobne teksty. <!-- liczba-spoza-wynikow: liczba parametrów z kart modeli -->
 - **H4.1–H4.4 (matematyka i rozumowanie).** Matematyka: poprawność S−B −0,533 (SE 0,082, z = −6,47, pewne; po Holmie: pewne), S−L −0,333 (SE 0,080, z = −4,17, pewne; po Holmie: pewne); odsetek poprawnych rozwiązań S to 0,011. Zastępcze wyjaśnienia: B i L mogły trenować na zadaniach tekstowych z rozwiązaniami krok po kroku (L w pilocie pisał w formacie GSM8K), więc różnica mówi o obecności takich danych, nie o „zdolności rozumowania”. Rozumowanie S−L w poprawności to szum po Holmie, a SNR tej kategorii jest niski (sekcja 4).
@@ -604,7 +651,7 @@ Każda propozycja wskazuje lukę, którą ma wypełnić, i siłę dowodu tej luk
 1. **Polskie zadania tekstowe z rozwiązaniem krok po kroku i jawnym wynikiem.** Luka: matematyka, poprawność S−B −0,533 (SE 0,082, z = −6,47, pewne; po Holmie: pewne), BPB S−B 0,400 (SE 0,025, z = 15,80, pewne; po Holmie: pewne). Siła: wysoka dla istnienia różnicy, niska dla przyczyny (zastępcze wyjaśnienia w sekcji 6). Źródło: zbiory zadań szkolnych na otwartej licencji albo tłumaczenia zbiorów angielskich; licencja do sprawdzenia dla każdego zbioru.
 2. **Kod Pythona z testami (funkcja + test).** Luka: kod, S−B −0,222 (SE 0,067, z = −3,34, pewne; po Holmie: prawdopodobne), S bez ani jednej funkcji przechodzącej testy. Siła: średnia, bo 20 z 30 poleceń nie rozwiązał żaden model i kategoria rozróżnia głównie poziom zera. Źródło: kod z otwartych repozytoriów z licencją pozwalającą na trening; licencja do sprawdzenia per plik.
 3. **Ćwiczenia z odmiany i poprawiania polskich zdań w formie polecenie → odpowiedź.** Luka: język polski, poprawność S−B −0,389 (SE 0,074, z = −5,24, pewne; po Holmie: pewne), mimo że w teście par minimalnych S ma wynik najwyższy z trzech (sekcja 4, A3). S rozpoznaje poprawną formę, ale jej nie produkuje na polecenie. Siła: średnia (24 polecenia). Źródło: materiały dydaktyczne i słowniki fleksyjne; licencja do sprawdzenia.
-4. **Krótkie dokumenty pytanie–odpowiedź zakończone tokenem końca dokumentu.** Luka: sonda EOS, np. wiedza o Polsce log10 p(EOS) S−B −2,016 (SE 0,115, z = −17,47, pewne; po Holmie: pewne). Siła: wysoka dla zjawiska w sondzie, nieznana dla generacji bez znacznika stopu (to wymaga testu nr 2 niżej). Do sprawdzenia w potoku danych, czy dokumenty treningowe S kończą się EOS.
+4. **Do sprawdzenia, nie do zbierania: konwencja „\n” przed EOS w danych S.** Hipoteza bez dowodu: sonda EOS różni się głównie po dopisaniu nowej linii (sekcja 5), a w generacji S kończy odpowiedzi normalnie. Sprawdzić w potoku danych, czy dokumenty S kończą się EOS bezpośrednio po tekście czy po „\n”; danych pod ten punkt nie proponuję, dopóki to sprawdzenie i test nr 2 niżej czegoś nie pokażą.
 5. **Wiedza o Polsce w tekście encyklopedycznym.** Luka: BPB wiedzy o Polsce i wiedzy ogólnej wyższe niż B (H3.2, 0,093 (SE 0,022, z = 4,14, pewne; po Holmie: pewne)). Siła: średnia, bo wzorce są w stylu Claude, a B jest po pełnym treningu. Źródło: polska Wikipedia i podobne; licencja do sprawdzenia dla wersji zrzutu.
 
 Nowe testy (każdy zamyka lukę pomiaru, nie modelu):
@@ -632,15 +679,30 @@ Nowe testy (każdy zamyka lukę pomiaru, nie modelu):
 Odstępstwa:
 
 - Trzy procesy modeli równolegle (po jednym na model) zamiast jednej kolejki, decyzja orkiestratora w trakcie przebiegu Slayera; najniższa wolna pamięć 25%, powrotu do kolejki nie było (`wyniki/przebieg.json`). Wynik modelu nie zależy od procesu obok (osobne procesy i generatory seedów).
-- Batch 4 w generacji (zapisany w protokole jako świadome odstępstwo); greedy batch 4 wobec batch 1: 0 różnic na 10 pozycjach każdego modelu.
+- Batch 4 w generacji (zapisany w protokole jako świadome odstępstwo); greedy batch 4 wobec batch 1: 0 różnic na 10 pozycjach każdego modelu w próbie dymnej, a dla Bielika także po pomiarze (sekcja 3).
 - Audyt oceny automatycznej: 63 oceny zamiast 60, żeby każda z 21 komórek model × kategoria miała po 3.
 - Wrażliwość na 6 reguł oceny i sonda EOS kodu LFM dodane po pomiarze: eksploracyjne.
 - Odsetek wygranych z SE zamiast modelu Bradleya-Terry'ego (protokół przewidywał odsetek wygranych).
+- Runda poprawek 1 (po pomiarze): Holm liczony z m = wszystkie kategorie z metryką, jak w protokole (pierwsza wersja pomijała kategorie z SE = 0 i zawyżała część werdyktów po Holmie, np. H1.1 w kodzie); „pusta odpowiedź” ujednolicona do definicji z obcięciem białych znaków. Wszystkie analizy dodane w tej rundzie (wariant (c) bez pustych, t zamiast z, S−L łącznie, sonda EOS bez „\n”, język polski bez próbek od nowej linii, batch Bielika) są eksploracyjne.
+
+Mutacje kodu pomiaru (runda poprawek 1, `code/mutacje.py`): każda mutacja wprowadzona osobno, potem `code/test_rozmowy.py`; zapalone 9 z 9:
+
+- Slayer bez BOS: test czerwony
+- Slayer z BOS = 1: test czerwony
+- transformers z add_special_tokens=False: test czerwony
+- EOS LFM bez 7: test czerwony
+- top-p odcina po skumulowanym p z tokenem: test czerwony
+- top-p 0,95 zamiast 0,9: test czerwony
+- seed bez numeru pozycji: test czerwony
+- tolerancja liczby 0,5: test czerwony
+- Holm wyłączony: test czerwony
 
 NOT RUN:
 
 - A3 dla wiedzy o Polsce, kodu i tekstu technicznego: brak testu dla wszystkich trzech modeli w przebiegu centralnym.
 - Ocena sędziów z zamienionymi stronami (wpływ pozycji mierzony tylko odsetkiem wyborów A i odwrotną kolejnością par u sędziego 2).
+- Niezależne odtworzenie ocen sędziów (pochodzenie poświadcza tylko zgodność sha256, sekcja 5).
+- Rozdzielenie p(EOS) na token końca dokumentu i `<|im_end|>` w sondzie EOS.
 - Regeneracja kodu LFM bez `<|im_end|>` w zbiorze EOS.
 - Przeliczenie `needs-recheck` na innym sprzęcie.
 
@@ -648,4 +710,4 @@ NOT RUN:
 
 - `code/analiza.py` → `wyniki/LICZBY.json` (wejścia z sha256 w polu `wejscia`); `code/paper.py` → ten plik; `code/rozmowy.py` → `ROZMOWY.md`; `code/wykresy.py` → `charts/*.svg`.
 - `code/test_niezalezny.py`: przelicza średnie BPB z surowych log p, poprawność i z z ocen pozycji, bez importu kodu analizy, i porównuje z `LICZBY.json`.
-- Surowe wyniki: `wyniki/surowe/*.jsonl.gz` (sha w `wyniki/SHA256SUMS`); oceny sędziów i kontroli wzorców leżą poza repo, ich sha256 w `LICZBY.json`.
+- Surowe wyniki: `wyniki/surowe/*.jsonl.gz`; oceny sędziów i klucz par: `wyniki/sedziowie/`; oceny kontroli wzorców: `wyniki/kontrola_wzorcow_oceny.jsonl`; sha256 wszystkich w `wyniki/SHA256SUMS`.

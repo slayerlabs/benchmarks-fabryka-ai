@@ -2292,8 +2292,8 @@
      "n": 30
     },
     "lfm": {
-     "srednia": 0.0,
-     "se": 0.0,
+     "srednia": 0.01111111111111111,
+     "se": 0.011111111111111112,
      "n": 30
     }
    },
@@ -2389,8 +2389,8 @@
      "n": 30
     },
     "bielik": {
-     "srednia": 0.01111111111111111,
-     "se": 0.011111111111111112,
+     "srednia": 0.08888888888888888,
+     "se": 0.03169673238305967,
      "n": 30
     },
     "lfm": {
@@ -2423,13 +2423,168 @@
      "n": 240
     },
     "bielik": {
-     "srednia": 0.0027777777777777775,
-     "se": 0.0019600720212871454,
+     "srednia": 0.0125,
+     "se": 0.004544684049203198,
      "n": 240
     },
     "lfm": {
-     "srednia": 0.05972222222222222,
-     "se": 0.011915542427887742,
+     "srednia": 0.06111111111111111,
+     "se": 0.011967248727225571,
+     "n": 240
+    }
+   }
+  },
+  "koniec_bez_pustych": {
+   "pl_jezyk": {
+    "slayer": {
+     "srednia": 0.9444444444444444,
+     "se": 0.02306818884826111,
+     "n": 30
+    },
+    "bielik": {
+     "srednia": 1.0,
+     "se": 0.0,
+     "n": 30
+    },
+    "lfm": {
+     "srednia": 0.9444444444444444,
+     "se": 0.02306818884826111,
+     "n": 30
+    }
+   },
+   "pl_wiedza": {
+    "slayer": {
+     "srednia": 1.0,
+     "se": 0.0,
+     "n": 30
+    },
+    "bielik": {
+     "srednia": 1.0,
+     "se": 0.0,
+     "n": 30
+    },
+    "lfm": {
+     "srednia": 1.0,
+     "se": 0.0,
+     "n": 30
+    }
+   },
+   "wiedza_ogolna": {
+    "slayer": {
+     "srednia": 1.0,
+     "se": 0.0,
+     "n": 30
+    },
+    "bielik": {
+     "srednia": 1.0,
+     "se": 0.0,
+     "n": 30
+    },
+    "lfm": {
+     "srednia": 0.9888888888888889,
+     "se": 0.011111111111111112,
+     "n": 30
+    }
+   },
+   "rozumowanie": {
+    "slayer": {
+     "srednia": 1.0,
+     "se": 0.0,
+     "n": 30
+    },
+    "bielik": {
+     "srednia": 1.0,
+     "se": 0.0,
+     "n": 30
+    },
+    "lfm": {
+     "srednia": 0.9888888888888889,
+     "se": 0.011111111111111112,
+     "n": 30
+    }
+   },
+   "matematyka": {
+    "slayer": {
+     "srednia": 0.9888888888888888,
+     "se": 0.011111111111111113,
+     "n": 30
+    },
+    "bielik": {
+     "srednia": 1.0,
+     "se": 0.0,
+     "n": 30
+    },
+    "lfm": {
+     "srednia": 1.0,
+     "se": 0.0,
+     "n": 30
+    }
+   },
+   "kod": {
+    "slayer": {
+     "srednia": 0.9888888888888888,
+     "se": 0.011111111111111113,
+     "n": 30
+    },
+    "bielik": {
+     "srednia": 0.7777777777777779,
+     "se": 0.06459092877513108,
+     "n": 30
+    },
+    "lfm": {
+     "srednia": 0.4888888888888888,
+     "se": 0.04723067312255932,
+     "n": 30
+    }
+   },
+   "angielski": {
+    "slayer": {
+     "srednia": 1.0,
+     "se": 0.0,
+     "n": 30
+    },
+    "bielik": {
+     "srednia": 0.9111111111111111,
+     "se": 0.03169673238305967,
+     "n": 30
+    },
+    "lfm": {
+     "srednia": 1.0,
+     "se": 0.0,
+     "n": 30
+    }
+   },
+   "tekst_techniczny": {
+    "slayer": {
+     "srednia": 0.9888888888888888,
+     "se": 0.011111111111111113,
+     "n": 30
+    },
+    "bielik": {
+     "srednia": 0.9555555555555555,
+     "se": 0.026422896014661558,
+     "n": 30
+    },
+    "lfm": {
+     "srednia": 0.8888888888888888,
+     "se": 0.033269415089796806,
+     "n": 30
+    }
+   },
+   "razem": {
+    "slayer": {
+     "srednia": 0.9888888888888888,
+     "se": 0.0038704150435221255,
+     "n": 240
+    },
+    "bielik": {
+     "srednia": 0.9555555555555555,
+     "se": 0.010575173235517548,
+     "n": 240
+    },
+    "lfm": {
+     "srednia": 0.9124999999999999,
+     "se": 0.013237576007902976,
      "n": 240
     }
    }
@@ -5401,7 +5556,7 @@
       -0.10000000000000002,
       -0.011111111111111112
      ],
-     "p_holm": 0.04807852364395539,
+     "p_holm": 0.11218322183589591,
      "werdykt_holm": "szum",
      "m_holm": 8
     },
@@ -5433,7 +5588,7 @@
       0.011111111111111112,
       0.08888888888888889
      ],
-     "p_holm": 0.10399878614095759,
+     "p_holm": 0.20799757228191518,
      "werdykt_holm": "szum",
      "m_holm": 8
     }
@@ -5533,7 +5688,7 @@
       0.0,
       0.03333333333333333
      ],
-     "p_holm": 0.6346210157258282,
+     "p_holm": 1.0,
      "werdykt_holm": "szum",
      "m_holm": 8
     }
@@ -5583,7 +5738,7 @@
       0.0,
       0.03333333333333333
      ],
-     "p_holm": 0.6346210157258282,
+     "p_holm": 1.0,
      "werdykt_holm": "szum",
      "m_holm": 8
     }
@@ -5601,7 +5756,7 @@
       -0.03333333333333333,
       0.0
      ],
-     "p_holm": 0.3173105078629141,
+     "p_holm": 1.0,
      "werdykt_holm": "szum",
      "m_holm": 8
     },
@@ -5651,8 +5806,8 @@
       0.1,
       0.3333333333333333
      ],
-     "p_holm": 0.0020748308510629924,
-     "werdykt_holm": "pewne",
+     "p_holm": 0.004149661702125985,
+     "werdykt_holm": "prawdopodobne",
      "m_holm": 8
     },
     "slayer-lfm": {
@@ -5683,7 +5838,7 @@
       -0.3111111111111111,
       -0.07777777777777778
      ],
-     "p_holm": 0.010200770636334436,
+     "p_holm": 0.0163212330181351,
      "werdykt_holm": "prawdopodobne",
      "m_holm": 8
     }
@@ -5751,7 +5906,7 @@
       0.0,
       0.05555555555555556
      ],
-     "p_holm": 0.3001617669372895,
+     "p_holm": 0.9004853008118685,
      "werdykt_holm": "szum",
      "m_holm": 8
     },
@@ -5767,7 +5922,7 @@
       0.044444444444444446,
       0.16666666666666666
      ],
-     "p_holm": 0.012781799287866033,
+     "p_holm": 0.017042399050488044,
      "werdykt_holm": "prawdopodobne",
      "m_holm": 8
     },
@@ -5783,8 +5938,8 @@
       0.022222222222222223,
       0.13333333333333336
      ],
-     "p_holm": 0.044886861967341346,
-     "werdykt_holm": "prawdopodobne",
+     "p_holm": 0.07855200844284735,
+     "werdykt_holm": "szum",
      "m_holm": 8
     }
    },
@@ -5844,7 +5999,7 @@
       -0.23333333333333334,
       0.0
      ],
-     "p_holm": 0.14528989537892553,
+     "p_holm": 0.5085146338262394,
      "werdykt_holm": "szum",
      "m_holm": 8
     },
@@ -5860,7 +6015,7 @@
       -0.2,
       0.06666666666666667
      ],
-     "p_holm": 0.7634580983085383,
+     "p_holm": 1.0,
      "werdykt_holm": "szum",
      "m_holm": 8
     },
@@ -5876,7 +6031,7 @@
       0.0,
       0.1
      ],
-     "p_holm": 0.317310507862914,
+     "p_holm": 1.0,
      "werdykt_holm": "szum",
      "m_holm": 8
     }
@@ -6094,7 +6249,7 @@
       0.0,
       0.3333333333333333
      ],
-     "p_holm": 0.14323672312705715,
+     "p_holm": 0.38196459500548574,
      "werdykt_holm": "szum",
      "m_holm": 8
     },
@@ -6126,8 +6281,8 @@
       -0.3,
       -0.03333333333333333
      ],
-     "p_holm": 0.03205234909597026,
-     "werdykt_holm": "prawdopodobne",
+     "p_holm": 0.11218322183589591,
+     "werdykt_holm": "szum",
      "m_holm": 8
     }
    },
@@ -6194,7 +6349,7 @@
       -0.2,
       0.0
      ],
-     "p_holm": 0.14528989537892553,
+     "p_holm": 0.5085146338262394,
      "werdykt_holm": "szum",
      "m_holm": 8
     },
@@ -6210,7 +6365,7 @@
       -0.06666666666666667,
       0.26666666666666666
      ],
-     "p_holm": 0.7634580983085383,
+     "p_holm": 1.0,
      "werdykt_holm": "szum",
      "m_holm": 8
     },
@@ -6226,8 +6381,8 @@
       0.06666666666666667,
       0.3333333333333333
      ],
-     "p_holm": 0.021270303671446618,
-     "werdykt_holm": "prawdopodobne",
+     "p_holm": 0.05672080979052431,
+     "werdykt_holm": "szum",
      "m_holm": 8
     }
    },
@@ -8886,35 +9041,35 @@
      "m_holm": 8
     },
     "slayer-lfm": {
-     "roznica": 0.0,
-     "se": 0.0,
+     "roznica": -0.01111111111111111,
+     "se": 0.011111111111111112,
      "n": 30,
-     "z": null,
-     "p": null,
-     "werdykt": "nierozstrzygalne",
-     "dwa_se": 0.0,
+     "z": -0.9999999999999999,
+     "p": 0.31731050786291426,
+     "werdykt": "szum",
+     "dwa_se": 0.022222222222222223,
      "ci95_bootstrap": [
-      0.0,
+      -0.03333333333333333,
       0.0
      ],
-     "p_holm": null,
-     "werdykt_holm": "nierozstrzygalne",
+     "p_holm": 1.0,
+     "werdykt_holm": "szum",
      "m_holm": 8
     },
     "bielik-lfm": {
-     "roznica": 0.0,
-     "se": 0.0,
+     "roznica": -0.01111111111111111,
+     "se": 0.011111111111111112,
      "n": 30,
-     "z": null,
-     "p": null,
-     "werdykt": "nierozstrzygalne",
-     "dwa_se": 0.0,
+     "z": -0.9999999999999999,
+     "p": 0.31731050786291426,
+     "werdykt": "szum",
+     "dwa_se": 0.022222222222222223,
      "ci95_bootstrap": [
-      0.0,
+      -0.03333333333333333,
       0.0
      ],
-     "p_holm": null,
-     "werdykt_holm": "nierozstrzygalne",
+     "p_holm": 1.0,
+     "werdykt_holm": "szum",
      "m_holm": 8
     }
    },
@@ -9147,7 +9302,7 @@
       -0.5777777777777776,
       -0.3777777777777778
      ],
-     "p_holm": 7.4828427261014695e-22,
+     "p_holm": 5.9862741808811756e-21,
      "werdykt_holm": "pewne",
      "m_holm": 8
     },
@@ -9163,26 +9318,26 @@
       -0.5777777777777777,
       -0.3777777777777778
      ],
-     "p_holm": 2.244852817830441e-21,
+     "p_holm": 5.9862741808811756e-21,
      "werdykt_holm": "pewne",
      "m_holm": 8
     }
    },
    "angielski": {
     "slayer-bielik": {
-     "roznica": -0.01111111111111111,
-     "se": 0.011111111111111112,
+     "roznica": -0.08888888888888888,
+     "se": 0.03169673238305967,
      "n": 30,
-     "z": -0.9999999999999999,
-     "p": 0.31731050786291426,
-     "werdykt": "szum",
-     "dwa_se": 0.022222222222222223,
+     "z": -2.8043549667723973,
+     "p": 0.005041736458802291,
+     "werdykt": "prawdopodobne",
+     "dwa_se": 0.06339346476611935,
      "ci95_bootstrap": [
-      -0.03333333333333333,
-      0.0
+      -0.15555555555555553,
+      -0.03333333333333333
      ],
-     "p_holm": 0.6346210157258285,
-     "werdykt_holm": "szum",
+     "p_holm": 0.04033389167041833,
+     "werdykt_holm": "prawdopodobne",
      "m_holm": 8
     },
     "slayer-lfm": {
@@ -9202,19 +9357,19 @@
      "m_holm": 8
     },
     "bielik-lfm": {
-     "roznica": 0.01111111111111111,
-     "se": 0.011111111111111112,
+     "roznica": 0.08888888888888888,
+     "se": 0.03169673238305967,
      "n": 30,
-     "z": 0.9999999999999999,
-     "p": 0.31731050786291426,
-     "werdykt": "szum",
-     "dwa_se": 0.022222222222222223,
+     "z": 2.8043549667723973,
+     "p": 0.005041736458802291,
+     "werdykt": "prawdopodobne",
+     "dwa_se": 0.06339346476611935,
      "ci95_bootstrap": [
-      0.0,
-      0.03333333333333333
+      0.03333333333333333,
+      0.15555555555555553
      ],
-     "p_holm": 0.6346210157258285,
-     "werdykt_holm": "szum",
+     "p_holm": 0.035292155211616036,
+     "werdykt_holm": "prawdopodobne",
      "m_holm": 8
     }
    },
@@ -9231,7 +9386,7 @@
       -0.03333333333333333,
       0.0
      ],
-     "p_holm": 0.6346210157258285,
+     "p_holm": 1.0,
      "werdykt_holm": "szum",
      "m_holm": 8
     },
@@ -9263,49 +9418,492 @@
       0.0,
       0.03333333333333333
      ],
-     "p_holm": 0.6346210157258285,
+     "p_holm": 1.0,
      "werdykt_holm": "szum",
      "m_holm": 8
     }
    },
    "razem": {
     "slayer-bielik": {
-     "roznica": -0.0027777777777777775,
-     "se": 0.0019600720212871454,
+     "roznica": -0.0125,
+     "se": 0.004544684049203198,
      "n": 240,
-     "z": -1.4171814849709752,
-     "p": 0.1564298735714762,
-     "werdykt": "szum",
-     "dwa_se": 0.003920144042574291,
+     "z": -2.750466229262203,
+     "p": 0.005951052534051032,
+     "werdykt": "prawdopodobne",
+     "dwa_se": 0.009089368098406396,
      "ci95_bootstrap": [
-      -0.006944444444444444,
-      0.0
+      -0.02222222222222222,
+      -0.004166666666666667
      ]
     },
     "slayer-lfm": {
-     "roznica": -0.05972222222222222,
-     "se": 0.011915542427887742,
+     "roznica": -0.06111111111111111,
+     "se": 0.011967248727225571,
      "n": 240,
-     "z": -5.012127864397116,
-     "p": 5.383141251557987e-07,
+     "z": -5.106529704867161,
+     "p": 3.2812904873078657e-07,
      "werdykt": "pewne",
-     "dwa_se": 0.023831084855775484,
+     "dwa_se": 0.023934497454451142,
      "ci95_bootstrap": [
-      -0.0847222222222222,
-      -0.0375
+      -0.0861111111111111,
+      -0.03888888888888888
      ]
     },
     "bielik-lfm": {
-     "roznica": -0.056944444444444436,
-     "se": 0.012133024226210277,
+     "roznica": -0.04861111111111111,
+     "se": 0.013048431738933287,
      "n": 240,
-     "z": -4.693343010181304,
-     "p": 2.6877626607530623e-06,
+     "z": -3.7254370550958704,
+     "p": 0.00019497710337269185,
      "werdykt": "pewne",
-     "dwa_se": 0.024266048452420554,
+     "dwa_se": 0.026096863477866574,
      "ci95_bootstrap": [
-      -0.08194444444444443,
-      -0.03472222222222222
+      -0.075,
+      -0.024999999999999998
+     ]
+    }
+   }
+  },
+  "koniec_bez_pustych": {
+   "pl_jezyk": {
+    "slayer-bielik": {
+     "roznica": -0.055555555555555566,
+     "se": 0.02306818884826111,
+     "n": 30,
+     "z": -2.408318915758459,
+     "p": 0.01602617454798513,
+     "werdykt": "prawdopodobne",
+     "dwa_se": 0.04613637769652222,
+     "ci95_bootstrap": [
+      -0.10000000000000002,
+      -0.011111111111111112
+     ],
+     "p_holm": 0.09615704728791077,
+     "werdykt_holm": "szum",
+     "m_holm": 8
+    },
+    "slayer-lfm": {
+     "roznica": 3.7007434154171884e-18,
+     "se": 0.03573708449459317,
+     "n": 30,
+     "z": 1.0355470984145591e-16,
+     "p": 0.9999999999999999,
+     "werdykt": "szum",
+     "dwa_se": 0.07147416898918633,
+     "ci95_bootstrap": [
+      -0.06666666666666668,
+      0.06666666666666668
+     ],
+     "p_holm": 1.0,
+     "werdykt_holm": "szum",
+     "m_holm": 8
+    },
+    "bielik-lfm": {
+     "roznica": 0.055555555555555566,
+     "se": 0.02306818884826111,
+     "n": 30,
+     "z": 2.408318915758459,
+     "p": 0.01602617454798513,
+     "werdykt": "prawdopodobne",
+     "dwa_se": 0.04613637769652222,
+     "ci95_bootstrap": [
+      0.011111111111111112,
+      0.10000000000000002
+     ],
+     "p_holm": 0.09615704728791077,
+     "werdykt_holm": "szum",
+     "m_holm": 8
+    }
+   },
+   "pl_wiedza": {
+    "slayer-bielik": {
+     "roznica": 0.0,
+     "se": 0.0,
+     "n": 30,
+     "z": null,
+     "p": null,
+     "werdykt": "nierozstrzygalne",
+     "dwa_se": 0.0,
+     "ci95_bootstrap": [
+      0.0,
+      0.0
+     ],
+     "p_holm": null,
+     "werdykt_holm": "nierozstrzygalne",
+     "m_holm": 8
+    },
+    "slayer-lfm": {
+     "roznica": 0.0,
+     "se": 0.0,
+     "n": 30,
+     "z": null,
+     "p": null,
+     "werdykt": "nierozstrzygalne",
+     "dwa_se": 0.0,
+     "ci95_bootstrap": [
+      0.0,
+      0.0
+     ],
+     "p_holm": null,
+     "werdykt_holm": "nierozstrzygalne",
+     "m_holm": 8
+    },
+    "bielik-lfm": {
+     "roznica": 0.0,
+     "se": 0.0,
+     "n": 30,
+     "z": null,
+     "p": null,
+     "werdykt": "nierozstrzygalne",
+     "dwa_se": 0.0,
+     "ci95_bootstrap": [
+      0.0,
+      0.0
+     ],
+     "p_holm": null,
+     "werdykt_holm": "nierozstrzygalne",
+     "m_holm": 8
+    }
+   },
+   "wiedza_ogolna": {
+    "slayer-bielik": {
+     "roznica": 0.0,
+     "se": 0.0,
+     "n": 30,
+     "z": null,
+     "p": null,
+     "werdykt": "nierozstrzygalne",
+     "dwa_se": 0.0,
+     "ci95_bootstrap": [
+      0.0,
+      0.0
+     ],
+     "p_holm": null,
+     "werdykt_holm": "nierozstrzygalne",
+     "m_holm": 8
+    },
+    "slayer-lfm": {
+     "roznica": 0.011111111111111112,
+     "se": 0.011111111111111112,
+     "n": 30,
+     "z": 1.0,
+     "p": 0.3173105078629141,
+     "werdykt": "szum",
+     "dwa_se": 0.022222222222222223,
+     "ci95_bootstrap": [
+      0.0,
+      0.03333333333333333
+     ],
+     "p_holm": 1.0,
+     "werdykt_holm": "szum",
+     "m_holm": 8
+    },
+    "bielik-lfm": {
+     "roznica": 0.011111111111111112,
+     "se": 0.011111111111111112,
+     "n": 30,
+     "z": 1.0,
+     "p": 0.3173105078629141,
+     "werdykt": "szum",
+     "dwa_se": 0.022222222222222223,
+     "ci95_bootstrap": [
+      0.0,
+      0.03333333333333333
+     ],
+     "p_holm": 1.0,
+     "werdykt_holm": "szum",
+     "m_holm": 8
+    }
+   },
+   "rozumowanie": {
+    "slayer-bielik": {
+     "roznica": 0.0,
+     "se": 0.0,
+     "n": 30,
+     "z": null,
+     "p": null,
+     "werdykt": "nierozstrzygalne",
+     "dwa_se": 0.0,
+     "ci95_bootstrap": [
+      0.0,
+      0.0
+     ],
+     "p_holm": null,
+     "werdykt_holm": "nierozstrzygalne",
+     "m_holm": 8
+    },
+    "slayer-lfm": {
+     "roznica": 0.011111111111111112,
+     "se": 0.011111111111111112,
+     "n": 30,
+     "z": 1.0,
+     "p": 0.3173105078629141,
+     "werdykt": "szum",
+     "dwa_se": 0.022222222222222223,
+     "ci95_bootstrap": [
+      0.0,
+      0.03333333333333333
+     ],
+     "p_holm": 1.0,
+     "werdykt_holm": "szum",
+     "m_holm": 8
+    },
+    "bielik-lfm": {
+     "roznica": 0.011111111111111112,
+     "se": 0.011111111111111112,
+     "n": 30,
+     "z": 1.0,
+     "p": 0.3173105078629141,
+     "werdykt": "szum",
+     "dwa_se": 0.022222222222222223,
+     "ci95_bootstrap": [
+      0.0,
+      0.03333333333333333
+     ],
+     "p_holm": 1.0,
+     "werdykt_holm": "szum",
+     "m_holm": 8
+    }
+   },
+   "matematyka": {
+    "slayer-bielik": {
+     "roznica": -0.011111111111111112,
+     "se": 0.011111111111111112,
+     "n": 30,
+     "z": -1.0,
+     "p": 0.3173105078629141,
+     "werdykt": "szum",
+     "dwa_se": 0.022222222222222223,
+     "ci95_bootstrap": [
+      -0.03333333333333333,
+      0.0
+     ],
+     "p_holm": 1.0,
+     "werdykt_holm": "szum",
+     "m_holm": 8
+    },
+    "slayer-lfm": {
+     "roznica": -0.011111111111111112,
+     "se": 0.011111111111111112,
+     "n": 30,
+     "z": -1.0,
+     "p": 0.3173105078629141,
+     "werdykt": "szum",
+     "dwa_se": 0.022222222222222223,
+     "ci95_bootstrap": [
+      -0.03333333333333333,
+      0.0
+     ],
+     "p_holm": 1.0,
+     "werdykt_holm": "szum",
+     "m_holm": 8
+    },
+    "bielik-lfm": {
+     "roznica": 0.0,
+     "se": 0.0,
+     "n": 30,
+     "z": null,
+     "p": null,
+     "werdykt": "nierozstrzygalne",
+     "dwa_se": 0.0,
+     "ci95_bootstrap": [
+      0.0,
+      0.0
+     ],
+     "p_holm": null,
+     "werdykt_holm": "nierozstrzygalne",
+     "m_holm": 8
+    }
+   },
+   "kod": {
+    "slayer-bielik": {
+     "roznica": 0.21111111111111114,
+     "se": 0.060823075991023275,
+     "n": 30,
+     "z": 3.4709048773243314,
+     "p": 0.0005187077127657481,
+     "werdykt": "pewne",
+     "dwa_se": 0.12164615198204655,
+     "ci95_bootstrap": [
+      0.1,
+      0.3333333333333333
+     ],
+     "p_holm": 0.004149661702125985,
+     "werdykt_holm": "prawdopodobne",
+     "m_holm": 8
+    },
+    "slayer-lfm": {
+     "roznica": 0.5000000000000001,
+     "se": 0.04990412263469519,
+     "n": 30,
+     "z": 10.019212313581116,
+     "p": 1.2549912741976443e-23,
+     "werdykt": "pewne",
+     "dwa_se": 0.09980824526939037,
+     "ci95_bootstrap": [
+      0.4,
+      0.588888888888889
+     ],
+     "p_holm": 1.0039930193581155e-22,
+     "werdykt_holm": "pewne",
+     "m_holm": 8
+    },
+    "bielik-lfm": {
+     "roznica": 0.2888888888888889,
+     "se": 0.07948321803856369,
+     "n": 30,
+     "z": 3.6345897413052115,
+     "p": 0.00027842333248059625,
+     "werdykt": "pewne",
+     "dwa_se": 0.15896643607712738,
+     "ci95_bootstrap": [
+      0.1333333333333333,
+      0.4333333333333334
+     ],
+     "p_holm": 0.00222738665984477,
+     "werdykt_holm": "pewne",
+     "m_holm": 8
+    }
+   },
+   "angielski": {
+    "slayer-bielik": {
+     "roznica": 0.08888888888888889,
+     "se": 0.03169673238305968,
+     "n": 30,
+     "z": 2.8043549667723973,
+     "p": 0.005041736458802291,
+     "werdykt": "prawdopodobne",
+     "dwa_se": 0.06339346476611936,
+     "ci95_bootstrap": [
+      0.03333333333333333,
+      0.15555555555555553
+     ],
+     "p_holm": 0.035292155211616036,
+     "werdykt_holm": "prawdopodobne",
+     "m_holm": 8
+    },
+    "slayer-lfm": {
+     "roznica": 0.0,
+     "se": 0.0,
+     "n": 30,
+     "z": null,
+     "p": null,
+     "werdykt": "nierozstrzygalne",
+     "dwa_se": 0.0,
+     "ci95_bootstrap": [
+      0.0,
+      0.0
+     ],
+     "p_holm": null,
+     "werdykt_holm": "nierozstrzygalne",
+     "m_holm": 8
+    },
+    "bielik-lfm": {
+     "roznica": -0.08888888888888889,
+     "se": 0.03169673238305968,
+     "n": 30,
+     "z": -2.8043549667723973,
+     "p": 0.005041736458802291,
+     "werdykt": "prawdopodobne",
+     "dwa_se": 0.06339346476611936,
+     "ci95_bootstrap": [
+      -0.15555555555555556,
+      -0.03333333333333333
+     ],
+     "p_holm": 0.035292155211616036,
+     "werdykt_holm": "prawdopodobne",
+     "m_holm": 8
+    }
+   },
+   "tekst_techniczny": {
+    "slayer-bielik": {
+     "roznica": 0.03333333333333333,
+     "se": 0.018569533817705187,
+     "n": 30,
+     "z": 1.795054935711501,
+     "p": 0.07264494768946285,
+     "werdykt": "szum",
+     "dwa_se": 0.037139067635410375,
+     "ci95_bootstrap": [
+      0.0,
+      0.06666666666666668
+     ],
+     "p_holm": 0.36322473844731423,
+     "werdykt_holm": "szum",
+     "m_holm": 8
+    },
+    "slayer-lfm": {
+     "roznica": 0.1,
+     "se": 0.032558033460025865,
+     "n": 30,
+     "z": 3.071438578216897,
+     "p": 0.0021302998813110055,
+     "werdykt": "pewne",
+     "dwa_se": 0.06511606692005173,
+     "ci95_bootstrap": [
+      0.044444444444444446,
+      0.16666666666666666
+     ],
+     "p_holm": 0.014912099169177039,
+     "werdykt_holm": "prawdopodobne",
+     "m_holm": 8
+    },
+    "bielik-lfm": {
+     "roznica": 0.06666666666666667,
+     "se": 0.03352435686471626,
+     "n": 30,
+     "z": 1.9886038958388503,
+     "p": 0.04674494105371124,
+     "werdykt": "szum",
+     "dwa_se": 0.06704871372943252,
+     "ci95_bootstrap": [
+      3.7007434154171884e-18,
+      0.13333333333333333
+     ],
+     "p_holm": 0.2337247052685562,
+     "werdykt_holm": "szum",
+     "m_holm": 8
+    }
+   },
+   "razem": {
+    "slayer-bielik": {
+     "roznica": 0.03333333333333334,
+     "se": 0.010562954660396924,
+     "n": 240,
+     "z": 3.1556827047935823,
+     "p": 0.0016012294558537977,
+     "werdykt": "pewne",
+     "dwa_se": 0.021125909320793848,
+     "ci95_bootstrap": [
+      0.013888888888888888,
+      0.05555555555555555
+     ]
+    },
+    "slayer-lfm": {
+     "roznica": 0.07638888888888891,
+     "se": 0.013805830213338826,
+     "n": 240,
+     "z": 5.5330891158638185,
+     "p": 3.146395069286393e-08,
+     "werdykt": "pewne",
+     "dwa_se": 0.02761166042667765,
+     "ci95_bootstrap": [
+      0.05000000000000001,
+      0.1027777777777778
+     ]
+    },
+    "bielik-lfm": {
+     "roznica": 0.043055555555555555,
+     "se": 0.01356520784535193,
+     "n": 240,
+     "z": 3.173969470015042,
+     "p": 0.0015036950640453448,
+     "werdykt": "pewne",
+     "dwa_se": 0.02713041569070386,
+     "ci95_bootstrap": [
+      0.016666666666666666,
+      0.07083333333333333
      ]
     }
    }
@@ -9337,7 +9935,7 @@
       "z": -1.7950549357115015,
       "ten_sam_znak": true
      },
-     "p_holm": 0.04807852364395539,
+     "p_holm": 0.11218322183589591,
      "werdykt_holm": "szum",
      "teza": "nierozstrzygnięta",
      "m_holm": 8
@@ -9429,7 +10027,7 @@
       "z": null,
       "ten_sam_znak": false
      },
-     "p_holm": 0.3173105078629141,
+     "p_holm": 1.0,
      "werdykt_holm": "szum",
      "teza": "nierozstrzygnięta",
      "m_holm": 8
@@ -9452,8 +10050,8 @@
       "z": 1.9796259542951333,
       "ten_sam_znak": true
      },
-     "p_holm": 0.0020748308510629924,
-     "werdykt_holm": "pewne",
+     "p_holm": 0.004149661702125985,
+     "werdykt_holm": "prawdopodobne",
      "teza": "obalona",
      "m_holm": 8
     },
@@ -9498,7 +10096,7 @@
       "z": -1.7950549357115015,
       "ten_sam_znak": false
      },
-     "p_holm": 0.3001617669372895,
+     "p_holm": 0.9004853008118685,
      "werdykt_holm": "szum",
      "teza": "nierozstrzygnięta",
      "m_holm": 8
@@ -9637,7 +10235,7 @@
      "dwa_se": 0.05474504551568354,
      "ci95_bootstrap": [
       -0.022222222222222223,
-      0.07777777777777778
+      0.07777777777777779
      ],
      "kategoria": "kod",
      "wtorne_koniec_greedy_A": {
@@ -9691,7 +10289,7 @@
       "z": 1.1395207162165009,
       "ten_sam_znak": true
      },
-     "p_holm": 0.012781799287866033,
+     "p_holm": 0.017042399050488044,
      "werdykt_holm": "prawdopodobne",
      "teza": "obalona",
      "m_holm": 8
@@ -9714,8 +10312,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.23201319815766894,
      "ci95_bootstrap": [
-      -2.7053273557747595,
-      -2.25795822281559
+      -2.701834924512906,
+      -2.259443824825392
      ],
      "kategoria": "pl_jezyk",
      "p_holm": 4.069275184531046e-101,
@@ -9732,8 +10330,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.23081312250941047,
      "ci95_bootstrap": [
-      -2.2403244872405423,
-      -1.7982397320333023
+      -2.2413972933689417,
+      -1.8001080622471968
      ],
      "kategoria": "pl_wiedza",
      "p_holm": 5.103300574061771e-68,
@@ -9750,8 +10348,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.20503275274436947,
      "ci95_bootstrap": [
-      -2.2777767945771354,
-      -1.8861564404195075
+      -2.278007617545094,
+      -1.8831258976690237
      ],
      "kategoria": "wiedza_ogolna",
      "p_holm": 9.183660153720731e-91,
@@ -9768,8 +10366,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.20086302572581943,
      "ci95_bootstrap": [
-      -2.324734789229471,
-      -1.9318686110515617
+      -2.3227324286816335,
+      -1.9324793181706879
      ],
      "kategoria": "rozumowanie",
      "p_holm": 3.602794573940314e-99,
@@ -9786,8 +10384,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.16197210169282605,
      "ci95_bootstrap": [
-      -2.4436693224329837,
-      -2.1333461348515597
+      -2.4429567272944537,
+      -2.1297117447684553
      ],
      "kategoria": "matematyka",
      "p_holm": 5.522324080525386e-174,
@@ -9804,8 +10402,8 @@
      "werdykt": "szum",
      "dwa_se": 0.1859754390208576,
      "ci95_bootstrap": [
-      0.0015670106040020105,
-      0.3545722456470832
+      -0.003533496335601362,
+      0.35628242291699297
      ],
      "kategoria": "angielski",
      "p_holm": 0.0541208163687104,
@@ -9831,8 +10429,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.21128106525654322,
      "ci95_bootstrap": [
-      -1.818166162751556,
-      -1.4135997103220705
+      -1.8153094465677568,
+      -1.4185672559905715
      ],
      "kategoria": "pl_jezyk",
      "p_holm": 4.049780805524474e-52,
@@ -9849,8 +10447,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.30594180120087333,
      "ci95_bootstrap": [
-      -1.9205219930661406,
-      -1.3216340835974498
+      -1.924393649823239,
+      -1.3270836878747518
      ],
      "kategoria": "pl_wiedza",
      "p_holm": 4.1813669914833546e-26,
@@ -9867,8 +10465,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.2699266184511644,
      "ci95_bootstrap": [
-      -2.281319016735896,
-      -1.7640187616495584
+      -2.289866071340487,
+      -1.7609738801910837
      ],
      "kategoria": "wiedza_ogolna",
      "p_holm": 6.97343323085318e-50,
@@ -9885,8 +10483,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.1960587991563123,
      "ci95_bootstrap": [
-      -1.3536569298518477,
-      -0.9782039385147825
+      -1.3572116701904364,
+      -0.9750691445824913
      ],
      "kategoria": "rozumowanie",
      "p_holm": 7.555789672085569e-32,
@@ -9903,8 +10501,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.18554756814715476,
      "ci95_bootstrap": [
-      -1.445537771637296,
-      -1.0872341484991204
+      -1.4498539030220874,
+      -1.08873810134359
      ],
      "kategoria": "matematyka",
      "p_holm": 2.1579560146650005e-42,
@@ -9921,8 +10519,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.33775772530322173,
      "ci95_bootstrap": [
-      -1.471145179771245,
-      -0.8257756304506664
+      -1.4721477585286749,
+      -0.8195616978768923
      ],
      "kategoria": "angielski",
      "p_holm": 1.3941672112607189e-11,
@@ -9972,7 +10570,7 @@
      "dwa_se": 0.04969944524124128,
      "ci95_bootstrap": [
       0.00023803396565544888,
-      0.0840032091434616
+      0.08370819654026485
      ],
      "kategoria": "angielski",
      "wtorne_rep3_greedy_A": {
@@ -9994,8 +10592,8 @@
      "werdykt": "szum",
      "dwa_se": 0.029541791262833104,
      "ci95_bootstrap": [
-      -0.01768019893464583,
-      0.03864918967238662
+      -0.017814579096126406,
+      0.03936019619997696
      ],
      "kategoria": "tekst_techniczny",
      "wtorne_rep3_greedy_A": {
@@ -10072,8 +10670,8 @@
      "werdykt": "prawdopodobne",
      "dwa_se": 0.031464864436469224,
      "ci95_bootstrap": [
-      -0.0663666894610546,
-      -0.005195455570251697
+      -0.06601143670171349,
+      -0.005381506176458539
      ],
      "kategoria": "tekst_techniczny",
      "wtorne_rep3_greedy_A": {
@@ -10132,7 +10730,7 @@
      "werdykt": "pewne",
      "dwa_se": 0.14763640862887106,
      "ci95_bootstrap": [
-      -0.36666666666666664,
+      -0.3558333333333332,
       -0.07777777777777778
      ],
      "kategoria": "wiedza_ogolna",
@@ -10169,8 +10767,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.04485542560839419,
      "ci95_bootstrap": [
-      0.05211017703807553,
-      0.13878839236192167
+      0.051469367017240884,
+      0.13811239865479924
      ],
      "kategoria": "pl_wiedza",
      "wtorne_bpb_B": {
@@ -10192,8 +10790,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.09422834920924379,
      "ci95_bootstrap": [
-      0.13145064352697727,
-      0.31339662595372997
+      0.13035696551158887,
+      0.312387182038095
      ],
      "kategoria": "wiedza_ogolna",
      "wtorne_bpb_B": {
@@ -10225,7 +10823,7 @@
      "dwa_se": 0.16485606555397392,
      "ci95_bootstrap": [
       -0.6888888888888888,
-      -0.37750000000000394
+      -0.3777777777777777
      ],
      "kategoria": "matematyka",
      "wtorne_poprawnosc_greedy_A": {
@@ -10253,7 +10851,7 @@
      "dwa_se": 0.12248317666253991,
      "ci95_bootstrap": [
       -0.3111111111111111,
-      -0.07777777777777777
+      -0.07777777777777778
      ],
      "kategoria": "rozumowanie",
      "wtorne_poprawnosc_greedy_A": {
@@ -10354,8 +10952,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.050613379604937114,
      "ci95_bootstrap": [
-      0.3497955116472119,
-      0.4493991695679126
+      0.3510555836120569,
+      0.4474839135945628
      ],
      "kategoria": "matematyka",
      "wtorne_bpb_B": {
@@ -10377,8 +10975,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.06327199021402884,
      "ci95_bootstrap": [
-      0.05462878227328099,
-      0.17543602799503788
+      0.05372604730189604,
+      0.1760528353218265
      ],
      "kategoria": "rozumowanie",
      "wtorne_bpb_B": {
@@ -10409,8 +11007,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.0478090685432353,
      "ci95_bootstrap": [
-      0.1934241301938561,
-      0.28438169550762166
+      0.1924470468387994,
+      0.284589697546089
      ],
      "kategoria": "matematyka",
      "wtorne_bpb_B": {
@@ -10432,8 +11030,8 @@
      "werdykt": "szum",
      "dwa_se": 0.10686193700915347,
      "ci95_bootstrap": [
-      -0.16673965971329316,
-      0.03916635358715941
+      -0.16974044752759138,
+      0.038438527444125986
      ],
      "kategoria": "rozumowanie",
      "wtorne_bpb_B": {
@@ -10538,8 +11136,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.2065522146106243,
      "ci95_bootstrap": [
-      -0.5712224978147079,
-      -0.1685867174278793
+      -0.5653804618443368,
+      -0.17065700149020488
      ],
      "kategoria": "pl_jezyk",
      "wtorne_bpb_B": {
@@ -10561,8 +11159,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.23360152307286514,
      "ci95_bootstrap": [
-      -0.68435585101891,
-      -0.24018069914750112
+      -0.6873965959490551,
+      -0.24034020883475765
      ],
      "kategoria": "pl_wiedza",
      "wtorne_bpb_B": {
@@ -10584,8 +11182,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.02328785367561105,
      "ci95_bootstrap": [
-      -0.1778024526225727,
-      -0.13239313441422726
+      -0.17745086785057967,
+      -0.13230739564579877
      ],
      "kategoria": "tekst_techniczny",
      "wtorne_bpb_B": {
@@ -10670,8 +11268,8 @@
      "werdykt": "pewne",
      "dwa_se": 0.21085682644246223,
      "ci95_bootstrap": [
-      0.22218869533541957,
-      0.6319470377715157
+      0.21918099566000668,
+      0.6250452561943571
      ],
      "kategoria": "angielski",
      "wtorne_bpb_B": {
@@ -10697,8 +11295,8 @@
    "werdykt": "pewne",
    "dwa_se": 0.12779246462444843,
    "ci95_bootstrap": [
-    0.08643449029504607,
-    0.3294826122387614
+    0.08474038115627089,
+    0.32785583705965526
    ],
    "kategoria": "pl_jezyk",
    "teza": "obalona"
@@ -10712,8 +11310,8 @@
    "werdykt": "pewne",
    "dwa_se": 0.016697219903971713,
    "ci95_bootstrap": [
-    0.10172006155226526,
-    0.13379659943271896
+    0.10155717502551403,
+    0.13374674588487714
    ],
    "kategoria": "tekst_techniczny",
    "teza": "obalona"
@@ -12939,6 +13537,371 @@
     "testy": {},
     "stan": "NOT RUN: brak dopasowanego testu w przebiegu centralnym (aneks A3)"
    }
+  }
+ },
+ "runda1": {
+  "eksploracyjne": true,
+  "h1_koniec_bez_pustych": [
+   {
+    "id": "H1.1",
+    "a": "slayer",
+    "b": "bielik",
+    "wiersze": [
+     {
+      "roznica": -0.055555555555555566,
+      "se": 0.02306818884826111,
+      "n": 30,
+      "z": -2.408318915758459,
+      "p": 0.01602617454798513,
+      "werdykt": "prawdopodobne",
+      "dwa_se": 0.04613637769652222,
+      "kategoria": "pl_jezyk",
+      "p_holm": 0.09615704728791077,
+      "werdykt_holm": "szum",
+      "teza": "nierozstrzygnięta"
+     },
+     {
+      "roznica": 0.0,
+      "se": 0.0,
+      "n": 30,
+      "z": null,
+      "p": null,
+      "werdykt": "nierozstrzygalne",
+      "dwa_se": 0.0,
+      "kategoria": "pl_wiedza",
+      "p_holm": null,
+      "werdykt_holm": "nierozstrzygalne",
+      "teza": "nierozstrzygnięta"
+     },
+     {
+      "roznica": 0.0,
+      "se": 0.0,
+      "n": 30,
+      "z": null,
+      "p": null,
+      "werdykt": "nierozstrzygalne",
+      "dwa_se": 0.0,
+      "kategoria": "wiedza_ogolna",
+      "p_holm": null,
+      "werdykt_holm": "nierozstrzygalne",
+      "teza": "nierozstrzygnięta"
+     },
+     {
+      "roznica": 0.0,
+      "se": 0.0,
+      "n": 30,
+      "z": null,
+      "p": null,
+      "werdykt": "nierozstrzygalne",
+      "dwa_se": 0.0,
+      "kategoria": "rozumowanie",
+      "p_holm": null,
+      "werdykt_holm": "nierozstrzygalne",
+      "teza": "nierozstrzygnięta"
+     },
+     {
+      "roznica": -0.011111111111111112,
+      "se": 0.011111111111111112,
+      "n": 30,
+      "z": -1.0,
+      "p": 0.3173105078629141,
+      "werdykt": "szum",
+      "dwa_se": 0.022222222222222223,
+      "kategoria": "matematyka",
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "teza": "nierozstrzygnięta"
+     },
+     {
+      "roznica": 0.21111111111111114,
+      "se": 0.060823075991023275,
+      "n": 30,
+      "z": 3.4709048773243314,
+      "p": 0.0005187077127657481,
+      "werdykt": "pewne",
+      "dwa_se": 0.12164615198204655,
+      "kategoria": "kod",
+      "p_holm": 0.004149661702125985,
+      "werdykt_holm": "prawdopodobne",
+      "teza": "obalona"
+     },
+     {
+      "roznica": 0.08888888888888889,
+      "se": 0.03169673238305968,
+      "n": 30,
+      "z": 2.8043549667723973,
+      "p": 0.005041736458802291,
+      "werdykt": "prawdopodobne",
+      "dwa_se": 0.06339346476611936,
+      "kategoria": "angielski",
+      "p_holm": 0.035292155211616036,
+      "werdykt_holm": "prawdopodobne",
+      "teza": "obalona"
+     },
+     {
+      "roznica": 0.03333333333333333,
+      "se": 0.018569533817705187,
+      "n": 30,
+      "z": 1.795054935711501,
+      "p": 0.07264494768946285,
+      "werdykt": "szum",
+      "dwa_se": 0.037139067635410375,
+      "kategoria": "tekst_techniczny",
+      "p_holm": 0.36322473844731423,
+      "werdykt_holm": "szum",
+      "teza": "nierozstrzygnięta"
+     }
+    ]
+   },
+   {
+    "id": "H1.2",
+    "a": "slayer",
+    "b": "lfm",
+    "wiersze": [
+     {
+      "roznica": 3.7007434154171884e-18,
+      "se": 0.03573708449459317,
+      "n": 30,
+      "z": 1.0355470984145591e-16,
+      "p": 0.9999999999999999,
+      "werdykt": "szum",
+      "dwa_se": 0.07147416898918633,
+      "kategoria": "pl_jezyk",
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "teza": "nierozstrzygnięta"
+     },
+     {
+      "roznica": 0.0,
+      "se": 0.0,
+      "n": 30,
+      "z": null,
+      "p": null,
+      "werdykt": "nierozstrzygalne",
+      "dwa_se": 0.0,
+      "kategoria": "pl_wiedza",
+      "p_holm": null,
+      "werdykt_holm": "nierozstrzygalne",
+      "teza": "nierozstrzygnięta"
+     },
+     {
+      "roznica": 0.011111111111111112,
+      "se": 0.011111111111111112,
+      "n": 30,
+      "z": 1.0,
+      "p": 0.3173105078629141,
+      "werdykt": "szum",
+      "dwa_se": 0.022222222222222223,
+      "kategoria": "wiedza_ogolna",
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "teza": "nierozstrzygnięta"
+     },
+     {
+      "roznica": 0.011111111111111112,
+      "se": 0.011111111111111112,
+      "n": 30,
+      "z": 1.0,
+      "p": 0.3173105078629141,
+      "werdykt": "szum",
+      "dwa_se": 0.022222222222222223,
+      "kategoria": "rozumowanie",
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "teza": "nierozstrzygnięta"
+     },
+     {
+      "roznica": -0.011111111111111112,
+      "se": 0.011111111111111112,
+      "n": 30,
+      "z": -1.0,
+      "p": 0.3173105078629141,
+      "werdykt": "szum",
+      "dwa_se": 0.022222222222222223,
+      "kategoria": "matematyka",
+      "p_holm": 1.0,
+      "werdykt_holm": "szum",
+      "teza": "nierozstrzygnięta"
+     },
+     {
+      "roznica": 0.5000000000000001,
+      "se": 0.04990412263469519,
+      "n": 30,
+      "z": 10.019212313581116,
+      "p": 1.2549912741976443e-23,
+      "werdykt": "pewne",
+      "dwa_se": 0.09980824526939037,
+      "kategoria": "kod",
+      "p_holm": 1.0039930193581155e-22,
+      "werdykt_holm": "pewne",
+      "teza": "obalona"
+     },
+     {
+      "roznica": 0.0,
+      "se": 0.0,
+      "n": 30,
+      "z": null,
+      "p": null,
+      "werdykt": "nierozstrzygalne",
+      "dwa_se": 0.0,
+      "kategoria": "angielski",
+      "p_holm": null,
+      "werdykt_holm": "nierozstrzygalne",
+      "teza": "nierozstrzygnięta"
+     },
+     {
+      "roznica": 0.1,
+      "se": 0.032558033460025865,
+      "n": 30,
+      "z": 3.071438578216897,
+      "p": 0.0021302998813110055,
+      "werdykt": "pewne",
+      "dwa_se": 0.06511606692005173,
+      "kategoria": "tekst_techniczny",
+      "p_holm": 0.014912099169177039,
+      "werdykt_holm": "prawdopodobne",
+      "teza": "obalona"
+     }
+    ]
+   }
+  ],
+  "t_zamiast_z": {
+   "wierszy": 54,
+   "slabszy_werdykt_surowy": 3,
+   "inny_werdykt_po_holmie": 1,
+   "inna_teza": 0
+  },
+  "sl_razem": {
+   "kategorii": 7,
+   "srednia_kategorii": -0.07142857142857144,
+   "se_kategorii": 0.0818602479422319,
+   "t_kategorii": -0.8725672499670168,
+   "df": 6,
+   "p_t_kategorii": 0.41644699781331684,
+   "werdykt_t": "szum",
+   "kategorii_ujemnych": 5,
+   "min_abs_z_bez_jednej": 1.9376877644116164,
+   "greedy_B_roznica": -0.21717171717171718,
+   "greedy_B_z": -5.138924066772561,
+   "greedy_B_werdykt": "pewne",
+   "bez_3": {
+    "pl_wiedza": {
+     "k": 3,
+     "roznica": 0.2469135802469136,
+     "se": 0.08073850448939138,
+     "z": 3.0581886772420557,
+     "werdykt": "pewne"
+    },
+    "matematyka": {
+     "k": 3,
+     "roznica": -0.25925925925925924,
+     "se": 0.07618086585254095,
+     "z": -3.403207043630784,
+     "werdykt": "pewne"
+    },
+    "angielski": {
+     "k": 3,
+     "roznica": -0.1746031746031746,
+     "se": 0.06753030916248459,
+     "z": -2.5855527209724762,
+     "werdykt": "prawdopodobne"
+    }
+   }
+  },
+  "eos_efekt_nl": {
+   "slayer": {
+    "srednia": -1.9905921599547785,
+    "se": 0.07606021841214779,
+    "n": 144
+   },
+   "bielik": {
+    "srednia": -0.4482014450635551,
+    "se": 0.06274092695817382,
+    "n": 144
+   },
+   "lfm": {
+    "srednia": -1.5415987508829803,
+    "se": 0.05001717402690401,
+    "n": 144
+   }
+  },
+  "pl_jezyk_bez_nl": {
+   "probek": 72,
+   "probek_nl": {
+    "slayer": 21,
+    "bielik": 3,
+    "lfm": 0
+   },
+   "polecen": 23,
+   "roznica_s_b": -0.39855072463768115,
+   "se": 0.08166251934481629,
+   "z": -4.880460801788624,
+   "werdykt": "pewne"
+  }
+ },
+ "mutacje": [
+  {
+   "opis": "Slayer bez BOS",
+   "plik": "modele.py",
+   "zapalona": true,
+   "ostatnia_linia": "AssertionError: [2588, 2362, 566]"
+  },
+  {
+   "opis": "Slayer z BOS = 1",
+   "plik": "slayer_model.py",
+   "zapalona": true,
+   "ostatnia_linia": "AssertionError: [1, 2588, 2362]"
+  },
+  {
+   "opis": "transformers z add_special_tokens=False",
+   "plik": "modele.py",
+   "zapalona": true,
+   "ostatnia_linia": "AssertionError: ('bielik', [9960, 2818, 31937])"
+  },
+  {
+   "opis": "EOS LFM bez 7",
+   "plik": "modele.py",
+   "zapalona": true,
+   "ostatnia_linia": "AssertionError"
+  },
+  {
+   "opis": "top-p odcina po skumulowanym p z tokenem",
+   "plik": "generuj.py",
+   "zapalona": true,
+   "ostatnia_linia": "AssertionError"
+  },
+  {
+   "opis": "top-p 0,95 zamiast 0,9",
+   "plik": "generuj.py",
+   "zapalona": true,
+   "ostatnia_linia": "AssertionError"
+  },
+  {
+   "opis": "seed bez numeru pozycji",
+   "plik": "generuj.py",
+   "zapalona": true,
+   "ostatnia_linia": "AssertionError: (5, 294, 62)"
+  },
+  {
+   "opis": "tolerancja liczby 0,5",
+   "plik": "ocena.py",
+   "zapalona": true,
+   "ostatnia_linia": "AssertionError"
+  },
+  {
+   "opis": "Holm wyłączony",
+   "plik": "analiza.py",
+   "zapalona": true,
+   "ostatnia_linia": "AssertionError"
+  }
+ ],
+ "batch_vs_1": {
+  "bielik": {
+   "model": "bielik",
+   "n": 32,
+   "rozne": 0,
+   "sekundy": 175,
+   "eksploracyjne": true
   }
  },
  "sonda_eos_kod_lfm": {

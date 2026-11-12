@@ -99,6 +99,8 @@ def tresc(L):
     aud = L["audyt"]
     kw = L["kontrola_wzorcow"]
     kn = L["kontrola_narzedzia"]
+    R1 = L["runda1"]
+    sl1 = R1["sl_razem"]
 
     # ---------------------------------------------------------------- nagłówek i streszczenie
     o("# Slayer 1.08 w rozmowie: swobodna generacja i prawdopodobieństwo odpowiedzi wobec Bielika 1.5B i LFM2.5 1.2B")
@@ -113,11 +115,11 @@ def tresc(L):
     o(f"Na 240 nowych poleceniach po polsku i angielsku Slayer 1.08 odpowiada poprawnie rzadziej niż Bielik 1.5B "
       f"(łącznie {f(op['poprawnosc']['razem']['slayer']['srednia'])} wobec {f(op['poprawnosc']['razem']['bielik']['srednia'])}, "
       f"różnica {zz(sb_raz)}), najmocniej w matematyce i języku polskim, i przypisuje wzorcowym odpowiedziom "
-      f"mniejsze prawdopodobieństwo (wyższe BPB) we wszystkich 8 kategoriach. Od LFM2.5 Slayer różni się mniej "
-      f"(poprawność łącznie {zz(sl_raz)}): ma niższe BPB polskiego tekstu i więcej trafień w wiedzy o Polsce, a "
-      f"niższą poprawność w matematyce i angielskim. Najsilniejszy sygnał swoistej wady Slayera to bardzo niskie prawdopodobieństwo "
-      f"końca dokumentu po zakończonej odpowiedzi (sonda EOS); powtórzeń i przecieków znaczników z pilota ten pomiar "
-      f"nie potwierdził.")
+      f"mniejsze prawdopodobieństwo (wyższe BPB) we wszystkich 8 kategoriach. Wobec LFM2.5 wynik łączny jest "
+      f"nierozstrzygnięty (poprawność {zz(sl_raz)}, ale po klastrach kategorii t = {f(sl1['t_kategorii'], 2)}, "
+      f"df = {sl1['df']}, {sl1['werdykt_t']}, a w szablonie B różnica {f(sl1['greedy_B_roznica'])}), a stoją różnice w "
+      f"kategoriach: Slayer ma niższe BPB polskiego tekstu i więcej trafień w wiedzy o Polsce, a mniej w matematyce; "
+      f"powtórzeń, przecieków znaczników i braku naturalnego końca odpowiedzi z pilota ten pomiar nie potwierdził.")
     o("")
 
     # ---------------------------------------------------------------- 1. pytania i hipotezy
@@ -148,7 +150,8 @@ def tresc(L):
     ])
     o("Reguła werdyktu (protokół, sekcja 1): różnica parowana po poleceniach, SE = sd/√n po poleceniach, z = różnica/SE; "
       "|z| od 3 „pewne”, od 2 do 3 „prawdopodobne”, poniżej 2 „szum”. Poprawka Holma w rodzinie hipoteza × para × "
-      "metryka po kategoriach. Teza jest potwierdzona, gdy znak się zgadza i po Holmie jest co najmniej "
+      "metryka po kategoriach, m = wszystkie kategorie z metryką, także te z SE = 0 (poprawione w rundzie poprawek 1: "
+      "pierwsza wersja liczyła m bez nich). Teza jest potwierdzona, gdy znak się zgadza i po Holmie jest co najmniej "
       "„prawdopodobna”, obalona przy znaku przeciwnym i tej samej sile, w pozostałych przypadkach nierozstrzygnięta. "
       "Wynik pod progiem nie znaczy „brak różnicy”.")
     o("")
@@ -179,11 +182,17 @@ def tresc(L):
       "próbek; (b) BPB wzorca = −Σ log p(tokenów wzorca | prompt) / (ln 2 · bajty UTF-8), na bajt, bo tokenizery są "
       "różne; (c) naturalny koniec przed limitem tokenów i (c2) sonda EOS: log10 p(EOS) po tekście „Pytanie: … "
       "Odpowiedź: <wzorzec>\\n” bez przykładów; (d) rep3 = udział 3-gramów słów powtórzonych w tej samej odpowiedzi; "
-      "(e) ślepa ocena parami przez dwóch sędziów (osobne agenty Claude), A / B / remis.")
+      "(e) ślepa ocena parami przez dwóch sędziów (osobne agenty Claude), A / B / remis. Metryka (c) liczy jako "
+      "naturalny koniec także pustą odpowiedź zakończoną EOS; wariant bez pustych podaję w sekcji 5. „Pusta "
+      "odpowiedź” w całym tekście znaczy: brak treści po obcięciu białych znaków (metryka opisowa, eksploracyjna).")
     o("")
     o("**Statystyka.** Różnice parowane po poleceniach (te same polecenia dla wszystkich modeli), SE po poleceniach "
       "(próbki jednego polecenia uśrednione przed różnicą), z, werdykt i Holm jak w sekcji 1. Bootstrap po poleceniach "
       "jako kontrola wrażliwości (10 000 losowań, seed 20261112). " + POZA)
+    tz = R1["t_zamiast_z"]
+    o(f"Protokół wiąże werdykt z z. Wrażliwość (eksploracyjna, po pomiarze): z rozkładem t o df = n − 1 zamiast z "
+      f"słabnie surowy werdykt w {tz['slabszy_werdykt_surowy']} z {tz['wierszy']} wierszy tabeli hipotez, werdykt po "
+      f"Holmie zmienia się w {tz['inny_werdykt_po_holmie']}, a stan tezy w {tz['inna_teza']}.")
     o("")
     o(f"**Moc (MDE).** Najmniejsza różnica wykrywalna z mocą 80% pod Holmem przy 8 kategoriach to (z_Holm + z_moc) · SE, "
       f"z_Holm = {f(L['mde']['z_holm_m8'], 3)}, z_moc = {f(L['mde']['z_moc80'], 3)}, SE z danych. Różnica mniejsza od MDE "
@@ -211,6 +220,16 @@ def tresc(L):
     o("Dla Bielika i LFM opublikowanych liczb w tym ustawieniu nie ma; ich ścieżkę sprawdza test spójności log p z "
       "pełnym forwardem i próba dymna (greedy w batchu 4 wobec batchu 1: 0 różnic na 10 pozycjach każdego modelu). To "
       "test spójności, nie odtworzenie cudzej liczby.")
+    for m, x in L["batch_vs_1"].items():
+        o(f"Po pomiarze (runda poprawek 1, eksploracyjnie) powtórzyłam porównanie greedy batch 4 wobec batch 1 dla "
+          f"{N[m]} na {x['n']} pozycjach z pełnym limitem tokenów (`code/batch_vs_1.py`): {x['rozne']} różnych "
+          f"odpowiedzi.")
+    o("")
+    o("**Testy kodu pomiaru** (`code/test_rozmowy.py`, bez wag): scorer log p na atrapie, BOS z tokenizera dla ścieżki "
+      "Slayera i ścieżki transformers, zbiory EOS z protokołu z nazwami tokenów, seed wiersza z numerem pozycji, odcięcie "
+      "top-p, tolerancja oceny liczby, Holm z m = wszystkie kategorie. Testy BOS, EOS, seeda, top-p, tolerancji i "
+      "Holma dopisałam w rundzie poprawek 1, bo pierwsza wersja testów przechodziła na zielono przy mutacjach tych "
+      "miejsc; każdą mutację sprawdziłam (wynik w podsumowaniu rundy, sekcja 10).")
     o("")
     sk = L["skazenie"]
     o(f"**Skażenie.** Wspólne 13-gramy słów (polecenie + wzorzec + testy) z `GSM8K`, `ARC`, `OpenBookQA`, `HumanEval`, "
@@ -333,6 +352,63 @@ def tresc(L):
       f"p tego tokenu na starcie odpowiedzi {f(so['mediana_p_im_end'], 2)}. Wynik LFM w kodzie zależy więc od "
       f"definicji EOS; zostaje według protokołu.")
     o("")
+    o("**Wrażliwość metryki (c) na puste odpowiedzi** (eksploracyjna, po pomiarze). Ta sama reguła werdyktu i Holm "
+      "(m = 8), ale pusta odpowiedź nie liczy się jako naturalny koniec. Naturalny koniec LFM w kodzie spada z "
+      f"{f(op['koniec']['kod']['lfm']['srednia'])} do {f(op['koniec_bez_pustych']['kod']['lfm']['srednia'])}:")
+    o("")
+    rows = []
+    for h in R1["h1_koniec_bez_pustych"]:
+        for r in h["wiersze"]:
+            if r["z"] is None:
+                continue
+            rows.append([h["id"], PARA_ET[f"{h['a']}-{h['b']}"], ET[r["kategoria"]], f(r["roznica"]), f(r["se"]),
+                         f(r["z"], 2), r["werdykt"], fp(r["p_holm"]), r["werdykt_holm"], r["teza"]])
+    tabela(["teza", "para", "kategoria", "różnica", "SE", "z", "werdykt", "p Holma", "werdykt po Holmie", "stan tezy"],
+           rows)
+    o("Kategorie z SE = 0 (te same końce u obu modeli) pominęłam w tabeli, ale liczą się do m Holma. Przy tej "
+      "definicji teza H1.2 jest obalona także w kodzie: S kończy odpowiedź z treścią częściej niż L. Wniosek dla H1 "
+      "się nie odwraca: S nie kończy rzadziej niż B ani L w żadnej kategorii.")
+    o("")
+    sn = R1["eos_efekt_nl"]
+    o(f"**Sonda EOS a znak nowej linii** (eksploracyjna, po pomiarze). W {sn['slayer']['n']} poleceniach krótkich "
+      f"polskich kategorii dopisanie „\\n” po wzorcu zmienia log10 p(EOS) średnio o {f(sn['slayer']['srednia'], 2)} "
+      f"(SE {f(sn['slayer']['se'], 2)}) u S, {f(sn['bielik']['srednia'], 2)} (SE {f(sn['bielik']['se'], 2)}) u B i "
+      f"{f(sn['lfm']['srednia'], 2)} (SE {f(sn['lfm']['se'], 2)}) u L. Duża część różnic H1.3–H1.4 wynika więc z tego, "
+      f"jak modele traktują nową linię przed końcem dokumentu. Ta sama sonda bez „\\n” (log10 p zbioru EOS, Holm "
+      f"m = 6):")
+    o("")
+    rows = []
+    for k in [k for k in KAT if k in L["porownania"]["log10_p_eos"]]:
+        for p in ("slayer-bielik", "slayer-lfm"):
+            r = por("log10_p_eos", k, p)
+            rows.append([ET[k], PARA_ET[p], f(r["roznica"], 2), f(r["se"], 2), f(r["z"], 2), r["werdykt"],
+                         fp(r["p_holm"]), r["werdykt_holm"]])
+    tabela(["kategoria", "para", "różnica log10 p", "SE", "z", "werdykt", "p Holma", "werdykt po Holmie"], rows)
+    o("W polskich kategoriach różnice S−B bez „\\n” są mniejsze niż w H1.3 (najmniejsza w wiedzy o Polsce); w "
+      "angielskim odwrotnie: bez „\\n” S−B jest silnie ujemne, a z „\\n” nie. Zbiór EOS B i L "
+      "zawiera `<|im_end|>`, więc część ich p(EOS) to token czatu, nie koniec dokumentu; rozdzielenia na tokeny nie "
+      "liczyłam (NOT RUN). W generacji ze znacznikiem szablonu S kończy odpowiedzi tak samo często jak B i L (wyżej). "
+      "Sonda nie jest więc dowodem swoistej wady generacji S, tylko innej konwencji końca dokumentu.")
+    o("")
+    pj = R1["pl_jezyk_bez_nl"]
+    o(f"**Język polski a ostatni przykład few-shot** (eksploracyjna, po pomiarze). Ostatni przykład w tej kategorii to "
+      f"polecenie otwarte (list), a część próbek zaczyna się od nowej linii (część z nich kopiuje formę listu, "
+      f"wskazanie obalającego). Próbek zaczynających się od „\\n” na {pj['probek']} sprawdzalnych: S "
+      f"{pj['probek_nl']['slayer']}, B {pj['probek_nl']['bielik']}, L {pj['probek_nl']['lfm']}. Bez wszystkich tych "
+      f"próbek (średnia z pozostałych seedów, liczba poleceń z próbkami obu modeli: {pj['polecen']}) różnica poprawności S−B wynosi {f(pj['roznica_s_b'])} (SE {f(pj['se'])}, "
+      f"z = {f(pj['z'], 2)}, {pj['werdykt']}), więc wynik języka polskiego nie wynika z tego artefaktu.")
+    o("")
+    bz = sl1["bez_3"]
+    o(f"**S−L łącznie** (eksploracyjna, po pomiarze). Różnica poprawności łącznie {zz(sl_raz)} nie wytrzymuje "
+      f"sprawdzeń: po klastrach {sl1['kategorii']} kategorii t = {f(sl1['t_kategorii'], 2)}, df = {sl1['df']}, "
+      f"{sl1['werdykt_t']}; znak ujemny w {sl1['kategorii_ujemnych']} z {sl1['kategorii']} kategorii; usunięcie "
+      f"jednego polecenia daje najmniejsze |z| {f(sl1['min_abs_z_bez_jednej'], 2)}; greedy w szablonie B daje "
+      f"{f(sl1['greedy_B_roznica'])} (z = {f(sl1['greedy_B_z'], 2)}, {sl1['greedy_B_werdykt']}). Wynik łączny S−L "
+      f"jest nierozstrzygnięty i zależy od szablonu. Po usunięciu 3 poleceń najmocniej ciągnących średnią: wiedza o "
+      f"Polsce {f(bz['pl_wiedza']['roznica'])} (z = {f(bz['pl_wiedza']['z'], 2)}, {bz['pl_wiedza']['werdykt']}), "
+      f"matematyka {f(bz['matematyka']['roznica'])} (z = {f(bz['matematyka']['z'], 2)}, {bz['matematyka']['werdykt']}), "
+      f"angielski {f(bz['angielski']['roznica'])} (z = {f(bz['angielski']['z'], 2)}, {bz['angielski']['werdykt']}).")
+    o("")
 
 
     def tab_par(met):
@@ -357,6 +433,12 @@ def tresc(L):
 
     o("**Ocena sędziów** (42 polecenia otwarte × 3 pary = 126 par, odpowiedź seed 1 szablonu A, strony i kolejność "
       "losowane, klucz poza paczką).")
+    o("")
+    o(f"**Pochodzenie ocen.** Pliki ocen leżą w `wyniki/sedziowie/` (sha256 w `wyniki/SHA256SUMS` i w "
+      f"`LICZBY.json`, pole `wejscia`). Sędzia 2 zapisał swoje werdykty skryptem `zapisz_oceny.py`, który sam napisał "
+      f"(zgłosił to w raporcie). Atestacja orkiestratora: sha256 obu plików ocen (`{sed['sedziowie']['sedzia1']['sha256'][:8]}…`"
+      f" i `{sed['sedziowie']['sedzia2']['sha256'][:8]}…`) zgadzają się z tymi, które sędziowie podali w swoich "
+      f"raportach (sprawdzone `shasum` 12.11.2026). Niezależnego odtworzenia ocen nie było.")
     o("")
     o(f"Zgodność dwóch sędziów: kappa Cohena {f(sed['kappa'], 3)}, zgodność surowa {f(sed['zgodnosc_surowa'], 3)} (po "
       f"przełożeniu stron na tożsamość modeli). Sędzia 2 dostał pary w odwrotnej kolejności. Skłonność do strony A "
@@ -436,12 +518,14 @@ def tresc(L):
       f"szablonu.")
     r3 = wiersz_h("H1.3", "matematyka")
     r4 = wiersz_h("H1.4", "matematyka")
-    o(f"- **H1.3–H1.4 (sonda EOS).** Po wzorcowej odpowiedzi S daje EOS prawdopodobieństwo o rzędy wielkości niższe: "
+    o(f"- **H1.3–H1.4 (sonda EOS).** Po wzorcowej odpowiedzi zakończonej „\\n” S daje EOS niższe prawdopodobieństwo: "
       f"w matematyce log10 p różni się od B o {zz(r3)}, od L o {zz(r4)}; teza potwierdzona w "
       f"{sum(x['teza'] == 'potwierdzona' for x in hip('H1.3')['wiersze'])} z 6 kategorii wobec B i w "
-      f"{sum(x['teza'] == 'potwierdzona' for x in hip('H1.4')['wiersze'])} z 6 wobec L. Zastępcze wyjaśnienie: sonda mierzy koniec dokumentu po tekście „Pytanie/Odpowiedź” bez "
-      f"przykładów, a B i L mogły widzieć dużo krótkich dokumentów tego kształtu (dane instrukcyjne), S mniej; to "
-      f"wskazuje na dane, nie na architekturę.")
+      f"{sum(x['teza'] == 'potwierdzona' for x in hip('H1.4')['wiersze'])} z 6 wobec L. Teza dotyczy jednak "
+      f"sondy, nie generacji: dużą część różnicy daje samo „\\n” przed EOS (u S log10 p spada po nim średnio o "
+      f"{f(sn['slayer']['srednia'], 2)}, u B o {f(sn['bielik']['srednia'], 2)}), zbiór EOS B i L zawiera token czatu "
+      f"`<|im_end|>`, a w generacji S kończy odpowiedzi równie często jak B i L (sekcja 5). Zastępcze wyjaśnienie: "
+      f"inna konwencja nowej linii przed końcem dokumentu w danych S; to hipoteza bez sprawdzenia w danych.")
     o(f"- **H2.1–H2.2 (powtórzenia).** Wszystkie różnice rep3 to szum po Holmie; teza nierozstrzygnięta. Powtórzenia z "
       f"pilota mogły wynikać z dłuższych odpowiedzi bez znacznika stopu.")
     r = wiersz_h("H3.1", "wiedza_ogolna")
@@ -519,7 +603,6 @@ def tresc(L):
     pm, km = por("poprawnosc", "matematyka", "slayer-bielik"), por("poprawnosc", "kod", "slayer-bielik")
     pj = por("poprawnosc", "pl_jezyk", "slayer-bielik")
     bm = por("bpb_A", "matematyka", "slayer-bielik")
-    eos = wiersz_h("H1.3", "pl_wiedza")
     o(f"1. **Polskie zadania tekstowe z rozwiązaniem krok po kroku i jawnym wynikiem.** Luka: matematyka, poprawność "
       f"S−B {zz(pm)}, BPB S−B {zz(bm)}. Siła: wysoka dla istnienia różnicy, niska dla przyczyny (zastępcze wyjaśnienia w "
       f"sekcji 6). Źródło: zbiory zadań szkolnych na otwartej licencji albo tłumaczenia zbiorów angielskich; licencja "
@@ -532,9 +615,10 @@ def tresc(L):
       f"poprawność S−B {zz(pj)}, mimo że w teście par minimalnych S ma wynik najwyższy z trzech (sekcja 4, A3). S "
       f"rozpoznaje poprawną formę, ale jej nie produkuje na polecenie. Siła: średnia (24 polecenia). Źródło: materiały "
       f"dydaktyczne i słowniki fleksyjne; licencja do sprawdzenia.")
-    o(f"4. **Krótkie dokumenty pytanie–odpowiedź zakończone tokenem końca dokumentu.** Luka: sonda EOS, np. wiedza o "
-      f"Polsce log10 p(EOS) S−B {zz(eos)}. Siła: wysoka dla zjawiska w sondzie, nieznana dla generacji bez znacznika "
-      f"stopu (to wymaga testu nr 2 niżej). Do sprawdzenia w potoku danych, czy dokumenty treningowe S kończą się EOS.")
+    o("4. **Do sprawdzenia, nie do zbierania: konwencja „\\n” przed EOS w danych S.** Hipoteza bez dowodu: sonda "
+      "EOS różni się głównie po dopisaniu nowej linii (sekcja 5), a w generacji S kończy odpowiedzi normalnie. "
+      "Sprawdzić w potoku danych, czy dokumenty S kończą się EOS bezpośrednio po tekście czy po „\\n”; danych pod ten "
+      "punkt nie proponuję, dopóki to sprawdzenie i test nr 2 niżej czegoś nie pokażą.")
     o("5. **Wiedza o Polsce w tekście encyklopedycznym.** Luka: BPB wiedzy o Polsce i wiedzy ogólnej wyższe niż B "
       f"(H3.2, {zz(r2)}). Siła: średnia, bo wzorce są w stylu Claude, a B jest po pełnym treningu. Źródło: polska "
       f"Wikipedia i podobne; licencja do sprawdzenia dla wersji zrzutu.")
@@ -581,16 +665,31 @@ def tresc(L):
       "przebiegu Slayera; najniższa wolna pamięć 25%, powrotu do kolejki nie było (`wyniki/przebieg.json`). Wynik "
       "modelu nie zależy od procesu obok (osobne procesy i generatory seedów).")
     o("- Batch 4 w generacji (zapisany w protokole jako świadome odstępstwo); greedy batch 4 wobec batch 1: 0 różnic na "
-      "10 pozycjach każdego modelu.")
+      "10 pozycjach każdego modelu w próbie dymnej, a dla Bielika także po pomiarze (sekcja 3).")
     o("- Audyt oceny automatycznej: 63 oceny zamiast 60, żeby każda z 21 komórek model × kategoria miała po 3.")
     o("- Wrażliwość na 6 reguł oceny i sonda EOS kodu LFM dodane po pomiarze: eksploracyjne.")
     o("- Odsetek wygranych z SE zamiast modelu Bradleya-Terry'ego (protokół przewidywał odsetek wygranych).")
+    o("- Runda poprawek 1 (po pomiarze): Holm liczony z m = wszystkie kategorie z metryką, jak w protokole (pierwsza "
+      "wersja pomijała kategorie z SE = 0 i zawyżała część werdyktów po Holmie, np. H1.1 w kodzie); „pusta odpowiedź” "
+      "ujednolicona do definicji z obcięciem białych znaków. Wszystkie analizy dodane w tej rundzie (wariant (c) bez "
+      "pustych, t zamiast z, S−L łącznie, sonda EOS bez „\\n”, język polski bez próbek od nowej linii, batch Bielika) "
+      "są eksploracyjne.")
     o("")
+    mu = L.get("mutacje")
+    if mu:
+        o(f"Mutacje kodu pomiaru (runda poprawek 1, `code/mutacje.py`): każda mutacja wprowadzona osobno, potem "
+          f"`code/test_rozmowy.py`; zapalone {sum(x['zapalona'] for x in mu)} z {len(mu)}:")
+        o("")
+        for x in mu:
+            o(f"- {x['opis']}: {'test czerwony' if x['zapalona'] else 'test ZIELONY (niewykryta)'}")
+        o("")
     o("NOT RUN:")
     o("")
     o("- A3 dla wiedzy o Polsce, kodu i tekstu technicznego: brak testu dla wszystkich trzech modeli w przebiegu centralnym.")
     o("- Ocena sędziów z zamienionymi stronami (wpływ pozycji mierzony tylko odsetkiem wyborów A i odwrotną kolejnością "
       "par u sędziego 2).")
+    o("- Niezależne odtworzenie ocen sędziów (pochodzenie poświadcza tylko zgodność sha256, sekcja 5).")
+    o("- Rozdzielenie p(EOS) na token końca dokumentu i `<|im_end|>` w sondzie EOS.")
     o("- Regeneracja kodu LFM bez `<|im_end|>` w zbiorze EOS.")
     o("- Przeliczenie `needs-recheck` na innym sprzęcie.")
     o("")
@@ -602,8 +701,8 @@ def tresc(L):
       "`code/rozmowy.py` → `ROZMOWY.md`; `code/wykresy.py` → `charts/*.svg`.")
     o("- `code/test_niezalezny.py`: przelicza średnie BPB z surowych log p, poprawność i z z ocen pozycji, bez "
       "importu kodu analizy, i porównuje z `LICZBY.json`.")
-    o("- Surowe wyniki: `wyniki/surowe/*.jsonl.gz` (sha w `wyniki/SHA256SUMS`); oceny sędziów i kontroli wzorców leżą "
-      "poza repo, ich sha256 w `LICZBY.json`.")
+    o("- Surowe wyniki: `wyniki/surowe/*.jsonl.gz`; oceny sędziów i klucz par: `wyniki/sedziowie/`; oceny kontroli "
+      "wzorców: `wyniki/kontrola_wzorcow_oceny.jsonl`; sha256 wszystkich w `wyniki/SHA256SUMS`.")
     o("")
 
     return "\n".join(out)

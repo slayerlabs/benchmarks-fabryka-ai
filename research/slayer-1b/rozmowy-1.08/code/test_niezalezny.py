@@ -69,6 +69,20 @@ def main():
                 sprawdz(f"{met}/{k}/{a}-{b}/roznica", statistics.fmean(d), r["roznica"], bledy)
                 sprawdz(f"{met}/{k}/{a}-{b}/se", se, r["se"], bledy)
                 sprawdz(f"{met}/{k}/{a}-{b}/z", z, r["z"], bledy)
+    # Holm: m = wszystkie kategorie z metryką (wiersz z SE = 0 liczy się jak p = 1), każda metryka i para
+    for met, kat_dict in L["porownania"].items():
+        kats = [k for k in kat_dict if k != "razem"]
+        for para in ("slayer-bielik", "slayer-lfm", "bielik-lfm"):
+            ps = [kat_dict[k][para]["p"] for k in kats]
+            m = len(ps)
+            kolej = sorted(range(m), key=lambda i: 1.0 if ps[i] is None else ps[i])
+            maks, ph = 0.0, {}
+            for r, i in enumerate(kolej):
+                maks = max(maks, min(1.0, (m - r) * (1.0 if ps[i] is None else ps[i])))
+                ph[i] = None if ps[i] is None else maks
+            for i, k in enumerate(kats):
+                n_spr += 1
+                sprawdz(f"holm/{met}/{k}/{para}", ph[i], kat_dict[k][para]["p_holm"], bledy)
     # kappa sędziów
     if len(sys.argv) == 4:
         klucz = json.loads(Path(sys.argv[3]).read_text())["pary"]

@@ -1,0 +1,56 @@
+[
+ {
+  "opis": "Slayer bez BOS",
+  "plik": "modele.py",
+  "zapalona": true,
+  "ostatnia_linia": "AssertionError: [2588, 2362, 566]"
+ },
+ {
+  "opis": "Slayer z BOS = 1",
+  "plik": "slayer_model.py",
+  "zapalona": true,
+  "ostatnia_linia": "AssertionError: [1, 2588, 2362]"
+ },
+ {
+  "opis": "transformers z add_special_tokens=False",
+  "plik": "modele.py",
+  "zapalona": true,
+  "ostatnia_linia": "AssertionError: ('bielik', [9960, 2818, 31937])"
+ },
+ {
+  "opis": "EOS LFM bez 7",
+  "plik": "modele.py",
+  "zapalona": true,
+  "ostatnia_linia": "AssertionError"
+ },
+ {
+  "opis": "top-p odcina po skumulowanym p z tokenem",
+  "plik": "generuj.py",
+  "zapalona": true,
+  "ostatnia_linia": "AssertionError"
+ },
+ {
+  "opis": "top-p 0,95 zamiast 0,9",
+  "plik": "generuj.py",
+  "zapalona": true,
+  "ostatnia_linia": "AssertionError"
+ },
+ {
+  "opis": "seed bez numeru pozycji",
+  "plik": "generuj.py",
+  "zapalona": true,
+  "ostatnia_linia": "AssertionError: (5, 294, 62)"
+ },
+ {
+  "opis": "tolerancja liczby 0,5",
+  "plik": "ocena.py",
+  "zapalona": true,
+  "ostatnia_linia": "AssertionError"
+ },
+ {
+  "opis": "Holm wyłączony",
+  "plik": "analiza.py",
+  "zapalona": true,
+  "ostatnia_linia": "AssertionError"
+ }
+]

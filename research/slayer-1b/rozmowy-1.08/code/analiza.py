@@ -22,7 +22,7 @@ RESEARCH = BADANIE.parents[1]
 sys.path.insert(0, str(KOD))
 sys.path.insert(0, str(RESEARCH / "tools"))
 import ocena  # noqa: E402
-from statystyka import holm, werdykt, werdykt_p  # noqa: E402
+from statystyka import p_t, werdykt, werdykt_p  # noqa: E402
 
 MODELE = ["slayer", "bielik", "lfm"]
 NAZWY = {"slayer": "Slayer 1.08", "bielik": "Bielik 1.5B", "lfm": "LFM2.5 1.2B"}
@@ -95,6 +95,10 @@ class Dane:
         self.idx = {(r["model"], r["id"]): r for r in self.wiersze}
         self.poz = {p["id"]: p for p in jsonl(BADANIE / "dane/polecenia.jsonl")}
         self.ids = list(self.poz)
+        self.gen = wczytaj_gen()
+
+    def tekst(self, m, i, s):
+        return self.gen[(m, i)][s[2:]]
 
     def ids_kat(self, kat, typy=None):
         return [i for i in self.ids if (kat == "razem" or self.poz[i]["kat"] == kat)
@@ -137,8 +141,11 @@ class Dane:
             return float(np.mean([d[s]["format_gsm8k"] for s in SEEDY + ["A_greedy"]]))
         if metryka == "bajty_odpowiedzi":
             return float(np.mean([d[s]["bajty"] for s in SEEDY]))
-        if metryka == "pusta":
-            return float(np.mean([int(d[s]["bajty"] == 0 or not d[s].get("bajty")) for s in SEEDY]))
+        if metryka == "pusta":  # runda poprawek 1: pusta = brak treści po obcięciu białych znaków (jak u sędziów)
+            return float(np.mean([int(not self.tekst(m, i, s).strip()) for s in SEEDY]))
+        if metryka == "koniec_bez_pustych":  # eksploracyjna: naturalny koniec liczony tylko dla niepustej odpowiedzi
+            return float(np.mean([int(bool(d[s]["naturalny_koniec"]) and bool(self.tekst(m, i, s).strip()))
+                                  for s in SEEDY]))
         raise KeyError(metryka)
 
 
@@ -148,8 +155,21 @@ TYPY = {
     "nll_na_token_A": None, "bajty_na_token_A": None, "koniec": None, "koniec_greedy_A": None,
     "rep3": {"otwarte"}, "rep3_greedy_A": {"otwarte"}, "distinct2": {"otwarte"},
     "log10_p_eos_po_nl": {"krotka", "zdanie", "liczba"}, "log10_p_eos": {"krotka", "zdanie", "liczba"},
-    "przeciek": None, "format_gsm8k": None, "bajty_odpowiedzi": None, "pusta": None,
+    "przeciek": None, "format_gsm8k": None, "bajty_odpowiedzi": None, "pusta": None, "koniec_bez_pustych": None,
 }
+
+
+def holm_m(ps):
+    """Holm z m = liczba WSZYSTKICH wierszy rodziny (protokół: wszystkie kategorie z metryką). Wiersz z SE = 0 (p None)
+    liczy się do m jak p = 1 i dostaje p Holma None. Runda poprawek 1: statystyka.holm pomijała takie wiersze."""
+    m = len(ps)
+    kolej = sorted(range(m), key=lambda i: (ps[i] is None, ps[i] if ps[i] is not None else 1.0))
+    out, biezace = [None] * m, 0.0
+    for r, i in enumerate(kolej):
+        p = ps[i] if ps[i] is not None else 1.0
+        biezace = max(biezace, min(1.0, (m - r) * p))
+        out[i] = biezace if ps[i] is not None else None
+    return out
 
 
 def tabele(dane, rng):
@@ -169,7 +189,7 @@ def tabele(dane, rng):
         for a, b in PARY:
             k = f"{a}-{b}"
             kats = [kat for kat in KATEGORIE if kat in por[met]]
-            ph = holm([por[met][kat][k]["p"] for kat in kats])
+            ph = holm_m([por[met][kat][k]["p"] for kat in kats])
             for kat, p in zip(kats, ph):
                 por[met][kat][k]["p_holm"] = p
                 por[met][kat][k]["werdykt_holm"] = werdykt_p(p) if p is not None else "nierozstrzygalne"
@@ -225,7 +245,7 @@ def hipotezy(dane, rng):
                 rw = porownaj([dane.wartosc(w, a, i) for i in ids_w], [dane.wartosc(w, b, i) for i in ids_w])
                 r[f"wtorne_{w}"] = dict(roznica=rw["roznica"], z=rw["z"], ten_sam_znak=bool(np.sign(rw["roznica"]) == np.sign(r["roznica"])))
             rows.append(r)
-        ph = holm([r["p"] for r in rows])
+        ph = holm_m([r["p"] for r in rows])
         for r, p in zip(rows, ph):
             r["p_holm"] = p
             r["werdykt_holm"] = werdykt_p(p) if p is not None else "nierozstrzygalne"
@@ -389,6 +409,95 @@ def wrazliwosc_regul(dane):
     return out
 
 
+SILA = {"nierozstrzygalne": 0, "szum": 0, "prawdopodobne": 1, "pewne": 2}
+PL_KROTKIE = ["pl_jezyk", "pl_wiedza", "wiedza_ogolna", "rozumowanie", "matematyka"]  # polskie kategorie z sondą EOS
+
+
+def runda1(dane, hip, por):
+    """Analizy dodane w rundzie poprawek 1 (po pomiarze, eksploracyjne)."""
+    out = dict(eksploracyjne=True)
+    # (1) H1.1/H1.2 z metryką (c) bez pustych odpowiedzi
+    h1 = []
+    for hid, (a, b) in (("H1.1", ("slayer", "bielik")), ("H1.2", ("slayer", "lfm"))):
+        rows = []
+        for kat in KATEGORIE:
+            ids = dane.ids_kat(kat)
+            r = porownaj([dane.wartosc("koniec_bez_pustych", a, i) for i in ids],
+                         [dane.wartosc("koniec_bez_pustych", b, i) for i in ids])
+            r["kategoria"] = kat
+            rows.append(r)
+        for r, p in zip(rows, holm_m([r["p"] for r in rows])):
+            r["p_holm"] = p
+            r["werdykt_holm"] = werdykt_p(p) if p is not None else "nierozstrzygalne"
+            r["teza"] = stan_tezy(-1, r)
+        h1.append(dict(id=hid, a=a, b=b, wiersze=rows))
+    out["h1_koniec_bez_pustych"] = h1
+    # (2) t(df = n − 1) zamiast z w wierszach hipotez: ile werdyktów słabnie (protokół zostaje przy z)
+    n_w, slabsze_surowe, zmiana_holm, zmiana_tezy = 0, 0, 0, 0
+    for h in hip:
+        rows = h["wiersze"]
+        pt = [p_t(r["z"], r["n"] - 1) if r["z"] is not None else None for r in rows]
+        ph = holm_m(pt)
+        for r, p1, p2 in zip(rows, pt, ph):
+            n_w += 1
+            if p1 is None:
+                continue
+            slabsze_surowe += SILA[werdykt_p(p1)] < SILA[r["werdykt"]]
+            w2 = werdykt_p(p2)
+            zmiana_holm += w2 != r["werdykt_holm"]
+            teza2 = stan_tezy(h["znak"], dict(r, p_holm=p2))
+            zmiana_tezy += teza2 != r["teza"]
+    out["t_zamiast_z"] = dict(wierszy=n_w, slabszy_werdykt_surowy=slabsze_surowe, inny_werdykt_po_holmie=zmiana_holm,
+                              inna_teza=zmiana_tezy)
+    # (3) S − L poprawność łącznie: klastry kategorii, znaki, szablon B, usunięcie pozycji
+    spr = [k for k in KATEGORIE if k in por["poprawnosc"]]
+    srednie = []
+    d_wszystkie = []
+    for kat in spr:
+        ids = dane.ids_kat(kat, TYPY["poprawnosc"])
+        d = [dane.wartosc("poprawnosc", "slayer", i) - dane.wartosc("poprawnosc", "lfm", i) for i in ids]
+        srednie.append(float(np.mean(d)))
+        d_wszystkie += d
+    G = len(srednie)
+    se_k = float(np.std(srednie, ddof=1) / math.sqrt(G))
+    t_k = float(np.mean(srednie)) / se_k
+    loo = []
+    for j in range(len(d_wszystkie)):
+        r = d_wszystkie[:j] + d_wszystkie[j + 1:]
+        loo.append(abs(np.mean(r) / (np.std(r, ddof=1) / math.sqrt(len(r)))))
+
+    def bez_k(kat, k):
+        ids = dane.ids_kat(kat, TYPY["poprawnosc"])
+        d = [dane.wartosc("poprawnosc", "slayer", i) - dane.wartosc("poprawnosc", "lfm", i) for i in ids]
+        znak = np.sign(np.mean(d))
+        d = sorted(d, key=lambda x: -znak * x)[k:]  # bez k pozycji najmocniej ciągnących średnią
+        r = porownaj(d, [0.0] * len(d))
+        return dict(k=k, roznica=r["roznica"], se=r["se"], z=r["z"], werdykt=r["werdykt"])
+    gb = por["poprawnosc_greedy_B"]["razem"]["slayer-lfm"]
+    out["sl_razem"] = dict(kategorii=G, srednia_kategorii=float(np.mean(srednie)), se_kategorii=se_k, t_kategorii=t_k,
+                           df=G - 1, p_t_kategorii=p_t(t_k, G - 1), werdykt_t=werdykt_p(p_t(t_k, G - 1)),
+                           kategorii_ujemnych=sum(s < 0 for s in srednie), min_abs_z_bez_jednej=float(min(loo)),
+                           greedy_B_roznica=gb["roznica"], greedy_B_z=gb["z"], greedy_B_werdykt=gb["werdykt"],
+                           bez_3={k: bez_k(k, 3) for k in ("pl_wiedza", "matematyka", "angielski")})
+    # (4) sonda EOS: efekt dopisania „\n” (log10 p po „\n” − bez „\n”) w polskich kategoriach krótkich
+    ids = [i for k in PL_KROTKIE for i in dane.ids_kat(k, TYPY["log10_p_eos"])]
+    out["eos_efekt_nl"] = {m: opis([dane.wartosc("log10_p_eos_po_nl", m, i) - dane.wartosc("log10_p_eos", m, i)
+                                    for i in ids]) for m in MODELE}
+    # (5) pl_jezyk: próbki zaczynające się od „\n” (kopia otwartego ostatniego przykładu) i różnica bez nich
+    ids = dane.ids_kat("pl_jezyk", TYPY["poprawnosc"])
+    nl = {m: sum(dane.tekst(m, i, s).startswith("\n") for i in ids for s in SEEDY) for m in MODELE}
+
+    def bez_nl(m, i):
+        v = [dane.idx[(m, i)]["dekodowania"][s]["poprawna"] for s in SEEDY if not dane.tekst(m, i, s).startswith("\n")]
+        return float(np.mean(v)) if v else None
+    para = [(bez_nl("slayer", i), bez_nl("bielik", i)) for i in ids]
+    para = [(x, y) for x, y in para if x is not None and y is not None]
+    r = porownaj([x for x, _ in para], [y for _, y in para])
+    out["pl_jezyk_bez_nl"] = dict(probek=len(ids) * len(SEEDY), probek_nl=nl, polecen=len(para),
+                                  roznica_s_b=r["roznica"], se=r["se"], z=r["z"], werdykt=r["werdykt"])
+    return out
+
+
 def clopper_pearson_gorna(k, n, alfa=0.05):
     if k == n:
         return 1.0
@@ -404,7 +513,9 @@ def clopper_pearson_gorna(k, n, alfa=0.05):
 
 
 def main():
-    s1, s2, kl, kw = sys.argv[1:5]
+    domyslne = [BADANIE / "wyniki/sedziowie/oceny_sedzia1.jsonl", BADANIE / "wyniki/sedziowie/oceny_sedzia2.jsonl",
+                BADANIE / "wyniki/sedziowie/klucz.json", BADANIE / "wyniki/kontrola_wzorcow_oceny.jsonl"]
+    s1, s2, kl, kw = sys.argv[1:5] if len(sys.argv) >= 5 else domyslne
     rng = np.random.default_rng(SEED_BOOT)
     dane = Dane()
     opisy, por = tabele(dane, rng)
@@ -442,6 +553,11 @@ def main():
         audyt=dict({k: v for k, v in audyt.items() if k != "bledy_szczegoly"},
                    bledy_gorna_ci95=clopper_pearson_gorna(audyt["falszywe_trafienia"] + audyt["falszywe_odrzucenia"], audyt["n"])),
         jakosc=dict(a1=jak["a1"]["kategorie"], a2=jak["a2"], a3=jak["a3"]),
+        runda1=runda1(dane, hip, por),
+        mutacje=(json.loads((BADANIE / "wyniki/mutacje.json").read_text())
+                 if (BADANIE / "wyniki/mutacje.json").exists() else None),
+        batch_vs_1={m: {k: v for k, v in json.loads(p.read_text()).items() if k != "pozycje"}
+                    for m in MODELE for p in [BADANIE / f"wyniki/batch_vs_1_{m}.json"] if p.exists()},
         sonda_eos_kod_lfm=dict(eksploracyjna=True, n=len(sonda),
                                mediana_p_im_end=float(np.median([s["p_eos"]["7"] for s in sonda])),
                                mediana_p_endoftext=float(np.median([s["p_eos"]["2"] for s in sonda]))),
