@@ -1,0 +1,40 @@
+{
+ "arc_challenge": {
+  "n": 1172,
+  "n_referencji": 1172,
+  "acc": {
+   "nasz": 0.2713310580204778,
+   "se": 0.012988263111237337,
+   "referencja": 0.271331,
+   "roznica": 5.802047781111597e-08,
+   "odtworzone": true
+  },
+  "acc_norm": {
+   "nasz": 0.3003412969283277,
+   "se": 0.013390193111996856,
+   "referencja": 0.300341,
+   "roznica": 2.9692832764771637e-07,
+   "odtworzone": true
+  }
+ },
+ "openbookqa": {
+  "n": 500,
+  "n_referencji": 500,
+  "acc": {
+   "nasz": 0.23,
+   "se": 0.01882020191177555,
+   "referencja": 0.23,
+   "roznica": 0.0,
+   "odtworzone": true
+  },
+  "acc_norm": {
+   "nasz": 0.348,
+   "se": 0.02130239423163509,
+   "referencja": 0.348,
+   "roznica": 0.0,
+   "odtworzone": true
+  }
+ },
+ "warunek": "|roznica| <= 0.02 dla kazdej wartosci",
+ "wszystkie_odtworzone": true
+}

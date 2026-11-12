@@ -1,0 +1,29 @@
+{
+ "protokol_commit": "99bfeab",
+ "aneks_commit": "3ad7739",
+ "sprzet": "Mac M5 Pro, 51 GB RAM, MPS, float32, torch 2.15.0, transformers 5.2.2, Python 3.12.2",
+ "kontrola_narzedzia": {"start_utc": "2026-11-12T18:53:14Z", "czas_s": 214, "plik": "wyniki/kontrola.json"},
+ "czasy_s": {
+  "slayer": {"A": 758, "B": 402, "bpb": 157},
+  "bielik": {"A": 1626, "B": 483, "bpb": 111},
+  "lfm": {"A": 1259, "B": 377, "bpb": 132}
+ },
+ "okno_pomiaru_utc": ["2026-11-12T18:53:14Z", "2026-11-12T19:37:36Z"],
+ "odstepstwo_rownoleglosc": {
+  "regula": "najwyzej jeden ciezki proces modelu naraz (brief, notatka zasad: Trening)",
+  "co": "od 2026-11-12T19:00:33Z trzy procesy, po jednym na model (code/kolejka_model.sh) zamiast jednej kolejki (code/kolejka.sh)",
+  "decyzja": "orkiestrator, w trakcie przebiegu Slayera A",
+  "uzasadnienie": "51 GB RAM, 78% wolne przy jednym procesie, proces Slayera ok. 37% CPU, MPS niewysycone; wyniki kazdego modelu nie zaleza od tego, co liczy sie obok (osobny proces, wlasne generatory seedow)",
+  "jak": "zabity tylko nadrzedny bash kolejki (SIGTERM), trwajacy proces Slayera A dokonczyl przebieg bez przerwy; Slayer B i BPB ruszyly po jego koncu, Bielik i LFM od razu",
+  "warunek_powrotu": "wolna pamiec < 20% (memory_pressure co 30 s, pamiec.log)",
+  "min_wolnej_pamieci_proc": 25,
+  "powrot_do_kolejki": false
+ },
+ "proba_dymna": {"pliki": ["wyniki/dym_slayer.json", "wyniki/dym_bielik.json", "wyniki/dym_lfm.json"],
+                 "greedy_batch4_vs_batch1_rozne": {"slayer": 0, "bielik": 0, "lfm": 0}, "n": 10},
+ "wznowienia": "gen_slayer_A.jsonl ma 2 naglowki: kolejka_model.sh uruchomila generuj.py slayer A po raz drugi, wszystkie 240 pozycji byly juz zapisane, nic nie dopisano",
+ "kontrola_sensu_po_pomiarze": [
+  "LFM na poleceniach kod: 49 ze 120 dekodowan szablonu A to pusta odpowiedz zakonczona EOS w pierwszym tokenie; sonda (code/sonda_eos_kod.py, wyniki/sonda_eos_kod_lfm.json, eksploracyjna) pokazuje, ze tym tokenem jest <|im_end|> (id 7, w zbiorze EOS LFM z protokolu), p jako pierwszego tokenu: mediana 0,36 po 30 poleceniach kod. Wynik LFM w kategorii kod zalezy wiec od definicji EOS z protokolu; zostaje wedlug protokolu, wrazliwosc do raportu jako eksploracja.",
+  "Bielik: 9 pustych odpowiedzi na typach krotkich (od razu napis stopu albo EOS)."
+ ]
+}
