@@ -45,6 +45,7 @@ SILA = {"nierozstrzygalne": 0, "szum": 0, "prawdopodobne": 1, "pewne": 2}
 WYLACZENIA = [
     ("slayer-1b/wygaszanie/PROGI.md", None, "abc", "progi zapisane przed pomiarem, nie wyniki"),
     ("slayer-1b/rozmowy-1.08/PROTOKOL.md", None, "abc", "protokół zapisany przed pomiarem, nie wyniki"),
+    ("slayer-1b/rozmowy-1.08/PROTOKOL_ANEKS.md", None, "abc", "aneks protokołu zapisany przed odczytem metryk"),
     ("slayer-1b/testy_danych_slayer/PROGI.md", None, "abc", "progi zapisane przed pomiarem, nie wyniki"),
     ("results/LICZBY.md", None, "abc", "plik wygenerowany przez liczby.py"),
     ("results/full-run-2026-11/README.md", None, "abc", "plik wygenerowany przez tools/ewaluacja/raport.py z "
