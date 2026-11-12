@@ -520,8 +520,8 @@ def runda1(dane, hip, por):
             udzial[m][zakres] = dict(mediana=float(np.median(u)), srednia=float(np.mean(u)), n=len(u))
     out["udzial_im_end"] = udzial
     # (7) runda 2: puste odpowiedzi B w angielskim, które są zatrzymaniem na znaczniku szablonu („\n\nTask:”)
-    ids = dane.ids_kat("angielski")
-    puste = [(i, s) for i in ids for s in SEEDY if not dane.tekst("bielik", i, s).strip()]
+    ids_ang = dane.ids_kat("angielski")
+    puste = [(i, s) for i in ids_ang for s in SEEDY if not dane.tekst("bielik", i, s).strip()]
     surowe = {}
     for wiersz in jsonl(BADANIE / "wyniki/surowe/gen_bielik_A.jsonl"):
         if not wiersz.get("naglowek"):
