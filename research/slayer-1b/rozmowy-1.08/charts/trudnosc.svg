@@ -1,0 +1,302 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 980 540' width='980' height='540' role='img' aria-label='Trudność i rozróżnianie pozycji (polecenia sprawdzalne)'>
+<rect width='980' height='540' fill='#fcfcfb'/>
+<text x='24.0' y='30.0' font-size='16' fill='#0b0b0b' text-anchor='start' font-weight='600' font-family='Inter, Helvetica, Arial, sans-serif'>Trudność i rozróżnianie pozycji (polecenia sprawdzalne)</text>
+<text x='24.0' y='50.0' font-size='12' fill='#52514e' text-anchor='start' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>x: średnia poprawność 3 modeli (0 = wszyscy źle), y: rozstęp max − min (0 = pozycja nie rozróżnia); punkt = polecenie</text>
+<text x='60.0' y='74.0' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='600' font-family='Inter, Helvetica, Arial, sans-serif'>język polski</text>
+<line x1='60.0' y1='80.0' x2='60.0' y2='250.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='60.0' y1='250.0' x2='260.0' y2='250.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='60.0' y='264.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,0</text>
+<text x='56.0' y='253.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,0</text>
+<line x1='160.0' y1='80.0' x2='160.0' y2='250.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='60.0' y1='165.0' x2='260.0' y2='165.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='160.0' y='264.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,5</text>
+<text x='56.0' y='168.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,5</text>
+<line x1='260.0' y1='80.0' x2='260.0' y2='250.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='60.0' y1='80.0' x2='260.0' y2='80.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='260.0' y='264.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>1,0</text>
+<text x='56.0' y='83.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>1,0</text>
+<line x1='60.0' y1='136.7' x2='260.0' y2='136.7' stroke='#52514e' stroke-width='1' stroke-dasharray='4 3'/>
+<g><title>pl_jezyk-01: Slayer 1,00, Bielik 1,00, LFM 1,00</title><circle cx='260.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-02: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='60.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-03: Slayer 0,33, Bielik 0,67, LFM 0,00</title><circle cx='126.7' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-04: Slayer 1,00, Bielik 1,00, LFM 1,00</title><circle cx='256.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-05: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='64.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-06: Slayer 0,00, Bielik 0,33, LFM 0,00</title><circle cx='82.2' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-07: Slayer 0,00, Bielik 0,33, LFM 0,00</title><circle cx='86.2' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-08: Slayer 0,33, Bielik 0,67, LFM 0,00</title><circle cx='130.7' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-09: Slayer 0,33, Bielik 0,33, LFM 0,00</title><circle cx='104.4' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-10: Slayer 0,00, Bielik 1,00, LFM 0,00</title><circle cx='126.7' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-11: Slayer 0,00, Bielik 1,00, LFM 0,67</title><circle cx='171.1' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-12: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='68.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-13: Slayer 0,67, Bielik 1,00, LFM 0,33</title><circle cx='193.3' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-14: Slayer 0,33, Bielik 1,00, LFM 0,00</title><circle cx='148.9' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-15: Slayer 0,00, Bielik 0,33, LFM 0,33</title><circle cx='108.4' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-16: Slayer 0,67, Bielik 1,00, LFM 0,33</title><circle cx='189.3' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-17: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='72.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-18: Slayer 0,00, Bielik 1,00, LFM 1,00</title><circle cx='193.3' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-19: Slayer 0,00, Bielik 1,00, LFM 0,33</title><circle cx='152.9' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-20: Slayer 0,00, Bielik 0,67, LFM 0,67</title><circle cx='148.9' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-21: Slayer 0,00, Bielik 0,67, LFM 0,00</title><circle cx='104.4' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-22: Slayer 0,00, Bielik 0,33, LFM 0,00</title><circle cx='90.2' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-23: Slayer 0,33, Bielik 1,00, LFM 0,67</title><circle cx='185.3' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_jezyk-24: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='76.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<text x='290.0' y='74.0' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='600' font-family='Inter, Helvetica, Arial, sans-serif'>wiedza o Polsce</text>
+<line x1='290.0' y1='80.0' x2='290.0' y2='250.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='290.0' y1='250.0' x2='490.0' y2='250.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='290.0' y='264.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,0</text>
+<text x='286.0' y='253.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,0</text>
+<line x1='390.0' y1='80.0' x2='390.0' y2='250.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='290.0' y1='165.0' x2='490.0' y2='165.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='390.0' y='264.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,5</text>
+<text x='286.0' y='168.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,5</text>
+<line x1='490.0' y1='80.0' x2='490.0' y2='250.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='290.0' y1='80.0' x2='490.0' y2='80.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='490.0' y='264.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>1,0</text>
+<text x='286.0' y='83.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>1,0</text>
+<line x1='290.0' y1='136.7' x2='490.0' y2='136.7' stroke='#52514e' stroke-width='1' stroke-dasharray='4 3'/>
+<g><title>pl_wiedza-01: Slayer 1,00, Bielik 1,00, LFM 0,00</title><circle cx='423.3' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-02: Slayer 0,67, Bielik 1,00, LFM 0,67</title><circle cx='445.6' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-03: Slayer 0,33, Bielik 1,00, LFM 1,00</title><circle cx='445.6' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-04: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='290.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-05: Slayer 1,00, Bielik 0,33, LFM 1,00</title><circle cx='441.6' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-06: Slayer 0,67, Bielik 1,00, LFM 0,00</title><circle cx='401.1' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-07: Slayer 1,00, Bielik 1,00, LFM 0,67</title><circle cx='467.8' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-08: Slayer 1,00, Bielik 1,00, LFM 0,00</title><circle cx='419.3' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-09: Slayer 1,00, Bielik 1,00, LFM 0,33</title><circle cx='437.6' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-10: Slayer 1,00, Bielik 1,00, LFM 0,00</title><circle cx='415.3' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-11: Slayer 0,00, Bielik 1,00, LFM 0,00</title><circle cx='356.7' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-12: Slayer 1,00, Bielik 1,00, LFM 0,67</title><circle cx='463.8' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-13: Slayer 1,00, Bielik 1,00, LFM 0,67</title><circle cx='459.8' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-14: Slayer 0,67, Bielik 1,00, LFM 1,00</title><circle cx='455.8' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-15: Slayer 1,00, Bielik 1,00, LFM 0,00</title><circle cx='411.3' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-16: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='294.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-17: Slayer 1,00, Bielik 1,00, LFM 1,00</title><circle cx='490.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-18: Slayer 1,00, Bielik 1,00, LFM 0,67</title><circle cx='451.8' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-19: Slayer 1,00, Bielik 0,00, LFM 0,67</title><circle cx='397.1' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-20: Slayer 0,33, Bielik 1,00, LFM 0,00</title><circle cx='378.9' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-21: Slayer 0,00, Bielik 0,67, LFM 0,33</title><circle cx='356.7' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-22: Slayer 1,00, Bielik 1,00, LFM 1,00</title><circle cx='486.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-23: Slayer 0,67, Bielik 1,00, LFM 0,33</title><circle cx='423.3' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-24: Slayer 1,00, Bielik 1,00, LFM 0,33</title><circle cx='433.6' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-25: Slayer 1,00, Bielik 1,00, LFM 0,00</title><circle cx='407.3' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-26: Slayer 1,00, Bielik 1,00, LFM 0,33</title><circle cx='429.6' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-27: Slayer 1,00, Bielik 1,00, LFM 0,33</title><circle cx='425.6' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-28: Slayer 0,67, Bielik 1,00, LFM 1,00</title><circle cx='447.8' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-29: Slayer 0,67, Bielik 0,33, LFM 0,00</title><circle cx='360.7' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>pl_wiedza-30: Slayer 0,00, Bielik 1,00, LFM 0,00</title><circle cx='360.7' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<text x='520.0' y='74.0' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='600' font-family='Inter, Helvetica, Arial, sans-serif'>wiedza ogólna</text>
+<line x1='520.0' y1='80.0' x2='520.0' y2='250.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='520.0' y1='250.0' x2='720.0' y2='250.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='520.0' y='264.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,0</text>
+<text x='516.0' y='253.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,0</text>
+<line x1='620.0' y1='80.0' x2='620.0' y2='250.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='520.0' y1='165.0' x2='720.0' y2='165.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='620.0' y='264.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,5</text>
+<text x='516.0' y='168.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,5</text>
+<line x1='720.0' y1='80.0' x2='720.0' y2='250.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='520.0' y1='80.0' x2='720.0' y2='80.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='720.0' y='264.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>1,0</text>
+<text x='516.0' y='83.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>1,0</text>
+<line x1='520.0' y1='136.7' x2='720.0' y2='136.7' stroke='#52514e' stroke-width='1' stroke-dasharray='4 3'/>
+<g><title>wiedza_ogolna-01: Slayer 0,33, Bielik 1,00, LFM 0,00</title><circle cx='608.9' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-02: Slayer 1,00, Bielik 0,67, LFM 1,00</title><circle cx='697.8' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-03: Slayer 0,33, Bielik 0,33, LFM 0,00</title><circle cx='564.4' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-04: Slayer 1,00, Bielik 0,67, LFM 1,00</title><circle cx='693.8' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-05: Slayer 1,00, Bielik 0,33, LFM 0,67</title><circle cx='653.3' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-06: Slayer 1,00, Bielik 1,00, LFM 0,00</title><circle cx='653.3' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-07: Slayer 1,00, Bielik 1,00, LFM 1,00</title><circle cx='720.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-08: Slayer 0,00, Bielik 1,00, LFM 1,00</title><circle cx='649.3' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-09: Slayer 1,00, Bielik 0,67, LFM 0,00</title><circle cx='631.1' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-10: Slayer 0,33, Bielik 1,00, LFM 0,33</title><circle cx='631.1' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-11: Slayer 1,00, Bielik 1,00, LFM 0,33</title><circle cx='675.6' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-12: Slayer 1,00, Bielik 1,00, LFM 1,00</title><circle cx='716.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-13: Slayer 0,00, Bielik 1,00, LFM 0,33</title><circle cx='612.9' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-14: Slayer 0,33, Bielik 1,00, LFM 1,00</title><circle cx='671.6' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-15: Slayer 1,00, Bielik 1,00, LFM 0,33</title><circle cx='667.6' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-16: Slayer 0,67, Bielik 1,00, LFM 0,33</title><circle cx='649.3' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-17: Slayer 0,67, Bielik 0,67, LFM 1,00</title><circle cx='675.6' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-18: Slayer 0,00, Bielik 0,67, LFM 0,00</title><circle cx='564.4' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-19: Slayer 1,00, Bielik 1,00, LFM 1,00</title><circle cx='712.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-20: Slayer 0,33, Bielik 1,00, LFM 1,00</title><circle cx='663.6' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-21: Slayer 1,00, Bielik 1,00, LFM 0,67</title><circle cx='689.8' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-22: Slayer 0,67, Bielik 1,00, LFM 0,00</title><circle cx='627.1' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-23: Slayer 0,67, Bielik 0,67, LFM 0,67</title><circle cx='653.3' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-24: Slayer 0,67, Bielik 1,00, LFM 0,33</title><circle cx='645.3' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-25: Slayer 0,00, Bielik 0,33, LFM 0,67</title><circle cx='586.7' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-26: Slayer 0,00, Bielik 0,33, LFM 1,00</title><circle cx='616.9' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-27: Slayer 0,67, Bielik 1,00, LFM 0,33</title><circle cx='641.3' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-28: Slayer 1,00, Bielik 1,00, LFM 1,00</title><circle cx='708.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-29: Slayer 0,33, Bielik 1,00, LFM 1,00</title><circle cx='659.6' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>wiedza_ogolna-30: Slayer 0,00, Bielik 0,33, LFM 0,00</title><circle cx='542.2' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<text x='750.0' y='74.0' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='600' font-family='Inter, Helvetica, Arial, sans-serif'>rozumowanie</text>
+<line x1='750.0' y1='80.0' x2='750.0' y2='250.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='750.0' y1='250.0' x2='950.0' y2='250.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='750.0' y='264.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,0</text>
+<text x='746.0' y='253.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,0</text>
+<line x1='850.0' y1='80.0' x2='850.0' y2='250.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='750.0' y1='165.0' x2='950.0' y2='165.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='850.0' y='264.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,5</text>
+<text x='746.0' y='168.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,5</text>
+<line x1='950.0' y1='80.0' x2='950.0' y2='250.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='750.0' y1='80.0' x2='950.0' y2='80.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='950.0' y='264.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>1,0</text>
+<text x='746.0' y='83.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>1,0</text>
+<line x1='750.0' y1='136.7' x2='950.0' y2='136.7' stroke='#52514e' stroke-width='1' stroke-dasharray='4 3'/>
+<g><title>rozumowanie-01: Slayer 0,67, Bielik 0,67, LFM 0,67</title><circle cx='883.3' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-02: Slayer 0,00, Bielik 0,67, LFM 0,00</title><circle cx='794.4' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-03: Slayer 1,00, Bielik 0,67, LFM 1,00</title><circle cx='927.8' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-04: Slayer 0,33, Bielik 1,00, LFM 0,67</title><circle cx='883.3' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-05: Slayer 0,67, Bielik 1,00, LFM 0,33</title><circle cx='879.3' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-06: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='750.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-07: Slayer 0,67, Bielik 0,67, LFM 0,67</title><circle cx='879.3' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-08: Slayer 0,33, Bielik 0,33, LFM 0,00</title><circle cx='794.4' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-09: Slayer 0,00, Bielik 1,00, LFM 1,00</title><circle cx='883.3' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-10: Slayer 0,33, Bielik 1,00, LFM 0,00</title><circle cx='838.9' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-11: Slayer 0,67, Bielik 1,00, LFM 1,00</title><circle cx='923.8' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-12: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='754.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-13: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='758.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-14: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='762.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-15: Slayer 0,33, Bielik 0,33, LFM 0,33</title><circle cx='816.7' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-16: Slayer 0,33, Bielik 0,67, LFM 0,67</title><circle cx='861.1' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-17: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='766.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-18: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='770.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-19: Slayer 0,67, Bielik 0,67, LFM 0,33</title><circle cx='857.1' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-20: Slayer 0,00, Bielik 0,33, LFM 0,33</title><circle cx='798.4' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-21: Slayer 0,00, Bielik 0,00, LFM 1,00</title><circle cx='816.7' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-22: Slayer 0,33, Bielik 1,00, LFM 1,00</title><circle cx='905.6' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-23: Slayer 0,67, Bielik 0,67, LFM 0,33</title><circle cx='853.1' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-24: Slayer 0,33, Bielik 0,33, LFM 0,00</title><circle cx='802.4' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-25: Slayer 0,33, Bielik 0,33, LFM 0,67</title><circle cx='838.9' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-26: Slayer 0,00, Bielik 0,00, LFM 0,33</title><circle cx='772.2' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-27: Slayer 0,00, Bielik 1,00, LFM 0,33</title><circle cx='842.9' cy='80.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-28: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='774.0' cy='250.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-29: Slayer 0,00, Bielik 0,00, LFM 0,33</title><circle cx='776.2' cy='193.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>rozumowanie-30: Slayer 0,00, Bielik 0,00, LFM 0,67</title><circle cx='798.4' cy='136.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<text x='60.0' y='304.0' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='600' font-family='Inter, Helvetica, Arial, sans-serif'>matematyka</text>
+<line x1='60.0' y1='310.0' x2='60.0' y2='480.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='60.0' y1='480.0' x2='260.0' y2='480.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='60.0' y='494.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,0</text>
+<text x='56.0' y='483.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,0</text>
+<line x1='160.0' y1='310.0' x2='160.0' y2='480.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='60.0' y1='395.0' x2='260.0' y2='395.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='160.0' y='494.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,5</text>
+<text x='56.0' y='398.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,5</text>
+<line x1='260.0' y1='310.0' x2='260.0' y2='480.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='60.0' y1='310.0' x2='260.0' y2='310.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='260.0' y='494.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>1,0</text>
+<text x='56.0' y='313.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>1,0</text>
+<line x1='60.0' y1='366.7' x2='260.0' y2='366.7' stroke='#52514e' stroke-width='1' stroke-dasharray='4 3'/>
+<g><title>matematyka-01: Slayer 0,00, Bielik 1,00, LFM 1,00</title><circle cx='193.3' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-02: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='60.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-03: Slayer 0,33, Bielik 1,00, LFM 1,00</title><circle cx='215.6' cy='366.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-04: Slayer 0,00, Bielik 1,00, LFM 1,00</title><circle cx='189.3' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-05: Slayer 0,00, Bielik 1,00, LFM 1,00</title><circle cx='185.3' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-06: Slayer 0,00, Bielik 1,00, LFM 1,00</title><circle cx='181.3' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-07: Slayer 0,00, Bielik 1,00, LFM 0,33</title><circle cx='148.9' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-08: Slayer 0,00, Bielik 1,00, LFM 1,00</title><circle cx='177.3' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-09: Slayer 0,00, Bielik 1,00, LFM 1,00</title><circle cx='173.3' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-10: Slayer 0,00, Bielik 1,00, LFM 0,00</title><circle cx='126.7' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-11: Slayer 0,00, Bielik 0,33, LFM 0,00</title><circle cx='82.2' cy='423.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-12: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='64.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-13: Slayer 0,00, Bielik 0,33, LFM 0,00</title><circle cx='86.2' cy='423.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-14: Slayer 0,00, Bielik 0,00, LFM 0,33</title><circle cx='90.2' cy='423.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-15: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='68.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-16: Slayer 0,00, Bielik 1,00, LFM 0,00</title><circle cx='130.7' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-17: Slayer 0,00, Bielik 1,00, LFM 0,33</title><circle cx='152.9' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-18: Slayer 0,00, Bielik 1,00, LFM 0,00</title><circle cx='134.7' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-19: Slayer 0,00, Bielik 0,67, LFM 1,00</title><circle cx='171.1' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-20: Slayer 0,00, Bielik 1,00, LFM 0,33</title><circle cx='156.9' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-21: Slayer 0,00, Bielik 0,00, LFM 1,00</title><circle cx='138.7' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-22: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='72.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-23: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='76.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-24: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='80.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-25: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='84.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-26: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='88.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-27: Slayer 0,00, Bielik 0,33, LFM 0,00</title><circle cx='94.2' cy='423.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-28: Slayer 0,00, Bielik 0,33, LFM 0,00</title><circle cx='98.2' cy='423.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-29: Slayer 0,00, Bielik 1,00, LFM 0,00</title><circle cx='142.7' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>matematyka-30: Slayer 0,00, Bielik 0,33, LFM 0,00</title><circle cx='102.2' cy='423.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<text x='290.0' y='304.0' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='600' font-family='Inter, Helvetica, Arial, sans-serif'>kod</text>
+<line x1='290.0' y1='310.0' x2='290.0' y2='480.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='290.0' y1='480.0' x2='490.0' y2='480.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='290.0' y='494.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,0</text>
+<text x='286.0' y='483.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,0</text>
+<line x1='390.0' y1='310.0' x2='390.0' y2='480.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='290.0' y1='395.0' x2='490.0' y2='395.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='390.0' y='494.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,5</text>
+<text x='286.0' y='398.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,5</text>
+<line x1='490.0' y1='310.0' x2='490.0' y2='480.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='290.0' y1='310.0' x2='490.0' y2='310.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='490.0' y='494.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>1,0</text>
+<text x='286.0' y='313.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>1,0</text>
+<line x1='290.0' y1='366.7' x2='490.0' y2='366.7' stroke='#52514e' stroke-width='1' stroke-dasharray='4 3'/>
+<g><title>kod-01: Slayer 0,00, Bielik 0,33, LFM 0,00</title><circle cx='312.2' cy='423.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-02: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='290.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-03: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='294.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-04: Slayer 0,00, Bielik 1,00, LFM 0,33</title><circle cx='378.9' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-05: Slayer 0,00, Bielik 1,00, LFM 0,00</title><circle cx='356.7' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-06: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='298.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-07: Slayer 0,00, Bielik 0,67, LFM 0,33</title><circle cx='356.7' cy='366.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-08: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='302.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-09: Slayer 0,00, Bielik 1,00, LFM 0,33</title><circle cx='382.9' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-10: Slayer 0,00, Bielik 1,00, LFM 0,00</title><circle cx='360.7' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-11: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='306.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-12: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='310.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-13: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='314.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-14: Slayer 0,00, Bielik 0,67, LFM 0,67</title><circle cx='378.9' cy='366.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-15: Slayer 0,00, Bielik 0,33, LFM 0,00</title><circle cx='316.2' cy='423.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-16: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='318.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-17: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='290.0' cy='475.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-18: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='294.0' cy='475.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-19: Slayer 0,00, Bielik 0,33, LFM 0,00</title><circle cx='320.2' cy='423.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-20: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='298.0' cy='475.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-21: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='302.0' cy='475.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-22: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='306.0' cy='475.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-23: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='310.0' cy='475.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-24: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='314.0' cy='475.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-25: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='318.0' cy='475.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-26: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='290.0' cy='470.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-27: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='294.0' cy='470.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-28: Slayer 0,00, Bielik 0,33, LFM 0,00</title><circle cx='324.2' cy='423.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-29: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='298.0' cy='470.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>kod-30: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='302.0' cy='470.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<text x='520.0' y='304.0' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='600' font-family='Inter, Helvetica, Arial, sans-serif'>angielski</text>
+<line x1='520.0' y1='310.0' x2='520.0' y2='480.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='520.0' y1='480.0' x2='720.0' y2='480.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='520.0' y='494.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,0</text>
+<text x='516.0' y='483.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,0</text>
+<line x1='620.0' y1='310.0' x2='620.0' y2='480.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='520.0' y1='395.0' x2='720.0' y2='395.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='620.0' y='494.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,5</text>
+<text x='516.0' y='398.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,5</text>
+<line x1='720.0' y1='310.0' x2='720.0' y2='480.0' stroke='#e4e3df' stroke-width='1'/>
+<line x1='520.0' y1='310.0' x2='720.0' y2='310.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='720.0' y='494.0' font-size='10' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>1,0</text>
+<text x='516.0' y='313.0' font-size='10' fill='#52514e' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>1,0</text>
+<line x1='520.0' y1='366.7' x2='720.0' y2='366.7' stroke='#52514e' stroke-width='1' stroke-dasharray='4 3'/>
+<g><title>angielski-01: Slayer 1,00, Bielik 1,00, LFM 1,00</title><circle cx='720.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-02: Slayer 0,67, Bielik 0,67, LFM 1,00</title><circle cx='675.6' cy='423.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-03: Slayer 0,00, Bielik 0,67, LFM 0,00</title><circle cx='564.4' cy='366.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-04: Slayer 0,00, Bielik 0,67, LFM 1,00</title><circle cx='631.1' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-05: Slayer 0,00, Bielik 0,33, LFM 1,00</title><circle cx='608.9' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-06: Slayer 1,00, Bielik 1,00, LFM 1,00</title><circle cx='716.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-07: Slayer 0,00, Bielik 1,00, LFM 0,00</title><circle cx='586.7' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-08: Slayer 1,00, Bielik 1,00, LFM 1,00</title><circle cx='712.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-09: Slayer 1,00, Bielik 1,00, LFM 1,00</title><circle cx='708.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-10: Slayer 1,00, Bielik 1,00, LFM 1,00</title><circle cx='704.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-11: Slayer 0,00, Bielik 0,33, LFM 0,00</title><circle cx='542.2' cy='423.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-12: Slayer 0,67, Bielik 1,00, LFM 1,00</title><circle cx='697.8' cy='423.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-13: Slayer 0,67, Bielik 1,00, LFM 0,33</title><circle cx='653.3' cy='366.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-14: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='520.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-15: Slayer 0,00, Bielik 0,33, LFM 1,00</title><circle cx='612.9' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-16: Slayer 0,33, Bielik 0,67, LFM 1,00</title><circle cx='649.3' cy='366.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-17: Slayer 1,00, Bielik 1,00, LFM 1,00</title><circle cx='700.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-18: Slayer 0,33, Bielik 1,00, LFM 1,00</title><circle cx='675.6' cy='366.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-19: Slayer 0,67, Bielik 0,33, LFM 1,00</title><circle cx='645.3' cy='366.7' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-20: Slayer 0,00, Bielik 0,00, LFM 0,00</title><circle cx='524.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-21: Slayer 0,67, Bielik 0,67, LFM 1,00</title><circle cx='671.6' cy='423.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-22: Slayer 0,00, Bielik 1,00, LFM 1,00</title><circle cx='653.3' cy='310.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-23: Slayer 1,00, Bielik 1,00, LFM 1,00</title><circle cx='696.0' cy='480.0' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<g><title>angielski-24: Slayer 0,67, Bielik 1,00, LFM 1,00</title><circle cx='693.8' cy='423.3' r='3' fill='#2a78d6' fill-opacity='0.75' stroke='#fcfcfb' stroke-width='1.5'/></g>
+<text x='60.0' y='526.0' font-size='11' fill='#52514e' text-anchor='start' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>Linia przerywana: próg rozstępu 2/3 z aneksu A1 (pozycja „rozróżnia”).</text>
+</svg>

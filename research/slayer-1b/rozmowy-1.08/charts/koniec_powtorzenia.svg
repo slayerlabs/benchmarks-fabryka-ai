@@ -1,0 +1,119 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 550' width='1000' height='550' role='img' aria-label='Naturalny koniec odpowiedzi i powtórzenia'>
+<rect width='1000' height='550' fill='#fcfcfb'/>
+<text x='24.0' y='30.0' font-size='16' fill='#0b0b0b' text-anchor='start' font-weight='600' font-family='Inter, Helvetica, Arial, sans-serif'>Naturalny koniec odpowiedzi i powtórzenia</text>
+<text x='24.0' y='50.0' font-size='12' fill='#52514e' text-anchor='start' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>Lewy panel: odsetek odpowiedzi zakończonych przed limitem tokenów (wszystkie polecenia), wyżej = częściej.</text>
+<text x='24.0' y='66.0' font-size='12' fill='#52514e' text-anchor='start' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>Prawy panel: odsetek powtórzonych 3-gramów słów (polecenia otwarte), niżej = mniej powtórzeń. Odcinek = ±1,96 SE.</text>
+<g><title>Slayer 1.08</title><circle cx='154.0' cy='94.0' r='5' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><circle cx='154.0' cy='94.0' r='11' fill='transparent'/></g>
+<text x='166.0' y='98.0' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>Slayer 1.08</text>
+<g><title>Bielik 1.5B</title><rect x='299.0' y='89.0' width='10' height='10' rx='1' fill='#eb6834' stroke='#fcfcfb' stroke-width='2'/><circle cx='304.0' cy='94.0' r='11' fill='transparent'/></g>
+<text x='316.0' y='98.0' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>Bielik 1.5B</text>
+<g><title>LFM2.5 1.2B</title><polygon points='454.0,88.0 460.0,94.0 454.0,100.0 448.0,94.0' fill='#1baf7a' stroke='#fcfcfb' stroke-width='2'/><circle cx='454.0' cy='94.0' r='11' fill='transparent'/></g>
+<text x='466.0' y='98.0' font-size='12' fill='#0b0b0b' text-anchor='start' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>LFM2.5 1.2B</text>
+<line x1='154.0' y1='114.0' x2='154.0' y2='480.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='154.0' y='498.0' font-size='11' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,0</text>
+<line x1='314.0' y1='114.0' x2='314.0' y2='480.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='314.0' y='498.0' font-size='11' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,5</text>
+<line x1='474.0' y1='114.0' x2='474.0' y2='480.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='474.0' y='498.0' font-size='11' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>1,0</text>
+<text x='314.0' y='520.0' font-size='12' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>naturalny koniec</text>
+<text x='144.0' y='144.0' font-size='11' fill='#0b0b0b' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>język polski</text>
+<line x1='441.8' y1='131.0' x2='470.7' y2='131.0' stroke='#2a78d6' stroke-width='2'/>
+<g><title>Slayer 1.08, język polski, naturalny koniec: 0,944 (SE 0,023)</title><circle cx='456.2' cy='131.0' r='4' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><circle cx='456.2' cy='131.0' r='10' fill='transparent'/></g>
+<line x1='474.0' y1='140.0' x2='474.0' y2='140.0' stroke='#eb6834' stroke-width='2'/>
+<g><title>Bielik 1.5B, język polski, naturalny koniec: 1,000 (SE 0,000)</title><rect x='470.0' y='136.0' width='8' height='8' rx='1' fill='#eb6834' stroke='#fcfcfb' stroke-width='2'/><circle cx='474.0' cy='140.0' r='10' fill='transparent'/></g>
+<line x1='446.6' y1='149.0' x2='473.0' y2='149.0' stroke='#1baf7a' stroke-width='2'/>
+<g><title>LFM2.5 1.2B, język polski, naturalny koniec: 0,956 (SE 0,021)</title><polygon points='459.8,144.0 464.8,149.0 459.8,154.0 454.8,149.0' fill='#1baf7a' stroke='#fcfcfb' stroke-width='2'/><circle cx='459.8' cy='149.0' r='10' fill='transparent'/></g>
+<text x='144.0' y='184.0' font-size='11' fill='#0b0b0b' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>wiedza o Polsce</text>
+<line x1='474.0' y1='171.0' x2='474.0' y2='171.0' stroke='#2a78d6' stroke-width='2'/>
+<g><title>Slayer 1.08, wiedza o Polsce, naturalny koniec: 1,000 (SE 0,000)</title><circle cx='474.0' cy='171.0' r='4' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><circle cx='474.0' cy='171.0' r='10' fill='transparent'/></g>
+<line x1='474.0' y1='180.0' x2='474.0' y2='180.0' stroke='#eb6834' stroke-width='2'/>
+<g><title>Bielik 1.5B, wiedza o Polsce, naturalny koniec: 1,000 (SE 0,000)</title><rect x='470.0' y='176.0' width='8' height='8' rx='1' fill='#eb6834' stroke='#fcfcfb' stroke-width='2'/><circle cx='474.0' cy='180.0' r='10' fill='transparent'/></g>
+<line x1='474.0' y1='189.0' x2='474.0' y2='189.0' stroke='#1baf7a' stroke-width='2'/>
+<g><title>LFM2.5 1.2B, wiedza o Polsce, naturalny koniec: 1,000 (SE 0,000)</title><polygon points='474.0,184.0 479.0,189.0 474.0,194.0 469.0,189.0' fill='#1baf7a' stroke='#fcfcfb' stroke-width='2'/><circle cx='474.0' cy='189.0' r='10' fill='transparent'/></g>
+<text x='144.0' y='224.0' font-size='11' fill='#0b0b0b' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>wiedza ogólna</text>
+<line x1='474.0' y1='211.0' x2='474.0' y2='211.0' stroke='#2a78d6' stroke-width='2'/>
+<g><title>Slayer 1.08, wiedza ogólna, naturalny koniec: 1,000 (SE 0,000)</title><circle cx='474.0' cy='211.0' r='4' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><circle cx='474.0' cy='211.0' r='10' fill='transparent'/></g>
+<line x1='474.0' y1='220.0' x2='474.0' y2='220.0' stroke='#eb6834' stroke-width='2'/>
+<g><title>Bielik 1.5B, wiedza ogólna, naturalny koniec: 1,000 (SE 0,000)</title><rect x='470.0' y='216.0' width='8' height='8' rx='1' fill='#eb6834' stroke='#fcfcfb' stroke-width='2'/><circle cx='474.0' cy='220.0' r='10' fill='transparent'/></g>
+<line x1='463.5' y1='229.0' x2='474.0' y2='229.0' stroke='#1baf7a' stroke-width='2'/>
+<g><title>LFM2.5 1.2B, wiedza ogólna, naturalny koniec: 0,989 (SE 0,011)</title><polygon points='470.4,224.0 475.4,229.0 470.4,234.0 465.4,229.0' fill='#1baf7a' stroke='#fcfcfb' stroke-width='2'/><circle cx='470.4' cy='229.0' r='10' fill='transparent'/></g>
+<text x='144.0' y='264.0' font-size='11' fill='#0b0b0b' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>rozumowanie</text>
+<line x1='474.0' y1='251.0' x2='474.0' y2='251.0' stroke='#2a78d6' stroke-width='2'/>
+<g><title>Slayer 1.08, rozumowanie, naturalny koniec: 1,000 (SE 0,000)</title><circle cx='474.0' cy='251.0' r='4' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><circle cx='474.0' cy='251.0' r='10' fill='transparent'/></g>
+<line x1='474.0' y1='260.0' x2='474.0' y2='260.0' stroke='#eb6834' stroke-width='2'/>
+<g><title>Bielik 1.5B, rozumowanie, naturalny koniec: 1,000 (SE 0,000)</title><rect x='470.0' y='256.0' width='8' height='8' rx='1' fill='#eb6834' stroke='#fcfcfb' stroke-width='2'/><circle cx='474.0' cy='260.0' r='10' fill='transparent'/></g>
+<line x1='463.5' y1='269.0' x2='474.0' y2='269.0' stroke='#1baf7a' stroke-width='2'/>
+<g><title>LFM2.5 1.2B, rozumowanie, naturalny koniec: 0,989 (SE 0,011)</title><polygon points='470.4,264.0 475.4,269.0 470.4,274.0 465.4,269.0' fill='#1baf7a' stroke='#fcfcfb' stroke-width='2'/><circle cx='470.4' cy='269.0' r='10' fill='transparent'/></g>
+<text x='144.0' y='304.0' font-size='11' fill='#0b0b0b' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>matematyka</text>
+<line x1='463.5' y1='291.0' x2='474.0' y2='291.0' stroke='#2a78d6' stroke-width='2'/>
+<g><title>Slayer 1.08, matematyka, naturalny koniec: 0,989 (SE 0,011)</title><circle cx='470.4' cy='291.0' r='4' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><circle cx='470.4' cy='291.0' r='10' fill='transparent'/></g>
+<line x1='474.0' y1='300.0' x2='474.0' y2='300.0' stroke='#eb6834' stroke-width='2'/>
+<g><title>Bielik 1.5B, matematyka, naturalny koniec: 1,000 (SE 0,000)</title><rect x='470.0' y='296.0' width='8' height='8' rx='1' fill='#eb6834' stroke='#fcfcfb' stroke-width='2'/><circle cx='474.0' cy='300.0' r='10' fill='transparent'/></g>
+<line x1='474.0' y1='309.0' x2='474.0' y2='309.0' stroke='#1baf7a' stroke-width='2'/>
+<g><title>LFM2.5 1.2B, matematyka, naturalny koniec: 1,000 (SE 0,000)</title><polygon points='474.0,304.0 479.0,309.0 474.0,314.0 469.0,309.0' fill='#1baf7a' stroke='#fcfcfb' stroke-width='2'/><circle cx='474.0' cy='309.0' r='10' fill='transparent'/></g>
+<text x='144.0' y='344.0' font-size='11' fill='#0b0b0b' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>kod</text>
+<line x1='463.5' y1='331.0' x2='474.0' y2='331.0' stroke='#2a78d6' stroke-width='2'/>
+<g><title>Slayer 1.08, kod, naturalny koniec: 0,989 (SE 0,011)</title><circle cx='470.4' cy='331.0' r='4' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><circle cx='470.4' cy='331.0' r='10' fill='transparent'/></g>
+<line x1='362.4' y1='340.0' x2='443.4' y2='340.0' stroke='#eb6834' stroke-width='2'/>
+<g><title>Bielik 1.5B, kod, naturalny koniec: 0,778 (SE 0,065)</title><rect x='398.9' y='336.0' width='8' height='8' rx='1' fill='#eb6834' stroke='#fcfcfb' stroke-width='2'/><circle cx='402.9' cy='340.0' r='10' fill='transparent'/></g>
+<line x1='448.0' y1='349.0' x2='474.0' y2='349.0' stroke='#1baf7a' stroke-width='2'/>
+<g><title>LFM2.5 1.2B, kod, naturalny koniec: 0,967 (SE 0,025)</title><polygon points='463.3,344.0 468.3,349.0 463.3,354.0 458.3,349.0' fill='#1baf7a' stroke='#fcfcfb' stroke-width='2'/><circle cx='463.3' cy='349.0' r='10' fill='transparent'/></g>
+<text x='144.0' y='384.0' font-size='11' fill='#0b0b0b' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>angielski</text>
+<line x1='474.0' y1='371.0' x2='474.0' y2='371.0' stroke='#2a78d6' stroke-width='2'/>
+<g><title>Slayer 1.08, angielski, naturalny koniec: 1,000 (SE 0,000)</title><circle cx='474.0' cy='371.0' r='4' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><circle cx='474.0' cy='371.0' r='10' fill='transparent'/></g>
+<line x1='474.0' y1='380.0' x2='474.0' y2='380.0' stroke='#eb6834' stroke-width='2'/>
+<g><title>Bielik 1.5B, angielski, naturalny koniec: 1,000 (SE 0,000)</title><rect x='470.0' y='376.0' width='8' height='8' rx='1' fill='#eb6834' stroke='#fcfcfb' stroke-width='2'/><circle cx='474.0' cy='380.0' r='10' fill='transparent'/></g>
+<line x1='474.0' y1='389.0' x2='474.0' y2='389.0' stroke='#1baf7a' stroke-width='2'/>
+<g><title>LFM2.5 1.2B, angielski, naturalny koniec: 1,000 (SE 0,000)</title><polygon points='474.0,384.0 479.0,389.0 474.0,394.0 469.0,389.0' fill='#1baf7a' stroke='#fcfcfb' stroke-width='2'/><circle cx='474.0' cy='389.0' r='10' fill='transparent'/></g>
+<text x='144.0' y='424.0' font-size='11' fill='#0b0b0b' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>tekst techniczny</text>
+<line x1='463.5' y1='411.0' x2='474.0' y2='411.0' stroke='#2a78d6' stroke-width='2'/>
+<g><title>Slayer 1.08, tekst techniczny, naturalny koniec: 0,989 (SE 0,011)</title><circle cx='470.4' cy='411.0' r='4' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><circle cx='470.4' cy='411.0' r='10' fill='transparent'/></g>
+<line x1='448.0' y1='420.0' x2='474.0' y2='420.0' stroke='#eb6834' stroke-width='2'/>
+<g><title>Bielik 1.5B, tekst techniczny, naturalny koniec: 0,967 (SE 0,025)</title><rect x='459.3' y='416.0' width='8' height='8' rx='1' fill='#eb6834' stroke='#fcfcfb' stroke-width='2'/><circle cx='463.3' cy='420.0' r='10' fill='transparent'/></g>
+<line x1='417.6' y1='429.0' x2='459.3' y2='429.0' stroke='#1baf7a' stroke-width='2'/>
+<g><title>LFM2.5 1.2B, tekst techniczny, naturalny koniec: 0,889 (SE 0,033)</title><polygon points='438.4,424.0 443.4,429.0 438.4,434.0 433.4,429.0' fill='#1baf7a' stroke='#fcfcfb' stroke-width='2'/><circle cx='438.4' cy='429.0' r='10' fill='transparent'/></g>
+<text x='144.0' y='464.0' font-size='11' fill='#0b0b0b' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>razem</text>
+<line x1='468.0' y1='451.0' x2='472.9' y2='451.0' stroke='#2a78d6' stroke-width='2'/>
+<g><title>Slayer 1.08, razem, naturalny koniec: 0,989 (SE 0,004)</title><circle cx='470.4' cy='451.0' r='4' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><circle cx='470.4' cy='451.0' r='10' fill='transparent'/></g>
+<line x1='457.7' y1='460.0' x2='469.9' y2='460.0' stroke='#eb6834' stroke-width='2'/>
+<g><title>Bielik 1.5B, razem, naturalny koniec: 0,968 (SE 0,010)</title><rect x='459.8' y='456.0' width='8' height='8' rx='1' fill='#eb6834' stroke='#fcfcfb' stroke-width='2'/><circle cx='463.8' cy='460.0' r='10' fill='transparent'/></g>
+<line x1='461.5' y1='469.0' x2='469.6' y2='469.0' stroke='#1baf7a' stroke-width='2'/>
+<g><title>LFM2.5 1.2B, razem, naturalny koniec: 0,974 (SE 0,006)</title><polygon points='465.6,464.0 470.6,469.0 465.6,474.0 460.6,469.0' fill='#1baf7a' stroke='#fcfcfb' stroke-width='2'/><circle cx='465.6' cy='469.0' r='10' fill='transparent'/></g>
+<line x1='634.0' y1='114.0' x2='634.0' y2='280.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='634.0' y='298.0' font-size='11' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,0</text>
+<line x1='740.7' y1='114.0' x2='740.7' y2='280.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='740.7' y='298.0' font-size='11' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,2</text>
+<line x1='847.3' y1='114.0' x2='847.3' y2='280.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='847.3' y='298.0' font-size='11' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,4</text>
+<line x1='954.0' y1='114.0' x2='954.0' y2='280.0' stroke='#e4e3df' stroke-width='1'/>
+<text x='954.0' y='298.0' font-size='11' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>0,6</text>
+<text x='794.0' y='320.0' font-size='12' fill='#52514e' text-anchor='middle' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>powtórzone 3-gramy</text>
+<text x='624.0' y='144.0' font-size='11' fill='#0b0b0b' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>język polski</text>
+<line x1='634.0' y1='131.0' x2='722.0' y2='131.0' stroke='#2a78d6' stroke-width='2'/>
+<g><title>Slayer 1.08, język polski, powtórzone 3-gramy: 0,058 (SE 0,055)</title><circle cx='664.9' cy='131.0' r='4' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><circle cx='664.9' cy='131.0' r='10' fill='transparent'/></g>
+<line x1='634.0' y1='140.0' x2='644.4' y2='140.0' stroke='#eb6834' stroke-width='2'/>
+<g><title>Bielik 1.5B, język polski, powtórzone 3-gramy: 0,007 (SE 0,006)</title><rect x='633.8' y='136.0' width='8' height='8' rx='1' fill='#eb6834' stroke='#fcfcfb' stroke-width='2'/><circle cx='637.8' cy='140.0' r='10' fill='transparent'/></g>
+<line x1='634.0' y1='149.0' x2='634.0' y2='149.0' stroke='#1baf7a' stroke-width='2'/>
+<g><title>LFM2.5 1.2B, język polski, powtórzone 3-gramy: 0,000 (SE 0,000)</title><polygon points='634.0,144.0 639.0,149.0 634.0,154.0 629.0,149.0' fill='#1baf7a' stroke='#fcfcfb' stroke-width='2'/><circle cx='634.0' cy='149.0' r='10' fill='transparent'/></g>
+<text x='624.0' y='184.0' font-size='11' fill='#0b0b0b' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>angielski</text>
+<line x1='634.0' y1='171.0' x2='681.3' y2='171.0' stroke='#2a78d6' stroke-width='2'/>
+<g><title>Slayer 1.08, angielski, powtórzone 3-gramy: 0,040 (SE 0,025)</title><circle cx='655.5' cy='171.0' r='4' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><circle cx='655.5' cy='171.0' r='10' fill='transparent'/></g>
+<line x1='634.4' y1='180.0' x2='639.1' y2='180.0' stroke='#eb6834' stroke-width='2'/>
+<g><title>Bielik 1.5B, angielski, powtórzone 3-gramy: 0,005 (SE 0,002)</title><rect x='632.7' y='176.0' width='8' height='8' rx='1' fill='#eb6834' stroke='#fcfcfb' stroke-width='2'/><circle cx='636.7' cy='180.0' r='10' fill='transparent'/></g>
+<line x1='634.0' y1='189.0' x2='639.4' y2='189.0' stroke='#1baf7a' stroke-width='2'/>
+<g><title>LFM2.5 1.2B, angielski, powtórzone 3-gramy: 0,005 (SE 0,003)</title><polygon points='636.6,184.0 641.6,189.0 636.6,194.0 631.6,189.0' fill='#1baf7a' stroke='#fcfcfb' stroke-width='2'/><circle cx='636.6' cy='189.0' r='10' fill='transparent'/></g>
+<text x='624.0' y='224.0' font-size='11' fill='#0b0b0b' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>tekst techniczny</text>
+<line x1='648.2' y1='211.0' x2='670.0' y2='211.0' stroke='#2a78d6' stroke-width='2'/>
+<g><title>Slayer 1.08, tekst techniczny, powtórzone 3-gramy: 0,047 (SE 0,010)</title><circle cx='659.1' cy='211.0' r='4' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><circle cx='659.1' cy='211.0' r='10' fill='transparent'/></g>
+<line x1='642.3' y1='220.0' x2='664.8' y2='220.0' stroke='#eb6834' stroke-width='2'/>
+<g><title>Bielik 1.5B, tekst techniczny, powtórzone 3-gramy: 0,037 (SE 0,011)</title><rect x='649.6' y='216.0' width='8' height='8' rx='1' fill='#eb6834' stroke='#fcfcfb' stroke-width='2'/><circle cx='653.6' cy='220.0' r='10' fill='transparent'/></g>
+<line x1='664.2' y1='229.0' x2='692.6' y2='229.0' stroke='#1baf7a' stroke-width='2'/>
+<g><title>LFM2.5 1.2B, tekst techniczny, powtórzone 3-gramy: 0,083 (SE 0,014)</title><polygon points='678.4,224.0 683.4,229.0 678.4,234.0 673.4,229.0' fill='#1baf7a' stroke='#fcfcfb' stroke-width='2'/><circle cx='678.4' cy='229.0' r='10' fill='transparent'/></g>
+<text x='624.0' y='264.0' font-size='11' fill='#0b0b0b' text-anchor='end' font-weight='400' font-family='Inter, Helvetica, Arial, sans-serif'>razem</text>
+<line x1='648.0' y1='251.0' x2='670.8' y2='251.0' stroke='#2a78d6' stroke-width='2'/>
+<g><title>Slayer 1.08, razem, powtórzone 3-gramy: 0,048 (SE 0,011)</title><circle cx='659.4' cy='251.0' r='4' fill='#2a78d6' stroke='#fcfcfb' stroke-width='2'/><circle cx='659.4' cy='251.0' r='10' fill='transparent'/></g>
+<line x1='640.6' y1='260.0' x2='657.3' y2='260.0' stroke='#eb6834' stroke-width='2'/>
+<g><title>Bielik 1.5B, razem, powtórzone 3-gramy: 0,028 (SE 0,008)</title><rect x='644.9' y='256.0' width='8' height='8' rx='1' fill='#eb6834' stroke='#fcfcfb' stroke-width='2'/><circle cx='648.9' cy='260.0' r='10' fill='transparent'/></g>
+<line x1='654.3' y1='269.0' x2='677.8' y2='269.0' stroke='#1baf7a' stroke-width='2'/>
+<g><title>LFM2.5 1.2B, razem, powtórzone 3-gramy: 0,060 (SE 0,011)</title><polygon points='666.1,264.0 671.1,269.0 666.1,274.0 661.1,269.0' fill='#1baf7a' stroke='#fcfcfb' stroke-width='2'/><circle cx='666.1' cy='269.0' r='10' fill='transparent'/></g>
+</svg>
