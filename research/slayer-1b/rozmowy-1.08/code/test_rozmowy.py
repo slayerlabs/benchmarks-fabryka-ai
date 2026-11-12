@@ -129,6 +129,25 @@ def test_petla_generacji():
     assert len({w["surowa"] for w in w1[:3]}) > 1, "różne seedy dają różne próbki"
 
 
+def test_jakosc():
+    import jakosc
+    w = {"a": {"slayer": [1, 1, 1], "bielik": [1, 1, 1], "lfm": [1, 1, 1]},
+         "b": {"slayer": [0, 0, 0], "bielik": [1, 1, 1], "lfm": [0, 1, 0]},
+         "c": {"slayer": [0, 0, 0], "bielik": [0, 0, 0], "lfm": [0, 0, 0]},
+         "d": {"slayer": [0, 1, 0], "bielik": [1, 0, 1], "lfm": [0, 1, 0]}}
+    q = jakosc.jakosc_pozycji(w)
+    assert [q[k]["klasa"] for k in "abcd"] == ["zawsze_dobrze", "rozroznia", "zawsze_zle", "nie_rozroznia"]
+    assert abs(q["b"]["trudnosc"] - 4 / 9) < 1e-12 and abs(q["b"]["zakres"] - 1) < 1e-12
+    assert abs(jakosc.pearson([1, 2, 3, 4], [2, 4, 6, 8]) - 1) < 1e-12 and jakosc.pearson([1, 1, 1], [1, 2, 3]) is None
+    assert abs(jakosc.spearman([1, 2, 3, 4], [1, 4, 9, 16]) - 1) < 1e-12
+    assert jakosc.rangi([3, 1, 3]) == [2.5, 1.0, 2.5]
+    assert jakosc.kendall_tau([1, 2, 3], [1, 2, 3]) == 1 and jakosc.kendall_tau([1, 2, 3], [3, 2, 1]) == -1
+    assert abs(jakosc.snr([0.2, 0.4, 0.6], [0.01, 0.01, 0.01]) - 4) < 1e-9
+    # odwrócona kolejność wejścia nie zmienia klas (reguła repo o selektorach zależnych od kolejności)
+    q2 = jakosc.jakosc_pozycji(dict(reversed(list(w.items()))))
+    assert all(q2[k]["klasa"] == q[k]["klasa"] for k in w)
+
+
 if __name__ == "__main__":
     testy = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
     for t in testy:

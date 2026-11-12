@@ -1,0 +1,3 @@
+# surowe jsonl zostają lokalnie, w repo ich kopie .jsonl.gz (CONTRIBUTING, „Pliki w repo”)
+wyniki/surowe/*.jsonl
+wyniki/oceny_pozycji.jsonl
