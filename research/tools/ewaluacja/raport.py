@@ -55,7 +55,20 @@ NAZWY = {
 }
 
 
+W_TOKU = {"slayer1b-1.09-k40000": ("Slayer 1B 1.09, krok 40 000 (w toku)",
+                                   "1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny")}
+"""Checkpoints of a run still training: shown with this label next to 1.08, never as a version, in the CodeSOTA table or
+the animation; their paired comparison with 1.08 comes from `KATALOG_TOKU/LICZBY.json`."""
+KATALOG_TOKU = "slayer-1.09-k40000"
+
+
+def w_toku(etyk):
+    return etyk in W_TOKU
+
+
 def nazwa(etyk):
+    if w_toku(etyk):
+        return W_TOKU[etyk][0]
     if etyk.startswith("slayer1b-"):
         return "Slayer 1B " + etyk.split("-")[1]
     return NAZWY.get(etyk, etyk)
@@ -216,7 +229,7 @@ def porownaj(oceny, paczka, w_a, w_b):
 def progresja(wyniki, paczka):
     """Kolejne wersje Slayera (1.00 → 1.01 → … ) i pierwsza → ostatnia, per test; Holm osobno w obu rodzinach."""
     oceny = Oceny()
-    sl = sorted({w["model"] for w in wyniki if wersja_slayera(w["model"])}, key=wersja_slayera)
+    sl = sorted({w["model"] for w in wyniki if wersja_slayera(w["model"]) and not w_toku(w["model"])}, key=wersja_slayera)
     idx = {(w["benchmark"], w["model"]): w for w in wyniki}
     kolejne, skrajne = [], []
     for bench in BENCHMARKI if len(sl) > 1 else []:
@@ -264,7 +277,7 @@ The threshold was set after looking at this run, so it is a stated rule, not a p
 CENTRAL_DIFF = 5e-5
 INSTRUCT_MODELS = {"bielik-11b-v3-instruct", "lfm3-1.7b"}
 AUTO_NOTES = ("reguła ", "liczony w env lock", "w testach z PMI", "do powtórki", "model instruct liczony",
-              "w PIQA kontekst", "rewizja 5f854a0c", "checkpoint eksperymentalny")
+              "w PIQA kontekst", "rewizja 5f854a0c", "checkpoint eksperymentalny") + tuple(e for _, e in W_TOKU.values())
 SHORT_NAMES = {"pythia-1b-v0": "Pythia", "qwen3.5-0.8b-base": "Qwen"}
 VERDICT_NO_CONTROL = "bez kontroli: nierozstrzygnięte"
 VERDICT_PENDING = "po przebiegu centralnym"
@@ -484,6 +497,8 @@ def flag_row(row, r, results, reasons, cards, test_types):
         notes.append("model instruct liczony na surowym tekście, bez chat template")
     if wersja_slayera(r["model"]) == "1.08":
         notes.insert(0, SLAYER_1_08_STATUS)
+    if w_toku(r["model"]):
+        notes.insert(0, W_TOKU[r["model"]][1])
     flag_reasons = list(reasons.get(r["model"], []))
     window = own_window(results, r["model"])
     if window_exceeded(r, window):
@@ -503,7 +518,7 @@ def flag_row(row, r, results, reasons, cards, test_types):
 class Run:
     """Data of the README and charts: everything is read from the files of the run directory."""
 
-    def __init__(self, cel: Path, results, flags_rows, cards, test_types, sizes, prog):
+    def __init__(self, cel: Path, results, flags_rows, cards, test_types, sizes, prog, toku=None):
         self.cel, self.cards, self.test_types = cel, cards, test_types
         self.flags = {(r["benchmark"], r["model"]): r for r in flags_rows if r.get("benchmark") != "*"}
         self.results = results
@@ -530,7 +545,10 @@ class Run:
                            "zad": sample["zadanie"], "bk": cards[bench]["state"] != "control", "type": type_,
                            "b": None if base is None else base[0], "b_name": None if base is None else base[1],
                            "verdict": cards[bench]["verdict"]})
-        models = sorted({r["model"] for r in results}, key=lambda m: (wersja_slayera(m) or "9", m))
+        models = sorted({r["model"] for r in results if not w_toku(r["model"])}, key=lambda m: (wersja_slayera(m) or "9", m))
+        self.TOKU = sorted({r["model"] for r in results if w_toku(r["model"])})
+        self.PTOKU = {x["benchmark"]: x for x in (toku or {}).get("testy", [])}
+        self.TOKU_M = (toku or {}).get("m_holm")
         self.SL = [m for m in models if wersja_slayera(m)]
         self.SLN = [wersja_slayera(m) for m in self.SL]
         self.front = self.SLN.index("1.07")
@@ -540,6 +558,8 @@ class Run:
                    "kind": "slayer" if wersja_slayera(m) else "ref"} for m in models]
         self.REFS = [x for x in self.M if x["kind"] == "ref"]
         self.MN = {x["id"]: x for x in self.M}
+        self.MN.update({m: {"id": m, "label": nazwa(m), "params": size(m), "size": size_label(size(m)), "cl": size_class(size(m)),
+                            "kind": "toku"} for m in self.TOKU})
         self.TK = [t for t in self.T if not t["bk"]]
         self.TW = [t for t in self.T if t["bk"]]
         self.ORD = self.TK + self.TW
@@ -562,6 +582,15 @@ def verdict_label(p, t):
     if w == "pewne":
         return "▲ pewna poprawa" if up else "▼ pewny spadek"
     return "△ prawdopodobna poprawa" if up else "▽ prawdopodobny spadek"
+
+
+def toku_label(x, t):
+    """Verdict 1.08 → checkpoint in training from its LICZBY.json row; a failed tool control overrides it (protocol)."""
+    if not x:
+        return "–"
+    if not x["kontrola"]["zgodna"]:
+        return "nierozstrzygnięte (kontrola narzędzia)"
+    return verdict_label(x["porownanie"], t)
 
 
 SVG_STYLE = """<style>
@@ -723,21 +752,24 @@ class Charts:
 
     def progress(self):
         r_ = self.run
-        cols, pw, ph, W = 3, 320, 118, 1000
+        toku = r_.TOKU[0] if r_.TOKU and r_.PTOKU else None
+        cols, pw, ph, W = 3, 320, 118 + (16 if toku else 0), 1000
         rows = (len(r_.ORD) + cols - 1) // cols
-        H = rows * ph + 16
+        H = rows * ph + 16 + (24 if toku else 0)
         b = []
         strength = lambda t: -abs(r_.P1M[t["id"]].get("z") or r_.P1M[t["id"]].get("t") or 0)
         for n, t in enumerate(sorted(r_.ORD, key=lambda t: (t["bk"], strength(t)))):
             ox, oy = 16 + (n % cols) * (pw + 8), 12 + (n // cols) * ph
             pts = [r_.V[t["id"]][s] for s in r_.SL]
-            lo, hi = min(p["lo"] for p in pts), max(p["hi"] for p in pts)
+            pt = r_.V[t["id"]].get(toku) if toku else None
+            lo, hi = min(p["lo"] for p in pts + ([pt] if pt else [])), max(p["hi"] for p in pts + ([pt] if pt else []))
             lines = []
             for c in (t["chance"], t["majority"]):
                 if c is not None and lo - (hi - lo) < c < hi + (hi - lo):
                     lo, hi = min(lo, c), max(hi, c)
                     lines.append(c)
-            x = lambda i: ox + 8 + i * (pw - 18) / 8
+            steps = len(pts) - 1 + (1 if pt else 0)
+            x = lambda i: ox + 8 + i * (pw - 18) / steps
             y = lambda v: oy + 30 + ((1 - (v - lo) / (hi - lo)) if t["higher"] else (v - lo) / (hi - lo)) * 56
             b.append(f'<text x="{ox + 8}" y="{oy + 18}" class="b">{E(t["nazwa"])}{"°" if t["bk"] else ""}</text><text x="{ox + pw - 10}" y="{oy + 18}" class="m" text-anchor="end">{E(verdict_label(r_.P1M[t["id"]], t))}</text>')
             for c in lines:
@@ -750,6 +782,16 @@ class Charts:
             b.append(f'<line x1="{x(r_.front):.1f}" y1="{y(pts[r_.front]["v"]):.1f}" x2="{x(r_.exp):.1f}" y2="{y(pts[r_.exp]["v"]):.1f}" stroke="var(--sl)" stroke-width="1.5" stroke-dasharray="3 3"/>')
             b.append(f'<circle class="dsl" cx="{x(r_.front):.1f}" cy="{y(pts[r_.front]["v"]):.1f}" r="4.5"/><circle class="ring" cx="{x(r_.exp):.1f}" cy="{y(pts[r_.exp]["v"]):.1f}" r="4"/>')
             b.append(f'<text x="{ox + 8}" y="{oy + 104}" class="m n">{r_.SLN[0]}: {format_number(pts[0]["v"], digits_of(t))}</text><text x="{ox + pw - 10}" y="{oy + 104}" class="m n" text-anchor="end">{r_.SLN[r_.front]}: {format_number(pts[r_.front]["v"], digits_of(t))}   1.08: {format_number(pts[r_.exp]["v"], digits_of(t))}</text>')
+            if pt:
+                i9 = len(pts)
+                b.append(f'<line x1="{x(r_.exp):.1f}" y1="{y(pts[r_.exp]["v"]):.1f}" x2="{x(i9):.1f}" y2="{y(pt["v"]):.1f}" stroke="var(--mut)" stroke-width="1.5" stroke-dasharray="2 3"/>')
+                b.append(f'<line class="gl" x1="{x(i9):.1f}" x2="{x(i9):.1f}" y1="{y(pt["lo"]):.1f}" y2="{y(pt["hi"]):.1f}"/>')
+                b.append(f'<rect x="{x(i9) - 4:.1f}" y="{y(pt["v"]) - 4:.1f}" width="8" height="8" fill="var(--bg)" stroke="var(--mut)" stroke-width="1.5"/>')
+                b.append(f'<text x="{ox + 8}" y="{oy + 120}" class="m n">1.09 k40000 (w toku): {format_number(pt["v"], digits_of(t))}</text>'
+                         f'<text x="{ox + pw - 10}" y="{oy + 120}" class="m" text-anchor="end">1.08 → 1.09: {E(toku_label(r_.PTOKU.get(t["id"]), t))}</text>')
+        if toku:
+            b.append(f'<rect x="{16:.1f}" y="{H - 26:.1f}" width="8" height="8" fill="var(--bg)" stroke="var(--mut)" stroke-width="1.5"/>'
+                     f'<text x="30" y="{H - 18}" class="m">{E(W_TOKU[toku][1])}, nie następca 1.08. Werdykt 1.08 → 1.09: parowany, po Holmie (m = {r_.TOKU_M}), z kontrolą narzędzia.</text>')
         self.save("postep-wersji.svg", svg_doc(W, H, "".join(b), "", "Postęp wersji Slayera na każdym teście"))
 
     def entries(self, t, slayer=None):
@@ -759,9 +801,15 @@ class Charts:
         e.sort(key=lambda z: r_.V[t["id"]][z[0]]["v"], reverse=t["higher"])
         return e
 
+    def entries_toku(self, t):
+        """`entries` plus checkpoints in training, marked None: shown in the ranking, never given a place."""
+        e = self.entries(t) + [(m, None) for m in self.run.TOKU if self.ok(t, m)]
+        e.sort(key=lambda z: self.run.V[t["id"]][z[0]]["v"], reverse=t["higher"])
+        return e
+
     def forest(self, t):
         r_ = self.run
-        e = self.entries(t)
+        e = self.entries_toku(t)
         W, RH, Y0, x0, x1 = 860, 28, 92, 260, 760
         H = Y0 + RH * len(e) + 58
         a, c = self.value_range(t, [i for i, _ in e])
@@ -781,11 +829,18 @@ class Charts:
             d = r_.V[t["id"]][mid]
             if sl:
                 b.append(f'<rect x="12" y="{y - 13}" width="{W - 24}" height="26" rx="5" style="fill:var(--band)"/>')
-            b.append(f'<text x="24" y="{y + 4}" class="{"b sl" if sl else ""}">{E(r_.MN[mid]["label"])}</text>')
+            b.append(f'<text x="24" y="{y + 4}" class="{"b sl" if sl else ("m" if sl is None else "")}">{E(r_.MN[mid]["label"])}</text>')
             l, ri = sorted((g(d["lo"]), g(d["hi"])))
-            b.append(f'<line class="{"wsl" if sl else "wh"}" x1="{l:.1f}" x2="{ri:.1f}" y1="{y}" y2="{y}"/><circle class="{"dsl" if sl else "dot"}" cx="{g(d["v"]):.1f}" cy="{y}" r="{7 if sl else 4.5}"/>')
+            if sl is None:
+                b.append(f'<line class="dash" x1="{l:.1f}" x2="{ri:.1f}" y1="{y}" y2="{y}"/><rect x="{g(d["v"]) - 4.5:.1f}" y="{y - 4.5}" width="9" height="9" fill="var(--bg)" stroke="var(--mut)" stroke-width="1.5"/>')
+            else:
+                b.append(f'<line class="{"wsl" if sl else "wh"}" x1="{l:.1f}" x2="{ri:.1f}" y1="{y}" y2="{y}"/><circle class="{"dsl" if sl else "dot"}" cx="{g(d["v"]):.1f}" cy="{y}" r="{7 if sl else 4.5}"/>')
             b.append(f'<text x="{W - 24}" y="{y + 4}" class="n {"b" if sl else ""}" text-anchor="end">{format_number(d["v"], digits_of(t))}</text>')
         b.insert(0, f'<text x="24" y="36" class="b" style="font-size:20px">{E(t["nazwa"])}</text><text x="24" y="58" class="m">{E(t["metric"])}, pełny split (n = {t["n"]}), kreska = CI95</text>')
+        toku = [m for m, s in e if s is None]
+        if toku:
+            H += 20
+            b.append(f'<text x="24" y="{H - 34}" class="m">kwadrat: {E(W_TOKU[toku[0]][1])}, bez miejsca w rankingu</text>')
         b.append(f'<text x="24" y="{H - 14}" class="m">float32; Bielik-11B w bfloat16. benchmarks-fabryka-ai, research/results</text>')
         self.save(f"{t['id']}.svg", svg_doc(W, H, "".join(b), "", f"{t['nazwa']}: ranking z przedziałami 95%"))
 
@@ -846,7 +901,7 @@ def bos_summary(numbers: dict) -> dict:
 
 def slayer_window_check(results) -> dict:
     """Does the rolling WikiText window fit the window of every Slayer version: {ok, length, versions}."""
-    rows = [r for r in results if r["benchmark"] == "wikitext-2" and wersja_slayera(r["model"])]
+    rows = [r for r in results if r["benchmark"] == "wikitext-2" and wersja_slayera(r["model"]) and not w_toku(r["model"])]
     fits = [r["max_length"] == own_window(results, r["model"]) and own_window(results, r["model"]) is not None for r in rows]
     return {"ok": all(fits) and bool(rows), "length": rows[0]["max_length"] if rows else None, "versions": len(rows)}
 
@@ -914,6 +969,34 @@ def versions_section(run, a, prog):
     a("")
 
 
+def toku_section(run, a):
+    """Paired 1.08 → checkpoint in training, every number from its LICZBY.json."""
+    if not run.TOKU or not run.PTOKU:
+        return
+    m = run.TOKU[0]
+    a(f"<details>\n<summary><b>1.08 → {E(nazwa(m))}</b> ({len(run.PTOKU)} porównań, Holm m = {run.TOKU_M})</summary>\n")
+    a(f"Etykieta: {W_TOKU[m][1]}. Checkpoint w trakcie treningu, nie następca 1.08; poza tabelą CodeSOTA i animacją. "
+      f"Protokół, liczby i raport: [`{KATALOG_TOKU}/`]({KATALOG_TOKU}/RAPORT.md). 1.08 w tabeli z `manifest.jsonl` przebiegu; "
+      "Δ i SE Δ z 1.08 przeliczonego na tej samej karcie co 1.09, na tych samych pytaniach. Kontrola narzędzia: "
+      "1.08 przeliczone − 1.08 z manifestu, w SE testu; niezgodna (> 0,5 SE albo inne n) zmienia werdykt na nierozstrzygnięty.")
+    a("")
+    a(md_row("test", "1.08", "1.09 k40000", "Δ", "SE Δ", "statystyka", "werdykt", "po Holmie", "kontrola (SE)", "wynik"))
+    a("|---|---:|---:|---:|---:|---|---|---|---:|---|")
+    for t in run.ORD:
+        x = run.PTOKU.get(t["id"])
+        if not x:
+            continue
+        p, d = x["porownanie"], digits_of(t)
+        stat = (f"t = {liczba(p['t'], 2)}, df = {p['df']}" if p.get("t") is not None else
+                (f"z = {liczba(p['z'], 2)}" if p.get("z") is not None else "–"))
+        se = format_number(p["se"], 4) + (" bpb" if t["id"] == "wikitext-2" else "")
+        a(md_row(t["nazwa"], f"{format_number(x['v108_manifest']['wartosc'], d)} ± {format_number(x['v108_manifest']['se'], 4)}",
+                 f"{format_number(x['v109']['wartosc'], d)} ± {format_number(x['v109']['se'], 4)}",
+                 format_number(p["roznica"], d, plus=True), se, stat, p["werdykt"], f"{p['po_holmie']} ({p['werdykt_holm']})",
+                 format_number(x["kontrola"]["w_se"], 2, plus=True), toku_label(x, t)))
+    a("\n</details>\n")
+
+
 def bos_section(run, a, bos):
     s = bos_summary(bos)
     win, easy, wiki, arc = s["window"], s["arc_easy"], s["wikitext_slayer"], s["arc_control"]
@@ -963,6 +1046,9 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     a("")
     a(f"**Slayer {front_name}**: ostatnia przyjęta wersja, bez wygaszania LR. **1.08**: [karta modelu]({CARD_1_08}), {SLAYER_1_08_STATUS}.")
     a("")
+    for m in run.TOKU:
+        a(f"**{nazwa(m)}**: {W_TOKU[m][1]}. Poza tabelą CodeSOTA i animacją; porównanie parowane z 1.08 w [postępie wersji](#postęp-wersji-slayera).")
+        a("")
     a("## Tabela CodeSOTA")
     a("")
     exp_name = run.SLN[run.exp]
@@ -1036,6 +1122,7 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     a(f"<details>\n<summary><b>Kolejne wersje</b> ({len(prog['kolejne_wersje'])} porównań)</summary>\n")
     a(rest.split(second_key)[1].split("\n", 1)[1].strip())
     a("\n</details>\n")
+    toku_section(run, a)
     a("<details>\n<summary><b>Wszystkie wersje Slayera</b>, wartości</summary>\n")
     a(values.strip())
     a("\n</details>\n")
@@ -1054,12 +1141,17 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
             a("\n</details>\n")
             continue
         L.extend([md_row("#", "Model", "Etykieta", "Rozmiar", "Wartość", "SE", "CI95", "lm_eval", "Precyzja", "Kontaminacja", "Wyniki"), "|---:|---|---|---:|---:|---:|---|---|---|---|---|"])
-        for n, (mid, sl) in enumerate(e, 1):
+        n = 0
+        for mid, sl in charts.entries_toku(t):
             d = run.V[t["id"]][mid]
             bold = "**" if sl else ""
             version = wersja_slayera(mid)
             label = slayer_label(version) if version else ("instruct, surowy tekst" if mid in INSTRUCT_MODELS else "–")
-            a(md_row(n, f"{bold}{run.MN[mid]['label']}{bold}", label, run.MN[mid]["size"], f"{bold}{format_number(d['v'], digits_of(t))}{bold}", format_number(d["se"], 4),
+            if sl is None:
+                label = W_TOKU[mid][1]
+            else:
+                n += 1
+            a(md_row(n if sl is not None else "–", f"{bold}{run.MN[mid]['label']}{bold}", label, run.MN[mid]["size"], f"{bold}{format_number(d['v'], digits_of(t))}{bold}", format_number(d["se"], 4),
                      f"{format_number(d['lo'], digits_of(t))} – {format_number(d['hi'], digits_of(t))}", d["lm"] or "nie dotyczy", d["dt"], run.flags[(t["id"], mid)]["kontaminacja"],
                      f"[plik]({t['id']}/{mid}/results_rozszerzone.json)"))
         a("\n</details>\n")
@@ -1143,6 +1235,8 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     a("| `progresja.json` | porównania parowane wersji Slayera z tabel wyżej |")
     a(f"| `{BOS_DIR}/` | pomiar BOS i okna na Pythii oraz kontrola ARC-Challenge: protokół, raport, liczby, kod, wyniki bez próbek |")
     a("| `charts/` | wykresy SVG z wartości tego katalogu |")
+    if run.TOKU and run.PTOKU:
+        a(f"| `{KATALOG_TOKU}/` | {', '.join(nazwa(m) for m in run.TOKU)} wobec 1.08: protokół, `LICZBY.json`, raport, kod, 1.08 przeliczone (bez próbek), sha256 surowych próbek |")
     a("")
     pack = env.get("paczka_probek") or {}
     if pack:
@@ -1190,7 +1284,9 @@ def main():
     test_types = read_test_types((RESEARCH / "README.md").read_text(encoding="utf-8"))
     central = zgodnosc_z_odniesieniem(results, Path(a.odniesienie) if a.odniesienie else None)
     rows = refresh_files(cel, results, old_rows, flag_rules(results, central), cards, test_types)
-    run = Run(cel, results, rows, cards, test_types, sizes, prog)
+    toku_path = cel / KATALOG_TOKU / "LICZBY.json"
+    toku = json.loads(toku_path.read_text(encoding="utf-8")) if toku_path.exists() else None
+    run = Run(cel, results, rows, cards, test_types, sizes, prog, toku)
     charts = Charts(run)
     charts.render_all()
     write_readme(run, charts, prog, rows, central, env, a.nazwa, bos)

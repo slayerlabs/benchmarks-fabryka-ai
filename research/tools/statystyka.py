@@ -141,19 +141,22 @@ def wobec_stalej(wyniki, poprawne, klastry=None):
     return out
 
 
-def holm(ps):
+def holm(ps, m=None):
     """Holm step-down: p poprawione (rosnąco max po rangach (m − r) · p, obcięte do 1), w kolejności ps.
-    p = None (wiersz „nierozstrzygalne”) nie wchodzi do rodziny i zostaje None."""
+    p = None (wiersz „nierozstrzygalne”) zostaje None. Bez `m` rodzina to wiersze z p; `m` z protokołu liczy też
+    wiersze bez p (SE = 0, nieliczone) i nie może być mniejsze niż liczba p."""
     idx = sorted((i for i, p in enumerate(ps) if p is not None), key=lambda i: (ps[i], i))
-    m, out, mx = len(idx), [None] * len(ps), 0.0
+    if m is not None and m < len(idx):
+        raise ValueError(f"m = {m} mniejsze niż liczba p ({len(idx)})")
+    m, out, mx = len(idx) if m is None else m, [None] * len(ps), 0.0
     for r, i in enumerate(idx):
         mx = max(mx, min(1.0, (m - r) * ps[i]))
         out[i] = mx
     return out
 
 
-def po_holmie(ps):
+def po_holmie(ps, m=None):
     """Kolumna „po Holmie” tabeli porównań: per wiersz p Holma, werdykt z niego (progi p jak dla |z| = 2 i 3)
     i flaga „tak” (p Holma <= p(|z| = 2)) albo „nie”; wiersz bez p dostaje „nie” i „nierozstrzygalne”."""
     return [{"p_holm": a, "werdykt_holm": werdykt_p(a), "po_holmie": "tak" if a is not None and a <= P_PRAWDOPODOBNE
-             else "nie"} for a in holm(ps)]
+             else "nie"} for a in holm(ps, m)]
