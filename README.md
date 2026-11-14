@@ -7,7 +7,7 @@ oryginałem, i budujemy polskie benchmarki.
 
 ## Aktualne wyniki
 
-<p align="center"><img src="research/results/full-run-2026-11/charts/przemiana-wersji.svg" alt="Animacja: Slayer 1B od wersji 1.00 do 1.07 na tle modeli odniesienia" width="100%"></p>
+<p align="center"><img src="research/results/full-run-2026-11/charts/przemiana-wersji.svg" alt="Animacja: Slayer 1B od wersji 1.00 do 1.08 na tle modeli odniesienia" width="100%"></p>
 
 <p align="center"><img src="research/results/full-run-2026-11/charts/macierz.svg" alt="Macierz modeli i testów" width="100%"></p>
 

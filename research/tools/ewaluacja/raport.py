@@ -626,7 +626,7 @@ class Charts:
         H0, RH = 92, 50
         H = H0 + len(tests) * RH + 40
         x0, x1 = 250, 830
-        front = r_.front
+        front = r_.exp  # last frame is 1.08; its ring stays visible while 1.00-1.07 play
         body, css = [], []
         pc = lambda s: f"{s / cycle * 100:.2f}%"
         for i in range(front + 1):
@@ -752,9 +752,9 @@ class Charts:
             b.append(f'<text x="{ox + 8}" y="{oy + 104}" class="m n">{r_.SLN[0]}: {format_number(pts[0]["v"], digits_of(t))}</text><text x="{ox + pw - 10}" y="{oy + 104}" class="m n" text-anchor="end">{r_.SLN[r_.front]}: {format_number(pts[r_.front]["v"], digits_of(t))}   1.08: {format_number(pts[r_.exp]["v"], digits_of(t))}</text>')
         self.save("postep-wersji.svg", svg_doc(W, H, "".join(b), "", "Postęp wersji Slayera na każdym teście"))
 
-    def entries(self, t):
+    def entries(self, t, slayer=None):
         r_ = self.run
-        e = [(r_.SL[r_.front], True)] + [(x["id"], False) for x in r_.REFS if self.ok(t, x["id"])]
+        e = [(slayer or r_.SL[r_.front], True)] + [(x["id"], False) for x in r_.REFS if self.ok(t, x["id"])]
         e = [(i, s) for i, s in e if self.ok(t, i)]
         e.sort(key=lambda z: r_.V[t["id"]][z[0]]["v"], reverse=t["higher"])
         return e
@@ -805,14 +805,23 @@ def result_row(run: Run, charts: Charts, t):
     d = lambda i: run.V[t["id"]].get(i)
     front = run.SL[run.front]
     cell = lambda x: "–" if not x else (f"{format_number(x['v'], digits_of(t))}&nbsp;±&nbsp;{format_number(x['se'], 4)}" if x["f"] == "ok" else f"*{format_number(x['v'], digits_of(t))}*")
-    entries = charts.entries(t)
-    place = next(n for n, (i, _) in enumerate(entries, 1) if i == front)
+    exp = run.SL[run.exp]
     base = f"{format_number(t['b'], 4)} ({t['b_name']})" if t["b"] is not None else "nie dotyczy"
-    in_class = [i for i, _ in entries if run.MN[i]["cl"] == "ok. 1B"]
-    progress = first_to_front(t, d(run.SL[0]), d(front))
+
+    def ranks(slayer):
+        """Each Slayer version is ranked alone among the reference models, so 1.07 and 1.08 never push each other down."""
+        entries = charts.entries(t, slayer)
+        if slayer not in [i for i, _ in entries]:
+            return "–", "–"
+        in_class = [i for i, _ in entries if run.MN[i]["cl"] == "ok. 1B"]
+        place = next(n for n, (i, _) in enumerate(entries, 1) if i == slayer)
+        return f"{place}/{len(entries)}", f"{in_class.index(slayer) + 1}/{len(in_class)}"
+
+    (place, in_class), (place_exp, in_class_exp) = ranks(front), ranks(exp)
     mark = ROW_MARKS.get(t["id"], "") if not t["bk"] else ""
-    return md_row(f"[{t['nazwa']}](#{t['id']}){mark}", format_count(t["n"]), f"**{cell(d(front))}**", cell(d("pythia-1b-v0")), cell(d("qwen3.5-0.8b-base")), base,
-                  f"{place}/{len(entries)}", f"{in_class.index(front) + 1}/{len(in_class)}", progress)
+    return md_row(f"[{t['nazwa']}](#{t['id']}){mark}", format_count(t["n"]), f"**{cell(d(front))}**", f"**{cell(d(exp))}**", cell(d("pythia-1b-v0")),
+                  cell(d("qwen3.5-0.8b-base")), base, f"{place} · {place_exp}", f"{in_class} · {in_class_exp}",
+                  first_to_front(t, d(run.SL[0]), d(front)), first_to_front(t, d(run.SL[0]), d(exp)))
 
 
 def rel(path, root: Path):
@@ -950,14 +959,16 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     a(f"> **BOS nie jest liczony jednakowo.** {BOS_SCOPE} Zmiana u Pythii: "
       f"[najwyżej {format_number(bos_summary(bos)['max_change'], 4)} na testach z pomiaru BOS](#bos-okno-wikitext-i-kontrola-arc-challenge). Pozostałe zastrzeżenia: [Zastrzeżenia](#zastrzeżenia).")
     a("")
-    a(f'<p align="center"><img src="charts/przemiana-wersji.svg" alt="Animacja: Slayer 1B od wersji {run.SLN[0]} do {front_name} na tle modeli odniesienia" width="100%"></p>')
+    a(f'<p align="center"><img src="charts/przemiana-wersji.svg" alt="Animacja: Slayer 1B od wersji {run.SLN[0]} do {run.SLN[run.exp]} na tle modeli odniesienia" width="100%"></p>')
     a("")
     a(f"**Slayer {front_name}**: ostatnia przyjęta wersja, bez wygaszania LR. **1.08**: [karta modelu]({CARD_1_08}), {SLAYER_1_08_STATUS}.")
     a("")
     a("## Tabela CodeSOTA")
     a("")
-    header = md_row("Test", "n", f"Slayer {front_name}", "Pythia-1B", "Qwen 0.8B", "Baza b", "Miejsce", "W klasie ok. 1B", f"{run.SLN[0]} → {front_name}")
-    sep = "|---|---:|---:|---:|---:|---:|:---:|:---:|---|"
+    exp_name = run.SLN[run.exp]
+    header = md_row("Test", "n", f"Slayer {front_name}", f"Slayer {exp_name}", "Pythia-1B", "Qwen 0.8B", "Baza b", f"Miejsce {front_name} · {exp_name}",
+                    f"W klasie ok. 1B {front_name} · {exp_name}", f"{run.SLN[0]} → {front_name}", f"{run.SLN[0]} → {exp_name}")
+    sep = "|---|---:|---:|---:|---:|---:|---:|:---:|:---:|---|---|"
     L += [header, sep] + [result_row(run, charts, t) for t in run.TK] + [""]
     hellaswag_note = hellaswag_control_note(run.cards["hellaswag"]["text"])
     a(f"¹ {hellaswag_note}")
