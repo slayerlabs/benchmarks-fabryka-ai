@@ -100,6 +100,15 @@ def sekcja_readme(tekst: str) -> str:
     return tekst[tekst.rfind("<details>", 0, start):koniec + len("</details>")]
 
 
+def sekcja_zbiorcza(tekst: str) -> str:
+    """Tabela zbiorcza na górze README przebiegu (raport.py, toku_summary): od jej nagłówka do następnego „## ”."""
+    start = tekst.find("## Wyniki Slayer 1B 1.09")
+    if start < 0:
+        return ""
+    koniec = tekst.find("\n## ", start + 3)
+    return tekst[start:koniec if koniec > 0 else len(tekst)]
+
+
 def main():
     args = sys.argv[1:]
     readme = None
@@ -114,15 +123,16 @@ def main():
     bledy = sprawdz(straznik, L, tekst, raport.name) + bajt_w_bajt(L, tekst, raport.name)
     pliki = 1
     if readme is not None:
-        sek = sekcja_readme(readme.read_text(encoding="utf-8"))
+        tekst_r = readme.read_text(encoding="utf-8")
         pliki += 1
-        if not sek:
-            bledy.append((readme.name, 0, "brak sekcji 1.08 → 1.09 w README"))
-        else:
-            bledy += sprawdz(straznik, L, sek, f"{readme.name} (sekcja 1.09)")
+        for nazwa, sek in (("sekcja 1.08 → 1.09", sekcja_readme(tekst_r)), ("tabela zbiorcza 1.09", sekcja_zbiorcza(tekst_r))):
+            if not sek:
+                bledy.append((readme.name, 0, f"brak: {nazwa} w README"))
+                continue
+            bledy += sprawdz(straznik, L, sek, f"{readme.name} ({nazwa})")
             wiersze = [w for w in sek.splitlines() if w.startswith("| ") and not w.startswith("| test")]
             if len(wiersze) != len(L["testy"]):
-                bledy.append((readme.name, 0, f"sekcja 1.09 ma {len(wiersze)} wierszy testów, LICZBY.json {len(L['testy'])}"))
+                bledy.append((readme.name, 0, f"{nazwa}: {len(wiersze)} wierszy testów, LICZBY.json {len(L['testy'])}"))
     for plik, nr, powod in bledy:
         print(f"{plik}:{nr}: {powod}")
     print(f"{pliki} plików, {len(bledy)} problemów")

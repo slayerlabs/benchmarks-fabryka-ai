@@ -170,3 +170,11 @@ czego protokół nie ustalał albo co ustalił błędnie; szczegóły i liczby w
 - **Definicja acc_norm.** „Metryka acc_norm” w tabeli testów to wartość z pliku wyników runnera, czyli jego definicja
   (długość kontynuacji bez wiodących spacji), ta sama co w manifeście 1.08. Na HellaSwag różni się od definicji lm_eval;
   wartości w obu definicjach podaje raport. Przeliczenie niezależne liczy definicję runnera.
+
+## Aneks po wyniku: prezentacja (14.11.2026)
+
+Zmiana prezentacji po wyniku, decyzja Ani 14.11.2026: animacja wersji (`charts/przemiana-wersji.svg`) i macierz
+(`charts/macierz.svg`) pokazują 1.09 k40000 jako checkpoint w toku (ostatnia klatka animacji z pustym kwadratem, osobny
+wiersz macierzy). Wbrew sekcji „Wykresy i raport” wyżej animacja się zmienia; tabela CodeSOTA zostaje bez zmian. Liczby i
+werdykty bez zmian. Wyniki zebrane w jednym miejscu: README przebiegu (animacja, macierz, tabela zbiorcza 1.09 wobec 1.08,
+rankingi testów w zwijanych sekcjach).

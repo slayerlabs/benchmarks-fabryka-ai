@@ -57,8 +57,10 @@ NAZWY = {
 
 W_TOKU = {"slayer1b-1.09-k40000": ("Slayer 1B 1.09, krok 40 000 (w toku)",
                                    "1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny")}
-"""Checkpoints of a run still training: shown with this label next to 1.08, never as a version, in the CodeSOTA table or
-the animation; their paired comparison with 1.08 comes from `KATALOG_TOKU/LICZBY.json`."""
+"""Checkpoints of a run still training: shown with this label next to 1.08, never as a version or in the CodeSOTA table;
+the animation and the matrix show them as „w toku” (decision 14.11.2026); their paired comparison with 1.08 comes from
+`KATALOG_TOKU/LICZBY.json`."""
+ALT_TOKU = {"slayer1b-1.09-k40000": "1.09 (krok 40 000, w toku)"}
 KATALOG_TOKU = "slayer-1.09-k40000"
 
 
@@ -651,22 +653,26 @@ class Charts:
 
     def animation(self):
         r_ = self.run
-        tests, cycle, W = r_.TK, 11, 1000
+        # frames: versions 1.00 … 1.08, then each checkpoint in training (decision 14.11.2026: 1.09 k40000 as the last
+        # frame, marked „w toku” with the hollow square used by the ranking charts); the 1.08 ring stays visible
+        ids_fr = r_.SL[: r_.exp + 1] + list(r_.TOKU)
+        names = r_.SLN[: r_.exp + 1] + [W_TOKU[m][0].replace("Slayer 1B ", "") for m in r_.TOKU]
+        front = len(ids_fr) - 1
+        tests, cycle, W = r_.TK, max(11, front + 2), 1000
         H0, RH = 92, 50
         H = H0 + len(tests) * RH + 40
         x0, x1 = 250, 830
-        front = r_.exp  # last frame is 1.08; its ring stays visible while 1.00-1.07 play
         body, css = [], []
         pc = lambda s: f"{s / cycle * 100:.2f}%"
         for i in range(front + 1):
             a, b = i, (i + 1 if i < front else cycle)
             css.append(f"@keyframes v{i}{{0%,{pc(a - 0.01) if a else '0%'}{{opacity:0}}{pc(a)},{pc(b - 0.02)}{{opacity:1}}{pc(b)},100%{{opacity:{'1' if i == front else '0'}}}}}")
             css.append(f".v{i}{{opacity:{1 if i == front else 0};animation:v{i} {cycle}s linear infinite}}")
-        for i, name in enumerate(r_.SLN[: front + 1]):
-            body.append(f'<text x="28" y="48" class="b v{i}" style="font-size:30px">Slayer 1B <tspan class="sl">{name}</tspan></text>')
-        body.append(f'<text x="28" y="72" class="m">Przemiana wersji {r_.SLN[0]} → {r_.SLN[front]} na tle modeli odniesienia. Testy z przechodzącą kontrolą, lepiej w prawo.</text>')
+        for i, name in enumerate(names):
+            body.append(f'<text x="28" y="48" class="b v{i}" style="font-size:30px">Slayer 1B <tspan class="sl">{E(name)}</tspan></text>')
+        body.append(f'<text x="28" y="72" class="m">Przemiana wersji {r_.SLN[0]} → {E(names[front])} na tle modeli odniesienia. Testy z przechodzącą kontrolą, lepiej w prawo.</text>')
         body.append(f'<text x="{W - 28}" y="72" class="m" text-anchor="end">wartość</text>')
-        ids = r_.SL + [x["id"] for x in r_.REFS if self.ok_any(x["id"])]
+        ids = r_.SL + list(r_.TOKU) + [x["id"] for x in r_.REFS if self.ok_any(x["id"])]
         for row, t in enumerate(tests):
             y = H0 + row * RH + 26
             used = [i for i in ids if (r_.V[t["id"]].get(i) or {}).get("f") == "ok"]
@@ -691,24 +697,32 @@ class Charts:
                     body.append(f'<line class="tk" x1="{xr:.1f}" x2="{xr:.1f}" y1="{y - 7}" y2="{y + 7}"/>')
             exp = r_.V[t["id"]][r_.SL[r_.exp]]
             body.append(f'<circle class="ring" cx="{g(exp["v"]):.1f}" cy="{y}" r="6.5"/>')
-            xs = [g(r_.V[t["id"]][r_.SL[i]]["v"]) for i in range(front + 1)]
+            xs = [g(r_.V[t["id"]][ids_fr[i]]["v"]) for i in range(front + 1)]
+            for i in range(r_.exp + 1, front + 1):  # checkpoint w toku: pusty kwadrat jak w rankingach, tylko w swojej klatce
+                body.append(f'<rect class="v{i}" x="{xs[i] - 6:.1f}" y="{y - 6}" width="12" height="12" fill="var(--bg)" stroke="var(--mut)" stroke-width="1.5"/>')
             frames = "".join(f"{pc(i)}{{transform:translateX({xs[i]:.1f}px)}}" for i in range(front + 1))
             css.append(f"@keyframes p{row}{{{frames}{pc(cycle - 1)}{{transform:translateX({xs[front]:.1f}px)}}100%{{transform:translateX({xs[0]:.1f}px)}}}}")
             css.append(f".p{row}{{transform:translateX({xs[front]:.1f}px);animation:p{row} {cycle}s ease-in-out infinite}}")
             body.append(f'<g class="p{row}"><circle class="dsl" cx="0" cy="{y}" r="8"/></g>')
             for i in range(front + 1):
-                body.append(f'<text x="{W - 28}" y="{y + 4}" class="n v{i}" text-anchor="end">{format_number(r_.V[t["id"]][r_.SL[i]]["v"], digits_of(t))}</text>')
+                body.append(f'<text x="{W - 28}" y="{y + 4}" class="n v{i}" text-anchor="end">{format_number(r_.V[t["id"]][ids_fr[i]]["v"], digits_of(t))}</text>')
         yl = H - 16
         body.append(f'<circle class="dsl" cx="36" cy="{yl - 4}" r="6"/><text x="48" y="{yl}" class="m">Slayer, kolejne wersje</text>'
                     f'<circle class="ring" cx="212" cy="{yl - 4}" r="6"/><text x="224" y="{yl}" class="m">1.08, checkpoint eksperymentalny</text>'
                     f'<circle class="dot" cx="442" cy="{yl - 4}" r="5"/><text x="452" y="{yl}" class="m">klasa ok. 1B</text>'
-                    f'<line class="tk" x1="548" x2="548" y1="{yl - 10}" y2="{yl + 2}"/><text x="558" y="{yl}" class="m">pozostałe modele odniesienia</text>')
+                    f'<line class="tk" x1="548" x2="548" y1="{yl - 10}" y2="{yl + 2}"/><text x="558" y="{yl}" class="m">pozostałe modele odniesienia</text>'
+                    + (f'<rect x="770" y="{yl - 10}" width="12" height="12" fill="var(--bg)" stroke="var(--mut)" stroke-width="1.5"/>'
+                       f'<text x="788" y="{yl}" class="m">checkpoint w toku</text>' if front > r_.exp else ""))
         extra = "<style>" + "".join(css) + "@media (prefers-reduced-motion:reduce){*{animation:none!important}}</style>"
-        self.save("przemiana-wersji.svg", svg_doc(W, H, "".join(body), extra, f"Slayer 1B: przemiana wersji {r_.SLN[0]} do {r_.SLN[front]} na tle modeli odniesienia"))
+        self.save("przemiana-wersji.svg", svg_doc(W, H, "".join(body), extra, f"Slayer 1B: przemiana wersji {r_.SLN[0]} do {names[front]} na tle modeli odniesienia"))
 
     def matrix(self):
         r_ = self.run
-        rows = [(r_.SL[r_.front], f"Slayer 1B {r_.SLN[r_.front]}", True), (r_.SL[r_.exp], "Slayer 1B 1.08 eksp.", True)] + [(x["id"], x["label"], False) for x in r_.REFS]
+        # checkpoint w toku (decyzja 14.11.2026): wiersz pod 1.08, bez obramowania Slayera; skala kolorów kolumny liczona
+        # jak dotąd z modeli przebiegu (r_.M), więc komórki pozostałych wierszy się nie zmieniają
+        rows = ([(r_.SL[r_.front], f"Slayer 1B {r_.SLN[r_.front]}", True), (r_.SL[r_.exp], "Slayer 1B 1.08 eksp.", True)]
+                + [(m, "Slayer 1.09 k40000 (w toku)", False) for m in r_.TOKU]
+                + [(x["id"], x["label"], False) for x in r_.REFS])
         cw, ch, X0, Y0 = 52, 30, 210, 62
         W, H = X0 + cw * len(r_.ORD) + 20, Y0 + ch * len(rows) + 44
         b = ['<defs><pattern id="h" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2" height="6" fill="var(--grid)"/></pattern></defs>']
@@ -973,13 +987,38 @@ def versions_section(run, a, prog):
     a("")
 
 
+def toku_summary(run, a):
+    """Tabela zbiorcza na górze README: wynik checkpointu w toku, zmiana wobec 1.08 i werdykt, z jego LICZBY.json."""
+    if not run.TOKU or not run.PTOKU:
+        return
+    m = run.TOKU[0]
+    a(f"## Wyniki {E(nazwa(m))} wobec 1.08")
+    a("")
+    a(f"{len(run.PTOKU)} testów; Δ i statystyka parowane na tych samych pytaniach, werdykt po Holmie (m = {run.TOKU_M}) z kontrolą "
+      f"narzędzia. Pełna tabela z SE i kontrolą: [postęp wersji](#postęp-wersji-slayera), protokół i raport: "
+      f"[`{KATALOG_TOKU}/`]({KATALOG_TOKU}/RAPORT.md).")
+    a("")
+    a(md_row("test", "1.09 k40000", "Δ wobec 1.08", "statystyka", "po Holmie", "wynik"))
+    a("|---|---:|---:|---|---|---|")
+    for t in run.ORD:
+        x = run.PTOKU.get(t["id"])
+        if not x:
+            continue
+        p, d = x["porownanie"], digits_of(t)
+        stat = (f"t = {liczba(p['t'], 2)}, df = {p['df']}" if p.get("t") is not None else
+                (f"z = {liczba(p['z'], 2)}" if p.get("z") is not None else "–"))
+        a(md_row(f"[{t['nazwa']}](#{t['id']})", format_number(x["v109"]["wartosc"], d), format_number(p["roznica"], d, plus=True), stat,
+                 f"{p['po_holmie']} ({p['werdykt_holm']})", toku_label(x, t)))
+    a("")
+
+
 def toku_section(run, a):
     """Paired 1.08 → checkpoint in training, every number from its LICZBY.json."""
     if not run.TOKU or not run.PTOKU:
         return
     m = run.TOKU[0]
     a(f"<details>\n<summary><b>1.08 → {E(nazwa(m))}</b> ({len(run.PTOKU)} porównań, Holm m = {run.TOKU_M})</summary>\n")
-    a(f"Etykieta: {W_TOKU[m][1]}. Checkpoint w trakcie treningu, nie następca 1.08; poza tabelą CodeSOTA i animacją. "
+    a(f"Etykieta: {W_TOKU[m][1]}. Checkpoint w trakcie treningu, nie następca 1.08; poza tabelą CodeSOTA, w animacji i macierzy jako checkpoint w toku. "
       f"Protokół, liczby i raport: [`{KATALOG_TOKU}/`]({KATALOG_TOKU}/RAPORT.md). 1.08 w tabeli z `manifest.jsonl` przebiegu; "
       "Δ i SE Δ z 1.08 przeliczonego na tej samej karcie co 1.09, na tych samych pytaniach. Kontrola narzędzia: "
       "1.08 przeliczone − 1.08 z manifestu, w SE testu; niezgodna (> 0,5 SE albo inne n) zmienia werdykt na nierozstrzygnięty.")
@@ -1046,13 +1085,17 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     a(f"> **BOS nie jest liczony jednakowo.** {BOS_SCOPE} Zmiana u Pythii: "
       f"[najwyżej {format_number(bos_summary(bos)['max_change'], 4)} na testach z pomiaru BOS](#bos-okno-wikitext-i-kontrola-arc-challenge). Pozostałe zastrzeżenia: [Zastrzeżenia](#zastrzeżenia).")
     a("")
-    a(f'<p align="center"><img src="charts/przemiana-wersji.svg" alt="Animacja: Slayer 1B od wersji {run.SLN[0]} do {run.SLN[run.exp]} na tle modeli odniesienia" width="100%"></p>')
+    koniec = ALT_TOKU[run.TOKU[-1]] if run.TOKU else run.SLN[run.exp]
+    a(f'<p align="center"><img src="charts/przemiana-wersji.svg" alt="Animacja: Slayer 1B od wersji {run.SLN[0]} do {koniec} na tle modeli odniesienia" width="100%"></p>')
+    a("")
+    a('<p align="center"><img src="charts/macierz.svg" alt="Macierz modeli i testów" width="100%"></p>')
     a("")
     a(f"**Slayer {front_name}**: ostatnia przyjęta wersja, bez wygaszania LR. **1.08**: [karta modelu]({CARD_1_08}), {SLAYER_1_08_STATUS}.")
     a("")
     for m in run.TOKU:
-        a(f"**{nazwa(m)}**: {W_TOKU[m][1]}. Poza tabelą CodeSOTA i animacją; porównanie parowane z 1.08 w [postępie wersji](#postęp-wersji-slayera).")
+        a(f"**{nazwa(m)}**: {W_TOKU[m][1]}. Poza tabelą CodeSOTA; w animacji i macierzy jako checkpoint w toku; porównanie parowane z 1.08 w [postępie wersji](#postęp-wersji-slayera).")
         a("")
+    toku_summary(run, a)
     a("## Tabela CodeSOTA")
     a("")
     exp_name = run.SLN[run.exp]
@@ -1102,7 +1145,7 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     L += [header, sep] + [result_row(run, charts, t) for t in run.TW] + ["", "</details>", ""]
     a("## Mapa modeli")
     a("")
-    a('<p align="center"><img src="charts/macierz.svg" alt="Macierz modeli i testów" width="100%"></p>')
+    a("Macierz modeli i testów jest na górze strony, pod animacją.")
     a("")
     a("| Model | Parametry (z wag) | Klasa |\n|---|---:|---|")
     for x in [run.MN[front_id]] + run.REFS:

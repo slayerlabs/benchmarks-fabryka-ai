@@ -9,11 +9,35 @@
 > [!WARNING]
 > **BOS nie jest liczony jednakowo.** Testy z niepustym kontekstem: Slayer ma jeden wiodący BOS, modele odniesienia były liczone bez BOS; wpływ zmierzono wyłącznie na Pythii-1B v0. Nie dotyczy BLiMP i WikiText-2 (pusty kontekst). EWoK: reguła z karty, BOS jest wtedy, gdy dokleja go tokenizer modelu. Zmiana u Pythii: [najwyżej 0,0105 na testach z pomiaru BOS](#bos-okno-wikitext-i-kontrola-arc-challenge). Pozostałe zastrzeżenia: [Zastrzeżenia](#zastrzeżenia).
 
-<p align="center"><img src="charts/przemiana-wersji.svg" alt="Animacja: Slayer 1B od wersji 1.00 do 1.08 na tle modeli odniesienia" width="100%"></p>
+<p align="center"><img src="charts/przemiana-wersji.svg" alt="Animacja: Slayer 1B od wersji 1.00 do 1.09 (krok 40 000, w toku) na tle modeli odniesienia" width="100%"></p>
+
+<p align="center"><img src="charts/macierz.svg" alt="Macierz modeli i testów" width="100%"></p>
 
 **Slayer 1.07**: ostatnia przyjęta wersja, bez wygaszania LR. **1.08**: [karta modelu](https://huggingface.co/SlayerLab/Slayer1B-1.08/blob/5f854a0cc7160594d54d1788d37a44e8ebabe16c/README.md), checkpoint eksperymentalny: bramka przyjęcia niezaliczona (ARC-Easy), nie jest następcą 1.07.
 
-**Slayer 1B 1.09, krok 40 000 (w toku)**: 1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny. Poza tabelą CodeSOTA i animacją; porównanie parowane z 1.08 w [postępie wersji](#postęp-wersji-slayera).
+**Slayer 1B 1.09, krok 40 000 (w toku)**: 1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny. Poza tabelą CodeSOTA; w animacji i macierzy jako checkpoint w toku; porównanie parowane z 1.08 w [postępie wersji](#postęp-wersji-slayera).
+
+## Wyniki Slayer 1B 1.09, krok 40 000 (w toku) wobec 1.08
+
+15 testów; Δ i statystyka parowane na tych samych pytaniach, werdykt po Holmie (m = 15) z kontrolą narzędzia. Pełna tabela z SE i kontrolą: [postęp wersji](#postęp-wersji-slayera), protokół i raport: [`slayer-1.09-k40000/`](slayer-1.09-k40000/RAPORT.md).
+
+| test | 1.09 k40000 | Δ wobec 1.08 | statystyka | po Holmie | wynik |
+|---|---:|---:|---|---|---|
+| [ARC-Easy](#arc-easy) | 0,6662 | +0,0825 | z = 9,26 | tak (pewne) | ▲ pewna poprawa |
+| [BLiMP](#blimp) | 0,8148 | +0,0101 | t = 1,86, df = 66 | nie (szum) | ≈ szum |
+| [EWoK](#ewok) | 0,6278 | +0,0288 | t = 4,27, df = 842 | tak (pewne) | ▲ pewna poprawa |
+| [HellaSwag](#hellaswag) | 0,5280 | +0,0939 | z = 26,25 | tak (pewne) | ▲ pewna poprawa |
+| [LAMBADA](#lambada) | 0,4537 | +0,0524 | z = 8,74 | tak (pewne) | ▲ pewna poprawa |
+| [PIQA](#piqa) | 0,7122 | +0,0501 | z = 5,94 | tak (pewne) | ▲ pewna poprawa |
+| [WinoGrande](#winogrande) | 0,5770 | +0,0403 | t = 2,74, df = 982 | tak (prawdopodobne) | △ prawdopodobna poprawa |
+| [ARC-Challenge](#arc-challenge) | 0,3498 | +0,0495 | z = 4,26 | tak (pewne) | ▲ pewna poprawa |
+| [MathQA](#mathqa) | 0,2251 | −0,0030 | z = −0,44 | nie (szum) | ≈ szum |
+| [MedMCQA](#medmcqa) | 0,3005 | −0,0117 | z = −2,25 | nie (szum) | ≈ szum |
+| [MultiBLiMP-PL](#multiblimp-pl) | 0,9856 | −0,0018 | z = −0,79 | nie (szum) | ≈ szum |
+| [PubMedQA](#pubmedqa) | 0,5620 | +0,1280 | z = 5,89 | tak (pewne) | ▲ pewna poprawa |
+| [Social IQa](#social-iqa) | 0,4089 | +0,0123 | z = 1,68 | nie (szum) | ≈ szum |
+| [WikiText-2](#wikitext-2) | 1,702 | −0,078 | t = −18,23, df = 61 | tak (pewne) | ▲ pewna poprawa |
+| [WSC273](#wsc273) | 0,6374 | +0,0220 | t = 0,93, df = 134 | nie (szum) | ≈ szum |
 
 ## Tabela CodeSOTA
 
@@ -129,7 +153,7 @@ Porównanie parowane 1.00 → 1.07 wymaga próbek spoza repo; parowane 1.00 → 
 
 ## Mapa modeli
 
-<p align="center"><img src="charts/macierz.svg" alt="Macierz modeli i testów" width="100%"></p>
+Macierz modeli i testów jest na górze strony, pod animacją.
 
 | Model | Parametry (z wag) | Klasa |
 |---|---:|---|
@@ -305,7 +329,7 @@ Klasa „ok. 1B”: do 1,10B parametrów policzonych z wag ([`sizes.json`](sizes
 <details>
 <summary><b>1.08 → Slayer 1B 1.09, krok 40 000 (w toku)</b> (15 porównań, Holm m = 15)</summary>
 
-Etykieta: 1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny. Checkpoint w trakcie treningu, nie następca 1.08; poza tabelą CodeSOTA i animacją. Protokół, liczby i raport: [`slayer-1.09-k40000/`](slayer-1.09-k40000/RAPORT.md). 1.08 w tabeli z `manifest.jsonl` przebiegu; Δ i SE Δ z 1.08 przeliczonego na tej samej karcie co 1.09, na tych samych pytaniach. Kontrola narzędzia: 1.08 przeliczone − 1.08 z manifestu, w SE testu; niezgodna (> 0,5 SE albo inne n) zmienia werdykt na nierozstrzygnięty.
+Etykieta: 1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny. Checkpoint w trakcie treningu, nie następca 1.08; poza tabelą CodeSOTA, w animacji i macierzy jako checkpoint w toku. Protokół, liczby i raport: [`slayer-1.09-k40000/`](slayer-1.09-k40000/RAPORT.md). 1.08 w tabeli z `manifest.jsonl` przebiegu; Δ i SE Δ z 1.08 przeliczonego na tej samej karcie co 1.09, na tych samych pytaniach. Kontrola narzędzia: 1.08 przeliczone − 1.08 z manifestu, w SE testu; niezgodna (> 0,5 SE albo inne n) zmienia werdykt na nierozstrzygnięty.
 
 | test | 1.08 | 1.09 k40000 | Δ | SE Δ | statystyka | werdykt | po Holmie | kontrola (SE) | wynik |
 |---|---:|---:|---:|---:|---|---|---|---:|---|
