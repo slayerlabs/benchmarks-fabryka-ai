@@ -1,0 +1,65 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-SlayerLab_Slayer1B-1.09-checkpoints-cff81fdc-20261114T192134Z",
+ "models": [
+  {
+   "model_id": "SlayerLab/Slayer1B-1.09-checkpoints",
+   "repo": "SlayerLab/Slayer1B-1.09-checkpoints",
+   "revision": "cff81fdcc05f0d91e9ba45b09fe78f769d7e0903",
+   "weights_sha256": "5d60d691f1ea87db4a900788ff253f2de55e75f9210c93e7e95f3b9f6c434591"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T03",
+   "task": "wikitext",
+   "family": "wikitext2",
+   "language": "EN",
+   "split": "test"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T03",
+   "model_id": "SlayerLab/Slayer1B-1.09-checkpoints",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "byte_perplexity,none",
+   "unit": "byte_ppl",
+   "higher_is_better": false,
+   "n_population": 62,
+   "n_selected": 62,
+   "n_scored": 62,
+   "state": "ok",
+   "value": 1.7023145973049194,
+   "ci95": {
+    "lower": 1.6732955402432272,
+    "upper": 1.7340123792440665,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "46858cfa7cbb51fd96956dca1fcdfe11fa20ba30c0432cc023cafcf7a78ed872",
+   "results_sha256": "5874ae314fb7d184ee8c4e866ad760b6a6dd873a0c6f22bca0bc7797eda1ef56",
+   "runner_sha256": "c906036b4e597e2c17ad7f1f6441e72fbf8e066946c2a7731966612674e3995e",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": null
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-SlayerLab_Slayer1B-1.09-checkpoints-cff81fdc-20261114T192134Z",
+    "results_sha256": "5874ae314fb7d184ee8c4e866ad760b6a6dd873a0c6f22bca0bc7797eda1ef56"
+   }
+  ],
+  "qualification_sha256": "9c26852b439412e065bf9a1a43c986d8efb19f02e18bfcbcf6f8cbaacab736e4",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "eca1f90714008611a9d1606b9ebe23cb737f60ff7d3eb2c274ea6e2aeae0d1f8"
+ }
+}
