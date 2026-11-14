@@ -1,0 +1,14 @@
+{
+ "odstepstwa": [
+  "Kod na instancji to git archive commitu b99f72a (protokół z aneksem). Kod analizy liczby_109.py, raport_md.py i przelicz_niezaleznie.py zacommitowany w 88719f1 przed pierwszym wynikiem; liczby_109.py i tools/ewaluacja/raport.py liczą bez zmian od 88719f1.",
+  "Po wyniku (kod pisany przed pierwszym wynikiem, ale niezacommitowany, przepadł przy awarii Maca i został napisany od nowa): dolacz_wyniki.py, sprawdz_raport.py, mutacje.py, diagnoza_acc_norm.py, w przelicz_niezaleznie.py kontrola narzędzia liczona od nowa z próbek i porównanie p Holma, w raport_md.py opis plików i werdykt po Holmie przy nazwie testu w liście głównego twierdzenia (strażnik liczb, reguła b), w tools/ewaluacja/raport.py jeden wiersz opisu plików. Progi, warianty i lista porównań bez zmian.",
+  "Pole runner_sha256 różni się od pełnego przebiegu (suma całego katalogu research/common, nie samego ewaluuj.py): ewaluuj.py jest bajt w bajt ten sam, a jedyna zmiana w research/common między przebiegiem (51c5e31) a pomiarem (b99f72a) to klastry testu T27 (PSC) w zadania.py, spoza 15 testów tego pomiaru.",
+  "Przeliczenie niezależne (przelicz_niezaleznie.py) kończy się kodem 1 wyłącznie na HellaSwag: liczy acc_norm z pola próbki lm_eval, a runner (metryki.oceny_mc) dzieli loglik przez długość kontynuacji bez wiodących spacji; definicje rozchodzą się na pytaniach, których kontynuacja ma kilka wiodących spacji (code/diagnoza_acc_norm.py, diagnoza_acc_norm.json). Podział lepsze/gorsze/szum i wszystkie werdykty po Holmie są w obu definicjach te same, więc główne twierdzenie nie jest obalone; liczby w raporcie są w definicji runnera, tej samej co pełny przebieg i manifest 1.08.",
+  "Kolejka na instancji liczyła 4 procesy na kartę (aneks), pełny przebieg 2; każdy proces liczy w batch 1, więc liczba procesów nie zmienia wyniku pytania.",
+  "Protokół nie mówi o czasy.jsonl przebiegu: dolacz_wyniki.py dopisuje do niego wiersze ewaluacji 1.09, tak jak do manifest.jsonl; pełne czasy obu etykiet leżą w eksport/czasy.jsonl."
+ ],
+ "not_run": [
+  "Ranking z 1.08 jako modelem eksperymentalnym (PR 196) nie jest w tej gałęzi; wykresy rankingów pokazują 1.09 w toku obok ostatniej przyjętej wersji Slayera (1.07), bez 1.08.",
+  "Kontrola na znanym modelu spoza Slayera: protokół jej nie przewiduje; kontrolą narzędzia jest 1.08 przeliczone wobec pełnego przebiegu."
+ ]
+}

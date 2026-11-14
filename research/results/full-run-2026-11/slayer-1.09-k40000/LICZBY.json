@@ -1,0 +1,896 @@
+{
+ "protokol": "PROTOKOL.md",
+ "etykieta": "1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny",
+ "model": "slayer1b-1.09-k40000",
+ "odniesienie": "slayer1b-1.08",
+ "m_holm": 15,
+ "wejscia": {
+  "probki_sha256": "3183fbca4a9e60fced1b80a0ffbc16b5abb0704d3bd2b4138c53ece761e640a4",
+  "manifest_przebiegu": "ff7df4efcfdd90449fb545f05a1c81dc8ab5761cee003c38d99db5abca7c92ee",
+  "paczka": {
+   "nazwa": "eksport_k109.tgz",
+   "sha256": "6da5db6650220f45c19064ba89614ba18ac43f9f6e0c772462fbf29416ec257e"
+  }
+ },
+ "srodowisko": {
+  "commit_kodu": "b99f72a",
+  "karta": "RTX 5090 (vast.ai)",
+  "gpu_nvidia_smi": "NVIDIA GeForce RTX 5090, 32607 MiB, 580.95.05",
+  "lm_eval": "0.4.9.1",
+  "torch": "2.8.0+cu129",
+  "cuda": "12.9",
+  "transformers": "4.57.6",
+  "datasets": "3.6.0",
+  "python": "3.11.13",
+  "precyzja": "float32, TF32 wyłączony",
+  "batch": 1,
+  "seed": "domyślny ewaluuj.py i ewok.py",
+  "platforma": "Linux-5.15.0-191-generic-x86_64-with-glibc2.35"
+ },
+ "testy": [
+  {
+   "benchmark": "arc-challenge",
+   "zadanie": "T02",
+   "nazwa": "ARC-Challenge",
+   "metryka": "acc_norm",
+   "wyzej_lepiej": true,
+   "chance": 0.2501564277588168,
+   "majority": 0.26535836177474403,
+   "v108_manifest": {
+    "wartosc": 0.3003412969283277,
+    "se": 0.013395909309957122,
+    "n": 1172,
+    "results_sha256": "8d0f006411c01b60e22ecee7b1f9909278abb72ffd74ba65072f55b898c5b50b"
+   },
+   "v108_przeliczone": {
+    "wartosc": 0.3003412969283277,
+    "se": 0.013395909309957122,
+    "n": 1172
+   },
+   "v109": {
+    "wartosc": 0.34982935153583616,
+    "se": 0.013936809212158266,
+    "n": 1172
+   },
+   "kontrola": {
+    "roznica": 0.0,
+    "w_se": 0.0,
+    "n_zgodne": true,
+    "prog_se": 0.5,
+    "zgodna": true
+   },
+   "porownanie": {
+    "n": 1172,
+    "roznica": 0.04948805460750849,
+    "roznica_srednia": 0.04948805460750853,
+    "roznica_bpb": null,
+    "se": 0.011614373466555557,
+    "z": 4.260931917680538,
+    "t": null,
+    "df": null,
+    "k": null,
+    "p": 2.035762466457825e-05,
+    "werdykt": "pewne",
+    "metoda": "A parowane",
+    "p_holm": 0.00018321862198120425,
+    "werdykt_holm": "pewne",
+    "po_holmie": "tak"
+   },
+   "kontrola_sensu": {
+    "slayer1b-1.09-k40000": [],
+    "slayer1b-1.08": []
+   },
+   "werdykt_koncowy": "lepszy (pewne)",
+   "kierunek": "lepiej"
+  },
+  {
+   "benchmark": "arc-easy",
+   "zadanie": "T51",
+   "nazwa": "ARC-Easy",
+   "metryka": "acc",
+   "wyzej_lepiej": true,
+   "chance": 0.25016133557800224,
+   "majority": 0.26641414141414144,
+   "v108_manifest": {
+    "wartosc": 0.5837542087542088,
+    "se": 0.010114819404500796,
+    "n": 2376,
+    "results_sha256": "f21b6af4e94ecf996b77ad0b3d2dfca2981aa4731f24e131076993e2372d4046"
+   },
+   "v108_przeliczone": {
+    "wartosc": 0.5837542087542088,
+    "se": 0.010114819404500796,
+    "n": 2376
+   },
+   "v109": {
+    "wartosc": 0.6662457912457912,
+    "se": 0.009676065683575515,
+    "n": 2376
+   },
+   "kontrola": {
+    "roznica": 0.0,
+    "w_se": 0.0,
+    "n_zgodne": true,
+    "prog_se": 0.5,
+    "zgodna": true
+   },
+   "porownanie": {
+    "n": 2376,
+    "roznica": 0.0824915824915824,
+    "roznica_srednia": 0.08249158249158249,
+    "roznica_bpb": null,
+    "se": 0.00890845450839239,
+    "z": 9.2599207206895,
+    "t": null,
+    "df": null,
+    "k": null,
+    "p": 2.0458405833088046e-20,
+    "werdykt": "pewne",
+    "metoda": "A parowane",
+    "p_holm": 2.659592758301446e-19,
+    "werdykt_holm": "pewne",
+    "po_holmie": "tak"
+   },
+   "kontrola_sensu": {
+    "slayer1b-1.09-k40000": [],
+    "slayer1b-1.08": []
+   },
+   "werdykt_koncowy": "lepszy (pewne)",
+   "kierunek": "lepiej"
+  },
+  {
+   "benchmark": "blimp",
+   "zadanie": "T01",
+   "nazwa": "BLiMP",
+   "metryka": "acc",
+   "wyzej_lepiej": true,
+   "chance": 0.5,
+   "majority": null,
+   "v108_manifest": {
+    "wartosc": 0.8047313432835821,
+    "se": 0.02126792305145138,
+    "n": 67000,
+    "results_sha256": "f17e5da12ae490d6a6257154929681c9a62f66476cf1076bff5172cd76c6a671"
+   },
+   "v108_przeliczone": {
+    "wartosc": 0.8047313432835821,
+    "se": 0.02126792305145138,
+    "n": 67000
+   },
+   "v109": {
+    "wartosc": 0.8148059701492537,
+    "se": 0.021425596636462426,
+    "n": 67000
+   },
+   "kontrola": {
+    "roznica": 0.0,
+    "w_se": 0.0,
+    "n_zgodne": true,
+    "prog_se": 0.5,
+    "zgodna": true
+   },
+   "porownanie": {
+    "n": 67000,
+    "roznica": 0.010074626865671621,
+    "roznica_srednia": 0.010074626865671642,
+    "roznica_bpb": null,
+    "se": 0.005420880006234058,
+    "z": null,
+    "t": 1.858485495728689,
+    "df": 66,
+    "k": 67,
+    "p": 0.06756015627193132,
+    "werdykt": "szum",
+    "metoda": "K",
+    "p_holm": 0.33780078135965663,
+    "werdykt_holm": "szum",
+    "po_holmie": "nie"
+   },
+   "kontrola_sensu": {
+    "slayer1b-1.09-k40000": [],
+    "slayer1b-1.08": []
+   },
+   "werdykt_koncowy": "szum",
+   "kierunek": null
+  },
+  {
+   "benchmark": "ewok",
+   "zadanie": "T53",
+   "nazwa": "EWoK",
+   "metryka": "ewok",
+   "wyzej_lepiej": true,
+   "chance": 0.5,
+   "majority": null,
+   "v108_manifest": {
+    "wartosc": 0.5989940557841792,
+    "se": 0.007483609277870822,
+    "n": 4374,
+    "results_sha256": null
+   },
+   "v108_przeliczone": {
+    "wartosc": 0.5989940557841792,
+    "se": 0.007483609277870822,
+    "n": 4374
+   },
+   "v109": {
+    "wartosc": 0.6278006401463192,
+    "se": 0.00804341485977821,
+    "n": 4374
+   },
+   "kontrola": {
+    "roznica": 0.0,
+    "w_se": 0.0,
+    "n_zgodne": true,
+    "prog_se": 0.5,
+    "zgodna": true
+   },
+   "porownanie": {
+    "n": 4374,
+    "roznica": 0.02880658436214001,
+    "roznica_srednia": 0.02880658436213992,
+    "roznica_bpb": null,
+    "se": 0.006741552444166318,
+    "z": null,
+    "t": 4.272989730587527,
+    "df": 842,
+    "k": 843,
+    "p": 2.148861516762823e-05,
+    "werdykt": "pewne",
+    "metoda": "K",
+    "p_holm": 0.00018321862198120425,
+    "werdykt_holm": "pewne",
+    "po_holmie": "tak"
+   },
+   "kontrola_sensu": {
+    "slayer1b-1.09-k40000": [],
+    "slayer1b-1.08": []
+   },
+   "werdykt_koncowy": "lepszy (pewne)",
+   "kierunek": "lepiej"
+  },
+  {
+   "benchmark": "hellaswag",
+   "zadanie": "T05",
+   "nazwa": "HellaSwag",
+   "metryka": "acc_norm",
+   "wyzej_lepiej": true,
+   "chance": 0.25,
+   "majority": 0.25731925911173076,
+   "v108_manifest": {
+    "wartosc": 0.4340768771161123,
+    "se": 0.004946221512145409,
+    "n": 10042,
+    "results_sha256": "1a5f7244905f46f32f111272a2b3b0c9dca5206f739ef7694e3ef70981f83f81"
+   },
+   "v108_przeliczone": {
+    "wartosc": 0.4340768771161123,
+    "se": 0.004946221512145409,
+    "n": 10042
+   },
+   "v109": {
+    "wartosc": 0.5279824736108345,
+    "se": 0.0049819610975912355,
+    "n": 10042
+   },
+   "kontrola": {
+    "roznica": 0.0,
+    "w_se": 0.0,
+    "n_zgodne": true,
+    "prog_se": 0.5,
+    "zgodna": true
+   },
+   "porownanie": {
+    "n": 10042,
+    "roznica": 0.09390559649472219,
+    "roznica_srednia": 0.09390559649472216,
+    "roznica_bpb": null,
+    "se": 0.003577432909975053,
+    "z": 26.249436078279103,
+    "t": null,
+    "df": null,
+    "k": null,
+    "p": 7.254376786872756e-152,
+    "werdykt": "pewne",
+    "metoda": "A parowane",
+    "p_holm": 1.0881565180309133e-150,
+    "werdykt_holm": "pewne",
+    "po_holmie": "tak"
+   },
+   "kontrola_sensu": {
+    "slayer1b-1.09-k40000": [],
+    "slayer1b-1.08": []
+   },
+   "werdykt_koncowy": "lepszy (pewne)",
+   "kierunek": "lepiej"
+  },
+  {
+   "benchmark": "lambada",
+   "zadanie": "T17",
+   "nazwa": "LAMBADA",
+   "metryka": "acc",
+   "wyzej_lepiej": true,
+   "chance": 0.0,
+   "majority": 0.0031049873859887445,
+   "v108_manifest": {
+    "wartosc": 0.4013196196390452,
+    "se": 0.006828963347262634,
+    "n": 5153,
+    "results_sha256": "f8cad6420a0a233af2c7c1f834dc90524bf8e84a55ef456fb0f97a177e4314f6"
+   },
+   "v108_przeliczone": {
+    "wartosc": 0.4013196196390452,
+    "se": 0.006828963347262634,
+    "n": 5153
+   },
+   "v109": {
+    "wartosc": 0.45371628177760526,
+    "se": 0.006936068656935626,
+    "n": 5153
+   },
+   "kontrola": {
+    "roznica": 0.0,
+    "w_se": 0.0,
+    "n_zgodne": true,
+    "prog_se": 0.5,
+    "zgodna": true
+   },
+   "porownanie": {
+    "n": 5153,
+    "roznica": 0.052396662138560035,
+    "roznica_srednia": 0.05239666213856006,
+    "roznica_bpb": null,
+    "se": 0.0059940823342450175,
+    "z": 8.741398468821611,
+    "t": null,
+    "df": null,
+    "k": null,
+    "p": 2.3024239074853563e-18,
+    "werdykt": "pewne",
+    "metoda": "A parowane",
+    "p_holm": 2.7629086889824277e-17,
+    "werdykt_holm": "pewne",
+    "po_holmie": "tak"
+   },
+   "kontrola_sensu": {
+    "slayer1b-1.09-k40000": [],
+    "slayer1b-1.08": []
+   },
+   "werdykt_koncowy": "lepszy (pewne)",
+   "kierunek": "lepiej"
+  },
+  {
+   "benchmark": "mathqa",
+   "zadanie": "T19",
+   "nazwa": "MathQA",
+   "metryka": "acc_norm",
+   "wyzej_lepiej": true,
+   "chance": 0.1999999999999996,
+   "majority": 0.22646566164154103,
+   "v108_manifest": {
+    "wartosc": 0.22814070351758794,
+    "se": 0.007681942435552314,
+    "n": 2985,
+    "results_sha256": "8304d95102775de68036192aef4ea7b398cd5abb92d7e1898c0cb99fff36840b"
+   },
+   "v108_przeliczone": {
+    "wartosc": 0.22814070351758794,
+    "se": 0.007681942435552314,
+    "n": 2985
+   },
+   "v109": {
+    "wartosc": 0.22512562814070353,
+    "se": 0.007645901662342614,
+    "n": 2985
+   },
+   "kontrola": {
+    "roznica": 0.0,
+    "w_se": 0.0,
+    "n_zgodne": true,
+    "prog_se": 0.5,
+    "zgodna": true
+   },
+   "porownanie": {
+    "n": 2985,
+    "roznica": -0.0030150753768844185,
+    "roznica_srednia": -0.003015075376884422,
+    "roznica_bpb": null,
+    "se": 0.0069235456544012265,
+    "z": -0.435481403226939,
+    "t": null,
+    "df": null,
+    "k": null,
+    "p": 0.6632130346928267,
+    "werdykt": "szum",
+    "metoda": "A parowane",
+    "p_holm": 1.0,
+    "werdykt_holm": "szum",
+    "po_holmie": "nie"
+   },
+   "kontrola_sensu": {
+    "slayer1b-1.09-k40000": [],
+    "slayer1b-1.08": []
+   },
+   "werdykt_koncowy": "szum",
+   "kierunek": null
+  },
+  {
+   "benchmark": "medmcqa",
+   "zadanie": "T45",
+   "nazwa": "MedMCQA",
+   "metryka": "acc",
+   "wyzej_lepiej": true,
+   "chance": 0.25,
+   "majority": 0.3222567535261774,
+   "v108_manifest": {
+    "wartosc": 0.3122161128376763,
+    "se": 0.007165749806034923,
+    "n": 4183,
+    "results_sha256": "3d018baf3cf468fa78e6bef355df0f5cffd8e95aa05295293f5e6c7610127b9d"
+   },
+   "v108_przeliczone": {
+    "wartosc": 0.3122161128376763,
+    "se": 0.007165749806034923,
+    "n": 4183
+   },
+   "v109": {
+    "wartosc": 0.30050203203442505,
+    "se": 0.007089652046133705,
+    "n": 4183
+   },
+   "kontrola": {
+    "roznica": 0.0,
+    "w_se": 0.0,
+    "n_zgodne": true,
+    "prog_se": 0.5,
+    "zgodna": true
+   },
+   "porownanie": {
+    "n": 4183,
+    "roznica": -0.011714080803251259,
+    "roznica_srednia": -0.011714080803251255,
+    "roznica_bpb": null,
+    "se": 0.005207728071736871,
+    "z": -2.249364913430359,
+    "t": null,
+    "df": null,
+    "k": null,
+    "p": 0.02448928897816244,
+    "werdykt": "prawdopodobne",
+    "metoda": "A parowane",
+    "p_holm": 0.14693573386897466,
+    "werdykt_holm": "szum",
+    "po_holmie": "nie"
+   },
+   "kontrola_sensu": {
+    "slayer1b-1.09-k40000": [],
+    "slayer1b-1.08": []
+   },
+   "werdykt_koncowy": "szum",
+   "kierunek": null
+  },
+  {
+   "benchmark": "multiblimp-pl",
+   "zadanie": "T04",
+   "nazwa": "MultiBLiMP-PL",
+   "metryka": "acc",
+   "wyzej_lepiej": true,
+   "chance": 0.5,
+   "majority": null,
+   "v108_manifest": {
+    "wartosc": 0.9874694376528117,
+    "se": 0.001944942830841165,
+    "n": 3272,
+    "results_sha256": "2e303e04e5fb5978e4a506c52179d92d7598310a01ab485e249643aebb39005a"
+   },
+   "v108_przeliczone": {
+    "wartosc": 0.9874694376528117,
+    "se": 0.001944942830841165,
+    "n": 3272
+   },
+   "v109": {
+    "wartosc": 0.9856356968215159,
+    "se": 0.0020804640773972706,
+    "n": 3272
+   },
+   "kontrola": {
+    "roznica": 0.0,
+    "w_se": 0.0,
+    "n_zgodne": true,
+    "prog_se": 0.5,
+    "zgodna": true
+   },
+   "porownanie": {
+    "n": 3272,
+    "roznica": -0.001833740831295838,
+    "roznica_srednia": -0.0018337408312958435,
+    "roznica_bpb": null,
+    "se": 0.002327693967488974,
+    "z": -0.7877929216244918,
+    "t": null,
+    "df": null,
+    "k": null,
+    "p": 0.4308178420893559,
+    "werdykt": "szum",
+    "metoda": "A parowane",
+    "p_holm": 1.0,
+    "werdykt_holm": "szum",
+    "po_holmie": "nie"
+   },
+   "kontrola_sensu": {
+    "slayer1b-1.09-k40000": [],
+    "slayer1b-1.08": []
+   },
+   "werdykt_koncowy": "szum",
+   "kierunek": null
+  },
+  {
+   "benchmark": "piqa",
+   "zadanie": "T06",
+   "nazwa": "PIQA",
+   "metryka": "acc_norm",
+   "wyzej_lepiej": true,
+   "chance": 0.5,
+   "majority": 0.5048966267682263,
+   "v108_manifest": {
+    "wartosc": 0.6621327529923831,
+    "se": 0.011035474307853663,
+    "n": 1838,
+    "results_sha256": "5127731350e2da63465c1665806d58e7a94e644583ac1e2a607a068095c00cd4"
+   },
+   "v108_przeliczone": {
+    "wartosc": 0.6621327529923831,
+    "se": 0.011035474307853663,
+    "n": 1838
+   },
+   "v109": {
+    "wartosc": 0.7121871599564744,
+    "se": 0.010563250383059263,
+    "n": 1838
+   },
+   "kontrola": {
+    "roznica": 0.0,
+    "w_se": 0.0,
+    "n_zgodne": true,
+    "prog_se": 0.5,
+    "zgodna": true
+   },
+   "porownanie": {
+    "n": 1838,
+    "roznica": 0.05005440696409136,
+    "roznica_srednia": 0.05005440696409141,
+    "roznica_bpb": null,
+    "se": 0.008420351112718393,
+    "z": 5.944456032063494,
+    "t": null,
+    "df": null,
+    "k": null,
+    "p": 2.7737640592643933e-09,
+    "werdykt": "pewne",
+    "metoda": "A parowane",
+    "p_holm": 3.0511404651908324e-08,
+    "werdykt_holm": "pewne",
+    "po_holmie": "tak"
+   },
+   "kontrola_sensu": {
+    "slayer1b-1.09-k40000": [],
+    "slayer1b-1.08": []
+   },
+   "werdykt_koncowy": "lepszy (pewne)",
+   "kierunek": "lepiej"
+  },
+  {
+   "benchmark": "pubmedqa",
+   "zadanie": "T44",
+   "nazwa": "PubMedQA",
+   "metryka": "acc",
+   "wyzej_lepiej": true,
+   "chance": 0.33333333333333404,
+   "majority": 0.552,
+   "v108_manifest": {
+    "wartosc": 0.434,
+    "se": 0.022187215803029015,
+    "n": 500,
+    "results_sha256": "9b3a6a055350d1a5a8da9c7477a5b821f0712fdb1a29119bc9884f1624f51332"
+   },
+   "v108_przeliczone": {
+    "wartosc": 0.434,
+    "se": 0.022187215803029015,
+    "n": 500
+   },
+   "v109": {
+    "wartosc": 0.562,
+    "se": 0.022210326363977382,
+    "n": 500
+   },
+   "kontrola": {
+    "roznica": 0.0,
+    "w_se": 0.0,
+    "n_zgodne": true,
+    "prog_se": 0.5,
+    "zgodna": true
+   },
+   "porownanie": {
+    "n": 500,
+    "roznica": 0.12800000000000006,
+    "roznica_srednia": 0.128,
+    "roznica_bpb": null,
+    "se": 0.02172961924897468,
+    "z": 5.890577213221982,
+    "t": null,
+    "df": null,
+    "k": null,
+    "p": 3.848490006819102e-09,
+    "werdykt": "pewne",
+    "metoda": "A parowane",
+    "p_holm": 3.848490006819102e-08,
+    "werdykt_holm": "pewne",
+    "po_holmie": "tak"
+   },
+   "kontrola_sensu": {
+    "slayer1b-1.09-k40000": [],
+    "slayer1b-1.08": []
+   },
+   "werdykt_koncowy": "lepszy (pewne)",
+   "kierunek": "lepiej"
+  },
+  {
+   "benchmark": "social-iqa",
+   "zadanie": "T46",
+   "nazwa": "Social IQa",
+   "metryka": "acc",
+   "wyzej_lepiej": true,
+   "chance": 0.3333333333333354,
+   "majority": 0.33623336745138177,
+   "v108_manifest": {
+    "wartosc": 0.39662231320368474,
+    "se": 0.011069603691860448,
+    "n": 1954,
+    "results_sha256": "5092327ab6e5ca1d72fde403a46554a19ff5570f1f18ad8f84be059685593fec"
+   },
+   "v108_przeliczone": {
+    "wartosc": 0.39662231320368474,
+    "se": 0.011069603691860448,
+    "n": 1954
+   },
+   "v109": {
+    "wartosc": 0.40890481064483114,
+    "se": 0.011124710055682972,
+    "n": 1954
+   },
+   "kontrola": {
+    "roznica": 0.0,
+    "w_se": 0.0,
+    "n_zgodne": true,
+    "prog_se": 0.5,
+    "zgodna": true
+   },
+   "porownanie": {
+    "n": 1954,
+    "roznica": 0.0122824974411464,
+    "roznica_srednia": 0.012282497441146366,
+    "roznica_bpb": null,
+    "se": 0.007306134748960662,
+    "z": 1.6811211212458979,
+    "t": null,
+    "df": null,
+    "k": null,
+    "p": 0.09273939062872952,
+    "werdykt": "szum",
+    "metoda": "A parowane",
+    "p_holm": 0.37095756251491807,
+    "werdykt_holm": "szum",
+    "po_holmie": "nie"
+   },
+   "kontrola_sensu": {
+    "slayer1b-1.09-k40000": [],
+    "slayer1b-1.08": []
+   },
+   "werdykt_koncowy": "szum",
+   "kierunek": null
+  },
+  {
+   "benchmark": "wikitext-2",
+   "zadanie": "T03",
+   "nazwa": "WikiText-2",
+   "metryka": "byte_perplexity",
+   "wyzej_lepiej": false,
+   "chance": null,
+   "majority": null,
+   "v108_manifest": {
+    "wartosc": 1.7802158133590507,
+    "se": 0.01491670759964611,
+    "n": 62,
+    "results_sha256": "123a86794b7bbab57ff204eced3d7594b225b0731a3a1c1a10970dc27cc5fd66"
+   },
+   "v108_przeliczone": {
+    "wartosc": 1.7802158133590507,
+    "se": 0.014916707599646108,
+    "n": 62
+   },
+   "v109": {
+    "wartosc": 1.7023145973049194,
+    "se": 0.015611197655273919,
+    "n": 62
+   },
+   "kontrola": {
+    "roznica": 0.0,
+    "w_se": 0.0,
+    "n_zgodne": true,
+    "prog_se": 0.5,
+    "zgodna": true
+   },
+   "porownanie": {
+    "n": 62,
+    "roznica": -0.07790121605413125,
+    "roznica_srednia": null,
+    "roznica_bpb": -0.06455446811246439,
+    "se": 0.003541592770297967,
+    "z": null,
+    "t": -18.227524252324805,
+    "df": 61,
+    "k": null,
+    "p": 2.2816688236398634e-26,
+    "werdykt": "pewne",
+    "metoda": "K (dokumenty)",
+    "p_holm": 3.194336353095809e-25,
+    "werdykt_holm": "pewne",
+    "po_holmie": "tak"
+   },
+   "kontrola_sensu": {
+    "slayer1b-1.09-k40000": [],
+    "slayer1b-1.08": []
+   },
+   "werdykt_koncowy": "lepszy (pewne)",
+   "kierunek": "lepiej"
+  },
+  {
+   "benchmark": "winogrande",
+   "zadanie": "T07",
+   "nazwa": "WinoGrande",
+   "metryka": "acc",
+   "wyzej_lepiej": true,
+   "chance": 0.5,
+   "majority": 0.5043409629044988,
+   "v108_manifest": {
+    "wartosc": 0.5367008681925809,
+    "se": 0.012674263949893417,
+    "n": 1267,
+    "results_sha256": "a03c5058195b626b61c85d24804c17e595f9fcc4c3790f46b70574ebd3bf5b03"
+   },
+   "v108_przeliczone": {
+    "wartosc": 0.5367008681925809,
+    "se": 0.012674263949893377,
+    "n": 1267
+   },
+   "v109": {
+    "wartosc": 0.5769534333070244,
+    "se": 0.012809845543149456,
+    "n": 1267
+   },
+   "kontrola": {
+    "roznica": 0.0,
+    "w_se": 0.0,
+    "n_zgodne": true,
+    "prog_se": 0.5,
+    "zgodna": true
+   },
+   "porownanie": {
+    "n": 1267,
+    "roznica": 0.04025256511444353,
+    "roznica_srednia": 0.04025256511444357,
+    "roznica_bpb": null,
+    "se": 0.014687564024668795,
+    "z": null,
+    "t": 2.7405882314341956,
+    "df": 982,
+    "k": 983,
+    "p": 0.00624421519207362,
+    "werdykt": "prawdopodobne",
+    "metoda": "K",
+    "p_holm": 0.04370950634451534,
+    "werdykt_holm": "prawdopodobne",
+    "po_holmie": "tak"
+   },
+   "kontrola_sensu": {
+    "slayer1b-1.09-k40000": [],
+    "slayer1b-1.08": []
+   },
+   "werdykt_koncowy": "lepszy (prawdopodobne)",
+   "kierunek": "lepiej"
+  },
+  {
+   "benchmark": "wsc273",
+   "zadanie": "T14",
+   "nazwa": "WSC273",
+   "metryka": "acc",
+   "wyzej_lepiej": true,
+   "chance": 0.5,
+   "majority": 0.5018315018315018,
+   "v108_manifest": {
+    "wartosc": 0.6153846153846154,
+    "se": 0.022063502677681406,
+    "n": 273,
+    "results_sha256": "6489d32a09428af76f746a50c49d2993630b9d4391253ba48f460a85cb29f061"
+   },
+   "v108_przeliczone": {
+    "wartosc": 0.6153846153846154,
+    "se": 0.022063502677681392,
+    "n": 273
+   },
+   "v109": {
+    "wartosc": 0.6373626373626373,
+    "se": 0.024114424972370388,
+    "n": 273
+   },
+   "kontrola": {
+    "roznica": 0.0,
+    "w_se": 0.0,
+    "n_zgodne": true,
+    "prog_se": 0.5,
+    "zgodna": true
+   },
+   "porownanie": {
+    "n": 273,
+    "roznica": 0.0219780219780219,
+    "roznica_srednia": 0.02197802197802198,
+    "roznica_bpb": null,
+    "se": 0.02375397335176034,
+    "z": null,
+    "t": 0.9252356080627349,
+    "df": 134,
+    "k": 135,
+    "p": 0.3565066266842982,
+    "werdykt": "szum",
+    "metoda": "K",
+    "p_holm": 1.0,
+    "werdykt_holm": "szum",
+    "po_holmie": "nie"
+   },
+   "kontrola_sensu": {
+    "slayer1b-1.09-k40000": [],
+    "slayer1b-1.08": []
+   },
+   "werdykt_koncowy": "szum",
+   "kierunek": null
+  }
+ ],
+ "podsumowanie": {
+  "lepsze": [
+   "ARC-Challenge",
+   "ARC-Easy",
+   "EWoK",
+   "HellaSwag",
+   "LAMBADA",
+   "PIQA",
+   "PubMedQA",
+   "WikiText-2",
+   "WinoGrande"
+  ],
+  "gorsze": [],
+  "szum": [
+   "BLiMP",
+   "MathQA",
+   "MedMCQA",
+   "MultiBLiMP-PL",
+   "Social IQa",
+   "WSC273"
+  ],
+  "nierozstrzygniete": [],
+  "kontrole_niezgodne": [],
+  "caly_wynik_nierozstrzygniety": false,
+  "twierdzenie": "Po Holmie (m = 15) Slayer 1B 1.09 z kroku 40 000 jest lepszy od 1.08 na 9 z 15 testów, gorszy na 0, w szumie na 6, nierozstrzygnięty na 0.",
+  "obalenie": "inny podział lepsze/gorsze/szum po przeliczeniu niezależnym kodem z tych samych próbek albo niezgodna kontrola narzędzia na teście z werdyktem"
+ },
+ "odstepstwa": [
+  "Kod na instancji to git archive commitu b99f72a (protokół z aneksem). Kod analizy liczby_109.py, raport_md.py i przelicz_niezaleznie.py zacommitowany w 88719f1 przed pierwszym wynikiem; liczby_109.py i tools/ewaluacja/raport.py liczą bez zmian od 88719f1.",
+  "Po wyniku (kod pisany przed pierwszym wynikiem, ale niezacommitowany, przepadł przy awarii Maca i został napisany od nowa): dolacz_wyniki.py, sprawdz_raport.py, mutacje.py, diagnoza_acc_norm.py, w przelicz_niezaleznie.py kontrola narzędzia liczona od nowa z próbek i porównanie p Holma, w raport_md.py opis plików i werdykt po Holmie przy nazwie testu w liście głównego twierdzenia (strażnik liczb, reguła b), w tools/ewaluacja/raport.py jeden wiersz opisu plików. Progi, warianty i lista porównań bez zmian.",
+  "Pole runner_sha256 różni się od pełnego przebiegu (suma całego katalogu research/common, nie samego ewaluuj.py): ewaluuj.py jest bajt w bajt ten sam, a jedyna zmiana w research/common między przebiegiem (51c5e31) a pomiarem (b99f72a) to klastry testu T27 (PSC) w zadania.py, spoza 15 testów tego pomiaru.",
+  "Przeliczenie niezależne (przelicz_niezaleznie.py) kończy się kodem 1 wyłącznie na HellaSwag: liczy acc_norm z pola próbki lm_eval, a runner (metryki.oceny_mc) dzieli loglik przez długość kontynuacji bez wiodących spacji; definicje rozchodzą się na pytaniach, których kontynuacja ma kilka wiodących spacji (code/diagnoza_acc_norm.py, diagnoza_acc_norm.json). Podział lepsze/gorsze/szum i wszystkie werdykty po Holmie są w obu definicjach te same, więc główne twierdzenie nie jest obalone; liczby w raporcie są w definicji runnera, tej samej co pełny przebieg i manifest 1.08.",
+  "Kolejka na instancji liczyła 4 procesy na kartę (aneks), pełny przebieg 2; każdy proces liczy w batch 1, więc liczba procesów nie zmienia wyniku pytania.",
+  "Protokół nie mówi o czasy.jsonl przebiegu: dolacz_wyniki.py dopisuje do niego wiersze ewaluacji 1.09, tak jak do manifest.jsonl; pełne czasy obu etykiet leżą w eksport/czasy.jsonl."
+ ],
+ "not_run": [
+  "Ranking z 1.08 jako modelem eksperymentalnym (PR 196) nie jest w tej gałęzi; wykresy rankingów pokazują 1.09 w toku obok ostatniej przyjętej wersji Slayera (1.07), bez 1.08.",
+  "Kontrola na znanym modelu spoza Slayera: protokół jej nie przewiduje; kontrolą narzędzia jest 1.08 przeliczone wobec pełnego przebiegu."
+ ]
+}

@@ -1,0 +1,99 @@
+[
+ {
+  "mutacja": "bez zmian (rozjazd bazowy)",
+  "zlapana": null,
+  "kod": 1,
+  "rozjazdy": [
+   "hellaswag: 1.08 przeliczone 0.43397729535949015 != 0.4340768771161123",
+   "hellaswag: SE 0.0035879851094430025 != 0.003577432909975053",
+   "hellaswag: p Holma 1.9240679817623058e-150 != 1.0881565180309133e-150",
+   "hellaswag: Δ 0.09410476000796653 != 0.09390559649472219"
+  ]
+ },
+ {
+  "mutacja": "LICZBY: Δ arc-easy + 0,01",
+  "zlapana": true,
+  "komunikat": "arc-easy: Δ 0.0824915824915824 != 0.09249158249158239"
+ },
+ {
+  "mutacja": "LICZBY: SE Δ arc-easy × 1,1",
+  "zlapana": true,
+  "komunikat": "arc-easy: SE 0.00890845450839239 != 0.00979929995923163"
+ },
+ {
+  "mutacja": "LICZBY: kontrola narzędzia arc-easy odwrócona",
+  "zlapana": true,
+  "komunikat": "arc-easy: kontrola narzędzia True != False"
+ },
+ {
+  "mutacja": "LICZBY: werdykt po Holmie winogrande prawdopodobne → pewne",
+  "zlapana": true,
+  "komunikat": "winogrande: po Holmie prawdopodobne != pewne"
+ },
+ {
+  "mutacja": "LICZBY: 1.08 przeliczone piqa + 0,001",
+  "zlapana": true,
+  "komunikat": "piqa: 1.08 przeliczone 0.6621327529923831 != 0.6631327529923831"
+ },
+ {
+  "mutacja": "kod: m w Holmie 15 → 14",
+  "zlapana": true,
+  "komunikat": "zbuduj przerwał: ValueError: m = 14 mniejsze niż liczba p (15)"
+ },
+ {
+  "mutacja": "kod: m w Holmie 15 → 16",
+  "zlapana": true,
+  "komunikat": "arc-challenge: p Holma 0.0001832186219812037 != 0.0002035762466457825; arc-easy: p Holma 2.6595927583014084e-19 != 2.8641768166323266e-19; blimp: p Holma 0.3378007813596603 != 0.4053609376315879; ewok: p Holma 0.0001832186219812037 != 0.0002035762466457825; hellaswag: p Holma 1.9240679817623058e-150 != 1.160700285899641e-150; lambada: p Holma 2.7629086889823895e-17 != 2.993151079730963e-17; medmcqa: p Holma 0.14693573386897457 != 0.1714250228471371; piqa: p Holma 3.05114046519083e-08 != 3.328516871117272e-08; pubmedqa: p Holma 3.848490006819069e-08 != 4.2333390075010125e-08; social-iqa: p Holma 0.3709575625149183 != 0.46369695314364756; wikitext-2: p Holma 3.194336353095763e-25 != 3.422503235459795e-25; winogrande: p Holma 0.04370950634453055 != 0.04995372153658896; winogrande: po Holmie prawdopodobne != szum; winogrande: wynik lepszy (prawdopodobne) != szum"
+ },
+ {
+  "mutacja": "kod: porównanie liczone B − A (znak Δ i statystyki)",
+  "zlapana": true,
+  "komunikat": "arc-challenge: wynik lepszy (pewne) != gorszy (pewne); arc-challenge: Δ 0.04948805460750849 != -0.04948805460750849; arc-easy: wynik lepszy (pewne) != gorszy (pewne); arc-easy: Δ 0.0824915824915824 != -0.0824915824915824; blimp: Δ 0.010074626865671621 != -0.010074626865671621; ewok: wynik lepszy (pewne) != gorszy (pewne); ewok: Δ 0.02880658436214001 != -0.02880658436214001; hellaswag: wynik lepszy (pewne) != gorszy (pewne); hellaswag: Δ 0.09410476000796653 != -0.09390559649472219; lambada: wynik lepszy (pewne) != gorszy (pewne); lambada: Δ 0.052396662138560035 != -0.052396662138560035; mathqa: Δ -0.0030150753768844185 != 0.0030150753768844185; medmcqa: Δ -0.011714080803251259 != 0.011714080803251259; multiblimp-pl: Δ -0.001833740831295838 != 0.001833740831295838; piqa: wynik lepszy (pewne) != gorszy (pewne); piqa: Δ 0.05005440696409136 != -0.05005440696409136; pubmedqa: wynik lepszy (pewne) != gorszy (pewne); pubmedqa: Δ 0.12800000000000006 != -0.12800000000000006; social-iqa: Δ 0.0122824974411464 != -0.0122824974411464; wikitext-2: wynik lepszy (pewne) != gorszy (pewne); wikitext-2: Δ -0.07790121605413125 != 0.07790121605413125; winogrande: wynik lepszy (prawdopodobne) != gorszy (prawdopodobne); winogrande: Δ 0.04025256511444353 != -0.04025256511444353; wsc273: Δ 0.0219780219780219 != -0.0219780219780219"
+ },
+ {
+  "mutacja": "kod: Holm z m = liczbie wierszy z p mniejszej o jeden (filtr wiersza)",
+  "zlapana": true,
+  "komunikat": "zbuduj przerwał: ValueError: m = 14 mniejsze niż liczba p (15)"
+ },
+ {
+  "mutacja": "kod: A i B zamienione (znak Δ)",
+  "zlapana": true,
+  "komunikat": "zbuduj przerwał: KeyError: 'arc-challenge'"
+ },
+ {
+  "mutacja": "kod: kierunek wyzej_lepiej odwrócony",
+  "zlapana": true,
+  "komunikat": "arc-challenge: wynik lepszy (pewne) != gorszy (pewne); arc-easy: wynik lepszy (pewne) != gorszy (pewne); ewok: wynik lepszy (pewne) != gorszy (pewne); hellaswag: wynik lepszy (pewne) != gorszy (pewne); lambada: wynik lepszy (pewne) != gorszy (pewne); piqa: wynik lepszy (pewne) != gorszy (pewne); pubmedqa: wynik lepszy (pewne) != gorszy (pewne); wikitext-2: wynik lepszy (pewne) != gorszy (pewne); winogrande: wynik lepszy (prawdopodobne) != gorszy (prawdopodobne)"
+ },
+ {
+  "mutacja": "kod: kontrola narzędzia bez skali pliku (MultiBLiMP w %)",
+  "zlapana": true,
+  "komunikat": "multiblimp-pl: kontrola narzędzia True != False; multiblimp-pl: wynik szum != nierozstrzygnięte (kontrola narzędzia)"
+ },
+ {
+  "mutacja": "kod: SE porównania × 1,1",
+  "zlapana": true,
+  "komunikat": "arc-challenge: SE 0.011614373466555557 != 0.012775810813211113; arc-easy: SE 0.00890845450839239 != 0.00979929995923163; blimp: SE 0.005420880006234056 != 0.005962968006857464; ewok: SE 0.006741552444166318 != 0.00741570768858295; hellaswag: SE 0.0035879851094430025 != 0.003935176200972558; lambada: SE 0.0059940823342450175 != 0.0065934905676695195; mathqa: SE 0.0069235456544012265 != 0.00761590021984135; medmcqa: SE 0.005207728071736871 != 0.005728500878910558; multiblimp-pl: SE 0.002327693967488974 != 0.0025604633642378714; piqa: SE 0.008420351112718393 != 0.009262386223990234; pubmedqa: SE 0.02172961924897468 != 0.02390258117387215; social-iqa: SE 0.007306134748960662 != 0.00803674822385673; wikitext-2: SE 0.003541592770297967 != 0.003895752047327764; winogrande: SE 0.014687564024668795 != 0.016156320427135676; wsc273: SE 0.023753973351760337 != 0.02612937068693638"
+ },
+ {
+  "mutacja": "próbki: suma wyniki/arc-challenge/slayer1b-1.08/podsumowanie.md zmieniona",
+  "zlapana": true,
+  "komunikat": "sha256 różne od probki_sha256.json: ['wyniki/arc-challenge/slayer1b-1.08/podsumowanie.md']"
+ },
+ {
+  "mutacja": "RAPORT bez zmian",
+  "zlapana": null,
+  "kod": 0,
+  "komunikat": "0 problemów"
+ },
+ {
+  "mutacja": "RAPORT: 0,6662 → 0,6785",
+  "zlapana": true,
+  "komunikat": "(a) 0,6785 nie odpowiada żadnej liczbie z LICZBY.json jako wartość"
+ },
+ {
+  "mutacja": "RAPORT: WinoGrande „tak (prawdopodobne)” → „tak (pewne)”",
+  "zlapana": true,
+  "komunikat": "(l) werdykt z p Holma → prawdopodobne, w kolumnie „po Holmie”: pewne"
+ }
+]

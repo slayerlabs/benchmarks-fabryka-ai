@@ -1236,7 +1236,7 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     a(f"| `{BOS_DIR}/` | pomiar BOS i okna na Pythii oraz kontrola ARC-Challenge: protokół, raport, liczby, kod, wyniki bez próbek |")
     a("| `charts/` | wykresy SVG z wartości tego katalogu |")
     if run.TOKU and run.PTOKU:
-        a(f"| `{KATALOG_TOKU}/` | {', '.join(nazwa(m) for m in run.TOKU)} wobec 1.08: protokół, `LICZBY.json`, raport, kod, 1.08 przeliczone (bez próbek), sha256 surowych próbek |")
+        a(f"| `{KATALOG_TOKU}/` | {', '.join(nazwa(m) for m in run.TOKU)} wobec 1.08: protokół, `LICZBY.json`, raport, kod, 1.08 przeliczone, próbki per pytanie obu etykiet (gzip, 1.09 w `<test>/slayer1b-1.09-k40000/probki/`), sha256 surowych plików, `ODTWORZENIE.md` |")
     a("")
     pack = env.get("paczka_probek") or {}
     if pack:

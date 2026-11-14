@@ -2,9 +2,11 @@
 statystyka.py i ewaluuj.py: wynik pytania z pola metryki zapisanego przez lm_eval (EWoK z loglików, WikiText z
 logliku i bajtów dokumentu), klastry z pól dokumentów własnym kodem, p z rozkładów scipy, Holm z m = 15.
 
-    python przelicz_niezaleznie.py <eksport z próbkami> <LICZBY.json> [<wynik.json>]
+    python przelicz_niezaleznie.py <eksport z próbkami> <LICZBY.json> <manifest.jsonl przebiegu> [<wynik.json>]
 
-Kod 0: każdy test ma Δ równe LICZBY.json do 1e-9, SE Δ do 1e-6 względnie, ten sam werdykt po Holmie i ten sam wynik
+Eksport z próbkami: rozpakowana paczka albo katalog złożony z plików repo przez `dolacz_wyniki.py odtworz`.
+Kod 0: każdy test ma Δ równe LICZBY.json do 1e-9, SE Δ do 1e-6 względnie, p Holma do 1e-6 względnie, ten sam werdykt
+po Holmie, tę samą kontrolę narzędzia (1.08 z próbek wobec manifestu przebiegu, policzoną tu od nowa) i ten sam wynik
 końcowy; kod 1: rozjazd (lista w wyniku). Rozjazd podziału lepsze/gorsze/szum obala główne twierdzenie (PROTOKOL.md).
 """
 import json
@@ -111,18 +113,27 @@ def porownaj(eksport, bench, szablony):
         d = [-(pa[k]["filtered_resps"][0] - pb[k]["filtered_resps"][0]) / (math.log(2) * b) for k, b in zip(klucze, bajty)]
         m, se, t, df, p, G = se_klastrowe(d, klucze, bajty)
         bpp = lambda P: math.exp(-sum(P[k]["filtered_resps"][0] for k in klucze) / sum(bajty))
-        return {"roznica": bpp(pa) - bpp(pb), "se": se, "t": t, "df": df, "p": p, "n": len(klucze)}
+        return {"roznica": bpp(pa) - bpp(pb), "se": se, "t": t, "df": df, "p": p, "n": len(klucze), "v108": bpp(pb)}
     xa = [wynik_pytania(bench, pa[k]) for k in klucze]
     xb = [wynik_pytania(bench, pb[k]) for k in klucze]
     d = [a - b for a, b in zip(xa, xb)]
     kl = klastry(bench, klucze, pa, szablony)
+    v108 = sum(xb) / len(xb)
     if kl is not None:
         m, se, t, df, p, G = se_klastrowe(d, kl)
-        return {"roznica": sum(xa) / len(xa) - sum(xb) / len(xb), "se": se, "t": t, "df": df, "p": p, "n": len(d)}
+        return {"roznica": sum(xa) / len(xa) - v108, "se": se, "t": t, "df": df, "p": p, "n": len(d), "v108": v108}
     n, m = len(d), sum(d) / len(d)
     se = math.sqrt(sum((x - m) ** 2 for x in d) / (n - 1) / n)
     z = m / se if se else None
-    return {"roznica": sum(xa) / n - sum(xb) / n, "se": se, "z": z, "p": 2 * stats.norm.sf(abs(z)) if z is not None else None, "n": n}
+    return {"roznica": sum(xa) / n - v108, "se": se, "z": z, "p": 2 * stats.norm.sf(abs(z)) if z is not None else None, "n": n,
+            "v108": v108}
+
+
+def kontrola_zgodna(w, m):
+    """1.08 policzone tu z próbek wobec wiersza manifestu przebiegu: to samo n i |różnica| ≤ 0,5 SE z manifestu
+    (MultiBLiMP-PL zapisuje procenty)."""
+    skala = 100.0 if m["benchmark"] == "multiblimp-pl" else 1.0
+    return w["n"] == m["n"] and bool(m["se"]) and abs(w["v108"] * skala - m["wartosc"]) <= 0.5 * m["se"]
 
 
 def holm(ps, m=M):
@@ -140,13 +151,17 @@ def werdykt(p):
 
 def main():
     eksport, liczby = Path(sys.argv[1]), json.loads(Path(sys.argv[2]).read_text(encoding="utf-8"))
+    manifest = {w["benchmark"]: w for w in map(json.loads, Path(sys.argv[3]).read_text(encoding="utf-8").splitlines())
+                if w["model"] == B}
     szablony = szablony_ewok()
     testy = {t["benchmark"]: t for t in liczby["testy"]}
+    if len(testy) != M:
+        raise SystemExit(f"LICZBY.json ma {len(testy)} testów, protokół {M}")
     wyniki = {b: porownaj(eksport, b, szablony) for b in testy}
     for b, p in zip(wyniki, holm([wyniki[b]["p"] for b in wyniki])):
         w = wyniki[b]
         w["p_holm"], w["werdykt_holm"] = p, werdykt(p)
-        zgodna = testy[b]["kontrola"]["zgodna"]
+        w["kontrola_zgodna"] = zgodna = kontrola_zgodna(w, manifest[b])
         if not zgodna:
             w["wynik"] = "nierozstrzygnięte (kontrola narzędzia)"
         elif w["werdykt_holm"] in ("pewne", "prawdopodobne"):
@@ -161,6 +176,13 @@ def main():
             rozjazdy.append(f"{b}: Δ {w['roznica']} != {L['roznica']}")
         if (w["se"] is None) != (L["se"] is None) or (L["se"] and abs(w["se"] - L["se"]) > 1e-6 * L["se"]):
             rozjazdy.append(f"{b}: SE {w['se']} != {L['se']}")
+        if abs(w["v108"] - testy[b]["v108_przeliczone"]["wartosc"]) > 1e-9:
+            rozjazdy.append(f"{b}: 1.08 przeliczone {w['v108']} != {testy[b]['v108_przeliczone']['wartosc']}")
+        if (w["p_holm"] is None) != (L.get("p_holm") is None) or (
+                w["p_holm"] is not None and abs(w["p_holm"] - L["p_holm"]) > 1e-6 * max(L["p_holm"], 1e-300)):
+            rozjazdy.append(f"{b}: p Holma {w['p_holm']} != {L.get('p_holm')}")
+        if w["kontrola_zgodna"] != testy[b]["kontrola"]["zgodna"]:
+            rozjazdy.append(f"{b}: kontrola narzędzia {w['kontrola_zgodna']} != {testy[b]['kontrola']['zgodna']}")
         if w["werdykt_holm"] != L["werdykt_holm"]:
             rozjazdy.append(f"{b}: po Holmie {w['werdykt_holm']} != {L['werdykt_holm']}")
         if w["wynik"] != testy[b]["werdykt_koncowy"]:
@@ -168,8 +190,8 @@ def main():
     out = {"rozjazdy": rozjazdy, "testy": wyniki,
            "podzial": {k: sorted(b for b, w in wyniki.items() if w["wynik"].startswith(k)) for k in ("lepszy", "gorszy", "szum")}}
     tekst = json.dumps(out, ensure_ascii=False, indent=1)
-    if len(sys.argv) > 3:
-        Path(sys.argv[3]).write_text(tekst + "\n", encoding="utf-8")
+    if len(sys.argv) > 4:
+        Path(sys.argv[4]).write_text(tekst + "\n", encoding="utf-8")
     print("\n".join(rozjazdy) if rozjazdy else f"zgodne: {len(wyniki)} testów, podział {out['podzial']}")
     return 1 if rozjazdy else 0
 

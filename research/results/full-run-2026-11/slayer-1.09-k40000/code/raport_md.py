@@ -48,8 +48,9 @@ def raport(L: dict) -> str:
     a("")
     a(s["twierdzenie"])
     a("")
-    a(f"- lepszy: {', '.join(s['lepsze']) or 'żaden'}")
-    a(f"- gorszy: {', '.join(s['gorsze']) or 'żaden'}")
+    holm = {t["nazwa"]: t["porownanie"]["werdykt_holm"] for t in L["testy"]}
+    a(f"- lepszy: {'; '.join(f'{n} ({holm[n]} po Holmie)' for n in s['lepsze']) or 'żaden'}")
+    a(f"- gorszy: {'; '.join(f'{n} ({holm[n]} po Holmie)' for n in s['gorsze']) or 'żaden'}")
     a(f"- szum: {', '.join(s['szum']) or 'żaden'}")
     a(f"- nierozstrzygnięty: {', '.join(s['nierozstrzygniete']) or 'żaden'}")
     a("")
@@ -123,12 +124,15 @@ def raport(L: dict) -> str:
     a("## Pliki")
     a("")
     w = L["wejscia"]
-    a(f"- surowe próbki: paczka `{(w.get('paczka') or {}).get('nazwa')}` (sha256 `{(w.get('paczka') or {}).get('sha256')}`), "
-      f"poza repo; sumy każdego pliku w [`probki_sha256.json`](probki_sha256.json) (sha256 `{w['probki_sha256']}`)")
+    a(f"- surowe wyniki: paczka eksportu `{(w.get('paczka') or {}).get('nazwa')}` (sha256 "
+      f"`{(w.get('paczka') or {}).get('sha256')}`); jej pliki leżą w repo (próbki, trace i podsumowania jako gzip), sumy "
+      f"każdego pliku przed kompresją i po niej w [`probki_sha256.json`](probki_sha256.json) (sha256 `{w['probki_sha256']}`)")
     a(f"- `manifest.jsonl` przebiegu: sha256 `{w['manifest_przebiegu']}`")
-    a("- `wyniki/<test>/slayer1b-1.08/`: 1.08 przeliczone, bez próbek; 1.09 w `../<test>/slayer1b-1.09-k40000/`")
-    a("- `code/`: konwersja i sprawdzenie architektury, kolejka na instancji, `liczby_109.py`, `raport_md.py`, "
-      "`przelicz_niezaleznie.py`")
+    a("- `wyniki/<test>/slayer1b-1.08/`: 1.08 przeliczone; 1.09 w `../<test>/slayer1b-1.09-k40000/`; `eksport/`: "
+      "manifest, środowisko i czasy z instancji; `logi/`: logi par")
+    a("- `code/`: konwersja i sprawdzenie architektury, kolejka na instancji, `dolacz_wyniki.py`, `liczby_109.py`, "
+      "`raport_md.py`, `przelicz_niezaleznie.py`, `sprawdz_raport.py`, `mutacje.py`")
+    a("- odtworzenie każdej liczby z plików repo: [`ODTWORZENIE.md`](ODTWORZENIE.md)")
     a("")
     return "\n".join(out)
 

@@ -173,5 +173,179 @@ def test_etykieta_porownania_w_toku():
     assert R.toku_label(None, t) == "–"
 
 
+# --------------------------------------------------------------------------- dolacz_wyniki.py na atrapie
+
+import gzip  # noqa: E402
+import hashlib  # noqa: E402
+
+import dolacz_wyniki as DW  # noqa: E402
+
+PLIKI_PARY = {"results.json": b'{"r": 1}\n', "results_rozszerzone.json": b'{"r": 2}\n', "scores-history-wiersz.csv": b"a,b\n",
+              "podsumowanie.md": "# wynik 0,5\n".encode(), "probki/T06_space.jsonl": b'{"doc_id": 0}\n{"doc_id": 1}\n',
+              "trace/T06_space.jsonl": b'{"t": 0}\n'}
+
+
+def atrapa_eksportu(tmp, bench="piqa"):
+    """Eksport z dwiema parami (1.09 k40000 i 1.08) i katalog przebiegu z jednym starym wierszem; sumy jak zrob_sha.py."""
+    eksport, cel = tmp / "eksport", tmp / "przebieg"
+    manifest, sumy = [], {}
+    for model in (DW.A, DW.B):
+        kat = f"wyniki/{bench}/{model}"
+        pliki = {}
+        for wzgl, dane in PLIKI_PARY.items():
+            dane = dane + model.encode()  # różne bajty obu etykiet
+            p = eksport / kat / wzgl
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_bytes(dane)
+            pliki[wzgl] = sumy[f"{kat}/{wzgl}"] = hashlib.sha256(dane).hexdigest()
+        manifest.append({"benchmark": bench, "model": model, "katalog": kat, "pliki": pliki})
+    (eksport / "manifest.jsonl").write_text("".join(json.dumps(w) + "\n" for w in manifest), encoding="utf-8")
+    (eksport / "srodowisko.json").write_text('{"gpu": "x"}', encoding="utf-8")
+    (eksport / "czasy.jsonl").write_text("".join(json.dumps({"etap": "ewaluacja", "model": m}) + "\n"
+                                                 for m in (DW.A, DW.B)), encoding="utf-8")
+    (eksport / "logi").mkdir()
+    (eksport / "logi" / "para.log").write_bytes(b"log\n")
+    (cel / DW.KATALOG).mkdir(parents=True)
+    (cel / "manifest.jsonl").write_text(json.dumps({"benchmark": bench, "model": DW.B}) + "\n", encoding="utf-8")
+    (cel / "czasy.jsonl").write_text(json.dumps({"etap": "pobieranie", "model": DW.B}) + "\n", encoding="utf-8")
+    (cel / DW.KATALOG / "probki_sha256.json").write_text(json.dumps({"paczka": {"sha256": "p"}, "pliki": sumy}),
+                                                         encoding="utf-8")
+    return eksport, cel
+
+
+def test_dolacz_i_odtworz_daja_te_same_bajty(tmp_path):
+    eksport, cel = atrapa_eksportu(tmp_path)
+    DW.dolacz(eksport, cel)
+    a = cel / "piqa" / DW.A
+    assert (a / "results.json").read_bytes() == (eksport / "wyniki/piqa" / DW.A / "results.json").read_bytes()
+    assert not (a / "probki" / "T06_space.jsonl").exists() and (a / "probki" / "T06_space.jsonl.gz").exists()
+    assert (cel / DW.KATALOG / "wyniki" / "piqa" / DW.B / "probki" / "T06_space.jsonl.gz").exists()
+    assert not (cel / "piqa" / DW.B).exists()  # 1.08 przebiegu nietknięte, przeliczone tylko w katalogu pomiaru
+    # manifest i czasy przebiegu: stare wiersze bez zmian, dopisane tylko wiersze 1.09
+    m = [json.loads(x) for x in (cel / "manifest.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert [w["model"] for w in m] == [DW.B, DW.A]
+    c = [json.loads(x) for x in (cel / "czasy.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert [w["model"] for w in c] == [DW.B, DW.A] and c[0]["etap"] == "pobieranie"
+    sumy = json.loads((cel / DW.KATALOG / "probki_sha256.json").read_text(encoding="utf-8"))
+    assert sumy["paczka"] == {"sha256": "p"} and "logi/para.log.gz" in "".join(sumy["pliki_gz"])
+    for p, s in sumy["pliki_gz"].items():
+        assert hashlib.sha256((cel / p).read_bytes()).hexdigest() == s
+    assert DW.odtworz(cel, tmp_path / "odtw") == []
+    for p in sumy["pliki"]:
+        assert (tmp_path / "odtw" / p).read_bytes() == (eksport / p).read_bytes()
+    assert (tmp_path / "odtw" / "manifest.jsonl").read_bytes() == (eksport / "manifest.jsonl").read_bytes()
+
+
+def test_gzip_deterministyczny():
+    assert DW.gz(b"x" * 1000) == DW.gz(b"x" * 1000)
+    assert DW.gz(b"abc")[4:8] == b"\0\0\0\0"  # mtime 0 w nagłówku, jak gzip -n
+    assert gzip.decompress(DW.gz(b"abc")) == b"abc"
+
+
+def test_drugie_dolaczenie_odmawia(tmp_path):
+    eksport, cel = atrapa_eksportu(tmp_path)
+    DW.dolacz(eksport, cel)
+    przed = (cel / "manifest.jsonl").read_bytes()
+    with pytest.raises(SystemExit):
+        DW.dolacz(eksport, cel)
+    assert (cel / "manifest.jsonl").read_bytes() == przed
+    # same wiersze 1.09 w manifeście (katalog usunięty) też zatrzymują: inaczej wiersze by się zdublowały
+    import shutil
+    shutil.rmtree(cel / "piqa" / DW.A)
+    with pytest.raises(SystemExit):
+        DW.dolacz(eksport, cel)
+    assert (cel / "manifest.jsonl").read_bytes() == przed
+
+
+@pytest.mark.parametrize("psuj", ["plik", "nadmiar", "manifest"])
+def test_zla_suma_wejscia_zatrzymuje_przed_zapisem(tmp_path, psuj):
+    eksport, cel = atrapa_eksportu(tmp_path)
+    if psuj == "plik":
+        (eksport / "wyniki/piqa" / DW.A / "probki/T06_space.jsonl").write_bytes(b"zmienione\n")
+    elif psuj == "nadmiar":
+        (eksport / "wyniki/piqa" / DW.A / "probki/T06_inny.jsonl").write_bytes(b"x\n")
+    else:
+        m = [json.loads(x) for x in (eksport / "manifest.jsonl").read_text(encoding="utf-8").splitlines()]
+        m[0]["pliki"]["results.json"] = "0" * 64
+        (eksport / "manifest.jsonl").write_text("".join(json.dumps(w) + "\n" for w in m), encoding="utf-8")
+    przed = (cel / "manifest.jsonl").read_bytes()
+    with pytest.raises(SystemExit):
+        DW.dolacz(eksport, cel)
+    assert (cel / "manifest.jsonl").read_bytes() == przed and not (cel / "piqa").exists()
+
+
+def test_odtworz_lapie_zmieniony_plik_w_repo(tmp_path):
+    eksport, cel = atrapa_eksportu(tmp_path)
+    DW.dolacz(eksport, cel)
+    (cel / "piqa" / DW.A / "probki" / "T06_space.jsonl.gz").write_bytes(DW.gz(b'{"doc_id": 9}\n'))
+    (cel / DW.KATALOG / "wyniki" / "piqa" / DW.B / "results.json").unlink()
+    r = DW.odtworz(cel, tmp_path / "odtw")
+    assert len(r) == 2 and any("T06_space" in x for x in r) and any("brak" in x for x in r)
+
+
+# --------------------------------------------------------------------------- strażnik liczb na RAPORT.md
+
+def liczby_atrapa():
+    """Najmniejszy LICZBY.json w kształcie liczby_109.zbuduj: dwa testy, jeden lepszy pewnie, jeden w szumie."""
+    def test(bench, nazwa, v108, v109, roznica, z, werdykt, holm):
+        p = {"n": 1000, "roznica": roznica, "roznica_srednia": roznica, "roznica_bpb": None, "se": 0.0052, "z": z,
+             "t": None, "df": None, "k": None, "p": 2 * (1 - 0.5 * (1 + math.erf(abs(z) / math.sqrt(2)))),
+             "werdykt": werdykt}
+        t = {"benchmark": bench, "nazwa": nazwa, "metryka": "acc", "wyzej_lepiej": True, "chance": 0.25,
+             "majority": None, "v108_manifest": {"wartosc": v108, "se": 0.0123, "n": 1000},
+             "v108_przeliczone": {"wartosc": v108 + 0.0004, "se": 0.0123, "n": 1000},
+             "v109": {"wartosc": v109, "se": 0.0119, "n": 1000},
+             "kontrola": L.kontrola({"wartosc": v108 + 0.0004, "n": 1000, "skala_w_pliku": 1.0},
+                                    {"wartosc": v108, "se": 0.0123, "n": 1000}),
+             "porownanie": p, "kontrola_sensu": {L.A: [], L.B: []}}
+        return t
+    testy = [test("arc-easy", "ARC-Easy", 0.5838, 0.6131, 0.0293, 5.63, "pewne", "pewne"),
+             test("piqa", "PIQA", 0.6812, 0.6845, 0.0033, 0.64, "szum", "szum")]
+    for t, h in zip(testy, S.po_holmie([t["porownanie"]["p"] for t in testy], m=2)):
+        t["porownanie"].update(h)
+        t["werdykt_koncowy"], t["kierunek"] = L.wynik_koncowy(t["porownanie"], True, t["kontrola"]["zgodna"])
+    return {"etykieta": R.W_TOKU[L.A][1], "model": L.A, "odniesienie": L.B, "m_holm": 2, "srodowisko": {},
+            "wejscia": {"paczka": {"nazwa": "e.tgz", "sha256": "0" * 64}, "probki_sha256": "1" * 64,
+                        "manifest_przebiegu": "2" * 64}, "testy": testy, "podsumowanie": L.podsumuj(testy)}
+
+
+def test_raport_z_liczb_przechodzi_straznik_a_zamieniona_liczba_nie():
+    import raport_md
+    import sprawdz_raport
+    straznik = sprawdz_raport.zaladuj(sprawdz_raport.DOMYSLNY)
+    liczby = liczby_atrapa()
+    tekst = raport_md.raport(liczby)
+    assert sprawdz_raport.sprawdz(straznik, liczby, tekst) == []
+    assert "0,6131 ± 0,0119" in tekst
+    zle = sprawdz_raport.sprawdz(straznik, liczby, tekst.replace("0,6131 ± 0,0119", "0,6231 ± 0,0119"))
+    assert len(zle) == 1 and "0,6231" in zle[0][2]
+    # słowo „pewne” przy teście, którego dane mają tylko szum, łapie reguła (c)
+    zle = sprawdz_raport.sprawdz(straznik, liczby, tekst + "\nPIQA: różnica pewna.\n")
+    assert any("(c)" in b[2] for b in zle)
+
+
+# --------------------------------------------------------------------------- dane rzeczywiste z repo
+
+POMIAR = KOD.parent
+PRZEBIEG = POMIAR.parent
+
+
+@pytest.mark.skipif(not (POMIAR / "LICZBY.json").exists(), reason="pomiar jeszcze bez LICZBY.json")
+@pytest.mark.parametrize("bench", ["pubmedqa", "wsc273", "multiblimp-pl"])
+def test_dane_rzeczywiste_z_repo_daja_liczby_z_LICZBY(tmp_path, bench):
+    """Pliki gzip z repo → układ eksportu (sha256 zgodne), porównanie parowane i kontrola narzędzia jak w LICZBY.json."""
+    assert DW.odtworz(PRZEBIEG, tmp_path, testy={bench}) == []
+    LZ = {t["benchmark"]: t for t in json.loads((POMIAR / "LICZBY.json").read_text(encoding="utf-8"))["testy"]}[bench]
+    wyniki = {(w["benchmark"], w["model"]): w for w in R.wczytaj_wyniki(tmp_path) if w["benchmark"] == bench}
+    a, b = wyniki[(bench, L.A)], wyniki[(bench, L.B)]
+    p = R.porownaj(R.Oceny(), tmp_path, a, b)
+    assert p["roznica"] == pytest.approx(LZ["porownanie"]["roznica"], abs=1e-12)
+    assert p["se"] == pytest.approx(LZ["porownanie"]["se"], rel=1e-12)
+    assert b["wartosc"] == pytest.approx(LZ["v108_przeliczone"]["wartosc"], abs=1e-12)
+    man = {"wartosc": LZ["v108_manifest"]["wartosc"] * b["skala_w_pliku"], "se": LZ["v108_manifest"]["se"] * b["skala_w_pliku"],
+           "n": LZ["v108_manifest"]["n"]}
+    assert L.kontrola(b, man)["zgodna"] is LZ["kontrola"]["zgodna"]
+
+
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__]))
