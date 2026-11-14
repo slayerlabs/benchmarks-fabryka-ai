@@ -809,8 +809,12 @@ class Charts:
 
     def forest(self, t):
         r_ = self.run
-        e = self.entries_toku(t)
-        W, RH, Y0, x0, x1 = 860, 28, 92, 260, 760
+        # #196: wersja eksperymentalna (1.08) jako drugi Slayer z miejscem; checkpoint w toku (1.09) jako kwadrat bez miejsca
+        exp = r_.SL[r_.exp]
+        e = self.entries_toku(t) + ([(exp, True)] if self.ok(t, exp) else [])
+        e.sort(key=lambda z: r_.V[t["id"]][z[0]]["v"], reverse=t["higher"])
+        label = lambda mid: f"Slayer 1B {r_.SLN[r_.exp]} (eksperymentalny)" if mid == exp else r_.MN[mid]["label"]
+        W, RH, Y0, x0, x1 = 860, 28, 92, 300, 760
         H = Y0 + RH * len(e) + 58
         a, c = self.value_range(t, [i for i, _ in e])
         g = self.scale(t, a, c, x0, x1)
@@ -829,7 +833,7 @@ class Charts:
             d = r_.V[t["id"]][mid]
             if sl:
                 b.append(f'<rect x="12" y="{y - 13}" width="{W - 24}" height="26" rx="5" style="fill:var(--band)"/>')
-            b.append(f'<text x="24" y="{y + 4}" class="{"b sl" if sl else ("m" if sl is None else "")}">{E(r_.MN[mid]["label"])}</text>')
+            b.append(f'<text x="24" y="{y + 4}" class="{"b sl" if sl else ("m" if sl is None else "")}">{E(label(mid))}</text>')
             l, ri = sorted((g(d["lo"]), g(d["hi"])))
             if sl is None:
                 b.append(f'<line class="dash" x1="{l:.1f}" x2="{ri:.1f}" y1="{y}" y2="{y}"/><rect x="{g(d["v"]) - 4.5:.1f}" y="{y - 4.5}" width="9" height="9" fill="var(--bg)" stroke="var(--mut)" stroke-width="1.5"/>')
