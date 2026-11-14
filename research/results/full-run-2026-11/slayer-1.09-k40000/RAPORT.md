@@ -352,6 +352,7 @@ Każdy plik próbek testu (space: format pełnego przebiegu; mc: litera; cloze: 
 
 ## Niepoliczone (NOT RUN)
 
+- Nierozstrzygnięte: przeliczenie niezależne nie sprawdza werdyktu rozbić eksploracyjnych przy tym samym p Holma (mutacja `porownaj_rozbicie` → `if False` przechodzi, 58 passed) — test: zmieniony `werdykt_holm` grupy przy tym samym `p_holm` ma dać kod ≠ 0; zadanie wiedza #4187. Werdykty rozbić przeliczył niezależnie weryfikator liczb (zgodne).
 - Ranking z 1.08 jako modelem eksperymentalnym (PR 196) nie jest w tej gałęzi; wykresy rankingów pokazują 1.09 w toku obok ostatniej przyjętej wersji Slayera (1.07), bez 1.08.
 - Kontrola na znanym modelu spoza Slayera: protokół jej nie przewiduje; kontrolą narzędzia jest 1.08 przeliczone wobec pełnego przebiegu.
 
