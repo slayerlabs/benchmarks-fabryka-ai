@@ -761,8 +761,11 @@ class Charts:
 
     def forest(self, t):
         r_ = self.run
-        e = self.entries(t)
-        W, RH, Y0, x0, x1 = 860, 28, 92, 260, 760
+        exp = r_.SL[r_.exp]
+        e = self.entries(t) + ([(exp, True)] if self.ok(t, exp) else [])
+        e.sort(key=lambda z: r_.V[t["id"]][z[0]]["v"], reverse=t["higher"])
+        label = lambda mid: f"Slayer 1B {r_.SLN[r_.exp]} (eksperymentalny)" if mid == exp else r_.MN[mid]["label"]
+        W, RH, Y0, x0, x1 = 860, 28, 92, 300, 760
         H = Y0 + RH * len(e) + 58
         a, c = self.value_range(t, [i for i, _ in e])
         g = self.scale(t, a, c, x0, x1)
@@ -781,7 +784,7 @@ class Charts:
             d = r_.V[t["id"]][mid]
             if sl:
                 b.append(f'<rect x="12" y="{y - 13}" width="{W - 24}" height="26" rx="5" style="fill:var(--band)"/>')
-            b.append(f'<text x="24" y="{y + 4}" class="{"b sl" if sl else ""}">{E(r_.MN[mid]["label"])}</text>')
+            b.append(f'<text x="24" y="{y + 4}" class="{"b sl" if sl else ""}">{E(label(mid))}</text>')
             l, ri = sorted((g(d["lo"]), g(d["hi"])))
             b.append(f'<line class="{"wsl" if sl else "wh"}" x1="{l:.1f}" x2="{ri:.1f}" y1="{y}" y2="{y}"/><circle class="{"dsl" if sl else "dot"}" cx="{g(d["v"]):.1f}" cy="{y}" r="{7 if sl else 4.5}"/>')
             b.append(f'<text x="{W - 24}" y="{y + 4}" class="n {"b" if sl else ""}" text-anchor="end">{format_number(d["v"], digits_of(t))}</text>')
