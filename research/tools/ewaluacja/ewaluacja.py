@@ -56,6 +56,8 @@ MODELE_DODATKOWE = [
     "slayer1b-1.07-hf|SlayerLab/Slayer1B-1.07|a090b54e658fb57dc5166c1fcc90cc6bf5c80106|slayer|lock",
     # 1.08 w trakcie publikacji (krok 1709 przy tej rewizji); nowsza rewizja = nowa linia z nową etykietą
     "slayer1b-1.08|SlayerLab/Slayer1B-1.08|5f854a0cc7160594d54d1788d37a44e8ebabe16c|slayer|lock",
+    # 1.09 w trakcie treningu: wagi_40000.pt (sha256 f83f7017…) skonwertowane konwertuj.py ze wzorcem 1.08 @ 5f854a0c
+    "slayer1b-1.09-k40000|SlayerLab/Slayer1B-1.09-checkpoints|cff81fdcc05f0d91e9ba45b09fe78f769d7e0903|slayer-ckpt|lock",
     "lfm3-1.7b|LiquidAI/LFM3-1.7B|1da06bec6a819da10b54c67e5c90972b46d81871|hf-trust|new",
     # Bielik 11B (gated): fp32 to ~44 GB wag, więcej niż 32 GB karty -> bfloat16, oznaczone w wynikach (dtype).
     # T53 (ewok.py) liczy tylko float32, więc dla tych modeli jest pomijany.
@@ -71,7 +73,8 @@ CENTRAL = ["T01", "T02", "T03", "T04", "T44", "T45", "T46"]
 # results/full-run-2026-11/*/slayer1b-1.07-hf). Ten sam plik w obu wariantach: skonwertowany checkpoint
 # (konwersja poza tym runnerem) i model.safetensors repo SlayerLab/Slayer1B-1.07@a090b54e (sha256 LFS na hubie).
 SUMA_107 = "d826b4a11bf4eaccee10fe43ec19a4f6d515dfc5f3e5c859adb631f1a0b76ad5"
-SUMY_WAG_CKPT = {"slayer1b-1.07": SUMA_107, "slayer1b-1.07-hf": SUMA_107}
+SUMY_WAG_CKPT = {"slayer1b-1.07": SUMA_107, "slayer1b-1.07-hf": SUMA_107,
+                 "slayer1b-1.09-k40000": "5d60d691f1ea87db4a900788ff253f2de55e75f9210c93e7e95f3b9f6c434591"}
 # Różnica sum loglik dopuszczona w ZGODNE ~num; smoke EuroLLM: do 5e-4, a inny prompt: od 3,5 wzwyż.
 TOL_ZGODNE = 0.1
 

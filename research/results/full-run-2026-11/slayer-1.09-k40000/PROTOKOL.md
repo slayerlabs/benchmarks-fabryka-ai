@@ -108,3 +108,48 @@ kopia wyników i zniszczenie) oraz lokalny timer `vastai destroy`. Na koniec zer
 `vastai show instances` i koszt z `vastai show invoices`.
 
 Zlecenie Ani 14.11.2026; zespół pomiaru: skill `zespol-benchmark`.
+
+## Aneks przed pierwszym wynikiem (14.11.2026)
+
+Dopisany przed wynajmem karty i przed jakimkolwiek wynikiem 1.09 na pełnym zbiorze. Ustala to, czego protokół wyżej
+nie ustalał, i jedną zmianę decyzją Ani.
+
+**Karta (zmiana, decyzja Ani 14.11 przed pomiarem).** Kryterium wyboru: najniższy szacowany koszt całego pomiaru
+(cena/h × (start + pobranie wag + 15 testów 1.09 + przeliczenie 1.08)), przy różnicy do ok. 20% karta, która skończy
+szybciej; spoza CN; po starcie pobranie 1 GB z HF w ok. 30 s, inaczej następna oferta; jedna instancja naraz. Zamiast
+RTX 4090 bierzemy **RTX 5090** (oferta spoza CN o najniższej cenie/h w chwili wynajmu). Uzasadnienie z danych: pary
+1.08 na RTX 5090 w `manifest.jsonl` to razem 5176 s przy 2 procesach na kartę; czasu RTX 4090 przy batch 1 w repo nie
+ma (pomiar `results/central-run/times_rtx4090.jsonl` był z batch auto), a ewaluacja batch 1 modelu 1B w float32 czyta
+całe wagi w każdym forwardzie, więc RTX 4090 (mniejsza przepustowość pamięci) jest wolniejsza; szacunek kosztu obu
+kart wychodzi w granicy 20%, więc wygrywa szybsza. Druga korzyść: ta sama karta co pełny przebieg, więc kontrola
+narzędzia (1.08 przeliczone − manifest) nie miesza się z różnicą sprzętu. Obraz `pytorch/pytorch:2.8.0-cuda12.9-cudnn9-runtime`
+(jak pomiar `bos-window-check/` na RTX 5090).
+
+**Równoległość.** `ewaluacja.py licz ... --rownolegle 4`: tyle procesów, ile mieści 32 GB karty według szacunku runnera
+(`szacunek_vram` z rozmiaru wag z zapasem na proces, budżet = pamięć karty minus zajęte i zapas `--zapas-vram`;
+WikiText liczony sam). Każdy proces
+liczy swoje pytania po kolei w batch 1, więc liczba procesów nie zmienia wyniku pytania; pełny przebieg miał 2.
+
+**Konwersja wag.** `slayer-1b/wygaszanie/konwertuj.py` z `--sha256 f83f7017…`, wzorzec `SlayerLab/Slayer1B-1.08` @
+`5f854a0c` (1.09 kontynuuje 1.08; ten sam config architektury i `tokenizer.json` sha256 `0640d3bd…`). Na Macu przed
+wynajmem: `code/sprawdz_architekture.py` (202 tensory checkpointu = 201 tensorów 1.08 + `head.weight` wiązany z
+`tok.weight`, wszystkie kształty równe, config architektury równy, różni się tylko `data_seed`), konwersja daje
+`model.safetensors` sha256 `5d60d691f1ea87db4a900788ff253f2de55e75f9210c93e7e95f3b9f6c434591`, wpisane do
+`SUMY_WAG_CKPT`. Na instancji ta sama konwersja (`code/kolejka.sh`); runner odmawia liczenia, gdy suma wyniku konwersji
+jest inna.
+
+**Przebieg na instancji.** `code/start_zdalny.sh` → `tools/przebieg_centralny.sh przygotuj <limit>` (bezpiecznik z
+limitem 6 h od wynajmu, strażnik bezczynności, test 1 GB z HF, środowisko `lock`) → `code/kolejka.sh`: obie etykiety,
+`--zadania gotowe` (15 testów z tabeli wyżej), `--probka pelna`, `--pobierz`, potem `ewaluacja.py eksport` z próbkami
+per pytanie. Kod na instancji to `git archive` commitu, który zawiera ten aneks. EWoK: zbiór gated, na instancji nie
+ma tokenu HF, więc plik `ewok-core-1.0` @ `34d912a6` jedzie z lokalnego cache HF (ta sama przypięta rewizja, którą czyta
+`ewok.py`).
+
+**Liczby.** `code/liczby_109.py` (z surowego eksportu, po sprawdzeniu sha256 każdego pliku wobec `probki_sha256.json`
+zapisanego przed raportem) → `LICZBY.json` → `code/raport_md.py` → `RAPORT.md`. Holm: `statystyka.holm(ps, m=15)`;
+wiersz bez p (SE = 0) liczy się do m i dostaje „nierozstrzygalne”. Kontrola narzędzia w skali pliku wyników
+(MultiBLiMP w procentach, jak w manifeście). Kontrola sensu: `tools/kontrola_sensu.py` (`bledy_obserwacji`) na każdym
+pełnym wyniku obu etykiet. Seed: domyślny `ewaluuj.py`/`ewok.py` (jak w przebiegu).
+
+**Niezależne przeliczenie.** `code/przelicz_niezaleznie.py` liczy Δ i SE z plików próbek własnym kodem (bez importu
+`raport.py`, `metryki.py` i `statystyka.py`); podział lepsze/gorsze/szum różny od `LICZBY.json` obala główne twierdzenie.
