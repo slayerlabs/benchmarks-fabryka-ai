@@ -57,6 +57,9 @@ WYLACZENIA = [
                                                        "results_rozszerzone.json i progresja.json tego katalogu"),
     ("results/full-run-2026-11/bos-window-check/RAPORT.md", None, "abc", "plik wygenerowany przez code/raport.py z LICZBY.json tego katalogu"),
     ("results/full-run-2026-11/bos-window-check/PROTOKOL.md", None, "abc", "protokół zapisany przed pomiarem, nie wyniki"),
+    ("results/full-run-2026-11/slayer-1.09-k40000/RAPORT.md", None, "abc", "plik wygenerowany przez code/raport_md.py z "
+                                                                         "LICZBY.json tego katalogu; sprawdza go wobec "
+                                                                         "tego pliku code/sprawdz_raport.py tym strażnikiem"),
     ("slayer-1b/wygaszanie/wyniki/porownanie.md", None, "abc", "plik wygenerowany przez porownaj.py z porownanie.json"),
     ("slayer-1b/testy_danych_slayer/README.md", None, "a", "plan przebiegu: koszty, czasy, rozmiary; wyników jeszcze nie ma"),
     ("slayer-1b/wygaszanie/README.md", "## Rozbieg i wybór K", "a", "log instancji i trenera (cena, tok/s, strata kroku), nie ma go w surowych JSON-ach"),

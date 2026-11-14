@@ -177,4 +177,4 @@ def test_csv_checksums_match_the_bytes_in_the_repository():
             data = (RUN / row["benchmark"] / row["model"] / "scores-history-wiersz.csv").read_bytes()
             assert hashlib.sha256(data).hexdigest() == expected, row["katalog"]
             checked += 1
-    assert checked == 238
+    assert checked == 252  # 238 przebiegu + 14 wierszy 1.09 k40000 (EWoK bez wiersza CSV)

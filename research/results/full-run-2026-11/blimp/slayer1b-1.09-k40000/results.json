@@ -1,0 +1,70 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-SlayerLab_Slayer1B-1.09-checkpoints-cff81fdc-20261114T191958Z",
+ "models": [
+  {
+   "model_id": "SlayerLab/Slayer1B-1.09-checkpoints",
+   "repo": "SlayerLab/Slayer1B-1.09-checkpoints",
+   "revision": "cff81fdcc05f0d91e9ba45b09fe78f769d7e0903",
+   "weights_sha256": "5d60d691f1ea87db4a900788ff253f2de55e75f9210c93e7e95f3b9f6c434591"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T01",
+   "task": "blimp",
+   "family": "blimp",
+   "language": "EN",
+   "split": "train"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T01",
+   "model_id": "SlayerLab/Slayer1B-1.09-checkpoints",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 67000,
+   "n_selected": 67000,
+   "n_scored": 67000,
+   "state": "ok",
+   "value": 0.8148059701492537,
+   "ci95": {
+    "lower": 0.7720149253731343,
+    "upper": 0.8546735074626866,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "020c6996a99df1be54df6ef628f4e98f50f1cf87b4233b7ef90bb7ecb13712f9",
+   "results_sha256": "976820f49c5b42b7ca5f7d3fe890253484eec599244fd6ad39bd45fc526b481b",
+   "runner_sha256": "c906036b4e597e2c17ad7f1f6441e72fbf8e066946c2a7731966612674e3995e",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.5,
+    "majority_value": null,
+    "majority_prediction_share": null,
+    "constant_prediction": null
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-SlayerLab_Slayer1B-1.09-checkpoints-cff81fdc-20261114T191958Z",
+    "results_sha256": "976820f49c5b42b7ca5f7d3fe890253484eec599244fd6ad39bd45fc526b481b"
+   }
+  ],
+  "qualification_sha256": "9c26852b439412e065bf9a1a43c986d8efb19f02e18bfcbcf6f8cbaacab736e4",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "f7d6fddbdd49db9d9b9631ada04e3dbf7069cf2f7ff5b44df67b4acb21c6ced3"
+ }
+}
