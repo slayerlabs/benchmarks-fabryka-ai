@@ -43,7 +43,6 @@ Karta 1.09 nie podaje źródeł segmentów c07–c10 ani s01–s03.
 | data | zbiór | kto | zgłoszenie | status |
 |---|---|---|---|---|
 | 2026-11-14 | [DCLM-baseline 1.0 EN][dclm] | LoIlita | [![#197](https://img.shields.io/badge/GitHub-%23197-181717?logo=github)](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/197) | w budowie |
-| 2026-11-14 | Korpus RPG v2 | LoIlita | bez zgłoszenia | w budowie |
 | 2026-11-14 | [`SlayerLab/hutnictwo-gornictwo-spawalnictwo-preview`][hgs] | SlayerLab | bez zgłoszenia | opublikowany |
 | 2026-11-09 | [`SlayerLab/polish-dynaword-pretraining-mix`][pdpm] | SlayerLab | bez zgłoszenia | opublikowany |
 | 2026-11-08 | [`SlayerLab/technika-i-nauka`][tin] | SlayerLab | bez zgłoszenia | opublikowany |
