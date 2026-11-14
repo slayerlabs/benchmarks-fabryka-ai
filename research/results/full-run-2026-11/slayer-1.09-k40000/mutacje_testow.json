@@ -2,7 +2,7 @@
  {
   "mutacja": "baza",
   "kod": 0,
-  "komunikat": "54 passed in 0.59s"
+  "komunikat": "58 passed in 0.59s"
  },
  {
   "mutacja": "dolacz: bez sprawdzania sha plików",
@@ -14,55 +14,55 @@
   "mutacja": "dolacz: bez sprawdzania spisu plików",
   "zapalona": true,
   "kod": 1,
-  "komunikat": "1 failed, 33 passed in 0.43s"
+  "komunikat": "1 failed, 33 passed in 0.40s"
  },
  {
   "mutacja": "dolacz: bez sprawdzania manifestu eksportu",
   "zapalona": true,
   "kod": 1,
-  "komunikat": "1 failed, 34 passed in 0.47s"
+  "komunikat": "1 failed, 34 passed in 0.40s"
  },
  {
   "mutacja": "dolacz: gzip z czasem w nagłówku",
   "zapalona": true,
   "kod": 1,
-  "komunikat": "1 failed, 30 passed in 0.38s"
+  "komunikat": "1 failed, 30 passed in 0.37s"
  },
  {
   "mutacja": "dolacz: 1.08 do manifestu przebiegu",
   "zapalona": true,
   "kod": 1,
-  "komunikat": "1 failed, 29 passed in 0.40s"
+  "komunikat": "1 failed, 29 passed in 0.38s"
  },
  {
   "mutacja": "odtworz: bez porównania sha",
   "zapalona": true,
   "kod": 1,
-  "komunikat": "1 failed, 35 passed in 0.42s"
+  "komunikat": "1 failed, 35 passed in 0.41s"
  },
  {
   "mutacja": "dolacz: drugie dołączenie bez odmowy",
   "zapalona": true,
   "kod": 1,
-  "komunikat": "1 failed, 31 passed in 0.43s"
+  "komunikat": "1 failed, 31 passed in 0.39s"
  },
  {
   "mutacja": "przelicz: próg „prawdopodobne” |z| 2 → 1,5",
   "zapalona": true,
   "kod": 1,
-  "komunikat": "1 failed, 40 passed in 0.49s"
+  "komunikat": "1 failed, 40 passed in 0.41s"
  },
  {
   "mutacja": "przelicz: próg „pewne” |z| 3 → 2,5",
   "zapalona": true,
   "kod": 1,
-  "komunikat": "1 failed, 40 passed in 0.44s"
+  "komunikat": "1 failed, 42 passed in 0.42s"
  },
  {
   "mutacja": "przelicz: m Holma 15 → liczba p",
   "zapalona": true,
   "kod": 1,
-  "komunikat": "1 failed, 44 passed in 0.44s"
+  "komunikat": "1 failed, 44 passed in 0.43s"
  },
  {
   "mutacja": "przelicz: acc_norm ze spacjami (definicja lm_eval)",
@@ -74,13 +74,13 @@
   "mutacja": "przelicz: remis → ostatni indeks",
   "zapalona": true,
   "kod": 1,
-  "komunikat": "1 failed, 38 passed in 0.45s"
+  "komunikat": "1 failed, 38 passed in 0.43s"
  },
  {
   "mutacja": "przelicz: PMI bez dzielenia listy",
   "zapalona": true,
   "kod": 1,
-  "komunikat": "1 failed, 39 passed in 0.50s"
+  "komunikat": "1 failed, 39 passed in 0.41s"
  },
  {
   "mutacja": "przelicz: SE klastrowe bez G/(G−1)",
@@ -98,18 +98,66 @@
   "mutacja": "przelicz: kontrola bez skali MultiBLiMP",
   "zapalona": true,
   "kod": 1,
-  "komunikat": "1 failed, 46 passed in 0.45s"
+  "komunikat": "1 failed, 46 passed in 0.43s"
  },
  {
   "mutacja": "przelicz: bez sprawdzania sha plików eksportu",
   "zapalona": true,
   "kod": 1,
-  "komunikat": "1 failed, 49 passed in 0.48s"
+  "komunikat": "1 failed, 49 passed in 0.43s"
  },
  {
   "mutacja": "przelicz: bez sprawdzania sha manifestu",
   "zapalona": true,
   "kod": 1,
-  "komunikat": "1 failed, 49 passed in 0.46s"
+  "komunikat": "1 failed, 49 passed in 0.43s"
+ },
+ {
+  "mutacja": "przelicz main: zła suma wejścia nie zatrzymuje (M7)",
+  "zapalona": true,
+  "kod": 1,
+  "komunikat": "1 failed, 50 passed in 0.44s"
+ },
+ {
+  "mutacja": "przelicz rozbicie: CI 1,645 zamiast 1,96",
+  "zapalona": true,
+  "kod": 1,
+  "komunikat": "1 failed, 51 passed in 0.44s"
+ },
+ {
+  "mutacja": "przelicz rozbicie: Holm z m = 15 zamiast liczby grup",
+  "zapalona": true,
+  "kod": 1,
+  "komunikat": "1 failed, 51 passed in 0.44s"
+ },
+ {
+  "mutacja": "przelicz rozbicie: CI bez przycięcia",
+  "zapalona": true,
+  "kod": 1,
+  "komunikat": "1 failed, 51 passed in 0.43s"
+ },
+ {
+  "mutacja": "eksploracja: CI 1,645 zamiast 1,96",
+  "zapalona": true,
+  "kod": 1,
+  "komunikat": "1 failed, 51 passed in 0.43s"
+ },
+ {
+  "mutacja": "eksploracja: CI bez przycięcia",
+  "zapalona": true,
+  "kod": 1,
+  "komunikat": "1 failed, 51 passed in 0.44s"
+ },
+ {
+  "mutacja": "eksploracja: Holm w rodzinie jako p × (m − ranga)",
+  "zapalona": true,
+  "kod": 1,
+  "komunikat": "1 failed, 53 passed in 0.44s"
+ },
+ {
+  "mutacja": "eksploracja: Holm w rozbiciu z m = 15",
+  "zapalona": true,
+  "kod": 1,
+  "komunikat": "1 failed, 51 passed in 0.42s"
  }
 ]

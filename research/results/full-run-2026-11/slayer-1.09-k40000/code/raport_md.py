@@ -74,13 +74,18 @@ def eksploracja(L: dict, a) -> None:
         a(f"| lm_eval | {f(d['v108'], 6)} | {f(d['v109'], 6)} | {f(p['roznica'], 6, plus=True)} | {f(p['se'])} | "
           f"z = {f(p['z'], 2)} | {p['werdykt']} |")
         a("")
-        a(f"Werdykt po Holmie w definicji lm_eval przy tej samej randze p: {p['werdykt_holm']} (p Holma "
-          f"{f(p['p_holm_ta_sama_ranga'], 4)}), jak w definicji runnera; wynik testu się nie zmienia.")
+        taki_sam = p["werdykt_holm"] == pt["werdykt_holm"]
+        a(f"Werdykt po Holmie w definicji lm_eval (pełny Holm w rodzinie 15 porównań protokołu, z tym p w miejscu p "
+          f"runnera): {p['werdykt_holm']} (p Holma {f(p['p_holm_w_rodzinie'], 4)}); w definicji runnera "
+          f"{pt['werdykt_holm']} (p Holma {f(pt['p_holm'], 4)}). "
+          + ("Wynik testu się nie zmienia." if taki_sam else "WERDYKT ZALEŻY OD DEFINICJI."))
         a("")
     a("### Rozbicie zadań złożonych")
     a("")
-    a("Wartość grupy z CI95 = ±1,96 SE z pozycji; Δ parowane po pozycjach (z), Holm w obrębie rozbicia (m = liczba grup). "
-      "Klastry pozycji wewnątrz grupy pominięte, więc SE grupy jest ostrożne w dół. "
+    a("Wartość grupy z przedziałem Walda ±1,96 SE przyciętym do [0; 1]; Δ parowane (z), Holm w obrębie rozbicia "
+      "(m = liczba grup). SE każdej grupy liczone z pozycji traktowanych jako niezależne (pary BLiMP i MultiBLiMP-PL, "
+      "rekordy EWoK), bez klastrów: w EWoK rekordy jednego szablonu są skorelowane, a porównanie główne liczy SE po "
+      "szablonach, więc tu SE jest zaniżone, a werdykty grup za mocne. "
       "<!-- liczba-spoza-wynikow: 1,96 to kwantyl rozkładu normalnego, nie wynik -->")
     a("")
     for b, r in E["rozbicie"].items():
@@ -137,13 +142,13 @@ def eksploracja(L: dict, a) -> None:
         a("")
         for b, w in E["wrazliwosc"].items():
             mc = w["mcnemar"]
-            a(f"- {nazwy[b]}: p Holma {f(w['p_holm'])} przy progu {f(w['prog'])} (mnożnik Holma {w['mnoznik_holma']}). "
+            a(f"- {nazwy[b]}: p Holma {f(w['p_holm'])} przy progu {f(w['prog'])}. "
               + (f"Zamiana {w['wygranych_do_szumu']} wygranej 1.09 na remis (najbardziej wpływowej) daje werdykt szum. "
                  if w["wygranych_do_szumu"] else "Do 50 zamienionych wygranych werdykt się nie zmienia. ")
               + f"Test McNemara na pozycjach "
-              f"(wygrane 1.09: {mc['wygrane_109']}, wygrane 1.08: {mc['wygrane_108']}): p {f(mc['p'])}, po Holmie przy "
-              f"tej samej randze {f(mc['p_holm_ta_sama_ranga'])}, czyli "
-              f"{'szum' if mc['p_holm_ta_sama_ranga'] > w['prog'] else 'ponad próg'}. Werdykt protokołu (SE po parach zdań) "
+              f"(wygrane 1.09: {mc['wygrane_109']}, wygrane 1.08: {mc['wygrane_108']}): p {f(mc['p'])}, po Holmie w "
+              f"rodzinie protokołu (to p w miejscu p testu) {f(mc['p_holm_w_rodzinie'])}, czyli "
+              f"{'szum' if mc['p_holm_w_rodzinie'] > w['prog'] else 'ponad próg'}. Werdykt protokołu (SE po parach zdań) "
               "zostaje, ale jest na granicy progu.")
         a("")
 

@@ -12,7 +12,7 @@ from pathlib import Path
 
 TU = Path(__file__).resolve().parent
 TEST = TU.parents[3] / "tests" / "test_slayer_109_k40000.py"
-DW, PN = TU / "dolacz_wyniki.py", TU / "przelicz_niezaleznie.py"
+DW, PN, EK = TU / "dolacz_wyniki.py", TU / "przelicz_niezaleznie.py", TU / "eksploracja_109.py"
 MUT = [
     (DW, "dolacz: bez sprawdzania sha plików", "    if zle:\n        raise SystemExit(f\"sha256 różne od probki_sha256.json: {zle[:5]}\")", "    pass"),
     (DW, "dolacz: bez sprawdzania spisu plików", "    if pliki != set(sumy[\"pliki\"]):", "    if False:"),
@@ -39,6 +39,18 @@ MUT = [
      "    bledy += [f\"{p}: sha256 różne od spisu\" for p in sorted(pliki & set(spis)) if sha256_pliku(eksport / p) != spis[p]]",
      "    pass"),
     (PN, "przelicz: bez sprawdzania sha manifestu", "    if sha256_pliku(manifest_p) != w.get(\"manifest_przebiegu\"):", "    if False:"),
+    (PN, "przelicz main: zła suma wejścia nie zatrzymuje (M7)", "    if bledy:\n        print(", "    if False:\n        print("),
+    (PN, "przelicz rozbicie: CI 1,645 zamiast 1,96", "Z95 = 1.96", "Z95 = 1.645"),
+    (PN, "przelicz rozbicie: Holm z m = 15 zamiast liczby grup", "holm([out[g][\"p\"] for g in nazwy], m=len(nazwy))",
+     "holm([out[g][\"p\"] for g in nazwy], m=M)"),
+    (PN, "przelicz rozbicie: CI bez przycięcia", "[max(0.0, m - Z95 * se), min(1.0, m + Z95 * se)])",
+     "[m - Z95 * se, m + Z95 * se])"),
+    (EK, "eksploracja: CI 1,645 zamiast 1,96", "Z95 = 1.96", "Z95 = 1.645"),
+    (EK, "eksploracja: CI bez przycięcia", "[max(0.0, m - Z95 * se), min(1.0, m + Z95 * se)]", "[m - Z95 * se, m + Z95 * se]"),
+    (EK, "eksploracja: Holm w rodzinie jako p × (m − ranga)", "    return S.holm(zm, m=m)[i]",
+     "    return min(1.0, p_nowe * (m - sorted(x for x in zm if x is not None).index(p_nowe)))"),
+    (EK, "eksploracja: Holm w rozbiciu z m = 15", "S.po_holmie([w[\"porownanie\"][\"p\"] for w in wiersze], m=len(wiersze))",
+     "S.po_holmie([w[\"porownanie\"][\"p\"] for w in wiersze], m=15)"),
 ]
 
 

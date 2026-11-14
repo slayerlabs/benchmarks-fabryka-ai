@@ -11,7 +11,8 @@ Najpierw sha256 wejść: każdy plik `wyniki/` eksportu wobec probki_sha256.json
 wobec pola `wejscia` LICZBY.json; różnica → kod 2, nic nie liczone.
 Kod 0: każdy test ma Δ równe LICZBY.json do 1e-9, SE Δ do 1e-6 względnie, p Holma do 1e-6 względnie, ten sam werdykt
 po Holmie, tę samą kontrolę narzędzia (1.08 z próbek wobec manifestu przebiegu, policzoną tu od nowa), ten sam wynik
-końcowy i te same liczby remisów co `eksploracyjne.remisy`; kod 1: rozjazd (lista w wyniku). Rozjazd podziału
+końcowy, te same liczby remisów co `eksploracyjne.remisy` i to samo rozbicie BLiMP/MultiBLiMP-PL/EWoK
+(`eksploracyjne.rozbicie`: n, Δ, CI95 obu etykiet, p Holma z m = liczba grup, werdykt); kod 1: rozjazd (lista w wyniku). Rozjazd podziału
 lepsze/gorsze/szum obala główne twierdzenie (PROTOKOL.md). Obok, bez wpływu na kod: Δ acc_norm w definicji lm_eval
 (pole próbki; długość wyboru ze spacjami), bo na HellaSwag różni się od definicji runnera (problem pełnego przebiegu).
 
@@ -141,6 +142,76 @@ def klastry(bench, klucze, rek, szablony):
     if bench == "ewok":
         return [szablony[rek[k]["source_id"]] for k in klucze]
     return None
+
+
+def domeny_ewok():
+    """Domena każdego rekordu EWoK (indeks wiersza parquetu = source_id), z tej samej przypiętej rewizji."""
+    import pandas as pd
+    from huggingface_hub import hf_hub_download
+    p = hf_hub_download("ewok-core/ewok-core-1.0", "data/test/ewok-core-1.0.parquet", repo_type="dataset",
+                        revision="34d912a608066c92e2990a0328ffc3bd9a716042")
+    return {i: r["Domain"] for i, r in enumerate(pd.read_parquet(p).to_dict("records"))}
+
+
+POLE_ROZBICIA = {"blimp": "UID", "multiblimp-pl": "phenomenon", "ewok": "Domain"}
+Z95 = 1.96
+
+
+def rozbicie(eksport, bench, domeny):
+    """Rozbicie eksploracyjne własnym kodem: grupa → n, średnie obu etykiet z przedziałem Walda ±1,96 SE przyciętym do
+    [0, 1], Δ parowane (z, p z rozkładu normalnego), Holm w obrębie rozbicia z m = liczba grup."""
+    pa, pb = probki(eksport, bench, A), probki(eksport, bench, B)
+    grupy = defaultdict(list)
+    for k in sorted(pa):
+        g = domeny[pa[k]["source_id"]] if bench == "ewok" else pa[k]["doc"][POLE_ROZBICIA[bench]]
+        grupy[str(g)].append(k)
+
+    def sr(x):
+        n, m = len(x), sum(x) / len(x)
+        se = math.sqrt(sum((v - m) ** 2 for v in x) / (n - 1) / n) if n > 1 else None
+        return m, se, (None if se is None else [max(0.0, m - Z95 * se), min(1.0, m + Z95 * se)])
+
+    out = {}
+    for g in sorted(grupy):
+        ks = grupy[g]
+        xa = [wynik_pytania(bench, pa[k]) for k in ks]
+        xb = [wynik_pytania(bench, pb[k]) for k in ks]
+        d = [a - b for a, b in zip(xa, xb)]
+        md, sd, _ = sr(d)
+        z = md / sd if sd else None
+        out[g] = {"n": len(ks), "v109": sr(xa), "v108": sr(xb), "roznica": md, "se": sd, "z": z,
+                  "p": 2 * stats.norm.sf(abs(z)) if z is not None else None}
+    nazwy = list(out)
+    for g, ph in zip(nazwy, holm([out[g]["p"] for g in nazwy], m=len(nazwy))):
+        out[g]["p_holm"], out[g]["werdykt_holm"] = ph, werdykt(ph)
+    return out
+
+
+def porownaj_rozbicie(bench, wlasne, L_rozb):
+    """Rozjazdy rozbicia wobec LICZBY.json eksploracyjne.rozbicie (pusta lista = zgodne)."""
+    bl = []
+    if not L_rozb:
+        return [f"{bench}: brak rozbicia w LICZBY.json"]
+    L_g = {g["grupa"]: g for g in L_rozb["grupy"]}
+    if set(L_g) != set(wlasne) or L_rozb["k"] != len(wlasne):
+        return [f"{bench}: rozbicie, inne grupy niż w LICZBY.json"]
+    for g, w in wlasne.items():
+        x = L_g[g]
+        p = x["porownanie"]
+        if w["n"] != x["n"] or abs(w["roznica"] - p["roznica"]) > 1e-9:
+            bl.append(f"{bench}/{g}: n albo Δ rozbicia różne")
+        for et in ("v109", "v108"):
+            m, se, ci = w[et]
+            ci_L = x[et]["ci95"]
+            if abs(m - x[et]["wartosc"]) > 1e-9 or (ci is None) != (ci_L is None) or (
+                    ci and any(abs(a - b) > 1e-9 for a, b in zip(ci, ci_L))):
+                bl.append(f"{bench}/{g}: CI95 {et} {ci} != {ci_L}")
+        if (w["p_holm"] is None) != (p.get("p_holm") is None) or (
+                w["p_holm"] is not None and abs(w["p_holm"] - p["p_holm"]) > 1e-6 * max(p["p_holm"], 1e-300)):
+            bl.append(f"{bench}/{g}: p Holma rozbicia {w['p_holm']} != {p.get('p_holm')}")
+        if w["werdykt_holm"] != p.get("werdykt_holm"):
+            bl.append(f"{bench}/{g}: werdykt po Holmie rozbicia {w['werdykt_holm']} != {p.get('werdykt_holm')}")
+    return bl
 
 
 def szablony_ewok():
@@ -290,7 +361,12 @@ def main():
                 x = (rem_L or {}).get(m_) or {}
                 if (x.get("remisy"), x.get("remisy_z_poprawna")) != (r_["remisy"], r_["remisy_z_poprawna"]):
                     rozjazdy.append(f"{b}: remisy {m_} {r_} != {x}")
-    out = {"rozjazdy": rozjazdy, "testy": wyniki,
+    domeny = domeny_ewok()
+    rozb = {}
+    for b in POLE_ROZBICIA:
+        rozb[b] = rozbicie(eksport, b, domeny)
+        rozjazdy += porownaj_rozbicie(b, rozb[b], ((liczby.get("eksploracyjne") or {}).get("rozbicie") or {}).get(b))
+    out = {"rozjazdy": rozjazdy, "testy": wyniki, "rozbicie": rozb,
            "podzial": {k: sorted(b for b, w in wyniki.items() if w["wynik"].startswith(k)) for k in ("lepszy", "gorszy", "szum")}}
     tekst = json.dumps(out, ensure_ascii=False, indent=1)
     if len(sys.argv) > 5:

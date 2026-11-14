@@ -112,7 +112,7 @@ Runner (`metryki.oceny_mc`, definicja pełnego przebiegu i manifestu 1.08) dziel
 | runner (tabela wyżej) | 0,300341 | 0,349829 | +0,049488 | 0,0116 | z = 4,26 | pewne |
 | lm_eval | 0,300341 | 0,349829 | +0,049488 | 0,0116 | z = 4,26 | pewne |
 
-Werdykt po Holmie w definicji lm_eval przy tej samej randze p: pewne (p Holma 0,0002), jak w definicji runnera; wynik testu się nie zmienia.
+Werdykt po Holmie w definicji lm_eval (pełny Holm w rodzinie 15 porównań protokołu, z tym p w miejscu p runnera): pewne (p Holma 0,0002); w definicji runnera pewne (p Holma 0,0002). Wynik testu się nie zmienia.
 
 ### HellaSwag: dwie definicje acc_norm
 
@@ -123,7 +123,7 @@ Runner (`metryki.oceny_mc`, definicja pełnego przebiegu i manifestu 1.08) dziel
 | runner (tabela wyżej) | 0,434077 | 0,527982 | +0,093906 | 0,0036 | z = 26,25 | pewne |
 | lm_eval | 0,433977 | 0,528082 | +0,094105 | 0,0036 | z = 26,23 | pewne |
 
-Werdykt po Holmie w definicji lm_eval przy tej samej randze p: pewne (p Holma 0,0000), jak w definicji runnera; wynik testu się nie zmienia.
+Werdykt po Holmie w definicji lm_eval (pełny Holm w rodzinie 15 porównań protokołu, z tym p w miejscu p runnera): pewne (p Holma 0,0000); w definicji runnera pewne (p Holma 0,0000). Wynik testu się nie zmienia.
 
 ### MathQA: dwie definicje acc_norm
 
@@ -134,7 +134,7 @@ Runner (`metryki.oceny_mc`, definicja pełnego przebiegu i manifestu 1.08) dziel
 | runner (tabela wyżej) | 0,228141 | 0,225126 | −0,003015 | 0,0069 | z = −0,44 | szum |
 | lm_eval | 0,228141 | 0,225126 | −0,003015 | 0,0069 | z = −0,44 | szum |
 
-Werdykt po Holmie w definicji lm_eval przy tej samej randze p: szum (p Holma 0,6632), jak w definicji runnera; wynik testu się nie zmienia.
+Werdykt po Holmie w definicji lm_eval (pełny Holm w rodzinie 15 porównań protokołu, z tym p w miejscu p runnera): szum (p Holma 1,0000); w definicji runnera szum (p Holma 1,0000). Wynik testu się nie zmienia.
 
 ### PIQA: dwie definicje acc_norm
 
@@ -145,11 +145,11 @@ Runner (`metryki.oceny_mc`, definicja pełnego przebiegu i manifestu 1.08) dziel
 | runner (tabela wyżej) | 0,662133 | 0,712187 | +0,050054 | 0,0084 | z = 5,94 | pewne |
 | lm_eval | 0,662133 | 0,712187 | +0,050054 | 0,0084 | z = 5,94 | pewne |
 
-Werdykt po Holmie w definicji lm_eval przy tej samej randze p: pewne (p Holma 0,0000), jak w definicji runnera; wynik testu się nie zmienia.
+Werdykt po Holmie w definicji lm_eval (pełny Holm w rodzinie 15 porównań protokołu, z tym p w miejscu p runnera): pewne (p Holma 0,0000); w definicji runnera pewne (p Holma 0,0000). Wynik testu się nie zmienia.
 
 ### Rozbicie zadań złożonych
 
-Wartość grupy z CI95 = ±1,96 SE z pozycji; Δ parowane po pozycjach (z), Holm w obrębie rozbicia (m = liczba grup). Klastry pozycji wewnątrz grupy pominięte, więc SE grupy jest ostrożne w dół. <!-- liczba-spoza-wynikow: 1,96 to kwantyl rozkładu normalnego, nie wynik -->
+Wartość grupy z przedziałem Walda ±1,96 SE przyciętym do [0; 1]; Δ parowane (z), Holm w obrębie rozbicia (m = liczba grup). SE każdej grupy liczone z pozycji traktowanych jako niezależne (pary BLiMP i MultiBLiMP-PL, rekordy EWoK), bez klastrów: w EWoK rekordy jednego szablonu są skorelowane, a porównanie główne liczy SE po szablonach, więc tu SE jest zaniżone, a werdykty grup za mocne. <!-- liczba-spoza-wynikow: 1,96 to kwantyl rozkładu normalnego, nie wynik -->
 
 <details>
 <summary><b>BLiMP</b> po polu `UID`, k = 67 (po Holmie pewne: 15, prawdopodobne: 5, szum: 47)</summary>
@@ -199,7 +199,7 @@ Wartość grupy z CI95 = ±1,96 SE z pozycji; Δ parowane po pozycjach (z), Holm
 | passive_1 | 1000 | 0,8920 [0,8728; 0,9112] | 0,9100 [0,8923; 0,9277] | +0,0180 | 0,0099 | z = 1,82 | szum | 1,0000 | nie (szum) |
 | passive_2 | 1000 | 0,8900 [0,8706; 0,9094] | 0,8990 [0,8803; 0,9177] | +0,0090 | 0,0096 | z = 0,93 | szum | 1,0000 | nie (szum) |
 | principle_A_c_command | 1000 | 0,7330 [0,7056; 0,7604] | 0,6890 [0,6603; 0,7177] | −0,0440 | 0,0130 | z = −3,37 | pewne | 0,0365 | tak (prawdopodobne) |
-| principle_A_case_1 | 1000 | 0,9980 [0,9952; 1,0008] | 1,0000 [1,0000; 1,0000] | +0,0020 | 0,0014 | z = 1,41 | szum | 1,0000 | nie (szum) |
+| principle_A_case_1 | 1000 | 0,9980 [0,9952; 1,0000] | 1,0000 [1,0000; 1,0000] | +0,0020 | 0,0014 | z = 1,41 | szum | 1,0000 | nie (szum) |
 | principle_A_case_2 | 1000 | 0,9390 [0,9242; 0,9538] | 0,9490 [0,9354; 0,9626] | +0,0100 | 0,0087 | z = 1,15 | szum | 1,0000 | nie (szum) |
 | principle_A_domain_1 | 1000 | 0,9860 [0,9787; 0,9933] | 0,9870 [0,9800; 0,9940] | +0,0010 | 0,0039 | z = 0,26 | szum | 1,0000 | nie (szum) |
 | principle_A_domain_2 | 1000 | 0,7720 [0,7460; 0,7980] | 0,8060 [0,7815; 0,8305] | +0,0340 | 0,0130 | z = 2,62 | prawdopodobne | 0,3655 | nie (szum) |
@@ -315,7 +315,7 @@ Każdy plik próbek testu (space: format pełnego przebiegu; mc: litera; cloze: 
 
 ### Wrażliwość werdyktów „prawdopodobne” po Holmie
 
-- WinoGrande: p Holma 0,0437 przy progu 0,0455 (mnożnik Holma 7). Zamiana 1 wygranej 1.09 na remis (najbardziej wpływowej) daje werdykt szum. Test McNemara na pozycjach (wygrane 1.09: 218, wygrane 1.08: 167): p 0,0107, po Holmie przy tej samej randze 0,0751, czyli szum. Werdykt protokołu (SE po parach zdań) zostaje, ale jest na granicy progu.
+- WinoGrande: p Holma 0,0437 przy progu 0,0455. Zamiana 1 wygranej 1.09 na remis (najbardziej wpływowej) daje werdykt szum. Test McNemara na pozycjach (wygrane 1.09: 218, wygrane 1.08: 167): p 0,0107, po Holmie w rodzinie protokołu (to p w miejscu p testu) 0,0751, czyli szum. Werdykt protokołu (SE po parach zdań) zostaje, ale jest na granicy progu.
 
 ## Środowisko
 
@@ -335,12 +335,12 @@ Każdy plik próbek testu (space: format pełnego przebiegu; mc: litera; cloze: 
 
 ## Odstępstwa od protokołu
 
-- Commit kodu na instancji jest deklaracją, nie zapisem: srodowisko.json eksportu ma puste pole fabryka_commit, a logi instancji mówią „not a git repository”, bo kod przyszedł jako git archive bez katalogu .git. Deklarowany commit to b99f72a (komenda git archive w zapisie sesji pomiaru). Dowody pośrednie: runner_sha256 w eksporcie to suma research/common commitu b99f72a (ta sama w 88719f1), a suma wag po konwersji to wpis 1.09 w SUMY_WAG_CKPT dodany w b99f72a, z którym runner odmawia innych wag.
-- Protokół wskazał jako dowód niezmienionego runnera pole runner_sha256 manifestu, a to pole się różni od pełnego przebiegu: jest sumą całego katalogu research/common, nie samego ewaluuj.py. ewaluuj.py jest bajt w bajt ten sam; jedyna zmiana w research/common między przebiegiem (51c5e31) a pomiarem to klastry testu T27 (PSC) w zadania.py, spoza 15 testów. Wpływ na wynik: brak; 1.08 przeliczone ma te same sumy results_sha256 co pełny przebieg na 15 z 15 testów i te same sumy każdego pliku próbek i trace (19 z 19).
+- Commit kodu na instancji jest deklaracją, nie zapisem: srodowisko.json eksportu ma puste pole fabryka_commit, a logi instancji mówią „not a git repository”, bo kod przyszedł jako git archive bez katalogu .git. Deklarowany commit to b99f72a (komenda git archive w zapisie sesji pomiaru). Dowody pośrednie: runner_sha256 w eksporcie to suma research/common commitu b99f72a (ta sama w 88719f1), a suma wag po konwersji to wpis 1.09 w SUMY_WAG_CKPT dodany w b99f72a, z którym runner odmawia innych wag. Odstępstwo przepuszczone decyzją Ani 14.11.2026.
+- Protokół wskazał jako dowód niezmienionego runnera pole runner_sha256 manifestu, a to pole się różni od pełnego przebiegu: jest sumą całego katalogu research/common, nie samego ewaluuj.py. ewaluuj.py jest bajt w bajt ten sam; jedyna zmiana w research/common między przebiegiem (51c5e31) a pomiarem to klastry testu T27 (PSC) w zadania.py, spoza 15 testów. Wpływ na wynik: brak; 1.08 przeliczone ma te same sumy results_sha256 co pełny przebieg na 15 z 15 testów i te same sumy każdego pliku próbek i trace (19 z 19). Odstępstwo przepuszczone decyzją Ani 14.11.2026.
 - Kod analizy liczby_109.py (funkcja zbuduj), raport_md.py i przelicz_niezaleznie.py zacommitowany w 88719f1 przed pierwszym wynikiem; tools/ewaluacja/raport.py liczy bez zmian od 88719f1.
 - Po wyniku (runda poprawek 1): przelicz_niezaleznie.py liczy acc_norm własnym kodem w definicji runnera i pełnego przebiegu (wcześniej brał pole lm_eval i rozjeżdżał się na HellaSwag), sprawdza sha256 wejść i przelicza remisy; liczby_109.py dopisuje do LICZBY.json analizy eksploracyjne (eksploracja_109.py), bez zmiany zbuduj; raport_md.py dostał sekcje eksploracyjne, problemy i werdykt przy nazwie testu w głównym twierdzeniu; sprawdz_raport.py porównuje raport bajt w bajt z generatorem i sprawdza sekcję 1.09 README. Wcześniej, też po wyniku, bo kod pisany przed pierwszym wynikiem przepadł niezacommitowany: dolacz_wyniki.py, sprawdz_raport.py, mutacje.py. Progi, warianty, metryki i lista porównań bez zmian.
 - Regułę remisu (pierwszy indeks przy remisie, jak metryki.argmax runnera; EWoK: remis to brak wyboru) i liczby remisów dopisano po wyniku jako zapis stanu, nie zmianę; liczby w sekcji Remisy.
-- Na HellaSwag runner i pełny przebieg liczą acc_norm inaczej niż lm_eval (długość kontynuacji bez wiodących spacji wobec długości wyboru). Tabela protokołu jest w definicji runnera, bo w niej jest manifest 1.08; wartości w definicji lm_eval i ich werdykt stoją w sekcji eksploracyjnej. Werdykt po Holmie jest w obu definicjach ten sam.
+- Na HellaSwag runner i pełny przebieg liczą acc_norm inaczej niż lm_eval (długość kontynuacji bez wiodących spacji wobec długości wyboru). Tabela protokołu jest w definicji runnera, bo w niej jest manifest 1.08; wartości w definicji lm_eval i ich werdykt stoją w sekcji eksploracyjnej. Werdykt po Holmie jest w obu definicjach ten sam. Odstępstwo przepuszczone decyzją Ani 14.11.2026.
 - Start 1.09: TRAINING_CONFIGURATION.md repo SlayerLab/Slayer1B-1.09 @ b25aec4e opisuje porzucony pierwszy start od losowych wag (START=zero, bez --init-from, do kroku 450) i obecny przebieg, który bierze wagi 1.08 @ 5f854a0c przez --init-from z nowym optymalizatorem; osiem checkpointów z samymi wagami (kroki 5 000–40 000) należy do tego przebiegu. Protokół („1.09 startuje z wag 1.08”) zgadza się z tym dokumentem; nazwy pliku wagi_40000.pt dokument nie wymienia.
 - Kolejka na instancji liczyła 4 procesy na kartę (aneks), pełny przebieg 2; każdy proces liczy w batch 1, więc liczba procesów nie zmienia wyniku pytania.
 - Protokół nie mówi o czasy.jsonl przebiegu: dolacz_wyniki.py dopisuje do niego wiersze ewaluacji 1.09, tak jak do manifest.jsonl; pełne czasy obu etykiet leżą w eksport/czasy.jsonl.

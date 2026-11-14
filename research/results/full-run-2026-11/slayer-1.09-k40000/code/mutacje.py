@@ -83,6 +83,21 @@ def main():
     zmien("LICZBY: 1.08 przeliczone piqa + 0,001", lambda m: m["testy"][idx["piqa"]]["v108_przeliczone"].__setitem__(
         "wartosc", m["testy"][idx["piqa"]]["v108_przeliczone"]["wartosc"] + 0.001))
 
+    # 1b. rozbicie eksploracyjne przeliczone kodem eksploracji ze zmienioną stałą (M9, M11 weryfikatora LICZBY)
+    import eksploracja_109 as EKS
+    ph = EKS.S.po_holmie
+    for nazwa, ustaw, przyw in (("CI rozbicia 1,645 zamiast 1,96", lambda: setattr(EKS, "Z95", 1.645),
+                                 lambda: setattr(EKS, "Z95", 1.96)),
+                                ("Holm rozbicia z m = 15", lambda: setattr(EKS.S, "po_holmie", lambda ps, m=None: ph(ps, m=max(15, len(ps)))),
+                                 lambda: setattr(EKS.S, "po_holmie", ph))):
+        m_ = copy.deepcopy(LZ)
+        ustaw()
+        try:
+            m_["eksploracyjne"] = EKS.zbuduj(eksport, LZ)
+        finally:
+            przyw()
+        oceń(f"eksploracja: {nazwa}", m_)
+
     # 2. mutacje kodu liczby_109 / raport / statystyka w pamięci, pełna regeneracja LICZBY.json przy przypiętych sumach
     def kod_mut(nazwa, ustaw, przywroc):
         ustaw()

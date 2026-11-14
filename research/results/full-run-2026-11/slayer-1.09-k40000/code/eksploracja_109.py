@@ -77,11 +77,26 @@ def parowane(d):
     return {"n": n, "roznica": m, "se": se, "z": z, "p": S.p_z(z) if z is not None else None}
 
 
+Z95 = 1.96
+
+
 def srednia_ci(x):
+    """Średnia, SE z pozycji traktowanych jako niezależne i przedział Walda ±1,96 SE przycięty do [0, 1]."""
     n = len(x)
     m = sum(x) / n
     se = math.sqrt(sum((v - m) ** 2 for v in x) / (n - 1) / n) if n > 1 else None
-    return {"wartosc": m, "se": se, "ci95": [m - 1.96 * se, m + 1.96 * se] if se is not None else None}
+    ci = [max(0.0, m - Z95 * se), min(1.0, m + Z95 * se)] if se is not None else None
+    return {"wartosc": m, "se": se, "ci95": ci}
+
+
+def holm_w_rodzinie(ps, i, p_nowe, m):
+    """p Holma pozycji i w rodzinie protokołu (m porównań), gdy jej p zastąpić p_nowe (pełny Holm z krokiem w dół
+    i monotonicznością: statystyka.holm)."""
+    if p_nowe is None:
+        return None
+    zm = list(ps)
+    zm[i] = p_nowe
+    return S.holm(zm, m=m)[i]
 
 
 def rozbicie(bench, wa, wb, grupy):
@@ -111,17 +126,16 @@ def mcnemar(d):
     return {"wygrane_109": w, "wygrane_108": l, "p": p}
 
 
-def wrazliwosc(t, wektor, klastry, ps_protokolu, m):
-    """Margines Holma i ile wygranych 1.09 zamienić na remis, żeby p Holma przekroczyło próg „prawdopodobne”."""
+def wrazliwosc(t, wektor, klastry, ps_protokolu, m, i_testu):
+    """Margines Holma i ile wygranych 1.09 zamienić na remis, żeby p Holma przekroczyło próg „prawdopodobne”;
+    każde p Holma liczone pełnym Holmem w rodzinie protokołu z podmienionym p tego testu."""
     p = t["porownanie"]
-    ranga = sorted(x for x in ps_protokolu if x is not None).index(p["p"])
-    mnoznik = m - ranga
     d = list(wektor)
 
     def p_holma(dd):
         r = S.se_k(dd, klastry) if klastry is not None else None
         pz = r["p_t"] if r is not None else parowane(dd)["p"]
-        return min(1.0, pz * mnoznik)
+        return holm_w_rodzinie(ps_protokolu, i_testu, pz, m)
 
     wygrane = [i for i, x in enumerate(d) if x > 0]
     ile = None
@@ -138,9 +152,8 @@ def wrazliwosc(t, wektor, klastry, ps_protokolu, m):
             ile = j
             break
     mc = mcnemar(wektor)
-    return {"p_holm": p["p_holm"], "prog": S.P_PRAWDOPODOBNE, "mnoznik_holma": mnoznik,
-            "wygranych_do_szumu": ile, "mcnemar": {**mc, "p_holm_ta_sama_ranga": None if mc["p"] is None
-                                                     else min(1.0, mc["p"] * mnoznik)}}
+    return {"p_holm": p["p_holm"], "prog": S.P_PRAWDOPODOBNE, "wygranych_do_szumu": ile,
+            "mcnemar": {**mc, "p_holm_w_rodzinie": holm_w_rodzinie(ps_protokolu, i_testu, mc["p"], m)}}
 
 
 def zbuduj(eksport: Path, liczby: dict) -> dict:
@@ -200,10 +213,10 @@ def zbuduj(eksport: Path, liczby: dict) -> dict:
                     pa_, pb_ = probki_pliku(plik_a), probki_pliku(plik_b)
                     la, lb = [float(pa_[k]["acc_norm"]) for k in klucze], [float(pb_[k]["acc_norm"]) for k in klucze]
                     dl = parowane([x - y for x, y in zip(la, lb)])
-                    mnoznik = liczby["m_holm"] - sorted(x for x in ps if x is not None).index(t["porownanie"]["p"])
+                    i_t = liczby["testy"].index(t)
                     dl.update({"werdykt": S.werdykt(dl["z"]) if dl["z"] is not None else S.NIEROZSTRZYGALNE,
-                               "p_holm_ta_sama_ranga": None if dl["p"] is None else min(1.0, dl["p"] * mnoznik)})
-                    dl["werdykt_holm"] = S.werdykt_p(dl["p_holm_ta_sama_ranga"])
+                               "p_holm_w_rodzinie": holm_w_rodzinie(ps, i_t, dl["p"], liczby["m_holm"])})
+                    dl["werdykt_holm"] = S.werdykt_p(dl["p_holm_w_rodzinie"])
                     out.setdefault("definicja_lm_eval", {})[bench] = {
                         "v109": sum(la) / len(la), "v108": sum(lb) / len(lb), "porownanie": dl,
                         "pytan_rozne_od_runnera": {A: sum(x != oa[k]["o"]["acc_norm"] for x, k in zip(la, klucze)),
@@ -219,6 +232,6 @@ def zbuduj(eksport: Path, liczby: dict) -> dict:
                     import ewaluuj
                     import zadania as Z
                     kl = ewaluuj.klastry_probek(Z.ZADANIA[zad], pa)
-                    out["wrazliwosc"][bench] = wrazliwosc(t, wa_, kl, ps, liczby["m_holm"])
+                    out["wrazliwosc"][bench] = wrazliwosc(t, wa_, kl, ps, liczby["m_holm"], liczby["testy"].index(t))
         out["formaty"][bench] = warianty
     return out

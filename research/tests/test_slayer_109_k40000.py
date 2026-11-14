@@ -402,6 +402,72 @@ def test_przeliczenie_sprawdza_sha_wejsc(tmp_path):
     assert any("manifest" in b for b in PN.sprawdz_wejscia(eksport, L_, man, sumy_p))
 
 
+def test_main_przeliczenia_przy_zlej_sumie_nic_nie_liczy(tmp_path, monkeypatch):
+    eksport, cel = atrapa_eksportu(tmp_path)
+    sumy_p = cel / DW.KATALOG / "probki_sha256.json"
+    man = cel / "manifest.jsonl"
+    L_ = {"wejscia": {"probki_sha256": "0" * 64, "manifest_przebiegu": PN.sha256_pliku(man)}, "testy": []}
+    lp = tmp_path / "LICZBY.json"
+    lp.write_text(json.dumps(L_), encoding="utf-8")
+
+    def nie_wolno(*a, **k):
+        raise AssertionError("main liczy mimo złej sumy wejścia")
+    for f in ("porownaj", "szablony_ewok", "domeny_ewok", "rozbicie"):
+        monkeypatch.setattr(PN, f, nie_wolno)
+    monkeypatch.setattr(sys, "argv", ["przelicz", str(eksport), str(lp), str(man), str(sumy_p)])
+    assert PN.main() == 2
+
+
+def zapisz_blimp(eksport, model, wyniki):
+    """Atrapa próbek BLiMP: [(UID, acc)] w kolejności doc_id."""
+    d = eksport / "wyniki" / "blimp" / model / "probki"
+    d.mkdir(parents=True)
+    rek = [{"doc_id": i, "doc": {"UID": u}, "acc": float(x)} for i, (u, x) in enumerate(wyniki)]
+    (d / "T01_space.jsonl").write_text("\n".join(json.dumps(r) for r in rek), encoding="utf-8")
+
+
+def test_rozbicie_niezalezne_holm_m_grup_ci_przyciete_i_porownanie(tmp_path):
+    e = tmp_path
+    a = [("p1", 1)] * 29 + [("p1", 0)] + [("p2", 1)] * 20 + [("p2", 0)] * 10 + [("p3", 1)] * 5 + [("p3", 0)] * 5
+    b = [("p1", 0)] * 15 + [("p1", 1)] * 15 + [("p2", 1)] * 25 + [("p2", 0)] * 5 + [("p3", 1)] * 5 + [("p3", 0)] * 5
+    zapisz_blimp(e, PN.A, a)
+    zapisz_blimp(e, PN.B, b)
+    w = PN.rozbicie(e, "blimp", {})
+    assert list(w) == ["p1", "p2", "p3"] and w["p1"]["n"] == 30
+    m, se, ci = w["p1"]["v109"]  # 29 z 30: m + 1,96 SE > 1, przedział przycięty do [0, 1]
+    assert m + 1.96 * se > 1.0 and ci == [pytest.approx(m - 1.96 * se), 1.0]
+    ps = [w[g]["p"] for g in w]
+    assert [w[g]["p_holm"] for g in w] == PN.holm(ps, m=3)  # m = liczba grup, nie 15
+    # ta sama tabela z kodu eksploracji (statystyka.po_holmie) jest zgodna z przeliczeniem
+    wa = {i: float(x) for i, (_, x) in enumerate(a)}
+    wb = {i: float(x) for i, (_, x) in enumerate(b)}
+    rz = EK.rozbicie("blimp", wa, wb, {i: u for i, (u, _) in enumerate(a)})
+    assert PN.porownaj_rozbicie("blimp", w, rz) == []
+    zle = json.loads(json.dumps(rz))
+    zle["grupy"][1]["v109"]["ci95"][0] += 0.01
+    assert PN.porownaj_rozbicie("blimp", w, zle)
+    zle = json.loads(json.dumps(rz))
+    zle["grupy"][0]["porownanie"]["p_holm"] = min(1.0, zle["grupy"][0]["porownanie"]["p_holm"] * 2)
+    assert PN.porownaj_rozbicie("blimp", w, zle)
+
+
+def test_ci_walda_przyciete_do_przedzialu():
+    assert EK.srednia_ci([1.0, 1.0, 1.0, 0.0])["ci95"][1] <= 1.0
+    assert EK.srednia_ci([0.0, 0.0, 0.0, 1.0])["ci95"][0] >= 0.0
+    x = EK.srednia_ci([1.0, 0.0] * 50)
+    assert x["ci95"] == pytest.approx([0.5 - 1.96 * x["se"], 0.5 + 1.96 * x["se"]])
+
+
+def test_holm_w_rodzinie_z_krokiem_w_dol():
+    """p podmienione w rodzinie: pełny Holm (monotoniczny), nie p × (m − ranga)."""
+    ps = [0.001, 0.002, 0.5, 0.6]
+    # podmiana p czwartej pozycji (0,6, ranga 4) na 0,4: nowa ranga 3 → 0,4 × 2 = 0,8; mnożnik starej rangi dałby 0,4
+    assert EK.holm_w_rodzinie(ps, 3, 0.4, 4) == pytest.approx(0.8)
+    # monotoniczność: 0,0105 × 2 = 0,021, ale poprzednie 0,01 × 3 = 0,03, więc 0,03
+    assert EK.holm_w_rodzinie([0.01, 0.011, 0.9], 1, 0.0105, 3) == pytest.approx(0.03)
+    assert EK.holm_w_rodzinie(ps, 0, None, 4) is None
+
+
 def test_raport_bajt_w_bajt_lapie_liczby_calkowite():
     import raport_md
     import sprawdz_raport
