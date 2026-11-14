@@ -33,6 +33,121 @@ def baza(t):
     return ", ".join(czesci) or "nie dotyczy"
 
 
+def eksploracja(L: dict, a) -> None:
+    """Sekcja analiz po wyniku (LICZBY.json „eksploracyjne”); żadna z nich nie zmienia werdyktów protokołu."""
+    E = L["eksploracyjne"]
+    nazwy = {t["benchmark"]: t["nazwa"] for t in L["testy"]}
+    A_, B_ = L["model"], L["odniesienie"]
+    a("## Analizy eksploracyjne (po wyniku)")
+    a("")
+    a("Dopisane po pierwszym wyniku, na żądanie weryfikacji; nie były ustalone w protokole i nie zmieniają głównego "
+      "twierdzenia ani werdyktów tabeli. Werdykty niżej są opisowe, bez korekty na wielokrotne testowanie, chyba że "
+      "kolumna mówi inaczej. Ustalone przed pomiarem było tylko to, co stoi w sekcjach wyżej.")
+    a("")
+    a("### Remisy")
+    a("")
+    a(f"Reguła (stan runnera, zapisany po wyniku w aneksie protokołu): {E['regula_remisu']}. Remis to pytanie, w którym "
+      "najwyższy wynik reguły wyboru ma więcej niż jedna opcja; „z poprawną” to remis obejmujący poprawną opcję "
+      "(liczony jako trafienie, gdy poprawna ma najniższy indeks).")
+    a("")
+    a("| test | n | remisy 1.09 | z poprawną 1.09 | remisy 1.08 | z poprawną 1.08 | pytania ze zdublowaną opcją |")
+    a("|---|---:|---:|---:|---:|---:|---:|")
+    for b, r in E["remisy"].items():
+        x, y = r[A_], r[B_]
+        a(f"| {nazwy[b]} | {x['n']} | {x['remisy']} | {x.get('remisy_z_poprawna', '–')} | {y['remisy']} | "
+          f"{y.get('remisy_z_poprawna', '–')} | {x.get('pytan_ze_zdublowana_opcja', '–')} |")
+    a("")
+    for b, d in (E.get("definicja_lm_eval") or {}).items():
+        t = next(t for t in L["testy"] if t["benchmark"] == b)
+        p = d["porownanie"]
+        a(f"### {nazwy[b]}: dwie definicje acc_norm")
+        a("")
+        a(f"Runner (`metryki.oceny_mc`, definicja pełnego przebiegu i manifestu 1.08) dzieli loglik przez długość "
+          f"kontynuacji bez wiodących spacji; lm_eval (pole próbki) przez długość wyboru. Na {nazwy[b]} rozchodzą się na "
+          f"{d['pytan_rozne_od_runnera'][A_]} pytaniach 1.09 i {d['pytan_rozne_od_runnera'][B_]} pytaniach 1.08.")
+        a("")
+        a("| definicja | 1.08 | 1.09 k40000 | Δ | SE Δ | statystyka | werdykt |")
+        a("|---|---:|---:|---:|---:|---|---|")
+        pt = t["porownanie"]
+        a(f"| runner (tabela wyżej) | {f(t['v108_przeliczone']['wartosc'], 6)} | {f(t['v109']['wartosc'], 6)} | "
+          f"{f(pt['roznica'], 6, plus=True)} | {f(pt['se'])} | z = {f(pt['z'], 2)} | {pt['werdykt']} |")
+        a(f"| lm_eval | {f(d['v108'], 6)} | {f(d['v109'], 6)} | {f(p['roznica'], 6, plus=True)} | {f(p['se'])} | "
+          f"z = {f(p['z'], 2)} | {p['werdykt']} |")
+        a("")
+        a(f"Werdykt po Holmie w definicji lm_eval przy tej samej randze p: {p['werdykt_holm']} (p Holma "
+          f"{f(p['p_holm_ta_sama_ranga'], 4)}), jak w definicji runnera; wynik testu się nie zmienia.")
+        a("")
+    a("### Rozbicie zadań złożonych")
+    a("")
+    a("Wartość grupy z CI95 = ±1,96 SE z pozycji; Δ parowane po pozycjach (z), Holm w obrębie rozbicia (m = liczba grup). "
+      "Klastry pozycji wewnątrz grupy pominięte, więc SE grupy jest ostrożne w dół. "
+      "<!-- liczba-spoza-wynikow: 1,96 to kwantyl rozkładu normalnego, nie wynik -->")
+    a("")
+    for b, r in E["rozbicie"].items():
+        licz = ", ".join(f"{k}: {v}" for k, v in sorted(r["po_holmie"].items()))
+        a(f"<details>\n<summary><b>{nazwy[b]}</b> po polu `{r['pole']}`, k = {r['k']} (po Holmie {licz})</summary>\n")
+        a("| grupa | n | 1.08 [CI95] | 1.09 k40000 [CI95] | Δ | SE Δ | z | werdykt | p Holma | po Holmie |")
+        a("|---|---:|---:|---:|---:|---:|---|---|---:|---|")
+        for g in r["grupy"]:
+            p = g["porownanie"]
+            ci = lambda v: (f"{f(v['wartosc'])} [{f(v['ci95'][0])}; {f(v['ci95'][1])}]" if v["ci95"] else f(v["wartosc"]))
+            a(f"| {g['grupa']} | {g['n']} | {ci(g['v108'])} | {ci(g['v109'])} | {f(p['roznica'], plus=True)} | "
+              f"{f(p['se'])} | {('z = ' + f(p['z'], 2)) if p['z'] is not None else '–'} | {p['werdykt']} | "
+              f"{f(p['p_holm'])} | {p['po_holmie']} ({p['werdykt_holm']}) |")
+        a("\n</details>\n")
+    a("### Formaty odpowiedzi i rozkład wyborów")
+    a("")
+    a("Każdy plik próbek testu (space: format pełnego przebiegu; mc: litera; cloze: treść odpowiedzi). BPB poprawnej "
+      "odpowiedzi: niżej = lepiej. Wybory według metryki testu, obok rozkład poprawnych pozycji. SE Δ w tej tabeli jest "
+      "parowane po pozycjach bez klastrów, więc dla BLiMP, WinoGrande i WSC273 (protokół: SE po klastrach) werdykt tu "
+      "jest za mocny i nie zastępuje tabeli protokołu.")
+    a("")
+    a("| test | wariant | n | acc 1.08 · 1.09 | acc_norm 1.08 · 1.09 | BPB poprawnej 1.08 · 1.09 | Δ acc (z, werdykt) | Δ acc_norm (z, werdykt) |")
+    a("|---|---|---:|---:|---:|---:|---|---|")
+    for b, ws in E["formaty"].items():
+        for war, w in ws.items():
+            x, y = w[B_], w[A_]
+            da, dn = w["delta_acc"], w["delta_acc_norm"]
+            st = lambda d: f"{f(d['roznica'], plus=True)} (z = {f(d['z'], 2)}, {d['werdykt']})" if d["z"] is not None else "–"
+            a(f"| {nazwy[b]} | {war} | {w['n']} | {f(x['acc'])} · {f(y['acc'])} | {f(x['acc_norm'])} · {f(y['acc_norm'])} | "
+              f"{f(x['bpb_poprawnej'])} · {f(y['bpb_poprawnej'])} | {st(da)} | {st(dn)} |")
+    a("")
+    a("| test | wariant | poprawne pozycje | wybrane 1.08 | wybrane 1.09 k40000 |")
+    a("|---|---|---|---|---|")
+    poz = lambda c: " ".join(f"{k}:{v}" for k, v in c.items())
+    for b, ws in E["formaty"].items():
+        for war, w in ws.items():
+            a(f"| {nazwy[b]} | {war} | {poz(w[A_]['poprawne'])} | {poz(w[B_]['wybrane'])} | {poz(w[A_]['wybrane'])} |")
+    a("")
+    a("### Wobec bazy (stała odpowiedź albo losowa)")
+    a("")
+    a("`wobec_b` z plików wyników runnera: b = wyższa z bazy losowej i stałej odpowiedzi; przy stałej odpowiedzi "
+      "porównanie parowane z jej wynikami per pytanie.")
+    a("")
+    a("| test | b | baza | 1.08 − b (statystyka, werdykt) | 1.09 − b (statystyka, werdykt) |")
+    a("|---|---:|---|---|---|")
+    for b, wb in E["wobec_bazy"].items():
+        if not wb:
+            continue
+        st = lambda d: (f"{f(d['roznica'], plus=True)} ({'t = ' + f(d['t'], 2) + ', df = ' + str(d['df']) if d.get('t') is not None else 'z = ' + f(d['z'], 2)}, {d['werdykt']})")
+        a(f"| {nazwy[b]} | {f(wb[A_]['b'])} | {wb[A_]['baza']} | {st(wb[B_])} | {st(wb[A_])} |")
+    a("")
+    if E.get("wrazliwosc"):
+        a("### Wrażliwość werdyktów „prawdopodobne” po Holmie")
+        a("")
+        for b, w in E["wrazliwosc"].items():
+            mc = w["mcnemar"]
+            a(f"- {nazwy[b]}: p Holma {f(w['p_holm'])} przy progu {f(w['prog'])} (mnożnik Holma {w['mnoznik_holma']}). "
+              + (f"Zamiana {w['wygranych_do_szumu']} wygranej 1.09 na remis (najbardziej wpływowej) daje werdykt szum. "
+                 if w["wygranych_do_szumu"] else "Do 50 zamienionych wygranych werdykt się nie zmienia. ")
+              + f"Test McNemara na pozycjach "
+              f"(wygrane 1.09: {mc['wygrane_109']}, wygrane 1.08: {mc['wygrane_108']}): p {f(mc['p'])}, po Holmie przy "
+              f"tej samej randze {f(mc['p_holm_ta_sama_ranga'])}, czyli "
+              f"{'szum' if mc['p_holm_ta_sama_ranga'] > w['prog'] else 'ponad próg'}. Werdykt protokołu (SE po parach zdań) "
+              "zostaje, ale jest na granicy progu.")
+        a("")
+
+
 def raport(L: dict) -> str:
     out = []
     a = out.append
@@ -98,6 +213,8 @@ def raport(L: dict) -> str:
         a(f"| {t['nazwa']} | {t['metryka']} | {baza(t)} | {f(t['v108_przeliczone']['wartosc'], cyfry(t))} ± "
           f"{f(t['v108_przeliczone']['se'])} | {'; '.join(ks[L['model']]) or 'ok'} | {'; '.join(ks[L['odniesienie']]) or 'ok'} |")
     a("")
+    if L.get("eksploracyjne"):
+        eksploracja(L, a)
     a("## Środowisko")
     a("")
     for k in sorted(P):
@@ -113,6 +230,12 @@ def raport(L: dict) -> str:
         a("## Odstępstwa od protokołu")
         a("")
         for x in L["odstepstwa"]:
+            a(f"- {x}")
+        a("")
+    if L.get("problemy"):
+        a("## Problemy poza tym pomiarem")
+        a("")
+        for x in L["problemy"]:
             a(f"- {x}")
         a("")
     if L.get("not_run"):

@@ -130,9 +130,13 @@ def zbuduj(eksport: Path, manifest_przebiegu: Path, sumy_plik: Path) -> dict:
 def main():
     eksport, manifest, sumy, wyj = map(Path, sys.argv[1:5])
     liczby = zbuduj(eksport, manifest, sumy)
-    if len(sys.argv) > 5:  # odstepstwa i not_run: zdania bez liczb, spisane przed raportem
+    # po wyniku (runda poprawek 1): analizy eksploracyjne obok, bez wpływu na werdykty protokołu z `zbuduj`
+    sys.path.insert(0, str(TU))
+    import eksploracja_109
+    liczby["eksploracyjne"] = eksploracja_109.zbuduj(eksport, liczby)
+    if len(sys.argv) > 5:  # odstepstwa, problemy i not_run: zdania bez liczb
         dodatki = json.loads(Path(sys.argv[5]).read_text(encoding="utf-8"))
-        liczby.update({k: dodatki[k] for k in ("odstepstwa", "not_run") if k in dodatki})
+        liczby.update({k: dodatki[k] for k in ("odstepstwa", "problemy", "not_run") if k in dodatki})
     wyj.write_text(json.dumps(liczby, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print(liczby["podsumowanie"]["twierdzenie"])
 

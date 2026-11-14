@@ -6,9 +6,9 @@ LICZBY.json przy przypiętych sumach wejść, a łapie ją przeliczenie niezale�
                       <katalog roboczy> <wynik.json>
 
 Strażnicy: przelicz_niezaleznie.py (LICZBY wobec próbek), sprawdz_sumy w liczby_109.py (próbki wobec spisu sum),
-sprawdz_raport.py (RAPORT wobec LICZBY, strażnik liczb repo). Przeliczenie niezależne ma na tych danych rozjazd
-bazowy (HellaSwag, definicja acc_norm: dodatki.json), więc mutacja jest złapana, gdy dokłada rozjazd, którego nie ma
-w przebiegu bez zmian. Mutacje kodu robione na modułach w pamięci, pliki się nie zmieniają.
+sprawdz_raport.py (RAPORT wobec LICZBY: strażnik liczb repo i zgodność bajt w bajt z generatorem). Przeliczenie
+niezależne musi dać kod 0 na danych bez zmian (inaczej mutacje nic nie mierzą i skrypt kończy się kodem 1); mutacja
+jest złapana, gdy daje rozjazd. Mutacje kodu robione na modułach w pamięci, pliki się nie zmieniają.
 Kod 0 tylko wtedy, gdy każda mutacja została złapana.
 """
 import copy
@@ -25,12 +25,15 @@ import sprawdz_raport as SR  # noqa: E402
 R, S = L.R, L.S
 
 
+SUMY = None  # probki_sha256.json, ustawiane w main
+
+
 def przelicz(eksport, liczby, manifest, roboczy, nazwa):
     """Zbiór linii rozjazdu przeliczenia niezależnego (pusty = zgodne) i kod wyjścia."""
     p = roboczy / f"LICZBY_{nazwa}.json"
     p.write_text(json.dumps(liczby, ensure_ascii=False), encoding="utf-8")
-    r = subprocess.run([sys.executable, "-I", str(TU / "przelicz_niezaleznie.py"), str(eksport), str(p), str(manifest)],
-                       capture_output=True, text=True)
+    r = subprocess.run([sys.executable, "-I", str(TU / "przelicz_niezaleznie.py"), str(eksport), str(p), str(manifest),
+                        str(SUMY)], capture_output=True, text=True)
     linie = set(r.stdout.strip().splitlines()) if r.returncode else set()
     if r.returncode not in (0, 1):
         linie = {f"przelicz_niezaleznie.py padł: {r.stderr.strip().splitlines()[-1:]}"}
@@ -38,13 +41,19 @@ def przelicz(eksport, liczby, manifest, roboczy, nazwa):
 
 
 def main():
+    global SUMY
     eksport, manifest, sumy, liczby_p, raport_p, roboczy, wyj = map(Path, sys.argv[1:8])
+    SUMY = sumy
     roboczy.mkdir(parents=True, exist_ok=True)
     LZ = json.loads(liczby_p.read_text(encoding="utf-8"))
     wyniki = []
     kod0, baza = przelicz(eksport, LZ, manifest, roboczy, "bez_zmian")
-    wyniki.append({"mutacja": "bez zmian (rozjazd bazowy)", "zlapana": None, "kod": kod0, "rozjazdy": sorted(baza)})
-    print(f"bez zmian: kod {kod0}, rozjazd bazowy {len(baza)} linii")
+    wyniki.append({"mutacja": "bez zmian (strażnik musi dać 0)", "zlapana": None, "kod": kod0, "rozjazdy": sorted(baza)})
+    print(f"bez zmian: kod {kod0}, rozjazdów {len(baza)}")
+    if kod0 != 0:
+        wyj.write_text(json.dumps(wyniki, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+        print("przeliczenie niezależne nie daje 0 na danych bez zmian: mutacje nic by nie mierzyły")
+        return 1
 
     def zapisz(nazwa, zlapana, opis):
         wyniki.append({"mutacja": nazwa, "zlapana": zlapana, "komunikat": opis})
@@ -84,6 +93,7 @@ def main():
             zapisz(nazwa, True, f"zbuduj przerwał: {type(e).__name__}: {str(e)[:100]}")
             return
         przywroc()
+        m["eksploracyjne"] = LZ.get("eksploracyjne")  # zbuduj liczy tylko protokół; eksploracja bez zmian
         oceń(nazwa, m)
 
     stare = {"M_HOLM": L.M_HOLM, "A": L.A, "B": L.B, "wynik_koncowy": L.wynik_koncowy, "kontrola": L.kontrola,
@@ -120,19 +130,23 @@ def main():
     # 4. RAPORT wobec LICZBY: liczba i werdykt podmienione w tekście
     straznik = SR.zaladuj(SR.DOMYSLNY)
     tekst = raport_p.read_text(encoding="utf-8")
-    zdrowy = SR.sprawdz(straznik, LZ, tekst)
+    sprawdz = lambda x: SR.sprawdz(straznik, LZ, x) + SR.bajt_w_bajt(LZ, x)
+    zdrowy = sprawdz(tekst)
     wyniki.append({"mutacja": "RAPORT bez zmian", "zlapana": None, "kod": 1 if zdrowy else 0,
                    "komunikat": f"{len(zdrowy)} problemów"})
     t = LZ["testy"][idx[t0]]
     stara = f"{t['v109']['wartosc']:.4f}".replace(".", ",")
     nowa = f"{t['v109']['wartosc'] + 0.0123:.4f}".replace(".", ",")
     assert stara in tekst, stara
+    n_med = str(LZ["testy"][idx["medmcqa"]]["v109"]["n"])
     for nazwa, zmieniony in ((f"RAPORT: {stara} → {nowa}", tekst.replace(stara, nowa, 1)),
                              ("RAPORT: WinoGrande „tak (prawdopodobne)” → „tak (pewne)”",
                               tekst.replace("| tak (prawdopodobne) | lepszy (prawdopodobne) |",
-                                            "| tak (pewne) | lepszy (pewne) |", 1))):
+                                            "| tak (pewne) | lepszy (pewne) |", 1)),
+                             (f"RAPORT: n MedMCQA {n_med} → 4138", tekst.replace(f"| MedMCQA | {n_med} |", "| MedMCQA | 4138 |", 1)),
+                             ("RAPORT: „na 9 z 15” → „na 10 z 15”", tekst.replace("na 9 z 15", "na 10 z 15", 1))):
         assert zmieniony != tekst, nazwa
-        bledy = SR.sprawdz(straznik, LZ, zmieniony)
+        bledy = sprawdz(zmieniony)
         zapisz(nazwa, bool(bledy), bledy[0][2] if bledy else "strażnik przepuścił")
 
     wyj.write_text(json.dumps(wyniki, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")

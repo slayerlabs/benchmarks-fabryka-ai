@@ -1,10 +1,5 @@
 {
- "rozjazdy": [
-  "hellaswag: Δ 0.09410476000796653 != 0.09390559649472219",
-  "hellaswag: SE 0.0035879851094430025 != 0.003577432909975053",
-  "hellaswag: 1.08 przeliczone 0.43397729535949015 != 0.4340768771161123",
-  "hellaswag: p Holma 1.9240679817623058e-150 != 1.0881565180309133e-150"
- ],
+ "rozjazdy": [],
  "testy": {
   "arc-challenge": {
    "roznica": 0.04948805460750849,
@@ -13,6 +8,25 @@
    "p": 2.035762466457819e-05,
    "n": 1172,
    "v108": 0.3003412969283277,
+   "remisy": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0
+    },
+    "slayer1b-1.08": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0
+    }
+   },
+   "acc_norm_lm_eval": {
+    "v109": 0.34982935153583616,
+    "v108": 0.3003412969283277,
+    "roznica": 0.04948805460750853,
+    "pytan_rozne_od_runnera": {
+     "slayer1b-1.09-k40000": 0,
+     "slayer1b-1.08": 0
+    }
+   },
    "p_holm": 0.0001832186219812037,
    "werdykt_holm": "pewne",
    "kontrola_zgodna": true,
@@ -25,6 +39,16 @@
    "p": 2.0458405833087757e-20,
    "n": 2376,
    "v108": 0.5837542087542088,
+   "remisy": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0
+    },
+    "slayer1b-1.08": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0
+    }
+   },
    "p_holm": 2.6595927583014084e-19,
    "werdykt_holm": "pewne",
    "kontrola_zgodna": true,
@@ -38,6 +62,16 @@
    "p": 0.06756015627193206,
    "n": 67000,
    "v108": 0.8047313432835821,
+   "remisy": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 7,
+     "remisy_z_poprawna": 7
+    },
+    "slayer1b-1.08": {
+     "remisy": 7,
+     "remisy_z_poprawna": 7
+    }
+   },
    "p_holm": 0.3378007813596603,
    "werdykt_holm": "szum",
    "kontrola_zgodna": true,
@@ -57,13 +91,32 @@
    "wynik": "lepszy (pewne)"
   },
   "hellaswag": {
-   "roznica": 0.09410476000796653,
-   "se": 0.0035879851094430025,
-   "z": 26.227745416305623,
-   "p": 1.2827119878415373e-151,
+   "roznica": 0.09390559649472219,
+   "se": 0.003577432909975053,
+   "z": 26.249436078279103,
+   "p": 7.254376786871736e-152,
    "n": 10042,
-   "v108": 0.43397729535949015,
-   "p_holm": 1.9240679817623058e-150,
+   "v108": 0.4340768771161123,
+   "remisy": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0
+    },
+    "slayer1b-1.08": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0
+    }
+   },
+   "acc_norm_lm_eval": {
+    "v109": 0.5280820553674567,
+    "v108": 0.43397729535949015,
+    "roznica": 0.09410476000796654,
+    "pytan_rozne_od_runnera": {
+     "slayer1b-1.09-k40000": 23,
+     "slayer1b-1.08": 23
+    }
+   },
+   "p_holm": 1.0881565180307604e-150,
    "werdykt_holm": "pewne",
    "kontrola_zgodna": true,
    "wynik": "lepszy (pewne)"
@@ -87,6 +140,25 @@
    "p": 0.6632130346928267,
    "n": 2985,
    "v108": 0.22814070351758794,
+   "remisy": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 13,
+     "remisy_z_poprawna": 4
+    },
+    "slayer1b-1.08": {
+     "remisy": 13,
+     "remisy_z_poprawna": 5
+    }
+   },
+   "acc_norm_lm_eval": {
+    "v109": 0.22512562814070353,
+    "v108": 0.22814070351758794,
+    "roznica": -0.003015075376884422,
+    "pytan_rozne_od_runnera": {
+     "slayer1b-1.09-k40000": 0,
+     "slayer1b-1.08": 0
+    }
+   },
    "p_holm": 1.0,
    "werdykt_holm": "szum",
    "kontrola_zgodna": true,
@@ -99,6 +171,16 @@
    "p": 0.024489288978162427,
    "n": 4183,
    "v108": 0.3122161128376763,
+   "remisy": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0
+    },
+    "slayer1b-1.08": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0
+    }
+   },
    "p_holm": 0.14693573386897457,
    "werdykt_holm": "szum",
    "kontrola_zgodna": true,
@@ -111,6 +193,16 @@
    "p": 0.4308178420893557,
    "n": 3272,
    "v108": 0.9874694376528117,
+   "remisy": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0
+    },
+    "slayer1b-1.08": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0
+    }
+   },
    "p_holm": 1.0,
    "werdykt_holm": "szum",
    "kontrola_zgodna": true,
@@ -123,6 +215,25 @@
    "p": 2.773764059264391e-09,
    "n": 1838,
    "v108": 0.6621327529923831,
+   "remisy": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0
+    },
+    "slayer1b-1.08": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0
+    }
+   },
+   "acc_norm_lm_eval": {
+    "v109": 0.7121871599564744,
+    "v108": 0.6621327529923831,
+    "roznica": 0.05005440696409141,
+    "pytan_rozne_od_runnera": {
+     "slayer1b-1.09-k40000": 0,
+     "slayer1b-1.08": 0
+    }
+   },
    "p_holm": 3.05114046519083e-08,
    "werdykt_holm": "pewne",
    "kontrola_zgodna": true,
@@ -135,6 +246,16 @@
    "p": 3.848490006819069e-09,
    "n": 500,
    "v108": 0.434,
+   "remisy": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0
+    },
+    "slayer1b-1.08": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0
+    }
+   },
    "p_holm": 3.848490006819069e-08,
    "werdykt_holm": "pewne",
    "kontrola_zgodna": true,
@@ -147,6 +268,16 @@
    "p": 0.09273939062872957,
    "n": 1954,
    "v108": 0.39662231320368474,
+   "remisy": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 2,
+     "remisy_z_poprawna": 0
+    },
+    "slayer1b-1.08": {
+     "remisy": 2,
+     "remisy_z_poprawna": 0
+    }
+   },
    "p_holm": 0.3709575625149183,
    "werdykt_holm": "szum",
    "kontrola_zgodna": true,
@@ -173,6 +304,16 @@
    "p": 0.006244215192075793,
    "n": 1267,
    "v108": 0.5367008681925809,
+   "remisy": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0
+    },
+    "slayer1b-1.08": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0
+    }
+   },
    "p_holm": 0.04370950634453055,
    "werdykt_holm": "prawdopodobne",
    "kontrola_zgodna": true,
@@ -186,6 +327,16 @@
    "p": 0.35650662668428446,
    "n": 273,
    "v108": 0.6153846153846154,
+   "remisy": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0
+    },
+    "slayer1b-1.08": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0
+    }
+   },
    "p_holm": 1.0,
    "werdykt_holm": "szum",
    "kontrola_zgodna": true,

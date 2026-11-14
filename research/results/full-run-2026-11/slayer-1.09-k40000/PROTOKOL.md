@@ -153,3 +153,20 @@ pełnym wyniku obu etykiet. Seed: domyślny `ewaluuj.py`/`ewok.py` (jak w przebi
 
 **Niezależne przeliczenie.** `code/przelicz_niezaleznie.py` liczy Δ i SE z plików próbek własnym kodem (bez importu
 `raport.py`, `metryki.py` i `statystyka.py`); podział lepsze/gorsze/szum różny od `LICZBY.json` obala główne twierdzenie.
+
+## Aneks po wyniku (14.11.2026, runda poprawek 1): zapis stanu i odstępstwa, nie zmiana
+
+Dopisany PO pierwszym wyniku. Niczego wyżej nie zmienia: progi, warianty, metryki i lista porównań zostają. Spisuje to,
+czego protokół nie ustalał albo co ustalił błędnie; szczegóły i liczby w `RAPORT.md`, sekcje „Odstępstwa” i
+„Analizy eksploracyjne”.
+
+- **Remisy.** Protokół nie ustalał reguły. Stan runnera: przy remisie wygrywa opcja o najniższym indeksie
+  (`metryki.argmax`); w EWoK remis to brak wyboru (`ewok.evaluate`). Liczba remisów każdego testu i etykiety stoi w
+  `LICZBY.json` (`eksploracyjne.remisy`).
+- **Dowód niezmienionego runnera był błędny.** Pole `runner_sha256` to suma całego `research/common`, nie samego
+  `ewaluuj.py`, i różni się od przebiegu (zmiana dotyczy tylko testu T27, spoza 15). Wpływ sprawdzony wprost: wyniki i
+  próbki 1.08 są bajt w bajt te same co w przebiegu.
+- **Commit kodu na instancji** (`b99f72a`) jest deklaracją z dowodem pośrednim, nie zapisem eksportu.
+- **Definicja acc_norm.** „Metryka acc_norm” w tabeli testów to wartość z pliku wyników runnera, czyli jego definicja
+  (długość kontynuacji bez wiodących spacji), ta sama co w manifeście 1.08. Na HellaSwag różni się od definicji lm_eval;
+  wartości w obu definicjach podaje raport. Przeliczenie niezależne liczy definicję runnera.

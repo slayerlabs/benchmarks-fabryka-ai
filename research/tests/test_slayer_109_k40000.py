@@ -324,6 +324,94 @@ def test_raport_z_liczb_przechodzi_straznik_a_zamieniona_liczba_nie():
     assert any("(c)" in b[2] for b in zle)
 
 
+# --------------------------------------------------------------------------- przelicz_niezaleznie.py na atrapie
+
+import przelicz_niezaleznie as PN  # noqa: E402
+import metryki as MET  # noqa: E402
+import eksploracja_109 as EK  # noqa: E402
+
+
+def probka_mc(lls, konty, target, pmi=False, ctx="Q:"):
+    resp = lls + ([-50.0] * len(lls) if pmi else [])
+    return {"doc_id": 0, "doc": {}, "target": target, "arguments": [[ctx, c] for c in konty] * (2 if pmi else 1),
+            "filtered_resps": [[x, False] for x in resp],
+            "metrics": ["acc", "acc_norm"] + (["acc_mutual_info"] if pmi else []), "acc": 0.0, "acc_norm": 0.0}
+
+
+def test_definicja_acc_norm_runnera_przypieta():
+    """Runner dzieli loglik przez długość kontynuacji BEZ wiodących spacji (definicja pełnego przebiegu i manifestu);
+    lm_eval przez długość wyboru. Kontynuacja „   ab” (3 spacje): runner 2 znaki, ze spacjami 5."""
+    p = probka_mc([-2.4, -3.3], ["   ab", " abc"], 1)
+    # runner: -2,4/2 = -1,2 < -3,3/3 = -1,1 → wybór 1 (poprawna); ze spacjami: -2,4/5 = -0,48 > -3,3/4 → wybór 0
+    assert MET.oceny_mc(p, False)["acc_norm"] == 1.0
+    assert PN.acc_norm_runnera(p) == 1.0
+    assert [ll / len(c) for ll, c in zip([-2.4, -3.3], ["   ab", " abc"])].index(max(-2.4 / 5, -3.3 / 4)) == 0
+
+
+def test_remis_pierwszy_indeks_i_licznik():
+    p = probka_mc([-1.0, -1.0, -3.0], [" a", " a", " c"], 1)
+    assert PN.pierwszy_max([-1.0, -1.0, -3.0]) == 0 and MET.argmax([-1.0, -1.0, -3.0]) == 0
+    assert PN.remis(p, "acc") == (True, True)
+    assert PN.remis(probka_mc([-1.0, -2.0], [" a", " b"], 1), "acc") == (False, False)
+    oc = EK.oceny_wariantu(MET, {0: p})
+    assert EK.remisy_mc(oc, "acc") == {"remisy": 1, "remisy_z_poprawna": 1, "pytan_ze_zdublowana_opcja": 1, "n": 1}
+
+
+def test_opcje_pmi_i_cel_tekstem():
+    lls, konty, gold = PN.opcje(probka_mc([-1.0, -2.0, -0.5], [" x", " y", " z"], 2, pmi=True))
+    assert lls == [-1.0, -2.0, -0.5] and gold == 2
+    assert PN.opcje(probka_mc([-1.0, -2.0], [" yes", " no"], "no"))[2] == 1
+
+
+@pytest.mark.parametrize("z,werdykt", [(1.9, "szum"), (2.1, "prawdopodobne"), (2.9, "prawdopodobne"), (3.1, "pewne")])
+def test_progi_werdyktu_przeliczenia(z, werdykt):
+    from scipy import stats
+    assert PN.werdykt(2 * stats.norm.sf(z)) == werdykt
+    assert PN.werdykt(None) == "nierozstrzygalne"
+
+
+def test_holm_przeliczenia_m15_i_odwrocona_kolejnosc():
+    ps = [0.001, None, 0.01, 0.2]
+    h = PN.holm(ps)
+    assert h[0] == pytest.approx(0.015) and h[1] is None and h[2] == pytest.approx(0.14) and h[3] == pytest.approx(1.0)
+    assert PN.holm(ps[::-1]) == h[::-1]
+
+
+def test_se_klastrowe_przeliczenia():
+    m, se, t, df, p, G = PN.se_klastrowe([1.0, 0.0, 1.0, 1.0], ["a", "a", "b", "b"])
+    # średnia 0,75; sumy reszt klastrów: a = 0,25 + (−0,75) = −0,5, b = 0,5; √(2/1 · 0,5) / 4
+    assert m == pytest.approx(0.75) and se == pytest.approx(math.sqrt(2 * 0.5) / 4) and df == 1 and G == 2
+
+
+@pytest.mark.parametrize("v108,n,zgodna", [(0.5049, 100, True), (0.5051, 100, False), (0.5, 99, False)])
+def test_kontrola_przeliczenia(v108, n, zgodna):
+    assert PN.kontrola_zgodna({"v108": v108, "n": n}, {"benchmark": "piqa", "wartosc": 0.5, "se": 0.01, "n": 100}) is zgodna
+    assert PN.kontrola_zgodna({"v108": 0.9875, "n": 100}, {"benchmark": "multiblimp-pl", "wartosc": 98.74, "se": 0.19,
+                                                          "n": 100})
+
+
+def test_przeliczenie_sprawdza_sha_wejsc(tmp_path):
+    eksport, cel = atrapa_eksportu(tmp_path)
+    sumy_p = cel / DW.KATALOG / "probki_sha256.json"
+    man = cel / "manifest.jsonl"
+    L_ = {"wejscia": {"probki_sha256": PN.sha256_pliku(sumy_p), "manifest_przebiegu": PN.sha256_pliku(man)}}
+    assert PN.sprawdz_wejscia(eksport, L_, man, sumy_p) == []
+    (eksport / "wyniki/piqa" / DW.A / "results.json").write_bytes(b"inny\n")
+    assert any("results.json" in b for b in PN.sprawdz_wejscia(eksport, L_, man, sumy_p))
+    L_["wejscia"]["manifest_przebiegu"] = "0" * 64
+    assert any("manifest" in b for b in PN.sprawdz_wejscia(eksport, L_, man, sumy_p))
+
+
+def test_raport_bajt_w_bajt_lapie_liczby_calkowite():
+    import raport_md
+    import sprawdz_raport
+    liczby = liczby_atrapa()
+    tekst = raport_md.raport(liczby)
+    assert sprawdz_raport.bajt_w_bajt(liczby, tekst) == []
+    assert sprawdz_raport.bajt_w_bajt(liczby, tekst.replace("| ARC-Easy | 1000 |", "| ARC-Easy | 1001 |", 1))
+    assert sprawdz_raport.bajt_w_bajt(liczby, tekst.replace("na 1 z 2", "na 2 z 2", 1))
+
+
 # --------------------------------------------------------------------------- dane rzeczywiste z repo
 
 POMIAR = KOD.parent

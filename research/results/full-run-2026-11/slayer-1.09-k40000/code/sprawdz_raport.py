@@ -47,6 +47,21 @@ def format_straznika(L: dict) -> dict:
                            "z_parowane": p.get("z") if p.get("z") is not None else p.get("t"),
                            # próg kontroli narzędzia pisany jako „0,5 SE”: strażnik czyta liczbę przed SE jako z
                            "z_niezalezne": t["kontrola"]["prog_se"]})
+    # porównania eksploracyjne (po wyniku): każdy słownik z z albo t pod kluczem testu, z jego werdyktem
+    def zbierz(obj, test):
+        if isinstance(obj, dict):
+            stat = obj.get("z") if obj.get("z") is not None else obj.get("t")
+            if stat is not None and isinstance(stat, (int, float)):
+                for w in {obj.get("werdykt"), obj.get("werdykt_holm")} & set(SILA):
+                    porownania.append({"test": test, "rodzina": "wersje", "werdykt": w, "z_parowane": stat})
+                if not {obj.get("werdykt"), obj.get("werdykt_holm")} & set(SILA):
+                    porownania.append({"test": test, "rodzina": "wersje", "werdykt": None, "z_parowane": stat})
+            for k, v in obj.items():
+                zbierz(v, k if k in aliasy else test)
+        elif isinstance(obj, list):
+            for v in obj:
+                zbierz(v, test)
+    zbierz(L.get("eksploracyjne") or {}, None)
     return {"wartosci": splaszcz(L), "aliasy": aliasy, "porownania": porownania}
 
 
@@ -63,14 +78,54 @@ def sprawdz(straznik, L: dict, tekst: str, nazwa: str = "RAPORT.md") -> list:
     return straznik.sprawdz_tekst(nazwa, tekst.splitlines(), liczby, straznik.zbiory(liczby))
 
 
+def bajt_w_bajt(L: dict, tekst: str, nazwa: str = "RAPORT.md") -> list:
+    """(g) raport równy wyjściu generatora raport_md.py z tego LICZBY.json; łapie każdą ręczną zmianę tekstu (także
+    liczby całkowite, których strażnik liczb nie czyta: n, „9 z 15”). Błąd obliczeń łapie tylko przeliczenie niezależne."""
+    sys.path.insert(0, str(TU))
+    import raport_md
+    wzor = raport_md.raport(L)
+    if tekst == wzor:
+        return []
+    a, b = tekst.splitlines(), wzor.splitlines()
+    nr = next((i for i, (x, y) in enumerate(zip(a, b)) if x != y), min(len(a), len(b)))
+    return [(nazwa, nr + 1, f"(g) plik różni się od wyjścia raport_md.py z LICZBY.json (pierwsza różnica w linii {nr + 1})")]
+
+
+def sekcja_readme(tekst: str) -> str:
+    """Sekcja 1.08 → 1.09 README przebiegu (raport.py, toku_section): od jej <details> do </details>."""
+    start = tekst.find("<summary><b>1.08 → Slayer 1B 1.09")
+    if start < 0:
+        return ""
+    koniec = tekst.find("</details>", start)
+    return tekst[tekst.rfind("<details>", 0, start):koniec + len("</details>")]
+
+
 def main():
-    L = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
-    raport = Path(sys.argv[2])
-    straznik = zaladuj(Path(sys.argv[3]) if len(sys.argv) > 3 else DOMYSLNY)
-    bledy = sprawdz(straznik, L, raport.read_text(encoding="utf-8"), raport.name)
+    args = sys.argv[1:]
+    readme = None
+    if "--readme" in args:
+        i = args.index("--readme")
+        readme = Path(args[i + 1])
+        del args[i:i + 2]
+    L = json.loads(Path(args[0]).read_text(encoding="utf-8"))
+    raport = Path(args[1])
+    straznik = zaladuj(Path(args[2]) if len(args) > 2 else DOMYSLNY)
+    tekst = raport.read_text(encoding="utf-8")
+    bledy = sprawdz(straznik, L, tekst, raport.name) + bajt_w_bajt(L, tekst, raport.name)
+    pliki = 1
+    if readme is not None:
+        sek = sekcja_readme(readme.read_text(encoding="utf-8"))
+        pliki += 1
+        if not sek:
+            bledy.append((readme.name, 0, "brak sekcji 1.08 → 1.09 w README"))
+        else:
+            bledy += sprawdz(straznik, L, sek, f"{readme.name} (sekcja 1.09)")
+            wiersze = [w for w in sek.splitlines() if w.startswith("| ") and not w.startswith("| test")]
+            if len(wiersze) != len(L["testy"]):
+                bledy.append((readme.name, 0, f"sekcja 1.09 ma {len(wiersze)} wierszy testów, LICZBY.json {len(L['testy'])}"))
     for plik, nr, powod in bledy:
         print(f"{plik}:{nr}: {powod}")
-    print(f"1 plik, {len(bledy)} problemów")
+    print(f"{pliki} plików, {len(bledy)} problemów")
     return 1 if bledy else 0
 
 

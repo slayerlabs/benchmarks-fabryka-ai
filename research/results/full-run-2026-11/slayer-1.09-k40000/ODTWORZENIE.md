@@ -22,7 +22,10 @@ a `dolacz_wyniki.py odtworz` sprawdza, że po rozpakowaniu mają te same sha256 
 ## Wersje
 
 - Protokół: commit `dd309c8`, aneks `b99f72a`. Kod analizy (`liczby_109.py`, `raport_md.py`, `przelicz_niezaleznie.py`):
-  commit `88719f1`, przed pierwszym wynikiem. Kod na instancji: `git archive` commitu `b99f72a`.
+  commit `88719f1`, przed pierwszym wynikiem. Kod na instancji: deklarowany `git archive` commitu `b99f72a`; eksport
+  go nie zapisuje (`srodowisko.json` ma puste `fabryka_commit`, archiwum nie ma `.git`). Dowody pośrednie:
+  `runner_sha256` w `eksport/manifest.jsonl` równa się sumie `research/common` w `b99f72a`, a suma wag po konwersji to
+  wpis `SUMY_WAG_CKPT` dodany w `b99f72a`, bez którego runner odmawia liczenia.
 - Instancja: vast.ai, RTX 5090, obraz `pytorch/pytorch:2.8.0-cuda12.9-cudnn9-runtime`, Python 3.11.13, torch 2.8.0+cu129,
   lm_eval 0.4.9.1, transformers 4.57.6, datasets 3.6.0 (środowisko `lock`, `research/common/requirements.lock.txt`),
   float32 z wyłączonym TF32, batch 1, seed domyślny `ewaluuj.py` i `ewok.py`.
@@ -46,21 +49,21 @@ git show 88719f1:research/results/full-run-2026-11/manifest.jsonl > $PRACA/manif
 python -I $P/code/liczby_109.py $PRACA/eksport $PRACA/manifest_przebiegu.jsonl $P/probki_sha256.json $PRACA/LICZBY.json $P/dodatki.json
 python -I $P/code/raport_md.py $PRACA/LICZBY.json $PRACA/RAPORT.md
 diff $PRACA/LICZBY.json $P/LICZBY.json && diff $PRACA/RAPORT.md $P/RAPORT.md
-# 4. strażnik liczb na raporcie (kod 0)
-python -I $P/code/sprawdz_raport.py $P/LICZBY.json $P/RAPORT.md
-# 5. przeliczenie niezależne (bez kodu raport.py, metryki.py, statystyka.py); rozjazd HellaSwag opisany w RAPORT.md
-python -I $P/code/przelicz_niezaleznie.py $PRACA/eksport $P/LICZBY.json $PRACA/manifest_przebiegu.jsonl $PRACA/przelicz.json
-python -I $P/code/diagnoza_acc_norm.py $PRACA/eksport $PRACA/diagnoza_acc_norm.json
-# 6. mutacje kodu liczącego (kod 0 = każda złapana)
-python -I $P/code/mutacje.py $PRACA/eksport $PRACA/manifest_przebiegu.jsonl $P/probki_sha256.json $P/LICZBY.json $P/RAPORT.md $PRACA/mutacje $PRACA/mutacje.json
-# 7. wykresy i README przebiegu
+# 4. wykresy i README przebiegu
 python -I tools/ewaluacja/raport.py results/full-run-2026-11 results/full-run-2026-11 --bez-porownan --odniesienie results/central-run
+# 5. raport wobec LICZBY.json: strażnik liczb, zgodność bajt w bajt z generatorem i sekcja 1.09 README (kod 0)
+python -I $P/code/sprawdz_raport.py $P/LICZBY.json $P/RAPORT.md --readme results/full-run-2026-11/README.md
+# 6. bramka obliczeń: przeliczenie niezależne (sha256 wejść, bez kodu raport.py, metryki.py, statystyka.py; kod 0)
+python -I $P/code/przelicz_niezaleznie.py $PRACA/eksport $P/LICZBY.json $PRACA/manifest_przebiegu.jsonl $P/probki_sha256.json $PRACA/przelicz.json
+# 7. mutacje kodu liczącego wobec strażników i mutacje kodu kontrolnego wobec testów (kod 0 = każda złapana)
+python -I $P/code/mutacje.py $PRACA/eksport $PRACA/manifest_przebiegu.jsonl $P/probki_sha256.json $P/LICZBY.json $P/RAPORT.md $PRACA/mutacje $PRACA/mutacje.json
+python -I $P/code/mutacje_testow.py python $PRACA/mutacje_testow.json
 # 8. testy pomiaru (atrapy i dane rzeczywiste z repo)
 python -m pytest -q tests/test_slayer_109_k40000.py
 ```
 
-Wyniki kroków 5 i 6 z tego pomiaru: [`przelicz_niezaleznie.json`](przelicz_niezaleznie.json),
-[`diagnoza_acc_norm.json`](diagnoza_acc_norm.json), [`mutacje.json`](mutacje.json).
+Wyniki kroków 6 i 7 z tego pomiaru: [`przelicz_niezaleznie.json`](przelicz_niezaleznie.json),
+[`mutacje.json`](mutacje.json), [`mutacje_testow.json`](mutacje_testow.json).
 
 Jedną parę od zera (z wagami, na karcie) liczy komenda z pola `komenda` wiersza w `eksport/manifest.jsonl`, a całą
 kolejkę `code/kolejka.sh` (na instancji przez `code/start_zdalny.sh`).

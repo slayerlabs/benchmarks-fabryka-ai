@@ -4,7 +4,7 @@
   "sha256": "6da5db6650220f45c19064ba89614ba18ac43f9f6e0c772462fbf29416ec257e"
  },
  "srodowisko": {
-  "commit_kodu": "b99f72a",
+  "commit_kodu": "b99f72a (deklaracja: git archive bez .git, srodowisko.json eksportu bez commitu; dowody pośrednie w odstępstwach)",
   "karta": "RTX 5090 (vast.ai)",
   "gpu_nvidia_smi": "NVIDIA GeForce RTX 5090, 32607 MiB, 580.95.05",
   "lm_eval": "0.4.9.1",

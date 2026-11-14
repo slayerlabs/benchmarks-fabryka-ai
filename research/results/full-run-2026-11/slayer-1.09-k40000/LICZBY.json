@@ -5,7 +5,7 @@
  "odniesienie": "slayer1b-1.08",
  "m_holm": 15,
  "wejscia": {
-  "probki_sha256": "3183fbca4a9e60fced1b80a0ffbc16b5abb0704d3bd2b4138c53ece761e640a4",
+  "probki_sha256": "93be9211dcf2e26737b870cb7d620d2d32b40f85777dec2c8e8ad714310068be",
   "manifest_przebiegu": "ff7df4efcfdd90449fb545f05a1c81dc8ab5761cee003c38d99db5abca7c92ee",
   "paczka": {
    "nazwa": "eksport_k109.tgz",
@@ -13,7 +13,7 @@
   }
  },
  "srodowisko": {
-  "commit_kodu": "b99f72a",
+  "commit_kodu": "b99f72a (deklaracja: git archive bez .git, srodowisko.json eksportu bez commitu; dowody pośrednie w odstępstwach)",
   "karta": "RTX 5090 (vast.ai)",
   "gpu_nvidia_smi": "NVIDIA GeForce RTX 5090, 32607 MiB, 580.95.05",
   "lm_eval": "0.4.9.1",
@@ -881,13 +881,4025 @@
   "twierdzenie": "Po Holmie (m = 15) Slayer 1B 1.09 z kroku 40 000 jest lepszy od 1.08 na 9 z 15 testów, gorszy na 0, w szumie na 6, nierozstrzygnięty na 0.",
   "obalenie": "inny podział lepsze/gorsze/szum po przeliczeniu niezależnym kodem z tych samych próbek albo niezgodna kontrola narzędzia na teście z werdyktem"
  },
+ "eksploracyjne": {
+  "uwaga": "analizy po wyniku, eksploracyjne; nie zmieniają werdyktów protokołu",
+  "regula_remisu": "argmax z pierwszym indeksem (metryki.argmax runnera); EWoK: remis T1 = T2 liczony jako brak wyboru (ewok.evaluate)",
+  "remisy": {
+   "arc-challenge": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 0,
+     "n": 1172
+    },
+    "slayer1b-1.08": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 0,
+     "n": 1172
+    }
+   },
+   "arc-easy": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 0,
+     "n": 2376
+    },
+    "slayer1b-1.08": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 0,
+     "n": 2376
+    }
+   },
+   "blimp": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 7,
+     "remisy_z_poprawna": 7,
+     "pytan_ze_zdublowana_opcja": 7,
+     "n": 67000
+    },
+    "slayer1b-1.08": {
+     "remisy": 7,
+     "remisy_z_poprawna": 7,
+     "pytan_ze_zdublowana_opcja": 7,
+     "n": 67000
+    }
+   },
+   "ewok": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 0,
+     "porownan_z_remisem": 0,
+     "n": 4374
+    },
+    "slayer1b-1.08": {
+     "remisy": 0,
+     "porownan_z_remisem": 0,
+     "n": 4374
+    }
+   },
+   "hellaswag": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 0,
+     "n": 10042
+    },
+    "slayer1b-1.08": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 0,
+     "n": 10042
+    }
+   },
+   "mathqa": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 13,
+     "remisy_z_poprawna": 4,
+     "pytan_ze_zdublowana_opcja": 49,
+     "n": 2985
+    },
+    "slayer1b-1.08": {
+     "remisy": 13,
+     "remisy_z_poprawna": 5,
+     "pytan_ze_zdublowana_opcja": 49,
+     "n": 2985
+    }
+   },
+   "medmcqa": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 0,
+     "n": 4183
+    },
+    "slayer1b-1.08": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 0,
+     "n": 4183
+    }
+   },
+   "multiblimp-pl": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 0,
+     "n": 3272
+    },
+    "slayer1b-1.08": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 0,
+     "n": 3272
+    }
+   },
+   "piqa": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 0,
+     "n": 1838
+    },
+    "slayer1b-1.08": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 0,
+     "n": 1838
+    }
+   },
+   "pubmedqa": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 0,
+     "n": 500
+    },
+    "slayer1b-1.08": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 0,
+     "n": 500
+    }
+   },
+   "social-iqa": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 2,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 5,
+     "n": 1954
+    },
+    "slayer1b-1.08": {
+     "remisy": 2,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 5,
+     "n": 1954
+    }
+   },
+   "winogrande": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 0,
+     "n": 1267
+    },
+    "slayer1b-1.08": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 0,
+     "n": 1267
+    }
+   },
+   "wsc273": {
+    "slayer1b-1.09-k40000": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 0,
+     "n": 273
+    },
+    "slayer1b-1.08": {
+     "remisy": 0,
+     "remisy_z_poprawna": 0,
+     "pytan_ze_zdublowana_opcja": 0,
+     "n": 273
+    }
+   }
+  },
+  "rozbicie": {
+   "blimp": {
+    "pole": "UID",
+    "k": 67,
+    "po_holmie": {
+     "szum": 47,
+     "prawdopodobne": 5,
+     "pewne": 15
+    },
+    "grupy": [
+     {
+      "grupa": "adjunct_island",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.875,
+       "se": 0.010463483381956722,
+       "ci95": [
+        0.8544915725713649,
+        0.8955084274286351
+       ]
+      },
+      "v108": {
+       "wartosc": 0.856,
+       "se": 0.01110798754893916,
+       "ci95": [
+        0.8342283444040792,
+        0.8777716555959207
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.019,
+       "se": 0.011949133097500494,
+       "z": 1.5900735095146272,
+       "p": 0.11181823634420464,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "anaphor_gender_agreement",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.974,
+       "se": 0.005034813735318254,
+       "ci95": [
+        0.9641317650787762,
+        0.9838682349212238
+       ]
+      },
+      "v108": {
+       "wartosc": 0.986,
+       "se": 0.0037172325482565413,
+       "ci95": [
+        0.9787142242054172,
+        0.9932857757945828
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.012,
+       "se": 0.004227750450756747,
+       "z": -2.8383889114959606,
+       "p": 0.004534189929171375,
+       "werdykt": "prawdopodobne",
+       "p_holm": 0.19497016695436914,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "anaphor_number_agreement",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.994,
+       "se": 0.0024433521993298406,
+       "ci95": [
+        0.9892110296893135,
+        0.9987889703106865
+       ]
+      },
+      "v108": {
+       "wartosc": 0.994,
+       "se": 0.0024433521993298406,
+       "ci95": [
+        0.9892110296893135,
+        0.9987889703106865
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.0,
+       "se": 0.002001000750625547,
+       "z": 0.0,
+       "p": 1.0,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "animate_subject_passive",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.769,
+       "se": 0.013334797216936476,
+       "ci95": [
+        0.7428637974548046,
+        0.7951362025451955
+       ]
+      },
+      "v108": {
+       "wartosc": 0.754,
+       "se": 0.01362606581775054,
+       "ci95": [
+        0.7272929109972089,
+        0.7807070890027911
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.015,
+       "se": 0.010995266977017698,
+       "z": 1.3642233545900244,
+       "p": 0.17249727993097677,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "animate_subject_trans",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.848,
+       "se": 0.01135891830347525,
+       "ci95": [
+        0.8257365201251885,
+        0.8702634798748115
+       ]
+      },
+      "v108": {
+       "wartosc": 0.81,
+       "se": 0.012411851354816253,
+       "ci95": [
+        0.7856727713445602,
+        0.83432722865544
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.038,
+       "se": 0.010801512517822338,
+       "z": 3.5180258262257764,
+       "p": 0.0004347700474126846,
+       "werdykt": "pewne",
+       "p_holm": 0.022173272418046914,
+       "werdykt_holm": "prawdopodobne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "causative",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.749,
+       "se": 0.013718133516888775,
+       "ci95": [
+        0.722112458306898,
+        0.775887541693102
+       ]
+      },
+      "v108": {
+       "wartosc": 0.748,
+       "se": 0.01373625439065121,
+       "ci95": [
+        0.7210769413943237,
+        0.7749230586056763
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.001,
+       "se": 0.014042656308412456,
+       "z": 0.07121159829290528,
+       "p": 0.943229350750255,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "complex_NP_island",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.562,
+       "se": 0.01569721001969466,
+       "ci95": [
+        0.5312334683613985,
+        0.5927665316386016
+       ]
+      },
+      "v108": {
+       "wartosc": 0.547,
+       "se": 0.015749255189977687,
+       "ci95": [
+        0.5161314598276437,
+        0.5778685401723563
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.015,
+       "se": 0.017235778835668323,
+       "z": 0.8702826917782488,
+       "p": 0.38414593529729335,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "coordinate_structure_constraint_complex_left_branch",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.728,
+       "se": 0.014078856992462642,
+       "ci95": [
+        0.7004054402947733,
+        0.7555945597052267
+       ]
+      },
+      "v108": {
+       "wartosc": 0.768,
+       "se": 0.013354937452281623,
+       "ci95": [
+        0.741824322593528,
+        0.794175677406472
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.04,
+       "se": 0.013060266864446935,
+       "z": -3.062724553423119,
+       "p": 0.0021933184631330155,
+       "werdykt": "pewne",
+       "p_holm": 0.10277925167810259,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "coordinate_structure_constraint_object_extraction",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.826,
+       "se": 0.011994493230973447,
+       "ci95": [
+        0.802490793267292,
+        0.8495092067327079
+       ]
+      },
+      "v108": {
+       "wartosc": 0.822,
+       "se": 0.012102167676183571,
+       "ci95": [
+        0.7982797513546801,
+        0.8457202486453198
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.004,
+       "se": 0.01077497564266853,
+       "z": 0.3712305375577963,
+       "p": 0.710465829925254,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "determiner_noun_agreement_1",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.993,
+       "se": 0.002637794146243781,
+       "ci95": [
+        0.9878299234733622,
+        0.9981700765266378
+       ]
+      },
+      "v108": {
+       "wartosc": 0.981,
+       "se": 0.004319451082910612,
+       "ci95": [
+        0.9725338758774952,
+        0.9894661241225048
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.012,
+       "se": 0.003983951790856897,
+       "z": 3.0120846410691517,
+       "p": 0.002594602414804102,
+       "werdykt": "pewne",
+       "p_holm": 0.1141625062513805,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "determiner_noun_agreement_2",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.978,
+       "se": 0.004640855259274689,
+       "ci95": [
+        0.9689039236918215,
+        0.9870960763081784
+       ]
+      },
+      "v108": {
+       "wartosc": 0.977,
+       "se": 0.0047427305946567844,
+       "ci95": [
+        0.9677042480344726,
+        0.9862957519655273
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.001,
+       "se": 0.006248042736572632,
+       "z": 0.16005012163994106,
+       "p": 0.8728415917190598,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "determiner_noun_agreement_irregular_1",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.924,
+       "se": 0.00838416926679646,
+       "ci95": [
+        0.907567028237079,
+        0.9404329717629211
+       ]
+      },
+      "v108": {
+       "wartosc": 0.943,
+       "se": 0.007335175853706904,
+       "ci95": [
+        0.9286230553267344,
+        0.9573769446732655
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.019,
+       "se": 0.007395518487144339,
+       "z": -2.5691234540252696,
+       "p": 0.010195612820705314,
+       "werdykt": "prawdopodobne",
+       "p_holm": 0.4078245128282126,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "determiner_noun_agreement_irregular_2",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.945,
+       "se": 0.007212976294639199,
+       "ci95": [
+        0.9308625664625071,
+        0.9591374335374928
+       ]
+      },
+      "v108": {
+       "wartosc": 0.951,
+       "se": 0.006829761756140959,
+       "ci95": [
+        0.9376136669579637,
+        0.9643863330420362
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.006,
+       "se": 0.008001751560004098,
+       "z": -0.7498358271944308,
+       "p": 0.45335358799509196,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "determiner_noun_agreement_with_adj_2",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.948,
+       "se": 0.007024624213817088,
+       "ci95": [
+        0.9342317365409185,
+        0.9617682634590814
+       ]
+      },
+      "v108": {
+       "wartosc": 0.933,
+       "se": 0.007910345983177573,
+       "ci95": [
+        0.917495721872972,
+        0.9485042781270281
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.015,
+       "se": 0.007799733061832041,
+       "z": 1.9231427384870943,
+       "p": 0.05446212620751955,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "determiner_noun_agreement_with_adj_irregular_1",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.928,
+       "se": 0.008178195576218685,
+       "ci95": [
+        0.9119707366706115,
+        0.9440292633293886
+       ]
+      },
+      "v108": {
+       "wartosc": 0.913,
+       "se": 0.008916866630745944,
+       "ci95": [
+        0.895522941403738,
+        0.9304770585962621
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.015,
+       "se": 0.008416997436488017,
+       "z": 1.7821081820667315,
+       "p": 0.07473159178985057,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "determiner_noun_agreement_with_adj_irregular_2",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.918,
+       "se": 0.008680515615523732,
+       "ci95": [
+        0.9009861893935736,
+        0.9350138106064265
+       ]
+      },
+      "v108": {
+       "wartosc": 0.925,
+       "se": 0.008333333333333333,
+       "ci95": [
+        0.9086666666666667,
+        0.9413333333333334
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.007,
+       "se": 0.008776561287202866,
+       "z": -0.7975788889216467,
+       "p": 0.42511490601351715,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "determiner_noun_agreement_with_adjective_1",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.975,
+       "se": 0.004939574819698493,
+       "ci95": [
+        0.965318433353391,
+        0.984681566646609
+       ]
+      },
+      "v108": {
+       "wartosc": 0.951,
+       "se": 0.006829761756140959,
+       "ci95": [
+        0.9376136669579637,
+        0.9643863330420362
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.024,
+       "se": 0.006120576889596394,
+       "z": 3.9211990034460005,
+       "p": 8.810945857148518e-05,
+       "werdykt": "pewne",
+       "p_holm": 0.0045816918457172295,
+       "werdykt_holm": "prawdopodobne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "distractor_agreement_relational_noun",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.849,
+       "se": 0.011328165223341657,
+       "ci95": [
+        0.8267967961622503,
+        0.8712032038377496
+       ]
+      },
+      "v108": {
+       "wartosc": 0.859,
+       "se": 0.01101091459599248,
+       "ci95": [
+        0.8374186073918547,
+        0.8805813926081453
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.01,
+       "se": 0.012651484500249766,
+       "z": -0.7904210766572555,
+       "p": 0.42928189728059823,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "distractor_agreement_relative_clause",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.743,
+       "se": 0.013825416526895028,
+       "ci95": [
+        0.7159021836072857,
+        0.7700978163927142
+       ]
+      },
+      "v108": {
+       "wartosc": 0.749,
+       "se": 0.013718133516888775,
+       "ci95": [
+        0.722112458306898,
+        0.775887541693102
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.006,
+       "se": 0.015368806075951385,
+       "z": -0.3904011782274101,
+       "p": 0.6962399167480311,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "drop_argument",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.772,
+       "se": 0.013273740700804434,
+       "ci95": [
+        0.7459834682264234,
+        0.7980165317735767
+       ]
+      },
+      "v108": {
+       "wartosc": 0.775,
+       "se": 0.013211720158614833,
+       "ci95": [
+        0.749105028489115,
+        0.8008949715108851
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.003,
+       "se": 0.011963867858436674,
+       "z": -0.2507550263424601,
+       "p": 0.8020035145646708,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "ellipsis_n_bar_1",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.878,
+       "se": 0.010354864712936776,
+       "ci95": [
+        0.8577044651626439,
+        0.8982955348373561
+       ]
+      },
+      "v108": {
+       "wartosc": 0.837,
+       "se": 0.011686212712746913,
+       "ci95": [
+        0.8140950230830161,
+        0.8599049769169839
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.041,
+       "se": 0.01206086499652759,
+       "z": 3.3994245032843162,
+       "p": 0.0006752781959122997,
+       "werdykt": "pewne",
+       "p_holm": 0.033763909795614985,
+       "werdykt_holm": "prawdopodobne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "ellipsis_n_bar_2",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.907,
+       "se": 0.009188875634996669,
+       "ci95": [
+        0.8889898037554066,
+        0.9250101962445935
+       ]
+      },
+      "v108": {
+       "wartosc": 0.9,
+       "se": 0.00949157995752499,
+       "ci95": [
+        0.881396503283251,
+        0.918603496716749
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.007,
+       "se": 0.009436103011309278,
+       "z": 0.7418316641531382,
+       "p": 0.4581893332823412,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "existential_there_object_raising",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.893,
+       "se": 0.009779910359847203,
+       "ci95": [
+        0.8738313756946995,
+        0.9121686243053005
+       ]
+      },
+      "v108": {
+       "wartosc": 0.841,
+       "se": 0.011569479368271194,
+       "ci95": [
+        0.8183238204381884,
+        0.8636761795618115
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.052,
+       "se": 0.011376529586188637,
+       "z": 4.570813938121267,
+       "p": 4.858335021541939e-06,
+       "werdykt": "pewne",
+       "p_holm": 0.00026720842618480664,
+       "werdykt_holm": "pewne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "existential_there_quantifiers_1",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.984,
+       "se": 0.003969856390319398,
+       "ci95": [
+        0.9762190814749739,
+        0.991780918525026
+       ]
+      },
+      "v108": {
+       "wartosc": 0.963,
+       "se": 0.0059721576223896395,
+       "ci95": [
+        0.9512945710601163,
+        0.9747054289398837
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.021,
+       "se": 0.004752008163038189,
+       "z": 4.419184327868175,
+       "p": 9.907411994522637e-06,
+       "werdykt": "pewne",
+       "p_holm": 0.0005350002477042224,
+       "werdykt_holm": "pewne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "existential_there_quantifiers_2",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.169,
+       "se": 0.01185662597789015,
+       "ci95": [
+        0.14576101308333533,
+        0.1922389869166647
+       ]
+      },
+      "v108": {
+       "wartosc": 0.204,
+       "se": 0.012749374359024311,
+       "ci95": [
+        0.17901122625631233,
+        0.22898877374368765
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.035,
+       "se": 0.015685057252717346,
+       "z": -2.2314231587478877,
+       "p": 0.025653112237122935,
+       "werdykt": "prawdopodobne",
+       "p_holm": 0.9491651527735486,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "existential_there_subject_raising",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.866,
+       "se": 0.010777762298369738,
+       "ci95": [
+        0.8448755858951953,
+        0.8871244141048047
+       ]
+      },
+      "v108": {
+       "wartosc": 0.861,
+       "se": 0.010945263761042892,
+       "ci95": [
+        0.8395472830283559,
+        0.8824527169716441
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.005,
+       "se": 0.009647179280394247,
+       "z": 0.518286211407037,
+       "p": 0.6042585918978013,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "expletive_it_object_raising",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.804,
+       "se": 0.012559527926707347,
+       "ci95": [
+        0.7793833252636536,
+        0.8286166747363465
+       ]
+      },
+      "v108": {
+       "wartosc": 0.808,
+       "se": 0.012461592646660028,
+       "ci95": [
+        0.7835752784125464,
+        0.8324247215874537
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.004,
+       "se": 0.011140381865452732,
+       "z": -0.3590541193569261,
+       "p": 0.7195546035122045,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "inchoative",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.688,
+       "se": 0.014658474370509057,
+       "ci95": [
+        0.6592693902338022,
+        0.7167306097661977
+       ]
+      },
+      "v108": {
+       "wartosc": 0.691,
+       "se": 0.014619600977206345,
+       "ci95": [
+        0.6623455820846755,
+        0.7196544179153244
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.003,
+       "se": 0.01360794533264211,
+       "z": -0.2204594394426129,
+       "p": 0.825513357907099,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "intransitive",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.804,
+       "se": 0.012559527926707347,
+       "ci95": [
+        0.7793833252636536,
+        0.8286166747363465
+       ]
+      },
+      "v108": {
+       "wartosc": 0.794,
+       "se": 0.012795613612786522,
+       "ci95": [
+        0.7689205973189385,
+        0.8190794026810616
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.01,
+       "se": 0.011577306855829384,
+       "z": 0.8637587415215499,
+       "p": 0.38772043708222687,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "irregular_past_participle_adjectives",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.979,
+       "se": 0.004536472151306517,
+       "ci95": [
+        0.9701085145834392,
+        0.9878914854165608
+       ]
+      },
+      "v108": {
+       "wartosc": 0.908,
+       "se": 0.009144376393151127,
+       "ci95": [
+        0.8900770222694239,
+        0.9259229777305762
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.071,
+       "se": 0.0095943238975475,
+       "z": 7.40020878575394,
+       "p": 1.3597054275654105e-13,
+       "werdykt": "pewne",
+       "p_holm": 8.97405582193171e-12,
+       "werdykt_holm": "pewne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "irregular_past_participle_verbs",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.87,
+       "se": 0.010640169792499234,
+       "ci95": [
+        0.8491452672067015,
+        0.8908547327932985
+       ]
+      },
+      "v108": {
+       "wartosc": 0.815,
+       "se": 0.012285191326386656,
+       "ci95": [
+        0.790921025000282,
+        0.8390789749997178
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.055,
+       "se": 0.01192128840004792,
+       "z": 4.613595288893348,
+       "p": 3.957626945724847e-06,
+       "werdykt": "pewne",
+       "p_holm": 0.0002216271089605914,
+       "werdykt_holm": "pewne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "irregular_plural_subject_verb_agreement_1",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.92,
+       "se": 0.00858333697775368,
+       "ci95": [
+        0.9031766595236028,
+        0.9368233404763973
+       ]
+      },
+      "v108": {
+       "wartosc": 0.909,
+       "se": 0.009099549538400338,
+       "ci95": [
+        0.8911648829047354,
+        0.9268351170952647
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.011,
+       "se": 0.009325554458903018,
+       "z": 1.1795545292750294,
+       "p": 0.23817743687523305,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "irregular_plural_subject_verb_agreement_2",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.924,
+       "se": 0.00838416926679646,
+       "ci95": [
+        0.907567028237079,
+        0.9404329717629211
+       ]
+      },
+      "v108": {
+       "wartosc": 0.91,
+       "se": 0.009054390204866477,
+       "ci95": [
+        0.8922533951984617,
+        0.9277466048015384
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.014,
+       "se": 0.009159033130625082,
+       "z": 1.5285456227020475,
+       "p": 0.1263771252115016,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "left_branch_island_echo_question",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.497,
+       "se": 0.015819015179246818,
+       "ci95": [
+        0.4659947302486762,
+        0.5280052697513238
+       ]
+      },
+      "v108": {
+       "wartosc": 0.423,
+       "se": 0.015630589090476255,
+       "ci95": [
+        0.3923640453826665,
+        0.45363595461733347
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.074,
+       "se": 0.01602438082363187,
+       "z": 4.617963140945134,
+       "p": 3.875250640881659e-06,
+       "werdykt": "pewne",
+       "p_holm": 0.0002208892865302546,
+       "werdykt_holm": "pewne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "left_branch_island_simple_question",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.815,
+       "se": 0.012285191326386656,
+       "ci95": [
+        0.790921025000282,
+        0.8390789749997178
+       ]
+      },
+      "v108": {
+       "wartosc": 0.816,
+       "se": 0.01225945734093864,
+       "ci95": [
+        0.7919714636117602,
+        0.8400285363882397
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.001,
+       "se": 0.013681600278702273,
+       "z": -0.07309086507640991,
+       "p": 0.941733810829205,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "matrix_question_npi_licensor_present",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.538,
+       "se": 0.015773547629015002,
+       "ci95": [
+        0.5070838466471306,
+        0.5689161533528695
+       ]
+      },
+      "v108": {
+       "wartosc": 0.559,
+       "se": 0.015708779894242766,
+       "ci95": [
+        0.5282107914072842,
+        0.5897892085927159
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.021,
+       "se": 0.015322982535844442,
+       "z": -1.3704903696702349,
+       "p": 0.17053387955875002,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "npi_present_1",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.678,
+       "se": 0.014782913600996744,
+       "ci95": [
+        0.6490254893420464,
+        0.7069745106579537
+       ]
+      },
+      "v108": {
+       "wartosc": 0.671,
+       "se": 0.014865395385928354,
+       "ci95": [
+        0.6418638250435804,
+        0.7001361749564197
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.007,
+       "se": 0.014392989896409924,
+       "z": 0.4863478714555359,
+       "p": 0.6267205433680716,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "npi_present_2",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.695,
+       "se": 0.014566646394664325,
+       "ci95": [
+        0.6664493730664579,
+        0.723550626933542
+       ]
+      },
+      "v108": {
+       "wartosc": 0.629,
+       "se": 0.015283736211823096,
+       "ci95": [
+        0.5990438770248268,
+        0.6589561229751733
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.066,
+       "se": 0.01496221467122658,
+       "z": 4.4111116870233635,
+       "p": 1.0284125184092798e-05,
+       "werdykt": "pewne",
+       "p_holm": 0.0005450586347569183,
+       "werdykt_holm": "pewne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "only_npi_licensor_present",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.94,
+       "se": 0.0075137511574749705,
+       "ci95": [
+        0.925273047731349,
+        0.9547269522686509
+       ]
+      },
+      "v108": {
+       "wartosc": 0.986,
+       "se": 0.0037172325482565413,
+       "ci95": [
+        0.9787142242054172,
+        0.9932857757945828
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.046,
+       "se": 0.00799674608499907,
+       "z": -5.752339703056278,
+       "p": 8.801671145549405e-09,
+       "werdykt": "pewne",
+       "p_holm": 5.281002687329643e-07,
+       "werdykt_holm": "pewne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "only_npi_scope",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.814,
+       "se": 0.012310790208412926,
+       "ci95": [
+        0.7898708511915106,
+        0.8381291488084893
+       ]
+      },
+      "v108": {
+       "wartosc": 0.877,
+       "se": 0.010391293421849803,
+       "ci95": [
+        0.8566330648931744,
+        0.8973669351068256
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.063,
+       "se": 0.013311957339482733,
+       "z": -4.732587281747405,
+       "p": 2.2167593203773806e-06,
+       "werdykt": "pewne",
+       "p_holm": 0.00012857204058188808,
+       "werdykt_holm": "pewne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "passive_1",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.91,
+       "se": 0.009054390204866477,
+       "ci95": [
+        0.8922533951984617,
+        0.9277466048015384
+       ]
+      },
+      "v108": {
+       "wartosc": 0.892,
+       "se": 0.009820001651345708,
+       "ci95": [
+        0.8727527967633624,
+        0.9112472032366377
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.018,
+       "se": 0.00988806218496697,
+       "z": 1.8203769012866626,
+       "p": 0.06870162757901546,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "passive_2",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.899,
+       "se": 0.009533618929341046,
+       "ci95": [
+        0.8803141068984915,
+        0.9176858931015085
+       ]
+      },
+      "v108": {
+       "wartosc": 0.89,
+       "se": 0.009899393819724418,
+       "ci95": [
+        0.8705971881133402,
+        0.9094028118866598
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.009,
+       "se": 0.009644273534694669,
+       "z": 0.9331962607264367,
+       "p": 0.35071864503091976,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "principle_A_c_command",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.689,
+       "se": 0.014645596385722688,
+       "ci95": [
+        0.6602946310839835,
+        0.7177053689160164
+       ]
+      },
+      "v108": {
+       "wartosc": 0.733,
+       "se": 0.013996674851796297,
+       "ci95": [
+        0.7055665172904793,
+        0.7604334827095207
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.044,
+       "se": 0.013047384191255895,
+       "z": -3.3723234753436593,
+       "p": 0.000745368498506635,
+       "werdykt": "pewne",
+       "p_holm": 0.036523056426825115,
+       "werdykt_holm": "prawdopodobne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "principle_A_case_1",
+      "n": 1000,
+      "v109": {
+       "wartosc": 1.0,
+       "se": 0.0,
+       "ci95": [
+        1.0,
+        1.0
+       ]
+      },
+      "v108": {
+       "wartosc": 0.998,
+       "se": 0.0014135055705578234,
+       "ci95": [
+        0.9952295290817067,
+        1.0007704709182934
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.002,
+       "se": 0.0014135055705578234,
+       "z": 1.4149219088048755,
+       "p": 0.1570913935564003,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "principle_A_case_2",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.949,
+       "se": 0.006960420062571472,
+       "ci95": [
+        0.9353575766773599,
+        0.96264242332264
+       ]
+      },
+      "v108": {
+       "wartosc": 0.939,
+       "se": 0.007572076091557476,
+       "ci95": [
+        0.9241587308605473,
+        0.9538412691394526
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.01,
+       "se": 0.008716419905900356,
+       "z": 1.1472600113299678,
+       "p": 0.2512741757994067,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "principle_A_domain_1",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.987,
+       "se": 0.003583830889403662,
+       "ci95": [
+        0.9799756914567688,
+        0.9940243085432312
+       ]
+      },
+      "v108": {
+       "wartosc": 0.986,
+       "se": 0.0037172325482565413,
+       "ci95": [
+        0.9787142242054172,
+        0.9932857757945828
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.001,
+       "se": 0.0038747921252647883,
+       "z": 0.258078360766686,
+       "p": 0.7963464316284004,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "principle_A_domain_2",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.806,
+       "se": 0.012510816141264347,
+       "ci95": [
+        0.7814788003631219,
+        0.8305211996368782
+       ]
+      },
+      "v108": {
+       "wartosc": 0.772,
+       "se": 0.013273740700804434,
+       "ci95": [
+        0.7459834682264234,
+        0.7980165317735767
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.034,
+       "se": 0.013000500490866226,
+       "z": 2.6152839287908503,
+       "p": 0.00891533096814528,
+       "werdykt": "prawdopodobne",
+       "p_holm": 0.3655285696939565,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "principle_A_domain_3",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.636,
+       "se": 0.015222868840522003,
+       "ci95": [
+        0.6061631770725768,
+        0.6658368229274232
+       ]
+      },
+      "v108": {
+       "wartosc": 0.593,
+       "se": 0.015543249100255474,
+       "ci95": [
+        0.5625352317634993,
+        0.6234647682365007
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.043,
+       "se": 0.01831629019442765,
+       "z": 2.34763696925275,
+       "p": 0.01889292534828337,
+       "werdykt": "prawdopodobne",
+       "p_holm": 0.7368240885830514,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "principle_A_reconstruction",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.458,
+       "se": 0.015763390640483554,
+       "ci95": [
+        0.42710375434465225,
+        0.4888962456553478
+       ]
+      },
+      "v108": {
+       "wartosc": 0.348,
+       "se": 0.015070604603768328,
+       "ci95": [
+        0.31846161497661407,
+        0.3775383850233859
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.11,
+       "se": 0.015366721710766293,
+       "z": 7.158325768529495,
+       "p": 8.166829777590119e-13,
+       "werdykt": "pewne",
+       "p_holm": 5.3084393554335774e-11,
+       "werdykt_holm": "pewne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "regular_plural_subject_verb_agreement_1",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.944,
+       "se": 0.007274401481697097,
+       "ci95": [
+        0.9297421730958736,
+        0.9582578269041263
+       ]
+      },
+      "v108": {
+       "wartosc": 0.886,
+       "se": 0.01005510343582328,
+       "ci95": [
+        0.8662919972657864,
+        0.9057080027342136
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.058,
+       "se": 0.009629575729424881,
+       "z": 6.023110636408486,
+       "p": 1.7109640030059933e-09,
+       "werdykt": "pewne",
+       "p_holm": 1.0607976818637159e-07,
+       "werdykt_holm": "pewne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "regular_plural_subject_verb_agreement_2",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.927,
+       "se": 0.008230354715243976,
+       "ci95": [
+        0.9108685047581219,
+        0.9431314952418782
+       ]
+      },
+      "v108": {
+       "wartosc": 0.897,
+       "se": 0.009616833339695739,
+       "ci95": [
+        0.8781510066541963,
+        0.9158489933458037
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.03,
+       "se": 0.0090100599987559,
+       "z": 3.329611567974283,
+       "p": 0.0008696721459010326,
+       "werdykt": "pewne",
+       "p_holm": 0.041744263003249564,
+       "werdykt_holm": "prawdopodobne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "sentential_negation_npi_licensor_present",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.985,
+       "se": 0.003845749574502972,
+       "ci95": [
+        0.9774623308339742,
+        0.9925376691660258
+       ]
+      },
+      "v108": {
+       "wartosc": 0.977,
+       "se": 0.0047427305946567844,
+       "ci95": [
+        0.9677042480344726,
+        0.9862957519655273
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.008,
+       "se": 0.004894891210227246,
+       "z": 1.6343570584949934,
+       "p": 0.1021838992983598,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "sentential_negation_npi_scope",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.777,
+       "se": 0.013169830843425608,
+       "ci95": [
+        0.7511871315468859,
+        0.8028128684531142
+       ]
+      },
+      "v108": {
+       "wartosc": 0.676,
+       "se": 0.014806864733738984,
+       "ci95": [
+        0.6469785451218716,
+        0.7050214548781285
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.101,
+       "se": 0.015000800779425878,
+       "z": 6.732973891535512,
+       "p": 1.662299000844135e-11,
+       "werdykt": "pewne",
+       "p_holm": 1.0638713605402464e-09,
+       "werdykt_holm": "pewne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "sentential_subject_island",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.464,
+       "se": 0.015778243024904676,
+       "ci95": [
+        0.43307464367118687,
+        0.4949253563288132
+       ]
+      },
+      "v108": {
+       "wartosc": 0.586,
+       "se": 0.015583544104177548,
+       "ci95": [
+        0.555456253555812,
+        0.616543746444188
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.122,
+       "se": 0.0182605982774237,
+       "z": -6.681051636234362,
+       "p": 2.372336123276006e-11,
+       "werdykt": "pewne",
+       "p_holm": 1.4945717576638837e-09,
+       "werdykt_holm": "pewne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "superlative_quantifiers_1",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.859,
+       "se": 0.01101091459599248,
+       "ci95": [
+        0.8374186073918547,
+        0.8805813926081453
+       ]
+      },
+      "v108": {
+       "wartosc": 0.677,
+       "se": 0.01479492784334854,
+       "ci95": [
+        0.6480019414270369,
+        0.7059980585729632
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.182,
+       "se": 0.01700485710510868,
+       "z": 10.702824426870526,
+       "p": 9.87223374461666e-27,
+       "werdykt": "pewne",
+       "p_holm": 6.614396608893162e-25,
+       "werdykt_holm": "pewne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "superlative_quantifiers_2",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.921,
+       "se": 0.008534156773333369,
+       "ci95": [
+        0.9042730527242666,
+        0.9377269472757335
+       ]
+      },
+      "v108": {
+       "wartosc": 0.92,
+       "se": 0.00858333697775368,
+       "ci95": [
+        0.9031766595236028,
+        0.9368233404763973
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.001,
+       "se": 0.010054854553900821,
+       "z": 0.09945444706726722,
+       "p": 0.9207774544919545,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "tough_vs_raising_1",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.626,
+       "se": 0.015308767369006505,
+       "ci95": [
+        0.5959948159567473,
+        0.6560051840432527
+       ]
+      },
+      "v108": {
+       "wartosc": 0.663,
+       "se": 0.01495508791865346,
+       "ci95": [
+        0.6336880276794392,
+        0.6923119723205609
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.037,
+       "se": 0.012238495854506825,
+       "z": -3.023247336916387,
+       "p": 0.002500777588523134,
+       "werdykt": "pewne",
+       "p_holm": 0.11253499148354103,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "tough_vs_raising_2",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.896,
+       "se": 0.009658016218524242,
+       "ci95": [
+        0.8770702882116925,
+        0.9149297117883075
+       ]
+      },
+      "v108": {
+       "wartosc": 0.895,
+       "se": 0.009698921026024961,
+       "ci95": [
+        0.8759901147889911,
+        0.9140098852110089
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.001,
+       "se": 0.009751620075356406,
+       "z": 0.10254706318257088,
+       "p": 0.9183224586964711,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "transitive",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.869,
+       "se": 0.010674874844837898,
+       "ci95": [
+        0.8480772453041178,
+        0.8899227546958822
+       ]
+      },
+      "v108": {
+       "wartosc": 0.837,
+       "se": 0.011686212712746913,
+       "ci95": [
+        0.8140950230830161,
+        0.8599049769169839
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.032,
+       "se": 0.0118792725836693,
+       "z": 2.6937676338861953,
+       "p": 0.007064939962325683,
+       "werdykt": "prawdopodobne",
+       "p_holm": 0.29672747841767866,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "wh_island",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.698,
+       "se": 0.014526080235459496,
+       "ci95": [
+        0.6695288827384993,
+        0.7264711172615006
+       ]
+      },
+      "v108": {
+       "wartosc": 0.788,
+       "se": 0.01293148186493811,
+       "ci95": [
+        0.7626542955447213,
+        0.8133457044552788
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.09,
+       "se": 0.015037490685820096,
+       "z": -5.985041113599313,
+       "p": 2.1633520911286495e-09,
+       "werdykt": "pewne",
+       "p_holm": 1.3196447755884763e-07,
+       "werdykt_holm": "pewne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "wh_questions_object_gap",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.837,
+       "se": 0.011686212712746913,
+       "ci95": [
+        0.8140950230830161,
+        0.8599049769169839
+       ]
+      },
+      "v108": {
+       "wartosc": 0.811,
+       "se": 0.01238678458811779,
+       "ci95": [
+        0.7867219022072892,
+        0.8352780977927109
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.026,
+       "se": 0.012941850389008963,
+       "z": 2.0089862900965723,
+       "p": 0.04453858770939788,
+       "werdykt": "prawdopodobne",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "wh_questions_subject_gap",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.929,
+       "se": 0.008125578442487957,
+       "ci95": [
+        0.9130738662527237,
+        0.9449261337472764
+       ]
+      },
+      "v108": {
+       "wartosc": 0.896,
+       "se": 0.009658016218524242,
+       "ci95": [
+        0.8770702882116925,
+        0.9149297117883075
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.033,
+       "se": 0.010771584239424906,
+       "z": 3.0636162022682996,
+       "p": 0.0021867925888957996,
+       "werdykt": "pewne",
+       "p_holm": 0.10277925167810259,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "wh_questions_subject_gap_long_distance",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.876,
+       "se": 0.010427498872343873,
+       "ci95": [
+        0.855562102210206,
+        0.896437897789794
+       ]
+      },
+      "v108": {
+       "wartosc": 0.856,
+       "se": 0.01110798754893916,
+       "ci95": [
+        0.8342283444040792,
+        0.8777716555959207
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.02,
+       "se": 0.012560165514743734,
+       "z": 1.5923357042168773,
+       "p": 0.11130929455253863,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "wh_vs_that_no_gap",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.96,
+       "se": 0.006199874066337028,
+       "ci95": [
+        0.9478482468299794,
+        0.9721517531700206
+       ]
+      },
+      "v108": {
+       "wartosc": 0.972,
+       "se": 0.00521950603441008,
+       "ci95": [
+        0.9617697681725562,
+        0.9822302318274437
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.012,
+       "se": 0.00582150237394866,
+       "z": -2.061323560340753,
+       "p": 0.03927218195160622,
+       "werdykt": "prawdopodobne",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "wh_vs_that_no_gap_long_distance",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.959,
+       "se": 0.006273624021118763,
+       "ci95": [
+        0.9467036969186072,
+        0.9712963030813927
+       ]
+      },
+      "v108": {
+       "wartosc": 0.972,
+       "se": 0.00521950603441008,
+       "ci95": [
+        0.9617697681725562,
+        0.9822302318274437
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.013,
+       "se": 0.006991414726640086,
+       "z": -1.8594233797152384,
+       "p": 0.06296715041246989,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "wh_vs_that_with_gap",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.449,
+       "se": 0.015736792768752044,
+       "ci95": [
+        0.418155886173246,
+        0.479844113826754
+       ]
+      },
+      "v108": {
+       "wartosc": 0.525,
+       "se": 0.015799513429996023,
+       "ci95": [
+        0.49403295367720784,
+        0.5559670463227923
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": -0.076,
+       "se": 0.015114643642919685,
+       "z": -5.028236311452933,
+       "p": 4.950116171490916e-07,
+       "werdykt": "pewne",
+       "p_holm": 2.9205685411796404e-05,
+       "werdykt_holm": "pewne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "wh_vs_that_with_gap_long_distance",
+      "n": 1000,
+      "v109": {
+       "wartosc": 0.321,
+       "se": 0.01477082181793475,
+       "ci95": [
+        0.2920491892368479,
+        0.3499508107631521
+       ]
+      },
+      "v108": {
+       "wartosc": 0.288,
+       "se": 0.014326941797231579,
+       "ci95": [
+        0.2599191940774261,
+        0.31608080592257387
+       ]
+      },
+      "porownanie": {
+       "n": 1000,
+       "roznica": 0.033,
+       "se": 0.014216649152072125,
+       "z": 2.3212220859505517,
+       "p": 0.020274860779589236,
+       "werdykt": "prawdopodobne",
+       "p_holm": 0.7704447096243909,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     }
+    ]
+   },
+   "ewok": {
+    "pole": "Domain",
+    "k": 11,
+    "po_holmie": {
+     "pewne": 2,
+     "szum": 9
+    },
+    "grupy": [
+     {
+      "grupa": "agent-properties",
+      "n": 1120,
+      "v109": {
+       "wartosc": 0.5794642857142858,
+       "se": 0.008447183411034346,
+       "ci95": [
+        0.5629078062286584,
+        0.5960207651999131
+       ]
+      },
+      "v108": {
+       "wartosc": 0.5379464285714286,
+       "se": 0.008643712887964224,
+       "ci95": [
+        0.5210047513110188,
+        0.5548881058318385
+       ]
+      },
+      "porownanie": {
+       "n": 1120,
+       "roznica": 0.04151785714285714,
+       "se": 0.010177609346084852,
+       "z": 4.079332948540448,
+       "p": 4.516511161570636e-05,
+       "werdykt": "pewne",
+       "p_holm": 0.00045165111615706364,
+       "werdykt_holm": "pewne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "material-dynamics",
+      "n": 780,
+      "v109": {
+       "wartosc": 0.7230769230769231,
+       "se": 0.009573077658017952,
+       "ci95": [
+        0.7043136908672079,
+        0.7418401552866383
+       ]
+      },
+      "v108": {
+       "wartosc": 0.6935897435897436,
+       "se": 0.01000048949774185,
+       "ci95": [
+        0.6739887841741695,
+        0.7131907030053176
+       ]
+      },
+      "porownanie": {
+       "n": 780,
+       "roznica": 0.029487179487179487,
+       "se": 0.012090485548895975,
+       "z": 2.4388747141649794,
+       "p": 0.014733075188475728,
+       "werdykt": "prawdopodobne",
+       "p_holm": 0.13259767669628156,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "material-properties",
+      "n": 124,
+      "v109": {
+       "wartosc": 0.5443548387096774,
+       "se": 0.01811690984806037,
+       "ci95": [
+        0.508845695407479,
+        0.5798639820118757
+       ]
+      },
+      "v108": {
+       "wartosc": 0.5524193548387096,
+       "se": 0.017002788592711145,
+       "ci95": [
+        0.5190938891969958,
+        0.5857448204804234
+       ]
+      },
+      "porownanie": {
+       "n": 124,
+       "roznica": -0.008064516129032258,
+       "se": 0.022163258717307274,
+       "z": -0.3638686996301082,
+       "p": 0.7159560588500964,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "physical-dynamics",
+      "n": 75,
+      "v109": {
+       "wartosc": 0.6266666666666667,
+       "se": 0.030154755998172314,
+       "ci95": [
+        0.567563344910249,
+        0.6857699884230845
+       ]
+      },
+      "v108": {
+       "wartosc": 0.64,
+       "se": 0.0277699688723479,
+       "ci95": [
+        0.5855708610101982,
+        0.6944291389898019
+       ]
+      },
+      "porownanie": {
+       "n": 75,
+       "roznica": -0.013333333333333334,
+       "se": 0.03548040105267779,
+       "z": -0.3757943241266445,
+       "p": 0.7070698077459259,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "physical-interactions",
+      "n": 280,
+      "v109": {
+       "wartosc": 0.5964285714285714,
+       "se": 0.016741930128173647,
+       "ci95": [
+        0.5636143883773511,
+        0.6292427544797917
+       ]
+      },
+      "v108": {
+       "wartosc": 0.55,
+       "se": 0.016895510330535657,
+       "ci95": [
+        0.5168847997521502,
+        0.5831152002478499
+       ]
+      },
+      "porownanie": {
+       "n": 280,
+       "roznica": 0.04642857142857143,
+       "se": 0.019887171686505296,
+       "z": 2.3345990149054807,
+       "p": 0.01956437806928457,
+       "werdykt": "prawdopodobne",
+       "p_holm": 0.136950646484992,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "physical-relations",
+      "n": 415,
+      "v109": {
+       "wartosc": 0.5493975903614458,
+       "se": 0.015112127602066474,
+       "ci95": [
+        0.5197778202613955,
+        0.579017360461496
+       ]
+      },
+      "v108": {
+       "wartosc": 0.5469879518072289,
+       "se": 0.016243758780455118,
+       "ci95": [
+        0.5151501845975369,
+        0.5788257190169209
+       ]
+      },
+      "porownanie": {
+       "n": 415,
+       "roznica": 0.0024096385542168677,
+       "se": 0.017972680112809475,
+       "z": 0.13407229968442336,
+       "p": 0.8933454035042742,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "quantitative-properties",
+      "n": 190,
+      "v109": {
+       "wartosc": 0.6710526315789473,
+       "se": 0.020567545650958613,
+       "ci95": [
+        0.6307402421030684,
+        0.7113650210548262
+       ]
+      },
+      "v108": {
+       "wartosc": 0.6605263157894737,
+       "se": 0.022297666858316172,
+       "ci95": [
+        0.6168228887471741,
+        0.7042297428317734
+       ]
+      },
+      "porownanie": {
+       "n": 190,
+       "roznica": 0.010526315789473684,
+       "se": 0.01973011117009258,
+       "z": 0.5335152802093558,
+       "p": 0.5936769364684675,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "social-interactions",
+      "n": 175,
+      "v109": {
+       "wartosc": 0.8,
+       "se": 0.018569533817705187,
+       "ci95": [
+        0.7636037137172978,
+        0.8363962862827022
+       ]
+      },
+      "v108": {
+       "wartosc": 0.6942857142857143,
+       "se": 0.02057808686262256,
+       "ci95": [
+        0.6539526640349741,
+        0.7346187645364545
+       ]
+      },
+      "porownanie": {
+       "n": 175,
+       "roznica": 0.10571428571428572,
+       "se": 0.019680773973097573,
+       "z": 5.371449611625577,
+       "p": 7.810619448778104e-08,
+       "werdykt": "pewne",
+       "p_holm": 8.591681393655914e-07,
+       "werdykt_holm": "pewne",
+       "po_holmie": "tak"
+      }
+     },
+     {
+      "grupa": "social-properties",
+      "n": 185,
+      "v109": {
+       "wartosc": 0.7027027027027027,
+       "se": 0.023717793828365665,
+       "ci95": [
+        0.6562158267991061,
+        0.7491895786062994
+       ]
+      },
+      "v108": {
+       "wartosc": 0.6945945945945946,
+       "se": 0.02133513194956535,
+       "ci95": [
+        0.6527777359734466,
+        0.7364114532157426
+       ]
+      },
+      "porownanie": {
+       "n": 185,
+       "roznica": 0.008108108108108109,
+       "se": 0.022827353506081106,
+       "z": 0.35519264666174044,
+       "p": 0.7224452731617261,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "social-relations",
+      "n": 785,
+      "v109": {
+       "wartosc": 0.6,
+       "se": 0.010229397946486819,
+       "ci95": [
+        0.5799503800248859,
+        0.6200496199751141
+       ]
+      },
+      "v108": {
+       "wartosc": 0.5847133757961783,
+       "se": 0.011230118451182382,
+       "ci95": [
+        0.5627023436318609,
+        0.6067244079604958
+       ]
+      },
+      "porownanie": {
+       "n": 785,
+       "roznica": 0.015286624203821656,
+       "se": 0.012510009024725106,
+       "z": 1.2219514928893156,
+       "p": 0.2217259710625069,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "spatial-relations",
+      "n": 245,
+      "v109": {
+       "wartosc": 0.6326530612244898,
+       "se": 0.024689024570897153,
+       "ci95": [
+        0.5842625730655314,
+        0.6810435493834482
+       ]
+      },
+      "v108": {
+       "wartosc": 0.5897959183673469,
+       "se": 0.02437732061541473,
+       "ci95": [
+        0.542016369961134,
+        0.6375754667735598
+       ]
+      },
+      "porownanie": {
+       "n": 245,
+       "roznica": 0.04285714285714286,
+       "se": 0.01773376582448951,
+       "z": 2.4166972362947936,
+       "p": 0.01566203837576005,
+       "werdykt": "prawdopodobne",
+       "p_holm": 0.13259767669628156,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     }
+    ]
+   },
+   "multiblimp-pl": {
+    "pole": "phenomenon",
+    "k": 3,
+    "po_holmie": {
+     "szum": 3
+    },
+    "grupy": [
+     {
+      "grupa": "SV-#",
+      "n": 736,
+      "v109": {
+       "wartosc": 0.9796195652173914,
+       "se": 0.005211848440255261,
+       "ci95": [
+        0.969404342274491,
+        0.9898347881602917
+       ]
+      },
+      "v108": {
+       "wartosc": 0.9769021739130435,
+       "se": 0.005540735543525183,
+       "ci95": [
+        0.9660423322477341,
+        0.9877620155783529
+       ]
+      },
+      "porownanie": {
+       "n": 736,
+       "roznica": 0.002717391304347826,
+       "se": 0.00543755474996681,
+       "z": 0.49974509302447256,
+       "p": 0.617254576703957,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "SV-G",
+      "n": 1216,
+      "v109": {
+       "wartosc": 0.9876644736842105,
+       "se": 0.0031666161277711,
+       "ci95": [
+        0.9814579060737791,
+        0.9938710412946419
+       ]
+      },
+      "v108": {
+       "wartosc": 0.9893092105263158,
+       "se": 0.002950412748430583,
+       "ci95": [
+        0.9835264015393919,
+        0.9950920195132398
+       ]
+      },
+      "porownanie": {
+       "n": 1216,
+       "roznica": -0.001644736842105263,
+       "se": 0.003858548321224549,
+       "z": -0.4262579356744428,
+       "p": 0.6699199054150055,
+       "werdykt": "szum",
+       "p_holm": 1.0,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     },
+     {
+      "grupa": "SV-P",
+      "n": 1320,
+      "v109": {
+       "wartosc": 0.9871212121212121,
+       "se": 0.00310456201552398,
+       "ci95": [
+        0.981036270570785,
+        0.9932061536716391
+       ]
+      },
+      "v108": {
+       "wartosc": 0.9916666666666667,
+       "se": 0.0025030517974866913,
+       "ci95": [
+        0.9867606851435928,
+        0.9965726481897406
+       ]
+      },
+      "porownanie": {
+       "n": 1320,
+       "roznica": -0.004545454545454545,
+       "se": 0.0033869541887426922,
+       "z": -1.342047837718736,
+       "p": 0.17958048528572024,
+       "werdykt": "szum",
+       "p_holm": 0.5387414558571607,
+       "werdykt_holm": "szum",
+       "po_holmie": "nie"
+      }
+     }
+    ]
+   }
+  },
+  "formaty": {
+   "arc-challenge": {
+    "mc": {
+     "plik": "T02_mc.jsonl",
+     "n": 1172,
+     "regula_wyboru": "acc_norm",
+     "slayer1b-1.09-k40000": {
+      "acc": 0.24146757679180889,
+      "acc_norm": 0.24146757679180889,
+      "bpb_poprawnej": 1.323979755891729,
+      "wybrane": {
+       "A": 406,
+       "B": 377,
+       "C": 342,
+       "D": 47
+      },
+      "poprawne": {
+       "A": 266,
+       "B": 311,
+       "C": 310,
+       "D": 285
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 1172
+      }
+     },
+     "slayer1b-1.08": {
+      "acc": 0.23037542662116042,
+      "acc_norm": 0.23037542662116042,
+      "bpb_poprawnej": 1.932515826378711,
+      "wybrane": {
+       "A": 1112,
+       "B": 50,
+       "C": 6,
+       "D": 4
+      },
+      "poprawne": {
+       "A": 266,
+       "B": 311,
+       "C": 310,
+       "D": 285
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 1172
+      }
+     },
+     "delta_acc": {
+      "n": 1172,
+      "roznica": 0.011092150170648464,
+      "se": 0.015713220675006256,
+      "z": 0.705911945110772,
+      "p": 0.4802428986612521,
+      "werdykt": "szum"
+     },
+     "delta_acc_norm": {
+      "n": 1172,
+      "roznica": 0.011092150170648464,
+      "se": 0.015713220675006256,
+      "z": 0.705911945110772,
+      "p": 0.4802428986612521,
+      "werdykt": "szum"
+     }
+    },
+    "space": {
+     "plik": "T02_space.jsonl",
+     "n": 1172,
+     "regula_wyboru": "acc_norm",
+     "slayer1b-1.09-k40000": {
+      "acc": 0.32764505119453924,
+      "acc_norm": 0.34982935153583616,
+      "bpb_poprawnej": 1.128413550177285,
+      "wybrane": {
+       "A": 260,
+       "B": 289,
+       "C": 294,
+       "D": 327,
+       "E": 2
+      },
+      "poprawne": {
+       "A": 266,
+       "B": 311,
+       "C": 310,
+       "D": 285
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 1172
+      }
+     },
+     "slayer1b-1.08": {
+      "acc": 0.2713310580204778,
+      "acc_norm": 0.3003412969283277,
+      "bpb_poprawnej": 1.323001854518472,
+      "wybrane": {
+       "A": 260,
+       "B": 276,
+       "C": 279,
+       "D": 356,
+       "E": 1
+      },
+      "poprawne": {
+       "A": 266,
+       "B": 311,
+       "C": 310,
+       "D": 285
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 1172
+      }
+     },
+     "delta_acc": {
+      "n": 1172,
+      "roznica": 0.05631399317406143,
+      "se": 0.011774922490972192,
+      "z": 4.78253620923936,
+      "p": 1.7309719390015225e-06,
+      "werdykt": "pewne"
+     },
+     "delta_acc_norm": {
+      "n": 1172,
+      "roznica": 0.04948805460750853,
+      "se": 0.011614373466555557,
+      "z": 4.260931917680538,
+      "p": 2.035762466457825e-05,
+      "werdykt": "pewne"
+     }
+    }
+   },
+   "arc-easy": {
+    "space": {
+     "plik": "T51_space.jsonl",
+     "n": 2376,
+     "regula_wyboru": "acc",
+     "slayer1b-1.09-k40000": {
+      "acc": 0.6662457912457912,
+      "acc_norm": 0.6165824915824916,
+      "bpb_poprawnej": 1.0457751533609438,
+      "wybrane": {
+       "A": 766,
+       "B": 605,
+       "C": 530,
+       "D": 475
+      },
+      "poprawne": {
+       "A": 596,
+       "B": 585,
+       "C": 633,
+       "D": 561,
+       "E": 1
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 2376
+      }
+     },
+     "slayer1b-1.08": {
+      "acc": 0.5837542087542088,
+      "acc_norm": 0.5189393939393939,
+      "bpb_poprawnej": 1.3025224785794733,
+      "wybrane": {
+       "A": 781,
+       "B": 599,
+       "C": 519,
+       "D": 476,
+       "E": 1
+      },
+      "poprawne": {
+       "A": 596,
+       "B": 585,
+       "C": 633,
+       "D": 561,
+       "E": 1
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 2376
+      }
+     },
+     "delta_acc": {
+      "n": 2376,
+      "roznica": 0.08249158249158249,
+      "se": 0.00890845450839239,
+      "z": 9.2599207206895,
+      "p": 2.0458405833088046e-20,
+      "werdykt": "pewne"
+     },
+     "delta_acc_norm": {
+      "n": 2376,
+      "roznica": 0.09764309764309764,
+      "se": 0.008661500130021193,
+      "z": 11.273231677808534,
+      "p": 1.7791744620785605e-29,
+      "werdykt": "pewne"
+     }
+    }
+   },
+   "blimp": {
+    "space": {
+     "plik": "T01_space.jsonl",
+     "n": 67000,
+     "regula_wyboru": "acc",
+     "slayer1b-1.09-k40000": {
+      "acc": 0.8148059701492537,
+      "acc_norm": 0.763955223880597,
+      "bpb_poprawnej": 2.2725790639716066,
+      "wybrane": {
+       "A": 54592,
+       "B": 12408
+      },
+      "poprawne": {
+       "A": 67000
+      },
+      "remisy": {
+       "remisy": 7,
+       "remisy_z_poprawna": 7,
+       "pytan_ze_zdublowana_opcja": 7,
+       "n": 67000
+      }
+     },
+     "slayer1b-1.08": {
+      "acc": 0.8047313432835821,
+      "acc_norm": 0.7478507462686567,
+      "bpb_poprawnej": 2.303952025451603,
+      "wybrane": {
+       "A": 53917,
+       "B": 13083
+      },
+      "poprawne": {
+       "A": 67000
+      },
+      "remisy": {
+       "remisy": 7,
+       "remisy_z_poprawna": 7,
+       "pytan_ze_zdublowana_opcja": 7,
+       "n": 67000
+      }
+     },
+     "delta_acc": {
+      "n": 67000,
+      "roznica": 0.010074626865671642,
+      "se": 0.0014235031410169386,
+      "z": 7.077347829717056,
+      "p": 1.4693939843418547e-12,
+      "werdykt": "pewne"
+     },
+     "delta_acc_norm": {
+      "n": 67000,
+      "roznica": 0.0161044776119403,
+      "se": 0.0014015358406466694,
+      "z": 11.490592780352792,
+      "p": 1.4709905705461958e-30,
+      "werdykt": "pewne"
+     }
+    }
+   },
+   "hellaswag": {
+    "space": {
+     "plik": "T05_space.jsonl",
+     "n": 10042,
+     "regula_wyboru": "acc_norm",
+     "slayer1b-1.09-k40000": {
+      "acc": 0.41734714200358497,
+      "acc_norm": 0.5279824736108345,
+      "bpb_poprawnej": 0.8339393768514254,
+      "wybrane": {
+       "A": 2533,
+       "B": 2449,
+       "C": 2546,
+       "D": 2514
+      },
+      "poprawne": {
+       "A": 2515,
+       "B": 2485,
+       "C": 2584,
+       "D": 2458
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 10042
+      }
+     },
+     "slayer1b-1.08": {
+      "acc": 0.3509261103365863,
+      "acc_norm": 0.4340768771161123,
+      "bpb_poprawnej": 0.8979279366238077,
+      "wybrane": {
+       "A": 2546,
+       "B": 2466,
+       "C": 2507,
+       "D": 2523
+      },
+      "poprawne": {
+       "A": 2515,
+       "B": 2485,
+       "C": 2584,
+       "D": 2458
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 10042
+      }
+     },
+     "delta_acc": {
+      "n": 10042,
+      "roznica": 0.0664210316669986,
+      "se": 0.0029318051112833424,
+      "z": 22.655336608620637,
+      "p": 1.2359641830510242e-113,
+      "werdykt": "pewne"
+     },
+     "delta_acc_norm": {
+      "n": 10042,
+      "roznica": 0.09390559649472216,
+      "se": 0.003577432909975053,
+      "z": 26.249436078279103,
+      "p": 7.254376786872756e-152,
+      "werdykt": "pewne"
+     }
+    }
+   },
+   "mathqa": {
+    "space": {
+     "plik": "T19_space.jsonl",
+     "n": 2985,
+     "regula_wyboru": "acc_norm",
+     "slayer1b-1.09-k40000": {
+      "acc": 0.23283082077051925,
+      "acc_norm": 0.22512562814070353,
+      "bpb_poprawnej": 2.7470414331896915,
+      "wybrane": {
+       "A": 709,
+       "B": 578,
+       "C": 535,
+       "D": 505,
+       "E": 658
+      },
+      "poprawne": {
+       "A": 614,
+       "B": 605,
+       "C": 676,
+       "D": 628,
+       "E": 462
+      },
+      "remisy": {
+       "remisy": 13,
+       "remisy_z_poprawna": 4,
+       "pytan_ze_zdublowana_opcja": 49,
+       "n": 2985
+      }
+     },
+     "slayer1b-1.08": {
+      "acc": 0.2338358458961474,
+      "acc_norm": 0.22814070351758794,
+      "bpb_poprawnej": 3.3022541465494624,
+      "wybrane": {
+       "A": 710,
+       "B": 568,
+       "C": 516,
+       "D": 521,
+       "E": 670
+      },
+      "poprawne": {
+       "A": 614,
+       "B": 605,
+       "C": 676,
+       "D": 628,
+       "E": 462
+      },
+      "remisy": {
+       "remisy": 13,
+       "remisy_z_poprawna": 5,
+       "pytan_ze_zdublowana_opcja": 49,
+       "n": 2985
+      }
+     },
+     "delta_acc": {
+      "n": 2985,
+      "roznica": -0.0010050251256281408,
+      "se": 0.0069883000925718385,
+      "z": -0.14381539320219303,
+      "p": 0.8856462472228521,
+      "werdykt": "szum"
+     },
+     "delta_acc_norm": {
+      "n": 2985,
+      "roznica": -0.003015075376884422,
+      "se": 0.0069235456544012265,
+      "z": -0.435481403226939,
+      "p": 0.6632130346928267,
+      "werdykt": "szum"
+     }
+    }
+   },
+   "medmcqa": {
+    "cloze": {
+     "plik": "T45_cloze.jsonl",
+     "n": 4183,
+     "regula_wyboru": "acc",
+     "slayer1b-1.09-k40000": {
+      "acc": 0.2514941429595984,
+      "acc_norm": 0.2871145111164236,
+      "bpb_poprawnej": 1.4557134280538084,
+      "wybrane": {
+       "A": 1238,
+       "B": 948,
+       "C": 923,
+       "D": 1074
+      },
+      "poprawne": {
+       "A": 1348,
+       "B": 1085,
+       "C": 925,
+       "D": 825
+      },
+      "remisy": {
+       "remisy": 6,
+       "remisy_z_poprawna": 2,
+       "pytan_ze_zdublowana_opcja": 21,
+       "n": 4183
+      }
+     },
+     "slayer1b-1.08": {
+      "acc": 0.22687066698541716,
+      "acc_norm": 0.27611761893377956,
+      "bpb_poprawnej": 1.6779095116807095,
+      "wybrane": {
+       "A": 1183,
+       "B": 962,
+       "C": 924,
+       "D": 1114
+      },
+      "poprawne": {
+       "A": 1348,
+       "B": 1085,
+       "C": 925,
+       "D": 825
+      },
+      "remisy": {
+       "remisy": 5,
+       "remisy_z_poprawna": 2,
+       "pytan_ze_zdublowana_opcja": 21,
+       "n": 4183
+      }
+     },
+     "delta_acc": {
+      "n": 4183,
+      "roznica": 0.02462347597418121,
+      "se": 0.005839236864025835,
+      "z": 4.2168996647285635,
+      "p": 2.4768411308542483e-05,
+      "werdykt": "pewne"
+     },
+     "delta_acc_norm": {
+      "n": 4183,
+      "roznica": 0.010996892182644035,
+      "se": 0.0059026743207267795,
+      "z": 1.8630355640712393,
+      "p": 0.062457262783233394,
+      "werdykt": "szum"
+     }
+    },
+    "space": {
+     "plik": "T45_space.jsonl",
+     "n": 4183,
+     "regula_wyboru": "acc",
+     "slayer1b-1.09-k40000": {
+      "acc": 0.30050203203442505,
+      "acc_norm": 0.30050203203442505,
+      "bpb_poprawnej": 1.4927889453319356,
+      "wybrane": {
+       "A": 3288,
+       "B": 175,
+       "C": 440,
+       "D": 280
+      },
+      "poprawne": {
+       "A": 1348,
+       "B": 1085,
+       "C": 925,
+       "D": 825
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 4183
+      }
+     },
+     "slayer1b-1.08": {
+      "acc": 0.3122161128376763,
+      "acc_norm": 0.3122161128376763,
+      "bpb_poprawnej": 2.0467669431879005,
+      "wybrane": {
+       "A": 3988,
+       "B": 118,
+       "C": 39,
+       "D": 38
+      },
+      "poprawne": {
+       "A": 1348,
+       "B": 1085,
+       "C": 925,
+       "D": 825
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 4183
+      }
+     },
+     "delta_acc": {
+      "n": 4183,
+      "roznica": -0.011714080803251255,
+      "se": 0.005207728071736871,
+      "z": -2.249364913430359,
+      "p": 0.02448928897816244,
+      "werdykt": "prawdopodobne"
+     },
+     "delta_acc_norm": {
+      "n": 4183,
+      "roznica": -0.011714080803251255,
+      "se": 0.005207728071736871,
+      "z": -2.249364913430359,
+      "p": 0.02448928897816244,
+      "werdykt": "prawdopodobne"
+     }
+    }
+   },
+   "multiblimp-pl": {
+    "space": {
+     "plik": "T04_space.jsonl",
+     "n": 3272,
+     "regula_wyboru": "acc",
+     "slayer1b-1.09-k40000": {
+      "acc": 0.9856356968215159,
+      "acc_norm": 0.968520782396088,
+      "bpb_poprawnej": 1.4965419332718746,
+      "wybrane": {
+       "A": 3225,
+       "B": 47
+      },
+      "poprawne": {
+       "A": 3272
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 3272
+      }
+     },
+     "slayer1b-1.08": {
+      "acc": 0.9874694376528117,
+      "acc_norm": 0.976161369193154,
+      "bpb_poprawnej": 1.4625450656407275,
+      "wybrane": {
+       "A": 3231,
+       "B": 41
+      },
+      "poprawne": {
+       "A": 3272
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 3272
+      }
+     },
+     "delta_acc": {
+      "n": 3272,
+      "roznica": -0.0018337408312958435,
+      "se": 0.002327693967488974,
+      "z": -0.7877929216244918,
+      "p": 0.4308178420893559,
+      "werdykt": "szum"
+     },
+     "delta_acc_norm": {
+      "n": 3272,
+      "roznica": -0.007640586797066014,
+      "se": 0.0030075365542828894,
+      "z": -2.5404801102701207,
+      "p": 0.01107003899060397,
+      "werdykt": "prawdopodobne"
+     }
+    }
+   },
+   "piqa": {
+    "space": {
+     "plik": "T06_space.jsonl",
+     "n": 1838,
+     "regula_wyboru": "acc_norm",
+     "slayer1b-1.09-k40000": {
+      "acc": 0.704570184983678,
+      "acc_norm": 0.7121871599564744,
+      "bpb_poprawnej": 1.1173265059929935,
+      "wybrane": {
+       "A": 903,
+       "B": 935
+      },
+      "poprawne": {
+       "A": 910,
+       "B": 928
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 1838
+      }
+     },
+     "slayer1b-1.08": {
+      "acc": 0.6817192600652884,
+      "acc_norm": 0.6621327529923831,
+      "bpb_poprawnej": 1.2165503740676806,
+      "wybrane": {
+       "A": 913,
+       "B": 925
+      },
+      "poprawne": {
+       "A": 910,
+       "B": 928
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 1838
+      }
+     },
+     "delta_acc": {
+      "n": 1838,
+      "roznica": 0.022850924918389554,
+      "se": 0.007792776873380491,
+      "z": 2.9323212109981625,
+      "p": 0.0033643857578747,
+      "werdykt": "prawdopodobne"
+     },
+     "delta_acc_norm": {
+      "n": 1838,
+      "roznica": 0.05005440696409141,
+      "se": 0.008420351112718393,
+      "z": 5.944456032063494,
+      "p": 2.7737640592643933e-09,
+      "werdykt": "pewne"
+     }
+    }
+   },
+   "pubmedqa": {
+    "space": {
+     "plik": "T44_space.jsonl",
+     "n": 500,
+     "regula_wyboru": "acc",
+     "slayer1b-1.09-k40000": {
+      "acc": 0.562,
+      "acc_norm": 0.33,
+      "bpb_poprawnej": 3.647431110333141,
+      "wybrane": {
+       "A": 214,
+       "B": 286
+      },
+      "poprawne": {
+       "A": 276,
+       "B": 169,
+       "C": 55
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 500
+      }
+     },
+     "slayer1b-1.08": {
+      "acc": 0.434,
+      "acc_norm": 0.232,
+      "bpb_poprawnej": 3.686265840272307,
+      "wybrane": {
+       "A": 133,
+       "B": 367
+      },
+      "poprawne": {
+       "A": 276,
+       "B": 169,
+       "C": 55
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 500
+      }
+     },
+     "delta_acc": {
+      "n": 500,
+      "roznica": 0.128,
+      "se": 0.02172961924897468,
+      "z": 5.890577213221982,
+      "p": 3.848490006819102e-09,
+      "werdykt": "pewne"
+     },
+     "delta_acc_norm": {
+      "n": 500,
+      "roznica": 0.098,
+      "se": 0.02043593047818029,
+      "z": 4.795475307798482,
+      "p": 1.6228956067610404e-06,
+      "werdykt": "pewne"
+     }
+    }
+   },
+   "social-iqa": {
+    "space": {
+     "plik": "T46_space.jsonl",
+     "n": 1954,
+     "regula_wyboru": "acc",
+     "slayer1b-1.09-k40000": {
+      "acc": 0.40890481064483114,
+      "acc_norm": 0.4344933469805527,
+      "bpb_poprawnej": 1.745597416951274,
+      "wybrane": {
+       "A": 641,
+       "B": 655,
+       "C": 658
+      },
+      "poprawne": {
+       "A": 643,
+       "B": 654,
+       "C": 657
+      },
+      "remisy": {
+       "remisy": 2,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 5,
+       "n": 1954
+      }
+     },
+     "slayer1b-1.08": {
+      "acc": 0.39662231320368474,
+      "acc_norm": 0.42988741044012285,
+      "bpb_poprawnej": 1.8623563803479164,
+      "wybrane": {
+       "A": 650,
+       "B": 652,
+       "C": 652
+      },
+      "poprawne": {
+       "A": 643,
+       "B": 654,
+       "C": 657
+      },
+      "remisy": {
+       "remisy": 2,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 5,
+       "n": 1954
+      }
+     },
+     "delta_acc": {
+      "n": 1954,
+      "roznica": 0.012282497441146366,
+      "se": 0.007306134748960662,
+      "z": 1.6811211212458979,
+      "p": 0.09273939062872952,
+      "werdykt": "szum"
+     },
+     "delta_acc_norm": {
+      "n": 1954,
+      "roznica": 0.004605936540429887,
+      "se": 0.006771021296877649,
+      "z": 0.6802425126847325,
+      "p": 0.49635091797723846,
+      "werdykt": "szum"
+     }
+    }
+   },
+   "winogrande": {
+    "space": {
+     "plik": "T07_space.jsonl",
+     "n": 1267,
+     "regula_wyboru": "acc",
+     "slayer1b-1.09-k40000": {
+      "acc": 0.5769534333070244,
+      "acc_norm": 0.5769534333070244,
+      "bpb_poprawnej": 1.2170920705907071,
+      "wybrane": {
+       "A": 628,
+       "B": 639
+      },
+      "poprawne": {
+       "A": 628,
+       "B": 639
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 1267
+      }
+     },
+     "slayer1b-1.08": {
+      "acc": 0.5367008681925809,
+      "acc_norm": 0.5367008681925809,
+      "bpb_poprawnej": 1.2670595484409968,
+      "wybrane": {
+       "A": 633,
+       "B": 634
+      },
+      "poprawne": {
+       "A": 628,
+       "B": 639
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 1267
+      }
+     },
+     "delta_acc": {
+      "n": 1267,
+      "roznica": 0.04025256511444357,
+      "se": 0.015451272188930514,
+      "z": 2.6051295079301635,
+      "p": 0.009183953860436142,
+      "werdykt": "prawdopodobne"
+     },
+     "delta_acc_norm": {
+      "n": 1267,
+      "roznica": 0.04025256511444357,
+      "se": 0.015451272188930514,
+      "z": 2.6051295079301635,
+      "p": 0.009183953860436142,
+      "werdykt": "prawdopodobne"
+     }
+    }
+   },
+   "wsc273": {
+    "space": {
+     "plik": "T14_space.jsonl",
+     "n": 273,
+     "regula_wyboru": "acc",
+     "slayer1b-1.09-k40000": {
+      "acc": 0.6373626373626373,
+      "acc_norm": 0.6373626373626373,
+      "bpb_poprawnej": 2.5646970664796305,
+      "wybrane": {
+       "A": 138,
+       "B": 135
+      },
+      "poprawne": {
+       "A": 137,
+       "B": 136
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 273
+      }
+     },
+     "slayer1b-1.08": {
+      "acc": 0.6153846153846154,
+      "acc_norm": 0.6153846153846154,
+      "bpb_poprawnej": 2.274884124220275,
+      "wybrane": {
+       "A": 142,
+       "B": 131
+      },
+      "poprawne": {
+       "A": 137,
+       "B": 136
+      },
+      "remisy": {
+       "remisy": 0,
+       "remisy_z_poprawna": 0,
+       "pytan_ze_zdublowana_opcja": 0,
+       "n": 273
+      }
+     },
+     "delta_acc": {
+      "n": 273,
+      "roznica": 0.02197802197802198,
+      "se": 0.03238277798143519,
+      "z": 0.6786947676515529,
+      "p": 0.49733128215291933,
+      "werdykt": "szum"
+     },
+     "delta_acc_norm": {
+      "n": 273,
+      "roznica": 0.02197802197802198,
+      "se": 0.03238277798143519,
+      "z": 0.6786947676515529,
+      "p": 0.49733128215291933,
+      "werdykt": "szum"
+     }
+    }
+   }
+  },
+  "wobec_bazy": {
+   "arc-challenge": {
+    "slayer1b-1.09-k40000": {
+     "b": 0.26535836177474403,
+     "baza": "stala odpowiedz",
+     "roznica": 0.08447098976109214,
+     "se": 0.01928919239160413,
+     "z": 4.3791874769137165,
+     "t": null,
+     "df": null,
+     "werdykt": "pewne"
+    },
+    "slayer1b-1.08": {
+     "b": 0.26535836177474403,
+     "baza": "stala odpowiedz",
+     "roznica": 0.03498293515358362,
+     "se": 0.018964012460963072,
+     "z": 1.8447011267048619,
+     "t": null,
+     "df": null,
+     "werdykt": "szum"
+    }
+   },
+   "arc-easy": {
+    "slayer1b-1.09-k40000": {
+     "b": 0.26641414141414144,
+     "baza": "stala odpowiedz",
+     "roznica": 0.3998316498316498,
+     "se": 0.013706629327346004,
+     "z": 29.17067648673831,
+     "t": null,
+     "df": null,
+     "werdykt": "pewne"
+    },
+    "slayer1b-1.08": {
+     "b": 0.26641414141414144,
+     "baza": "stala odpowiedz",
+     "roznica": 0.31734006734006737,
+     "se": 0.01396640097005259,
+     "z": 22.72167812026325,
+     "t": null,
+     "df": null,
+     "werdykt": "pewne"
+    }
+   },
+   "blimp": {
+    "slayer1b-1.09-k40000": {
+     "b": 0.5,
+     "baza": "losowa",
+     "roznica": 0.3148059701492537,
+     "se": 0.021425596636462426,
+     "z": null,
+     "t": 14.692985007171835,
+     "df": 66,
+     "werdykt": "pewne"
+    },
+    "slayer1b-1.08": {
+     "b": 0.5,
+     "baza": "losowa",
+     "roznica": 0.3047313432835821,
+     "se": 0.02126792305145138,
+     "z": null,
+     "t": 14.328213551759415,
+     "df": 66,
+     "werdykt": "pewne"
+    }
+   },
+   "ewok": {},
+   "hellaswag": {
+    "slayer1b-1.09-k40000": {
+     "b": 0.25731925911173076,
+     "baza": "stala odpowiedz",
+     "roznica": 0.27066321449910374,
+     "se": 0.0065955713755774135,
+     "z": 41.03711400976361,
+     "t": null,
+     "df": null,
+     "werdykt": "pewne"
+    },
+    "slayer1b-1.08": {
+     "b": 0.25731925911173076,
+     "baza": "stala odpowiedz",
+     "roznica": 0.17675761800438158,
+     "se": 0.006605276275645008,
+     "z": 26.76006432253602,
+     "t": null,
+     "df": null,
+     "werdykt": "pewne"
+    }
+   },
+   "lambada": {},
+   "mathqa": {
+    "slayer1b-1.09-k40000": {
+     "b": 0.22646566164154103,
+     "baza": "stala odpowiedz",
+     "roznica": -0.001340033500837521,
+     "se": 0.010742957260716434,
+     "z": -0.12473599850737524,
+     "t": null,
+     "df": null,
+     "werdykt": "szum"
+    },
+    "slayer1b-1.08": {
+     "b": 0.22646566164154103,
+     "baza": "stala odpowiedz",
+     "roznica": 0.0016750418760469012,
+     "se": 0.010841765927710918,
+     "z": 0.1544989891144571,
+     "t": null,
+     "df": null,
+     "werdykt": "szum"
+    }
+   },
+   "medmcqa": {
+    "slayer1b-1.09-k40000": {
+     "b": 0.3222567535261774,
+     "baza": "stala odpowiedz",
+     "roznica": -0.02175472149175233,
+     "se": 0.005200007289070131,
+     "z": -4.183594422545998,
+     "t": null,
+     "df": null,
+     "werdykt": "pewne"
+    },
+    "slayer1b-1.08": {
+     "b": 0.3222567535261774,
+     "baza": "stala odpowiedz",
+     "roznica": -0.010040640688501076,
+     "se": 0.0026578786561805207,
+     "z": -3.7776896492821397,
+     "t": null,
+     "df": null,
+     "werdykt": "pewne"
+    }
+   },
+   "multiblimp-pl": {
+    "slayer1b-1.09-k40000": {
+     "b": 0.5,
+     "baza": "losowa",
+     "roznica": 0.48563569682151586,
+     "se": 0.0020804640773972706,
+     "z": 233.4266196170338,
+     "t": null,
+     "df": null,
+     "werdykt": "pewne"
+    },
+    "slayer1b-1.08": {
+     "b": 0.5,
+     "baza": "losowa",
+     "roznica": 0.4874694376528117,
+     "se": 0.001944942830841165,
+     "z": 250.63432709844065,
+     "t": null,
+     "df": null,
+     "werdykt": "pewne"
+    }
+   },
+   "piqa": {
+    "slayer1b-1.09-k40000": {
+     "b": 0.5048966267682263,
+     "baza": "stala odpowiedz",
+     "roznica": 0.20729053318824808,
+     "se": 0.015622198528970146,
+     "z": 13.268973173260088,
+     "t": null,
+     "df": null,
+     "werdykt": "pewne"
+    },
+    "slayer1b-1.08": {
+     "b": 0.5048966267682263,
+     "baza": "stala odpowiedz",
+     "roznica": 0.1572361262241567,
+     "se": 0.016029579061222578,
+     "z": 9.809123846834458,
+     "t": null,
+     "df": null,
+     "werdykt": "pewne"
+    }
+   },
+   "pubmedqa": {
+    "slayer1b-1.09-k40000": {
+     "b": 0.552,
+     "baza": "stala odpowiedz",
+     "roznica": 0.01,
+     "se": 0.03209142750702857,
+     "z": 0.3116096969450745,
+     "t": null,
+     "df": null,
+     "werdykt": "szum"
+    },
+    "slayer1b-1.08": {
+     "b": 0.552,
+     "baza": "stala odpowiedz",
+     "roznica": -0.118,
+     "se": 0.036149212039297926,
+     "z": -3.2642481908519003,
+     "t": null,
+     "df": null,
+     "werdykt": "pewne"
+    }
+   },
+   "social-iqa": {
+    "slayer1b-1.09-k40000": {
+     "b": 0.33623336745138177,
+     "baza": "stala odpowiedz",
+     "roznica": 0.07267144319344933,
+     "se": 0.01542244174587913,
+     "z": 4.712058206533158,
+     "t": null,
+     "df": null,
+     "werdykt": "pewne"
+    },
+    "slayer1b-1.08": {
+     "b": 0.33623336745138177,
+     "baza": "stala odpowiedz",
+     "roznica": 0.06038894575230297,
+     "se": 0.01533035956237514,
+     "z": 3.9391734751292997,
+     "t": null,
+     "df": null,
+     "werdykt": "pewne"
+    }
+   },
+   "wikitext-2": {},
+   "winogrande": {
+    "slayer1b-1.09-k40000": {
+     "b": 0.5043409629044988,
+     "baza": "stala odpowiedz",
+     "roznica": 0.07261247040252565,
+     "se": 0.016566148107890453,
+     "z": null,
+     "t": 4.383183702670166,
+     "df": 982,
+     "werdykt": "pewne"
+    },
+    "slayer1b-1.08": {
+     "b": 0.5043409629044988,
+     "baza": "stala odpowiedz",
+     "roznica": 0.03235990528808208,
+     "se": 0.0164191359074171,
+     "z": null,
+     "t": 1.970865304395463,
+     "df": 982,
+     "werdykt": "szum"
+    }
+   },
+   "wsc273": {
+    "slayer1b-1.09-k40000": {
+     "b": 0.5018315018315018,
+     "baza": "stala odpowiedz",
+     "roznica": 0.13553113553113552,
+     "se": 0.024157762222639996,
+     "z": null,
+     "t": 5.610252070620988,
+     "df": 134,
+     "werdykt": "pewne"
+    },
+    "slayer1b-1.08": {
+     "b": 0.5018315018315018,
+     "baza": "stala odpowiedz",
+     "roznica": 0.11355311355311355,
+     "se": 0.022090967075457244,
+     "z": null,
+     "t": 5.140250907316298,
+     "df": 134,
+     "werdykt": "pewne"
+    }
+   }
+  },
+  "wrazliwosc": {
+   "winogrande": {
+    "p_holm": 0.04370950634451534,
+    "prog": 0.04550026389635843,
+    "mnoznik_holma": 7,
+    "wygranych_do_szumu": 1,
+    "mcnemar": {
+     "wygrane_109": 218,
+     "wygrane_108": 167,
+     "p": 0.010732696439209242,
+     "p_holm_ta_sama_ranga": 0.0751288750744647
+    }
+   }
+  },
+  "definicja_lm_eval": {
+   "arc-challenge": {
+    "v109": 0.34982935153583616,
+    "v108": 0.3003412969283277,
+    "porownanie": {
+     "n": 1172,
+     "roznica": 0.04948805460750853,
+     "se": 0.011614373466555557,
+     "z": 4.260931917680538,
+     "p": 2.035762466457825e-05,
+     "werdykt": "pewne",
+     "p_holm_ta_sama_ranga": 0.00018321862198120425,
+     "werdykt_holm": "pewne"
+    },
+    "pytan_rozne_od_runnera": {
+     "slayer1b-1.09-k40000": 0,
+     "slayer1b-1.08": 0
+    }
+   },
+   "hellaswag": {
+    "v109": 0.5280820553674567,
+    "v108": 0.43397729535949015,
+    "porownanie": {
+     "n": 10042,
+     "roznica": 0.09410476000796654,
+     "se": 0.0035879851094430025,
+     "z": 26.227745416305623,
+     "p": 1.2827119878417152e-151,
+     "werdykt": "pewne",
+     "p_holm_ta_sama_ranga": 1.9240679817625728e-150,
+     "werdykt_holm": "pewne"
+    },
+    "pytan_rozne_od_runnera": {
+     "slayer1b-1.09-k40000": 23,
+     "slayer1b-1.08": 23
+    }
+   },
+   "mathqa": {
+    "v109": 0.22512562814070353,
+    "v108": 0.22814070351758794,
+    "porownanie": {
+     "n": 2985,
+     "roznica": -0.003015075376884422,
+     "se": 0.0069235456544012265,
+     "z": -0.435481403226939,
+     "p": 0.6632130346928267,
+     "werdykt": "szum",
+     "p_holm_ta_sama_ranga": 0.6632130346928267,
+     "werdykt_holm": "szum"
+    },
+    "pytan_rozne_od_runnera": {
+     "slayer1b-1.09-k40000": 0,
+     "slayer1b-1.08": 0
+    }
+   },
+   "piqa": {
+    "v109": 0.7121871599564744,
+    "v108": 0.6621327529923831,
+    "porownanie": {
+     "n": 1838,
+     "roznica": 0.05005440696409141,
+     "se": 0.008420351112718393,
+     "z": 5.944456032063494,
+     "p": 2.7737640592643933e-09,
+     "werdykt": "pewne",
+     "p_holm_ta_sama_ranga": 3.0511404651908324e-08,
+     "werdykt_holm": "pewne"
+    },
+    "pytan_rozne_od_runnera": {
+     "slayer1b-1.09-k40000": 0,
+     "slayer1b-1.08": 0
+    }
+   }
+  }
+ },
  "odstepstwa": [
-  "Kod na instancji to git archive commitu b99f72a (protokół z aneksem). Kod analizy liczby_109.py, raport_md.py i przelicz_niezaleznie.py zacommitowany w 88719f1 przed pierwszym wynikiem; liczby_109.py i tools/ewaluacja/raport.py liczą bez zmian od 88719f1.",
-  "Po wyniku (kod pisany przed pierwszym wynikiem, ale niezacommitowany, przepadł przy awarii Maca i został napisany od nowa): dolacz_wyniki.py, sprawdz_raport.py, mutacje.py, diagnoza_acc_norm.py, w przelicz_niezaleznie.py kontrola narzędzia liczona od nowa z próbek i porównanie p Holma, w raport_md.py opis plików i werdykt po Holmie przy nazwie testu w liście głównego twierdzenia (strażnik liczb, reguła b), w tools/ewaluacja/raport.py jeden wiersz opisu plików. Progi, warianty i lista porównań bez zmian.",
-  "Pole runner_sha256 różni się od pełnego przebiegu (suma całego katalogu research/common, nie samego ewaluuj.py): ewaluuj.py jest bajt w bajt ten sam, a jedyna zmiana w research/common między przebiegiem (51c5e31) a pomiarem (b99f72a) to klastry testu T27 (PSC) w zadania.py, spoza 15 testów tego pomiaru.",
-  "Przeliczenie niezależne (przelicz_niezaleznie.py) kończy się kodem 1 wyłącznie na HellaSwag: liczy acc_norm z pola próbki lm_eval, a runner (metryki.oceny_mc) dzieli loglik przez długość kontynuacji bez wiodących spacji; definicje rozchodzą się na pytaniach, których kontynuacja ma kilka wiodących spacji (code/diagnoza_acc_norm.py, diagnoza_acc_norm.json). Podział lepsze/gorsze/szum i wszystkie werdykty po Holmie są w obu definicjach te same, więc główne twierdzenie nie jest obalone; liczby w raporcie są w definicji runnera, tej samej co pełny przebieg i manifest 1.08.",
+  "Commit kodu na instancji jest deklaracją, nie zapisem: srodowisko.json eksportu ma puste pole fabryka_commit, a logi instancji mówią „not a git repository”, bo kod przyszedł jako git archive bez katalogu .git. Deklarowany commit to b99f72a (komenda git archive w zapisie sesji pomiaru). Dowody pośrednie: runner_sha256 w eksporcie to suma research/common commitu b99f72a (ta sama w 88719f1), a suma wag po konwersji to wpis 1.09 w SUMY_WAG_CKPT dodany w b99f72a, z którym runner odmawia innych wag.",
+  "Protokół wskazał jako dowód niezmienionego runnera pole runner_sha256 manifestu, a to pole się różni od pełnego przebiegu: jest sumą całego katalogu research/common, nie samego ewaluuj.py. ewaluuj.py jest bajt w bajt ten sam; jedyna zmiana w research/common między przebiegiem (51c5e31) a pomiarem to klastry testu T27 (PSC) w zadania.py, spoza 15 testów. Wpływ na wynik: brak; 1.08 przeliczone ma te same sumy results_sha256 co pełny przebieg na 15 z 15 testów i te same sumy każdego pliku próbek i trace (19 z 19).",
+  "Kod analizy liczby_109.py (funkcja zbuduj), raport_md.py i przelicz_niezaleznie.py zacommitowany w 88719f1 przed pierwszym wynikiem; tools/ewaluacja/raport.py liczy bez zmian od 88719f1.",
+  "Po wyniku (runda poprawek 1): przelicz_niezaleznie.py liczy acc_norm własnym kodem w definicji runnera i pełnego przebiegu (wcześniej brał pole lm_eval i rozjeżdżał się na HellaSwag), sprawdza sha256 wejść i przelicza remisy; liczby_109.py dopisuje do LICZBY.json analizy eksploracyjne (eksploracja_109.py), bez zmiany zbuduj; raport_md.py dostał sekcje eksploracyjne, problemy i werdykt przy nazwie testu w głównym twierdzeniu; sprawdz_raport.py porównuje raport bajt w bajt z generatorem i sprawdza sekcję 1.09 README. Wcześniej, też po wyniku, bo kod pisany przed pierwszym wynikiem przepadł niezacommitowany: dolacz_wyniki.py, sprawdz_raport.py, mutacje.py. Progi, warianty, metryki i lista porównań bez zmian.",
+  "Regułę remisu (pierwszy indeks przy remisie, jak metryki.argmax runnera; EWoK: remis to brak wyboru) i liczby remisów dopisano po wyniku jako zapis stanu, nie zmianę; liczby w sekcji Remisy.",
+  "Na HellaSwag runner i pełny przebieg liczą acc_norm inaczej niż lm_eval (długość kontynuacji bez wiodących spacji wobec długości wyboru). Tabela protokołu jest w definicji runnera, bo w niej jest manifest 1.08; wartości w definicji lm_eval i ich werdykt stoją w sekcji eksploracyjnej. Werdykt po Holmie jest w obu definicjach ten sam.",
+  "Start 1.09: TRAINING_CONFIGURATION.md repo SlayerLab/Slayer1B-1.09 @ b25aec4e opisuje porzucony pierwszy start od losowych wag (START=zero, bez --init-from, do kroku 450) i obecny przebieg, który bierze wagi 1.08 @ 5f854a0c przez --init-from z nowym optymalizatorem; osiem checkpointów z samymi wagami (kroki 5 000–40 000) należy do tego przebiegu. Protokół („1.09 startuje z wag 1.08”) zgadza się z tym dokumentem; nazwy pliku wagi_40000.pt dokument nie wymienia.",
   "Kolejka na instancji liczyła 4 procesy na kartę (aneks), pełny przebieg 2; każdy proces liczy w batch 1, więc liczba procesów nie zmienia wyniku pytania.",
   "Protokół nie mówi o czasy.jsonl przebiegu: dolacz_wyniki.py dopisuje do niego wiersze ewaluacji 1.09, tak jak do manifest.jsonl; pełne czasy obu etykiet leżą w eksport/czasy.jsonl."
+ ],
+ "problemy": [
+  "Runner (research/common/metryki.py, oceny_mc) liczy acc_norm z długością kontynuacji bez wiodących spacji, a jego opis mówi „jak w lm-eval”, które liczy długość wyboru. Na HellaSwag daje to inną wartość w całym pełnym przebiegu 2026-11, nie tylko tutaj; do osobnego zadania (decyzja, którą definicję przyjąć, i przeliczenie przebiegu).",
+  "tests/test_lm_eval_slayer.py::test_ewaluuj_model_id_without_repo jest czerwony na tej gałęzi (AttributeError: Namespace bez atrybutu dtype w ewaluuj.py); poza zakresem tego pomiaru."
  ],
  "not_run": [
   "Ranking z 1.08 jako modelem eksperymentalnym (PR 196) nie jest w tej gałęzi; wykresy rankingów pokazują 1.09 w toku obok ostatniej przyjętej wersji Slayera (1.07), bez 1.08.",

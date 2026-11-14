@@ -1,14 +1,24 @@
 """Niezależne przeliczenie kluczowych liczb LICZBY.json z surowych próbek, bez importu raport.py, metryki.py,
-statystyka.py i ewaluuj.py: wynik pytania z pola metryki zapisanego przez lm_eval (EWoK z loglików, WikiText z
-logliku i bajtów dokumentu), klastry z pól dokumentów własnym kodem, p z rozkładów scipy, Holm z m = 15.
+statystyka.py i ewaluuj.py: wynik pytania własnym kodem (acc z pola lm_eval; acc_norm z loglików i kontynuacji w
+definicji runnera i pełnego przebiegu: loglik / długość kontynuacji bez wiodących spacji, remis → pierwszy indeks;
+EWoK z loglików, WikiText z logliku i bajtów dokumentu), klastry z pól dokumentów, p z rozkładów scipy, Holm z m = 15.
 
-    python przelicz_niezaleznie.py <eksport z próbkami> <LICZBY.json> <manifest.jsonl przebiegu> [<wynik.json>]
+    python przelicz_niezaleznie.py <eksport z próbkami> <LICZBY.json> <manifest.jsonl przebiegu> <probki_sha256.json>
+                                   [<wynik.json>]
 
 Eksport z próbkami: rozpakowana paczka albo katalog złożony z plików repo przez `dolacz_wyniki.py odtworz`.
+Najpierw sha256 wejść: każdy plik `wyniki/` eksportu wobec probki_sha256.json, a sha256 probki_sha256.json i manifestu
+wobec pola `wejscia` LICZBY.json; różnica → kod 2, nic nie liczone.
 Kod 0: każdy test ma Δ równe LICZBY.json do 1e-9, SE Δ do 1e-6 względnie, p Holma do 1e-6 względnie, ten sam werdykt
-po Holmie, tę samą kontrolę narzędzia (1.08 z próbek wobec manifestu przebiegu, policzoną tu od nowa) i ten sam wynik
-końcowy; kod 1: rozjazd (lista w wyniku). Rozjazd podziału lepsze/gorsze/szum obala główne twierdzenie (PROTOKOL.md).
+po Holmie, tę samą kontrolę narzędzia (1.08 z próbek wobec manifestu przebiegu, policzoną tu od nowa), ten sam wynik
+końcowy i te same liczby remisów co `eksploracyjne.remisy`; kod 1: rozjazd (lista w wyniku). Rozjazd podziału
+lepsze/gorsze/szum obala główne twierdzenie (PROTOKOL.md). Obok, bez wpływu na kod: Δ acc_norm w definicji lm_eval
+(pole próbki; długość wyboru ze spacjami), bo na HellaSwag różni się od definicji runnera (problem pełnego przebiegu).
+
+Zmiana po wyniku (runda poprawek 1): wcześniej acc_norm brany z pola lm_eval; dzięki temu przeliczenie liczy tę samą
+definicję co protokół (wartość z pliku wyników przebiegu), a różnica definicji stoi osobno.
 """
+import hashlib
 import json
 import math
 import re
@@ -35,11 +45,76 @@ def probki(eksport, bench, model):
     return {r[klucz]: r for r in rek}
 
 
+def pierwszy_max(x):
+    """Indeks największej wartości; przy remisie pierwszy (reguła runnera)."""
+    best = 0
+    for i, v in enumerate(x):
+        if v > x[best]:
+            best = i
+    return best
+
+
+def opcje(r):
+    """(logliki warunkowe, kontynuacje, indeks poprawnej) z próbki lm_eval; zadania z PMI mają w drugiej połowie
+    logliki bezwarunkowe, cel jest indeksem, tekstem wyboru albo polem `gold` (wiele kontekstów)."""
+    lls = [float(x[0]) for x in r["filtered_resps"]]
+    k = len(lls) // 2 if "acc_mutual_info" in r["metrics"] else len(lls)
+    konty = [a[1] for a in r["arguments"][:k]]
+    if "gold" in r:
+        gold = int(r["gold"])
+    else:
+        try:
+            gold = int(r["target"])
+        except (TypeError, ValueError):
+            gold = [c.strip() for c in konty].index(str(r["target"]).strip())
+    return lls[:k], konty, gold
+
+
+def acc_norm_runnera(r):
+    lls, konty, gold = opcje(r)
+    return float(pierwszy_max([ll / max(len(c.lstrip(" ")), 1) for ll, c in zip(lls, konty)]) == gold)
+
+
+def remis(r, metryka):
+    """(remis przy maksimum, remis obejmuje poprawną) w regule wyboru metryki."""
+    lls, konty, gold = opcje(r)
+    s = lls if metryka == "acc" else [ll / max(len(c.lstrip(" ")), 1) for ll, c in zip(lls, konty)]
+    rowne = [i for i, v in enumerate(s) if v == max(s)]
+    return len(rowne) > 1, len(rowne) > 1 and gold in rowne
+
+
 def wynik_pytania(bench, r):
     if bench == "ewok":
         ll = r["ll"]
         return ((ll[0][0] > ll[1][0]) + (ll[1][1] > ll[0][1])) / 2
+    if METRYKA[bench] == "acc_norm":
+        return acc_norm_runnera(r)
     return float(r[METRYKA[bench]])
+
+
+def sha256_pliku(p):
+    h = hashlib.sha256()
+    with open(p, "rb") as f:
+        for kawalek in iter(lambda: f.read(1 << 20), b""):
+            h.update(kawalek)
+    return h.hexdigest()
+
+
+def sprawdz_wejscia(eksport, liczby, manifest_p, sumy_p):
+    """Lista niezgodności sha256 wejść (pusta = zgodne)."""
+    bledy = []
+    w = liczby.get("wejscia") or {}
+    if sha256_pliku(sumy_p) != w.get("probki_sha256"):
+        bledy.append(f"{sumy_p.name}: sha256 różne od LICZBY.json wejscia.probki_sha256")
+    if sha256_pliku(manifest_p) != w.get("manifest_przebiegu"):
+        bledy.append(f"{manifest_p.name}: sha256 różne od LICZBY.json wejscia.manifest_przebiegu")
+    spis = json.loads(sumy_p.read_text(encoding="utf-8"))["pliki"]
+    pliki = {p.relative_to(eksport).as_posix() for p in (eksport / "wyniki").rglob("*") if p.is_file()}
+    if pliki != set(spis):
+        bledy.append(f"pliki eksportu różne od spisu: nadmiar {sorted(pliki - set(spis))[:3]}, "
+                     f"brak {sorted(set(spis) - pliki)[:3]}")
+    bledy += [f"{p}: sha256 różne od spisu" for p in sorted(pliki & set(spis)) if sha256_pliku(eksport / p) != spis[p]]
+    return bledy
 
 
 def klastry(bench, klucze, rek, szablony):
@@ -119,14 +194,28 @@ def porownaj(eksport, bench, szablony):
     d = [a - b for a, b in zip(xa, xb)]
     kl = klastry(bench, klucze, pa, szablony)
     v108 = sum(xb) / len(xb)
+    obok = {}
+    if bench not in ("ewok", "lambada"):  # LAMBADA: greedy ostatniego słowa, bez wyboru między opcjami
+        met = METRYKA[bench]
+        rem = {m: [remis(P[k], met) for k in klucze] for m, P in ((A, pa), (B, pb))}
+        obok["remisy"] = {m: {"remisy": sum(r for r, _ in x), "remisy_z_poprawna": sum(g for _, g in x)}
+                          for m, x in rem.items()}
+        if met == "acc_norm":  # definicja lm_eval (pole próbki), tylko do wglądu
+            la = [float(pa[k]["acc_norm"]) for k in klucze]
+            lb = [float(pb[k]["acc_norm"]) for k in klucze]
+            obok["acc_norm_lm_eval"] = {"v109": sum(la) / len(la), "v108": sum(lb) / len(lb),
+                                        "roznica": (sum(la) - sum(lb)) / len(la),
+                                        "pytan_rozne_od_runnera": {A: sum(x != y for x, y in zip(la, xa)),
+                                                                   B: sum(x != y for x, y in zip(lb, xb))}}
     if kl is not None:
         m, se, t, df, p, G = se_klastrowe(d, kl)
-        return {"roznica": sum(xa) / len(xa) - v108, "se": se, "t": t, "df": df, "p": p, "n": len(d), "v108": v108}
+        return {"roznica": sum(xa) / len(xa) - v108, "se": se, "t": t, "df": df, "p": p, "n": len(d), "v108": v108,
+                **obok}
     n, m = len(d), sum(d) / len(d)
     se = math.sqrt(sum((x - m) ** 2 for x in d) / (n - 1) / n)
     z = m / se if se else None
     return {"roznica": sum(xa) / n - v108, "se": se, "z": z, "p": 2 * stats.norm.sf(abs(z)) if z is not None else None, "n": n,
-            "v108": v108}
+            "v108": v108, **obok}
 
 
 def kontrola_zgodna(w, m):
@@ -151,6 +240,10 @@ def werdykt(p):
 
 def main():
     eksport, liczby = Path(sys.argv[1]), json.loads(Path(sys.argv[2]).read_text(encoding="utf-8"))
+    bledy = sprawdz_wejscia(eksport, liczby, Path(sys.argv[3]), Path(sys.argv[4]))
+    if bledy:
+        print("\n".join(bledy[:10]))
+        return 2
     manifest = {w["benchmark"]: w for w in map(json.loads, Path(sys.argv[3]).read_text(encoding="utf-8").splitlines())
                 if w["model"] == B}
     szablony = szablony_ewok()
@@ -187,11 +280,21 @@ def main():
             rozjazdy.append(f"{b}: po Holmie {w['werdykt_holm']} != {L['werdykt_holm']}")
         if w["wynik"] != testy[b]["werdykt_koncowy"]:
             rozjazdy.append(f"{b}: wynik {w['wynik']} != {testy[b]['werdykt_koncowy']}")
+        lm_L = ((liczby.get("eksploracyjne") or {}).get("definicja_lm_eval") or {}).get(b)
+        if "acc_norm_lm_eval" in w and (lm_L is None or abs(w["acc_norm_lm_eval"]["roznica"] - lm_L["porownanie"]["roznica"]) > 1e-9
+                                        or abs(w["acc_norm_lm_eval"]["v109"] - lm_L["v109"]) > 1e-9):
+            rozjazdy.append(f"{b}: acc_norm w definicji lm_eval {w['acc_norm_lm_eval']} != {lm_L and lm_L['porownanie']['roznica']}")
+        rem_L = ((liczby.get("eksploracyjne") or {}).get("remisy") or {}).get(b)
+        if "remisy" in w:
+            for m_, r_ in w["remisy"].items():
+                x = (rem_L or {}).get(m_) or {}
+                if (x.get("remisy"), x.get("remisy_z_poprawna")) != (r_["remisy"], r_["remisy_z_poprawna"]):
+                    rozjazdy.append(f"{b}: remisy {m_} {r_} != {x}")
     out = {"rozjazdy": rozjazdy, "testy": wyniki,
            "podzial": {k: sorted(b for b, w in wyniki.items() if w["wynik"].startswith(k)) for k in ("lepszy", "gorszy", "szum")}}
     tekst = json.dumps(out, ensure_ascii=False, indent=1)
-    if len(sys.argv) > 4:
-        Path(sys.argv[4]).write_text(tekst + "\n", encoding="utf-8")
+    if len(sys.argv) > 5:
+        Path(sys.argv[5]).write_text(tekst + "\n", encoding="utf-8")
     print("\n".join(rozjazdy) if rozjazdy else f"zgodne: {len(wyniki)} testów, podział {out['podzial']}")
     return 1 if rozjazdy else 0
 
