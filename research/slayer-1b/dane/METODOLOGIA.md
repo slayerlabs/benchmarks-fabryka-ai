@@ -4,7 +4,7 @@
 <a href="REJESTR_DATASETOW.md"><img src="../../../docs/img/dane/rejestr.svg" alt="Rejestr zbiorów" height="36"></a>
 <a href="https://github.com/LoIlita/slayer-lab/tree/dane/dclm-en/dane/dclm-en"><img src="../../../docs/img/dane/przyklad-dclm.svg" alt="Przykład: DCLM-EN" height="36"></a>
 
-Jeden przepis dla każdego zbioru, od rezerwacji do wiersza w [`DANE_TRENINGOWE.md`](DANE_TRENINGOWE.md). Wymagania wysyłki: [`SlayerLab/dataset-team-submissions`](https://huggingface.co/datasets/SlayerLab/dataset-team-submissions) (`README.md`, `AGENTS.md`, `LESSONS.md`, skill `source-rights-review`).
+Jeden przepis dla każdego zbioru, od rezerwacji do wiersza w [`DANE_TRENINGOWE.md`](DANE_TRENINGOWE.md). Format eksportu i docelowa wysyłka: [`SlayerLab/dataset-team-submissions`](https://huggingface.co/datasets/SlayerLab/dataset-team-submissions) (`README.md`, `AGENTS.md`, `LESSONS.md`, skill `source-rights-review`).
 
 ## 0. Co zostawia każdy zbiór
 
@@ -52,7 +52,7 @@ Własnej metodologii nie piszesz. Pracujesz w swoim repo, w katalogu `dane/<zbi�
 | 9 | Eksport | w klonie `dataset-team-submissions`: `src/clean_<key>.py` z `shard.write(key, rows)` (maskuje PII, bramka języka, dedup Dynaword) i datasheet `data/<key>/<key>.md` z karty | `data/<key>/<key>.parquet`, `.stats.json`, `.md`; 12 kolumn |
 | 10 | Kontrola końcowa | wpis w `src/sources.py`, `configs` w `README.md`, test kontraktowy; `pytest src/test_<key>_contract.py` i `python src/check.py --source <key>` | oba kod 0; niezależny agent na pliku o tym samym sha256 |
 | 11 | Wysyłka | chwilowo: własne repo do wglądu Arka (sekcja 4); docelowo PR do `dataset-team-submissions` z przeglądem praw i osobą zatwierdzającą | Arek ma link i dostęp |
-| 12 | Dane treningowe | PO wysyłce: PR zmieniający wiersz z kroku 1 w `DANE_TRENINGOWE.md`: link do zbioru i status | każdy link w wierszu odpowiada 200 |
+| 12 | Dane treningowe | PR zmieniający wiersz z kroku 1 w `DANE_TRENINGOWE.md`: po kroku 11 status „u Arka do wglądu” i link do Twojego repo; po zwykłej wysyłce link do zbioru i status „opublikowany” | każdy link w wierszu odpowiada 200 |
 
 ### Szczegóły kroków 2, 9-11
 
@@ -79,7 +79,7 @@ Każdy wgrywa na SWOIM koncie Hugging Face. Pliki widzi tylko właściciel i Are
 | 4 | README | jedno zdanie „Zbiór roboczy do recenzji, nie do użytku.”; opis zbioru w `data/<key>/OPIS.md`, za bramką |
 | 5 | wyślij Arkowi link | `https://huggingface.co/datasets/<login>/<key>-robocze` |
 
-Arek pobiera po `hf auth login`: `hf download <login>/<key>-robocze --repo-type dataset`. Kolejna osoba: `grant_access` z jej loginem; odebranie: `reject_access_request`. Krok 12 czeka do zwykłej wysyłki.
+Arek pobiera po `hf auth login`: `hf download <login>/<key>-robocze --repo-type dataset`. Kolejna osoba: `grant_access` z jej loginem; odebranie: `reject_access_request`. Potem krok 12 ze statusem „u Arka do wglądu”.
 
 ## 5. Pułapki
 

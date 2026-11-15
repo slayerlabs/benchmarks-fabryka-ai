@@ -10,7 +10,7 @@ Na czym trenowano każdą wersję Slayera 1B i jakie zbiory doszły później. W
 1.07–1.09 i tokeny wersji ze [Space][space] 2026-11-14. Licencje składników `slayer-pl-8x3b`:
 [`REJESTR_DATASETOW.md`](REJESTR_DATASETOW.md), sekcja 1.
 
-Nowy zbiór budujesz według [`METODOLOGIA.md`](METODOLOGIA.md) i zgłaszasz w [`SlayerLab/dataset-team-submissions`][subm].
+Nowy zbiór budujesz według [`METODOLOGIA.md`](METODOLOGIA.md). Chwilowo trafia do Twojego repo na Hugging Face do wglądu Arka (metodologia, sekcja 4), docelowo do [`SlayerLab/dataset-team-submissions`][subm].
 
 ## Tokeny wersji
 
@@ -50,12 +50,14 @@ Karta 1.09 nie podaje źródeł segmentów c07–c10 ani s01–s03.
 
 ## Dopisane później
 
-| data | zbiór | kto | zgłoszenie | status |
+Status: `w budowie` (rezerwacja na [tablicy Dataset team](https://github.com/orgs/slayerlabs/projects/11)) → `u Arka do wglądu` (repo autora na Hugging Face) → `opublikowany`.
+
+| data | zbiór | kto | rezerwacja | status |
 |---|---|---|---|---|
 | 2026-11-14 | [DCLM-baseline 1.0 EN][dclm] | LoIlita | [#197](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/197) | w budowie |
-| 2026-11-14 | [`SlayerLab/hutnictwo-gornictwo-spawalnictwo-preview`][hgs] | SlayerLab | bez zgłoszenia | opublikowany |
-| 2026-11-09 | [`SlayerLab/polish-dynaword-pretraining-mix`][pdpm] | SlayerLab | bez zgłoszenia | opublikowany |
-| 2026-11-08 | [`SlayerLab/technika-i-nauka`][tin] | SlayerLab | bez zgłoszenia | opublikowany |
+| 2026-11-14 | [`SlayerLab/hutnictwo-gornictwo-spawalnictwo-preview`][hgs] | SlayerLab | bez rezerwacji | opublikowany |
+| 2026-11-09 | [`SlayerLab/polish-dynaword-pretraining-mix`][pdpm] | SlayerLab | bez rezerwacji | opublikowany |
+| 2026-11-08 | [`SlayerLab/technika-i-nauka`][tin] | SlayerLab | bez rezerwacji | opublikowany |
 
 ## Wersje 1.00–1.06: wspólne
 
