@@ -41,7 +41,7 @@ Własnej metodologii nie piszesz. Pracujesz w swoim repo, w katalogu `dane/<zbi�
 
 | nr | krok | co robisz | gotowe, gdy |
 |---|---|---|---|
-| 1 | Rezerwacja | issue w [tym repo](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues) z celem (testy, tokeny v6), źródłem i osobą: `gh issue create -R slayerlabs/benchmarks-fabryka-ai`; wiersz „w budowie” w sekcji „Dopisane później” [`DANE_TRENINGOWE.md`](DANE_TRENINGOWE.md) | issue `open`, wiersz jest |
+| 1 | Rezerwacja | na tablicy [Dataset team](https://github.com/orgs/slayerlabs/projects/11) sprawdzasz, czy nikt nie ma już tego źródła, i dodajesz kartę („Add item”): nazwa zbioru, cel (testy, tokeny v6), źródło; ustawiasz siebie w Assignees i Status „In progress”; wiersz „w budowie” w sekcji „Dopisane później” [`DANE_TRENINGOWE.md`](DANE_TRENINGOWE.md) | karta na tablicy z Tobą, wiersz jest |
 | 2 | Karta źródła | `KARTA_ZRODLA.md` PRZED pobraniem: identyfikacja, prawa, zawartość, skala, ryzyka, nowość; każde twierdzenie V (sprawdzone: data, URL, hash) albo I (wywnioskowane); lista „nie sprawdzone” | 6 pól, obie bramki praw z wynikiem albo NIEROZSTRZYGNIĘTY |
 | 3 | Preregistracja | `skrypty/preregistracja.json` PRZED próbką: rewizja źródła, seed, tokenizer, kolejność powodów odrzucenia, progi, kontrole dodatnie, ręczna próbka | commit starszy niż pierwszy wynik; każda późniejsza zmiana jako aneks z datą i powodem |
 | 4 | Środowisko | venv w `robocze/venv`, wersje w `requirements.txt`: `odtworz.sh venv` | `pip freeze` = `requirements.txt` |
