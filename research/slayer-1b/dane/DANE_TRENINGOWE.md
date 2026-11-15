@@ -1,38 +1,48 @@
 # Dane treningowe Slayera 1B, wersje 1.00–1.09
 
-[![Space](https://img.shields.io/badge/HF_Space-SlayerLab%2FSlayer1B-ffcc00?logo=huggingface)][space]
-[![DATA_CARD 1.08](https://img.shields.io/badge/DATA__CARD-1.08-ffcc00?logo=huggingface)][dc108]
-[![DATA_CARD 1.09](https://img.shields.io/badge/DATA__CARD-1.09-ffcc00?logo=huggingface)][dc109]
-[![Rejestr](https://img.shields.io/badge/rejestr-licencje_i_kandydaci-181717?logo=github)](REJESTR_DATASETOW.md)
+<a href="https://huggingface.co/spaces/SlayerLab/Slayer1B/tree/3f2adb00d5db043a879ca7a0847c0220a5a42543"><img src="../../../docs/img/dane/space-slayer1b.svg" alt="Space Slayer1B" height="36"></a>
+<a href="https://huggingface.co/SlayerLab/Slayer1B-1.08/blob/ea0945b11153e67517b70d21192e6076d161f658/DATA_CARD.md"><img src="../../../docs/img/dane/karta-108.svg" alt="Karta danych 1.08" height="36"></a>
+<a href="https://huggingface.co/SlayerLab/Slayer1B-1.09/blob/b25aec4ef6fb0c13717c5e5e27a426c572df54c6/DATA_CARD.md"><img src="../../../docs/img/dane/karta-109.svg" alt="Karta danych 1.09" height="36"></a>
+<a href="REJESTR_DATASETOW.md"><img src="../../../docs/img/dane/rejestr.svg" alt="Rejestr zbiorów" height="36"></a>
+<a href="METODOLOGIA.md"><img src="../../../docs/img/dane/metodologia-zbioru.svg" alt="Metodologia zbioru" height="36"></a>
 
 Na czym trenowano każdą wersję Slayera 1B i jakie zbiory doszły później. Wersje 1.00–1.06 odczytano 2026-11-04,
 1.07–1.09 i tokeny wersji ze [Space][space] 2026-11-14. Licencje składników `slayer-pl-8x3b`:
 [`REJESTR_DATASETOW.md`](REJESTR_DATASETOW.md), sekcja 1.
 
-Nowe zbiory zgłasza się w [`SlayerLab/dataset-team-submissions`][subm].
+Nowy zbiór budujesz według [`METODOLOGIA.md`](METODOLOGIA.md) i zgłaszasz w [`SlayerLab/dataset-team-submissions`][subm].
 
 ## Tokeny wersji
 
 Tokeny tokenizera Slayera od kroku 1 do końca wersji, z wcześniejszymi wersjami ([`releases.json`][releases]).
 
-| wersja | 1.00 | 1.01 | 1.02 | 1.03 | 1.04 | 1.05 | 1.06 | 1.07 | 1.08 | 1.09 (krok 35 000) |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| tokeny | 1 499 463 680 | 2 998 927 360 | 5 997 854 720 | 7 497 318 400 | 10 496 245 760 | 13 495 173 120 | 14 520 680 448 | 23 411 556 352 | 25 203 572 736 | 61 903 732 736 |
+| wersja | tokeny |
+|---|---:|
+| 1.00 | 1 499 463 680 |
+| 1.01 | 2 998 927 360 |
+| 1.02 | 5 997 854 720 |
+| 1.03 | 7 497 318 400 |
+| 1.04 | 10 496 245 760 |
+| 1.05 | 13 495 173 120 |
+| 1.06 | 14 520 680 448 |
+| 1.07 | 23 411 556 352 |
+| 1.08 | 25 203 572 736 |
+| 1.09 (krok 35 000) | 61 903 732 736 |
 
 ## Wersje 1.07–1.09
 
 | wersja | start | zbiór | rewizja | licencja | tokeny | źródło |
 |---|---|---|---|---|---:|---|
-| 1.07 | 1.06, krok 13848 | [![HF](https://img.shields.io/badge/HF-slayer--1.07--pretrain-ffcc00?logo=huggingface)][d107]: `pl_web` (HPLT v3 PL, pliki nieużyte w 1.06), `pl_replay_A`, `pl_replay_B` (replay `core` i `legal` z 1.06), `en_mix`, `en_fineweb_edu` | `6a337bbf` | ODC-By (FineWeb-Edu, FineMath, open-web-math), CC BY (DCLM), CC0 kompilacji HPLT | 8 891 005 707 | [karta zbioru][d107], [DATA_CARD 1.08][dc108] |
-| 1.07 | | ↳ `en_mix`: FineWeb-Edu, FineMath, open-web-math, DCLM-baseline z [![HF](https://img.shields.io/badge/HF-minimal--en--corpus--5b-ffcc00?logo=huggingface)][min5b] | `bb3aec23` | jak wyżej | 1 650 618 814 | [karta zbioru][d107], [Space][space] |
+| 1.07 | 1.06, krok 13848 | [`SlayerLab/slayer-1.07-pretrain`][d107]: `pl_web` (HPLT v3 PL, pliki nieużyte w 1.06), `pl_replay_A`, `pl_replay_B` (replay `core` i `legal` z 1.06), `en_mix`, `en_fineweb_edu` | `6a337bbf` | ODC-By (FineWeb-Edu, FineMath, open-web-math), CC BY (DCLM), CC0 kompilacji HPLT | 8 891 005 707 | [karta zbioru][d107], [DATA_CARD 1.08][dc108] |
+| 1.07 | | ↳ `en_mix`: FineWeb-Edu, FineMath, open-web-math, DCLM-baseline z [`SlayerLab/minimal-en-corpus-5b`][min5b] | `bb3aec23` | jak wyżej | 1 650 618 814 | [karta zbioru][d107], [Space][space] |
 | 1.07 | | ↳ `en_fineweb_edu`: [FineWeb-Edu][fwe107] `sample/10BT` | `87f09149` | ODC-By | 2 235 660 025 | [karta zbioru][d107] |
-| 1.08 | 1.07 @ [`a090b54e`][m107rev], nowy optymalizator | [![HF](https://img.shields.io/badge/HF-slayer--pl--logika--2b-ffcc00?logo=huggingface)][logika] | `e24c8b71` | według źródła: ODC-By (FinePDFs), CC BY 4.0 (Dolci), licencje DOAB per książka | 1 911 918 958 z EOS | [DATA_CARD 1.08][dc108] |
-| 1.08 | | [![HF](https://img.shields.io/badge/HF-english--technical--1b-ffcc00?logo=huggingface)][entech] | `3b833d36` | per wiersz: MIT, Apache-2.0, BSD-3-Clause, CC0-1.0 | 899 001 323 (train) | [DATA_CARD 1.08][dc108] |
+| 1.08 | 1.07 @ [`a090b54e`][m107rev], nowy optymalizator | [`SlayerLab/slayer-pl-logika-2b`][logika] | `e24c8b71` | według źródła: ODC-By (FinePDFs), CC BY 4.0 (Dolci), licencje DOAB per książka | 1 911 918 958 z EOS | [DATA_CARD 1.08][dc108] |
+| 1.08 | | [`SlayerLab/english-technical-1b`][entech] | `3b833d36` | per wiersz: MIT, Apache-2.0, BSD-3-Clause, CC0-1.0 | 899 001 323 (train) | [DATA_CARD 1.08][dc108] |
 | 1.08 | | replay [`slayer-1.07-pretrain`][d107]: `pl_web` / `en_fineweb_edu` / `en_mix` | `6a337bbf` | jak 1.07 | 435 000 183 / 220 000 324 / 220 000 212 | [DATA_CARD 1.08][dc108] |
-| 1.09 | kontynuacja 1.08 | [![HF](https://img.shields.io/badge/HF-gollem--corpus--16b--pl-ffcc00?logo=huggingface)][gollem]: segmenty c01, c02, c06 (PL) | `17f9d37a` | CC0-1.0 opakowania HPLT, prawa tekstów osobno | 1 069 547 741 pozycji (c01) | [DATA_CARD 1.09][dc109] |
-| 1.09 | | [![HF](https://img.shields.io/badge/HF-finepdfs--edu-ffcc00?logo=huggingface)][fpe]: segmenty c03–c06 (PL) | `9cfabe21` | ODC-By | — | [DATA_CARD 1.09][dc109] |
-| 1.09 | | [![HF](https://img.shields.io/badge/HF-fineweb--edu-ffcc00?logo=huggingface)][fwe]: segmenty c01–c06 (EN) | brak w karcie | ODC-By | 4 278 190 159 pozycji (c01) | [DATA_CARD 1.09][dc109] |
-| 1.08b (eksperyment, niewydany) | 1.07, krok 22327 | [![HF](https://img.shields.io/badge/HF-slayer--1.08b--pretrain-ffcc00?logo=huggingface)][d108b]: OpenR1-Math-220k, OpenThoughts-114k, Bespoke-Stratos-17k, SYNTHETIC-1, self-oss-instruct, OpenCodeReasoning, ProofWriter i replay PL z 1.07 | `0b5a12b7` | dane niepublikowane | 782 469 318 na ramię | [karta zbioru][d108b] |
+| 1.09 | kontynuacja 1.08 | [`SlayerLab/gollem-corpus-16b-pl`][gollem]: segmenty c01, c02, c06 (PL) | `17f9d37a` | CC0-1.0 opakowania HPLT, prawa tekstów osobno | 1 069 547 741 pozycji (c01) | [DATA_CARD 1.09][dc109] |
+| 1.09 | | [`HuggingFaceFW/finepdfs-edu`][fpe]: segmenty c03–c06 (PL) | `9cfabe21` | ODC-By | — | [DATA_CARD 1.09][dc109] |
+| 1.09 | | [`HuggingFaceFW/fineweb-edu`][fwe]: segmenty c01–c06 (EN) | brak w karcie | ODC-By | 4 278 190 159 pozycji (c01) | [DATA_CARD 1.09][dc109] |
+| 1.08b (eksperyment, niewydany) | 1.07, krok 22327 | [`SlayerLab/slayer-1.08b-pretrain`][d108b]: OpenR1-Math-220k, OpenThoughts-114k, Bespoke-Stratos-17k, SYNTHETIC-1, self-oss-instruct, OpenCodeReasoning, ProofWriter i replay PL z 1.07 | `0b5a12b7` | dane niepublikowane | 782 469 318 na ramię | [karta zbioru][d108b] |
 
 Proporcje języków: 1.00–1.06 ok. 82% PL / 18% EN; 1.07 56,3% PL / 43,7% EN; nowe wejście 1.09 najpierw 20% PL / 80% EN, od 12.11.2026 cel 30% PL / 70% EN ([Space, sekcja Data][space]). <!-- liczba-spoza-wynikow: proporcje języków ze Space SlayerLab/Slayer1B -->
 
@@ -42,7 +52,7 @@ Karta 1.09 nie podaje źródeł segmentów c07–c10 ani s01–s03.
 
 | data | zbiór | kto | zgłoszenie | status |
 |---|---|---|---|---|
-| 2026-11-14 | [DCLM-baseline 1.0 EN][dclm] | LoIlita | [![#197](https://img.shields.io/badge/GitHub-%23197-181717?logo=github)](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/197) | w budowie |
+| 2026-11-14 | [DCLM-baseline 1.0 EN][dclm] | LoIlita | [#197](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/197) | w budowie |
 | 2026-11-14 | [`SlayerLab/hutnictwo-gornictwo-spawalnictwo-preview`][hgs] | SlayerLab | bez zgłoszenia | opublikowany |
 | 2026-11-09 | [`SlayerLab/polish-dynaword-pretraining-mix`][pdpm] | SlayerLab | bez zgłoszenia | opublikowany |
 | 2026-11-08 | [`SlayerLab/technika-i-nauka`][tin] | SlayerLab | bez zgłoszenia | opublikowany |
