@@ -8,7 +8,7 @@ Jeden przepis dla każdego zbioru, od rezerwacji do wiersza w [`DANE_TRENINGOWE.
 
 ## 0. Co zostawia każdy zbiór
 
-Własnej metodologii nie piszesz. Pracujesz w swoim repo, w katalogu `dane/<zbiór>/`, i zostawiasz tam te pliki:
+Pracujesz w swoim repo, w katalogu `dane/<zbiór>/`, i zostawiasz tam te pliki:
 
 | plik | co w nim | przykład |
 |---|---|---|
@@ -21,12 +21,12 @@ Własnej metodologii nie piszesz. Pracujesz w swoim repo, w katalogu `dane/<zbi�
 
 ## 1. Zasady stałe
 
-- Zbiór = katalog `dane/<zbiór>/`. Pliki robocze w `dane/<zbiór>/robocze/` (w `.gitignore`), nigdy w `/tmp`.
+- Zbiór = katalog `dane/<zbiór>/`. Pliki robocze w `dane/<zbiór>/robocze/` (w `.gitignore`).
 - Każdy krok to przypadek w `dane/<zbiór>/skrypty/odtworz.sh <krok>`, log w `robocze/logi/<krok>.log`. Wzór skryptu: [`dclm-en/skrypty/odtworz.sh`](https://github.com/LoIlita/slayer-lab/blob/dane/dclm-en/dane/dclm-en/skrypty/odtworz.sh).
 - Długi krok: `nohup nice -n 10 bash dane/<zbiór>/skrypty/odtworz.sh <krok> > robocze/logi/<krok>.log 2>&1 &`, przy obciążonej maszynie pod strażnikiem pamięci ([`dclm-en/skrypty/straznik.sh`](https://github.com/LoIlita/slayer-lab/blob/dane/dclm-en/dane/dclm-en/skrypty/straznik.sh)).
-- Nie edytujesz `odtworz.sh`, gdy krok go wykonuje.
+- `odtworz.sh` zmieniasz tylko wtedy, gdy żaden krok go nie wykonuje.
 - Wynik = kod wyjścia i liczby kontrolne. BLOCKED i NOT RUN to nie PASS i blokują publikację.
-- Wadliwy dokument wyrzucasz w całości, nie łatasz.
+- Wadliwy dokument wyrzucasz w całości.
 - Tokeny w wynikach liczysz tokenizerem v6 (słownik 32 768). Wyjątek: `token_count` w eksporcie to cl100k, bo tego wymaga `check.py`.
 - Po każdym dniu pracy commit wszystkiego z `dane/<zbiór>/` poza `robocze/`.
 
@@ -87,5 +87,5 @@ Arek pobiera po `hf auth login`: `hf download <login>/<key>-robocze --repo-type 
 - Próg dobrany po zobaczeniu wyniku bez aneksu.
 - Uzysk przeniesiony z innej porcji danych: mierzysz od nowa.
 - Plik ręcznej próbki zawiera PII odrzuconych: zostaje w `robocze/`.
-- Kilka ciężkich kroków naraz: Mac 51 GB padł przy 6 procesach.
+- Kilka ciężkich kroków naraz: uruchamiasz je po kolei.
 - Status praw skopiowany z innego źródła.
