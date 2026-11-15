@@ -4,12 +4,13 @@
 <a href="https://huggingface.co/SlayerLab/Slayer1B-1.08/blob/ea0945b11153e67517b70d21192e6076d161f658/DATA_CARD.md"><img src="../../../docs/img/dane/karta-108.svg" alt="Karta danych 1.08" height="36"></a>
 <a href="https://huggingface.co/SlayerLab/Slayer1B-1.09/blob/b25aec4ef6fb0c13717c5e5e27a426c572df54c6/DATA_CARD.md"><img src="../../../docs/img/dane/karta-109.svg" alt="Karta danych 1.09" height="36"></a>
 <a href="REJESTR_DATASETOW.md"><img src="../../../docs/img/dane/rejestr.svg" alt="Rejestr zbiorów" height="36"></a>
+<a href="METODOLOGIA.md"><img src="../../../docs/img/dane/metodologia-zbioru.svg" alt="Metodologia zbioru" height="36"></a>
 
 Na czym trenowano każdą wersję Slayera 1B i jakie zbiory doszły później. Wersje 1.00–1.06 odczytano 2026-11-04,
 1.07–1.09 i tokeny wersji ze [Space][space] 2026-11-14. Licencje składników `slayer-pl-8x3b`:
 [`REJESTR_DATASETOW.md`](REJESTR_DATASETOW.md), sekcja 1.
 
-Nowe zbiory zgłasza się w [`SlayerLab/dataset-team-submissions`][subm].
+Nowy zbiór budujesz według [`METODOLOGIA.md`](METODOLOGIA.md) i zgłaszasz w [`SlayerLab/dataset-team-submissions`][subm].
 
 ## Tokeny wersji
 
