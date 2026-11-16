@@ -4,19 +4,20 @@ The ZADANIA entry against the card, the prompt `{premise}\nQuestion: {hypothesis
 with continuations in the order ` True`, ` Neither`, ` False` (not the order of the prompt; gold = `label`, 0 =
 entailment = True, 1 = neutral = Neither, 2 = contradiction = False), the decision metric `acc` (not `acc_norm`) on a
 stand-in model, and the clusters: questions sharing one `premise` form one cluster (`+klastry`, SE K).
-Data: three invented pairs, two on one premise. Run: python tests/test_anli_r3.py (or pytest).
+Data: three invented pairs, two on one premise. Without lm-eval (CI job `light`) only the checks that do not run it.
+Run: python tests/test_anli_r3.py (or pytest).
 """
 import sys
 from pathlib import Path
 
 import pytest
 
-TESTY = Path(__file__).resolve().parent
-sys.path.insert(0, str(TESTY))
-import test_przebieg_c as C  # noqa: E402  (sets HF_*_OFFLINE, imports common/)
-import test_zgodnosc_karty as ZK  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import wpis_benchmarku as W  # noqa: E402  (ZADANIA without lm-eval in the CI job `light`)
+import ewaluuj as E  # noqa: E402  (common/ is on sys.path after wpis_benchmarku)
 
-Z, E = C.Z, C.E
+Z, ZK = W.Z, W.ZK
+LM_EVAL = pytest.mark.skipif(not W.MA_LM_EVAL, reason="runs lm-eval: .venv-eval only")
 P1, P2 = "Mia grew up in Lyon and moved to Rome.", "Kai owns two dogs."
 DANE = [{"uid": "a", "premise": P1, "hypothesis": "Mia speaks Italian.", "label": 1, "reason": ""},
         {"uid": "b", "premise": P1, "hypothesis": "Mia never lived in France.", "label": 2, "reason": ""},
@@ -24,12 +25,12 @@ DANE = [{"uid": "a", "premise": P1, "hypothesis": "Mia speaks Italian.", "label"
 
 
 def test_entry_matches_the_card():
-    """Values copied from the card; each must be in ZADANIA and in the card text (catches a change on one side)."""
-    meta, karta = Z.ZADANIA["T16"], ZK.karta("T16").read_text(encoding="utf-8")
+    """Values copied from the card; each must be in ZADANIA, the card, RECIPE.md and the README row."""
     oczekiwane = {"repo": "facebook/anli", "rewizja": "8e4813d81f46d313dac7892e1c28076917cfcdf9",
                   "nazwa_hf": "plain_text", "split": "test_r3", "metric": "acc,none", "task": "anli_r3",
                   "rodzaj": "mc", "klastry": "premise", "pole_id": "uid"}
-    assert {k: meta[k] for k in oczekiwane} == oczekiwane and ZK.shoty(meta) == 0 and meta["klasy_stale"]
+    meta, karta = W.sprawdz_wpis("T16", oczekiwane, shoty=0, typ="mc +klastry")
+    assert meta["klasy_stale"]
     for k in ("repo", "rewizja"):
         assert oczekiwane[k] in karta, k
     assert "`plain_text`, split `test_r3`, 0-shot, metryka `acc`, zadanie lm-eval `anli_r3`" in karta
@@ -37,7 +38,6 @@ def test_entry_matches_the_card():
     assert '`doc_to_text: "{{premise}}\\nQuestion: {{hypothesis}} True, False, or Neither?\\nAnswer:"`' in karta
     assert '`doc_to_choice: ["True", "Neither", "False"]`' in karta
     assert "`doc_to_target: \"{{['True', 'Neither', 'False'][label]}}\"`" in karta
-    assert ZK.rozbieznosci(meta, karta) == {}
     assert ZK.KATALOGI["T16"] == "anli-r3"
 
 
@@ -65,7 +65,9 @@ def ll(ctx, kont):
     return next(v for k, v in LL.items() if hipoteza.startswith(k))[kont]
 
 
+@LM_EVAL
 def test_prompt_choice_order_and_decision_metric_acc(tmp_path, monkeypatch):
+    import test_przebieg_c as C  # imports lm-eval, so only under LM_EVAL
     roz, zadania = C.ocen_loglik("T16", {"anli_r3": DANE}, ll, tmp_path, monkeypatch)
     for d in DANE:
         kontekst = f"{d['premise']}\nQuestion: {d['hypothesis']} True, False, or Neither?\nAnswer:"

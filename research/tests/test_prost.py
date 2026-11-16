@@ -3,6 +3,7 @@
 The ZADANIA entry against the card (dataset revision and the parquet revision), the lm-eval `prost` prompt
 `{context}\nQuestion: {ex_question}\nAnswer:` with continuations = space + the text of fields A, B, C, D (gold =
 `label`), and the decision metric `acc_norm` (not `acc`) on a stand-in model. Data: two invented questions.
+Without lm-eval (CI job `light`) only the checks that do not run it.
 Run: python tests/test_prost.py (or pytest).
 """
 import sys
@@ -10,12 +11,12 @@ from pathlib import Path
 
 import pytest
 
-TESTY = Path(__file__).resolve().parent
-sys.path.insert(0, str(TESTY))
-import test_przebieg_c as C  # noqa: E402  (sets HF_*_OFFLINE, imports common/)
-import test_zgodnosc_karty as ZK  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import wpis_benchmarku as W  # noqa: E402  (ZADANIA without lm-eval in the CI job `light`)
+import ewaluuj as E  # noqa: E402  (common/ is on sys.path after wpis_benchmarku)
 
-Z = C.Z
+Z, ZK = W.Z, W.ZK
+LM_EVAL = pytest.mark.skipif(not W.MA_LM_EVAL, reason="runs lm-eval: .venv-eval only")
 OPCJE = {"A": "ball", "B": "brick", "C": "box", "D": "toaster"}
 DANE = [{"context": "A ball, a brick, a box and a toaster sit on a table.", "ex_question": "Which is the heaviest?",
          "question": "The [MASK] is the heaviest.", **OPCJE, "label": 3, "name": "mass", "group": "g"},
@@ -24,12 +25,11 @@ DANE = [{"context": "A ball, a brick, a box and a toaster sit on a table.", "ex_
 
 
 def test_entry_matches_the_card():
-    """Values copied from the card; each must be in ZADANIA and in the card text (catches a change on one side)."""
-    meta, karta = Z.ZADANIA["T20"], ZK.karta("T20").read_text(encoding="utf-8")
+    """Values copied from the card; each must be in ZADANIA, the card, RECIPE.md and the README row."""
     oczekiwane = {"repo": "corypaik/prost", "rewizja": "b3efebf08969fc19335ba894353316878b6fa493",
                   "rewizja_parquet": "0e475b574d98e7d79de2064252dd2fb75bcaa0a8", "nazwa_hf": "default",
                   "split": "test", "metric": "acc_norm,none", "klucz": "acc_norm", "task": "prost", "rodzaj": "mc"}
-    assert {k: meta[k] for k in oczekiwane} == oczekiwane and ZK.shoty(meta) == 0
+    meta, karta = W.sprawdz_wpis("T20", oczekiwane, shoty=0, typ="mc")
     assert meta["klasy_stale"] and "klastry" not in meta
     for k in ("repo", "rewizja", "rewizja_parquet"):
         assert oczekiwane[k] in karta, k
@@ -37,7 +37,6 @@ def test_entry_matches_the_card():
     assert "| Metryka decyzyjna | `acc_norm`, 0-shot" in karta
     assert '`doc_to_text: "{{context}}\\nQuestion: {{ex_question}}\\nAnswer:"`' in karta
     assert '`doc_to_choice: "{{[A, B, C, D]}}"`' in karta and "`doc_to_target: label`" in karta
-    assert ZK.rozbieznosci(meta, karta) == {}
     assert ZK.KATALOGI["T20"] == "prost"
 
 
@@ -55,7 +54,9 @@ LL = {"A ba": {" ball": -6.0, " brick": -7.0, " box": -9.0, " toaster": -8.0},
       "Four": {" ball": -1.0, " brick": -5.0, " box": -5.0, " toaster": -5.0}}
 
 
+@LM_EVAL
 def test_prompt_choices_and_decision_metric_acc_norm(tmp_path, monkeypatch):
+    import test_przebieg_c as C  # imports lm-eval, so only under LM_EVAL
     roz, zadania = C.ocen_loglik("T20", {"prost": DANE}, lambda ctx, kont: 0.0 if ctx == "" else LL[ctx[:4]][kont],
                                  tmp_path, monkeypatch)
     for d in DANE:

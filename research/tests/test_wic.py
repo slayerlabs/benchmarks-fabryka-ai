@@ -3,19 +3,20 @@
 The ZADANIA entry against the card, the prompt `Sentence 1: ...\nSentence 2: ...\nQuestion: Is the word '{word}' used
 in the same way in the two sentences above?\nAnswer:` where the word is the slice `sentence1[start1:end1]` (not the
 `word` field, which is the lemma), continuations ` no`, ` yes` (gold = `label`, 1 = yes), and the decision metric
-`acc` (not `acc_norm`) on a stand-in model. Data: two invented pairs. Run: python tests/test_wic.py (or pytest).
+`acc` (not `acc_norm`) on a stand-in model. Data: two invented pairs.
+Without lm-eval (CI job `light`) only the checks that do not run it. Run: python tests/test_wic.py (or pytest).
 """
 import sys
 from pathlib import Path
 
 import pytest
 
-TESTY = Path(__file__).resolve().parent
-sys.path.insert(0, str(TESTY))
-import test_przebieg_c as C  # noqa: E402  (sets HF_*_OFFLINE, imports common/)
-import test_zgodnosc_karty as ZK  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import wpis_benchmarku as W  # noqa: E402  (ZADANIA without lm-eval in the CI job `light`)
+import ewaluuj as E  # noqa: E402  (common/ is on sys.path after wpis_benchmarku)
 
-Z = C.Z
+Z, ZK = W.Z, W.ZK
+LM_EVAL = pytest.mark.skipif(not W.MA_LM_EVAL, reason="runs lm-eval: .venv-eval only")
 # "He sat on the " = 14 characters, "She " = 4: the slices are "bank" and "plays"; `word` holds the lemma
 DANE = [{"idx": 0, "word": "bank", "sentence1": "He sat on the bank of the river.", "start1": 14, "end1": 18,
          "sentence2": "The river bank was muddy.", "start2": 10, "end2": 14, "label": 1},
@@ -29,12 +30,11 @@ def prompt(d, slowo):
 
 
 def test_entry_matches_the_card():
-    """Values copied from the card; each must be in ZADANIA and in the card text (catches a change on one side)."""
-    meta, karta = Z.ZADANIA["T13"], ZK.karta("T13").read_text(encoding="utf-8")
+    """Values copied from the card; each must be in ZADANIA, the card, RECIPE.md and the README row."""
     oczekiwane = {"repo": "aps/super_glue", "rewizja": "3de24cf8022e94f4ee4b9d55a6f539891524d646",
                   "nazwa_hf": "wic", "split": "validation", "metric": "acc,none", "task": "wic", "rodzaj": "mc",
                   "pole_id": "idx"}
-    assert {k: meta[k] for k in oczekiwane} == oczekiwane and ZK.shoty(meta) == 0
+    meta, karta = W.sprawdz_wpis("T13", oczekiwane, shoty=0, typ="mc")
     assert meta["klasy_stale"] and "klastry" not in meta
     for k in ("repo", "rewizja"):
         assert oczekiwane[k] in karta, k
@@ -43,7 +43,6 @@ def test_entry_matches_the_card():
     assert ("`doc_to_text: \"Sentence 1: {{sentence1}}\\nSentence 2: {{sentence2}}\\nQuestion: Is the word "
             "'{{sentence1[start1:end1]}}' used in the same way in the two sentences above?\\nAnswer:\"`") in karta
     assert "`doc_to_choice: ['no', 'yes']`" in karta and "`doc_to_target: label`" in karta
-    assert ZK.rozbieznosci(meta, karta) == {}
     assert ZK.KATALOGI["T13"] == "wic"
 
 
@@ -61,7 +60,9 @@ def test_config_is_the_card_template():
 LL = {"bank": {" no": -3.0, " yes": -3.6}, "plays": {" no": -1.0, " yes": -4.0}}
 
 
+@LM_EVAL
 def test_prompt_word_slice_and_decision_metric_acc(tmp_path, monkeypatch):
+    import test_przebieg_c as C  # imports lm-eval, so only under LM_EVAL
     def ll(ctx, kont):
         return 0.0 if ctx == "" else LL["bank" if "'bank'" in ctx else "plays"][kont]
 

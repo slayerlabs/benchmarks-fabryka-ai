@@ -3,31 +3,31 @@
 The ZADANIA entry against the card (GLUE `sst2`, split `validation`: the `test` labels are -1), the prompt
 `{sentence}\nQuestion: Is this sentence positive or negative?\nAnswer:` with continuations ` negative`, ` positive`
 (gold = `label`, 1 = positive), and the decision metric `acc` on a stand-in model that always answers positive.
-Data: three invented sentences. Run: python tests/test_sst2.py (or pytest).
+Data: three invented sentences. Without lm-eval (CI job `light`) only the checks that do not run it.
+Run: python tests/test_sst2.py (or pytest).
 """
 import sys
 from pathlib import Path
 
 import pytest
 
-TESTY = Path(__file__).resolve().parent
-sys.path.insert(0, str(TESTY))
-import test_przebieg_c as C  # noqa: E402  (sets HF_*_OFFLINE, imports common/)
-import test_zgodnosc_karty as ZK  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import wpis_benchmarku as W  # noqa: E402  (ZADANIA without lm-eval in the CI job `light`)
+import ewaluuj as E  # noqa: E402  (common/ is on sys.path after wpis_benchmarku)
 
-Z = C.Z
+Z, ZK = W.Z, W.ZK
+LM_EVAL = pytest.mark.skipif(not W.MA_LM_EVAL, reason="runs lm-eval: .venv-eval only")
 DANE = [{"idx": 0, "sentence": "a warm , funny film", "label": 1},
         {"idx": 1, "sentence": "dull and far too long", "label": 0},
         {"idx": 2, "sentence": "the plot never takes off", "label": 0}]
 
 
 def test_entry_matches_the_card():
-    """Values copied from the card; each must be in ZADANIA and in the card text (catches a change on one side)."""
-    meta, karta = Z.ZADANIA["T21"], ZK.karta("T21").read_text(encoding="utf-8")
+    """Values copied from the card; each must be in ZADANIA, the card, RECIPE.md and the README row."""
     oczekiwane = {"repo": "nyu-mll/glue", "rewizja": "bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c",
                   "nazwa_hf": "sst2", "split": "validation", "metric": "acc,none", "task": "sst2", "rodzaj": "mc",
                   "pole_id": "idx"}
-    assert {k: meta[k] for k in oczekiwane} == oczekiwane and ZK.shoty(meta) == 0
+    meta, karta = W.sprawdz_wpis("T21", oczekiwane, shoty=0, typ="mc")
     assert meta["klasy_stale"] and "klastry" not in meta
     for k in ("repo", "rewizja"):
         assert oczekiwane[k] in karta, k
@@ -35,7 +35,6 @@ def test_entry_matches_the_card():
     assert "| Metryka decyzyjna | `acc` (pole `metric`" in karta and "wpis `T21` w `common/zadania.py`: `acc,none`" in karta
     assert "`doc_to_text` = `{{sentence}}\\nQuestion: Is this sentence positive or negative?\\nAnswer:`" in karta
     assert '`doc_to_choice` = `["negative", "positive"]`' in karta and "`doc_to_target` = `label`" in karta
-    assert ZK.rozbieznosci(meta, karta) == {}
     assert ZK.KATALOGI["T21"] == "sst2"
 
 
@@ -48,7 +47,9 @@ def test_config_is_the_card_template():
 
 
 # the model answers positive everywhere; golds 1, 0, 0 -> acc 1/3 (= acc_norm: both options 9 characters)
+@LM_EVAL
 def test_prompt_choices_and_decision_metric_acc(tmp_path, monkeypatch):
+    import test_przebieg_c as C  # imports lm-eval, so only under LM_EVAL
     roz, zadania = C.ocen_loglik("T21", {"sst2": DANE}, lambda ctx, kont: -1.0 if kont == " positive" else -2.0,
                                  tmp_path, monkeypatch)
     for d in DANE:

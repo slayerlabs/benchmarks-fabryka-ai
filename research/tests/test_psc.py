@@ -4,18 +4,20 @@ The ZADANIA entry against the card, the 5-shot prompt of the copied OpenPL YAML 
 then the question; continuations ` Nie`, ` Tak`, gold = `label|int`, 1 = Tak), the decision metric: corpus binary F1
 with positive class Tak, not `acc`, and the clusters: pairs with one `extract_text` form one cluster (SE from the
 bootstrap over clusters). Data: invented texts; demonstrations go in as the YAML's train split
-(test_polemo2.ocen_5shot). Run: python tests/test_psc.py (or pytest).
+(test_polemo2.ocen_5shot). Without lm-eval (CI job `light`) only the checks that do not run it.
+Run: python tests/test_psc.py (or pytest).
 """
 import sys
 from pathlib import Path
 
 import pytest
 
-TESTY = Path(__file__).resolve().parent
-sys.path.insert(0, str(TESTY))
-import test_polemo2 as P  # noqa: E402  (ocen_5shot, prompt_5shot; sets HF_*_OFFLINE)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import wpis_benchmarku as W  # noqa: E402  (ZADANIA without lm-eval in the CI job `light`)
+import ewaluuj as E  # noqa: E402  (common/ is on sys.path after wpis_benchmarku)
 
-Z, ZK, E = P.Z, P.ZK, P.C.E
+Z, ZK = W.Z, W.ZK
+LM_EVAL = pytest.mark.skipif(not W.MA_LM_EVAL, reason="runs lm-eval: .venv-eval only")
 WYBORY = ["Nie", "Tak"]
 T1, T2 = "Sejm przyjął ustawę o szkołach.", "W Gdańsku otwarto nowy most."
 DANE = [{"extract_text": T1, "summary_text": "Posłowie przegłosowali ustawę.", "label": 1},
@@ -32,19 +34,18 @@ def szablon(d):
 
 
 def test_entry_matches_the_card():
-    """Values copied from the card; each must be in ZADANIA and in the card text (catches a change on one side)."""
-    meta, karta = Z.ZADANIA["T27"], ZK.karta("T27").read_text(encoding="utf-8")
+    """Values copied from the card; each must be in ZADANIA, the card, RECIPE.md and the README row."""
     oczekiwane = {"repo": "allegro/klej-psc", "rewizja": "9585582aef37e7747ef174b0ec3b74855da8bad2",
                   "split": "test", "metric": "f1,none", "klucz": "f1", "task": "polish_psc_multiple_choice",
                   "klastry": "extract_text", "yaml": "psc/lm_eval_tasks/polish_psc/psc_mc.yaml"}
-    assert {k: meta[k] for k in oczekiwane} == oczekiwane and ZK.shoty(meta) == 5 and meta["klasy_stale"]
+    meta, karta = W.sprawdz_wpis("T27", oczekiwane, shoty=5, typ="f1-korpus +klastry +pl")
+    assert meta["klasy_stale"]
     for k in ("repo", "rewizja"):
         assert oczekiwane[k] in karta, k
     assert "psc_mc.yaml" in karta and '| Metryka decyzyjna | `f1` (korpusowe, binarne, klasa pozytywna "Tak" = 1)' in karta
     assert "split: `test`; n: 1078" in karta and "5-shot" in karta and "klastrach `extract_text`" in karta
     assert '`doc_to_choice: ["Nie", "Tak"]`' in karta and '`doc_to_target: "{{label|int}}"`' in karta
     assert '`Tekst: "{{extract_text}}"\\nPodsumowanie: "{{summary_text}}"\\n' in karta
-    assert ZK.rozbieznosci(meta, karta) == {}
     assert ZK.KATALOGI["T27"] == "psc"
 
 
@@ -53,7 +54,9 @@ def test_entry_matches_the_card():
 PRED = {"Posłowie": "Tak", "Most": "Tak", "Otwarto": "Nie", "Sejm": "Nie"}
 
 
+@LM_EVAL
 def test_five_shot_prompt_and_decision_metric_f1(tmp_path, monkeypatch):
+    import test_polemo2 as P  # imports lm-eval, so only under LM_EVAL
     def ll(pytanie, kont):
         return -1.0 if kont.strip() == PRED[pytanie.split('"')[3].split()[0]] else -2.0
 

@@ -4,6 +4,7 @@ The ZADANIA entry against the card, the prompt of lm-eval `paws_en` @ 6d2abda4: 
 continuations ` {sentence1}, right? No, {sentence2}` and ` {sentence1}, right? Yes, {sentence2}` (gold = `label`,
 1 = Yes = paraphrase), the decision metric `acc` (not `acc_norm`) on a stand-in model, and the clusters: rows that
 share a sentence form one cluster (rule `zdania_paws`). Data: three invented pairs.
+Without lm-eval (CI job `light`) only the checks that do not run it.
 Run: python tests/test_paws_en.py (or pytest).
 """
 import sys
@@ -11,12 +12,12 @@ from pathlib import Path
 
 import pytest
 
-TESTY = Path(__file__).resolve().parent
-sys.path.insert(0, str(TESTY))
-import test_przebieg_c as C  # noqa: E402  (sets HF_*_OFFLINE, imports common/)
-import test_zgodnosc_karty as ZK  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import wpis_benchmarku as W  # noqa: E402  (ZADANIA without lm-eval in the CI job `light`)
+import ewaluuj as E  # noqa: E402  (common/ is on sys.path after wpis_benchmarku)
 
-Z, E = C.Z, C.E
+Z, ZK = W.Z, W.ZK
+LM_EVAL = pytest.mark.skipif(not W.MA_LM_EVAL, reason="runs lm-eval: .venv-eval only")
 DANE = [{"id": 1, "sentence1": "Ola met Ben in Kraków.", "sentence2": "Ben met Ola in Kraków.", "label": 1},
         {"id": 2, "sentence1": "Ola met Ben in Kraków.", "sentence2": "In Kraków Ola met Ben.", "label": 0},
         {"id": 3, "sentence1": "The bus left early.", "sentence2": "The early bus left.", "label": 0}]
@@ -27,12 +28,12 @@ def opcje(d):
 
 
 def test_entry_matches_the_card():
-    """Values copied from the card; each must be in ZADANIA and in the card text (catches a change on one side)."""
-    meta, karta = Z.ZADANIA["T48"], ZK.karta("T48").read_text(encoding="utf-8")
+    """Values copied from the card; each must be in ZADANIA, the card, RECIPE.md and the README row."""
     oczekiwane = {"repo": "google-research-datasets/paws-x", "rewizja": "4cd8187c404bda33cb1f62b49b001115862acf37",
                   "nazwa_hf": "en", "split": "test", "metric": "acc,none", "task": "paws_en", "rodzaj": "mc",
                   "pole_id": "id", "klastry": "zdania_paws"}
-    assert {k: meta[k] for k in oczekiwane} == oczekiwane and ZK.shoty(meta) == 0 and meta["klasy_stale"]
+    meta, karta = W.sprawdz_wpis("T48", oczekiwane, shoty=0, typ="mc +klastry")
+    assert meta["klasy_stale"]
     for k in ("repo", "rewizja"):
         assert oczekiwane[k] in karta, k
     assert "konfiguracja `en`, split `test`, 0-shot, metryka `acc`, zadanie lm-eval `paws_en`" in karta
@@ -40,7 +41,6 @@ def test_entry_matches_the_card():
     assert "`doc_to_text: ''`" in karta and "`doc_to_target: label`" in karta
     assert ("`doc_to_choice: '{{[sentence1+\", right? No, \"+sentence2, sentence1+\", right? Yes, \"+sentence2]}}'`"
             in karta)
-    assert ZK.rozbieznosci(meta, karta) == {}
     assert ZK.KATALOGI["T48"] == "paws-en"
 
 
@@ -62,7 +62,9 @@ def ll(ctx, kont):
     return -1.0 if ", right? No, " in kont else -5.0
 
 
+@LM_EVAL
 def test_empty_context_sentence_options_and_decision_metric_acc(tmp_path, monkeypatch):
+    import test_przebieg_c as C  # imports lm-eval, so only under LM_EVAL
     assert [len(o) for o in opcje(DANE[0])] == [58, 59]
     roz, zadania = C.ocen_loglik("T48", {"paws_en": DANE}, ll, tmp_path, monkeypatch)
     assert {c for c, _ in zadania} == {""}

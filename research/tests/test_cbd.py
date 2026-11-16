@@ -4,6 +4,7 @@ The ZADANIA entry against the card, the 5-shot prompt of the copied OpenPL YAML 
 then the question; 6 continuations = space + category, gold = the YAML's map of `CATEGORIES`, an empty or unknown
 category = 0 = nieszkodliwa), and the decision metric: corpus macro F1 (`utils.agg_f1_macro`), not `acc`.
 Data: invented entries; demonstrations go in as the YAML's train split (test_polemo2.ocen_5shot).
+Without lm-eval (CI job `light`) only the checks that do not run it.
 Run: python tests/test_cbd.py (or pytest).
 """
 import sys
@@ -11,11 +12,12 @@ from pathlib import Path
 
 import pytest
 
-TESTY = Path(__file__).resolve().parent
-sys.path.insert(0, str(TESTY))
-import test_polemo2 as P  # noqa: E402  (ocen_5shot, prompt_5shot; sets HF_*_OFFLINE)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import wpis_benchmarku as W  # noqa: E402  (ZADANIA without lm-eval in the CI job `light`)
+import ewaluuj as E  # noqa: E402  (common/ is on sys.path after wpis_benchmarku)
 
-Z, ZK = P.Z, P.ZK
+Z, ZK = W.Z, W.ZK
+LM_EVAL = pytest.mark.skipif(not W.MA_LM_EVAL, reason="runs lm-eval: .venv-eval only")
 WYBORY = ["nieszkodliwa", "szyderstwo", "obelga", "insynuacja", "groźba", "molestowanie"]
 MAPA = {"szyderstwo": 1, "obelga": 2, "insynuacja": 3, "grozba": 4, "molestowanie": 5}  # cbd_mc.yaml doc_to_target
 DANE = [{"TEXT": "Miłego dnia wszystkim", "CATEGORIES": ""},
@@ -31,12 +33,11 @@ def szablon(d):
 
 
 def test_entry_matches_the_card():
-    """Values copied from the card; each must be in ZADANIA and in the card text (catches a change on one side)."""
-    meta, karta = Z.ZADANIA["T28"], ZK.karta("T28").read_text(encoding="utf-8")
+    """Values copied from the card; each must be in ZADANIA, the card, RECIPE.md and the README row."""
     oczekiwane = {"repo": "ptaszynski/PolishCyberbullyingDataset", "rewizja": "be3b1236598a02eff6db05ea7ac386afaabc33e8",
                   "split": "test", "metric": "f1,none", "klucz": "f1", "task": "polish_cbd_multiple_choice",
                   "yaml": "cbd/lm_eval_tasks/polish_cbd/cbd_mc.yaml"}
-    assert {k: meta[k] for k in oczekiwane} == oczekiwane and ZK.shoty(meta) == 5
+    meta, karta = W.sprawdz_wpis("T28", oczekiwane, shoty=5, typ="f1-korpus +pl")
     assert meta["klasy_stale"] and "klastry" not in meta
     for k in ("repo", "rewizja"):
         assert oczekiwane[k] in karta, k
@@ -45,7 +46,6 @@ def test_entry_matches_the_card():
     assert '`["nieszkodliwa", "szyderstwo", "obelga", "insynuacja", "groźba", "molestowanie"]`' in karta
     assert "`{{{'szyderstwo': 1, 'obelga': 2, 'insynuacja': 3, 'grozba': 4, 'molestowanie': 5}.get(CATEGORIES, 0)}}`" in karta
     assert '`Wypowiedź: "{{TEXT}}"\\nDo podanej wypowiedzi przyporządkuj' in karta
-    assert ZK.rozbieznosci(meta, karta) == {}
     assert ZK.KATALOGI["T28"] == "cbd"
 
 
@@ -56,7 +56,9 @@ def test_entry_matches_the_card():
 PRED = {"Miłego": "nieszkodliwa", "Dzięki": "szyderstwo", "Ale": "szyderstwo", "Ty": "nieszkodliwa"}
 
 
+@LM_EVAL
 def test_five_shot_prompt_and_decision_metric_macro_f1(tmp_path, monkeypatch):
+    import test_polemo2 as P  # imports lm-eval, so only under LM_EVAL
     def ll(pytanie, kont):
         return -1.0 if kont.strip() == PRED[pytanie.split('"')[1].split()[0]] else -20.0
 
