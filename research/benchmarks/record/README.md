@@ -4,7 +4,7 @@
 > [słowniczek](../../METODOLOGIA.md#słowniczek).
 
 ReCoRD sprawdza uzupełnienie encji w zdaniu o artykule prasowym. Zadanie lm-eval: `record`, split `validation`, demonstracje: 0.
-Metryka decyzyjna: `f1` per pytanie (max po złotych odpowiedziach). Typ `ciagla` ([README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy)).
+Metryka decyzyjna: `f1` per pytanie (max po złotych odpowiedziach). Typ `ciagla +klastry`, klastry `passage` ([README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy)).
 
 Stan: podpięty do przebiegu centralnego (wpis `T50` w `common/zadania.py` i `KATALOGI`), wyników jeszcze nie ma.
 Kartę oryginału i odtworzenie (`ORIGINAL.md`, `REPRODUCTION.md`) dopisuje osobne zadanie.
