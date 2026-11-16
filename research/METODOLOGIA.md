@@ -442,7 +442,10 @@ obu wersji, i jaką rewizję zbioru zadanie ładuje. *Recenzent:* porównuje has
 benchmarku, a wpis w `ZADANIA` musi się z nią zgadzać (`tests/test_zgodnosc_karty.py`). Wspólne dla wszystkich
 zadań reguły `common/ewaluuj.py`:
 
-- **Wejście.** Każde żądanie ma dokładnie jeden wiodący token BOS. Prompt z BOS plus budżet odpowiedzi (generacja:
+- **Wejście.** Każde żądanie ma dokładnie jeden wiodący token BOS tokenizera modelu, także gdy tokenizer sam go nie
+  dokleja (`common/jeden_bos.py`, Slayer: `common/slayer_lm.py`). Model, którego tokenizer nie ma `bos_token`
+  (Qwen3.5), dostaje żądania bez BOS, a pusty kontekst zaczyna się wtedy od EOS, jak w HFLM. Ile wiodących BOS dostało
+  żądanie, zapisuje pole `bos` w `results_rozszerzone.json`. Testy z własnym kodem (EWoK) mają regułę z karty. Prompt z BOS plus budżet odpowiedzi (generacja:
   `max_gen_toks` z YAML-a, domyślnie 256 tokenów; MC: BOS, kontekst i najdłuższa kontynuacja liczone jako jeden tekst, tak jak w HFLM) mieści się w oknie modelu,
   najwyżej 4096 tokenów. Za długi prompt traci demonstracje od końca, a wynik zadania zapisuje w polu
   `demonstracje_skrocone`, ile pytań dostało mniej demonstracji. Pytań, opcji i odniesień nie przycinamy, więc prompt
