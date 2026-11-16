@@ -1,4 +1,5 @@
 """Testy runnera bez GPU i bez sieci: python -m pytest -q test_ewaluacja.py"""
+import ast
 import json
 import shutil
 import types
@@ -9,12 +10,19 @@ import pytest
 import ewaluacja as E
 
 
+def klucze_zadan():
+    """Keys of ZADANIA in common/zadania.py (ast, no lm-eval import): the tasks KATALOGI must cover, in order."""
+    drzewo = ast.parse((E.FABRYKA / "common" / "zadania.py").read_text(encoding="utf-8"))
+    w = next(w for w in drzewo.body if isinstance(w, ast.Assign) and any(getattr(t, "id", None) == "ZADANIA" for t in w.targets))
+    return [k.value for k in w.value.keys]
+
+
 def test_config_is_read_from_the_central_run_script():
     ms = E.modele()
     assert "slayer1b-1.07" in ms and ms["slayer1b-1.07"].loader == "slayer-ckpt"
     assert "pythia-1b-v0" in ms and "slayer1b-1.06" in ms
     kat = E.katalogi()
-    assert kat["T01"] == "blimp" and kat["T53"] == "ewok" and len(kat) == 52
+    assert kat["T01"] == "blimp" and kat["T53"] == "ewok" and list(kat) == klucze_zadan()
     assert set(E.gotowe()) <= set(kat) and len(E.gotowe()) == 15
     assert E.kod_zadan() == {"T53": "benchmarks/ewok/ewok.py"}
 
