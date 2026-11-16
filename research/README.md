@@ -70,7 +70,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`multiblimp-pl`](benchmarks/multiblimp-pl/README.md) | T04 | `para +proc +pl` | zjawiska (`SV-P`, `SV-G`, `SV-#`) informacyjnie | T04 | nieustalone |
 | [`nq-open`](benchmarks/nq-open/README.md) | T42 | `gen` | | T42 | nieustalone |
 | [`openbookqa`](benchmarks/openbookqa/README.md) | T08 | `mc` | | T08 | nieustalone |
-| [`paws-en`](benchmarks/paws-en/README.md) | T48 | `mc` | | T48 | nieustalone |
+| [`paws-en`](benchmarks/paws-en/README.md) | T48 | `mc +klastry` | klastry: pary dzielące zdanie (2000 par, 1238 klastrów, 1200 par dzieli zdanie z inną parą, do 7 na klaster) | T48 | nieustalone |
 | [`piqa`](benchmarks/piqa/README.md) | T06 | `mc` | | T06; też własny kod | tak |
 | [`polemo2`](benchmarks/polemo2/README.md) | T22 | `mc +pl` | | T22 | nieustalone |
 | [`polqa`](benchmarks/polqa/README.md) | T30 | `gen +pl` | | T30 | nieustalone |
@@ -103,7 +103,7 @@ Testy T01–T50 według typu:
 
 | typ | testy |
 |---|---|
-| `mc` | T05–T08, T10–T16, T18–T21, T40, T44–T46, T48 (T07, T14 i T16 z `+klastry`); polskie (`+pl`): T22–T24, T26, T29, T37 |
+| `mc` | T05–T08, T10–T16, T18–T21, T40, T44–T46, T48 (T07, T14, T16 i T48 z `+klastry`); polskie (`+pl`): T22–T24, T26, T29, T37 |
 | `mc +warstwy` | T32 MMLU (57 przedmiotów) |
 | `mc-k` | T02 ARC-Challenge |
 | `poz` | T09 SciQ |

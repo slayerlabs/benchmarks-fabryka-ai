@@ -260,7 +260,7 @@ ZADANIA = {
     "T48": dict(benchmark_id="paws", task="paws_en", family="paws", language="EN",
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="google-research-datasets/paws-x", rewizja="4cd8187c404bda33cb1f62b49b001115862acf37",
-                nazwa_hf="en", split="test", rodzaj="mc", klasy_stale=True, pole_id="id"),
+                nazwa_hf="en", split="test", rodzaj="mc", klasy_stale=True, pole_id="id", klastry="zdania_paws"),
     # --- (c): config from the installed lm-eval YAML (`lm_eval` / `grupa`), dataset pinned here.
     # rodzaj: mc = own MC metrics from logliks; proba = lm-eval per-question metric `klucz` of filter `filtr`;
     # korpus = corpus metric over (gold, pred) pairs. baza: how the constant-answer baseline is computed

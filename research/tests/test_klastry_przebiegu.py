@@ -97,6 +97,18 @@ def test_wsc273_schemas_in_split_order_whatever_the_sample_order(odwroc):
     assert ids[0] == ids[1] != ids[2] == ids[3]
 
 
+@pytest.mark.parametrize("odwroc", [False, True])
+def test_paws_pairs_sharing_a_sentence_in_split_order_whatever_the_sample_order(odwroc):
+    # 0-1 share sentence1, 1-2 share sentence2 (a chain: one cluster of 3); 4 has 3's sentence2 as its sentence1
+    # (the column does not matter); 5 shares nothing
+    pary = [("A", "B"), ("A", "C"), ("D", "C"), ("E", "F"), ("F", "G"), ("H", "I")]
+    probki = [{"doc_id": i, "doc": {"sentence1": s1, "sentence2": s2}} for i, (s1, s2) in enumerate(pary)]
+    if odwroc:
+        probki = probki[::-1]
+    ids = dict(zip((p["doc_id"] for p in probki), E.klastry_probek(Z.ZADANIA["T48"], probki)))
+    assert ids[0] == ids[1] == ids[2] and ids[3] == ids[4] and len({ids[0], ids[3], ids[5]}) == 3
+
+
 def test_corpus_metric_bootstrap_draws_whole_clusters():
     zlote, pred = [1, 0, 1, 1, 0, 0, 1, 0], [1, 0, 0, 1, 1, 0, 1, 1]
     f = M.f1_korpus
