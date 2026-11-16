@@ -95,6 +95,12 @@ służą do diagnozy.
 
 ## Uruchomienie
 
+**Modele HF: `jeden_bos.py`.** `ewaluuj.py --model hf` buduje model klasą `HFLMJedenBOS`: tokenizer koduje tekst
+bez tokenów specjalnych, a nakładka stawia jeden BOS tokenizera przed kontekstem par loglik i przed promptem
+generacji (METODOLOGIA, „Wejście”). Pusty kontekst i okna perpleksji zaczynają się od `prefix_token_id`, jak w HFLM.
+Tokenizer bez `bos_token` (Qwen3.5) daje żądania bez BOS. Pole `bos` w `results_rozszerzone.json` podaje token BOS
+i liczbę wiodących BOS w próbnej parze loglik, w prompcie generacji i przy pustym kontekście.
+
 **Slayer w lm-eval: `slayer_lm.py`.** `HFLM` nie wczyta Slayera (`config.json` nie ma `model_type`:
 `AutoConfig.from_pretrained` kończy się `ValueError: Unrecognized model`, sprawdzone na 1.06 z
 transformers 4.57.6). Nakładka `SlayerLM` (`--model slayer`) ładuje go przez `slayer_model.py` i liczy

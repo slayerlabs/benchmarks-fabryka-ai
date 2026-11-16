@@ -116,7 +116,7 @@ def wczytaj_wyniki(paczka: Path):
                     "lo": lo, "hi": hi, "chance": bazy.get("chance_value"), "majority": bazy.get("majority_value"),
                     "wyzej_lepiej": o.get("higher_is_better") is not False, "skala_w_pliku": skala,
                     "max_length": roz.get("max_length"), "contamination": o.get("contamination"),
-                    "pmi": sp.get("acc_pmi"), "wobec_b": sp.get("wobec_b")})
+                    "pmi": sp.get("acc_pmi"), "wobec_b": sp.get("wobec_b"), "bos": roz.get("bos")})
     return out
 
 
@@ -250,6 +250,13 @@ def progresja(wyniki, paczka):
     return {"opis": "A − B na tych samych pytaniach; SE A parowane (z) albo SE K po klastrach testu (t, df = k − 1); "
                     "WikiText: Δ bits per byte, dokument = klaster; Holm w każdej rodzinie osobno",
             "kolejne_wersje": kolejne, "pierwsza_ostatnia": skrajne}
+
+
+def control_models(script: Path = RESEARCH / "tools" / "przebieg_centralny.sh") -> set:
+    """Labels of the stage B control models (TESTY_MODELU of the central-run script): each counts only its own
+    tests to reproduce a published value, so the report compares no model with them."""
+    lines = re.findall(r'^TESTY_MODELU\+?="([^"]*)"', script.read_text(encoding="utf-8"), re.MULTILINE)
+    return {p.split(":")[0] for line in lines for p in line.split()}
 
 
 def zgodnosc_z_odniesieniem(wyniki, odn: Path | None):
@@ -907,6 +914,22 @@ BOS_DIR = "bos-window-check"
 ROW_MARKS = {"hellaswag": "¹"}
 BOS_SCOPE = ("Testy z niepustym kontekstem: Slayer ma jeden wiodący BOS, modele odniesienia były liczone bez BOS; wpływ zmierzono wyłącznie na Pythii-1B v0. "
              "Nie dotyczy BLiMP i WikiText-2 (pusty kontekst). EWoK: reguła z karty, BOS jest wtedy, gdy dokleja go tokenizer modelu.")
+BOS_JEDNAKOWY = ("Każde żądanie ma jeden wiodący BOS tokenizera modelu (pole `bos` w `results_rozszerzone.json`); model, którego "
+                 "tokenizer nie ma BOS, dostaje żądania bez niego. EWoK: reguła z karty, BOS jest wtedy, gdy dokleja go tokenizer modelu.")
+
+
+def bos_zgodny(pole) -> bool:
+    """Pole `bos` wyniku (common/jeden_bos.py) spełnia METODOLOGIĘ, „Wejście”: każde żądanie ma 1 wiodący BOS,
+    model, którego tokenizer nie ma BOS, ma 0."""
+    if not isinstance(pole, dict) or not isinstance(pole.get("wiodace_bos"), dict):
+        return False
+    n = 0 if pole.get("bos_token_id") is None else 1
+    return all(v == n for v in pole["wiodace_bos"].values())
+
+
+def bos_jednakowy(results) -> bool:
+    """Każdy wynik poza EWoK (reguła z karty, BOS z tokenizera modelu) ma pole `bos` zgodne z regułą."""
+    return all(bos_zgodny(r.get("bos")) for r in results if r["benchmark"] != "ewok")
 
 
 def bos_summary(numbers: dict) -> dict:
@@ -1081,10 +1104,13 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
       '<a href="../../METODOLOGIA.md"><img src="../../../docs/img/metodologia.svg" alt="Metodologia" height="36"></a> '
       '<a href="https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks"><img src="../../../docs/img/wyniki-na-hf.svg" alt="Wyniki na HF" height="36"></a>')
     a("")
-    a("> [!WARNING]")
-    a(f"> **BOS nie jest liczony jednakowo.** {BOS_SCOPE} Zmiana u Pythii: "
-      f"[najwyżej {format_number(bos_summary(bos)['max_change'], 4)} na testach z pomiaru BOS](#bos-okno-wikitext-i-kontrola-arc-challenge). Pozostałe zastrzeżenia: [Zastrzeżenia](#zastrzeżenia).")
-    a("")
+    jednakowy = bos_jednakowy(run.results)
+    if not jednakowy:
+        zmiana = (f"Zmiana u Pythii: [najwyżej {format_number(bos_summary(bos)['max_change'], 4)} na testach z pomiaru BOS]"
+                  "(#bos-okno-wikitext-i-kontrola-arc-challenge). ") if bos else ""
+        a("> [!WARNING]")
+        a(f"> **BOS nie jest liczony jednakowo.** {BOS_SCOPE} {zmiana}Pozostałe zastrzeżenia: [Zastrzeżenia](#zastrzeżenia).")
+        a("")
     koniec = ALT_TOKU[run.TOKU[-1]] if run.TOKU else run.SLN[run.exp]
     a(f'<p align="center"><img src="charts/przemiana-wersji.svg" alt="Animacja: Slayer 1B od wersji {run.SLN[0]} do {koniec} na tle modeli odniesienia" width="100%"></p>')
     a("")
@@ -1173,7 +1199,8 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     a("<details>\n<summary><b>Wszystkie wersje Slayera</b>, wartości</summary>\n")
     a(values.strip())
     a("\n</details>\n")
-    bos_section(run, a, bos)
+    if bos:
+        bos_section(run, a, bos)
     a("## Rankingi testów")
     a("")
     for t in run.ORD:
@@ -1214,7 +1241,7 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     gap_note = (f" {'Jedyny model policzony' if len(gap['models']) == 1 else 'Modele policzone'} w obu środowiskach: {', '.join(nazwa(m) for m in gap['models'])}, "
                 f"różnica do {format_number(gap['diff'], 4)} ({TEST_NAMES[gap['benchmark']][0]}), przyczyna nieustalona (mogą to być też inne pakiety).") if gap else ""
     notes = [
-        f"BOS. {BOS_SCOPE}",
+        f"BOS. {BOS_JEDNAKOWY if jednakowy else BOS_SCOPE}",
         hellaswag_note,
         f"Dwa środowiska: {lm_note}, pozostałe lm_eval 0.4.9.1.{gap_note}",
         "Różnice między modelami pokazują tylko przedziały; porównania parowane są wyłącznie między wersjami Slayera, a miejsce w tabeli nie mówi o istotności.",
@@ -1280,7 +1307,8 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     a("| `przeglad.jsonl` | flaga, uwagi, kontaminacja, baza b, wersja lm_eval i `w_tabeli_codesota` każdego wyniku |")
     a("| `sizes.json` | liczba parametrów każdego modelu policzona z wag |")
     a("| `progresja.json` | porównania parowane wersji Slayera z tabel wyżej |")
-    a(f"| `{BOS_DIR}/` | pomiar BOS i okna na Pythii oraz kontrola ARC-Challenge: protokół, raport, liczby, kod, wyniki bez próbek |")
+    if bos:
+        a(f"| `{BOS_DIR}/` | pomiar BOS i okna na Pythii oraz kontrola ARC-Challenge: protokół, raport, liczby, kod, wyniki bez próbek |")
     a("| `charts/` | wykresy SVG z wartości tego katalogu |")
     if run.TOKU and run.PTOKU:
         a(f"| `{KATALOG_TOKU}/` | {', '.join(nazwa(m) for m in run.TOKU)} wobec 1.08: protokół, `LICZBY.json`, raport, kod, 1.08 przeliczone, próbki per pytanie obu etykiet (gzip, 1.09 w `<test>/slayer1b-1.09-k40000/probki/`), sha256 surowych plików, `ODTWORZENIE.md` |")
@@ -1315,7 +1343,8 @@ def main():
     cel.mkdir(parents=True, exist_ok=True)
     source_list = Path(a.przeglad) if a.przeglad else cel / "przeglad.jsonl"
     old_rows = [json.loads(l) for l in source_list.read_text(encoding="utf-8").splitlines()] if source_list.exists() else []
-    results = wczytaj_wyniki(paczka)
+    controls = control_models()
+    results = [r for r in wczytaj_wyniki(paczka) if r["model"] not in controls]
     if paczka.resolve() != cel.resolve():
         kopiuj(paczka, cel)
     prog = None
@@ -1325,7 +1354,8 @@ def main():
         prog = progresja(results, paczka)
         (cel / "progresja.json").write_text(json.dumps(prog, ensure_ascii=False, indent=1), encoding="utf-8")
     env = json.loads((cel / "srodowisko.json").read_text(encoding="utf-8"))
-    bos = json.loads((cel / BOS_DIR / "LICZBY.json").read_text(encoding="utf-8"))
+    bos_path = cel / BOS_DIR / "LICZBY.json"  # pomiar wpływu BOS, gdy przebieg nie ma jednakowego BOS
+    bos = json.loads(bos_path.read_text(encoding="utf-8")) if bos_path.exists() else None
     sizes = json.loads((cel / "sizes.json").read_text(encoding="utf-8"))
     cards = read_cards(RESEARCH / "benchmarks", BENCHMARKI)
     test_types = read_test_types((RESEARCH / "README.md").read_text(encoding="utf-8"))

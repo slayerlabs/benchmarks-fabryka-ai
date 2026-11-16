@@ -43,6 +43,25 @@ def porownawcze_metodologii():
     return tabela_metodologii("### Modele porównawcze z #190")
 
 
+def kontrolne_metodologii():
+    """{repo: (revision, [tests])} of "Modele kontrolne etapu B w przebiegu"."""
+    tekst = (KORZEN / "METODOLOGIA.md").read_text(encoding="utf-8")
+    sekcja = tekst.split("### Modele kontrolne etapu B w przebiegu", 1)[1].split("\n### ", 1)[0]
+    return {r: (rev, re.findall(r"T\d\d", t)) for r, rev, t in
+            re.findall(r"^\| `([^`]+)` \| `([0-9a-f]{40})` \| ([^|]+) \|", sekcja, re.MULTILINE)}
+
+
+def kontrolne_skryptu():
+    """{label: [tests]} of TESTY_MODELU: the stage B control models, each on its own tests only."""
+    return {p.split(":")[0]: p.split(":")[1].split(",") for p in zmienna_skryptu("TESTY_MODELU").split()}
+
+
+def zadania_planu(etykieta):
+    """Tests `plan` runs for one model: its TESTY_MODELU list (in ZADANIA order), otherwise every task."""
+    wlasne = kontrolne_skryptu().get(etykieta)
+    return [t for t in klucze_zadan() if wlasne is None or t in wlasne]
+
+
 def slayer_metodologii():
     """(repo, revision, checkpoint file or None) from the "Mierzony dziś model" line."""
     tekst = (KORZEN / "METODOLOGIA.md").read_text(encoding="utf-8")
@@ -67,22 +86,25 @@ def klucze_zadan():
 def test_reference_models_match_methodology():
     tabela, porownawcze = tabela_metodologii(), porownawcze_metodologii()
     assert len(tabela) == 5 and BIELIK in tabela
-    odniesienia = {m[1]: m[2] for m in modele_skryptu()
-                   if not m[1].startswith("SlayerLab/") and m[1] != KONTROLNY and m[1] not in porownawcze}
+    odniesienia = {m[1]: m[2] for m in modele_skryptu() if not m[1].startswith("SlayerLab/") and m[1] != KONTROLNY
+                   and m[1] not in porownawcze and m[0] not in kontrolne_skryptu()}
     assert odniesienia == tabela
 
 
 def test_comparison_models_match_methodology_and_come_after_the_measured_list():
-    """Every row outside the measured Slayer, the five references and the control model is in "Modele porównawcze
-    z #190" with the same revision, and the other way round; they follow the measured list (MODELE+=)."""
+    """Every row outside the measured Slayer, the five references, the control model and the stage B control models
+    is in "Modele porównawcze z #190" with the same revision, and the other way round; they follow the measured list
+    (MODELE+=), the stage B control models come last."""
     porownawcze = porownawcze_metodologii()
     modele = modele_skryptu()
+    kontrolne = [m for m in modele if m[0] in kontrolne_skryptu()]
     repo_slayera = slayer_metodologii()[0]
-    reszta = [m for m in modele if m[1] not in tabela_metodologii() and m[1] not in (KONTROLNY, repo_slayera)]
+    reszta = [m for m in modele if m[1] not in tabela_metodologii() and m[1] not in (KONTROLNY, repo_slayera)
+              and m not in kontrolne]
     assert {(m[1], m[2]) for m in reszta} == set(porownawcze.items())
     assert {"speakleash/Bielik-11B-v3.1-Instruct", "LiquidAI/LFM3-1.7B",
             "SlayerLab/Slayer1B-1.09-checkpoints"} <= set(porownawcze)
-    assert modele[-len(reszta):] == reszta
+    assert modele[-len(kontrolne) - len(reszta):] == reszta + kontrolne
     assert "### Modele porównawcze z #190" in (KORZEN / "METODOLOGIA.md").read_text(encoding="utf-8")
 
 
@@ -98,6 +120,59 @@ def test_bielik_11b_runs_in_bfloat16_everywhere_and_float32_rows_keep_their_comm
     assert len(bielik) == len(klucze_zadan()) and all(l.endswith(" --dtype bfloat16") for l in bielik)
     assert any("ewok.py przebieg " in l for l in bielik)
     assert not [l for l in linie if "--dtype" in l and l not in bielik]
+
+
+def test_stage_b_control_models_match_methodology():
+    """Every TESTY_MODELU label has its own MODELE row, and "Modele kontrolne etapu B w przebiegu" lists the same repo,
+    revision and tests; none of them is a "Gotowe" test (those have stage B), every one is a task of ZADANIA."""
+    wiersze = {m[0]: m for m in modele_skryptu()}
+    tm = kontrolne_skryptu()
+    assert tm and set(tm) <= set(wiersze)
+    assert {wiersze[l][1]: (wiersze[l][2], sorted(t)) for l, t in tm.items()} == {
+        r: (rev, sorted(t)) for r, (rev, t) in kontrolne_metodologii().items()}
+    wszystkie = [t for t in tm.values() for t in t]
+    assert set(wszystkie) <= set(klucze_zadan()) and not set(wszystkie) & set(zmienna_skryptu("GOTOWE").split())
+    assert len(wszystkie) == len(set(wszystkie))  # one control model per test
+
+
+def test_stage_b_control_models_float32_unless_large():
+    """bfloat16 only for a control model of >= 6 B parameters (Qwen1.5-7B: the leaderboard source counted bf16)."""
+    for l in kontrolne_skryptu():
+        m = next(m for m in modele_skryptu() if m[0] == l)
+        assert (m[5] if len(m) > 5 else "float32") == ("bfloat16" if l == "qwen1.5-7b" else "float32"), m
+
+
+@pytest.mark.parametrize("etykieta", ["bloom-1b7", "pythia-1b", "bielik-11b-v3.1-instruct", "pythia-1b-v0"])
+def test_plan_of_one_model_runs_its_own_tests(etykieta):
+    """`plan "LABEL"`: a control model gets one command per own test, any other model one per task (53)."""
+    linie = uruchom("plan", etykieta).splitlines()
+    zadania = [re.search(r"--zadania (\S+)", l)[1] for l in linie]
+    assert zadania == zadania_planu(etykieta)
+    assert len(zadania) == (len(kontrolne_skryptu()[etykieta]) if etykieta in kontrolne_skryptu() else len(klucze_zadan()))
+    assert all(f"--etykieta {etykieta} " in l for l in linie)
+
+
+def test_control_model_runs_only_its_tests_among_the_chosen_ones():
+    """licz_kolejke with ZADANIA_ID T20 T38 T40: bloom-1b7 runs T38 and T40, pythia-1b-v0 all three; a control model
+    with none of its tests in ZADANIA_ID downloads nothing."""
+    ws = tempfile.mkdtemp()
+    atrapa_srodowiska(ws, dostep=True)
+    wynik = kolejka(ws, "bloom-1b7", "pythia-1b-v0", "pythia-1b", zadania="T20 T38 T40")
+    assert wynik.returncode == 0, wynik.stderr
+    assert "BEZ TESTOW pythia-1b:" in wynik.stdout
+    wywolania = (Path(ws) / "wywolania.log").read_text()
+    assert "EleutherAI/pythia-1b'" not in wywolania and "--etykieta pythia-1b " not in wywolania
+    pary = {(w["model"], w["zadanie"]) for w in czasy(ws) if w["etap"] == "ewaluacja"}
+    assert pary == {("bloom-1b7", "T38"), ("bloom-1b7", "T40"),
+                    ("pythia-1b-v0", "T20"), ("pythia-1b-v0", "T38"), ("pythia-1b-v0", "T40")}
+
+
+def test_report_leaves_out_the_stage_b_control_models():
+    """tools/ewaluacja/raport.py reads the same labels and compares no model with them."""
+    import sys
+    sys.path.insert(0, str(KORZEN / "tools" / "ewaluacja"))
+    import raport
+    assert raport.control_models() == set(kontrolne_skryptu())
 
 
 def test_control_model_is_first_on_methodology_list():
@@ -280,14 +355,14 @@ def test_task_dirs_cover_exactly_zadania():
 def test_plan_runs_full_set_for_every_model_and_task():
     ws = tempfile.mkdtemp()
     linie = uruchom("plan", ws=ws).splitlines()
-    modele, zadania = modele_skryptu(), klucze_zadan()
-    assert len(linie) == len(modele) * len(zadania)
+    modele = modele_skryptu()
+    assert len(linie) == sum(len(zadania_planu(m[0])) for m in modele)
     for l in linie:
         assert "--probka pelna" in l and re.search(r" --eval_gpu \S+ ", l)  # own-code tasks too (T53)
     # own-code tasks (EWoK T53) run their script with the ewaluuj.py flags; ewok.py picks the Slayer loader from
     # config.json and always passes trust_remote_code, so it takes neither --model nor --trust_remote_code
     ewok = [l for l in linie if "--zadania T53 " in l]
-    assert len(ewok) == len(modele) and all(f"{KORZEN}/benchmarks/ewok/ewok.py przebieg " in l
+    assert len(ewok) == sum("T53" in zadania_planu(m[0]) for m in modele) and all(f"{KORZEN}/benchmarks/ewok/ewok.py przebieg " in l
                                             and f"--model_path {ws}/modele/" in l for l in ewok)
     linie = [l for l in linie if l not in ewok]
     assert all(f"{KORZEN}/common/ewaluuj.py " in l for l in linie)
@@ -333,7 +408,7 @@ def test_plan_four_gpus_gives_four_queues_each_pair_once():
     komendy = [l for l in linie if not l.startswith("#")]
     pary = [(re.search(r"--etykieta (\S+)", l)[1], re.search(r"--zadania (\S+)", l)[1]) for l in komendy]
     modele = [m[0] for m in modele_skryptu()]
-    assert sorted(pary) == sorted((m, t) for m in modele for t in klucze_zadan())
+    assert sorted(pary) == sorted((m, t) for m in modele for t in zadania_planu(m))
     kolejka = None
     for l in linie:  # every model sits whole in the queue of its header, and its commands see only that GPU
         if l.startswith("# GPU "):
@@ -352,7 +427,7 @@ def test_proba_cpu_two_questions_per_pair_on_cpu_in_chosen_env():
     env = {**os.environ, "WS": ws, "K": str(KORZEN), "SUCHO": "1", "ENV_OVERRIDE": "new"}
     linie = subprocess.run(["bash", str(SKRYPT), "proba_cpu"], capture_output=True, text=True, check=True,
                            env=env).stdout.splitlines()
-    assert len(linie) == len(modele_skryptu()) * len(klucze_zadan())
+    assert len(linie) == sum(len(zadania_planu(m[0])) for m in modele_skryptu())
     for l in linie:
         assert l.startswith(f"{ws}/venv-new/bin/python ")
         assert "--device cpu" in l and "--batch 1 " in l and f"--wyjscie {ws}/proba_cpu/" in l
