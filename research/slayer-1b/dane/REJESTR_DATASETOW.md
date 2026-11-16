@@ -13,20 +13,19 @@ Zasady wpisu:
 
 ## 1. Slayer 1B — `SlayerLab/slayer-pl-8x3b`
 
-Proporcje scenariusza B z karty zbioru (tak samo w `wygaszanie/dane.py`). Tabela niżej to wpisy z 30.10 (skład z
-karty). Licencje u źródła, rozbite na składniki, są w podsekcjach 1.1–1.5 (sprawdzone 2026-11-04, zadanie A4).
+Przegląd źródeł, nie opinia prawna.
+
+Proporcje scenariusza B z karty zbioru (tak samo w `wygaszanie/dane.py`). Skład w tabeli z karty zbioru; licencje u
+źródła, rozbite na składniki, w podsekcjach 1.1–1.5 (sprawdzone 2026-11-04).
 
 | nazwa HF/URL | licencja | status | powód | data |
 |---|---|---|---|---|
 | `SlayerLab/slayer-pl-8x3b` → `web` (HPLT v3 PL, top WDS, pakiety `pack-NN`) | wg karty zbioru CC0-1.0; u źródła CC0 HPLT obejmuje tylko opakowanie, nie teksty stron (1.2) | użyty | 63% tokenów Slayera 1.06; nakłada się z FineWeb2/FineWeb2-HQ pol, więc każdy kandydat z Common Crawl wymaga dedupu wobec HPLT | 2026-10-30 |
-| `SlayerLab/slayer-pl-8x3b` → `core` / `core_sa` (wikipedia, wikibooks, wikivoyage, wikisource, polqa, wolne_lektury; `govpl` leży w `legal_sa`) | CC-BY / CC-BY-SA (per źródło); w danych są też `polish_news`, `elka_pl_news` (apache-2.0, u źródła nieustalone), `poquad`, `wikinews`, `eltec_pol`, `1000_novels`, `biblioteka_nauki` (1.2) | użyty | 19%; polqa w rdzeniu kontaminuje test PolQA (7/200 pytań bez trafień); govpl może zawierać dane wrażliwe: karta [polish-dynaword](https://huggingface.co/datasets/SlayerLab/polish-dynaword) mówi, że filtry nie usuwają w pełni danych osobowych, a przebieg PII (NERGAL) dopiero w v0.2.7; do tego czasu obowiązują datasheety poszczególnych źródeł (do przeczytania) | 2026-10-30 |
+| `SlayerLab/slayer-pl-8x3b` → `core` / `core_sa` (wikipedia, wikibooks, wikivoyage, wikisource, polqa, wolne_lektury; `govpl` leży w `legal_sa`) | CC-BY / CC-BY-SA (per źródło); w danych są też `polish_news`, `elka_pl_news` (apache-2.0, u źródła nieustalone), `poquad`, `wikinews`, `eltec_pol`, `1000_novels`, `biblioteka_nauki` (1.2) | użyty | 19%; polqa w rdzeniu kontaminuje test PolQA (7/200 pytań bez trafień); govpl może zawierać dane wrażliwe: karta [polish-dynaword](https://huggingface.co/datasets/SlayerLab/polish-dynaword) mówi, że filtry nie usuwają w pełni danych osobowych, a przebieg PII (NERGAL) dopiero w v0.2.7; do tego czasu obowiązują datasheety poszczególnych źródeł | 2026-10-30 |
 | `SlayerLab/slayer-pl-8x3b` → `legal` / `legal_sa` (eurlex, parliamentary, dziennik_ustaw, govpl) | CC-BY-4.0 / PD / CC-BY-SA (govpl), wg `dataset.json`; u źródła eurlex to polityka ponownego wykorzystania KE, nie CC-BY-4.0 dla aktów (1.2) | użyty | 8%; dane wrażliwe jak przy `core` (brak przebiegu PII przed v0.2.7 polish-dynaword); wg karty eurlex ma licencję `LicenseRef-EU-Reuse-Policy` (nie CC-BY-4.0), a parliamentary zostawia tylko oficjalnych mówców, interpelacje wstrzymane do v0.2.7 | 2026-10-30 |
-| `SlayerLab/slayer-pl-8x3b` → `en` | ODC-BY (wg karty), u źródła potwierdzone dla fineweb-edu; finemath z `dataset.json` w danych nie ma (1.2) | użyty | 10%; wg `dataset.json` zbioru to fineweb-edu + finemath (ODC-BY), 2,40 mld tok.; dekontaminacja opisana tylko dla web i tylko wobec 8tags/polemo2; wobec ARC była, wobec MMLU niepewne, do sprawdzenia (zadanie A2) | 2026-10-30 |
+| `SlayerLab/slayer-pl-8x3b` → `en` | ODC-BY (wg karty), u źródła potwierdzone dla fineweb-edu; finemath z `dataset.json` w danych nie ma (1.2) | użyty | 10%; wg `dataset.json` zbioru to fineweb-edu + finemath (ODC-BY), 2,40 mld tok.; dekontaminacja opisana tylko dla web i tylko wobec 8tags/polemo2; wobec ARC była, wobec MMLU niesprawdzone (1.5) | 2026-10-30 |
 
-### 1.1 Co sprawdzono i jak (A4, 2026-11-04)
-
-To przegląd źródeł, nie opinia prawna. Nikt w tym repo nie jest prawnikiem, a wnioski niżej mówią, co piszą
-źródła, nie jak oceniłby je sąd.
+### 1.1 Co sprawdzono i jak (sprawdzone 2026-11-04)
 
 - Zbiór: [`SlayerLab/slayer-pl-8x3b` @ `d50df04`][s-tree]; gałąź `main` zbioru wskazuje dziś na ten sam commit.
 - Lista składników: [`dataset.json`][s-dataset], [`shared/manifest.json`][s-shared], `pack-00/manifest.json` …
@@ -44,7 +43,7 @@ To przegląd źródeł, nie opinia prawna. Nikt w tym repo nie jest prawnikiem, 
   (link z commitem [`cc80dd9`][d-readme], gałąź `main` z 2026-11-04). Tag YAML karty HF zapisano osobno od tego, co
   mówi źródło. Strony spoza HF: data odczytu 2026-11-04.
 - Liczby tokenów są tylko w manifestach i tylko per partycja (`core`, `core_sa`, `legal`, `legal_sa`, `en`, `web`).
-  Tokenów per źródło zbiór nie podaje; nie liczono ich (bez pobierania parquetów).
+  Tokenów per źródło zbiór nie podaje; nieliczone.
 
 ### 1.2 Składniki → licencja u źródła
 
@@ -74,7 +73,7 @@ w zbiorze (dokładna, z granic bloków).
 | `eurlex` | `legal` | nota EUR-Lex: nieustalone (miejsca w 1.4); [decyzja 2011/833/UE][d833] (kopia lawplayer.com, nie tekst urzędowy) art. 6 ust. 2: „(a) the obligation for the reuser to acknowledge the source of the documents; (b) the obligation not to distort the original meaning or message”; art. 2 ust. 2 lit. b wyłącza dokumenty z prawami osób trzecich; [KE o decyzji z 2019][ec2019]: „CC BY 4.0 for all content” | `CC-BY-4.0`; `dataset.json`: „eurlex CC-BY-4.0”; karta `polish-dynaword` dziś: `LicenseRef-EU-Reuse-Policy` | rozbieżne: `polish-dynaword` zmienił etykietę, bo nota EUR-Lex „grants CC BY 4.0 only for consolidated texts and editorial content, not the acts themselves, and excludes third-party material”, i usunął dokumenty z materiałem osób trzecich ([README][d-readme]); tu jest wersja sprzed tych zmian | BY (wskazanie źródła), zakaz zniekształcania sensu; o utworach zależnych decyzja 2011/833 nie ma osobnej klauzuli (art. 8 ust. 2 i art. 9 ust. 3 dotyczą tylko adaptacji robionych przez Komisję); art. 4 odsyła do ochrony danych osobowych | 105539 <!-- liczba-spoza-wynikow: granice bloku w /rows, A4 -->|
 | `parliamentary` | `legal` | [Polish Parliamentary Corpus][ppc]: „The parliamentary data is public domain. The corpus annotations are available on CC-BY (attribution) licence.”; [ustawa][upapp] art. 4: „2) urzędowe dokumenty, materiały, znaki i symbole” | `public-domain`; `dataset.json`: „parliamentary PD” | zgodne co do statusu tekstów; anotacje PPC na CC-BY | wersja sprzed przebudowy v0.2.6: bez filtra „only official speakers”, a interpelacje Sejmu `polish-dynaword` wstrzymał do v0.2.7, bo „a typical one is a named person's case” ([CHANGELOG][d-changelog]); czy ten blok je zawiera: nieustalone | 139586 <!-- liczba-spoza-wynikow: granice bloku w /rows, A4 -->|
 | `dziennik_ustaw` | `legal` | [ustawa][upapp] art. 4: „1) akty normatywne lub ich urzędowe projekty”; nota o ponownym wykorzystaniu na [dziennikustaw.gov.pl][du]: nieustalone | `public-domain`; `dataset.json`: „dziennik_ustaw PD” | zgodne | brak SA/BY/NC | 16898 <!-- liczba-spoza-wynikow: granice bloku w /rows, A4 -->|
-| `govpl` | `legal_sa` | [gov.pl, prawa autorskie][govpl]: „Treści tekstowe publikowane w serwisie (z wyłączeniem treści audiowizualnych), są udostępniane na licencji typu Creative Commons: uznanie autorstwa - na tych samych warunkach 4.0 (CC BY-SA 4.0).”; utwory osób trzecich: „Ich wykorzystanie przez internautów wymaga zgody właścicieli tych materiałów.” | `CC-BY-SA-4.0`; `dataset.json`: „govpl CC-BY-SA” | zgodne z dzisiejszą stopką, ale wcześniej stopka była NC-ND: archiwalne kopie [z 2023-12-22][govpl-wb2023] i [z 2025-01-06][govpl-wb2025] mają w stopce „Wszystkie treści publikowane w serwisie są udostępniane na licencji Creative Commons: uznanie autorstwa - użycie niekomercyjne - bez utworów zależnych 3.0 Polska (CC BY-NC-ND 3.0 PL), o ile nie jest to stwierdzone inaczej.”, a treść tej strony w obu kopiach: „Korzystanie przez użytkowników z materiałów urzędowych opublikowanych w serwisie Gov.pl nie wymaga zgody Ministra Cyfryzacji.”; granice okresu NC-ND (2022-08-19 – 2025-12-12) i wcześniejsze CC BY 3.0 PL znam tylko z [datasheetu `polish-dynaword`][d-govpl], nie z kopii, które otworzyłem; datasheet: objęcie starszych tekstów dzisiejszą ofertą „is our reading; it is not certain” | SA, BY; możliwe NC/ND dla tekstów z okresu stopki NC-ND; tu jest pełna wersja v0.2.2–v0.2.5, z przedrukami PAP, innymi tekstami osób trzecich i komunikatami prokuratur, które v0.2.6 usuwa („personal data about offences, GDPR Art. 10”) | 88190 <!-- liczba-spoza-wynikow: shared/manifest.json, legal_sa.parquet wiersze -->|
+| `govpl` | `legal_sa` | [gov.pl, prawa autorskie][govpl]: „Treści tekstowe publikowane w serwisie (z wyłączeniem treści audiowizualnych), są udostępniane na licencji typu Creative Commons: uznanie autorstwa - na tych samych warunkach 4.0 (CC BY-SA 4.0).”; utwory osób trzecich: „Ich wykorzystanie przez internautów wymaga zgody właścicieli tych materiałów.” | `CC-BY-SA-4.0`; `dataset.json`: „govpl CC-BY-SA” | zgodne z dzisiejszą stopką, ale wcześniej stopka była NC-ND: archiwalne kopie [z 2023-12-22][govpl-wb2023] i [z 2025-01-06][govpl-wb2025] mają w stopce „Wszystkie treści publikowane w serwisie są udostępniane na licencji Creative Commons: uznanie autorstwa - użycie niekomercyjne - bez utworów zależnych 3.0 Polska (CC BY-NC-ND 3.0 PL), o ile nie jest to stwierdzone inaczej.”, a treść tej strony w obu kopiach: „Korzystanie przez użytkowników z materiałów urzędowych opublikowanych w serwisie Gov.pl nie wymaga zgody Ministra Cyfryzacji.”; granice okresu NC-ND (2022-08-19 – 2025-12-12) i wcześniejsze CC BY 3.0 PL według [datasheetu `polish-dynaword`][d-govpl]; kopii nie otwierano; datasheet: objęcie starszych tekstów dzisiejszą ofertą „is our reading; it is not certain” | SA, BY; możliwe NC/ND dla tekstów z okresu stopki NC-ND; tu jest pełna wersja v0.2.2–v0.2.5, z przedrukami PAP, innymi tekstami osób trzecich i komunikatami prokuratur, które v0.2.6 usuwa („personal data about offences, GDPR Art. 10”) | 88190 <!-- liczba-spoza-wynikow: shared/manifest.json, legal_sa.parquet wiersze -->|
 
 Wersja `polish-dynaword` w `slayer-pl-8x3b`: kolumna `provenance` mówi tylko `dynaword` albo
 `polish-dynaword/<źródło>`, bez wersji, więc wersja nie jest zapisana w danych. Z liczb wierszy wynika v0.2.4 albo
@@ -105,11 +104,10 @@ Tokeny cl100k z manifestów zbioru, per partycja (per źródło zbiór ich nie p
 
 Uwaga do `core` i `core_sa`: manifest pisze „tokeny rdzenia prorata po wierszach”, więc podział tokenów rdzenia
 między te dwie partycje to szacunek producenta z liczby wierszy, nie pomiar. W `core` przeważają długie artykuły
-newsowe, w `core_sa` krótkie pasaże `polqa`, więc rzeczywisty podział może się różnić; do przeliczenia tiktokenem.
+newsowe, w `core_sa` krótkie pasaże `polqa`, więc rzeczywisty podział może się różnić.
 
 Udział partycji share-alike (`core_sa` + `legal_sa`) w tokenach. To szacunek: tokeny `core_sa` producent zbioru
-dzieli od `core` proporcjonalnie do wierszy, a tokenów per źródło zbiór nie podaje. Dokładna liczba wymaga
-przeliczenia tokenów per źródło tiktokenem, jak wyżej:
+dzieli od `core` proporcjonalnie do wierszy, a tokenów per źródło zbiór nie podaje:
 
 - fizycznie, w całym zbiorze: 15,61% <!-- liczba-spoza-wynikow: (3546606209+80666129)/23231160865, z manifestów -->
 - w treningu jednego pakietu: 18,49% <!-- liczba-spoza-wynikow: wagi 0,19 i 0,08 z pack-XX/manifest.json, podział wewnątrz grupy proporcjonalnie do tokenów partycji (założenie, nieustalone) -->
@@ -167,16 +165,17 @@ Próbka danych osobowych z `pii-check.json` zbioru (wzorce, próbka 20 000 wiers
 - `polish_news` (TVP S.A.): otwarto [kartę `WiktorS/polish-news`][pn-hf], [robots.txt tvp.info][tvp-robots],
   `https://www.tvp.pl/robots.txt`; `https://www.tvp.info/regulamin`, `https://www.tvp.pl/regulamin`,
   `https://www.tvp.info/4519628/regulamin` i `https://www.tvp.info/.well-known/tdmrep.json` dały 404;
-  `https://www.tvp.info/` i `https://vod.tvp.pl/pomoc/strona/regulamin` nie wyrenderowały treści. Nie przeszukano:
-  regulaminu tvp.pl w przeglądarce z JS, polityki prywatności TVP, repozytorium scrapera `WiktorSob/scraper-tvp`.
+  `https://www.tvp.info/` i `https://vod.tvp.pl/pomoc/strona/regulamin` nie wyrenderowały treści.
+  Nie przeszukano: regulamin tvp.pl (JS), polityka prywatności TVP, repozytorium `WiktorSob/scraper-tvp`.
 - `elka_pl_news` (Radio Elka): otwarto [kartę `winterkitsune/elka-pl-news`][elka-hf] i stronę główną `https://elka.pl/`
   (stopka: „Regulamin ogłoszeń”, „Polityka prywatności”, „O nadawcy”, bez noty o licencji treści);
-  `https://elka.pl/regulamin` dał 404. Nie przeszukano: podstron „O nadawcy” i „Redakcja - kontakt”, robots.txt
-  elka.pl (nie odczytał się).
+  `https://elka.pl/regulamin` dał 404; robots.txt elka.pl się nie odczytał.
+  Nie przeszukano: podstrony „O nadawcy” i „Redakcja - kontakt”, robots.txt elka.pl.
 - `1000_novels`: wyszukiwanie zbiorów HF `1000_novels` puste; README i CHANGELOG `polish-dynaword` (tylko opis
-  wycofania). Nie przeszukano: Hub PR #1, #49, #55, #65, #124 `polish-dynaword`.
-- `poquad`: [karta `clarin-pl/poquad`][poquad-hf] (sama metadana). Nie przeszukano: artykułu ICADL 2022 (DOI z
-  karty), strony CLARIN-PL.
+  wycofania).
+  Nie przeszukano: Hub PR #1, #49, #55, #65, #124 `polish-dynaword`.
+- `poquad`: [karta `clarin-pl/poquad`][poquad-hf] (sama metadana).
+  Nie przeszukano: artykuł ICADL 2022 (DOI z karty), strona CLARIN-PL.
 - Nota prawna EUR-Lex i polska wersja decyzji 2011/833/UE: `https://eur-lex.europa.eu/content/legal-notice/legal-notice.html`
   (także `?locale=pl`), `https://eur-lex.europa.eu/legal-content/PL/TXT/?uri=CELEX:32011D0833`,
   `…CELEX:32019D1655`, `https://eur-lex.europa.eu/eli/dec/2011/833/oj/pol` i `/eng` blokują automatyczne pobieranie;
@@ -198,8 +197,7 @@ Próbka danych osobowych z `pii-check.json` zbioru (wzorce, próbka 20 000 wiers
   this dataset”): „training a model does not by itself make the model adapted material of the training texts … this
   has not been tested in court”, a Creative Commons zaleca udostępnianie modelu na tej samej licencji, zastrzegając,
   że to „will almost certainly lead to overcompliance”. Najostrożniej: albo model na CC BY-SA 4.0 z atrybucją
-  źródeł, albo trening bez partycji `*_sa` i bez składników z rozbieżną albo nieustaloną licencją. Wybór należy do
-  zespołu, nie do tego przeglądu.
+  źródeł, albo trening bez partycji `*_sa` i bez składników z rozbieżną albo nieustaloną licencją.
 - **NC i AI.** Wprost zakazu trenowania AI nie ma żadne otwarte źródło. NC/ND może dotyczyć: tekstów `govpl` z
   okresu stopki CC BY-NC-ND 3.0 PL (stopka potwierdzona w kopiach Wayback z 2023-12-22 i 2025-01-06; dla
   materiałów urzędowych ta sama strona mówi, że korzystanie nie wymaga zgody), części rekordów `biblioteka_nauki` z wydrukowaną licencją NC/ND (w wersji sprzed
@@ -213,9 +211,10 @@ Próbka danych osobowych z `pii-check.json` zbioru (wzorce, próbka 20 000 wiers
   opisują zdarzenia z nazwiskami. Żadna część nie przeszła NERGAL. Karta zbioru: „Pełny audyt danych osobowych
   pozostaje po stronie odbiorcy”.
 - **Nieustalone.** Licencja u źródła: `polish_news`, `elka_pl_news`, `1000_novels`, `poquad`; teksty HPLT i
-  fineweb-edu; dokładna wersja `polish-dynaword`; tokeny per źródło (do policzenia na parquetach).
-
-To przegląd źródeł, nie opinia prawna.
+  fineweb-edu; dokładna wersja `polish-dynaword`.
+- **Niesprawdzone:** tokeny per źródło i podział tokenów `core`/`core_sa` (tiktoken na parquetach); dekontaminacja
+  `en` wobec MMLU; datasheety źródeł `core`/`legal` pod kątem danych osobowych; czy kandydat `biblioteka_nauki`
+  (sekcja 2) jest już w `core_sa` Slayera.
 
 [s-tree]: https://huggingface.co/datasets/SlayerLab/slayer-pl-8x3b/tree/d50df04a6ad46876fa559a87cca5d3e2a96e7098
 [s-dataset]: https://huggingface.co/datasets/SlayerLab/slayer-pl-8x3b/blob/d50df04a6ad46876fa559a87cca5d3e2a96e7098/dataset.json
@@ -256,12 +255,12 @@ To przegląd źródeł, nie opinia prawna.
 | nazwa HF/URL | licencja | status | powód | data |
 |---|---|---|---|---|
 | `epfml/FineWeb2-HQ` (`pol_Latn`) | ODC-BY | kandydat | rozumowanie naukowe i wiedza (ARC-C, MMLU, LLMzSzŁ); ~13-20 mld tok.; wymaga dedupu wobec HPLT i 13-gramów wobec arkuszy CKE | 2026-10-30 |
-| `HuggingFaceFW/fineweb-edu` (próg ≥4) | ODC-BY | użyty w Slayerze | już jest w 10% EN Slayera (`dataset.json`); nowy kandydat tylko jako wyższy udział albo ostrzejszy próg, nie jako nowe źródło | 2026-10-30 |
+| `HuggingFaceFW/fineweb-edu` (próg ≥4) | ODC-BY | użyty w Slayerze | już jest w 10% EN Slayera (`dataset.json`); nowy kandydat wchodzi jako wyższy udział albo ostrzejszy próg istniejącego źródła | 2026-10-30 |
 | `HuggingFaceTB/smollm-corpus` → `cosmopedia-v2` | ODC-BY | kandydat | syntetyczne podręczniki EN (Mixtral), ~28 mld tok. (niesprawdzone); karta v2 nie podaje dekontaminacji, ryzyko halucynacji i monotonnego stylu | 2026-10-30 |
 | `common-pile/pubmed` | CC BY / CC BY-SA / CC0 (tylko te rekordy) | kandydat | wiedza medyczna (MedMCQA, PubMedQA); abstrakty testu PubMedQA wyciąć 13-gramami; przed użyciem skan PII medycznego (np. Philter, Presidio), bo karta nic o tym nie mówi; niski priorytet przy 1B | 2026-10-30 |
 | `allenai/soda` | CC BY 4.0 | kandydat | dialogi i intencje (Social IQa, PoLEMo2); wysokie ryzyko kontaminacji: SODA i SIQA powstały z ATOMIC, ocena transferu na innym zbiorze | 2026-10-30 |
 | Pakiet podręczników PL: `polish-dynaword` → `wikibooks` + `open_agh_chemistry` + ZPE | CC-BY/CC-BY-SA; ZPE niepotwierdzona (licencja per zasób) | kandydat | wiedza szkolna PL; wikibooks już użyty (tylko podniesienie wagi); ZPE dopiero po potwierdzeniu licencji i dedupie wobec LLMzSzŁ (zadania CKE); zakazu trenowania AI jak u OpenStax nie znaleziono: Wikibooks (warunki Wikimedia) i Open AGH (CC BY-SA 3.0/4.0, wersję wyjaśnić) bez klauzuli, regulamin ZPE bez wzmianki o AI/TDM, ale ogranicza użycie do celów edukacyjnych (§3 ust. 4); licencje pojedynczych zasobów ZPE, strony podręczników AGH i robots.txt/TDMRep niesprawdzone | 2026-10-30 |
-| `SlayerLab/polish-dynaword` → `biblioteka_nauki` (podzbiór medyczny / akademicki) | per rekord | kandydat | wiedza akademicka i medyczna PL; sprawdzić, czy już jest w `core` Slayera | 2026-10-30 |
+| `SlayerLab/polish-dynaword` → `biblioteka_nauki` (podzbiór medyczny / akademicki) | per rekord | kandydat | wiedza akademicka i medyczna PL; niesprawdzone, czy już jest w Slayerze (1.5) | 2026-10-30 |
 | Wiktionary PL (definicje + przykłady) | CC-BY-SA (niesprawdzone) | kandydat | znaczenie słowa (WiC); dopiero po kalibracji formatu, bo stałe predykcje WiC to format | 2026-10-30 |
 
 ## 3. Kandydaci z przeglądu 30.10
