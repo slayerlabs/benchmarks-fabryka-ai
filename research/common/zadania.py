@@ -308,7 +308,7 @@ ZADANIA = {
     "T39": dict(benchmark_id="drop", task="drop", family="drop", language="EN",
                 metric="f1,none", unit="score", higher_is_better=True, lm_eval="drop",
                 repo="EleutherAI/drop", rewizja="619386fc7ffe6dace3cc6d3483c69b164ebf6bf3",
-                split="validation", rodzaj="proba", klucz="f1", baza="gen"),
+                split="validation", rodzaj="proba", klucz="f1", baza="gen", klastry="passage"),
     "T41": dict(benchmark_id="coqa", task="coqa", family="coqa", language="EN",
                 metric="f1,none", unit="score", higher_is_better=True, lm_eval="coqa",
                 repo="EleutherAI/coqa", rewizja="82e11af842af6c1396f5e9a5c7de260107c50cf1",

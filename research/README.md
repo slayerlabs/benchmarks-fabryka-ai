@@ -52,7 +52,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`cola`](benchmarks/cola/README.md) | T49 | `mcc` | | T49 | nieustalone |
 | [`copa`](benchmarks/copa/README.md) | T11 | `mc` | | T11 | nieustalone |
 | [`coqa`](benchmarks/coqa/README.md) | T41 | `ciagla` | | T41 | nieustalone |
-| [`drop`](benchmarks/drop/README.md) | T39 | `ciagla` | | T39 | nieustalone |
+| [`drop`](benchmarks/drop/README.md) | T39 | `ciagla +klastry` | klastry: `passage` (9536 pytań do 579 tekstów) | T39 | nieustalone |
 | [`dyk`](benchmarks/dyk/README.md) | T25 | `f1-korpus +klastry +pl` | klastry: pytanie (1029 wierszy do 264 pytań) | T25 | nieustalone |
 | [`ewok`](benchmarks/ewok/README.md) | T53 | `para +klastry` | klastry: szablony; domeny informacyjnie | T53, własny kod | nieustalone |
 | [`ewok-pl`](benchmarks/ewok-pl/README.md) | | `para +klastry +pl` | klastry: szablony; domeny informacyjnie | nie, własny kod | nieustalone |
@@ -113,7 +113,7 @@ Testy T01–T50 według typu:
 | `gen` | T30 PolQA (`+pl`), T31 PoQuAD (`+klastry +pl`), T33 GSM8K, T34 MATH (`+warstwy`), T42 NQ, T43 TriviaQA (`+klastry`), T47 BBH (`+warstwy`) |
 | `ifeval` | T36 IFEval |
 | `f1-korpus` | T25 DYK (`+klastry`: 1029 wierszy do 264 pytań), T27 PSC (`+klastry`: 1078 wierszy do 507 tekstów), T28 CBD (wszystkie `+pl`) |
-| `ciagla` | T38 SQuAD2 (`+proc`, b i kontrola na HasAns), T39 DROP, T41 CoQA, T50 ReCoRD (`+klastry`; wybór encji, więc b to baza losowa po opcjach) |
+| `ciagla` | T38 SQuAD2 (`+proc`, b i kontrola na HasAns), T39 DROP (`+klastry`), T41 CoQA, T50 ReCoRD (`+klastry`; wybór encji, więc b to baza losowa po opcjach) |
 | `masa` | T35 TruthfulQA MC2 |
 | `mcc` | T49 CoLA |
 
