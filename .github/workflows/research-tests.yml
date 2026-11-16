@@ -33,16 +33,28 @@ jobs:
           tests/test_blimp.py
           tests/test_blimp_checkpoints.py
           tests/test_blimp_checkpoints_independent.py
+          tests/test_coqa.py
           tests/test_full_run_report.py
+          tests/test_gsm8k.py
           tests/test_hellaswag.py
+          tests/test_ifeval.py
+          tests/test_klej_ner.py
           tests/test_liczby_raportow.py
+          tests/test_mmlu.py
+          tests/test_nq_open.py
           tests/test_piqa.py
+          tests/test_polqa.py
+          tests/test_poquad.py
           tests/test_przebieg_centralny.py
+          tests/test_race.py
           tests/test_snr_panelu.py
           tests/test_social_iqa.py
+          tests/test_squad2.py
           tests/test_start.py
           tests/test_statystyka.py
           tests/test_straznik_i_kontrola.py
+          tests/test_triviaqa.py
+          tests/test_truthfulqa.py
           tests/test_wikitext_mianownik.py
           tests/test_winogrande.py
           tests/test_winogrande_przelicz.py
