@@ -237,6 +237,30 @@ def test_przebieg_blad_to_obserwacja_failed_i_kod_1():
     assert obs["protocol"]["rule"] == "authors" and obs["protocol"]["probka"] == "2"
 
 
+def test_przebieg_dtype_goes_to_the_model_and_into_the_result():
+    """--dtype bfloat16 (tools/przebieg_centralny.sh, Bielik 11B): build_model gets it and the protocol records it;
+    without the flag float32, as before."""
+    for dtype in ("bfloat16", None):
+        out = Path(tempfile.mkdtemp()) / "wyj"
+        dostal = []
+
+        def atrapa(path, device, rule="authors", dtype="float32"):
+            dostal.append(dtype)
+            raise RuntimeError("atrapa modelu")
+
+        oryginal = E.load_records, E.build_model
+        E.load_records, E.build_model = _rekordy, atrapa
+        try:
+            a = SimpleNamespace(wyjscie=str(out), probka="2", model_path=str(out), device="cpu", batch=1,
+                                zadania="T53", etykieta="atrapa", repo="r", revision="v",
+                                **({"dtype": dtype} if dtype else {}))
+            assert E.cmd_przebieg(a) == 1
+        finally:
+            E.load_records, E.build_model = oryginal
+        obs = json.loads((out / "results_rozszerzone.json").read_text())["observations"][0]
+        assert dostal == [dtype or "float32"] and obs["protocol"]["dtype"] == (dtype or "float32")
+
+
 def test_wpis_przebiegu_zgodny_z_karta():
     """ZADANIA T53 against benchmarks/ewok/ORIGINAL.md and this code (own code: the run calls ewok.py przebieg)."""
     sys.path.insert(0, str(ROOT / "common"))

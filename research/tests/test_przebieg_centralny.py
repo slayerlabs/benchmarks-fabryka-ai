@@ -8,6 +8,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+import pytest
+
 KORZEN = Path(__file__).resolve().parent.parent
 SKRYPT = KORZEN / "tools" / "przebieg_centralny.sh"
 BIELIK = "speakleash/Bielik-1.5B-v3"  # gated repo: counted with access, skipped without (licz_model, dostep_hf)
@@ -21,13 +23,24 @@ def uruchom(*args, ws=None):
 
 
 def modele_skryptu():
+    """MODELE rows: label|repo|revision|loader|env[|dtype[|ckpt_file|ckpt_sha256|template_repo@revision]]."""
     return [l.split("|") for l in uruchom("lista").splitlines()]
 
 
-def tabela_metodologii():
+def ckpt_wiersza(m):
+    """(ckpt_file, ckpt_sha256, template_repo, template_revision) of a slayer-ckpt row."""
+    assert len(m) == 9, m
+    return (m[6], m[7], *m[8].split("@"))
+
+
+def tabela_metodologii(naglowek="### Pięć modeli odniesienia"):
     tekst = (KORZEN / "METODOLOGIA.md").read_text(encoding="utf-8")
-    sekcja = tekst.split("### Pięć modeli odniesienia", 1)[1].split("\n### ", 1)[0]
+    sekcja = tekst.split(naglowek, 1)[1].split("\n### ", 1)[0]
     return dict(re.findall(r"^\| `([^`]+)` \| `([0-9a-f]{40})` \|", sekcja, re.MULTILINE))
+
+
+def porownawcze_metodologii():
+    return tabela_metodologii("### Modele porównawcze z #190")
 
 
 def slayer_metodologii():
@@ -39,7 +52,7 @@ def slayer_metodologii():
 
 def zmienna_skryptu(nazwa):
     env = {**os.environ, "WS": tempfile.mkdtemp(), "K": str(KORZEN)}
-    return subprocess.run(["bash", "-c", f"source {SKRYPT} _funkcje; echo \"${nazwa}\""], capture_output=True,
+    return subprocess.run(["bash", "-c", f"source {SKRYPT} _funkcje; echo \"${{{nazwa}-}}\""], capture_output=True,
                           text=True, check=True, env=env).stdout.strip()
 
 
@@ -52,11 +65,39 @@ def klucze_zadan():
 
 
 def test_reference_models_match_methodology():
-    tabela = tabela_metodologii()
+    tabela, porownawcze = tabela_metodologii(), porownawcze_metodologii()
     assert len(tabela) == 5 and BIELIK in tabela
-    odniesienia = {repo: rev for _, repo, rev, _, _ in modele_skryptu()
-                   if not repo.startswith("SlayerLab/") and repo != KONTROLNY}
+    odniesienia = {m[1]: m[2] for m in modele_skryptu()
+                   if not m[1].startswith("SlayerLab/") and m[1] != KONTROLNY and m[1] not in porownawcze}
     assert odniesienia == tabela
+
+
+def test_comparison_models_match_methodology_and_come_after_the_measured_list():
+    """Every row outside the measured Slayer, the five references and the control model is in "Modele porównawcze
+    z #190" with the same revision, and the other way round; they follow the measured list (MODELE+=)."""
+    porownawcze = porownawcze_metodologii()
+    modele = modele_skryptu()
+    repo_slayera = slayer_metodologii()[0]
+    reszta = [m for m in modele if m[1] not in tabela_metodologii() and m[1] not in (KONTROLNY, repo_slayera)]
+    assert {(m[1], m[2]) for m in reszta} == set(porownawcze.items())
+    assert {"speakleash/Bielik-11B-v3.1-Instruct", "LiquidAI/LFM3-1.7B",
+            "SlayerLab/Slayer1B-1.09-checkpoints"} <= set(porownawcze)
+    assert modele[-len(reszta):] == reszta
+    assert "### Modele porównawcze z #190" in (KORZEN / "METODOLOGIA.md").read_text(encoding="utf-8")
+
+
+def test_bielik_11b_runs_in_bfloat16_everywhere_and_float32_rows_keep_their_command():
+    """11B float32 weights (~45 GB) do not fit a 32 GB card: every command of the row, own-code EWoK too, gets
+    --dtype bfloat16; a float32 row gets no --dtype (same command as the earlier runs)."""
+    ws = tempfile.mkdtemp()
+    wiersz = next(m for m in modele_skryptu() if m[0] == "bielik-11b-v3.1-instruct")
+    assert wiersz == ["bielik-11b-v3.1-instruct", "speakleash/Bielik-11B-v3.1-Instruct",
+                      "d6e755d356ad418d0f0e30b8c428db267415ddb9", "hf", "lock", "bfloat16"]
+    linie = uruchom("plan", "bielik-11b-v3.1-instruct lfm3-1.7b", ws=ws).splitlines()
+    bielik = [l for l in linie if "--etykieta bielik-11b-v3.1-instruct " in l]
+    assert len(bielik) == len(klucze_zadan()) and all(l.endswith(" --dtype bfloat16") for l in bielik)
+    assert any("ewok.py przebieg " in l for l in bielik)
+    assert not [l for l in linie if "--dtype" in l and l not in bielik]
 
 
 def test_control_model_is_first_on_methodology_list():
@@ -70,7 +111,8 @@ def test_control_model_is_first_on_methodology_list():
 def test_bielik_runs_in_the_lock_env_with_hflm():
     """LlamaForCausalLM with tokenizer.json (HF model card @ 4b25049): transformers 4.57.6 of the lock loads it, no
     remote code, so neither `new` nor `hf-trust`."""
-    assert [(l, w, e) for _, r, _, l, e in modele_skryptu() for w in [r] if r == BIELIK] == [("hf", BIELIK, "lock")]
+    assert [m for m in modele_skryptu() if m[1] == BIELIK] == [
+        ["bielik-1.5b-v3", BIELIK, "4b25049621bf3952a1fc9314c89773102eda0333", "hf", "lock"]]
 
 
 def atrapa_srodowiska(ws, dostep):
@@ -134,60 +176,99 @@ def test_gated_model_with_access_is_counted_in_the_lock_env():
 
 
 def test_slayer_revision_matches_methodology():
-    slayery = [(repo, rev, loader) for _, repo, rev, loader, _ in modele_skryptu() if repo.startswith("SlayerLab/")]
+    """The measured Slayer (METODOLOGIA line) is the first SlayerLab row, its checkpoint file in its own row; any
+    other SlayerLab row is a comparison model."""
+    slayery = [m for m in modele_skryptu() if m[1].startswith("SlayerLab/")]
     repo, rev, plik = slayer_metodologii()
     loader = "slayer-ckpt" if plik else "slayer"
-    assert slayery == [(repo, rev, loader)]
+    assert (slayery[0][1], slayery[0][2], slayery[0][3]) == (repo, rev, loader)
     if plik:
-        assert repo.endswith("-checkpoints") and zmienna_skryptu("SLAYER_CKPT") == plik
+        assert repo.endswith("-checkpoints") and ckpt_wiersza(slayery[0])[0] == plik
+    assert {(m[1], m[2]) for m in slayery[1:]} <= set(porownawcze_metodologii().items())
 
 
 def test_labels_unique_and_fields_valid():
     modele = modele_skryptu()
     assert len({m[0] for m in modele}) == len(modele)
     assert all(m[3] in ("slayer", "slayer-ckpt", "hf", "hf-trust") and m[4] in ("lock", "new") for m in modele)
+    assert all(len(m) == 5 or m[5] in ("float32", "bfloat16") for m in modele)
+    assert all(m[5] == "float32" for m in modele if m[3].startswith("slayer") and len(m) > 5)  # Slayer: float32 only
+    for m in modele:  # checkpoint fields only and always on slayer-ckpt rows
+        assert (len(m) == 9) == (m[3] == "slayer-ckpt"), m
+        if len(m) == 9:
+            plik, sha, wz_repo, wz_rev = ckpt_wiersza(m)
+            assert plik.endswith(".pt") and re.fullmatch(r"[0-9a-f]{64}", sha) and re.fullmatch(r"[0-9a-f]{40}", wz_rev)
+            assert wz_repo.startswith("SlayerLab/Slayer1B-") and not wz_repo.endswith("-checkpoints")
 
 
-def test_slayer_ckpt_is_converted_against_the_template_then_evaluated_as_slayer():
-    """slayer-ckpt: checkpoint file from the -checkpoints repo at the pinned revision, the template model, konwertuj.py
-    into $WS/modele/<label>, both downloads deleted, ewaluuj.py with --model slayer on the converted directory."""
+def test_slayer_rows_carry_their_own_checkpoint():
+    """1.07 and 1.09-k40000: file, sha256 (card / SHA256SUMS of the revision) and template per row, no global."""
+    ck = {m[0]: ckpt_wiersza(m) for m in modele_skryptu() if m[3] == "slayer-ckpt"}
+    assert ck["slayer1b-1.07"] == ("ckpt_22327.pt", "48cdb5eb16b69e0ee9a7a2ed72895ff47c0ba57aca0f4516b1f7e9cba286685c",
+                                   "SlayerLab/Slayer1B-1.06", "ef81be58742544ad32e1afab38db011fec209609")
+    assert ck["slayer1b-1.09-k40000"] == (
+        "wagi_40000.pt", "f83f7017872f7121f002bc77499c625304bd28e2c87fb4afaa0e3d445bd31881",
+        "SlayerLab/Slayer1B-1.08", "5f854a0cc7160594d54d1788d37a44e8ebabe16c")
+    for nazwa in ("SLAYER_CKPT", "SLAYER_CKPT_SHA256", "SLAYER_WZORZEC"):
+        assert zmienna_skryptu(nazwa) == ""
+
+
+def test_slayer_ckpt_row_without_checkpoint_fields_stops():
+    env = {**os.environ, "WS": tempfile.mkdtemp(), "K": str(KORZEN)}
+    wiersz = "x|SlayerLab/Slayer1B-9.99-checkpoints|" + "0" * 40 + "|slayer-ckpt|lock"
+    wynik = subprocess.run(["bash", "-c", f"source {SKRYPT} _funkcje; MODELE=('{wiersz}'); model x"],
+                           capture_output=True, text=True, env=env)
+    assert wynik.returncode == 1 and "ckpt_file|ckpt_sha256" in wynik.stderr
+
+
+SLAYERY_CKPT = [m[0] for m in modele_skryptu() if m[3] == "slayer-ckpt"]
+
+
+@pytest.mark.parametrize("etykieta", SLAYERY_CKPT)
+def test_slayer_ckpt_is_converted_against_the_template_then_evaluated_as_slayer(etykieta):
+    """slayer-ckpt: checkpoint file of the row from the -checkpoints repo at the pinned revision, the row's template,
+    konwertuj.py into $WS/modele/<label>, both downloads deleted, ewaluuj.py with --model slayer on the result."""
     ws = tempfile.mkdtemp()
     atrapa_srodowiska(ws, dostep=True)
-    etykieta, repo, rev, _, _ = next(m for m in modele_skryptu() if m[3] == "slayer-ckpt")
-    ckpt, wzorzec = zmienna_skryptu("SLAYER_CKPT"), zmienna_skryptu("SLAYER_WZORZEC").split("|")
+    m = next(m for m in modele_skryptu() if m[0] == etykieta)
+    repo, rev = m[1], m[2]
+    ckpt, sha, wz_repo, wz_rev = ckpt_wiersza(m)
     wynik = kolejka(ws, etykieta)
     assert wynik.returncode == 0, wynik.stderr
     wywolania = (Path(ws) / "wywolania.log").read_text().splitlines()
     d = f"{ws}/modele/{etykieta}"
     pobranie = [w for w in wywolania if "hf_hub_download" in w]
     assert len(pobranie) == 1 and f"h('{repo}', '{ckpt}', revision='{rev}', local_dir='{d}.ckpt')" in pobranie[0]
-    assert any(f"s('{wzorzec[0]}', revision='{wzorzec[1]}', local_dir='{d}.wzorzec'" in w for w in wywolania)
+    assert any(f"s('{wz_repo}', revision='{wz_rev}', local_dir='{d}.wzorzec'" in w for w in wywolania)
     konw = [i for i, w in enumerate(wywolania) if "tools/konwertuj.py" in w]
-    sha = zmienna_skryptu("SLAYER_CKPT_SHA256")
-    assert re.fullmatch(r"[0-9a-f]{64}", sha)
     assert len(konw) == 1 and wywolania[konw[0]].endswith(f"{d}.ckpt/{ckpt} {d}.wzorzec {d} --sha256 {sha}")
     ewaluacje = [i for i, w in enumerate(wywolania) if f"--etykieta {etykieta}" in w]
     assert len(ewaluacje) == 2 and min(ewaluacje) > konw[0]
     assert all("--model slayer " in wywolania[i] and f"--model_path {d} " in wywolania[i] for i in ewaluacje)
+    assert not any("--dtype" in wywolania[i] for i in ewaluacje)
     assert not any(Path(f"{d}{s}").exists() for s in (".ckpt", ".wzorzec"))
 
 
-def test_slayer_ckpt_already_converted_is_not_downloaded_again():
-    ws = tempfile.mkdtemp()
-    atrapa_srodowiska(ws, dostep=True)
-    etykieta = next(m[0] for m in modele_skryptu() if m[3] == "slayer-ckpt")
-    d = Path(ws) / "modele" / etykieta
-    d.mkdir(parents=True)
-    (d / "model.safetensors").write_bytes(b"x")
-    (d / "config.json").write_text(json.dumps({"zrodlo_ckpt": f"/w/{zmienna_skryptu('SLAYER_CKPT')}"}, indent=1))
-    env = {**os.environ, "WS": ws, "K": str(KORZEN), "ZADANIA_ID": "T02", "ZOSTAW_WAGI": "1"}
-    wynik = subprocess.run(["bash", "-c", f"source {SKRYPT} _funkcje; licz_kolejke - {etykieta}"],
-                           capture_output=True, text=True, env=env)
-    assert wynik.returncode == 0, wynik.stderr
-    assert "juz skonwertowane" in wynik.stdout
-    wywolania = (Path(ws) / "wywolania.log").read_text()
-    assert "hf_hub_download" not in wywolania and "konwertuj.py" not in wywolania
-    assert f"--etykieta {etykieta}" in wywolania
+@pytest.mark.parametrize("etykieta", SLAYERY_CKPT)
+def test_slayer_ckpt_already_converted_is_not_downloaded_again(etykieta):
+    """A directory converted from this row's checkpoint (sha256 in config.json) is reused; one converted from another
+    checkpoint is converted again."""
+    ckpt, sha, _, _ = ckpt_wiersza(next(m for m in modele_skryptu() if m[0] == etykieta))
+    for sha_katalogu, ponownie in ((sha, False), ("f" * 64, True)):
+        ws = tempfile.mkdtemp()
+        atrapa_srodowiska(ws, dostep=True)
+        d = Path(ws) / "modele" / etykieta
+        d.mkdir(parents=True)
+        (d / "model.safetensors").write_bytes(b"x")
+        (d / "config.json").write_text(json.dumps({"zrodlo_ckpt": f"/w/{ckpt}", "ckpt_sha256": sha_katalogu}, indent=1))
+        env = {**os.environ, "WS": ws, "K": str(KORZEN), "ZADANIA_ID": "T02", "ZOSTAW_WAGI": "1"}
+        wynik = subprocess.run(["bash", "-c", f"source {SKRYPT} _funkcje; licz_kolejke - {etykieta}"],
+                               capture_output=True, text=True, env=env)
+        assert wynik.returncode == 0, wynik.stderr
+        assert ("juz skonwertowane" in wynik.stdout) != ponownie
+        wywolania = (Path(ws) / "wywolania.log").read_text()
+        assert ("hf_hub_download" in wywolania and "konwertuj.py" in wywolania) == ponownie
+        assert f"--etykieta {etykieta}" in wywolania
 
 
 def test_task_dirs_cover_exactly_zadania():
