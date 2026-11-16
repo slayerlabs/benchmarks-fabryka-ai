@@ -8,7 +8,8 @@
 #   lista                 model list, the MODELE rows (read by tests/test_przebieg_centralny.py)
 #   plan "LABEL ..."       ewaluuj.py commands that `licz` would run, without running them ("# GPU N:" per queue)
 #   przygotuj LIMIT_S      safety destroy after LIMIT_S, both venvs, HF download speed test
-#   licz "LABEL ..."       in the background: per model download weights, every task, delete weights (a gated
+#   licz "LABEL ..."       in the background: per model download weights, every task (a stage B control model:
+#                          only its TESTY_MODELU tests), delete weights (a gated
 #                          repo the HF token cannot read is skipped: log line POMINIETY, $ST/pominiety_<label>.txt);
 #                          with N > 1 GPUs (nvidia-smi -L) models go round robin to N queues, one per GPU
 #                          (CUDA_VISIBLE_DEVICES), queue log $WS/logi/<stage>_gpu<N>.log
@@ -76,6 +77,20 @@ MODELE+=(
   # TODO k50000: revision of SlayerLab/Slayer1B-1.09-checkpoints that has wagi_50000.pt, and that file's line in SHA256SUMS
   # "slayer1b-1.09-k50000|SlayerLab/Slayer1B-1.09-checkpoints|<REWIZJA>|slayer-ckpt|lock|float32|wagi_50000.pt|<SHA256>|SlayerLab/Slayer1B-1.08@5f854a0cc7160594d54d1788d37a44e8ebabe16c"
 )
+# Stage B control models (METODOLOGIA "Modele kontrolne etapu B w przebiegu"): the candidate of a card, item 3 of
+# "Model kontrolny etapu B", that the central run reproduces. Each runs only its own tests (TESTY_MODELU), and stays
+# outside the reference comparison, the SNR panel (tools/snr_panelu.py reads the first block) and the report
+# (tools/ewaluacja/raport.py drops them). float32 unless the source counted a model of >= 6 B params in bfloat16.
+# bloom-560m: a later revision than the WSC273 control (tools/ewaluacja/ewaluacja.py), hence the revision in the label.
+MODELE+=(
+  "bloom-560m-e985a63|bigscience/bloom-560m|e985a63cdc139290c5f700ff1929f0b5942cced2|hf|lock"
+  "bloom-1b7|bigscience/bloom-1b7|258ce6c9fe66893de0218d9e6a322947987c8349|hf|lock"
+  "pythia-1b|EleutherAI/pythia-1b|f73d7dcc545c8bd326d8559c8ef84ffe92fea6b2|hf|lock"
+  "qwen1.5-7b|Qwen/Qwen1.5-7B|e52fa2ef47411cc8bc9f752d1d8d9072b37742e7|hf|lock|bfloat16"
+  "babyllama-10m-2024|babylm/babyllama-10m-2024|073b4258651a7a6268fc48e708cdbad6a20bddab|hf|lock"
+)
+# label:tests of a model that runs only those (comma-separated); every other model runs all of ZADANIA_ID
+TESTY_MODELU="bloom-560m-e985a63:T20 bloom-1b7:T38,T40,T41 pythia-1b:T36 qwen1.5-7b:T35 babyllama-10m-2024:T52"
 
 # Task id -> <benchmark> directory name under wyniki/ and results/central-run/; the test checks that ZADANIA_ID equals the keys of ZADANIA.
 KATALOGI="T01:blimp T02:arc-challenge T03:wikitext-2 T04:multiblimp-pl T05:hellaswag T06:piqa T08:openbookqa
@@ -92,6 +107,16 @@ GOTOWE="T01 T02 T03 T04 T05 T06 T07 T14 T17 T19 T44 T45 T46 T51 T53"
 # Tasks with their own code (`kod` in ZADANIA): `polecenie` runs this script with the ewaluuj.py flags instead
 KOD="T53:benchmarks/ewok/ewok.py"
 ZADANIA_ID=${ZADANIA_ID:-$(for p in $KATALOGI; do printf '%s ' "${p%%:*}"; done)}
+zadania_modelu() {  # zadania_modelu LABEL: $ZADANIA_ID, for a TESTY_MODELU label only its own tests among them
+  local p t z wynik=""
+  for p in $TESTY_MODELU; do
+    [[ ${p%%:*} == "$1" ]] || continue
+    z=" ${p#*:} "; z=${z//,/ }
+    for t in $ZADANIA_ID; do [[ $z == *" $t "* ]] && wynik+="$t "; done
+    echo "${wynik% }"; return 0
+  done
+  echo "$ZADANIA_ID"
+}
 katalog() { local p; for p in $KATALOGI; do [[ ${p%%:*} == "$1" ]] && echo "${p#*:}" && return 0; done; return 1; }
 kod_zadania() { local p; for p in $KOD; do [[ ${p%%:*} == "$1" ]] && echo "${p#*:}" && return 0; done; return 0; }
 
@@ -181,8 +206,13 @@ pobierz_wagi() {  # pobierz_wagi LABEL (after `model`): $WS/modele/LABEL ready f
 }
 
 licz_model() {  # licz_model LABEL: download, every task, delete weights; a failed task does not stop the rest
-  local L=$1 t T kod powod
+  local L=$1 t T kod powod zad
   model "$L"
+  zad=$(zadania_modelu "$L")
+  if [[ -z ${zad// /} ]]; then  # a control model none of whose tests is in this run: no download for nothing
+    echo "BEZ TESTOW $L: zadne z jego testow ($TESTY_MODELU) nie jest w ZADANIA_ID"
+    return 0
+  fi
   t=$(teraz)
   mkdir -p "$ST"
   kod=0; powod=$(dostep_hf) || kod=$?
@@ -200,7 +230,7 @@ licz_model() {  # licz_model LABEL: download, every task, delete weights; a fail
   mkdir -p "$ST/praca"; echo "$L" > "$znacznik"
   pobierz_wagi "$L"
   zapisz_czas pobranie "$t" "{\"model\": \"$L\", \"bajty\": $(bajty "$WS/modele/$L")}"
-  for T in $ZADANIA_ID; do
+  for T in $zad; do
     t=$(teraz)
     kod=0
     echo "gpu ${GPU_NR:--} $(gpu_nazwa)" > "$WS/logi/${L}_${T}_$ENV.log"
@@ -258,7 +288,7 @@ case "$etap" in
   plan)
     while read -r nr reszta; do
       [[ $nr == - ]] || echo "# GPU $nr: $reszta"
-      for L in $reszta; do for T in $ZADANIA_ID; do
+      for L in $reszta; do for T in $(zadania_modelu "$L"); do
         if [[ $nr == - ]]; then polecenie "$L" "$T"
         else echo "CUDA_VISIBLE_DEVICES=$nr $(GPU_NR=$nr polecenie "$L" "$T")"; fi
       done; done
@@ -328,14 +358,14 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
     export DEVICE=cpu PROBKA=${PROBA_N:-2} PROBKA_ROLLING=1 BATCH=1 WYNIKI=$WS/proba_cpu
     LISTA=${2:-$(printf '%s\n' "${MODELE[@]}" | cut -d'|' -f1)}
     if [[ ${SUCHO:-0} == 1 ]]; then
-      for L in $LISTA; do for T in $ZADANIA_ID; do polecenie "$L" "$T"; done; done
+      for L in $LISTA; do for T in $(zadania_modelu "$L"); do polecenie "$L" "$T"; done; done
       exit 0
     fi
     mkdir -p "$ST" "$WS/logi" "$WS/modele"
     for L in $LISTA; do licz_model "$L"; done
     # a gated model skipped by licz_model has no outputs; its skip stays in $ST/pominiety_<label>.txt
     python3 $K/tools/kontrola_sensu.py --tylko-stan $(for L in $LISTA; do [[ -e $ST/pominiety_$L.txt ]] && continue
-      for T in $ZADANIA_ID; do echo "$WYNIKI/$(katalog "$T")/$L"; done; done)
+      for T in $(zadania_modelu "$L"); do echo "$WYNIKI/$(katalog "$T")/$L"; done; done)
     ;;
   kontrola)  # sanity of full results (score 1.000, below random - 5 points, ...): $WS/logi/kontrola_sensu.txt
     mkdir -p "$WS/logi"
