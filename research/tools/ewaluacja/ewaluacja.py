@@ -52,7 +52,7 @@ MODELE_DODATKOWE = [
     "slayer1b-1.03|SlayerLab/Slayer1B-1.03|fee113efcad47f48dd0b80aa37952434f00bed43|slayer|lock",
     "slayer1b-1.04|SlayerLab/Slayer1B-1.04|09aa8abf19e8a6edc00615e739c949578b6b1021|slayer|lock",
     "slayer1b-1.05|SlayerLab/Slayer1B-1.05|21a05bc59932b54ac90da995e3ffb994c427ae16|slayer|lock",
-    # 1.07 jako wagi HF: config.ckpt_sha256 = SLAYER_CKPT_SHA256 (ckpt_22327) z przebieg_centralny.sh, bez konwersji
+    # 1.07 jako wagi HF: config.ckpt_sha256 = sha256 ckpt_22327 z wiersza slayer1b-1.07 w MODELE przebieg_centralny.sh, bez konwersji
     "slayer1b-1.07-hf|SlayerLab/Slayer1B-1.07|a090b54e658fb57dc5166c1fcc90cc6bf5c80106|slayer|lock",
     # 1.08 w trakcie publikacji (krok 1709 przy tej rewizji); nowsza rewizja = nowa linia z nową etykietą
     "slayer1b-1.08|SlayerLab/Slayer1B-1.08|5f854a0cc7160594d54d1788d37a44e8ebabe16c|slayer|lock",
@@ -89,6 +89,10 @@ class Model:
     loader: str     # slayer | slayer-ckpt | hf | hf-trust
     env: str        # lock | new
     dtype: str = "float32"
+    # slayer-ckpt rows of MODELE: checkpoint file, its sha256, template repo@revision (konwersja poza tym runnerem)
+    ckpt: str = ""
+    ckpt_sha256: str = ""
+    wzorzec: str = ""
 
 
 def _tekst_skryptu() -> str:

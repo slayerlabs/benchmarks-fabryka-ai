@@ -1,6 +1,6 @@
 # Stan benchmarków
 
-Stan na **7.11.2026**. Benchmark jest zrobiony, gdy jest **opisany, przygotowany i podpięty do przebiegu
+Stan na **16.11.2026**. Benchmark jest zrobiony, gdy jest **opisany, przygotowany i podpięty do przebiegu
 centralnego** ([METODOLOGIA, „Definicja „zrobione””](METODOLOGIA.md#definicja-zrobione)). Wtedy jedno uruchomienie
 `tools/przebieg_centralny.sh` na wynajętej karcie liczy wszystkie naraz. Zmieniasz stan benchmarku? Przestaw jego
 wiersz w tym samym PR.
@@ -15,9 +15,9 @@ wiersz w tym samym PR.
 %%{init: {'theme': 'base', 'themeVariables': {'pie1': '#1a7f37', 'pie2': '#9a6700', 'pie3': '#bc4c00', 'pie4': '#6e7781', 'pieStrokeColor': '#ffffff', 'pieOuterStrokeWidth': '0px'}}}%%
 pie showData
     "Gotowe" : 15
-    "W przebiegu, brak opisu" : 37
+    "W przebiegu, brak opisu" : 38
     "Opisane, poza przebiegiem" : 2
-    "Niezaczęte" : 30
+    "Niezaczęte" : 29
 ```
 
 **A** karta `ORIGINAL.md` · **B** `REPRODUCTION.md` (kontrola albo „bez kontroli”) · **przebieg** wpis w `ZADANIA`
@@ -53,15 +53,16 @@ test `tests/test_<name>.py`.
 
 <a name="brak-opisu"></a>
 
-## 🟡 W przebiegu, brak opisu · 37
+## 🟡 W przebiegu, brak opisu · 38
 
 Wpis w przebiegu jest. Brakuje karty (A), zapisu kontroli (B) albo testu `tests/test_<name>.py`; w wierszu „tylko B”
-test jest, w wierszach „A i B” brakuje też testu. Po zamknięciu karty automat zakłada zadanie B.
+test jest, w wierszu „B i test” jest karta A, w wierszach „A i B” brakuje też testu. Po zamknięciu karty automat zakłada zadanie B.
 
 | brakuje | benchmarki |
 |---|---|
-| tylko B | [BoolQ](benchmarks/boolq/) T10 #26 · [OpenBookQA](benchmarks/openbookqa/) T08 #31 · [SciQ](benchmarks/sciq/) T09 #30 · [BLiMP Supplement](benchmarks/blimp-supplement/README.md) T52 #33 · [COPA](benchmarks/copa/) T11 #105 · [PolEmo 2.0](benchmarks/polemo2/) T22 #113 · [8TAGS](benchmarks/8tags/) T23 #114 · [Belebele](benchmarks/belebele-pl/) T24 #115 · [DYK](benchmarks/dyk/) T25 #116 · [PPC](benchmarks/ppc/) T26 #117 · [LogiQA](benchmarks/logiqa/README.md) T18 #19 |
-| A i B, angielskie | CB T12 #106 · WiC T13 #107 · RTE T15 #109 · ANLI T16 #110 · PROST T20 #111 · SST-2 T21 #112 · MMLU T32 #123 · GSM8K T33 #124 · MATH T34 #125 (PR #141) · TruthfulQA T35 #126 · IFEval T36 #40 · SQuAD 2.0 T38 #128 · DROP T39 #129 · RACE T40 #130 · CoQA T41 #131 · NQ-Open T42 #132 · TriviaQA T43 #133 · BBH T47 #135 · PAWS T48 #136 · CoLA T49 #137 · ReCoRD T50 #138 |
+| tylko B | [BoolQ](benchmarks/boolq/) T10 #26 · [OpenBookQA](benchmarks/openbookqa/) T08 #31 · [SciQ](benchmarks/sciq/) T09 #30 · [BLiMP Supplement](benchmarks/blimp-supplement/README.md) T52 #33 · [COPA](benchmarks/copa/) T11 #105 · [PolEmo 2.0](benchmarks/polemo2/) T22 #113 · [8TAGS](benchmarks/8tags/) T23 #114 · [Belebele](benchmarks/belebele-pl/) T24 #115 · [DYK](benchmarks/dyk/) T25 #116 · [PPC](benchmarks/ppc/) T26 #117 · [LogiQA](benchmarks/logiqa/README.md) T18 #19 · [LLMzSzŁ](benchmarks/llmzszl/ORIGINAL.md) T37 #127 (B „bez kontroli”, kontrola `+pl`; kolumna informacyjna) |
+| B i test | [ANLI](benchmarks/anli-r3/ORIGINAL.md) T16 #110 · [IFEval](benchmarks/ifeval/ORIGINAL.md) T36 #40 · [SQuAD 2.0](benchmarks/squad2/ORIGINAL.md) T38 #128 · [DROP](benchmarks/drop/ORIGINAL.md) T39 #129 · [CoQA](benchmarks/coqa/ORIGINAL.md) T41 #131 · [BBH](benchmarks/bbh/ORIGINAL.md) T47 #135 · [PAWS](benchmarks/paws-en/ORIGINAL.md) T48 #136 |
+| A i B, angielskie | CB T12 #106 · WiC T13 #107 · RTE T15 #109 · PROST T20 #111 · SST-2 T21 #112 · MMLU T32 #123 · GSM8K T33 #124 · MATH T34 #125 (PR #141) · TruthfulQA T35 #126 · RACE T40 #130 · NQ-Open T42 #132 · TriviaQA T43 #133 · CoLA T49 #137 · ReCoRD T50 #138 |
 | A i B, polskie | PSC T27 #118 · CBD T28 #119 · NKJP-NER T29 #120 · PolQA T30 #121 · PoQuAD T31 #122 |
 
 Każdy z tych katalogów ma `README.md` i `RECIPE.md` ze zbiorem, rewizją, splitem, metryką i licencją.
@@ -77,13 +78,12 @@ Każdy z tych katalogów ma `README.md` i `RECIPE.md` ze zbiorem, rewizją, spli
 
 <a name="niezaczete"></a>
 
-## ⬜ Niezaczęte · 30
+## ⬜ Niezaczęte · 29
 
 <a href="https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22"><img src="../docs/img/zadania-na-start.svg" alt="Zadania na start" height="36"></a>
 
 | co | benchmarki |
 |---|---|
-| bez karty | [LLMzSzŁ](benchmarks/llmzszl/README.md) T37 #127: brak karty z promptem; kolumna informacyjna |
 | held-out | NLL EN/PL/kod #22 · kod źródłowy #42 |
 | [katalog CodeSOTA](https://beta.codesota.com/api/sub1b/benchmarks), bez issue | GPQA · GPQA Diamond · MMLU-Pro · IFBench · Multi-IF · MGSM · MMMLU · CaseReportBench · BFCL v3 · BFCL v4 · τ²-Bench Telecom · τ²-Bench Retail · GSM-Symbolic · SVAMP · AIME 2025 · HumanEval · HumanEval+ · MBPP · MBPP+ · LiveCodeBench · RULER · LongBench v2 · SimpleQA · WildBench · AlpacaEval 2.0 LC · MT-Bench · ARC-AGI-1 |
 

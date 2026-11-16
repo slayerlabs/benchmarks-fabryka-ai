@@ -60,6 +60,17 @@ def test_start_wszystkie_counts_the_whole_model():
     assert f"bash {SKRYPT} przygotuj 60" in wynik.stdout.splitlines()
 
 
+def test_start_wszystkie_for_the_comparison_models():
+    """The three models of #190: one command each, the whole model (every task of KATALOGI)."""
+    for model in ("bielik-11b-v3.1-instruct", "lfm3-1.7b", "slayer1b-1.09-k40000"):
+        wynik = subprocess.run(["bash", str(KORZEN / "tools" / "start.sh"), model, "wszystkie"],
+                               capture_output=True, text=True, check=True, env=env_bez_k(HF_TOKEN="x", START_SUCHO="1"))
+        assert f'bash {SKRYPT} licz "{model}"' in wynik.stdout.splitlines()
+        assert re.search(r"testy \(wszystkie, (\d+)\)", wynik.stdout)[1] == str(len(
+            subprocess.run(["bash", str(SKRYPT), "katalogi"], capture_output=True, text=True, check=True,
+                           env=env_bez_k()).stdout.splitlines()))
+
+
 def test_start_without_hf_token_stops_before_anything_runs():
     wynik = subprocess.run(["bash", str(KORZEN / "tools" / "start.sh"), "slayer1b-1.07"], capture_output=True,
                            text=True, env=env_bez_k(START_SUCHO="1"))

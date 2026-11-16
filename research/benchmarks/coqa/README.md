@@ -7,7 +7,8 @@ CoQA sprawdza pytania w rozmowie o jednym tekście. Zadanie lm-eval: `coqa`, spl
 Metryka decyzyjna: `f1` per pytanie lm-eval. Typ `ciagla` ([README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy)).
 
 Stan: podpięty do przebiegu centralnego (wpis `T41` w `common/zadania.py` i `KATALOGI`), wyników jeszcze nie ma.
-Kartę oryginału i odtworzenie (`ORIGINAL.md`, `REPRODUCTION.md`) dopisuje osobne zadanie.
+Karta oryginału: [`ORIGINAL.md`](ORIGINAL.md) (kandydat kontroli `bigscience/bloom-1b7`). Odtworzenie
+(`REPRODUCTION.md`) dopisuje osobne zadanie.
 
 ## Ustawienia poza YAML-em lm-eval
 

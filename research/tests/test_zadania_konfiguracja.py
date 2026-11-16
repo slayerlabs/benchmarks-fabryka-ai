@@ -141,8 +141,9 @@ def test_every_task_has_its_benchmark_directory():
 
 
 def test_polish_tasks_use_the_copied_openpl_yaml():
-    yamle = {t: m for t, m in Z.ZADANIA.items() if m.get("yaml")}
-    assert sorted(yamle) == [f"T{n}" for n in range(22, 32)]
+    # T37 LLMzSzŁ copies the Space definition from slayerlabs/Probierz, 0-shot: tests/test_llmzszl.py checks it
+    yamle = {t: m for t, m in Z.ZADANIA.items() if m.get("yaml") and t != "T37"}
+    assert sorted(yamle) == [f"T{n}" for n in range(22, 32)] and Z.ZADANIA["T37"].get("yaml")
     for t, meta in yamle.items():
         sciezka = Z.BENCHMARKI / meta["yaml"]
         assert OPENPL in sciezka.read_text(encoding="utf-8").splitlines()[0], t

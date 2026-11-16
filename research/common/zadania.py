@@ -158,7 +158,8 @@ ZADANIA = {
     "T16": dict(benchmark_id="anli", task="anli_r3", family="anli", language="EN",
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="facebook/anli", rewizja="8e4813d81f46d313dac7892e1c28076917cfcdf9",
-                nazwa_hf="plain_text", split="test_r3", rodzaj="mc", klasy_stale=True, pole_id="uid"),
+                nazwa_hf="plain_text", split="test_r3", rodzaj="mc", klasy_stale=True, klastry="premise",
+                pole_id="uid"),
     "T18": dict(benchmark_id="logiqa", task="logiqa", family="logiqa", language="EN",
                 metric="acc_norm,none", unit="score", higher_is_better=True, klucz="acc_norm",
                 repo="EleutherAI/logiqa", rewizja="c1eee1b2fd0ddc87777e36490f7ad54d0b97d141",
@@ -238,7 +239,13 @@ ZADANIA = {
                 nazwa_hf="poquad", split="validation", rodzaj="gen", klasy_stale=False, shoty=5, klastry="context",
                 rewizja_parquet="c76799436661006876ca3a2bf2ef2268b2179ac9", splity_dodatkowe=("train",),
                 yaml="poquad/lm_eval_tasks/polish_poquad/poquad_open_book.yaml"),
-    # T37 LLMzSzŁ is left out: it has no card with a prompt yet (benchmarks/llmzszl/README.md).
+    # LLMzSzŁ: the Space T37 definition (copy of slayerlabs/Probierz n05_llmzszl), the paper's prompt, letters A-D, 0-shot.
+    # The file has no id field: the panel id is the row index (card "Bazy: panel 200").
+    "T37": dict(benchmark_id="llmzszl", task="n05_llmzszl", family="llmzszl", language="PL",
+                metric="acc,none", unit="score", higher_is_better=True,
+                repo="amu-cai/llmzszl-dataset", rewizja="9c11d52a415147f1e2c44038a9d4d4155f064e1a",
+                split="test", rodzaj="mc", klasy_stale=True, shoty=0,
+                yaml="llmzszl/lm_eval_tasks/llmzszl/llmzszl.yaml"),
     "T40": dict(benchmark_id="race", task="race", family="race", language="EN",
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="EleutherAI/race", rewizja="66ca2e6374282f5e35b11559e87185db911a6900",
@@ -259,7 +266,7 @@ ZADANIA = {
     "T48": dict(benchmark_id="paws", task="paws_en", family="paws", language="EN",
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="google-research-datasets/paws-x", rewizja="4cd8187c404bda33cb1f62b49b001115862acf37",
-                nazwa_hf="en", split="test", rodzaj="mc", klasy_stale=True, pole_id="id"),
+                nazwa_hf="en", split="test", rodzaj="mc", klasy_stale=True, pole_id="id", klastry="zdania_paws"),
     # --- (c): config from the installed lm-eval YAML (`lm_eval` / `grupa`), dataset pinned here.
     # rodzaj: mc = own MC metrics from logliks; proba = lm-eval per-question metric `klucz` of filter `filtr`;
     # korpus = corpus metric over (gold, pred) pairs. baza: how the constant-answer baseline is computed
@@ -307,7 +314,7 @@ ZADANIA = {
     "T39": dict(benchmark_id="drop", task="drop", family="drop", language="EN",
                 metric="f1,none", unit="score", higher_is_better=True, lm_eval="drop",
                 repo="EleutherAI/drop", rewizja="619386fc7ffe6dace3cc6d3483c69b164ebf6bf3",
-                split="validation", rodzaj="proba", klucz="f1", baza="gen"),
+                split="validation", rodzaj="proba", klucz="f1", baza="gen", klastry="passage"),
     "T41": dict(benchmark_id="coqa", task="coqa", family="coqa", language="EN",
                 metric="f1,none", unit="score", higher_is_better=True, lm_eval="coqa",
                 repo="EleutherAI/coqa", rewizja="82e11af842af6c1396f5e9a5c7de260107c50cf1",
