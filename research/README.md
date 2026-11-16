@@ -103,7 +103,7 @@ Testy T01–T50 według typu:
 
 | typ | testy |
 |---|---|
-| `mc` | T05–T08, T10–T16, T18–T21, T40, T44–T46, T48 (T07, T14, T16 i T48 z `+klastry`); polskie (`+pl`): T22–T24, T26, T29, T37 |
+| `mc` | T05–T08, T10–T16, T18–T21, T40, T44–T46, T48 (T07, T10, T14, T16 i T48 z `+klastry`); polskie (`+pl`): T22–T24, T26, T29, T37 |
 | `mc +warstwy` | T32 MMLU (57 przedmiotów) |
 | `mc-k` | T02 ARC-Challenge |
 | `poz` | T09 SciQ |
