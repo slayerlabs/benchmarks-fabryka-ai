@@ -88,8 +88,10 @@ Obowiązuje każdy test. Gdzie treść reguły zależy od typu, reguła odsyła 
    podtestów. Wpis w `RECIPE.md` podaje ich id i to, co się zgadzało (wzór:
    [WinoGrande, „Smoke test przed przebiegiem”](benchmarks/winogrande/RECIPE.md#smoke-test-przed-przebiegiem)). *Recenzent:* otwiera jeden z podanych przykładów.
 9. **Bramka liczb.** Każda liczba w raporcie `.md` pod `research/` stoi w `results/LICZBY.json` albo ma na końcu
-   linii znacznik `<!-- liczba-spoza-wynikow: skąd jest liczba -->`, jedna linia na jeden wynik (wzór:
-   `benchmarks/arc-easy/ORIGINAL.md`). Bramka sprawdza raporty, warunek odtworzenia z etapu B sprawdza kod; to dwie
+   linii znacznik `<!-- liczba-spoza-wynikow: skąd jest liczba -->`, jedno źródło na linię: liczby z różnych źródeł
+   (inny model, inny plik, inne przeliczenie) stoją w osobnych liniach, każda ze swoim znacznikiem (wzór:
+   `benchmarks/arc-easy/ORIGINAL.md`). Znacznik zwalnia z bramki wszystkie liczby linii, więc ich zgodność ze
+   źródłem sprawdza recenzent. Bramka sprawdza raporty, warunek odtworzenia z etapu B sprawdza kod; to dwie
    różne rzeczy. *Recenzent:* komendy z [„Przed PR”](../CONTRIBUTING.md#przed-pr) kończą się kodem 0.
 10. **Czystość i kontaminacja.** Pytania testu nie trafiają do treningu, a karta ma pole „Kontaminacja” (sekcja
     „Czystość benchmarku”). *Recenzent:* przy wartości „sprawdzona” jest metoda.
@@ -101,7 +103,9 @@ tylko kolumny, w których nie stoi „typ bazowy”. Gdy dwa modyfikatory wypeł
 `+klastry`, warunek `+pl` (SE większe niż w oryginale → kolumna informacyjna) nadal obowiązuje, a w kolumnie
 „kontrola” stoją wszystkie sprawdzenia naraz (typu bazowego i modyfikatorów). **Klaster**
 to pozycje wygenerowane z jednego szablonu albo jednej gramatyki z podmianą słów, dwa warianty jednego zdania (pary
-bliźniacze) albo kilka pytań do tego samego tekstu w prompcie. **Warstwa** to podtest, po którym oryginał uśrednia
+bliźniacze), kilka pytań do tego samego tekstu w prompcie albo to samo pytanie powtórzone w splicie (TriviaQA
+`rc.nocontext` skleja dev web i dev Wikipedii, więc 7984 pytania stoją w nim dwa razy z tym samym promptem i tym
+samym wynikiem). **Warstwa** to podtest, po którym oryginał uśrednia
 wynik, a który nie jest pojedynczym szablonem; dopóki karta nie pokaże, że podtest to jeden szablon, jest warstwą.
 Typ każdego testu repo i Space podaje [README, „Benchmarki i typy”](README.md#benchmarki-i-typy).
 Typ nowego testu wpisujesz tylko tam, a karta do tego wiersza linkuje; test, który nie pasuje do żadnego wiersza
@@ -115,25 +119,32 @@ tabeli typów, dostaje nowy wiersz w tym PR, a nie najbliższy istniejący.
 | `para`: dwa (albo 2×2) zdania oceniane osobno | BLiMP, BLiMP Supplement, MultiBLiMP, EWoK | trafność 0–1 (rekord EWoK: 0, ½ albo 1) | 1/2 | N/A: poprawne zdanie stoi na stałej pozycji (pełna) albo stała preferencja daje 1/2 (EWoK); b = 1/2 | A | jak `mc`; pary z jednego paradygmatu albo szablonu: `+klastry` | wynik > b + 2 SE; przebieg z zamienioną kolejnością zdań w parze różni się od oryginalnego najwyżej o udział remisów (par o równym log-prawdopodobieństwie), który podajesz; para 2×2 bez pozycji (EWoK): zamiana N/A, bo stała preferencja daje dokładnie b | jak `mc` |
 | `cloze`: jedno słowo, otwarty słownik | LAMBADA | trafność 0–1 | N/A: otwarty słownik, przyjmujesz 0 | udział najczęstszego słowa docelowego w splicie | A | jak `mc` | wynik > b + 2 SE | ≥ 99% zgodnych decyzji per fragment |
 | `ppl`: perpleksja, BPB | WikiText-2, UncheatableEval | ciągła, niżej znaczy lepiej, nigdy w pkt | N/A: nie ma odpowiedzi do wyboru | N/A: nie ma stałej odpowiedzi; zamiast b porównanie z kolumny „kontrola” | B po dokumentach, metryka liczona od nowa agregacją oryginału (np. suma/suma) | jeden na test, po dokumentach | z oryginałem: odtworzenie opublikowanej wartości z progiem zapisanym przed pomiarem („Próg dla perpleksji i BPB”); bez oryginału: kontrola kolejności, czyli większy model tej samej rodziny ma BPB niższe o ≥ 2 SE (np. `EleutherAI/pythia-1b-v0` wobec `EleutherAI/pythia-160m-v0`, oba `step143000`), a przy zbiorze nieangielskim dodatkowo model znający język zbioru ma BPB niższe o ≥ 2 SE niż model bez niego | względna różnica NLL każdego dokumentu < 0,1% |
-| `gen`: generacja, dokładne dopasowanie | GSM8K, MATH, NQ, TriviaQA, BBH | trafność 0–1 | N/A: brak opcji, przyjmujesz 0 | wyższy z wyników pustej odpowiedzi i najczęstszej złotej odpowiedzi splitu | A | jak `mc` | wynik > b + 2 SE | ≥ 99% zgodnych ocen per pytanie, dekodowanie zachłanne |
+| `gen`: generacja, dokładne dopasowanie | GSM8K, MATH, NQ, TriviaQA, BBH; PolQA i PoQuAD (próg odległości Levenshteina daje 0 albo 1) | trafność 0–1 | N/A: brak opcji, przyjmujesz 0 | wyższy z wyników pustej odpowiedzi i najczęstszej złotej odpowiedzi splitu | A | jak `mc` | wynik > b + 2 SE | ≥ 99% zgodnych ocen per pytanie, dekodowanie zachłanne |
 | `ifeval`: instrukcje sprawdzane regułami | IFEval | `prompt_level_strict_acc` 0–1 | N/A: brak opcji, przyjmujesz 0 | wynik pustej odpowiedzi; to jedyne b testu, także w kontroli i meta-ocenie | A | jak `mc` | wynik > b + 2 SE | ≥ 99% zgodnych ocen per prompt |
 | `sedzia`: ocena modelem-sędzią | żaden test repo | N/A: repo ocenia deterministycznie, bez modelu-sędziego | N/A | N/A | N/A | N/A | N/A | N/A: test z sędzią wchodzi po decyzji zapisanej w issue, która wypełni ten wiersz |
 | `f1-korpus`: klasyfikacja, F1 na całym zbiorze | DYK, PSC, CBD (OpenPL) | F1 0–1 | oczekiwane F1 losowej predykcji klas z równymi szansami, na etykietach splitu | F1 najlepszej stałej predykcji (np. zawsze klasa pozytywna), nie udział klasy | B po pytaniach (z `+klastry` po klastrach) | jeden na test | wynik > b + 2 SE | ≥ 99% zgodnych predykcji klasy |
-| `ciagla`: średnia wartości ciągłej per pytanie | F1 tokenów (SQuAD2, DROP, CoQA, ReCoRD), Levenshtein (PolQA, PoQuAD) | 0–1 | N/A: generacja bez opcji, przyjmujesz 0 | wyższy z wyników pustej odpowiedzi i najczęstszej złotej odpowiedzi | A | jak `mc` | wynik > b + 2 SE; gdy pusta odpowiedź daje b, którego model wielkości mierzonego nie przekracza (SQuAD2: pytania bez odpowiedzi), b i kontrolę liczysz na podzbiorze z odpowiedzią (SQuAD2: HasAns, pusta odpowiedź daje tam 0), a wynik pełny stoi obok | wartość per pytanie równa do trzech miejsc po przecinku na ≥ 99% pytań |
-| `masa`: znormalizowana masa prawdopodobieństwa poprawnych opcji | TruthfulQA MC2 | 0–1 | średni udział poprawnych opcji wśród opcji pytania | N/A: każda opcja jest oceniana osobno, więc nie ma odpowiedzi do powtarzania; b = baza losowa | A | jak `mc` | wynik > b + 2 SE; sprawdzenie pozycji N/A z tego samego powodu | wartość per pytanie równa do trzech miejsc po przecinku na ≥ 99% pytań |
+| `ciagla`: średnia wartości ciągłej per pytanie | F1 tokenów (SQuAD2, DROP, CoQA, ReCoRD) | 0–1 | N/A: generacja bez opcji, przyjmujesz 0; gdy implementacja wybiera odpowiedź spośród opcji (ReCoRD w lm-eval: encje z tekstu), średnia metryki po losowej opcji (`baza="wybor_losowy"`) | wyższy z wyników pustej odpowiedzi i najczęstszej złotej odpowiedzi; przy wyborze spośród opcji N/A, bo model nie odda pustej odpowiedzi; b = baza losowa | A | jak `mc` | wynik > b + 2 SE; gdy pusta odpowiedź daje b, którego model wielkości mierzonego nie przekracza (SQuAD2: pytania bez odpowiedzi), b i kontrolę liczysz na podzbiorze z odpowiedzią (SQuAD2: HasAns, pusta odpowiedź daje tam 0), a wynik pełny stoi obok | wartość per pytanie równa do trzech miejsc po przecinku na ≥ 99% pytań |
+| `masa`: znormalizowana masa prawdopodobieństwa poprawnych opcji | TruthfulQA MC2 | 0–1 | metryka testu przy równych log-prawdopodobieństwach opcji, czyli średni udział opcji, które metryka liczy jako poprawne (MC2 z `6d2abda4`, `metryki.mc2`: opcje przed pierwszym 0 w `labels`) | N/A: każda opcja jest oceniana osobno, więc nie ma odpowiedzi do powtarzania; b = baza losowa | A | jak `mc` | wynik > b + 2 SE; sprawdzenie pozycji N/A z tego samego powodu | wartość per pytanie równa do trzech miejsc po przecinku na ≥ 99% pytań |
 | `mcc`: współczynnik Matthewsa | CoLA | −1…1, poziom losowy 0 | 0 | 0 (MCC stałej predykcji); b = 0 | B po pytaniach | jeden na test | wynik > 0 + 2 SE | ≥ 99% zgodnych predykcji klasy |
 | `+proc`: wynik w procentach | MultiBLiMP (T04), SQuAD2 (T38) | dzielisz przez 100, dalej typ bazowy | typ bazowy | typ bazowy | typ bazowy | typ bazowy | typ bazowy | typ bazowy |
 | `+warstwy`: średnia podtestów z wagami oryginału | BLiMP Supplement, UncheatableEval, MMLU, MATH, BBH | typ bazowy | w każdym podteście osobno, potem średnia z wagami oryginału | w każdym podteście osobno, potem średnia z wagami oryginału | W; bootstrap losuje wewnątrz podtestów | jeden na test z SE warstwowym; tabela podtestów informacyjnie | typ bazowy z SE warstwowym | typ bazowy w każdym podteście |
-| `+klastry`: pozycje w klastrach (definicja nad tabelą) | BLiMP (paradygmaty), EWoK i EWoK-PL (szablony), WinoGrande i WSC273 (pary bliźniacze), BoolQ i DYK (pytania do jednego tekstu) | typ bazowy | typ bazowy | typ bazowy | K, a przy metryce korpusowej B po klastrach; tym SE liczysz też SNR, MDE i kontrolę | jeden na test, z SE klastrowanym; tabele per klaster i per poziom tematyczny (zjawisko, domena) informacyjnie, każda z Holmem | typ bazowy z SE klastrowanym | typ bazowy |
+| `+klastry`: pozycje w klastrach (definicja nad tabelą) | BLiMP (paradygmaty), EWoK i EWoK-PL (szablony), WinoGrande i WSC273 (pary bliźniacze), BoolQ, DYK, ReCoRD i PoQuAD (pytania do jednego tekstu), TriviaQA (powtórzone pytania) | typ bazowy | typ bazowy | typ bazowy | K, a przy metryce korpusowej B po klastrach; tym SE liczysz też SNR, MDE i kontrolę | jeden na test, z SE klastrowanym; tabele per klaster i per poziom tematyczny (zjawisko, domena) informacyjnie, każda z Holmem | typ bazowy z SE klastrowanym | typ bazowy |
 | `+pl`: wersja polska albo test polski | EWoK-PL, testy OpenPL (T22–T31), LLMzSzŁ | typ bazowy | typ bazowy, na polskim zbiorze | typ bazowy, na polskim zbiorze | typ bazowy; gdy SE jest większe niż w oryginale, karta podaje oba, a test jest w meta-ocenie kolumną informacyjną | typ bazowy | z opublikowanym wynikiem jak test z oryginałem (etap B); bez niego model znający polski > b + 2 SE, a przy `ppl` BPB niższe o ≥ 2 SE niż `EleutherAI/pythia-1b-v0` | kod wersji polskiej na danych oryginalnych daje wynik etapu B (D3) |
 
 Pojęcia z tabeli:
 
 - **b:** wyższa z dwóch baz, losowej i stałej odpowiedzi, w skali 0–1 (po `+proc`). Przy „N/A” w kolumnie stałej
   odpowiedzi b to baza losowa. Porównanie z bazą: gdy b to baza losowa, z = (wynik − b) / SE wyniku; gdy b to stała
-  odpowiedź, porównanie jest parowane z wynikami per pytanie stałego predyktora, jak w rdzeniu (punkt 4).
-- **Stała odpowiedź:** najlepszy wynik kodu, który zawsze zwraca to samo (pozycję, klasę, słowo, tekst), liczony
-  metryką testu na liczonych pytaniach. Wartość jest dokładna ze splitu, nie zaokrąglona z abstraktu.
+  odpowiedź, porównanie jest parowane z wynikami per pytanie stałego predyktora, jak w rdzeniu (punkt 4). Wynik bez
+  wyników per pytanie (opublikowany wynik kandydata kontroli) porównujesz jak z bazą losową: z = (wynik − b) / SE
+  wyniku metodą z rdzenia, punkt 6, także gdy b to stała odpowiedź. Parowania nie szacujesz, ani z najgorszego, ani z
+  najlepszego przypadku.
+- **Stała odpowiedź:** wynik kodu, który zawsze zwraca to samo, liczony metryką testu na liczonych pytaniach dla
+  odpowiedzi z kolumny „stała odpowiedź” typu (liczy `bazy_proby` w `common/ewaluuj.py`, przy `mc` `bazy_mc`). Gdy
+  odpowiedzi do wyboru jest skończenie wiele (pozycja, klasa), kolumna bierze najlepszą z nich. Przy odpowiedzi
+  tekstowej kolumna wskazuje kandydatów (pusta, najczęstsza złota) i b nie jest górną granicą stałego predyktora:
+  tekst z częściowym trafieniem (F1 tokenów, próg Levenshteina) może dać więcej, a takiego tekstu się nie szuka.
+  Wartość jest dokładna ze splitu, nie zaokrąglona z abstraktu.
 - **SE A (analityczne):** s / √n, gdzie s to odchylenie standardowe wyników per pytanie; dla wyników 0/1 to
   √(p(1−p)/n). Różnica parowana: s różnic per pytanie / √n; różnica niezależna: √(SE₁² + SE₂²). Gdy wszystkie wyniki
   per pytanie są równe (s = 0, np. trafność 0), liczysz √(p̃(1−p̃)/(n + 4)) przy p̃ = (x + 2)/(n + 4), gdzie x to suma
@@ -173,7 +184,7 @@ wpisujesz dopiero po przeczytaniu kodu przypiętej wersji (sekcja „Wersja lm-e
 | Bazy | baza losowa, stała odpowiedź i b według kolumn typu, dokładne wartości ze splitu |
 | SNR | „po przebiegu centralnym”, dopóki przebieg nie objął testu; potem rozrzut na panelu (akapit pod tabelą) z listą modeli i commitem przebiegu; SE jednego wyniku dla n pełnego splitu metodą z kolumny „SE”; iloraz z przedziałem 95% i najmniejszym ilorazem bez jednego modelu panelu (`tools/snr_panelu.py`); szum checkpointów (odchylenie standardowe 5 ostatnich checkpointów jednego modelu), gdy są opublikowane |
 | MDE | dla panelu 200 i dla pełnego splitu (rdzeń, punkt 5) |
-| Wyniki referencyjne | co najmniej jeden opublikowany wynik modelu, który da się pobrać, z datą odczytu; bez takiego wyniku „brak” i miejsca, w których szukano (etap B idzie wtedy jako „bez kontroli”) |
+| Wyniki referencyjne | co najmniej jeden opublikowany wynik modelu, który da się pobrać, z datą odczytu; bez takiego wyniku „brak” i miejsca, w których szukano (etap B idzie wtedy jako „bez kontroli”). Przeszukujesz każde miejsce z listy „Model kontrolny etapu B”, także katalog `results/` lm-eval @ `afbf8e66` po nazwie zadania (komenda w szablonie karty), i wypisujesz każdy model z tego katalogu i z cytowanej tabeli, który da się pobrać, nie tylko jedną rodzinę modeli |
 | Train policy | `eval_only` (domyślnie, żaden split nie trafia do treningu) albo `train_allowed` dla wymienionych splitów z numerem issue z decyzją |
 | Decyzja treningowa | co oznacza słaby wynik i czego nie wolno z niego wnioskować; różnica w pkt, która zmieniłaby decyzję, albo „nieustalona” |
 | Kontaminacja | „sprawdzona: metoda, odsetek pokrytych pytań”, „znana: źródło” albo „nieznana” |
@@ -345,7 +356,15 @@ który ma taki wynik i przechodzi kontrolę z tabeli typów**:
    ustawieniami (prompt, liczba przykładów, metryka, wersja kodu), np. tabela w pracy autorów,
    [Open LLM Leaderboard](https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard), praca modelu z
    otwartymi wagami albo katalog `results/` w repo lm-eval (jest w starszych commitach, np. `afbf8e66`, a w v0.4.8 i
-   nowszych już nie).
+   nowszych już nie). Rewizja, której źródło nie podaje (`model_args` plików `results/` ma samo ID modelu), jest
+   ustalona, gdy pliki wag w repo modelu na HF nie zmieniły się od ich pierwszego commitu do daty commitu pliku z
+   wynikiem; karta podaje wtedy ostatnią rewizję sprzed tej daty z dopiskiem „rewizja z daty”. Model liczony z
+   lokalnej ścieżki (`pretrained=/…`) tej drogi nie ma.
+
+Kandydat spełnia swój punkt listy w całości albo nie jest kandydatem. Wynik bez któregoś z wymaganych ustawień
+wpisujesz w „Wyniki referencyjne” z nazwą brakującego ustawienia i bierzesz następny model; statusu „warunkowy” karta
+nie ma. Kandydat spoza `MODELE` jest pełnym kandydatem, a jego werdykt etapu B czeka na wpis do `MODELE` (sekcja „Kto
+liczy które modele”).
 
 Model z wynikiem, który nie przechodzi kontroli z tabeli typów (np. Pythia v0 przy poziomie losowym na ARC-Challenge
 i LogiQA albo znany wynik 1B pod bazą większościową na BoolQ), pomijasz i bierzesz następny. Benchmark polski albo bez
