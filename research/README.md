@@ -39,7 +39,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | katalog | test | typ | grupy | przebieg | wczesny sygnał (informacyjnie) |
 |---|---|---|---|---|---|
 | [`8tags`](benchmarks/8tags/README.md) | T23 | `mc +pl` | | T23 | nieustalone |
-| [`anli-r3`](benchmarks/anli-r3/README.md) | T16 | `mc` | | T16 | nieustalone |
+| [`anli-r3`](benchmarks/anli-r3/README.md) | T16 | `mc +klastry` | klastry: wspólna przesłanka (1200 pytań, 1128 przesłanek, 141 pytań dzieli przesłankę, do 3 na przesłankę) | T16 | nieustalone |
 | [`arc-challenge`](benchmarks/arc-challenge/README.md) | T02 | `mc-k` | | T02 | nieustalone |
 | [`arc-easy`](benchmarks/arc-easy/README.md) | T51 | `mc-k` | | T51 | tak |
 | [`bbh`](benchmarks/bbh/README.md) | T47 | `gen +warstwy` | warstwy: 27 zadań, wagi populacji | T47 | nieustalone |
@@ -103,7 +103,7 @@ Testy T01–T50 według typu:
 
 | typ | testy |
 |---|---|
-| `mc` | T05–T08, T10–T16, T18–T21, T40, T44–T46, T48 (T07 i T14 z `+klastry`); polskie (`+pl`): T22–T24, T26, T29, T37 |
+| `mc` | T05–T08, T10–T16, T18–T21, T40, T44–T46, T48 (T07, T14 i T16 z `+klastry`); polskie (`+pl`): T22–T24, T26, T29, T37 |
 | `mc +warstwy` | T32 MMLU (57 przedmiotów) |
 | `mc-k` | T02 ARC-Challenge |
 | `poz` | T09 SciQ |
