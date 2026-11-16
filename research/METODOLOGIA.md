@@ -471,7 +471,7 @@ zgadzać, pilnuje tego `tests/test_przebieg_centralny.py`. Krok 22327 to ostatni
 **Jedna komenda.** Nową wersję liczy przebieg centralny. Zmieniasz wiersz Slayera w `MODELE` na
 `slayer1b-<wersja>|SlayerLab/Slayer1B-<wersja>|<rewizja>|slayer|lock` i linię wyżej. Gdy wersja ma na HF tylko
 checkpointy trenera (`ckpt_N.pt`), wiersz ma loader `slayer-ckpt`, repo `SlayerLab/Slayer1B-<wersja>-checkpoints`, a
-nazwę pliku `SLAYER_CKPT`: `licz` pobiera ten plik, konwertuje go `slayer-1b/wygaszanie/konwertuj.py` względem modelu
+nazwę pliku `SLAYER_CKPT`: `licz` pobiera ten plik, konwertuje go `tools/konwertuj.py` względem modelu
 z `SLAYER_WZORZEC` (klucze, kształty, `config.json`, `tokenizer.json`) i liczy na wyniku. Konwersja zatrzymuje się,
 gdy konfiguracja architektury w checkpoincie różni się od wzorca, gdy checkpoint nie ma `config` i gdy suma pliku
 nie zgadza się z `SLAYER_CKPT_SHA256`.
@@ -524,7 +524,7 @@ wchodzi do obu środowisk).
    liczeniem uruchom je ponownie w `research/` klonu (z `export HF_TOKEN=…` jak w kroku 3):
 
    ```bash
-   nohup python3 slayer-1b/wygaszanie/bezpiecznik.py po 172800 "bash $PWD/tools/przebieg_centralny.sh pakuj" \
+   nohup python3 tools/bezpiecznik.py po 172800 "bash $PWD/tools/przebieg_centralny.sh pakuj" \
      > /workspace/logi/bezpiecznik.log 2>&1 &
    bash tools/przebieg_centralny.sh straznik
    ```

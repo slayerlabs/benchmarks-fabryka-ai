@@ -162,7 +162,7 @@ def test_slayer_ckpt_is_converted_against_the_template_then_evaluated_as_slayer(
     pobranie = [w for w in wywolania if "hf_hub_download" in w]
     assert len(pobranie) == 1 and f"h('{repo}', '{ckpt}', revision='{rev}', local_dir='{d}.ckpt')" in pobranie[0]
     assert any(f"s('{wzorzec[0]}', revision='{wzorzec[1]}', local_dir='{d}.wzorzec'" in w for w in wywolania)
-    konw = [i for i, w in enumerate(wywolania) if "wygaszanie/konwertuj.py" in w]
+    konw = [i for i, w in enumerate(wywolania) if "tools/konwertuj.py" in w]
     sha = zmienna_skryptu("SLAYER_CKPT_SHA256")
     assert re.fullmatch(r"[0-9a-f]{64}", sha)
     assert len(konw) == 1 and wywolania[konw[0]].endswith(f"{d}.ckpt/{ckpt} {d}.wzorzec {d} --sha256 {sha}")

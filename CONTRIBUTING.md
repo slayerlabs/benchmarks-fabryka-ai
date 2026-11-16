@@ -30,8 +30,8 @@ Bierzesz jedno zadanie naraz. Jeśli zaczynasz, weź
 
 1. Załóż gałąź od `main`. Nazwij ją `research/<name>` (benchmark) albo `docs/<temat>`. Możesz też otworzyć PR z
    forka. Wtedy nie potrzebujesz prawa zapisu w repo.
-2. Uruchom komendy z sekcji [„Przed PR”](#przed-pr) niżej. Katalog `research/` nie ma CI, więc robisz to
-   sam, a każda komenda musi zakończyć się kodem 0.
+2. Uruchom komendy z sekcji [„Przed PR”](#przed-pr) niżej. CI katalogu `research/` puszcza tylko testy bez
+   torch i lm-eval, więc resztę robisz sam, a każda komenda musi zakończyć się kodem 0.
 
 3. Otwórz PR do `main` i wypełnij checklistę z szablonu. W opisie wpisz `Refs #N` z numerem zadania z tego repo.
    Dopóki pracujesz, PR jest w trybie **Draft** (`gh pr create --draft`), a zadanie stoi w In Progress. Gdy
@@ -46,8 +46,9 @@ Bierzesz jedno zadanie naraz. Jeśli zaczynasz, weź
 ## Przed PR
 
 Przed otwarciem PR uruchom w katalogu `research/` komendy niżej. To testy zmienionego benchmarku,
-`tests/test_liczby_raportow.py` i bramka liczb. Każda komenda musi zakończyć się kodem 0. Katalog `research/` nie ma
-CI, więc uruchamiasz je sam.
+`tests/test_liczby_raportow.py` i bramka liczb. Każda komenda musi zakończyć się kodem 0. CI katalogu `research/`
+([`research-tests.yml`](.github/workflows/research-tests.yml)) puszcza tylko testy bez torch i lm-eval, więc te
+komendy uruchamiasz sam.
 
 ```bash
 .venv-eval/bin/python tools/liczby.py && .venv-eval/bin/python tools/sprawdz_raporty.py

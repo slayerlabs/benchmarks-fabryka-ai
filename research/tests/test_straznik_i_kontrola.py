@@ -81,7 +81,7 @@ def test_safety_limit_packs_then_destroys_and_idle_stop_is_put_stopped():
     api = AtrapaVast()
     try:
         d = Path(tempfile.mkdtemp())
-        bez = str(KORZEN / "slayer-1b" / "wygaszanie" / "bezpiecznik.py")
+        bez = str(KORZEN / "tools" / "bezpiecznik.py")
         subprocess.run([sys.executable, bez, "po", "0", f"touch {d / 'spakowane'}"], env=api.env, check=True,
                        capture_output=True, timeout=30)
         assert (d / "spakowane").exists() and api.metody() == [("DELETE", "/api/v0/instances/123/", None)]
