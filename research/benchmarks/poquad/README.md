@@ -4,7 +4,7 @@
 
 Mierzy: krótki cytat z kontekstu odpowiadający na pytanie, generacja do 50 tokenów.
 
-- Test T31, typ `ciagla +pl` ([README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy)).
+- Test T31, typ `gen +klastry +pl`, klastry `context` ([README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy)).
 - Zbiór: `clarin-pl/poquad` @ `a60f228d836fbbf990d11b4590c60b3e7f2aec2d`, konfiguracja `poquad`, split `validation`, n = 5764.
 - Metryka decyzyjna: `levenshtein (jak T30)`.
 - Licencja (karta zbioru na przypiętej rewizji): cc-by-4.0.
