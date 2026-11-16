@@ -371,7 +371,7 @@ def test_ewaluuj_model_id_without_repo():
     with tempfile.TemporaryDirectory() as tmp:
         model_dir = _model_dir(tmp, _questions())
         a = argparse.Namespace(model="slayer", model_path=str(model_dir), repo=None, revision=None,
-                               batch="1", device="cpu")
+                               batch="1", device="cpu", dtype="float32")
         lm, model_id, revision = ewaluuj.zbuduj_model(a)
         assert isinstance(lm, slayer_lm.SlayerLM)
         assert (model_id, revision) == (model_dir.resolve().name, None)
