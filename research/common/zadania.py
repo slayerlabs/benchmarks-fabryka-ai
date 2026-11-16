@@ -235,7 +235,7 @@ ZADANIA = {
     "T31": dict(benchmark_id="poquad", task="polish_poquad_open_book", family="poquad", language="PL",
                 metric="levenshtein,none", unit="score", higher_is_better=True, klucz="levenshtein",
                 repo="clarin-pl/poquad", rewizja="a60f228d836fbbf990d11b4590c60b3e7f2aec2d",
-                nazwa_hf="poquad", split="validation", rodzaj="gen", klasy_stale=False, shoty=5,
+                nazwa_hf="poquad", split="validation", rodzaj="gen", klasy_stale=False, shoty=5, klastry="context",
                 rewizja_parquet="c76799436661006876ca3a2bf2ef2268b2179ac9", splity_dodatkowe=("train",),
                 yaml="poquad/lm_eval_tasks/polish_poquad/poquad_open_book.yaml"),
     # T37 LLMzSzŁ is left out: it has no card with a prompt yet (benchmarks/llmzszl/README.md).
@@ -321,7 +321,7 @@ ZADANIA = {
                 metric="exact_match,remove_whitespace", unit="score", higher_is_better=True, lm_eval="triviaqa",
                 repo="mandarjoshi/trivia_qa", rewizja="0f7faf33a3908546c6fd5b73a660e0f8ff173c2f",
                 nazwa_hf="rc.nocontext", split="validation", rodzaj="proba", klucz="exact_match",
-                filtr="remove_whitespace", baza="gen"),
+                filtr="remove_whitespace", baza="gen", klastry="question_id"),
     "T47": dict(benchmark_id="bbh", task="bbh_fewshot", family="bbh", language="EN",
                 metric="exact_match,none", unit="score", higher_is_better=True, grupa="bbh_fewshot",
                 repo="lukaemon/bbh", rewizja="982bb89fd79532a8ac676a61fc42eb1aeec63f99",
@@ -333,7 +333,8 @@ ZADANIA = {
     "T50": dict(benchmark_id="record", task="record", family="record", language="EN",
                 metric="f1,none", unit="score", higher_is_better=True, lm_eval="record",
                 repo="aps/super_glue", rewizja="3de24cf8022e94f4ee4b9d55a6f539891524d646",
-                nazwa_hf="record", split="validation", rodzaj="proba", klucz="f1", baza="wybor_losowy"),
+                nazwa_hf="record", split="validation", rodzaj="proba", klucz="f1", baza="wybor_losowy",
+                klastry="passage"),
     # --- T51-T53: settings from the card (ORIGINAL.md of each directory).
     # ARC-Easy: lm-eval arc_easy (cloze, 0-shot), decision metric acc, not acc_norm as in ARC-Challenge.
     "T51": dict(benchmark_id="arc_easy", task="arc_easy", family="arc", language="EN",

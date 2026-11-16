@@ -73,20 +73,20 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`paws-en`](benchmarks/paws-en/README.md) | T48 | `mc` | | T48 | nieustalone |
 | [`piqa`](benchmarks/piqa/README.md) | T06 | `mc` | | T06; też własny kod | tak |
 | [`polemo2`](benchmarks/polemo2/README.md) | T22 | `mc +pl` | | T22 | nieustalone |
-| [`polqa`](benchmarks/polqa/README.md) | T30 | `ciagla +pl` | | T30 | nieustalone |
-| [`poquad`](benchmarks/poquad/README.md) | T31 | `ciagla +pl` | | T31 | nieustalone |
+| [`polqa`](benchmarks/polqa/README.md) | T30 | `gen +pl` | | T30 | nieustalone |
+| [`poquad`](benchmarks/poquad/README.md) | T31 | `gen +klastry +pl` | klastry: `context` (5764 pytania do 1449 tekstów) | T31 | nieustalone |
 | [`ppc`](benchmarks/ppc/README.md) | T26 | `mc +pl` | | T26 | nieustalone |
 | [`prost`](benchmarks/prost/README.md) | T20 | `mc` | | T20 | nieustalone |
 | [`psc`](benchmarks/psc/README.md) | T27 | `f1-korpus +klastry +pl` | klastry: `extract_text` (1078 wierszy do 507 tekstów) | T27 | nieustalone |
 | [`pubmedqa`](benchmarks/pubmedqa/README.md) | T44 | `mc` | | T44 | nieustalone |
 | [`race`](benchmarks/race/README.md) | T40 | `mc` | | T40 | nieustalone |
-| [`record`](benchmarks/record/README.md) | T50 | `ciagla` | | T50 | nieustalone |
+| [`record`](benchmarks/record/README.md) | T50 | `ciagla +klastry` | klastry: `passage` (4668 z 10000 pytań dzieli tekst z innym pytaniem) | T50 | nieustalone |
 | [`rte`](benchmarks/rte/README.md) | T15 | `mc` | | T15 | nieustalone |
 | [`sciq`](benchmarks/sciq/README.md) | T09 | `poz` | | T09 | tak |
 | [`social-iqa`](benchmarks/social-iqa/README.md) | T46 | `mc` | | T46 | nieustalone |
 | [`squad2`](benchmarks/squad2/README.md) | T38 | `ciagla +proc` | | T38 | nieustalone |
 | [`sst2`](benchmarks/sst2/README.md) | T21 | `mc` | | T21 | nieustalone |
-| [`triviaqa`](benchmarks/triviaqa/README.md) | T43 | `gen` | | T43 | nieustalone |
+| [`triviaqa`](benchmarks/triviaqa/README.md) | T43 | `gen +klastry` | klastry: `question_id` (17944 wierszy do 9960 pytań; dev web i dev Wikipedii mają 7984 wspólne pytania) | T43 | nieustalone |
 | [`truthfulqa`](benchmarks/truthfulqa/README.md) | T35 | `masa` | | T35 | nieustalone |
 | [`uncheatable-eval`](benchmarks/uncheatable-eval/ORIGINAL.md) | | `ppl +warstwy` | kategorie, średnia bez wag | nie | nieustalone |
 | [`wic`](benchmarks/wic/README.md) | T13 | `mc` | | T13 | nieustalone |
@@ -110,10 +110,10 @@ Testy T01–T50 według typu:
 | `para` | T01 BLiMP (`+klastry`), T04 MultiBLiMP (`+proc +pl`) |
 | `cloze` | T17 LAMBADA |
 | `ppl` | T03 WikiText-2 |
-| `gen` | T33 GSM8K, T34 MATH (`+warstwy`), T42 NQ, T43 TriviaQA, T47 BBH (`+warstwy`) |
+| `gen` | T30 PolQA (`+pl`), T31 PoQuAD (`+klastry +pl`), T33 GSM8K, T34 MATH (`+warstwy`), T42 NQ, T43 TriviaQA (`+klastry`), T47 BBH (`+warstwy`) |
 | `ifeval` | T36 IFEval |
 | `f1-korpus` | T25 DYK (`+klastry`: 1029 wierszy do 264 pytań), T27 PSC (`+klastry`: 1078 wierszy do 507 tekstów), T28 CBD (wszystkie `+pl`) |
-| `ciagla` | T30 PolQA, T31 PoQuAD (Levenshtein, `+pl`), T38 SQuAD2 (`+proc`, b i kontrola na HasAns), T39 DROP, T41 CoQA, T50 ReCoRD |
+| `ciagla` | T38 SQuAD2 (`+proc`, b i kontrola na HasAns), T39 DROP, T41 CoQA, T50 ReCoRD (`+klastry`; wybór encji, więc b to baza losowa po opcjach) |
 | `masa` | T35 TruthfulQA MC2 |
 | `mcc` | T49 CoLA |
 
