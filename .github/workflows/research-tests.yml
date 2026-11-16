@@ -1,0 +1,49 @@
+name: Research tests (light)
+# Tests of research/ that need only pytest, numpy and scipy: no torch, lm-eval, weights or GPU.
+# A test file that starts importing torch or lm_eval leaves this list; the full set still runs
+# locally in .venv-eval (CONTRIBUTING.md, "Przed PR").
+on:
+  pull_request:
+    paths:
+      - "research/**"
+      - ".github/workflows/research-tests.yml"
+  push:
+    branches: [main]
+    paths:
+      - "research/**"
+      - ".github/workflows/research-tests.yml"
+permissions:
+  contents: read
+defaults:
+  run:
+    working-directory: research
+jobs:
+  light:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # versions pinned as in common/requirements.lock.txt
+      - run: pip install pytest numpy==2.0.2 scipy==1.13.1
+      - run: >-
+          python -m pytest -q -p no:cacheprovider
+          tests/test_blimp.py
+          tests/test_blimp_checkpoints.py
+          tests/test_blimp_checkpoints_independent.py
+          tests/test_full_run_report.py
+          tests/test_hellaswag.py
+          tests/test_liczby_raportow.py
+          tests/test_piqa.py
+          tests/test_przebieg_centralny.py
+          tests/test_snr_panelu.py
+          tests/test_social_iqa.py
+          tests/test_start.py
+          tests/test_statystyka.py
+          tests/test_straznik_i_kontrola.py
+          tests/test_wikitext_mianownik.py
+          tests/test_winogrande.py
+          tests/test_winogrande_przelicz.py
+          tests/test_wsc273.py
+          tests/test_wykres_przebiegu.py

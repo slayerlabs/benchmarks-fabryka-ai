@@ -46,7 +46,7 @@ export NLTK_DATA=$NLTK_DANE
 # odniesienia") and the Slayer revision named there.
 # loader: slayer = common/slayer_lm.py, hf = HFLM, hf-trust = HFLM with trust_remote_code. env: lock | new.
 # slayer-ckpt = common/slayer_lm.py on weights converted on the machine: the repo holds only native training
-# checkpoints, licz_model downloads $SLAYER_CKPT from it and converts it with slayer-1b/wygaszanie/konwertuj.py
+# checkpoints, licz_model downloads $SLAYER_CKPT from it and converts it with tools/konwertuj.py
 # against the $SLAYER_WZORZEC model (keys, shapes, config.json, tokenizer.json).
 # Bielik is a gated repo (LlamaForCausalLM, tokenizer.json, so the lock env loads it): counted when the HF token has
 # access, otherwise licz_model skips it with a message in the log and $ST/pominiety_<label>.txt (`dostep_hf`).
@@ -157,7 +157,7 @@ pobierz_wagi() {  # pobierz_wagi LABEL (after `model`): $WS/modele/LABEL ready f
   local wzor_repo=${SLAYER_WZORZEC%%|*} wzor_rev=${SLAYER_WZORZEC#*|}
   "$py" -c "from huggingface_hub import hf_hub_download as h; h('$REPO', '$SLAYER_CKPT', revision='$REV', local_dir='$d.ckpt')"
   "$py" -c "from huggingface_hub import snapshot_download as s; s('$wzor_repo', revision='$wzor_rev', local_dir='$d.wzorzec', allow_patterns=['model.safetensors', 'config.json', 'tokenizer.json'])"
-  "$py" "$K/slayer-1b/wygaszanie/konwertuj.py" "$d.ckpt/$SLAYER_CKPT" "$d.wzorzec" "$d" --sha256 "$SLAYER_CKPT_SHA256"
+  "$py" "$K/tools/konwertuj.py" "$d.ckpt/$SLAYER_CKPT" "$d.wzorzec" "$d" --sha256 "$SLAYER_CKPT_SHA256"
   rm -rf "$d.ckpt" "$d.wzorzec"
 }
 
@@ -253,10 +253,10 @@ case "$etap" in
     echo przygotuj > "$ZN_PRZYG"
     trap 'rm -f "$ZN_PRZYG"' EXIT
     # hard limit: pack, then destroy with the disk (the idle guard only stops the instance)
-    nohup python3 $K/slayer-1b/wygaszanie/bezpiecznik.py po "$LIMIT" "bash $K/tools/przebieg_centralny.sh pakuj" \
+    nohup python3 $K/tools/bezpiecznik.py po "$LIMIT" "bash $K/tools/przebieg_centralny.sh pakuj" \
       > $WS/logi/bezpiecznik.log 2>&1 &
     bash "$0" straznik
-    python3 $K/slayer-1b/wygaszanie/bezpiecznik.py sprawdz
+    python3 $K/tools/bezpiecznik.py sprawdz
     t=$(teraz)
     curl -sL -r 0-1073741823 -o /dev/null -w '%{speed_download}\n' \
       "https://huggingface.co/SlayerLab/Slayer1B-1.06/resolve/ef81be58742544ad32e1afab38db011fec209609/model.safetensors" \

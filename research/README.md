@@ -22,7 +22,7 @@ Wszystkie komendy niżej uruchamiasz w katalogu `research/`.
 | `benchmarks/_template/` | od czego zacząć nowy benchmark |
 | `analyses/<name>/` | analiza na wielu testach naraz, te same pliki co benchmark (dziś `answer-format/`: litery A/B/C/D a losowość) |
 | `common/` | ładowanie modeli, wspólny format odpowiedzi, lista zadań (`zadania.py`), dane do testów (`tests/data/`), ewaluacja przez lm-eval |
-| `tools/` | bramka liczb (`liczby.py`, `sprawdz_raporty.py`), przebieg centralny (`przebieg_centralny.sh`, `kontrola_sensu.py`) |
+| `tools/` | bramka liczb (`liczby.py`, `sprawdz_raporty.py`), przebieg centralny (`przebieg_centralny.sh`, `kontrola_sensu.py`, `bezpiecznik.py`, `konwertuj.py`) |
 | `results/` | `LICZBY.json` i `LICZBY.md`: wszystkie liczby raportów, wygenerowane przez bramkę liczb; `central-run/`: wyniki przebiegu centralnego |
 | `tests/` | testy kodu, bez sieci i bez wag |
 | `slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami: `dane/` (spis zbiorów: [`REJESTR_DATASETOW.md`](slayer-1b/dane/REJESTR_DATASETOW.md)), `testy_danych_slayer/`, `wygaszanie/`, `tokenizer/`, `lab/`, `paczka_testerzy/` (komendy w ich README uruchamiasz w `research/slayer-1b/`) |
