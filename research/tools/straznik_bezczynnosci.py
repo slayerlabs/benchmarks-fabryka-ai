@@ -1,4 +1,4 @@
-"""Idle guard for a vast.ai instance, next to the time limit of slayer-1b/wygaszanie/bezpiecznik.py.
+"""Idle guard for a vast.ai instance, next to the time limit of tools/bezpiecznik.py.
 
 GPU utilisation below PROG % with no ewaluuj.py running and no live work marker of the run script (--praca), for
 OKNO seconds in a row: pack the results, copy them to the output directory and STOP the instance (bezpiecznik.zatrzymaj:
@@ -67,7 +67,7 @@ def main(argv=None):
                    help="work markers <pid>_<label> of the run script; a live one counts as a running evaluation")
     p.add_argument("--pakuj", default=f"bash {KORZEN}/tools/przebieg_centralny.sh pakuj")
     p.add_argument("--archiwum", default="/workspace/wyniki.tgz")
-    p.add_argument("--zatrzymaj", default=f"{sys.executable} -c \"import sys; sys.path.insert(0, '{KORZEN}/slayer-1b/wygaszanie'); "
+    p.add_argument("--zatrzymaj", default=f"{sys.executable} -c \"import sys; sys.path.insert(0, '{KORZEN}/tools'); "
                                           f"import bezpiecznik; sys.exit(0 if bezpiecznik.zatrzymaj('idle') else 1)\"")
     p.add_argument("--blad", default="/workspace/stan/STOP_NIEUDANY.txt",
                    help="written when the stop command fails (shown by `przebieg_centralny.sh stan`)")

@@ -2,8 +2,8 @@
 
 Slayer: forward z research/common/slayer_model.py (ten sam, którym liczono EVALUATION.json 1.08; zgodność z referencją
 opisana w docstringu tamtego pliku), start id 0, add_special_tokens=False. Bielik i LFM: transformers, BOS dodaje
-tokenizer (add_special_tokens=True), fp32. Wagi leżą POZA repo: katalog z env ROZMOWY_MODELE albo domyślna ścieżka
-pilota; sha256 wag zapisuje generuj.py w nagłówku każdego pliku wyników.
+tokenizer (add_special_tokens=True), fp32. Wagi leżą POZA repo: katalog z env ROZMOWY_MODELE albo domyślnie
+~/.cache/slayer-rozmowa/modele; sha256 wag zapisuje generuj.py w nagłówku każdego pliku wyników.
 """
 import os
 import sys
@@ -15,10 +15,7 @@ KOD = Path(__file__).resolve().parent
 RESEARCH = KOD.parents[2]
 sys.path.insert(0, str(RESEARCH / "common"))
 
-MODELE = Path(os.environ.get(
-    "ROZMOWY_MODELE",
-    "/private/tmp/claude-501/-Users-lolita-Documents-GitHub-labaj-agency/39c771be-97d1-49d4-b962-12af3cec9b39/"
-    "scratchpad/slayer-rozmowa/modele"))
+MODELE = Path(os.environ.get("ROZMOWY_MODELE", Path.home() / ".cache" / "slayer-rozmowa" / "modele"))
 
 # klucz -> (katalog, nazwa HF, rewizja HF)
 REJESTR = {
