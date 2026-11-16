@@ -16,8 +16,8 @@ wiersz w tym samym PR.
 pie showData
     "Gotowe" : 15
     "W przebiegu, brak opisu" : 37
-    "Opisane, poza przebiegiem" : 2
-    "Niezaczęte" : 30
+    "Opisane, poza przebiegiem" : 3
+    "Niezaczęte" : 29
 ```
 
 **A** karta `ORIGINAL.md` · **B** `REPRODUCTION.md` (kontrola albo „bez kontroli”) · **przebieg** wpis w `ZADANIA`
@@ -68,22 +68,22 @@ Każdy z tych katalogów ma `README.md` i `RECIPE.md` ze zbiorem, rewizją, spli
 
 <a name="poza-przebiegiem"></a>
 
-## 🟠 Opisane, poza przebiegiem · 2
+## 🟠 Opisane, poza przebiegiem · 3
 
 | benchmark | A | B | czego brakuje | zadanie |
 |---|---|---|---|---|
 | [EWoK-PL](benchmarks/ewok-pl/README.md) | `POLISH.md` | — | wpis w przebiegu: polskie rekordy leżą w zipie poza repo, bez miejsca pobrania i rewizji, a `POLISH.md` nie podaje autora tłumaczenia ani przeglądu (pole „Dane”); przetłumaczona 1 domena z 11 | |
 | [UncheatableEval](benchmarks/uncheatable-eval/ORIGINAL.md) | ✓ | ✗ | B i wpis w przebiegu: karta nie ustala tokenu startu (`bos_mode`) dla modeli przebiegu (wybiera go `bos_mode_finder.py` per model, karta podaje go tylko dla Qwen3-0.6B-Base i SmolLM2-1.7B), a etap B ma liczyć kodem autorów (okna 4000 tokenów, logity bf16), którego w repo nie ma | #35 |
+| [LLMzSzŁ](benchmarks/llmzszl/ORIGINAL.md) T37 | ✓ | ✗ | B („bez kontroli”, kontrola `+pl`), wpis w przebiegu z kopią YAML-a i test; kolumna informacyjna (brak licencji, kontaminacja) | #127 |
 
 <a name="niezaczete"></a>
 
-## ⬜ Niezaczęte · 30
+## ⬜ Niezaczęte · 29
 
 <a href="https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22"><img src="../docs/img/zadania-na-start.svg" alt="Zadania na start" height="36"></a>
 
 | co | benchmarki |
 |---|---|
-| bez karty | [LLMzSzŁ](benchmarks/llmzszl/README.md) T37 #127: brak karty z promptem; kolumna informacyjna |
 | held-out | NLL EN/PL/kod #22 · kod źródłowy #42 |
 | [katalog CodeSOTA](https://beta.codesota.com/api/sub1b/benchmarks), bez issue | GPQA · GPQA Diamond · MMLU-Pro · IFBench · Multi-IF · MGSM · MMMLU · CaseReportBench · BFCL v3 · BFCL v4 · τ²-Bench Telecom · τ²-Bench Retail · GSM-Symbolic · SVAMP · AIME 2025 · HumanEval · HumanEval+ · MBPP · MBPP+ · LiveCodeBench · RULER · LongBench v2 · SimpleQA · WildBench · AlpacaEval 2.0 LC · MT-Bench · ARC-AGI-1 |
 

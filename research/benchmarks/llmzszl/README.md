@@ -13,8 +13,7 @@ Mierzy: wiedzę z polskich egzaminów państwowych (CKE, 2002–2024), pytania j
 
 ## Przebieg centralny: niepodpięty
 
-T37 nie ma promptu: ani zbiór, ani lm-eval nie dają szablonu z separatorem, formatem odpowiedzi (litera czy treść) i
-polami zbioru, więc T37 nie ma wpisu w `common/zadania.py` ani w `KATALOGI`.
-
-Do podpięcia potrzebna jest karta benchmarku (`DATASET.md` albo `POLISH.md`) z własnym protokołem: prompt, separator,
-format odpowiedzi i metryka.
+Prompt, ocenę literami i metrykę ustala karta oryginału [`ORIGINAL.md`](ORIGINAL.md) (szablon z pracy, rozdz. 3.2;
+lm-eval go nie ma). T37 nie ma jeszcze wpisu w `common/zadania.py` ani w `KATALOGI`: do podpięcia potrzebna jest kopia
+YAML-a w `lm_eval_tasks/`, wpis w obu listach, test `tests/test_llmzszl.py` i kontrola z wiersza `+pl` (etap B „bez
+kontroli”, bo opublikowane wyniki nie mają rewizji ani ustawień).
