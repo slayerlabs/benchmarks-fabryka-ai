@@ -252,6 +252,13 @@ def progresja(wyniki, paczka):
             "kolejne_wersje": kolejne, "pierwsza_ostatnia": skrajne}
 
 
+def control_models(script: Path = RESEARCH / "tools" / "przebieg_centralny.sh") -> set:
+    """Labels of the stage B control models (TESTY_MODELU of the central-run script): each counts only its own
+    tests to reproduce a published value, so the report compares no model with them."""
+    lines = re.findall(r'^TESTY_MODELU\+?="([^"]*)"', script.read_text(encoding="utf-8"), re.MULTILINE)
+    return {p.split(":")[0] for line in lines for p in line.split()}
+
+
 def zgodnosc_z_odniesieniem(wyniki, odn: Path | None):
     if not odn or not odn.exists():
         return []
@@ -1336,7 +1343,8 @@ def main():
     cel.mkdir(parents=True, exist_ok=True)
     source_list = Path(a.przeglad) if a.przeglad else cel / "przeglad.jsonl"
     old_rows = [json.loads(l) for l in source_list.read_text(encoding="utf-8").splitlines()] if source_list.exists() else []
-    results = wczytaj_wyniki(paczka)
+    controls = control_models()
+    results = [r for r in wczytaj_wyniki(paczka) if r["model"] not in controls]
     if paczka.resolve() != cel.resolve():
         kopiuj(paczka, cel)
     prog = None
