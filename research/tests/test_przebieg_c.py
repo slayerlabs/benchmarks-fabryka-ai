@@ -333,6 +333,15 @@ def test_mc2_matches_lm_eval_on_true_first_labels():
     assert M.mc2(lls, [1, 1, 0, 0]) == pytest.approx(tq.process_results_mc2(doc, [(x, False) for x in lls])["acc"])
 
 
+def test_mc2_and_its_baseline_count_options_before_the_first_zero_as_true():
+    """METODOLOGIA, wiersz `masa`: MC2 z 6d2abda4 liczy jako poprawne opcje przed pierwszym 0 w `labels`, także gdy
+    dalej stoi 1, a baza losowa to ta sama metryka przy równych logprob: [1, 0, 1, 0] daje 1/4, nie 2/4."""
+    assert M.mc2([0.0] * 4, [1, 0, 1, 0]) == pytest.approx(1 / 4)
+    assert M.mc2([0.0] * 4, [1, 1, 0, 0]) == pytest.approx(2 / 4)
+    doc = {"mc2_targets": {"labels": [1, 0, 1, 0]}}
+    assert Z.mc2_wyniki(doc, [(0.0, False)] * 4)["acc"] == pytest.approx(1 / 4)
+
+
 # --- MCC (T49 CoLA) ---
 
 def test_cola_mcc(tmp_path, monkeypatch):

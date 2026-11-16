@@ -123,6 +123,34 @@ def test_dyk_corpus_f1_uses_the_question_clusters():
     assert d["glowna"]["metoda_se"] == "B po klastrach" and d["glowna"]["k"] == 3
 
 
+class AtrapaGeneracji:
+    """Zadanie generacyjne lm-eval: exact match odpowiedzi z celem dokumentu (dla bazy pustej i najczęstszej złotej)."""
+    OUTPUT_TYPE = "generate_until"
+    eval_docs = ()
+
+    def doc_to_target(self, doc):
+        return doc["cel"]
+
+    def process_results(self, doc, results):
+        odp = results[0][0] if isinstance(results[0], list) else results[0]
+        return {"exact_match": float(odp == doc["cel"])}
+
+
+def test_generation_with_a_repeated_question_has_se_k_over_question_ids():
+    """TriviaQA rc.nocontext (T43) skleja dev web i dev Wikipedii: to samo pytanie stoi dwa razy z tym samym wynikiem,
+    więc SE liczy się po `question_id` (METODOLOGIA, definicja klastra), a nie po wierszach."""
+    trafienia = [("q1", 1), ("q1", 1), ("q2", 0), ("q2", 0), ("q3", 1), ("q3", 1), ("q4", 0), ("q5", 1), ("q6", 0)]
+    probki = [{"doc_id": i, "doc": {"question_id": q, "cel": "x"}, "filter": "remove_whitespace",
+               "exact_match": float(t), "filtered_resps": ["x" if t else "y"]} for i, (q, t) in enumerate(trafienia)]
+    czlonkowie = [("triviaqa", {}, AtrapaGeneracji(), probki)]
+    d = E.podsumuj_wariant(Z.ZADANIA["T43"], czlonkowie)
+    oczekiwane = se_k([float(t) for _, t in trafienia], [q for q, _ in trafienia])
+    assert d["glowna"]["metoda_se"] == "K" and (d["glowna"]["k"], d["glowna"]["df"]) == (6, 5)
+    assert d["glowna"]["se"] == pytest.approx(oczekiwane["se"]) and d["glowna"]["se"] > d["glowna"]["se_a"]
+    bez = E.podsumuj_wariant({**Z.ZADANIA["T43"], "klastry": None}, czlonkowie)
+    assert "metoda_se" not in bez["glowna"] and bez["glowna"]["value"] == d["glowna"]["value"]
+
+
 def test_resummary_keeps_old_numbers_that_differ_only_by_rounding():
     import podsumuj_ponownie as PP
 

@@ -477,9 +477,11 @@ def podsumuj_wariant(meta, czlonkowie):
                                                   / len(wszystkie))
         return wynik
     nazwa, filtr = metryka(meta), meta.get("filtr", "none")
-    wartosci, bazy, szczegoly, predykcje, wynik = {}, {}, {}, [], {}
+    wartosci, bazy, szczegoly, predykcje, wynik, klastry = {}, {}, {}, [], {}, None
     for n, cfg, zad, probki in czlonkowie:
         wybrane = [s for s in probki if s.get("filter", "none") == filtr]
+        if len(czlonkowie) == 1:  # +klastry (TriviaQA, ReCoRD, PoQuAD): SE K, like the mc branch
+            klastry = klastry_probek(meta, wybrane)
         if rodzaj(meta) == "korpus":
             pary = [s[nazwa] for s in wybrane]  # lm-eval MC: (gold, pred)
             f = funkcja_korpusowa(cfg, nazwa)
@@ -500,8 +502,12 @@ def podsumuj_wariant(meta, czlonkowie):
                                  "glowna": M.srednia_z_niepewnoscia([v for v, m in zip(wartosci[n], maska) if m]),
                                  "bazy": bazy_proby(zad, meta, [s["doc"] for s, m in zip(wybrane, maska) if m])[0]}
     if "glowna" not in wynik:
-        glowna = (M.srednia_z_niepewnoscia(next(iter(wartosci.values()))) if len(wartosci) == 1
-                  else M.warstwy(wartosci, wagi))
+        if len(wartosci) > 1:
+            glowna = M.warstwy(wartosci, wagi)
+        elif klastry:
+            glowna = M.srednia_klastrowa(next(iter(wartosci.values())), klastry)
+        else:
+            glowna = M.srednia_z_niepewnoscia(next(iter(wartosci.values())))
         wynik["glowna"] = {**glowna, "metryka": nazwa}
     wynik["bazy"] = next(iter(bazy.values())) if len(bazy) == 1 else M.wazona_baza(bazy, wagi)
     wynik["bazy_szczegoly"] = szczegoly
