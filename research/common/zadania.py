@@ -238,7 +238,13 @@ ZADANIA = {
                 nazwa_hf="poquad", split="validation", rodzaj="gen", klasy_stale=False, shoty=5, klastry="context",
                 rewizja_parquet="c76799436661006876ca3a2bf2ef2268b2179ac9", splity_dodatkowe=("train",),
                 yaml="poquad/lm_eval_tasks/polish_poquad/poquad_open_book.yaml"),
-    # T37 LLMzSzŁ is left out: the card (benchmarks/llmzszl/ORIGINAL.md) fixes the prompt, the run entry is not added yet.
+    # LLMzSzŁ: the Space T37 definition (copy of slayerlabs/Probierz n05_llmzszl), the paper's prompt, letters A-D, 0-shot.
+    # The file has no id field: the panel id is the row index (card "Bazy: panel 200").
+    "T37": dict(benchmark_id="llmzszl", task="n05_llmzszl", family="llmzszl", language="PL",
+                metric="acc,none", unit="score", higher_is_better=True,
+                repo="amu-cai/llmzszl-dataset", rewizja="9c11d52a415147f1e2c44038a9d4d4155f064e1a",
+                split="test", rodzaj="mc", klasy_stale=True, shoty=0,
+                yaml="llmzszl/lm_eval_tasks/llmzszl/llmzszl.yaml"),
     "T40": dict(benchmark_id="race", task="race", family="race", language="EN",
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="EleutherAI/race", rewizja="66ca2e6374282f5e35b11559e87185db911a6900",

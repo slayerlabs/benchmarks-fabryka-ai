@@ -15,8 +15,8 @@ wiersz w tym samym PR.
 %%{init: {'theme': 'base', 'themeVariables': {'pie1': '#1a7f37', 'pie2': '#9a6700', 'pie3': '#bc4c00', 'pie4': '#6e7781', 'pieStrokeColor': '#ffffff', 'pieOuterStrokeWidth': '0px'}}}%%
 pie showData
     "Gotowe" : 15
-    "W przebiegu, brak opisu" : 37
-    "Opisane, poza przebiegiem" : 3
+    "W przebiegu, brak opisu" : 38
+    "Opisane, poza przebiegiem" : 2
     "Niezaczęte" : 29
 ```
 
@@ -53,14 +53,14 @@ test `tests/test_<name>.py`.
 
 <a name="brak-opisu"></a>
 
-## 🟡 W przebiegu, brak opisu · 37
+## 🟡 W przebiegu, brak opisu · 38
 
 Wpis w przebiegu jest. Brakuje karty (A), zapisu kontroli (B) albo testu `tests/test_<name>.py`; w wierszu „tylko B”
 test jest, w wierszach „A i B” brakuje też testu. Po zamknięciu karty automat zakłada zadanie B.
 
 | brakuje | benchmarki |
 |---|---|
-| tylko B | [BoolQ](benchmarks/boolq/) T10 #26 · [OpenBookQA](benchmarks/openbookqa/) T08 #31 · [SciQ](benchmarks/sciq/) T09 #30 · [BLiMP Supplement](benchmarks/blimp-supplement/README.md) T52 #33 · [COPA](benchmarks/copa/) T11 #105 · [PolEmo 2.0](benchmarks/polemo2/) T22 #113 · [8TAGS](benchmarks/8tags/) T23 #114 · [Belebele](benchmarks/belebele-pl/) T24 #115 · [DYK](benchmarks/dyk/) T25 #116 · [PPC](benchmarks/ppc/) T26 #117 · [LogiQA](benchmarks/logiqa/README.md) T18 #19 |
+| tylko B | [BoolQ](benchmarks/boolq/) T10 #26 · [OpenBookQA](benchmarks/openbookqa/) T08 #31 · [SciQ](benchmarks/sciq/) T09 #30 · [BLiMP Supplement](benchmarks/blimp-supplement/README.md) T52 #33 · [COPA](benchmarks/copa/) T11 #105 · [PolEmo 2.0](benchmarks/polemo2/) T22 #113 · [8TAGS](benchmarks/8tags/) T23 #114 · [Belebele](benchmarks/belebele-pl/) T24 #115 · [DYK](benchmarks/dyk/) T25 #116 · [PPC](benchmarks/ppc/) T26 #117 · [LogiQA](benchmarks/logiqa/README.md) T18 #19 · [LLMzSzŁ](benchmarks/llmzszl/ORIGINAL.md) T37 #127 (B „bez kontroli”, kontrola `+pl`; kolumna informacyjna) |
 | A i B, angielskie | CB T12 #106 · WiC T13 #107 · RTE T15 #109 · ANLI T16 #110 · PROST T20 #111 · SST-2 T21 #112 · MMLU T32 #123 · GSM8K T33 #124 · MATH T34 #125 (PR #141) · TruthfulQA T35 #126 · IFEval T36 #40 · SQuAD 2.0 T38 #128 · DROP T39 #129 · RACE T40 #130 · CoQA T41 #131 · NQ-Open T42 #132 · TriviaQA T43 #133 · BBH T47 #135 · PAWS T48 #136 · CoLA T49 #137 · ReCoRD T50 #138 |
 | A i B, polskie | PSC T27 #118 · CBD T28 #119 · NKJP-NER T29 #120 · PolQA T30 #121 · PoQuAD T31 #122 |
 
@@ -68,14 +68,12 @@ Każdy z tych katalogów ma `README.md` i `RECIPE.md` ze zbiorem, rewizją, spli
 
 <a name="poza-przebiegiem"></a>
 
-## 🟠 Opisane, poza przebiegiem · 3
+## 🟠 Opisane, poza przebiegiem · 2
 
 | benchmark | A | B | czego brakuje | zadanie |
 |---|---|---|---|---|
 | [EWoK-PL](benchmarks/ewok-pl/README.md) | `POLISH.md` | — | wpis w przebiegu: polskie rekordy leżą w zipie poza repo, bez miejsca pobrania i rewizji, a `POLISH.md` nie podaje autora tłumaczenia ani przeglądu (pole „Dane”); przetłumaczona 1 domena z 11 | |
 | [UncheatableEval](benchmarks/uncheatable-eval/ORIGINAL.md) | ✓ | ✗ | B i wpis w przebiegu: karta nie ustala tokenu startu (`bos_mode`) dla modeli przebiegu (wybiera go `bos_mode_finder.py` per model, karta podaje go tylko dla Qwen3-0.6B-Base i SmolLM2-1.7B), a etap B ma liczyć kodem autorów (okna 4000 tokenów, logity bf16), którego w repo nie ma | #35 |
-| [LLMzSzŁ](benchmarks/llmzszl/ORIGINAL.md) T37 | ✓ | ✗ | B („bez kontroli”, kontrola `+pl`), wpis w przebiegu z kopią YAML-a i test; kolumna informacyjna (brak licencji, kontaminacja) | #127 |
-
 <a name="niezaczete"></a>
 
 ## ⬜ Niezaczęte · 29

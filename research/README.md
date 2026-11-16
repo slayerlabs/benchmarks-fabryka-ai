@@ -61,7 +61,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`ifeval`](benchmarks/ifeval/README.md) | T36 | `ifeval` | | T36 | nieustalone |
 | [`klej-ner`](benchmarks/klej-ner/README.md) | T29 | `mc +pl` | | T29 | nieustalone |
 | [`lambada`](benchmarks/lambada/README.md) | T17 | `cloze` | | T17 | tak |
-| [`llmzszl`](benchmarks/llmzszl/README.md) | T37 | `mc +pl` | | nie, prompt w [karcie](benchmarks/llmzszl/ORIGINAL.md), wpisu w przebiegu brak; kolumna informacyjna (brak licencji, kontaminacja) | nieustalone |
+| [`llmzszl`](benchmarks/llmzszl/README.md) | T37 | `mc +pl` | | T37; kolumna informacyjna (brak licencji, kontaminacja) | nieustalone |
 | [`logiqa`](benchmarks/logiqa/README.md) | T18 | `mc` | | T18 | nieustalone |
 | [`math`](benchmarks/math/README.md) | T34 | `gen +warstwy` | warstwy: 7 działów, wagi populacji | T34 | nieustalone |
 | [`mathqa`](benchmarks/mathqa/README.md) | T19 | `mc` | | T19 | nieustalone |
