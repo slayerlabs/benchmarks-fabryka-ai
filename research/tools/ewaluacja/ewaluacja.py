@@ -89,6 +89,10 @@ class Model:
     loader: str     # slayer | slayer-ckpt | hf | hf-trust
     env: str        # lock | new
     dtype: str = "float32"
+    # slayer-ckpt rows of MODELE: checkpoint file, its sha256, template repo@revision (konwersja poza tym runnerem)
+    ckpt: str = ""
+    ckpt_sha256: str = ""
+    wzorzec: str = ""
 
 
 def _tekst_skryptu() -> str:

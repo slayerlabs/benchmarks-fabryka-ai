@@ -372,12 +372,24 @@ Każdy benchmark porównuje mierzony model z pięcioma modelami, zawsze w tych r
 Bielik wchodzi do przebiegu centralnego, gdy konto uruchamiające przebieg ma zaakceptowaną zgodę na jego warunki na HF;
 do tego czasu przebieg liczy 4 modele odniesienia.
 
+### Modele porównawcze z #190
+
+Przebieg centralny liczy też te modele tą samą komendą, poza porównaniem z pięcioma modelami odniesienia (blok
+`MODELE+=` w `tools/przebieg_centralny.sh`):
+
+| model | rewizja | uwagi |
+|---|---|---|
+| `speakleash/Bielik-11B-v3.1-Instruct` | `d6e755d356ad418d0f0e30b8c428db267415ddb9` | repo z bramką zgody na HF; bfloat16, bo wagi float32 (ok. 45 GB) nie mieszczą się na karcie 32 GB; wynik ma pole `dtype` |
+| `LiquidAI/LFM3-1.7B` | `1da06bec6a819da10b54c67e5c90972b46d81871` | model instruct, `trust_remote_code`, środowisko `new` |
+| `SlayerLab/Slayer1B-1.09-checkpoints` | `cff81fdcc05f0d91e9ba45b09fe78f769d7e0903` | plik `wagi_40000.pt`, wzorzec konwersji `SlayerLab/Slayer1B-1.08` @ `5f854a0cc7160594d54d1788d37a44e8ebabe16c` |
+
 ### Kto liczy które modele
 
 Wszystkie modele liczy przebieg centralny tym samym kodem (sekcja „Następna wersja Slayera”): mierzony model, modele
 odniesienia i model kontrolny benchmarku. Autor PR niczego nie liczy na GPU. Lista `MODELE` w
 `tools/przebieg_centralny.sh` ma Slayera, modele odniesienia i pierwszy model kontrolny z listy,
-`EleutherAI/pythia-1b-v0` @ `step143000` (commit `f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0`). Werdykt etapu B z
+`EleutherAI/pythia-1b-v0` @ `step143000` (commit `f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0`), a za nimi modele
+porównawcze. Werdykt etapu B z
 dalszym modelem z listy czeka, aż ktoś dopisze go do `MODELE`.
 
 ## Przepis (RECIPE.md)
@@ -462,19 +474,20 @@ nie w tym dokumencie.
 ## Następna wersja Slayera
 
 **Mierzony dziś model:** `SlayerLab/Slayer1B-1.07-checkpoints` @ `89630be756618acbb47a78fa5cafd4e4aa6f1a63`, plik
-`ckpt_22327.pt`. Ta linia i wiersz Slayera w `MODELE` w `tools/przebieg_centralny.sh` (z `SLAYER_CKPT`) muszą się
-zgadzać, pilnuje tego `tests/test_przebieg_centralny.py`. Krok 22327 to ostatni krok treningu 1.07 według karty
+`ckpt_22327.pt`. Ta linia i pierwszy wiersz Slayera w `MODELE` w `tools/przebieg_centralny.sh` (z polem pliku
+checkpointu) muszą się zgadzać, pilnuje tego `tests/test_przebieg_centralny.py`. Krok 22327 to ostatni krok treningu 1.07 według karty
 `SlayerLab/Slayer1B-1.07` („training complete at step 22327”); repo modelu nie ma jeszcze wag w safetensors. Wyniki
 1.06 (`SlayerLab/Slayer1B-1.06` @ `ef81be58742544ad32e1afab38db011fec209609`) zostają w
 `results/central-run/<benchmark>/slayer1b-1.06/`.
 
 **Jedna komenda.** Nową wersję liczy przebieg centralny. Zmieniasz wiersz Slayera w `MODELE` na
 `slayer1b-<wersja>|SlayerLab/Slayer1B-<wersja>|<rewizja>|slayer|lock` i linię wyżej. Gdy wersja ma na HF tylko
-checkpointy trenera (`ckpt_N.pt`), wiersz ma loader `slayer-ckpt`, repo `SlayerLab/Slayer1B-<wersja>-checkpoints`, a
-nazwę pliku `SLAYER_CKPT`: `licz` pobiera ten plik, konwertuje go `tools/konwertuj.py` względem modelu
-z `SLAYER_WZORZEC` (klucze, kształty, `config.json`, `tokenizer.json`) i liczy na wyniku. Konwersja zatrzymuje się,
-gdy konfiguracja architektury w checkpoincie różni się od wzorca, gdy checkpoint nie ma `config` i gdy suma pliku
-nie zgadza się z `SLAYER_CKPT_SHA256`.
+checkpointy trenera (`ckpt_N.pt`, `wagi_N.pt`), wiersz ma loader `slayer-ckpt`, repo
+`SlayerLab/Slayer1B-<wersja>-checkpoints` i trzy dodatkowe pola po `lock|float32`: plik checkpointu, jego sha256 i
+model wzorca `repo@rewizja`. `licz` pobiera ten plik, konwertuje go `tools/konwertuj.py` względem wzorca (klucze,
+kształty, `config.json`, `tokenizer.json`) i liczy na wyniku. Konwersja zatrzymuje się, gdy konfiguracja
+architektury w checkpoincie różni się od wzorca, gdy checkpoint nie ma `config` i gdy suma pliku nie zgadza się z
+sumą z wiersza.
 
 **Krok po kroku (Slayer 1.07).** Maszyna to instancja vast.ai z kartą GPU i obrazem PyTorch 2.8.0 (`torch` z obrazu
 wchodzi do obu środowisk).

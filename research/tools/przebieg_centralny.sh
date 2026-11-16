@@ -5,7 +5,7 @@
 # Long stages run in the background (nohup) and end with $WS/stan/<name>.ok or .blad;
 # every timed step appends a JSON line to $WS/czasy.jsonl.
 #   gotowe                 task ids of the "✅ Gotowe" section of STATUS.md (GOTOWE), the default of tools/start.sh
-#   lista                 model list: label|repo|revision|loader|env (read by tests/test_przebieg_centralny.py)
+#   lista                 model list, the MODELE rows (read by tests/test_przebieg_centralny.py)
 #   plan "LABEL ..."       ewaluuj.py commands that `licz` would run, without running them ("# GPU N:" per queue)
 #   przygotuj LIMIT_S      safety destroy after LIMIT_S, both venvs, HF download speed test
 #   licz "LABEL ..."       in the background: per model download weights, every task, delete weights (a gated
@@ -43,16 +43,21 @@ NLTK_DANE=${NLTK_DANE:-$WS/nltk_data}
 export NLTK_DATA=$NLTK_DANE
 
 # One list for the run; tests/test_przebieg_centralny.py checks it against METODOLOGIA.md ("Pięć modeli
-# odniesienia") and the Slayer revision named there.
+# odniesienia", "Modele porównawcze z #190") and the Slayer revision named there.
+# Row: label|repo|revision|loader|env[|dtype[|ckpt_file|ckpt_sha256|template_repo@template_revision]]
 # loader: slayer = common/slayer_lm.py, hf = HFLM, hf-trust = HFLM with trust_remote_code. env: lock | new.
+# dtype: float32 (default, METODOLOGIA) | bfloat16 only for a model whose float32 weights do not fit the card;
+# polecenie passes --dtype to ewaluuj.py and ewok.py, both write it into the results.
 # slayer-ckpt = common/slayer_lm.py on weights converted on the machine: the repo holds only native training
-# checkpoints, licz_model downloads $SLAYER_CKPT from it and converts it with tools/konwertuj.py
-# against the $SLAYER_WZORZEC model (keys, shapes, config.json, tokenizer.json).
+# checkpoints, licz_model downloads the row's ckpt_file from it and converts it with tools/konwertuj.py
+# against the row's template model (keys, shapes, config.json, tokenizer.json); a sha256 mismatch stops it.
 # Bielik is a gated repo (LlamaForCausalLM, tokenizer.json, so the lock env loads it): counted when the HF token has
 # access, otherwise licz_model skips it with a message in the log and $ST/pominiety_<label>.txt (`dostep_hf`).
 # Last row: the stage B control model (METODOLOGIA "Model kontrolny etapu B", item 1); f3f1b6d5 is branch step143000.
+# The 1.07 checkpoint is the final step (model card: "training complete at step 22327"), its sha256 from the
+# SlayerLab/Slayer1B-1.07-checkpoints card, template the 1.06 model it continues.
 MODELE=(
-  "slayer1b-1.07|SlayerLab/Slayer1B-1.07-checkpoints|89630be756618acbb47a78fa5cafd4e4aa6f1a63|slayer-ckpt|lock"
+  "slayer1b-1.07|SlayerLab/Slayer1B-1.07-checkpoints|89630be756618acbb47a78fa5cafd4e4aa6f1a63|slayer-ckpt|lock|float32|ckpt_22327.pt|48cdb5eb16b69e0ee9a7a2ed72895ff47c0ba57aca0f4516b1f7e9cba286685c|SlayerLab/Slayer1B-1.06@ef81be58742544ad32e1afab38db011fec209609"
   "qwen3.5-0.8b-base|Qwen/Qwen3.5-0.8B-Base|dc7cdfe2ee4154fa7e30f5b51ca41bfa40174e68|hf|new"
   "lfm2.5-1.2b-base|LiquidAI/LFM2.5-1.2B-Base|7453bca97ca1e67754c4035a4b4c584e1c9dd725|hf|lock"
   "bielik-1.5b-v3|speakleash/Bielik-1.5B-v3|4b25049621bf3952a1fc9314c89773102eda0333|hf|lock"
@@ -60,11 +65,17 @@ MODELE=(
   "eurollm-1.7b|utter-project/EuroLLM-1.7B|c730cd9b616799ace3c65e927d63191446f59374|hf|lock"
   "pythia-1b-v0|EleutherAI/pythia-1b-v0|f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0|hf|lock"
 )
-# slayer-ckpt: the 1.07 final step (model card: "training complete at step 22327") and the 1.06 model it continues
-SLAYER_CKPT=ckpt_22327.pt
-# sha256 of SLAYER_CKPT from the SlayerLab/Slayer1B-1.07-checkpoints card; konwertuj.py stops on a mismatch
-SLAYER_CKPT_SHA256=48cdb5eb16b69e0ee9a7a2ed72895ff47c0ba57aca0f4516b1f7e9cba286685c
-SLAYER_WZORZEC="SlayerLab/Slayer1B-1.06|ef81be58742544ad32e1afab38db011fec209609"
+# Comparison models (METODOLOGIA "Modele porównawcze z #190"): same run, outside the five-reference comparison.
+# A separate block, so tools/wykres_przebiegu.py and tools/ewaluacja read only the measured Slayer above.
+# Bielik 11B: float32 weights ~45 GB do not fit a 32 GB card, so bfloat16 (as Bielik-11B-v3.0 in full-run-2026-11).
+# Slayer 1.09: wagi_<step>.pt and its sha256 from SHA256SUMS of the -checkpoints revision; 1.09 starts from 1.08.
+MODELE+=(
+  "bielik-11b-v3.1-instruct|speakleash/Bielik-11B-v3.1-Instruct|d6e755d356ad418d0f0e30b8c428db267415ddb9|hf|lock|bfloat16"
+  "lfm3-1.7b|LiquidAI/LFM3-1.7B|1da06bec6a819da10b54c67e5c90972b46d81871|hf-trust|new"
+  "slayer1b-1.09-k40000|SlayerLab/Slayer1B-1.09-checkpoints|cff81fdcc05f0d91e9ba45b09fe78f769d7e0903|slayer-ckpt|lock|float32|wagi_40000.pt|f83f7017872f7121f002bc77499c625304bd28e2c87fb4afaa0e3d445bd31881|SlayerLab/Slayer1B-1.08@5f854a0cc7160594d54d1788d37a44e8ebabe16c"
+  # TODO k50000: revision of SlayerLab/Slayer1B-1.09-checkpoints that has wagi_50000.pt, and that file's line in SHA256SUMS
+  # "slayer1b-1.09-k50000|SlayerLab/Slayer1B-1.09-checkpoints|<REWIZJA>|slayer-ckpt|lock|float32|wagi_50000.pt|<SHA256>|SlayerLab/Slayer1B-1.08@5f854a0cc7160594d54d1788d37a44e8ebabe16c"
+)
 
 # Task id -> <benchmark> directory name under wyniki/ and results/central-run/; the test checks that ZADANIA_ID equals the keys of ZADANIA.
 KATALOGI="T01:blimp T02:arc-challenge T03:wikitext-2 T04:multiblimp-pl T05:hellaswag T06:piqa T08:openbookqa
@@ -98,24 +109,31 @@ w_tle() {  # w_tle NAME COMMAND...
   echo "start $n (pid $!), log $WS/logi/$n.log"
 }
 
-model() {  # model LABEL -> sets REPO REV LOADER ENV
+model() {  # model LABEL -> sets REPO REV LOADER ENV DTYPE CKPT CKPT_SHA256 WZORZEC (template repo@revision)
   local m
   for m in "${MODELE[@]}"; do
-    IFS='|' read -r l REPO REV LOADER ENV <<< "$m"
-    [[ $l == "$1" ]] && { ENV=${ENV_OVERRIDE:-$ENV}; return 0; }
+    IFS='|' read -r l REPO REV LOADER ENV DTYPE CKPT CKPT_SHA256 WZORZEC <<< "$m"
+    [[ $l == "$1" ]] || continue
+    ENV=${ENV_OVERRIDE:-$ENV} DTYPE=${DTYPE:-float32}
+    [[ $DTYPE == float32 || $DTYPE == bfloat16 ]] || { echo "model $1: dtype $DTYPE (float32 | bfloat16)" >&2; return 1; }
+    if [[ $LOADER == slayer-ckpt && ( -z $CKPT || -z $CKPT_SHA256 || $WZORZEC != *@* ) ]]; then
+      echo "model $1: slayer-ckpt needs ckpt_file|ckpt_sha256|template_repo@revision in its MODELE row" >&2; return 1
+    fi
+    return 0
   done
   echo "unknown model: $1" >&2
   return 1
 }
 
 polecenie() {  # polecenie LABEL TASK_ID -> ewaluuj.py command line (own-code task: its script, same flags)
-  local L=$1 T=$2 kod
+  local L=$1 T=$2 kod dt=""
   model "$L"
+  [[ $DTYPE == float32 ]] || dt=" --dtype $DTYPE"  # float32 rows keep the command of earlier runs
   kod=$(kod_zadania "$T")
   if [[ -n $kod ]]; then
     echo "$WS/venv-$ENV/bin/python $K/$kod przebieg --repo $REPO --revision $REV --model_path $WS/modele/$L --zadania $T" \
       "--probka ${PROBKA:-pelna} --device ${DEVICE:-cuda} --batch $BATCH --eval_gpu $(gpu_nazwa) --etykieta $L" \
-      "--wyjscie ${WYNIKI:-$WS/wyniki}/$(katalog "$T")/$L"
+      "--wyjscie ${WYNIKI:-$WS/wyniki}/$(katalog "$T")/$L$dt"
     return
   fi
   local args=(--model "$([[ $LOADER == slayer* ]] && echo slayer || echo hf)" --repo "$REPO" --revision "$REV"
@@ -123,7 +141,7 @@ polecenie() {  # polecenie LABEL TASK_ID -> ewaluuj.py command line (own-code ta
               --eval_gpu "$(gpu_nazwa)" --etykieta "$L" --wyjscie "${WYNIKI:-$WS/wyniki}/$(katalog "$T")/$L")
   [[ $LOADER == hf-trust ]] && args+=(--trust_remote_code)
   [[ $T == T03 && $LOADER != slayer* ]] && args+=(--max_length "$OKNO_ROLLING")
-  echo "$WS/venv-$ENV/bin/python $K/common/ewaluuj.py ${args[*]}"
+  echo "$WS/venv-$ENV/bin/python $K/common/ewaluuj.py ${args[*]}$dt"
 }
 
 gpu_nazwa() {  # NVIDIA name (of GPU $GPU_NR when set), otherwise "<cpu brand> <device>", e.g. Apple_M5_Pro_mps
@@ -150,14 +168,15 @@ pobierz_wagi() {  # pobierz_wagi LABEL (after `model`): $WS/modele/LABEL ready f
     "$py" -c "from huggingface_hub import snapshot_download as s; s('$REPO', revision='$REV', local_dir='$d')"
     return
   fi
-  # converted earlier on this machine (proba_cpu with ZOSTAW_WAGI=1, then licz): no second 9 GB download
-  if [[ -s $d/model.safetensors ]] && grep -q "\"zrodlo_ckpt\": \".*/$SLAYER_CKPT\"" "$d/config.json" 2> /dev/null; then
-    echo "wagi $1: juz skonwertowane z $SLAYER_CKPT"; return
+  # converted earlier on this machine (proba_cpu with ZOSTAW_WAGI=1, then licz): no second 9 GB download;
+  # konwertuj.py writes the checkpoint's sha256 into config.json, so a directory of another checkpoint is redone
+  if [[ -s $d/model.safetensors ]] && grep -q "\"ckpt_sha256\": \"$CKPT_SHA256\"" "$d/config.json" 2> /dev/null; then
+    echo "wagi $1: juz skonwertowane z $CKPT"; return
   fi
-  local wzor_repo=${SLAYER_WZORZEC%%|*} wzor_rev=${SLAYER_WZORZEC#*|}
-  "$py" -c "from huggingface_hub import hf_hub_download as h; h('$REPO', '$SLAYER_CKPT', revision='$REV', local_dir='$d.ckpt')"
+  local wzor_repo=${WZORZEC%@*} wzor_rev=${WZORZEC#*@}
+  "$py" -c "from huggingface_hub import hf_hub_download as h; h('$REPO', '$CKPT', revision='$REV', local_dir='$d.ckpt')"
   "$py" -c "from huggingface_hub import snapshot_download as s; s('$wzor_repo', revision='$wzor_rev', local_dir='$d.wzorzec', allow_patterns=['model.safetensors', 'config.json', 'tokenizer.json'])"
-  "$py" "$K/tools/konwertuj.py" "$d.ckpt/$SLAYER_CKPT" "$d.wzorzec" "$d" --sha256 "$SLAYER_CKPT_SHA256"
+  "$py" "$K/tools/konwertuj.py" "$d.ckpt/$CKPT" "$d.wzorzec" "$d" --sha256 "$CKPT_SHA256"
   rm -rf "$d.ckpt" "$d.wzorzec"
 }
 
@@ -186,7 +205,7 @@ licz_model() {  # licz_model LABEL: download, every task, delete weights; a fail
     kod=0
     echo "gpu ${GPU_NR:--} $(gpu_nazwa)" > "$WS/logi/${L}_${T}_$ENV.log"
     $(polecenie "$L" "$T") >> "$WS/logi/${L}_${T}_$ENV.log" 2>&1 || kod=$?
-    zapisz_czas ewaluacja "$t" "{\"model\": \"$L\", \"zadanie\": \"$T\", \"kod\": $kod, \"gpu\": \"$(gpu_nazwa)\", \"gpu_nr\": \"${GPU_NR:-}\", \"batch\": \"$BATCH\", \"env\": \"$ENV\", \"wyniki\": \"${WYNIKI:-$WS/wyniki}\"}"
+    zapisz_czas ewaluacja "$t" "{\"model\": \"$L\", \"zadanie\": \"$T\", \"kod\": $kod, \"gpu\": \"$(gpu_nazwa)\", \"gpu_nr\": \"${GPU_NR:-}\", \"batch\": \"$BATCH\", \"env\": \"$ENV\", \"dtype\": \"$DTYPE\", \"wyniki\": \"${WYNIKI:-$WS/wyniki}\"}"
   done
   # ZOSTAW_WAGI=1: proba_cpu followed by licz on the same instance downloads each model once
   [[ ${ZOSTAW_WAGI:-0} == 1 ]] || rm -rf "$WS/modele/$L"
