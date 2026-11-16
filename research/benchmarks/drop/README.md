@@ -4,10 +4,10 @@
 > [słowniczek](../../METODOLOGIA.md#słowniczek).
 
 DROP sprawdza czytanie z dyskretnym rozumowaniem (liczenie, porównania). Zadanie lm-eval: `drop`, split `validation`, demonstracje: 0.
-Metryka decyzyjna: `f1` per pytanie lm-eval. Typ `ciagla` ([README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy)).
+Metryka decyzyjna: `f1` per pytanie lm-eval. Typ `ciagla +klastry`, klastry `passage` ([README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy)).
 
 Stan: podpięty do przebiegu centralnego (wpis `T39` w `common/zadania.py` i `KATALOGI`), wyników jeszcze nie ma.
-Kartę oryginału i odtworzenie (`ORIGINAL.md`, `REPRODUCTION.md`) dopisuje osobne zadanie.
+Karta oryginału: [`ORIGINAL.md`](ORIGINAL.md). Odtworzenie (`REPRODUCTION.md`) dopisuje osobne zadanie.
 
 ## Ustawienia poza YAML-em lm-eval
 

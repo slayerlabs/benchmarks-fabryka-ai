@@ -398,8 +398,29 @@ def _klastry_wsc273(docs):
     return Z._modul_lm_eval("wsc273/wsc273.py", Z.BENCHMARKI).schematy(docs)
 
 
+def _klastry_paws(docs):
+    """PAWS pairs sharing a sentence (variants of one source sentence) form one cluster: connected components of
+    the graph "row shares `sentence1` or `sentence2` with row", id = index of the component's first row."""
+    rodzic = list(range(len(docs)))
+
+    def korzen(i):
+        while rodzic[i] != i:
+            rodzic[i] = rodzic[rodzic[i]]
+            i = rodzic[i]
+        return i
+
+    pierwszy = {}
+    for i, d in enumerate(docs):
+        for zdanie in (d["sentence1"], d["sentence2"]):
+            j = pierwszy.setdefault(zdanie, i)
+            a, b = korzen(i), korzen(j)
+            rodzic[max(a, b)] = min(a, b)
+    return [korzen(i) for i in range(len(docs))]
+
+
 # Rules over documents in split order, the same code the benchmark's own pipeline uses
-REGULY_KLASTROW = {"pary_winogrande": _klastry_winogrande, "schematy_wsc273": _klastry_wsc273}
+REGULY_KLASTROW = {"pary_winogrande": _klastry_winogrande, "schematy_wsc273": _klastry_wsc273,
+                   "zdania_paws": _klastry_paws}
 
 
 def klastry_probek(meta, probki):

@@ -4,7 +4,7 @@
 
 Mierzy: adwersarialne wynikanie, runda 3, 3 klasy.
 
-- Test T16, typ `mc` ([README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy)).
+- Test T16, typ `mc +klastry`, klaster to przesłanka ([README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy)).
 - Zbiór: `facebook/anli` @ `8e4813d81f46d313dac7892e1c28076917cfcdf9`, konfiguracja `plain_text`, split `test_r3`, n = 1200.
 - Metryka decyzyjna: `acc`.
 - Licencja (karta zbioru na przypiętej rewizji): cc-by-nc-4.0 (licencja niekomercyjna: liczymy i publikujemy wynik, danych nie publikujemy).

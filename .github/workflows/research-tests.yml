@@ -30,19 +30,43 @@ jobs:
       - run: pip install pytest numpy==2.0.2 scipy==1.13.1
       - run: >-
           python -m pytest -q -p no:cacheprovider
+          tests/test_anli_r3.py
+          tests/test_bbh.py
           tests/test_blimp.py
           tests/test_blimp_checkpoints.py
           tests/test_blimp_checkpoints_independent.py
+          tests/test_cb.py
+          tests/test_cbd.py
+          tests/test_coqa.py
+          tests/test_drop.py
           tests/test_full_run_report.py
+          tests/test_gsm8k.py
           tests/test_hellaswag.py
+          tests/test_ifeval.py
+          tests/test_klej_ner.py
           tests/test_liczby_raportow.py
+          tests/test_mmlu.py
+          tests/test_nq_open.py
+          tests/test_paws_en.py
           tests/test_piqa.py
+          tests/test_polqa.py
+          tests/test_poquad.py
+          tests/test_prost.py
           tests/test_przebieg_centralny.py
+          tests/test_psc.py
+          tests/test_race.py
+          tests/test_record.py
+          tests/test_rte.py
           tests/test_snr_panelu.py
           tests/test_social_iqa.py
+          tests/test_squad2.py
+          tests/test_sst2.py
           tests/test_start.py
           tests/test_statystyka.py
           tests/test_straznik_i_kontrola.py
+          tests/test_triviaqa.py
+          tests/test_truthfulqa.py
+          tests/test_wic.py
           tests/test_wikitext_mianownik.py
           tests/test_winogrande.py
           tests/test_winogrande_przelicz.py
