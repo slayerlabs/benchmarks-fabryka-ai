@@ -10,5 +10,8 @@ Mierzy: czy podana odpowiedź pasuje do pytania, Tak/Nie.
 - Licencja (karta zbioru na przypiętej rewizji): cc-by-sa-3.0.
 - Definicja zadania: fork OpenPL `speakleash/lm-evaluation-harness` @ `21d0ea9c`; kopia YAML-a w `lm_eval_tasks/` (nagłówek z commitem źródła), `common/zadania.py` przypina rewizję zbioru.
 - Przebieg centralny: podpięty (`T25` w `common/zadania.py` i `KATALOGI` w `tools/przebieg_centralny.sh`); przepis w [`RECIPE.md`](RECIPE.md).
+- [`ORIGINAL.md`](ORIGINAL.md): karta oryginału (etap A).
+- [`REPRODUCTION.md`](REPRODUCTION.md): etap B, kontrola `+pl` (model znający polski: F1 > b + 2 SE); werdyktu przed przebiegiem jeszcze nie ma, wpływ #157 opisany.
+- Test: `tests/test_dyk.py`.
 
 5-shot. Demonstracje z banku przykładów ([METODOLOGIA, „Przykłady few-shot”](../../METODOLOGIA.md#przykłady-few-shot)), nie z samplera YAML-a. Metryka główna to F1 korpusowe (`utils.agg_f1` forka na parach indeksów opcji, klasa pozytywna „Tak”), liczone w `common/ewaluuj.py` (`funkcja_korpusowa`); `utils.f1` forka nie jest wołane ([`ORIGINAL.md`](ORIGINAL.md), pole „Ocena”).
