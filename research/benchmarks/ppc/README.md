@@ -10,5 +10,8 @@ Mierzy: zależność znaczeń dwóch zdań, 3 klasy literą.
 - Licencja (karta zbioru na przypiętej rewizji): cc-by-nc-sa-4.0 (licencja niekomercyjna: liczymy i publikujemy wynik, danych nie publikujemy).
 - Definicja zadania: fork OpenPL `speakleash/lm-evaluation-harness` @ `21d0ea9c`; kopia YAML-a w `lm_eval_tasks/` (nagłówek z commitem źródła), `common/zadania.py` przypina rewizję zbioru.
 - Przebieg centralny: podpięty (`T26` w `common/zadania.py` i `KATALOGI` w `tools/przebieg_centralny.sh`); przepis w [`RECIPE.md`](RECIPE.md).
+- [`ORIGINAL.md`](ORIGINAL.md): karta oryginału (etap A).
+- [`REPRODUCTION.md`](REPRODUCTION.md): etap B, bez kandydata z opublikowanym wynikiem, kontrola `+pl` (model znający polski > b + 2 SE); werdykt po przebiegu centralnym.
+- Test: `tests/test_ppc.py`.
 
 5-shot. Demonstracje z banku przykładów ([METODOLOGIA, „Przykłady few-shot”](../../METODOLOGIA.md#przykłady-few-shot)), nie z samplera YAML-a.
