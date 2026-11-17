@@ -10,6 +10,9 @@ Mierzy: czytanie ze zrozumieniem fragmentu FLORES, 4 odpowiedzi literą.
 - Licencja (karta zbioru na przypiętej rewizji): cc-by-sa-4.0.
 - Definicja zadania: fork OpenPL `speakleash/lm-evaluation-harness` @ `21d0ea9c`; kopia YAML-a w `lm_eval_tasks/` (nagłówek z commitem źródła), `common/zadania.py` przypina rewizję zbioru.
 - Przebieg centralny: podpięty (`T24` w `common/zadania.py` i `KATALOGI` w `tools/przebieg_centralny.sh`); przepis w [`RECIPE.md`](RECIPE.md).
+- [`ORIGINAL.md`](ORIGINAL.md): karta oryginału (etap A).
+- [`REPRODUCTION.md`](REPRODUCTION.md): etap B, kontrola `+pl` (model znający polski > b + 2 SE); werdyktu przed przebiegiem jeszcze nie ma.
+- Test: `tests/test_belebele_pl.py`.
 
 5-shot. Zbiór ma tylko split `test`. YAML forka bierze 5 pierwszych dokumentów testu (`fewshot_split: test`, `first_n`), więc te demonstracje byłyby też oceniane, a demonstracje idą z banku wybranego hashem i nigdy nie są oceniane ([METODOLOGIA, „Przykłady few-shot”](../../METODOLOGIA.md#przykłady-few-shot), punkt 4).
 
