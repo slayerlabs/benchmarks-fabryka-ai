@@ -1,52 +1,34 @@
-# <Benchmark>: karta oryginału (etap A)
+# CoLA: karta oryginału (etap A)
 
-Znaczenie pól opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „A. Karta oryginału (ORIGINAL.md)”. Gdy
-czegoś nie da się ustalić, wpisz „nieustalone” z listą przeszukanych miejsc. Benchmark bez oryginału nie ma tego
-pliku ani `REPRODUCTION.md`. Usuń oba i wypełnij `DATASET.md` (sekcja „Benchmark bez oryginału: karta zbioru
-(DATASET.md)”).
-
-Każdą liczbę spoza `results/LICZBY.json`, w każdym polu (n, bazy, SNR, wyniki referencyjne), oznacz na końcu jej
-linii znacznikiem `<!-- liczba-spoza-wynikow: skąd jest liczba -->`, inaczej bramka liczb
-(`tools/sprawdz_raporty.py`) ją odrzuci. Jedna linia ze znacznikiem ma jedno źródło. Pole z wynikami z kilku źródeł
-(kilka modeli, plików, przeliczeń) rozpisz na kilka wierszy tabeli albo na listę, jedno źródło na linię, każde ze
-swoim znacznikiem. Znacznik zwalnia z bramki całą linię, więc liczby pod nim sprawdza tylko recenzent. Przykład: `benchmarks/winogrande/ORIGINAL.md` (nie ma jeszcze pól „Typ testu” i „SNR: szum checkpointów”).
+Znaczenie pól opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „A. Karta oryginału (ORIGINAL.md)”. Gdy czegoś nie da się ustalić, wpis brzmi „nieustalone” i podaje, gdzie szukano. Wszystkie źródła odczytano 2026-11-17.
 
 | pole | wartość |
 |---|---|
-| Co mierzy | |
-| Źródła | praca: ; repo autorów @ commit: ; zbiór HF @ rewizja: |
-| Dane: split w pracy | split: ; n: |
-| Dane: split w Space/repo | split: ; n: ; pełny split albo panel 200: |
-| Dane: licencja | licencja autorów: ; tag HF: ; ukryte odpowiedzi w teście: tak/nie |
-| Typ testu | link do wiersza testu w [README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy) (typ stoi tylko tam): |
-| Format zadania i prompt | szablon z pracy albo kodu; gdy praca nie ma promptu modelu językowego (modele dostrajane): szablon z implementacji Space/lm-eval z separatorem celu (`target_delimiter`, domyślnie spacja) i pełnym ocenianym tekstem jednej opcji |
-| Ocena | |
-| Metryka decyzyjna | |
-| Agregacja i grupy | średnia po pytaniach czy po podtestach, wagi: ; poziomy grup i poziom, który wiąże werdykt: |
-| Bazy | losowa: ; stała odpowiedź (kolumna typu, dokładnie ze splitu): ; b: |
-| SNR: źródło | panel z METODOLOGII („Panel SNR”); do przebiegu, który obejmie test, w polach SNR wpisz „po przebiegu centralnym”; modele i commit przebiegu: |
-| SNR: rozrzut | odchylenie std. wyników modeli panelu: |
-| SNR: SE | SE jednego wyniku dla n pełnego splitu, metodą z kolumny „SE” typu: |
-| SNR: iloraz | rozrzut / SE: ; przedział 95%: ; najmniejszy bez jednego modelu panelu: |
-| SNR: szum checkpointów | odchylenie std. 5 ostatnich checkpointów jednego modelu (źródło) albo „nieustalone”: |
-| MDE | panel 200: ; pełny split: ; SE różnicy wzięte z: |
-| Kontaminacja | sprawdzona: metoda, odsetek / znana: źródło / nieznana |
-| Wyniki referencyjne (odczyt RRRR-MM-DD) | model @ rewizja → wynik, źródło. Gdy po sprawdzeniu miejsc z METODOLOGIA.md („Model kontrolny etapu B”) żaden model, który da się pobrać, nie ma opublikowanego wyniku: „brak” i lista przeszukanych miejsc (etap B idzie wtedy jako „bez kontroli”). Każdy model z `results/` lm-eval @ `afbf8e66` (komenda pod tabelą) i z cytowanej tabeli, który da się pobrać, osobno |
-| Train policy | `eval_only` dla wszystkich splitów (domyślnie) albo `train_allowed`: które splity, issue z decyzją |
-| Decyzja treningowa | |
-| Znane rozbieżności | w tym katalog zadania lm-eval w `6d2abda4` wobec `v0.4.9.1` (hashe blobów) i rewizja zbioru (METODOLOGIA.md, „Wersja lm-eval”) |
-
-Hashe blobów katalogu zadania daje komenda uruchomiona raz z `ref=6d2abda4` i raz z `ref=v0.4.9.1`; podkatalog z
-innym hashem otwierasz tą samą komendą:
-
-```bash
-gh api 'repos/EleutherAI/lm-evaluation-harness/contents/lm_eval/tasks/<katalog>?ref=<tag>' --jq '.[] | "\(.sha) \(.name)"'
-```
-
-Pliki wyników z katalogu `results/` lm-eval @ `afbf8e66` (pole „Wyniki referencyjne”) daje `git grep` po nazwie
-zadania w tamtej wersji; plik otwierasz przez `git show afbf8e66:<ścieżka>` (wynik, SE, `num_fewshot`, `model_args`):
-
-```bash
-git clone --no-checkout https://github.com/EleutherAI/lm-evaluation-harness
-git -C lm-evaluation-harness grep -l '"<zadanie>"' afbf8e66 -- results/
-```
+| Co mierzy | gramatyczna akceptowalność zdań jako test kompetencji językowej: model ocenia, czy angielskie zdanie jest gramatyczne; CoLA to 10 657 angielskich zdań z literatury lingwistycznej oznaczonych jako gramatyczne albo niegramatyczne; autorzy: „the ability of artificial neural networks to judge the grammatical acceptability of a sentence, with the goal of testing their linguistic competence” <!-- liczba-spoza-wynikow: abstrakt arXiv:1805.12471 --> |
+| Źródła | praca: Warstadt, Singh, Bowman, „Neural Network Acceptability Judgments”, [arXiv:1805.12471](https://arxiv.org/abs/1805.12471); repo autorów @ commit: [nyu-mll/CoLA-baselines @ dd095d3646ed05a315280aaa8ed4ec84ba435b3e](https://github.com/nyu-mll/CoLA-baselines/tree/dd095d3646ed05a315280aaa8ed4ec84ba435b3e); zbiór HF @ rewizja: [nyu-mll/glue @ bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c](https://huggingface.co/datasets/nyu-mll/glue/tree/bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c), konfiguracja cola (dataset_name w YAML lm-eval), same pliki parquet, bez skryptu ładującego; splitowanie w GLUE: Wang i in., „GLUE: A Multi-Task Benchmark and Analysis Platform for Natural Language Understanding”, [arXiv:1804.07461](https://arxiv.org/abs/1804.07461) (CoLA wchodzi do GLUE); paczka danych autorów cola_public.zip z katalogu acceptability_corpus repo autorów, SHA-256 2cf856f46df11c143d38e0cf2f9f34ff2fdb088c521cd859f5c4b9581683278b |
+| Dane: split w pracy | split: test (wyniki główne, tabela 4 pracy, kolumny in-domain i out-of-domain; dev do selekcji modelu i progów: in-domain 527, out-of-domain 516) ; n: 1063 <!-- liczba-spoza-wynikow: Warstadt, Singh, Bowman 2018: korpus 10 657 zdań, train 8551 (sekcja 4.2); test = 10 657 − 8551 − 527 − 516 --> |
+| Dane: split w Space/repo | split: validation (T49 w tasks_50.json Space @ 2d3d73f; validation_split: validation w YAML lm-eval, bez test_split); n: 1043 (train 8551, test 1063 bez etykiet); pełny split albo panel 200: Space liczy panel 200 (METHOD.md §3: min(200, N_eligible), wybór SHA-256 20261028|cola|…); werdykt na pełnym splicie 1043 wg rdzenia <!-- liczba-spoza-wynikow: tasks_50.json i METHOD.md Space @ 2d3d73f; parquet nyu-mll/glue @ bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c --> |
+| Dane: licencja | licencja autorów: brak pliku LICENSE w repo autorów @ dd095d3; README repo @ dd095d3, sekcja License: „Baseline code is available under MIT license” (kod MIT; dane bez wyraźnej licencji); tag HF: other (karta zbioru @ bcdcba79; T49: „Undeclared/umbrella data terms are a gate, not an inferred permissive licence”); ukryte odpowiedzi w teście: tak (test GLUE bez etykiet, leaderboard; w oryginale test hold-out, poza cola_public.zip) |
+| Typ testu | wiersz [`cola`](../../README.md#benchmarki-i-typy) w tabeli „Benchmarki i typy”: T49, typ `mcc`, bez grup, przebieg T49 |
+| Format zadania i prompt | szablon z implementacji lm-eval @ 6d2abda4 (praca: klasyfikatory dostrajane, nie LLM): "{{sentence}}\nQuestion: Does this sentence make sense?\nAnswer:" + target_delimiter (spacja) + oceniana kontynuacja „ no” albo „ yes”; doc_to_choice: ["no", "yes"]; label 0 → „no”, 1 → „yes”; liczba przykładów w prompcie: 0 (0-shot, shots: 0 w T49); pełny oceniany tekst jednej opcji: „<zdanie>\nQuestion: Does this sentence make sense?\nAnswer: yes” |
+| Ocena | multiple_choice: porównanie log-P kontynuacji „ no”/„ yes” doklejonych do promptu, wygrywa opcja o wyższym log-P, porównana z label; bez normalizacji długości (znaki/bajty/tokeny — surowy log-P, opcje jednowyrazowe, nie acc_norm) i bez normalizacji tekstu odpowiedzi (opcje doklejane dosłownie ze spacją target_delimiter) |
+| Metryka decyzyjna | mcc (Matthews correlation coefficient, wersja 1.0 w metric_list YAML; T49: „mcc,none”; MCC może być ujemny — notes T49: „do not clamp to accuracy 0..1”) |
+| Agregacja i grupy | średnia po pytaniach, bez podtestów i wag; jeden wynik MCC na całym splicie; poziomy grup: brak (poziom wiążący: cały test) |
+| Bazy | losowa: MCC ≈ 0 (losowy klasyfikator nie koreluje z etykietą; kontrola: MCC jednej próby losowej = −0,0030); stała odpowiedź: MCC = 0 z definicji (predyktor stały, brak zmienności predykcji; kontrola: 0,0000); odsetek klas w validation (kontekst, skala acc): „yes” = 721/1043 = 0,6913, „no” = 322/1043 = 0,3087 <!-- liczba-spoza-wynikow: parquet nyu-mll/glue @ bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c, split validation, zliczenie 2026-11-17 --> |
+| Bazy: b | 0 (baza losowa 0, stała odpowiedź 0 — MCC stałej predykcji; wiersz typu `mcc` w METODOLOGII, „Typy testów”; potwierdza observations T49 w Space: constant_prediction: true → mcc 0,0) <!-- liczba-spoza-wynikow: METODOLOGIA.md „Typy testów”, wiersz mcc; results.json Space @ 2d3d73f, observations T49 --> |
+| SNR: źródło | po przebiegu centralnym (T49 nieobjęty przebiegiem centralnym); modele i commit przebiegu: po przebiegu |
+| SNR: rozrzut | po przebiegu centralnym |
+| SNR: SE | po przebiegu centralnym (kolumna „SE” typu: B po pytaniach (bootstrap; metryka korpusowa liczona od nowa w każdym losowaniu)) |
+| SNR: iloraz | po przebiegu centralnym |
+| SNR: szum checkpointów | nieustalone — przeszukano: evals/ EleutherAI/pythia (pythia-v0 i pythia-v1, zero-shot i five-shot, pliki per checkpoint, np. pythia-v0 pythia-160m-0shot-global_step71500_eval_results_12-30-2022-23-06-54.json i pythia-v1 160m_step143000.json) nie zawierają zadania cola |
+| MDE | panel 200: 0,2862; pełny split: 0,1253 w skali MCC (SE pełnego splitu 0,0312 = mcc_stderr mpt-7b @ afbf8e66, panel przez √(1043/200) = 0,0713, kontrola z CI95 LFM w Space: 0,0712); SE różnicy wzięte z: B po pytaniach (bootstrap; metryka korpusowa liczona od nowa w każdym losowaniu); MDE = (z_próg + 0,84)·SE różnicy parowanej (rdzeń punkt 5, moc 80%), bez wyników per pytanie przyjęte √2·SE <!-- liczba-spoza-wynikow: results/mpt/mpt-7b/mpt-7b_glue_0-shot.json @ afbf8e66, przeliczenie wg rdzenia punkt 5 --> |
+| MDE: informacyjnie dla acc | orientacyjnie dla acc (n=1043): SE(p=0,5)=0,0155, MDE≈4,4 pkt <!-- liczba-spoza-wynikow: wyliczenie notebooka Etap 5, orientacyjnie dla acc, nie dla MCC --> |
+| Kontaminacja | Space T49 @ 2d3d73f: LiquidAI/LFM2.5-1.2B-Base: unknown; SlayerLab/Slayer1B-1.06: flagged (hit_rate 0,05, wynik hit-free: 0,0000); własnego skanu korpusu pod kątem CoLA nie robiono; benchmark_sources.json nieopublikowany (HTTP 404); YAML lm-eval deklaruje should_decontaminate: true z zapytaniem po sentence — deklaracja harnessu, nie wynik skanu |
+| Wyniki referencyjne (odczyt 2026-11-17) | mpt-7b @ afbf8e66 → mcc −0,0441 (SE 0,0312), 0-shot, pełny validation, źródło: results/mpt/mpt-7b/mpt-7b_glue_0-shot.json w EleutherAI/lm-evaluation-harness <!-- liczba-spoza-wynikow: results/ lm-eval @ afbf8e66 --> |
+| Wyniki referencyjne (odczyt 2026-11-17): Space LFM2.5-1.2B-Base | LiquidAI/LFM2.5-1.2B-Base @ 7453bca97ca1e67754c4035a4b4c584e1c9dd725 → mcc −0,0059 (CI95 −0,1443–0,1350, paired_cluster_bootstrap, 10000 replikacji, seed 20261028), panel 200 (n_scored 200 z n_population 1043), contamination: unknown <!-- liczba-spoza-wynikow: results.json Space @ 2d3d73f, observations T49 --> |
+| Wyniki referencyjne (odczyt 2026-11-17): Space Slayer1B-1.06 | SlayerLab/Slayer1B-1.06 @ ef81be58742544ad32e1afab38db011fec209609 → mcc 0,0000 (CI95 0,0000–0,0000, paired_cluster_bootstrap, 10000 replikacji, seed 20261028), panel 200 (n_scored 200 z n_population 1043), contamination: flagged, hit_rate 0,05, mcc hit-free 0,0000, stała predykcja modelu (constant_prediction: true) <!-- liczba-spoza-wynikow: results.json Space @ 2d3d73f, observations T49 --> |
+| Wyniki referencyjne (odczyt 2026-11-17): lm-eval LLaMA | LLaMA 7B i 13B @ afbf8e66 → mcc 0,0 (mcc_stderr 0,0; stała predykcja), 0-shot, pliki results/llama/llama-7B/llama-7B_glue_0-shot.json i llama-13B; wagi oryginalne gated, nie jako kontrola etapu B <!-- liczba-spoza-wynikow: results/ lm-eval @ afbf8e66 --> |
+| Wyniki referencyjne (odczyt 2026-11-17): model kontrolny etapu B | EleutherAI/pythia-1b-v0 nie ma opublikowanego wyniku cola: przeszukano evals/pythia-v0 i evals/pythia-v1 (zero-shot i five-shot, pliki per checkpoint, pythia-1b włącznie) — zadanie cola nie występuje; etap B wtedy jako „bez kontroli” <!-- liczba-spoza-wynikow: evals/ EleutherAI/pythia @ main, odczyt 2026-11-17 --> |
+| Train policy | eval_only (domyślnie, żaden split nie trafia do treningu) |
+| Decyzja treningowa | słaby wynik: MCC bliski 0 lub ujemny oznacza, że model nie rozróżnia akceptowalności ponad bazę; nie wolno z niego wnioskować o braku „rozumienia gramatyki” w ogóle (protokół 0-shot bez progu) ani porównywać wprost z tabelą 4 pracy (inne protokoły: klasyfikatory dostrajane, 10-fold CV, progi); różnica w pkt, która zmieniłaby decyzję: nieustalona (SNR po przebiegu centralnym) |
+| Znane rozbieżności | (1) hashe blobów katalogu glue/cola: default.yaml: 6d2abda4 → 7f79e5e8f6403014e790726d8d66eac86629ec90, v0.4.9.1 → 3997cfdeb6588a2d3480cf11c929ca817c91286c; różnica treści: -dataset_path: glue; +dataset_path: nyu-mll/glue; jedyna różnica treści: dataset_path (glue w Space vs nyu-mll/glue w repo), reszta identyczna; (2) GLUE zmienił splitowanie: validation 1043 = in-domain dev 527 + out-of-domain dev 516 autorów (zliczenie z paczki: 719/1043 „yes” vs parquet 721/1043 — różnica 2 zdań), oryginalny test 1063 = test GLUE bez etykiet <!-- liczba-spoza-wynikow: paczka cola_public.zip @ dd095d3 (SHA-256 2cf856f46df11c143d38e0cf2f9f34ff2fdb088c521cd859f5c4b9581683278b): raw/in_domain_dev.tsv 527, raw/out_of_domain_dev.tsv 516 -->; (3) praca liczy klasyfikatory dostrajane z progiem (10-fold CV na teście) i preprocessuje zdania domyślnym tokenizerem NLTK („we use the default NLTK tokenizer”), lm-eval liczy LLM 0-shot bez progu i bez tej tokenizacji (zdanie idzie do promptu wprost) — karta opisuje implementację lm-eval; (4) rewizja zbioru nyu-mll/glue @ bcdcba79 (sekcja „Wersja lm-eval”) |
