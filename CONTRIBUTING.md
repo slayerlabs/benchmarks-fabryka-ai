@@ -108,26 +108,19 @@ Pola zadania:
 - **recenzja i przeliczenie** (etykieta `needs-recheck`): In Progress → Review → Independent Check → Done. Druga osoba
   liczy wynik od zera. Dla wyniku, który idzie do Space albo do decyzji o treningu.
 
-## Jak piszemy zadania
+## How we write tasks
 
-Zadanie mówi, co ma powstać, a nie jak to zrobić krok po kroku. Ma pięć części:
-
-1. **Cel**: jedno zdanie, po co jest zadanie i jaka decyzja zależy od wyniku.
-2. **Co zrobić**: rodzaj pracy i odesłanie do sekcji METODOLOGII. Sposób wykonania opisuje metodologia, nie zadanie.
-3. **Dane wejściowe**: tylko fakty potrzebne do startu, każdy z linkiem do źródła. Liczba w zadaniu jest dokładna, nie
-   zaokrąglona z abstraktu.
-4. **Gotowe**: sprawdzalne kryteria, w tym automaty z kodem 0.
-5. **Sprawdzenie**: jedna z trzech ścieżek wyżej.
-
-Nie podpowiadaj w zadaniu rozstrzygnięć, które należą do metodologii, także jako przykładu w nawiasie. Gdy zadanie i
-metodologia mówią co innego, autor robi według zadania, a błąd poprawiamy w metodologii albo w zadaniu, nie u
-autora.
+A benchmark task is short. Title: the benchmark name. Body: which models to run, links to the
+[LFM3-1.7B model card](https://huggingface.co/LiquidAI/LFM3-1.7B), the [Fabryka AI API](https://fabryka.ai/platform)
+and [METHODOLOGY.md](research/METHODOLOGY.md), a note that compute is available on request, and an empty result
+table with one row per model. How to run the benchmark and which files to add belongs to the methodology, not the
+task.
 
 ## Pliki w repo
 
 Układ katalogów opisuje [`research/README.md`, „Układ”](research/README.md#układ).
 
-- Dokumenty piszesz po polsku. Nazwy katalogów, plików i kod piszesz po angielsku.
+- Everything is written in English: documents, code, comments, issues, PRs and commit messages.
 - Nie commitujesz wag modeli (`*.safetensors`, `*.bin`, `*.pt`, katalog `models/`), zbiorów danych (`*.parquet`,
   `*.arrow`), archiwów `*.zip` ani żadnego pliku powyżej 10 MB. Listę wykluczeń ma `research/.gitignore`.
 - Wyniki per pytanie wolno commitować skompresowane, jako `results/<model>/<zadanie>.jsonl.gz`, do około 10 MB na

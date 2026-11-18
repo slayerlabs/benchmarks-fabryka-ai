@@ -1,3 +1,6 @@
+> Rules of the earlier lm-eval run for the benchmarks in `benchmarks/`. New benchmarks follow
+> [METHODOLOGY.md](METHODOLOGY.md).
+
 # Metodologia: wspólny rdzeń i typy testów
 
 Repo mierzy każdy model, który da się pobrać z Hugging Face, nie tylko Slayera 1B. Każdy test ma część wspólną
