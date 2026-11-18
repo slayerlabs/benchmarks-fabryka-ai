@@ -15,6 +15,8 @@ Wszystkie komendy niżej uruchamiasz w katalogu `research/`.
 
 | katalog albo plik | co tam jest |
 |---|---|
+| `METHODOLOGY.md` | how to run a benchmark through the Fabryka AI API, which files to add and in what format |
+| `api-benchmarks/<name>/` | one benchmark run through the API: `README.md`, `run.sh`, `results/<model-id>.json` and `.jsonl.gz` |
 | `METODOLOGIA.md` | wspólny rdzeń reguł, tabela typów testów, etapy A–D, modele, przepis, następna wersja Slayera |
 | `LEADERBOARD.md` | zasady meta-oceny i rankingu modeli |
 | `BENCHMARKI_PL.md` | które benchmarki przetłumaczyć, a które napisać od zera po polsku |
@@ -25,7 +27,7 @@ Wszystkie komendy niżej uruchamiasz w katalogu `research/`.
 | `tools/` | bramka liczb (`liczby.py`, `sprawdz_raporty.py`), przebieg centralny (`przebieg_centralny.sh`, `kontrola_sensu.py`, `bezpiecznik.py`, `konwertuj.py`) |
 | `results/` | `LICZBY.json` i `LICZBY.md`: wszystkie liczby raportów, wygenerowane przez bramkę liczb; `central-run/`: wyniki przebiegu centralnego |
 | `tests/` | testy kodu, bez sieci i bez wag |
-| `slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami: `dane/` (spis zbiorów: [`REJESTR_DATASETOW.md`](slayer-1b/dane/REJESTR_DATASETOW.md)), `testy_danych_slayer/`, `wygaszanie/`, `tokenizer/`, `lab/`, `paczka_testerzy/` (komendy w ich README uruchamiasz w `research/slayer-1b/`) |
+| `slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami: `dane/` (spis zbiorów: [`REJESTR_DATASETOW.md`](slayer-1b/dane/REJESTR_DATASETOW.md)), `testy_danych_slayer/`, `wygaszanie/`, `tokenizer/`, `rozmowy-1.08/` (komendy w ich README uruchamiasz w `research/slayer-1b/`) |
 
 Jest też jedna analiza: [`analyses/answer-format/`](analyses/answer-format/README.md). Testy T01–T52 liczy kod
 w `common/`, opisany w [`common/README.md`](common/README.md).
@@ -276,7 +278,7 @@ To testy zmienionego benchmarku, `tests/test_liczby_raportow.py` i bramka liczb.
 
 ## Bramka liczb
 
-Uruchom ją przed każdą zmianą raportu (README, `benchmarks/`, `analyses/`, `slayer-1b/lab/`, `slayer-1b/wygaszanie/`,
+Uruchom ją przed każdą zmianą raportu (README, `benchmarks/`, `analyses/`, `slayer-1b/wygaszanie/`,
 `slayer-1b/testy_danych_slayer/`, strona HTML):
 
 ```bash

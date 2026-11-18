@@ -47,7 +47,7 @@ def test_start_dry_run_from_a_copy_elsewhere_finds_its_code_and_the_gotowe_list(
                            text=True, cwd=tempfile.mkdtemp(), env=env_bez_k(HF_TOKEN="x", START_SUCHO="1"))
     assert wynik.returncode == 0, wynik.stderr
     assert f"kod (K): {kopia}" in wynik.stdout
-    licz = f'bash {kopia}/tools/przebieg_centralny.sh licz "slayer1b-1.07:{",".join(gotowe_skryptu())}"'
+    licz = f'POMIN=reszta bash {kopia}/tools/przebieg_centralny.sh licz "slayer1b-1.07:{",".join(gotowe_skryptu())}"'
     assert licz in wynik.stdout.splitlines()
     assert f"bash {kopia}/tools/przebieg_centralny.sh przygotuj 172800" in wynik.stdout.splitlines()
 
@@ -56,7 +56,7 @@ def test_start_wszystkie_counts_the_whole_model():
     wynik = subprocess.run(["bash", str(KORZEN / "tools" / "start.sh"), "slayer1b-1.07", "wszystkie"],
                            capture_output=True, text=True, check=True,
                            env=env_bez_k(HF_TOKEN="x", START_SUCHO="1", LIMIT_S="60"))
-    assert f'bash {SKRYPT} licz "slayer1b-1.07"' in wynik.stdout.splitlines()
+    assert f'POMIN=reszta bash {SKRYPT} licz "slayer1b-1.07"' in wynik.stdout.splitlines()
     assert f"bash {SKRYPT} przygotuj 60" in wynik.stdout.splitlines()
 
 
@@ -65,7 +65,7 @@ def test_start_wszystkie_for_the_comparison_models():
     for model in ("bielik-11b-v3.1-instruct", "lfm3-1.7b", "slayer1b-1.09-k40000"):
         wynik = subprocess.run(["bash", str(KORZEN / "tools" / "start.sh"), model, "wszystkie"],
                                capture_output=True, text=True, check=True, env=env_bez_k(HF_TOKEN="x", START_SUCHO="1"))
-        assert f'bash {SKRYPT} licz "{model}"' in wynik.stdout.splitlines()
+        assert f'POMIN=reszta bash {SKRYPT} licz "{model}"' in wynik.stdout.splitlines()
         assert re.search(r"testy \(wszystkie, (\d+)\)", wynik.stdout)[1] == str(len(
             subprocess.run(["bash", str(SKRYPT), "katalogi"], capture_output=True, text=True, check=True,
                            env=env_bez_k()).stdout.splitlines()))

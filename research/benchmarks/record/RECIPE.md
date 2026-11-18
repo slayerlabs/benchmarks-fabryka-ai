@@ -7,7 +7,7 @@
   (`NEW_ENV_PINS` w `tools/przebieg_centralny.sh`)
 - Model: modele z `MODELE` w `tools/przebieg_centralny.sh`
 - Zbiór: `aps/super_glue@3de24cf8022e94f4ee4b9d55a6f539891524d646 (`record`)`
-- Komenda (w `research/`): `bash tools/przebieg_centralny.sh licz "<etykiety>"`; jedno zadanie:
+- Komenda (w `research/`): `bash tools/przebieg_centralny.sh licz` (wszystkie modele z `MODELE`; lista etykiet wymaga `POMIN` z pominiętymi modelami); jedno zadanie:
   `python common/ewaluuj.py --model hf --repo <repo> --revision <rewizja> --zadania T50 --probka pelna --device cuda --wyjscie results/central-run/record/<etykieta>`
 - Seed: harness (python, numpy, torch, fewshot) = (0, 1234, 1234, 1234); bootstrap 20261028
 - Precyzja: float32
