@@ -16,7 +16,7 @@
 **Slayer 1.07**: ostatnia przyjęta wersja, bez wygaszania LR. **1.08**: [karta modelu](https://huggingface.co/SlayerLab/Slayer1B-1.08/blob/5f854a0cc7160594d54d1788d37a44e8ebabe16c/README.md), bramka przyjęcia niezaliczona (ARC-Easy); kontynuacja 1.07, punkt startowy 1.09.
 
 **Slayer 1B 1.09, krok 40 000 (w toku)**: 1.09, krok 40 000 (~67 mld tokenów), trening w toku, wynik wstępny. Poza tabelą CodeSOTA; w animacji i macierzy jako checkpoint w toku; porównanie parowane z 1.08 w [postępie wersji](#postęp-wersji-slayera).
-Skąd duży skok wobec 1.08: 1.08 skończyło trening na 25,2 mld tokenów, a Slayer 1B 1.09, krok 40 000 (w toku) ma 67,1 mld, czyli o 41,9 mld więcej ([dane treningowe](../../slayer-1b/dane/DANE_TRENINGOWE.md#tokeny-wersji)). <!-- liczba-spoza-wynikow: tokeny z DANE_TRENINGOWE.md, tabela „Tokeny wersji”, krok 40 000 = 1.08 + 40 000 × 2^20 -->
+Tokeny treningu: 1.08 skończyło trening na 25,2 mld tokenów, a Slayer 1B 1.09, krok 40 000 (w toku) ma 67,1 mld, czyli o 41,9 mld więcej ([dane treningowe](../../slayer-1b/dane/DANE_TRENINGOWE.md#tokeny-wersji)). <!-- liczba-spoza-wynikow: tokeny z DANE_TRENINGOWE.md, tabela „Tokeny wersji”, krok 40 000 = 1.08 + 40 000 × 2^20 -->
 
 ## Wyniki Slayer 1B 1.09, krok 40 000 (w toku) wobec 1.08
 

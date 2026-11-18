@@ -1133,7 +1133,7 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     for m in run.TOKU:
         a(f"**{nazwa(m)}**: {W_TOKU[m][1]}. Poza tabelą CodeSOTA; w animacji i macierzy jako checkpoint w toku; porównanie parowane z 1.08 w [postępie wersji](#postęp-wersji-slayera).")
         if m in TOKENY:
-            a(f"Skąd duży skok wobec 1.08: 1.08 skończyło trening na {mld(TOKENY['slayer1b-1.08'])} mld tokenów, a {nazwa(m)} ma "
+            a(f"Tokeny treningu: 1.08 skończyło trening na {mld(TOKENY['slayer1b-1.08'])} mld tokenów, a {nazwa(m)} ma "
               f"{mld(TOKENY[m])} mld, czyli o {mld(TOKENY[m] - TOKENY['slayer1b-1.08'])} mld więcej "
               "([dane treningowe](../../slayer-1b/dane/DANE_TRENINGOWE.md#tokeny-wersji)). "
               "<!-- liczba-spoza-wynikow: tokeny z DANE_TRENINGOWE.md, tabela „Tokeny wersji”, krok 40 000 = 1.08 + 40 000 × 2^20 -->")
