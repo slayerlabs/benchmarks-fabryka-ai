@@ -42,6 +42,10 @@ Jak powstaje test: [METODOLOGIA, „Etapy pracy”](research/METODOLOGIA.md#etap
 
 <a name="przed-pr"></a>Przed PR: [CONTRIBUTING, „Przed PR”](CONTRIBUTING.md#przed-pr).
 
+## Język
+
+Angielski jest nadrzędny w kodzie: nazwy katalogów i plików, nazwy funkcji i zmiennych, komentarze, docstringi i komunikaty piszesz po angielsku. Po polsku zostają nazwy własne i ogólne nazwy z dziedziny (np. nazwy polskich benchmarków i zbiorów). Dokumenty (README, karty, METODOLOGIA, raporty) piszesz po polsku. Starego kodu nie przepisujemy hurtem: plik, który i tak zmieniasz, możesz ujednolicić, najlepiej w osobnym commicie. Szczegóły: [`CONTRIBUTING.md`, „Pliki w repo”](CONTRIBUTING.md#pliki-w-repo).
+
 ## Gdzie co jest
 
 | gdzie | co tam jest |

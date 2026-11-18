@@ -25,7 +25,7 @@ które sprawdzają (bramka liczb, SE i werdykt przy każdym porównaniu), opisuj
 
 ## Zasady
 
-- Język: nazwy katalogów, plików i kod po angielsku. Dokumenty po polsku.
+- Język: [`CONTRIBUTING.md`, „Pliki w repo”](CONTRIBUTING.md#pliki-w-repo). W skrócie: kod i nazwy po angielsku (polskie tylko nazwy własne i ogólne nazwy z dziedziny), dokumenty po polsku, bez przepisywania starego kodu hurtem.
 - Czego nie commitujesz (wagi, zbiory, pliki powyżej 10 MB) i kiedy wolno `.jsonl.gz`:
   [`CONTRIBUTING.md`, „Pliki w repo”](CONTRIBUTING.md#pliki-w-repo).
 - Pytania benchmarku nie trafiają do danych treningowych (`research/METODOLOGIA.md`, sekcja „Czystość benchmarku”).

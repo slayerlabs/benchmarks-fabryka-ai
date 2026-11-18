@@ -127,7 +127,7 @@ autora.
 
 Układ katalogów opisuje [`research/README.md`, „Układ”](research/README.md#układ).
 
-- Dokumenty piszesz po polsku. Nazwy katalogów, plików i kod piszesz po angielsku.
+- Język: Angielski jest nadrzędny w kodzie: nazwy katalogów i plików, nazwy funkcji i zmiennych, komentarze, docstringi i komunikaty piszesz po angielsku. Po polsku zostają nazwy własne i ogólne nazwy z dziedziny (np. nazwy polskich benchmarków i zbiorów). Dokumenty (README, karty, METODOLOGIA, raporty) piszesz po polsku. Starego kodu nie przepisujemy hurtem: plik, który i tak zmieniasz, możesz ujednolicić, najlepiej w osobnym commicie.
 - Nie commitujesz wag modeli (`*.safetensors`, `*.bin`, `*.pt`, katalog `models/`), zbiorów danych (`*.parquet`,
   `*.arrow`), archiwów `*.zip` ani żadnego pliku powyżej 10 MB. Listę wykluczeń ma `research/.gitignore`.
 - Wyniki per pytanie wolno commitować skompresowane, jako `results/<model>/<zadanie>.jsonl.gz`, do około 10 MB na
