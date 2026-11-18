@@ -555,7 +555,7 @@ wchodzi do obu środowisk).
    ```
 
    `start.sh` to dwie komendy `przebieg_centralny.sh`: `przygotuj 172800` (środowiska lock i new, bezpiecznik,
-   strażnik bezczynności) i `licz "slayer1b-1.07:<GOTOWE>"`. Lista `GOTOWE` stoi w `przebieg_centralny.sh`, a
+   strażnik bezczynności) i `POMIN=reszta licz "slayer1b-1.07:<GOTOWE>"`. Lista `GOTOWE` stoi w `przebieg_centralny.sh`, a
    `tests/test_start.py` pilnuje, że to testy z sekcji „Gotowe” w `STATUS.md`. `start.sh slayer1b-1.07 wszystkie`
    liczy wszystkie zadania przebiegu, `START_SUCHO=1` tylko wypisuje obie komendy. Kod skrypty biorą z katalogu, w
    którym leżą (`K`), więc klon może stać gdziekolwiek.
@@ -591,16 +591,21 @@ wchodzi do obu środowisk).
    sposobami z https://vast.ai/docs/gpu-instances/data-movement (odsyłacz z opisu `vastai stop instance`). W repo rozpakowujesz archiwum w `results/central-run/`. Pole `repo`
    w `results.json` to `SlayerLab/Slayer1B-1.07-checkpoints` @ `89630be…`, a `weights_sha256` to suma
    skonwertowanego `model.safetensors` (`d826b4a1…`).
-   Komenda z kroku 4 liczy tylko Slayera 1.07; LFM2.5 (jak każdy model odniesienia) przebieg liczy od nowa tylko z jego etykietą w `licz` (np. `licz "slayer1b-1.07 lfm2.5-1.2b-base"`), w środowisku z `MODELE` (`lock`, lm-eval 0.4.9.1), a dzisiejsze wyniki LFM2.5 w `results/central-run/*/lfm2.5-1.2b-base/` (lm-eval 0.4.13, Apple MPS) nie są z tak policzonymi porównywalne.
+   Komenda z kroku 4 liczy tylko Slayera 1.07; LFM2.5 (jak każdy model odniesienia) przebieg liczy od nowa tylko z jego etykietą w `licz` (np. `POMIN=reszta licz "slayer1b-1.07 lfm2.5-1.2b-base"`), w środowisku z `MODELE` (`lock`, lm-eval 0.4.9.1), a dzisiejsze wyniki LFM2.5 w `results/central-run/*/lfm2.5-1.2b-base/` (lm-eval 0.4.13, Apple MPS) nie są z tak policzonymi porównywalne.
 
 Punkt odniesienia z CPU: `proba_cpu "slayer1b-1.07"` (`PROBA_N=2`, 4 wątki, Apple M5 Pro, 07.11.2026): 49 zadań
 sprzed #154 w 1592 s (najdłuższe MMLU 319 s, MATH 192 s, IFEval 127 s, BBH 114 s), T51 i T52 razem 33 s, czyli 51
 z 52 zadań w ok. 27 min. T53 nie był liczony na danych EWoK (token bez dostępu do `ewok-core-1.0`, `GatedRepoError`). Na
 instancji `ZOSTAW_WAGI=1 bash tools/przebieg_centralny.sh proba_cpu "slayer1b-1.07"` przed `licz` sprawdza
-ładowanie, a `licz` nie pobiera wag drugi raz.
+ładowanie, a `licz` nie pobiera wag drugi raz. Przy kilku kartach wagi przejmuje pierwsza kolejka, która liczy ten
+model (`modele/<etykieta>.gpu<N>`); model pocięty przez `tools/queue_plan.py` na części pobiera wagi osobno dla
+każdej kolejnej karty.
 
 `plan "slayer1b-<wersja>"` wypisuje komendy bez liczenia, także lokalnie (`K=$PWD WS=$(mktemp -d)`). `stan` pokazuje
-postęp, `ponow` powtarza zadania zakończone błędem, a `licz` kończy się `tools/kontrola_sensu.py` (zadanie bez
+postęp, `ponow` powtarza zadania zakończone błędem. `licz` bez listy liczy wszystkie modele z `MODELE`. Lista
+etykiet musi wymienić w `POMIN` każdy pominięty model z `MODELE` (albo `POMIN=reszta`, jeden model na instancję), bo
+lista przepisana ręcznie zgubiła już model mierzony. `licz` kończy się `tools/kontrola_sensu.py` i sprawdzeniem, że
+każda para model × test z planu `licz` ma wynik (zadanie bez
 wyniku, wynik równy 1, wynik pod bazą losową o ponad 5 pkt, perpleksja nieskończona); osobno, bez błędu, wypisuje wyniki
 „at baseline level”, które nie przechodzą kontroli z tabeli typów (wynik > b + 2 SE; przy testach MC z porównania
 `wobec_b`, parowanego ze stałą odpowiedzią). Przebieg liczy pełne zbiory.
