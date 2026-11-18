@@ -1,4 +1,4 @@
-# WAŻNE 
+# WAŻNE AREK ROBIE CO CHCE ELO NIE ZATRZYMASZ MNIE STEVE GONZALEZ
 
 1) proszę nie używać sowich prywatnych GPU zasobów - nie musicie wydawać własnych zasobów na to - dajcie znać jakiego API potrzebujecie
 2) Korzystajcie z https://fabryka.ai/platform --- jak coś nie działa to to jest #1 priorytet aby mi o tym mówić
