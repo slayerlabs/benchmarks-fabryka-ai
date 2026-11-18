@@ -45,6 +45,7 @@ z, q, k = [x["gold"] for x in o], [x["pred"] for x in o], [s["doc"]["question"] 
 r = M.korpusowa_z_niepewnoscia(z, q, lambda z, q: f(z, q) - f(z, [1] * len(z)), klastry=k)
 print({"f1": f(z, q), "b": f(z, [1] * len(z)), **r, "z": r["value"] / r["se"] if r["se"] else None,
        "werdykt": S.werdykt(r["value"] / r["se"]) if r["se"] else S.NIEROZSTRZYGALNE,
+       "spelniona": bool(r["se"]) and r["value"] / r["se"] >= 2,
        "udzial_tak": sum(q) / len(q), "acc": sum(x["acc"] for x in o) / len(o)})
 PY
 ```
