@@ -143,7 +143,16 @@ def test_holm_family_is_the_six_rows_of_the_bases_table(m, report):
     h = m.holm_bazy(report)
     assert [(r["probka"], r["baza"]) for r in h] == [(a, b) for a in ("panel200", "pelny", "pelny_po_schematach")
                                                      for b in ("losowa", "wiekszosciowa")]
-    assert h == report["holm_bazy"]
+    # Holm p-values are floats, so a list comparison with `==` fails on the last digit that differs
+    # between platforms (Linux gives ...723 where the committed value ends in ...724). Compare text
+    # and integer fields exactly and floats with rel=1e-12: about 4e3 float64 ulps at these
+    # magnitudes, far wider than the last-digit difference and far narrower than any real change in
+    # the Holm correction.
+    assert len(h) == len(report["holm_bazy"])
+    for got, want in zip(h, report["holm_bazy"]):
+        assert set(got) == set(want)
+        assert {k: got[k] for k in got if k != "p_holm"} == {k: want[k] for k in want if k != "p_holm"}
+        assert got["p_holm"] == pytest.approx(want["p_holm"], rel=1e-12)
     p = [T.p_z(report[k][w]["z"]) for k in ("slayer_panel200", "slayer_pelny")
          for w in ("wobec_losowej", "wobec_wiekszosciowej")]
     p += [report["slayer_pelny"][w]["p"] for w in ("wobec_losowej_po_schematach", "wobec_wiekszosciowej_po_schematach")]
