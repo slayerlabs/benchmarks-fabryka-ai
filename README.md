@@ -1,3 +1,38 @@
+# WAŻNE 
+
+1) proszę nie używać sowich prywatnych GPU zasobów - nie musicie wydawać własnych zasobów na to - dajcie znać jakiego API potrzebujecie
+2) Korzystajcie z https://fabryka.ai/platform --- jak coś nie działa to to jest #1 priorytet aby mi o tym mówić
+3) Kluczowa jest ta lista benchmarków:  ( te mają priorytet )
+4) Kluczowe jest aby policzyć to dla przede wszystkim Bielik 11B 3.1 ( w sumie może też dla 3.0 )  oraz dla Slayer 1B 
+
+LiveClaw
+Claw-Eval General (EN)
+BrowseComp-Plus (OpenClaw subset)
+WebArena-Verified
+EnterpriseOps-Gym
+AutomationBench
+BFCL V4
+ToolSandbox
+MCP-Atlas
+τ³-bench
+SWE-bench Verified
+SWE-bench Multilingual
+Terminal-Bench 2.1
+LiveCodeBench v6
+LiveCodeBench Pro 25Q2
+SciCode
+IFEval
+IFBench
+IFStruct
+Multi-IF
+GPQA Diamond
+Humanity’s Last Exam
+AA-Omniscience
+AA-LCR
+RULER 128K
+
+
+
 # benchmarks-fabryka-ai
 
 Mierzymy otwarte modele językowe, dziś polsko-angielskiego **Slayer 1B**, na benchmarkach odtworzonych zgodnie z
