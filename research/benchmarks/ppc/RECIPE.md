@@ -20,13 +20,13 @@ Jeden wpis na każdy wynik. Wyników jeszcze nie ma: liczy je przebieg centralny
 
 Model i warunek zapisuje [`REPRODUCTION.md`](REPRODUCTION.md). Wyników jeszcze nie ma: wpis dostaje commit, sprzęt i datę po przebiegu centralnym.
 
-- Model: `speakleash/Bielik-1.5B-v3` @ `4b25049621bf3952a1fc9314c89773102eda0333` (etykieta `bielik-1.5b-v3` w `MODELE`); zapas, gdy przebieg pominie Bielika (repo z bramką zgody na HF): `utter-project/EuroLLM-1.7B` @ `c730cd9b616799ace3c65e927d63191446f59374` (etykieta `eurollm-1.7b`). Oba liczą wszystkie zadania przebiegu, bez osobnego wpisu w `TESTY_MODELU`.
+- Model: `speakleash/Bielik-1.5B-v3` @ `4b25049621bf3952a1fc9314c89773102eda0333` (etykieta `bielik-1.5b-v3` w `MODELE`). Gdy przebieg go pominie (repo z bramką zgody na HF), werdykt brzmi „bez kontroli: nierozstrzygnięte”; `utter-project/EuroLLM-1.7B` nie jest zapasem, bo w eksporcie z 2026-11-18 ma `ppc_mc` 35,6 < b = 41,9. <!-- liczba-spoza-wynikow: eksport all_data.json z 2026-11-18, SHA-256 68cc602c56518b6127d463da5b2af3847ffaad203855b74d6ded050e80fb96ec -->
 - Środowisko: `lock` (lm-eval 0.4.9.1, `common/requirements.lock.txt`), precyzja float32.
 - Zbiór: `sdadas/ppc@073012dc81efb47b0fd66b0ab48bf06ddb62f528` (wpis `T26` w `common/zadania.py`), split `test`, n = 1000, 5-shot z banku przykładów. <!-- liczba-spoza-wynikow: wpis T26 w common/zadania.py i plik test @ 073012dc -->
-- Komenda (w `research/`): linia przebiegu `bash tools/przebieg_centralny.sh plan | grep -- '--zadania T26 ' | grep bielik-1.5b-v3`, czyli `common/ewaluuj.py --model hf --repo speakleash/Bielik-1.5B-v3 --revision 4b25049621bf3952a1fc9314c89773102eda0333 --model_path /workspace/modele/bielik-1.5b-v3 --zadania T26 --probka pelna --device cuda --batch 1 --eval_gpu <GPU> --etykieta bielik-1.5b-v3 --wyjscie /workspace/wyniki/ppc/bielik-1.5b-v3` (dla EuroLLM ta sama linia z jego repo, rewizją i etykietą; nazwę GPU i katalog wag, przy kilku GPU z sufiksem `.gpu<N>`, ustawia przebieg).
+- Komenda (w `research/`): linia przebiegu `bash tools/przebieg_centralny.sh plan | grep -- '--zadania T26 ' | grep bielik-1.5b-v3`, czyli `common/ewaluuj.py --model hf --repo speakleash/Bielik-1.5B-v3 --revision 4b25049621bf3952a1fc9314c89773102eda0333 --model_path /workspace/modele/bielik-1.5b-v3 --zadania T26 --probka pelna --device cuda --batch 1 --eval_gpu <GPU> --etykieta bielik-1.5b-v3 --wyjscie /workspace/wyniki/ppc/bielik-1.5b-v3` (nazwę GPU i katalog wag, przy kilku GPU z sufiksem `.gpu<N>`, ustawia przebieg).
 - Seed: python 0, numpy 1234, torch 1234, fewshot 1234
 - Commit kodu, sprzęt, data: niezapisane (przed przebiegiem)
-- Wynik: `results/central-run/ppc/bielik-1.5b-v3/results.json` i próbki per pytanie w `probki/`; kontrola: `tools/statystyka.wobec_stalej` na wynikach per pytanie (z ≥ 2, `REPRODUCTION.md`).
+- Wynik: `results/central-run/ppc/bielik-1.5b-v3/results.json` i próbki per pytanie w `probki/`; kontrola: `tools/statystyka.wobec_stalej` na wynikach per pytanie z SE K po klastrach zdań dzielących zdanie (z ≥ 2, `REPRODUCTION.md`).
 
 ## Smoke test przed przebiegiem
 

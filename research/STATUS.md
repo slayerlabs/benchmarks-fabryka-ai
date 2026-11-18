@@ -45,7 +45,7 @@ test `tests/test_<name>.py`.
 | [WSC273](benchmarks/wsc273/README.md) | T14 | ✓ | bez kontroli | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia): kontrola spoza listy |
 | [LAMBADA](benchmarks/lambada/README.md) | T17 | ✓ | ✓ | ✓ | kontrola Pythia v0: spełniony, pełny przebieg 2026-11 |
 | [MathQA](benchmarks/mathqa/README.md) | T19 | ✓ | bez kontroli | ✓ | Slayer na poziomie bazy większościowej |
-| [PPC](benchmarks/ppc/README.md) | T26 | ✓ | kontrola `+pl` | ✓ | bez kandydata z opublikowanym wynikiem; model znający polski (Bielik-1.5B-v3, zapas EuroLLM-1.7B), werdykt po przebiegu centralnym (#170) |
+| [PPC](benchmarks/ppc/README.md) | T26 | ✓ | kontrola `+pl` | ✓ | bez kandydata z opublikowanym wynikiem; model znający polski (Bielik-1.5B-v3; EuroLLM-1.7B odpada, 35,6 < b), werdykt po przebiegu centralnym (#170) | <!-- liczba-spoza-wynikow: eksport all_data.json z 2026-11-18, SHA-256 68cc602c56518b6127d463da5b2af3847ffaad203855b74d6ded050e80fb96ec -->
 | [PubMedQA](benchmarks/pubmedqa/README.md) | T44 | ✓ | bez kontroli | ✓ | Slayer pod b, prompt i mapowanie sprawdzone ([werdykt](benchmarks/pubmedqa/REPRODUCTION.md#werdykt-sprawdzenia)) |
 | [MedMCQA](benchmarks/medmcqa/README.md) | T45 | ✓ | bez kontroli | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia) |
 | [Social IQa](benchmarks/social-iqa/README.md) | T46 | ✓ | bez kontroli | ✓ | Slayer nad b, pod czterema modelami odniesienia |

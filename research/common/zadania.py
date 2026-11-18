@@ -208,7 +208,7 @@ ZADANIA = {
     "T26": dict(benchmark_id="ppc", task="polish_ppc_multiple_choice", family="ppc", language="PL",
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="sdadas/ppc", rewizja="073012dc81efb47b0fd66b0ab48bf06ddb62f528",
-                split="test", rodzaj="mc", klasy_stale=True, shoty=5,
+                split="test", rodzaj="mc", klasy_stale=True, klastry="zdania_ppc", shoty=5,
                 yaml="ppc/lm_eval_tasks/polish_ppc/ppc_mc.yaml"),
     "T27": dict(benchmark_id="psc", task="polish_psc_multiple_choice", family="psc", language="PL",
                 metric="f1,none", unit="score", higher_is_better=True, klucz="f1",

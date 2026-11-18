@@ -75,7 +75,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`polemo2`](benchmarks/polemo2/README.md) | T22 | `mc +pl` | | T22 | nieustalone |
 | [`polqa`](benchmarks/polqa/README.md) | T30 | `gen +pl` | | T30 | nieustalone |
 | [`poquad`](benchmarks/poquad/README.md) | T31 | `gen +klastry +pl` | klastry: `context` (5764 pytania do 1449 tekstów) | T31 | nieustalone |
-| [`ppc`](benchmarks/ppc/README.md) | T26 | `mc +pl` | | T26 | nieustalone |
+| [`ppc`](benchmarks/ppc/README.md) | T26 | `mc +klastry +pl` | klastry: pary dzielące zdanie (53 z 1000 wierszy w 25 grupach; 972 grupy) | T26 | nieustalone |
 | [`prost`](benchmarks/prost/README.md) | T20 | `mc` | | T20 | nieustalone |
 | [`psc`](benchmarks/psc/README.md) | T27 | `f1-korpus +klastry +pl` | klastry: `extract_text` (1078 wierszy do 507 tekstów) | T27 | nieustalone |
 | [`pubmedqa`](benchmarks/pubmedqa/README.md) | T44 | `mc` | | T44 | nieustalone |
