@@ -23,7 +23,7 @@ Wpis przed przebiegiem; po przebiegu dostaje commit, precyzję, sprzęt, datę i
 
 - Commit kodu: niezapisane (przed przebiegiem)
 - Środowisko: `lock` (`common/requirements.lock.txt`, lm-eval 0.4.9.1)
-- Model: `speakleash/Bielik-1.5B-v3` @ `4b25049621bf3952a1fc9314c89773102eda0333` (etykieta `bielik-1.5b-v3`); gdy przebieg go pominie (brak zgody na HF), `utter-project/EuroLLM-1.7B` @ `c730cd9b616799ace3c65e927d63191446f59374` (etykieta `eurollm-1.7b`). Oba liczy zwykły przebieg z listy `MODELE`, bez osobnego wpisu w `TESTY_MODELU`.
+- Model: `speakleash/Bielik-1.5B-v3` @ `4b25049621bf3952a1fc9314c89773102eda0333` (etykieta `bielik-1.5b-v3`). Gdy przebieg go pominie (brak zgody na HF), werdykt brzmi „bez kontroli: nierozstrzygnięte”; `utter-project/EuroLLM-1.7B` nie jest zapasem, bo w eksporcie z 2026-11-18 ma `dyk_mc` 16,8937 < b = 0,289277. <!-- liczba-spoza-wynikow: eksport all_data.json z 2026-11-18, SHA-256 68cc602c56518b6127d463da5b2af3847ffaad203855b74d6ded050e80fb96ec -->
 - Zbiór: `allegro/klej-dyk@dd7c3c3bb336738c853ea17c64b85d876e6714a9`, split `test`, n = 1029 (wpis `T25` w `common/zadania.py`), demonstracje z banku splitu `train`
 - Komenda przebiegu (w `research/`): `common/ewaluuj.py --zadania T25 --probka pelna --device cuda` z modelem z wiersza wyżej (pełna linia: `bash tools/przebieg_centralny.sh plan | grep -- '--zadania T25 ' | grep bielik-1.5b-v3`)
 - Seed: python 0, numpy 1234, torch 1234, fewshot 1234; bootstrap kontroli: `metryki.SEED`, 10 000 powtórzeń
