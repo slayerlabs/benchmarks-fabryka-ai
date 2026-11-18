@@ -93,7 +93,7 @@ MODELE+=(
   "babyllama-10m-2024|babylm/babyllama-10m-2024|073b4258651a7a6268fc48e708cdbad6a20bddab|hf|lock"
 )
 # label:tests of a model that runs only those (comma-separated); every other model runs all of ZADANIA_ID
-TESTY_MODELU="bloom-560m-e985a63:T20 bloom-1b7:T38,T40,T41 pythia-1b:T36 qwen1.5-7b:T35 babyllama-10m-2024:T52"
+TESTY_MODELU="bloom-560m-e985a63:T20 bloom-1b7:T11,T38,T40,T41 pythia-1b:T36 qwen1.5-7b:T35 babyllama-10m-2024:T52"
 
 # Task id -> <benchmark> directory name under wyniki/ and results/central-run/; the test checks that ZADANIA_ID equals the keys of ZADANIA.
 KATALOGI="T01:blimp T02:arc-challenge T03:wikitext-2 T04:multiblimp-pl T05:hellaswag T06:piqa T08:openbookqa
