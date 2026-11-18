@@ -60,7 +60,8 @@ def test_contamination_values():
 
 def test_labels_and_classes():
     assert "bez wygaszania LR" in raport.slayer_label("1.05")
-    assert "nie jest następcą 1.07" in raport.slayer_label("1.08")
+    assert "bramka przyjęcia niezaliczona" in raport.slayer_label("1.08")
+    assert "punkt startowy 1.09" in raport.slayer_label("1.08")  # 1.09 trenuje od wag 1.08
     assert raport.size_class(1_078_891_024) == "ok. 1B"
     assert raport.size_class(1_170_340_608) == "poza klasą"
 

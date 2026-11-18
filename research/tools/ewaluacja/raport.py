@@ -56,10 +56,20 @@ NAZWY = {
 
 
 W_TOKU = {"slayer1b-1.09-k40000": ("Slayer 1B 1.09, krok 40 000 (w toku)",
-                                   "1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny")}
+                                   "1.09, krok 40 000 (~67 mld tokenów), trening w toku, wynik wstępny")}
 """Checkpoints of a run still training: shown with this label next to 1.08, never as a version or in the CodeSOTA table;
 the animation and the matrix show them as „w toku” (decision 14.11.2026); their paired comparison with 1.08 comes from
-`KATALOG_TOKU/LICZBY.json`."""
+`KATALOG_TOKU/LICZBY.json`. Tokens: slayer-1b/dane/DANE_TRENINGOWE.md, „Tokeny wersji” (1.08: 25 203 572 736; 1.09 adds
+2^20 tokens per step, 61 903 732 736 at step 35 000, so 67 146 612 736 at step 40 000). Until 18.11.2026 the label said
+~61 mld, the step 35 000 number."""
+TOKENY = {"slayer1b-1.08": 25_203_572_736, "slayer1b-1.09-k40000": 67_146_612_736}
+"""Training tokens from step 1 (DANE_TRENINGOWE.md): the README says how far 1.09 is from 1.08 in training, not only
+how far in score."""
+
+
+def mld(n):
+    """Billions of tokens with a decimal comma, one digit: 67 146 612 736 -> 67,1."""
+    return f"{n / 1e9:.1f}".replace(".", ",")
 ALT_TOKU = {"slayer1b-1.09-k40000": "1.09 (krok 40 000, w toku)"}
 KATALOG_TOKU = "slayer-1.09-k40000"
 
@@ -286,7 +296,9 @@ The threshold was set after looking at this run, so it is a stated rule, not a p
 CENTRAL_DIFF = 5e-5
 INSTRUCT_MODELS = {"bielik-11b-v3-instruct", "lfm3-1.7b"}
 AUTO_NOTES = ("reguła ", "liczony w env lock", "w testach z PMI", "do powtórki", "model instruct liczony",
-              "w PIQA kontekst", "rewizja 5f854a0c", "checkpoint eksperymentalny") + tuple(e for _, e in W_TOKU.values())
+              "w PIQA kontekst", "rewizja 5f854a0c", "checkpoint eksperymentalny", "bramka przyjęcia niezaliczona",
+              "1.09, krok 40 000") + tuple(e for _, e in W_TOKU.values())
+"""Prefixes of notes the generator writes itself; old wordings stay so notes of earlier runs are replaced, not kept."""
 SHORT_NAMES = {"pythia-1b-v0": "Pythia", "qwen3.5-0.8b-base": "Qwen"}
 VERDICT_NO_CONTROL = "bez kontroli: nierozstrzygnięte"
 VERDICT_PENDING = "po przebiegu centralnym"
@@ -299,7 +311,7 @@ OUT_OF_TABLE_REASONS = {
 PROTOCOL_BOS_THRESHOLD = 0.04
 
 CARD_1_08 = ("https://huggingface.co/SlayerLab/Slayer1B-1.08/blob/5f854a0cc7160594d54d1788d37a44e8ebabe16c/README.md")
-SLAYER_1_08_STATUS = ("checkpoint eksperymentalny: bramka przyjęcia niezaliczona (ARC-Easy), nie jest następcą 1.07")
+SLAYER_1_08_STATUS = ("bramka przyjęcia niezaliczona (ARC-Easy); kontynuacja 1.07, punkt startowy 1.09")
 TEST_NAMES = {
     "arc-challenge": ("ARC-Challenge", "ARC-C"), "arc-easy": ("ARC-Easy", "ARC-E"), "blimp": ("BLiMP", "BLiMP"),
     "ewok": ("EWoK", "EWoK"), "hellaswag": ("HellaSwag", "Hella"), "lambada": ("LAMBADA", "LAMB"),
@@ -715,7 +727,7 @@ class Charts:
                 body.append(f'<text x="{W - 28}" y="{y + 4}" class="n v{i}" text-anchor="end">{format_number(r_.V[t["id"]][ids_fr[i]]["v"], digits_of(t))}</text>')
         yl = H - 16
         body.append(f'<circle class="dsl" cx="36" cy="{yl - 4}" r="6"/><text x="48" y="{yl}" class="m">Slayer, kolejne wersje</text>'
-                    f'<circle class="ring" cx="212" cy="{yl - 4}" r="6"/><text x="224" y="{yl}" class="m">1.08, checkpoint eksperymentalny</text>'
+                    f'<circle class="ring" cx="212" cy="{yl - 4}" r="6"/><text x="224" y="{yl}" class="m">1.08, bramka niezaliczona</text>'
                     f'<circle class="dot" cx="442" cy="{yl - 4}" r="5"/><text x="452" y="{yl}" class="m">klasa ok. 1B</text>'
                     f'<line class="tk" x1="548" x2="548" y1="{yl - 10}" y2="{yl + 2}"/><text x="558" y="{yl}" class="m">pozostałe modele odniesienia</text>'
                     + (f'<rect x="770" y="{yl - 10}" width="12" height="12" fill="var(--bg)" stroke="var(--mut)" stroke-width="1.5"/>'
@@ -812,7 +824,7 @@ class Charts:
                          f'<text x="{ox + pw - 10}" y="{oy + 120}" class="m" text-anchor="end">1.08 → 1.09: {E(toku_label(r_.PTOKU.get(t["id"]), t))}</text>')
         if toku:
             b.append(f'<rect x="{16:.1f}" y="{H - 26:.1f}" width="8" height="8" fill="var(--bg)" stroke="var(--mut)" stroke-width="1.5"/>'
-                     f'<text x="30" y="{H - 18}" class="m">{E(W_TOKU[toku][1])}, nie następca 1.08. Werdykt 1.08 → 1.09: parowany, po Holmie (m = {r_.TOKU_M}), z kontrolą narzędzia.</text>')
+                     f'<text x="30" y="{H - 18}" class="m">{E(W_TOKU[toku][1])}, kontynuacja 1.08. Werdykt 1.08 → 1.09: parowany, po Holmie (m = {r_.TOKU_M}), z kontrolą narzędzia.</text>')
         self.save("postep-wersji.svg", svg_doc(W, H, "".join(b), "", "Postęp wersji Slayera na każdym teście"))
 
     def entries(self, t, slayer=None):
@@ -830,11 +842,11 @@ class Charts:
 
     def forest(self, t):
         r_ = self.run
-        # #196: wersja eksperymentalna (1.08) jako drugi Slayer z miejscem; checkpoint w toku (1.09) jako kwadrat bez miejsca
+        # #196: 1.08 (bramka przyjęcia niezaliczona) jako drugi Slayer z miejscem; checkpoint w toku (1.09) jako kwadrat bez miejsca
         exp = r_.SL[r_.exp]
         e = self.entries_toku(t) + ([(exp, True)] if self.ok(t, exp) else [])
         e.sort(key=lambda z: r_.V[t["id"]][z[0]]["v"], reverse=t["higher"])
-        label = lambda mid: f"Slayer 1B {r_.SLN[r_.exp]} (eksperymentalny)" if mid == exp else r_.MN[mid]["label"]
+        label = lambda mid: f"Slayer 1B {r_.SLN[r_.exp]} (bramka niezaliczona)" if mid == exp else r_.MN[mid]["label"]
         W, RH, Y0, x0, x1 = 860, 28, 92, 300, 760
         H = Y0 + RH * len(e) + 58
         a, c = self.value_range(t, [i for i, _ in e])
@@ -969,7 +981,7 @@ def versions_section(run, a, prog):
     sl = run.SL
     tab = {(m, b): run.V[b].get(m) for b in run.V for m in sl}
     a("Wszystkie wersje mają tę samą architekturę i tokenizer; rewizje HF w `manifest.jsonl`. "
-      f"1.07 to wagi z HF (sha256 checkpointu zgodne z `SLAYER_CKPT_SHA256`), etykieta: {slayer_label('1.07')}. "
+      f"1.07 to wagi z HF (sha256 checkpointu zgodne z wierszem `slayer1b-1.07` w `MODELE` w `tools/przebieg_centralny.sh`), etykieta: {slayer_label('1.07')}. "
       f"1.08: {slayer_label('1.08')} ([karta modelu]({CARD_1_08})). Pozostałe wersje: {slayer_label('1.00')}.")
     a("")
     a("| test | " + " | ".join(run.SLN) + " |")
@@ -1041,7 +1053,7 @@ def toku_section(run, a):
         return
     m = run.TOKU[0]
     a(f"<details>\n<summary><b>1.08 → {E(nazwa(m))}</b> ({len(run.PTOKU)} porównań, Holm m = {run.TOKU_M})</summary>\n")
-    a(f"Etykieta: {W_TOKU[m][1]}. Checkpoint w trakcie treningu, nie następca 1.08; poza tabelą CodeSOTA, w animacji i macierzy jako checkpoint w toku. "
+    a(f"Etykieta: {W_TOKU[m][1]}. Checkpoint w trakcie treningu, kontynuacja 1.08, jeszcze nie wydana wersja; poza tabelą CodeSOTA, w animacji i macierzy jako checkpoint w toku. "
       f"Protokół, liczby i raport: [`{KATALOG_TOKU}/`]({KATALOG_TOKU}/RAPORT.md). 1.08 w tabeli z `manifest.jsonl` przebiegu; "
       "Δ i SE Δ z 1.08 przeliczonego na tej samej karcie co 1.09, na tych samych pytaniach. Kontrola narzędzia: "
       "1.08 przeliczone − 1.08 z manifestu, w SE testu; niezgodna (> 0,5 SE albo inne n) zmienia werdykt na nierozstrzygnięty.")
@@ -1120,6 +1132,11 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     a("")
     for m in run.TOKU:
         a(f"**{nazwa(m)}**: {W_TOKU[m][1]}. Poza tabelą CodeSOTA; w animacji i macierzy jako checkpoint w toku; porównanie parowane z 1.08 w [postępie wersji](#postęp-wersji-slayera).")
+        if m in TOKENY:
+            a(f"Skąd duży skok wobec 1.08: 1.08 skończyło trening na {mld(TOKENY['slayer1b-1.08'])} mld tokenów, a {nazwa(m)} ma "
+              f"{mld(TOKENY[m])} mld, czyli o {mld(TOKENY[m] - TOKENY['slayer1b-1.08'])} mld więcej "
+              "([dane treningowe](../../slayer-1b/dane/DANE_TRENINGOWE.md#tokeny-wersji)). "
+              "<!-- liczba-spoza-wynikow: tokeny z DANE_TRENINGOWE.md, tabela „Tokeny wersji”, krok 40 000 = 1.08 + 40 000 × 2^20 -->")
         a("")
     toku_summary(run, a)
     a("## Tabela CodeSOTA")
