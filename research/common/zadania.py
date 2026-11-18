@@ -223,7 +223,7 @@ ZADANIA = {
     "T29": dict(benchmark_id="klej_ner", task="polish_klej_ner_multiple_choice", family="klej_ner", language="PL",
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="allegro/klej-nkjp-ner", rewizja="bfae4047738b985bc2ad533d339dd89c3f7de00d",
-                split="test", rodzaj="mc", klasy_stale=True, shoty=5,
+                split="test", rodzaj="mc", klasy_stale=True, klastry="sentence", shoty=5,
                 yaml="klej-ner/lm_eval_tasks/polish_klej_ner/klej_ner_mc.yaml"),
     # PolQA and PoQuAD: loading-script repos, read from the pinned parquet conversion; `splity_dodatkowe` brings
     # the train split along as the few-shot source (the YAML's training_split).
