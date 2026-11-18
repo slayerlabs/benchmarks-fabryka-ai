@@ -12,7 +12,6 @@ models/
 *.npy
 # paczka dla testerów idzie osobno, poza repo
 *.zip
-slayer-1b/paczka_testerzy/dane/
 # wyniki per pytanie (kopia w slayer-1b/wygaszanie/wyniki/pelne_wyniki.tgz)
 slayer-1b/wygaszanie/wyniki/*/*.jsonl
 slayer-1b/wygaszanie/wyniki/*/trace/

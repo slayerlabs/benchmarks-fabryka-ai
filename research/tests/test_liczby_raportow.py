@@ -265,9 +265,10 @@ def test_dokumenty_repo_zgodne_z_liczbami():
 
 
 def test_zepsuta_liczba_w_kopii_dokumentu_zlapana():
-    plik = "slayer-1b/lab/DLA_ARKA_I_CHETNYCH.md"
-    tekst = (KORZEN / plik).read_text(encoding="utf-8")
-    assert "Belebele po treści 0,330 vs 0,297" in tekst
+    # zdanie z usuniętego slayer-1b/lab/DLA_ARKA_I_CHETNYCH.md (3efaa82): Belebele, Slayer 1.06 wobec Pythii, po treści
+    plik = "analyses/answer-format/x.md"
+    tekst = "| 7 | Polski vs Pythia-1B | Belebele po treści 0,330 vs 0,297 | 1,5 SE | w granicach szumu |"
+    assert not [p for _, _, p in bledy(tekst, plik) if "0,330" in p]
     zepsuty = tekst.replace("Belebele po treści 0,330 vs 0,297", "Belebele po treści 0,345 vs 0,297")
     b = bledy(zepsuty, plik)
     assert [p for _, _, p in b if "0,345" in p], b
