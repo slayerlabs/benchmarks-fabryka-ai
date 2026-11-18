@@ -568,13 +568,15 @@ def test_random_f1_baseline_uses_all_options_cbd():
     _, cfg = Z.konfiguracje("T28", "lokalne")[0]
     assert len(cfg["doc_to_choice"]) == 6
 
-    def probka(pred, gold):
+    def probka(pred, gold, n):
         konty = [" " + c for c in cfg["doc_to_choice"]]
-        return {"arguments": [("q", c) for c in konty] + [("", c) for c in konty], "target": gold, "doc": {},
+        # T28 clusters by `TEXT` (#276): one text per sample, so every cluster has one question
+        return {"arguments": [("q", c) for c in konty] + [("", c) for c in konty], "target": gold,
+                "doc": {"TEXT": f"tekst {n}"},
                 "filtered_resps": [(0.0 if i == pred else -1.0, False) for i in range(6)] + [(0.0, False)] * 6}
 
     zlote = [g for g in range(6) for _ in range(10)]
-    probki = [probka(g if i % 2 else (g + 1) % 6, g) for i, g in enumerate(zlote)]
+    probki = [probka(g if i % 2 else (g + 1) % 6, g, i) for i, g in enumerate(zlote)]
     d = E.podsumuj_wariant(Z.ZADANIA["T28"], [("polish_cbd_multiple_choice", cfg, SimpleNamespace(eval_docs=zlote),
                                                probki)])
     from sklearn.metrics import f1_score
