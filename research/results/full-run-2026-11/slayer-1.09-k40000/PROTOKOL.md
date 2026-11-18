@@ -4,6 +4,11 @@ Ustalony przed pierwszym wynikiem. Progów, wariantów i listy porównań nie zm
 Etykieta wyniku: **„1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny”**. To checkpoint w trakcie
 treningu (cel operacyjny 80 000 kroków), nie wersja przyjęta i nie następca 1.08.
 
+Errata 18.11.2026, po wyniku, bez wpływu na liczby i werdykty: krok 40 000 to ok. 67 mld tokenów, nie ~61 mld
+(61,9 mld to krok 35 000; `slayer-1b/dane/DANE_TRENINGOWE.md`, „Tokeny wersji”, 2^20 tokenów na krok). „Nie następca
+1.08” znaczyło „jeszcze nie wydana wersja”: 1.09 trenuje od wag 1.08. Etykieta w `LICZBY.json` i `RAPORT.md` jest
+poprawiona. <!-- liczba-spoza-wynikow: tokeny z DANE_TRENINGOWE.md, krok 40 000 = 1.08 + 40 000 × 2^20 -->
+
 ## Pytanie
 
 Jak checkpoint 1.09 z kroku 40 000 wypada wobec Slayera 1B 1.08 na tych samych 15 testach, tym samym kodem

@@ -198,7 +198,7 @@ ZADANIA = {
     "T24": dict(benchmark_id="belebele", task="polish_belebele_mc", family="belebele", language="PL",
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="facebook/belebele", rewizja="7899cdfa4e1e0d733fd77c848e2c273cb1d32be2",
-                nazwa_hf="pol_Latn", split="test", rodzaj="mc", klasy_stale=True, shoty=5,
+                nazwa_hf="pol_Latn", split="test", rodzaj="mc", klasy_stale=True, klastry="link", shoty=5,
                 yaml="belebele-pl/lm_eval_tasks/polish_belebele/belebele_mc.yaml"),
     "T25": dict(benchmark_id="dyk", task="polish_dyk_multiple_choice", family="dyk", language="PL",
                 metric="f1,none", unit="score", higher_is_better=True, klucz="f1",

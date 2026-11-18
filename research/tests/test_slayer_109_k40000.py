@@ -146,7 +146,7 @@ def wynik(model, bench="piqa"):
 def test_checkpoint_w_toku_nie_jest_wersja_ani_wierszem_codesota():
     assert R.w_toku(L.A) and not R.w_toku("slayer1b-1.08")
     assert R.nazwa(L.A) == "Slayer 1B 1.09, krok 40 000 (w toku)"
-    assert R.W_TOKU[L.A][1] == "1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny"
+    assert R.W_TOKU[L.A][1] == "1.09, krok 40 000 (~67 mld tokenów), trening w toku, wynik wstępny"
     cards = {"piqa": {"state": "control", "verdict": "spełniony"}}
     rows = [wynik(L.A), wynik("slayer1b-1.07")]
     w = R.flag_row({"uwagi": []}, rows[0], rows, {}, cards, {"piqa": "mc"})
