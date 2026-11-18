@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Krótki opis repo dla każdego, kto pisze tu kod. Szczegóły są w [`README.md`](README.md),
-[`research/README.md`](research/README.md) i [`research/METODOLOGIA.md`](research/METODOLOGIA.md).
+[`research/README.md`](research/README.md) i [`research/METHODOLOGY.md`](research/METHODOLOGY.md).
 
 ## Układ
 
@@ -10,8 +10,8 @@ Układ katalogów opisuje [`research/README.md`, „Układ”](research/README.m
 
 ## Gdzie co dodać
 
-- Nowy benchmark: skopiuj `research/benchmarks/_template/` do `research/benchmarks/<name>/` (małe litery, myślnik).
-  Potem idź etapami z `research/METODOLOGIA.md`.
+- New benchmark: directory `research/api-benchmarks/<name>/` with the files and formats from
+  `research/METHODOLOGY.md`. Benchmarks in `research/benchmarks/` (the earlier lm-eval run) follow `research/METODOLOGIA.md`.
 - Analiza na wielu benchmarkach: `research/analyses/<name>/`.
 - Kod trafia do `research/common/` tylko wtedy, gdy używa go więcej niż jeden benchmark. Inaczej zostaje w katalogu
   benchmarku.
@@ -25,7 +25,7 @@ które sprawdzają (bramka liczb, SE i werdykt przy każdym porównaniu), opisuj
 
 ## Zasady
 
-- Język: nazwy katalogów, plików i kod po angielsku. Dokumenty po polsku.
+- Everything is written in English: documents, code, comments, issues, PRs and commit messages.
 - Czego nie commitujesz (wagi, zbiory, pliki powyżej 10 MB) i kiedy wolno `.jsonl.gz`:
   [`CONTRIBUTING.md`, „Pliki w repo”](CONTRIBUTING.md#pliki-w-repo).
 - Pytania benchmarku nie trafiają do danych treningowych (`research/METODOLOGIA.md`, sekcja „Czystość benchmarku”).
