@@ -27,7 +27,7 @@ Wszystkie komendy niżej uruchamiasz w katalogu `research/`.
 | `tools/` | bramka liczb (`liczby.py`, `sprawdz_raporty.py`), przebieg centralny (`przebieg_centralny.sh`, `kontrola_sensu.py`, `bezpiecznik.py`, `konwertuj.py`) |
 | `results/` | `LICZBY.json` i `LICZBY.md`: wszystkie liczby raportów, wygenerowane przez bramkę liczb; `central-run/`: wyniki przebiegu centralnego |
 | `tests/` | testy kodu, bez sieci i bez wag |
-| `slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami: `dane/` (spis zbiorów: [`REJESTR_DATASETOW.md`](slayer-1b/dane/REJESTR_DATASETOW.md)), `testy_danych_slayer/`, `wygaszanie/`, `tokenizer/`, `lab/`, `paczka_testerzy/` (komendy w ich README uruchamiasz w `research/slayer-1b/`) |
+| `slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami: `dane/` (spis zbiorów: [`REJESTR_DATASETOW.md`](slayer-1b/dane/REJESTR_DATASETOW.md)), `testy_danych_slayer/`, `wygaszanie/`, `tokenizer/`, `rozmowy-1.08/` (komendy w ich README uruchamiasz w `research/slayer-1b/`) |
 
 Jest też jedna analiza: [`analyses/answer-format/`](analyses/answer-format/README.md). Testy T01–T52 liczy kod
 w `common/`, opisany w [`common/README.md`](common/README.md).
@@ -278,7 +278,7 @@ To testy zmienionego benchmarku, `tests/test_liczby_raportow.py` i bramka liczb.
 
 ## Bramka liczb
 
-Uruchom ją przed każdą zmianą raportu (README, `benchmarks/`, `analyses/`, `slayer-1b/lab/`, `slayer-1b/wygaszanie/`,
+Uruchom ją przed każdą zmianą raportu (README, `benchmarks/`, `analyses/`, `slayer-1b/wygaszanie/`,
 `slayer-1b/testy_danych_slayer/`, strona HTML):
 
 ```bash

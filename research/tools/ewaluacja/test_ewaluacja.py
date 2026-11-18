@@ -426,13 +426,16 @@ def test_report_from_the_full_run(tmp_path):
 
     Od 57e7219 raport opisuje przebieg Slayera (wymaga wyniku 1.07, pomiaru BOS i sizes.json z katalogu przebiegu),
     więc wyniki kontrolne (Pythia, GPT-2 XL, bez Slayera) nie są już dla niego paczką. Wejścia spoza paczki
-    (bos-window-check/LICZBY.json, sizes.json, progresja.json, przeglad.jsonl) test kopiuje z results/full-run-2026-11."""
+    (bos-window-check/LICZBY.json, sizes.json, progresja.json, przeglad.jsonl i LICZBY.json checkpointu w toku, bez
+    którego raport nie ma sekcji 1.09, #259) test kopiuje z results/full-run-2026-11."""
     import subprocess
     import sys
     przebieg = E.FABRYKA / "results" / "full-run-2026-11"
     cel = tmp_path / "raport"
     (cel / "bos-window-check").mkdir(parents=True)
-    for f in ("bos-window-check/LICZBY.json", "sizes.json", "progresja.json", "przeglad.jsonl"):
+    (cel / "slayer-1.09-k40000").mkdir()  # raport.KATALOG_TOKU
+    for f in ("bos-window-check/LICZBY.json", "sizes.json", "progresja.json", "przeglad.jsonl",
+              "slayer-1.09-k40000/LICZBY.json"):
         shutil.copy(przebieg / f, cel / f)
     r = subprocess.run([sys.executable, str(Path(E.__file__).with_name("raport.py")), str(przebieg), str(cel),
                         "--bez-porownan", "--odniesienie", str(E.FABRYKA / "results" / "central-run")],
