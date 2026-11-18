@@ -7,7 +7,7 @@
   (`NEW_ENV_PINS` w `tools/przebieg_centralny.sh`)
 - Model: modele z `MODELE` w `tools/przebieg_centralny.sh`
 - Zbiór: `truthfulqa/truthful_qa@741b8276f2d1982aa3d5b832d3ee81ed3b896490 (`multiple_choice`)`
-- Komenda (w `research/`): `bash tools/przebieg_centralny.sh licz "<etykiety>"`; jedno zadanie:
+- Komenda (w `research/`): `bash tools/przebieg_centralny.sh licz` (wszystkie modele z `MODELE`; lista etykiet wymaga `POMIN` z pominiętymi modelami); jedno zadanie:
   `python common/ewaluuj.py --model hf --repo <repo> --revision <rewizja> --zadania T35 --probka pelna --device cuda --wyjscie results/central-run/truthfulqa/<etykieta>`
 - Seed: harness (python, numpy, torch, fewshot) = (0, 1234, 1234, 1234); bootstrap 20261028
 - Precyzja: float32
