@@ -1,13 +1,67 @@
-# Dane treningowe Slayera 1B, wersje 1.00–1.06
+# Dane treningowe Slayera 1B, wersje 1.00–1.09
 
-Ten plik mówi, na czym trenowano każdą wersję Slayera 1B. Opiera się na kartach modeli i checkpointów na HF
-(rewizje są w odsyłaczach na dole), na zbiorze [`SlayerLab/slayer-pl-8x3b` @ `d50df04`][zbior] i na publicznej
-notatce przebiegu [`f056bb5c`][track]. Wszystko odczytano 2026-11-04. Licencje składników opisuje
+<a href="https://huggingface.co/spaces/SlayerLab/Slayer1B/tree/3f2adb00d5db043a879ca7a0847c0220a5a42543"><img src="../../../docs/img/dane/space-slayer1b.svg" alt="Space Slayer1B" height="36"></a>
+<a href="https://huggingface.co/SlayerLab/Slayer1B-1.08/blob/ea0945b11153e67517b70d21192e6076d161f658/DATA_CARD.md"><img src="../../../docs/img/dane/karta-108.svg" alt="Karta danych 1.08" height="36"></a>
+<a href="https://huggingface.co/SlayerLab/Slayer1B-1.09/blob/b25aec4ef6fb0c13717c5e5e27a426c572df54c6/DATA_CARD.md"><img src="../../../docs/img/dane/karta-109.svg" alt="Karta danych 1.09" height="36"></a>
+<a href="REJESTR_DATASETOW.md"><img src="../../../docs/img/dane/rejestr.svg" alt="Rejestr zbiorów" height="36"></a>
+<a href="METODOLOGIA.md"><img src="../../../docs/img/dane/metodologia-zbioru.svg" alt="Metodologia zbioru" height="36"></a>
+
+Na czym trenowano każdą wersję Slayera 1B i jakie zbiory doszły później. Wersje 1.00–1.06 odczytano 2026-11-04,
+1.07–1.09 i tokeny wersji ze [Space][space] 2026-11-14. Licencje składników `slayer-pl-8x3b`:
 [`REJESTR_DATASETOW.md`](REJESTR_DATASETOW.md), sekcja 1.
 
-## Wspólne dla wszystkich wersji
+Nowy zbiór budujesz według [`METODOLOGIA.md`](METODOLOGIA.md). Chwilowo trafia do Twojego repo na Hugging Face do wglądu Arka (metodologia, sekcja 4), docelowo do [`SlayerLab/dataset-team-submissions`][subm].
 
-- **Zbiór.** Wszystkie wersje trenowano na jednym zbiorze, `slayer-pl-8x3b` @ `d50df04` (pole `datasets` we
+## Tokeny wersji
+
+Tokeny tokenizera Slayera od kroku 1 do końca wersji, z wcześniejszymi wersjami ([`releases.json`][releases]).
+
+| wersja | tokeny |
+|---|---:|
+| 1.00 | 1 499 463 680 |
+| 1.01 | 2 998 927 360 |
+| 1.02 | 5 997 854 720 |
+| 1.03 | 7 497 318 400 |
+| 1.04 | 10 496 245 760 |
+| 1.05 | 13 495 173 120 |
+| 1.06 | 14 520 680 448 |
+| 1.07 | 23 411 556 352 |
+| 1.08 | 25 203 572 736 |
+| 1.09 (krok 35 000) | 61 903 732 736 |
+
+## Wersje 1.07–1.09
+
+| wersja | start | zbiór | rewizja | licencja | tokeny | źródło |
+|---|---|---|---|---|---:|---|
+| 1.07 | 1.06, krok 13848 | [`SlayerLab/slayer-1.07-pretrain`][d107]: `pl_web` (HPLT v3 PL, pliki nieużyte w 1.06), `pl_replay_A`, `pl_replay_B` (replay `core` i `legal` z 1.06), `en_mix`, `en_fineweb_edu` | `6a337bbf` | ODC-By (FineWeb-Edu, FineMath, open-web-math), CC BY (DCLM), CC0 kompilacji HPLT | 8 891 005 707 | [karta zbioru][d107], [DATA_CARD 1.08][dc108] |
+| 1.07 | | ↳ `en_mix`: FineWeb-Edu, FineMath, open-web-math, DCLM-baseline z [`SlayerLab/minimal-en-corpus-5b`][min5b] | `bb3aec23` | jak wyżej | 1 650 618 814 | [karta zbioru][d107], [Space][space] |
+| 1.07 | | ↳ `en_fineweb_edu`: [FineWeb-Edu][fwe107] `sample/10BT` | `87f09149` | ODC-By | 2 235 660 025 | [karta zbioru][d107] |
+| 1.08 | 1.07 @ [`a090b54e`][m107rev], nowy optymalizator | [`SlayerLab/slayer-pl-logika-2b`][logika] | `e24c8b71` | według źródła: ODC-By (FinePDFs), CC BY 4.0 (Dolci), licencje DOAB per książka | 1 911 918 958 z EOS | [DATA_CARD 1.08][dc108] |
+| 1.08 | | [`SlayerLab/english-technical-1b`][entech] | `3b833d36` | per wiersz: MIT, Apache-2.0, BSD-3-Clause, CC0-1.0 | 899 001 323 (train) | [DATA_CARD 1.08][dc108] |
+| 1.08 | | replay [`slayer-1.07-pretrain`][d107]: `pl_web` / `en_fineweb_edu` / `en_mix` | `6a337bbf` | jak 1.07 | 435 000 183 / 220 000 324 / 220 000 212 | [DATA_CARD 1.08][dc108] |
+| 1.09 | kontynuacja 1.08 | [`SlayerLab/gollem-corpus-16b-pl`][gollem]: segmenty c01, c02, c06 (PL) | `17f9d37a` | CC0-1.0 opakowania HPLT, prawa tekstów osobno | 1 069 547 741 pozycji (c01) | [DATA_CARD 1.09][dc109] |
+| 1.09 | | [`HuggingFaceFW/finepdfs-edu`][fpe]: segmenty c03–c06 (PL) | `9cfabe21` | ODC-By | — | [DATA_CARD 1.09][dc109] |
+| 1.09 | | [`HuggingFaceFW/fineweb-edu`][fwe]: segmenty c01–c06 (EN) | brak w karcie | ODC-By | 4 278 190 159 pozycji (c01) | [DATA_CARD 1.09][dc109] |
+| 1.08b (eksperyment, niewydany) | 1.07, krok 22327 | [`SlayerLab/slayer-1.08b-pretrain`][d108b]: OpenR1-Math-220k, OpenThoughts-114k, Bespoke-Stratos-17k, SYNTHETIC-1, self-oss-instruct, OpenCodeReasoning, ProofWriter i replay PL z 1.07 | `0b5a12b7` | dane niepublikowane | 782 469 318 na ramię | [karta zbioru][d108b] |
+
+Proporcje języków: 1.00–1.06 ok. 82% PL / 18% EN; 1.07 56,3% PL / 43,7% EN; nowe wejście 1.09 najpierw 20% PL / 80% EN, od 12.11.2026 cel 30% PL / 70% EN ([Space, sekcja Data][space]). <!-- liczba-spoza-wynikow: proporcje języków ze Space SlayerLab/Slayer1B -->
+
+Karta 1.09 nie podaje źródeł segmentów c07–c10 ani s01–s03.
+
+## Dopisane później
+
+Status: `w budowie` (rezerwacja na [tablicy Dataset team](https://github.com/orgs/slayerlabs/projects/11)) → `u Arka do wglądu` (repo autora na Hugging Face) → `opublikowany`.
+
+| data | zbiór | kto | rezerwacja | status |
+|---|---|---|---|---|
+| 2026-11-14 | [DCLM-baseline 1.0 EN][dclm] | LoIlita | [#197](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/197) | w budowie |
+| 2026-11-14 | [`SlayerLab/hutnictwo-gornictwo-spawalnictwo-preview`][hgs] | SlayerLab | bez rezerwacji | opublikowany |
+| 2026-11-09 | [`SlayerLab/polish-dynaword-pretraining-mix`][pdpm] | SlayerLab | bez rezerwacji | opublikowany |
+| 2026-11-08 | [`SlayerLab/technika-i-nauka`][tin] | SlayerLab | bez rezerwacji | opublikowany |
+
+## Wersje 1.00–1.06: wspólne
+
+- **Zbiór.** Wersje 1.00–1.06 trenowano na jednym zbiorze, `slayer-pl-8x3b` @ `d50df04` (pole `datasets` we
   wszystkich kartach). Model trenowano od zera (tag `from-scratch`).
 - **Przebieg.** Jest jeden przebieg po korpusie. Każde okno 4096 tokenów trafia do treningu najwyżej raz, a pakiety
   idą po kolei: pack-00, pack-01 i dalej ([karta 1.02][m102], [karta 1.06][m106]). Krok to 1 048 576 tokenów
@@ -25,11 +79,14 @@ notatce przebiegu [`f056bb5c`][track]. Wszystko odczytano 2026-11-04. Licencje s
 - **Dekontaminacja w zbiorze** obejmuje wszystkie wersje, ale tylko warstwę `web`. Zrobiono ją po hashach wobec 8tags,
   PolEmo2 i własnego held-out zbioru i usunięto 10 541 dokumentów ([`dataset.json`][dsjson], `higiena`). `core`,
   `legal` i `en` nie przeszły dekontaminacji w zbiorze. Deduplikacji near-dup w `web` nie zrobiono ([karta zbioru][zbior-readme]).
-- **`en`** to tylko `fineweb-edu`. `dataset.json` wymienia też finemath, ale w danych go nie ma (REJESTR, 1.2).
+- **`en`** w `slayer-pl-8x3b` to tylko `fineweb-edu`. `dataset.json` wymienia też finemath, ale w danych go nie ma
+  (REJESTR, 1.2). FineMath weszło dopiero w 1.07, w `en_mix` ([karta zbioru][d107]).
+- **Proporcje języków** 1.00–1.06: ok. 82% PL / 18% EN w tokenach Slayera ([Space, sekcja Data][space]); wagi
+  cl100k wyżej dają 10% EN, bo cl100k dzieli angielski na mniej kawałków. <!-- liczba-spoza-wynikow: proporcje ze Space i z pack-XX/manifest.json -->
 - **Dane osobowe** maskowano regułami przed tokenizacją: e-mail, telefon, PESEL, NIP, REGON, dowód. Maskowanie nie
   daje gwarancji, że usunięto wszystko ([karta 1.00][m100], karty 1.01–1.03).
 
-## Wersje
+## Wersje 1.00–1.06
 
 Kolumna „tokeny” podaje tokeny tokenizera Slayera od kroku 1 do końca wersji. Proporcje to udział tokenów tokenizera
 Slayera w `train.bin` pakietu, w kolejności web / rdzeń / legal / en. Liczy się je inaczej niż wagi cl100k, bo
@@ -98,3 +155,22 @@ wersja widziała które z nich.
 [space-method]: https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks/blob/2d3d73f5c0ee431df9d38bd9619ccb05a26bf9a9/METHOD.md
 [space-results]: https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks/blob/2d3d73f5c0ee431df9d38bd9619ccb05a26bf9a9/results.json
 [i36]: https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/36
+[space]: https://huggingface.co/spaces/SlayerLab/Slayer1B/tree/3f2adb00d5db043a879ca7a0847c0220a5a42543
+[releases]: https://huggingface.co/spaces/SlayerLab/Slayer1B/blob/3f2adb00d5db043a879ca7a0847c0220a5a42543/releases.json
+[dc108]: https://huggingface.co/SlayerLab/Slayer1B-1.08/blob/ea0945b11153e67517b70d21192e6076d161f658/DATA_CARD.md
+[dc109]: https://huggingface.co/SlayerLab/Slayer1B-1.09/blob/b25aec4ef6fb0c13717c5e5e27a426c572df54c6/DATA_CARD.md
+[m107rev]: https://huggingface.co/SlayerLab/Slayer1B-1.07/tree/a090b54e658fb57dc5166c1fcc90cc6bf5c80106
+[d107]: https://huggingface.co/datasets/SlayerLab/slayer-1.07-pretrain/tree/6a337bbfba518d88f14eb54f7d0a9b9f297df0d1
+[min5b]: https://huggingface.co/datasets/SlayerLab/minimal-en-corpus-5b/tree/bb3aec23e3cff66707cecc577650763893834857
+[fwe107]: https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu/tree/87f09149ef4734204d70ed1d046ddc9ca3f2b8f9
+[fwe]: https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu
+[logika]: https://huggingface.co/datasets/SlayerLab/slayer-pl-logika-2b/tree/e24c8b71526ca1dc56a280100f88c2f09a79ecdd
+[entech]: https://huggingface.co/datasets/SlayerLab/english-technical-1b/tree/3b833d36bd3ba9aeecf46f39605c9ac849bb96a3
+[gollem]: https://huggingface.co/datasets/SlayerLab/gollem-corpus-16b-pl/tree/17f9d37af3c9803178adcc1e056f664ba62a3558
+[fpe]: https://huggingface.co/datasets/HuggingFaceFW/finepdfs-edu/tree/9cfabe2127faca99b3d5c4dc6d1fcb397399ebde
+[d108b]: https://huggingface.co/datasets/SlayerLab/slayer-1.08b-pretrain/tree/0b5a12b7a19a27c549a11d13748fb7e113620bee
+[subm]: https://huggingface.co/datasets/SlayerLab/dataset-team-submissions
+[dclm]: https://huggingface.co/datasets/mlfoundations/dclm-baseline-1.0/tree/a3b142c183aebe5af344955ae20836eb34dcf69b
+[hgs]: https://huggingface.co/datasets/SlayerLab/hutnictwo-gornictwo-spawalnictwo-preview
+[pdpm]: https://huggingface.co/datasets/SlayerLab/polish-dynaword-pretraining-mix
+[tin]: https://huggingface.co/datasets/SlayerLab/technika-i-nauka

@@ -1,0 +1,36 @@
+{
+ "czas": "2026-11-10T04:53:58+0000",
+ "platforma": "Linux-5.15.0-203-generic-x86_64-with-glibc2.39",
+ "gpu": "NVIDIA GeForce RTX 5090, 32607 MiB, 615.71.09\nNVIDIA GeForce RTX 5090, 32607 MiB, 615.71.09\nNVIDIA GeForce RTX 5090, 32607 MiB, 615.71.09\nNVIDIA GeForce RTX 5090, 32607 MiB, 615.71.09",
+ "fabryka_commit": "fe82b632887857585cc5482741d19b500868698d",
+ "fabryka_galaz": "main",
+ "fabryka_zmiany": [],
+ "srodowiska": {
+  "lock": {
+   "lm_eval": "0.4.9.1",
+   "lm_eval_zrodlo": "pole lm_eval w manifest.jsonl",
+   "specyfikacja": "common/requirements.lock.txt",
+   "pip_freeze": "nieustalone",
+   "powod": "`ewaluacja.py eksport` nie zapisał środowisk tego przebiegu, a instancje już nie istnieją; pip freeze pełnego przebiegu nie da się odtworzyć z plików w repo",
+   "freeze_innego_przebiegu": {
+    "plik": "bos-window-check/results/logi/freeze_lock.txt",
+    "uwaga": "pomiar BOS na tym samym commicie fabryki; to nie jest freeze pełnego przebiegu"
+   }
+  },
+  "new": {
+   "lm_eval": "0.4.13",
+   "lm_eval_zrodlo": "pole lm_eval w manifest.jsonl",
+   "specyfikacja": "środowisko `new` w tools/przebieg_centralny.sh",
+   "pip_freeze": "nieustalone",
+   "powod": "`ewaluacja.py eksport` nie zapisał środowisk tego przebiegu, a instancje już nie istnieją; pip freeze pełnego przebiegu nie da się odtworzyć z plików w repo",
+   "freeze_innego_przebiegu": {
+    "plik": "bos-window-check/results/logi/freeze_new.txt",
+    "uwaga": "pomiar BOS na tym samym commicie fabryki; to nie jest freeze pełnego przebiegu"
+   }
+  }
+ },
+ "paczka_probek": {
+  "nazwa": "eksport_glowny_pelny.tgz",
+  "sha256": "c91c940b8843a102399f1bc1052d564728781df85071f3701660ea5ccecd4317"
+ }
+}

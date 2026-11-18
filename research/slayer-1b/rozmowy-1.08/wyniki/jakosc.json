@@ -1,0 +1,5430 @@
+{
+ "wejscie_sha256": "2608d9e0a229b3595e66c068540519c362a1bb7b607616e389e613c6b5d7c956",
+ "a1": {
+  "pozycje": {
+   "pl_jezyk-01": {
+    "trudnosc": 1.0,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_dobrze",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "pl_jezyk-02": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "pl_jezyk-03": {
+    "trudnosc": 0.3333333333333333,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 0.6666666666666666,
+     "lfm": 0.0
+    },
+    "zakres": 0.6666666666666666,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "pl_jezyk-04": {
+    "trudnosc": 1.0,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_dobrze",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "pl_jezyk-05": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "pl_jezyk-06": {
+    "trudnosc": 0.1111111111111111,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.0
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "pl_jezyk-07": {
+    "trudnosc": 0.1111111111111111,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.0
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "pl_jezyk-08": {
+    "trudnosc": 0.3333333333333333,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 0.6666666666666666,
+     "lfm": 0.0
+    },
+    "zakres": 0.6666666666666666,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "pl_jezyk-09": {
+    "trudnosc": 0.2222222222222222,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.0
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "pl_jezyk-10": {
+    "trudnosc": 0.3333333333333333,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "pl_jezyk-11": {
+    "trudnosc": 0.5555555555555556,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "pl_jezyk-12": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "pl_jezyk-13": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "pl_jezyk-14": {
+    "trudnosc": 0.4444444444444444,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "pl_jezyk-15": {
+    "trudnosc": 0.2222222222222222,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "pl_jezyk-16": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "pl_jezyk-17": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "pl_jezyk-18": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "pl_jezyk-19": {
+    "trudnosc": 0.4444444444444444,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "pl_jezyk-20": {
+    "trudnosc": 0.4444444444444444,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.6666666666666666,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 0.6666666666666666,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "pl_jezyk-21": {
+    "trudnosc": 0.2222222222222222,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.6666666666666666,
+     "lfm": 0.0
+    },
+    "zakres": 0.6666666666666666,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "pl_jezyk-22": {
+    "trudnosc": 0.1111111111111111,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.0
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "pl_jezyk-23": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 1.0,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "pl_jezyk-24": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "pl_wiedza-01": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "pl_wiedza-02": {
+    "trudnosc": 0.7777777777777778,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 1.0,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 0.33333333333333337,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "pl_wiedza-03": {
+    "trudnosc": 0.7777777777777778,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "pl_wiedza-04": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "pl_wiedza-05": {
+    "trudnosc": 0.7777777777777778,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 1.0
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "pl_wiedza-06": {
+    "trudnosc": 0.5555555555555556,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "pl_wiedza-07": {
+    "trudnosc": 0.8888888888888888,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 0.33333333333333337,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "pl_wiedza-08": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "pl_wiedza-09": {
+    "trudnosc": 0.7777777777777778,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "pl_wiedza-10": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "pl_wiedza-11": {
+    "trudnosc": 0.3333333333333333,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "pl_wiedza-12": {
+    "trudnosc": 0.8888888888888888,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 0.33333333333333337,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "pl_wiedza-13": {
+    "trudnosc": 0.8888888888888888,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 0.33333333333333337,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "pl_wiedza-14": {
+    "trudnosc": 0.8888888888888888,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.33333333333333337,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "pl_wiedza-15": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "pl_wiedza-16": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "pl_wiedza-17": {
+    "trudnosc": 1.0,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_dobrze",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    }
+   },
+   "pl_wiedza-18": {
+    "trudnosc": 0.8888888888888888,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 0.33333333333333337,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "pl_wiedza-19": {
+    "trudnosc": 0.5555555555555556,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 0.0,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 0,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "pl_wiedza-20": {
+    "trudnosc": 0.4444444444444444,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "pl_wiedza-21": {
+    "trudnosc": 0.3333333333333333,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.6666666666666666,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.6666666666666666,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "pl_wiedza-22": {
+    "trudnosc": 1.0,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_dobrze",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "pl_wiedza-23": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "pl_wiedza-24": {
+    "trudnosc": 0.7777777777777778,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "pl_wiedza-25": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "pl_wiedza-26": {
+    "trudnosc": 0.7777777777777778,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "pl_wiedza-27": {
+    "trudnosc": 0.7777777777777778,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "pl_wiedza-28": {
+    "trudnosc": 0.8888888888888888,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.33333333333333337,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "pl_wiedza-29": {
+    "trudnosc": 0.3333333333333333,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.0
+    },
+    "zakres": 0.6666666666666666,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "pl_wiedza-30": {
+    "trudnosc": 0.3333333333333333,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "wiedza_ogolna-01": {
+    "trudnosc": 0.4444444444444444,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "wiedza_ogolna-02": {
+    "trudnosc": 0.8888888888888888,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 0.6666666666666666,
+     "lfm": 1.0
+    },
+    "zakres": 0.33333333333333337,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "wiedza_ogolna-03": {
+    "trudnosc": 0.2222222222222222,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.0
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 0,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "wiedza_ogolna-04": {
+    "trudnosc": 0.8888888888888888,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 0.6666666666666666,
+     "lfm": 1.0
+    },
+    "zakres": 0.33333333333333337,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "wiedza_ogolna-05": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "wiedza_ogolna-06": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "wiedza_ogolna-07": {
+    "trudnosc": 1.0,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_dobrze",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "wiedza_ogolna-08": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "wiedza_ogolna-09": {
+    "trudnosc": 0.5555555555555556,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 0.6666666666666666,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "wiedza_ogolna-10": {
+    "trudnosc": 0.5555555555555556,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "wiedza_ogolna-11": {
+    "trudnosc": 0.7777777777777778,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "wiedza_ogolna-12": {
+    "trudnosc": 1.0,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_dobrze",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "wiedza_ogolna-13": {
+    "trudnosc": 0.4444444444444444,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "wiedza_ogolna-14": {
+    "trudnosc": 0.7777777777777778,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "wiedza_ogolna-15": {
+    "trudnosc": 0.7777777777777778,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "wiedza_ogolna-16": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "wiedza_ogolna-17": {
+    "trudnosc": 0.7777777777777778,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 0.6666666666666666,
+     "lfm": 1.0
+    },
+    "zakres": 0.33333333333333337,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    }
+   },
+   "wiedza_ogolna-18": {
+    "trudnosc": 0.2222222222222222,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.6666666666666666,
+     "lfm": 0.0
+    },
+    "zakres": 0.6666666666666666,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "wiedza_ogolna-19": {
+    "trudnosc": 1.0,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_dobrze",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "wiedza_ogolna-20": {
+    "trudnosc": 0.7777777777777778,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "wiedza_ogolna-21": {
+    "trudnosc": 0.8888888888888888,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 0.33333333333333337,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "wiedza_ogolna-22": {
+    "trudnosc": 0.5555555555555556,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "wiedza_ogolna-23": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 0.6666666666666666,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 0.0,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "wiedza_ogolna-24": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "wiedza_ogolna-25": {
+    "trudnosc": 0.3333333333333333,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 0.6666666666666666,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "wiedza_ogolna-26": {
+    "trudnosc": 0.4444444444444444,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 1.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "wiedza_ogolna-27": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "wiedza_ogolna-28": {
+    "trudnosc": 1.0,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_dobrze",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "wiedza_ogolna-29": {
+    "trudnosc": 0.7777777777777778,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "wiedza_ogolna-30": {
+    "trudnosc": 0.1111111111111111,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.0
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "rozumowanie-01": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 0.6666666666666666,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 0.0,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "rozumowanie-02": {
+    "trudnosc": 0.2222222222222222,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.6666666666666666,
+     "lfm": 0.0
+    },
+    "zakres": 0.6666666666666666,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "rozumowanie-03": {
+    "trudnosc": 0.8888888888888888,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 0.6666666666666666,
+     "lfm": 1.0
+    },
+    "zakres": 0.33333333333333337,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 0,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "rozumowanie-04": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 1.0,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "rozumowanie-05": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "rozumowanie-06": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "rozumowanie-07": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 0.6666666666666666,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 0.0,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    }
+   },
+   "rozumowanie-08": {
+    "trudnosc": 0.2222222222222222,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.0
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "rozumowanie-09": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "rozumowanie-10": {
+    "trudnosc": 0.4444444444444444,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "rozumowanie-11": {
+    "trudnosc": 0.8888888888888888,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.33333333333333337,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "rozumowanie-12": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "rozumowanie-13": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    }
+   },
+   "rozumowanie-14": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "rozumowanie-15": {
+    "trudnosc": 0.3333333333333333,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.0,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "rozumowanie-16": {
+    "trudnosc": 0.5555555555555556,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 0.6666666666666666,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "rozumowanie-17": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    }
+   },
+   "rozumowanie-18": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "rozumowanie-19": {
+    "trudnosc": 0.5555555555555556,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 0.6666666666666666,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "rozumowanie-20": {
+    "trudnosc": 0.2222222222222222,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "rozumowanie-21": {
+    "trudnosc": 0.3333333333333333,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 1.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 0,
+     "lfm": 1
+    }
+   },
+   "rozumowanie-22": {
+    "trudnosc": 0.7777777777777778,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    }
+   },
+   "rozumowanie-23": {
+    "trudnosc": 0.5555555555555556,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 0.6666666666666666,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "rozumowanie-24": {
+    "trudnosc": 0.2222222222222222,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.0
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "rozumowanie-25": {
+    "trudnosc": 0.4444444444444444,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    }
+   },
+   "rozumowanie-26": {
+    "trudnosc": 0.1111111111111111,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "rozumowanie-27": {
+    "trudnosc": 0.4444444444444444,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    }
+   },
+   "rozumowanie-28": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "rozumowanie-29": {
+    "trudnosc": 0.1111111111111111,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "rozumowanie-30": {
+    "trudnosc": 0.2222222222222222,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 0.6666666666666666,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 0,
+     "lfm": 1
+    }
+   },
+   "matematyka-01": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "matematyka-02": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "matematyka-03": {
+    "trudnosc": 0.7777777777777778,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "matematyka-04": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "matematyka-05": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "matematyka-06": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "matematyka-07": {
+    "trudnosc": 0.4444444444444444,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "matematyka-08": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "matematyka-09": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "matematyka-10": {
+    "trudnosc": 0.3333333333333333,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "matematyka-11": {
+    "trudnosc": 0.1111111111111111,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.0
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "matematyka-12": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "matematyka-13": {
+    "trudnosc": 0.1111111111111111,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.0
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "matematyka-14": {
+    "trudnosc": 0.1111111111111111,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    }
+   },
+   "matematyka-15": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "matematyka-16": {
+    "trudnosc": 0.3333333333333333,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    }
+   },
+   "matematyka-17": {
+    "trudnosc": 0.4444444444444444,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "matematyka-18": {
+    "trudnosc": 0.3333333333333333,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "matematyka-19": {
+    "trudnosc": 0.5555555555555556,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.6666666666666666,
+     "lfm": 1.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "matematyka-20": {
+    "trudnosc": 0.4444444444444444,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "matematyka-21": {
+    "trudnosc": 0.3333333333333333,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 1.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    }
+   },
+   "matematyka-22": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "matematyka-23": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    }
+   },
+   "matematyka-24": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "matematyka-25": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "matematyka-26": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "matematyka-27": {
+    "trudnosc": 0.1111111111111111,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.0
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "matematyka-28": {
+    "trudnosc": 0.1111111111111111,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.0
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "matematyka-29": {
+    "trudnosc": 0.3333333333333333,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "matematyka-30": {
+    "trudnosc": 0.1111111111111111,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.0
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-01": {
+    "trudnosc": 0.1111111111111111,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.0
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "kod-02": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-03": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-04": {
+    "trudnosc": 0.4444444444444444,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "kod-05": {
+    "trudnosc": 0.3333333333333333,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "kod-06": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-07": {
+    "trudnosc": 0.3333333333333333,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.6666666666666666,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.6666666666666666,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-08": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    }
+   },
+   "kod-09": {
+    "trudnosc": 0.4444444444444444,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "kod-10": {
+    "trudnosc": 0.3333333333333333,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "kod-11": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-12": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-13": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-14": {
+    "trudnosc": 0.4444444444444444,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.6666666666666666,
+     "lfm": 0.6666666666666666
+    },
+    "zakres": 0.6666666666666666,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-15": {
+    "trudnosc": 0.1111111111111111,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.0
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "kod-16": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-17": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-18": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-19": {
+    "trudnosc": 0.1111111111111111,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.0
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-20": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "kod-21": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-22": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-23": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-24": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-25": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-26": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-27": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-28": {
+    "trudnosc": 0.1111111111111111,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.0
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "kod-29": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "kod-30": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "angielski-01": {
+    "trudnosc": 1.0,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_dobrze",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "angielski-02": {
+    "trudnosc": 0.7777777777777778,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 0.6666666666666666,
+     "lfm": 1.0
+    },
+    "zakres": 0.33333333333333337,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "angielski-03": {
+    "trudnosc": 0.2222222222222222,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.6666666666666666,
+     "lfm": 0.0
+    },
+    "zakres": 0.6666666666666666,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "angielski-04": {
+    "trudnosc": 0.5555555555555556,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.6666666666666666,
+     "lfm": 1.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "angielski-05": {
+    "trudnosc": 0.4444444444444444,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 1.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 0,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "angielski-06": {
+    "trudnosc": 1.0,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_dobrze",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "angielski-07": {
+    "trudnosc": 0.3333333333333333,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 0.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "angielski-08": {
+    "trudnosc": 1.0,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_dobrze",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "angielski-09": {
+    "trudnosc": 1.0,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_dobrze",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 0,
+     "lfm": 1
+    }
+   },
+   "angielski-10": {
+    "trudnosc": 1.0,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_dobrze",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "angielski-11": {
+    "trudnosc": 0.1111111111111111,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 0.0
+    },
+    "zakres": 0.3333333333333333,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "angielski-12": {
+    "trudnosc": 0.8888888888888888,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.33333333333333337,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "angielski-13": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 1.0,
+     "lfm": 0.3333333333333333
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "angielski-14": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 0
+    }
+   },
+   "angielski-15": {
+    "trudnosc": 0.4444444444444444,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.3333333333333333,
+     "lfm": 1.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "angielski-16": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 0.6666666666666666,
+     "lfm": 1.0
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "angielski-17": {
+    "trudnosc": 1.0,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_dobrze",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "angielski-18": {
+    "trudnosc": 0.7777777777777778,
+    "p_modeli": {
+     "slayer": 0.3333333333333333,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "angielski-19": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 0.3333333333333333,
+     "lfm": 1.0
+    },
+    "zakres": 0.6666666666666667,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 1
+    }
+   },
+   "angielski-20": {
+    "trudnosc": 0.0,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 0.0,
+     "lfm": 0.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_zle",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 0,
+     "lfm": 0
+    }
+   },
+   "angielski-21": {
+    "trudnosc": 0.7777777777777778,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 0.6666666666666666,
+     "lfm": 1.0
+    },
+    "zakres": 0.33333333333333337,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "angielski-22": {
+    "trudnosc": 0.6666666666666666,
+    "p_modeli": {
+     "slayer": 0.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 1.0,
+    "klasa": "rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "angielski-23": {
+    "trudnosc": 1.0,
+    "p_modeli": {
+     "slayer": 1.0,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.0,
+    "klasa": "zawsze_dobrze",
+    "greedy_A": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 1,
+     "bielik": 1,
+     "lfm": 1
+    }
+   },
+   "angielski-24": {
+    "trudnosc": 0.8888888888888888,
+    "p_modeli": {
+     "slayer": 0.6666666666666666,
+     "bielik": 1.0,
+     "lfm": 1.0
+    },
+    "zakres": 0.33333333333333337,
+    "klasa": "nie_rozroznia",
+    "greedy_A": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    },
+    "greedy_B": {
+     "slayer": 0,
+     "bielik": 1,
+     "lfm": 1
+    }
+   }
+  },
+  "kategorie": {
+   "pl_jezyk": {
+    "n": 24,
+    "rozroznia": 12,
+    "nie_rozroznia": 5,
+    "zawsze_dobrze": 2,
+    "zawsze_zle": 5,
+    "zawsze_dobrze_id": [
+     "pl_jezyk-01",
+     "pl_jezyk-04"
+    ],
+    "zawsze_zle_id": [
+     "pl_jezyk-02",
+     "pl_jezyk-05",
+     "pl_jezyk-12",
+     "pl_jezyk-17",
+     "pl_jezyk-24"
+    ]
+   },
+   "pl_wiedza": {
+    "n": 30,
+    "rozroznia": 19,
+    "nie_rozroznia": 7,
+    "zawsze_dobrze": 2,
+    "zawsze_zle": 2,
+    "zawsze_dobrze_id": [
+     "pl_wiedza-17",
+     "pl_wiedza-22"
+    ],
+    "zawsze_zle_id": [
+     "pl_wiedza-04",
+     "pl_wiedza-16"
+    ]
+   },
+   "wiedza_ogolna": {
+    "n": 30,
+    "rozroznia": 19,
+    "nie_rozroznia": 7,
+    "zawsze_dobrze": 4,
+    "zawsze_zle": 0,
+    "zawsze_dobrze_id": [
+     "wiedza_ogolna-07",
+     "wiedza_ogolna-12",
+     "wiedza_ogolna-19",
+     "wiedza_ogolna-28"
+    ],
+    "zawsze_zle_id": []
+   },
+   "rozumowanie": {
+    "n": 30,
+    "rozroznia": 9,
+    "nie_rozroznia": 14,
+    "zawsze_dobrze": 0,
+    "zawsze_zle": 7,
+    "zawsze_dobrze_id": [],
+    "zawsze_zle_id": [
+     "rozumowanie-06",
+     "rozumowanie-12",
+     "rozumowanie-13",
+     "rozumowanie-14",
+     "rozumowanie-17",
+     "rozumowanie-18",
+     "rozumowanie-28"
+    ]
+   },
+   "matematyka": {
+    "n": 30,
+    "rozroznia": 16,
+    "nie_rozroznia": 6,
+    "zawsze_dobrze": 0,
+    "zawsze_zle": 8,
+    "zawsze_dobrze_id": [],
+    "zawsze_zle_id": [
+     "matematyka-02",
+     "matematyka-12",
+     "matematyka-15",
+     "matematyka-22",
+     "matematyka-23",
+     "matematyka-24",
+     "matematyka-25",
+     "matematyka-26"
+    ]
+   },
+   "kod": {
+    "n": 30,
+    "rozroznia": 6,
+    "nie_rozroznia": 4,
+    "zawsze_dobrze": 0,
+    "zawsze_zle": 20,
+    "zawsze_dobrze_id": [],
+    "zawsze_zle_id": [
+     "kod-02",
+     "kod-03",
+     "kod-06",
+     "kod-08",
+     "kod-11",
+     "kod-12",
+     "kod-13",
+     "kod-16",
+     "kod-17",
+     "kod-18",
+     "kod-20",
+     "kod-21",
+     "kod-22",
+     "kod-23",
+     "kod-24",
+     "kod-25",
+     "kod-26",
+     "kod-27",
+     "kod-29",
+     "kod-30"
+    ]
+   },
+   "angielski": {
+    "n": 24,
+    "rozroznia": 10,
+    "nie_rozroznia": 5,
+    "zawsze_dobrze": 7,
+    "zawsze_zle": 2,
+    "zawsze_dobrze_id": [
+     "angielski-01",
+     "angielski-06",
+     "angielski-08",
+     "angielski-09",
+     "angielski-10",
+     "angielski-17",
+     "angielski-23"
+    ],
+    "zawsze_zle_id": [
+     "angielski-14",
+     "angielski-20"
+    ]
+   }
+  },
+  "bpb_rozrzut": {
+   "pl_jezyk-01": 0.08503530701129894,
+   "pl_jezyk-02": 0.4946337351687735,
+   "pl_jezyk-03": 0.7999431275379146,
+   "pl_jezyk-04": 0.049396196228901214,
+   "pl_jezyk-05": 0.8265188255818697,
+   "pl_jezyk-06": 1.1246348787542026,
+   "pl_jezyk-07": 0.2228091893932529,
+   "pl_jezyk-08": 0.8166742216972295,
+   "pl_jezyk-09": 0.37828713460053687,
+   "pl_jezyk-10": 0.9339351088920418,
+   "pl_jezyk-11": 0.1927951317683249,
+   "pl_jezyk-12": 1.2537135708557368,
+   "pl_jezyk-13": 0.03568782481520058,
+   "pl_jezyk-14": 0.07127166401891936,
+   "pl_jezyk-15": 0.06207760740920309,
+   "pl_jezyk-16": 0.050296342080368754,
+   "pl_jezyk-17": 0.21899287886949592,
+   "pl_jezyk-18": 0.02834845071976311,
+   "pl_jezyk-19": 0.034311972091685225,
+   "pl_jezyk-20": 0.047402141508812674,
+   "pl_jezyk-21": 0.08491318328615141,
+   "pl_jezyk-22": 0.027799723902250342,
+   "pl_jezyk-23": 0.018272802042900774,
+   "pl_jezyk-24": 0.031335448266718656,
+   "pl_jezyk-25": 0.23268204992788183,
+   "pl_jezyk-26": 0.4241354109897068,
+   "pl_jezyk-27": 0.16884886464602714,
+   "pl_jezyk-28": 0.22344787215535317,
+   "pl_jezyk-29": 0.1518887998992408,
+   "pl_jezyk-30": 0.11687550427821222,
+   "pl_wiedza-01": 0.2223483721138708,
+   "pl_wiedza-02": 0.04244770548958144,
+   "pl_wiedza-03": 0.037168183425995295,
+   "pl_wiedza-04": 0.5277334225875105,
+   "pl_wiedza-05": 0.013799830585825538,
+   "pl_wiedza-06": 0.15220819680811476,
+   "pl_wiedza-07": 0.2276937255692998,
+   "pl_wiedza-08": 1.1438659859830775,
+   "pl_wiedza-09": 0.12909347001477578,
+   "pl_wiedza-10": 1.1200814877414322,
+   "pl_wiedza-11": 0.1581863343798262,
+   "pl_wiedza-12": 0.3025080746829096,
+   "pl_wiedza-13": 0.13145542181892475,
+   "pl_wiedza-14": 0.05766525756737099,
+   "pl_wiedza-15": 0.71345767226674,
+   "pl_wiedza-16": 1.079957354638726,
+   "pl_wiedza-17": 0.044312570827882564,
+   "pl_wiedza-18": 0.14374469184976527,
+   "pl_wiedza-19": 0.160772429379451,
+   "pl_wiedza-20": 0.2274027457811047,
+   "pl_wiedza-21": 0.2132653076853716,
+   "pl_wiedza-22": 0.32921479791696434,
+   "pl_wiedza-23": 0.1932576135940142,
+   "pl_wiedza-24": 0.07836905512174605,
+   "pl_wiedza-25": 1.0052982168820777,
+   "pl_wiedza-26": 0.04520959931601761,
+   "pl_wiedza-27": 0.055550411328383,
+   "pl_wiedza-28": 0.02802484914867267,
+   "pl_wiedza-29": 0.44717860214727223,
+   "pl_wiedza-30": 0.7382192773911886,
+   "wiedza_ogolna-01": 0.269313292926424,
+   "wiedza_ogolna-02": 0.04573377139210152,
+   "wiedza_ogolna-03": 0.10107509296193143,
+   "wiedza_ogolna-04": 0.03229715444408533,
+   "wiedza_ogolna-05": 0.07733223546420465,
+   "wiedza_ogolna-06": 0.1820592888082754,
+   "wiedza_ogolna-07": 0.007250839136169235,
+   "wiedza_ogolna-08": 0.5895401161451033,
+   "wiedza_ogolna-09": 0.11525604418392052,
+   "wiedza_ogolna-10": 0.087539176924346,
+   "wiedza_ogolna-11": 0.17897146669196698,
+   "wiedza_ogolna-12": 0.012916709632795542,
+   "wiedza_ogolna-13": 0.21208385840860713,
+   "wiedza_ogolna-14": 0.11242516567398797,
+   "wiedza_ogolna-15": 0.3226356029803665,
+   "wiedza_ogolna-16": 0.07659234061816436,
+   "wiedza_ogolna-17": 0.06304520987532905,
+   "wiedza_ogolna-18": 0.21899313846488164,
+   "wiedza_ogolna-19": 0.09772317854046804,
+   "wiedza_ogolna-20": 0.41288749296919536,
+   "wiedza_ogolna-21": 0.7225231413791974,
+   "wiedza_ogolna-22": 0.47379778056447963,
+   "wiedza_ogolna-23": 0.091198473402433,
+   "wiedza_ogolna-24": 0.2013304877473082,
+   "wiedza_ogolna-25": 0.41821898973399785,
+   "wiedza_ogolna-26": 0.32224152532634687,
+   "wiedza_ogolna-27": 0.4242250628832812,
+   "wiedza_ogolna-28": 0.10327166342068177,
+   "wiedza_ogolna-29": 0.06108767931476684,
+   "wiedza_ogolna-30": 0.06408691102227504,
+   "rozumowanie-01": 0.043701770211910594,
+   "rozumowanie-02": 0.28457668109145634,
+   "rozumowanie-03": 0.3870680095854737,
+   "rozumowanie-04": 0.10911065091685448,
+   "rozumowanie-05": 0.06335059965659459,
+   "rozumowanie-06": 0.2918687739889508,
+   "rozumowanie-07": 0.006887866990607024,
+   "rozumowanie-08": 0.22415766930446834,
+   "rozumowanie-09": 0.07726449160285483,
+   "rozumowanie-10": 0.252601880059229,
+   "rozumowanie-11": 0.064710378741599,
+   "rozumowanie-12": 0.5378268319065113,
+   "rozumowanie-13": 0.18077193867408103,
+   "rozumowanie-14": 0.12234649211386128,
+   "rozumowanie-15": 0.22424308185698696,
+   "rozumowanie-16": 0.14082368381917973,
+   "rozumowanie-17": 0.08018569076419961,
+   "rozumowanie-18": 0.13002156215930352,
+   "rozumowanie-19": 0.10109775439374018,
+   "rozumowanie-20": 0.05030621890851488,
+   "rozumowanie-21": 0.16675509249892917,
+   "rozumowanie-22": 0.07176861545053381,
+   "rozumowanie-23": 0.07142136184851693,
+   "rozumowanie-24": 0.1556256642320104,
+   "rozumowanie-25": 0.16760988989992817,
+   "rozumowanie-26": 0.11572939034844555,
+   "rozumowanie-27": 0.2027302303563539,
+   "rozumowanie-28": 0.15865689549173262,
+   "rozumowanie-29": 0.25756003684662565,
+   "rozumowanie-30": 0.20076592120928705,
+   "matematyka-01": 0.13304678771610634,
+   "matematyka-02": 0.11762452226202873,
+   "matematyka-03": 0.1254969835846726,
+   "matematyka-04": 0.1423474899956132,
+   "matematyka-05": 0.19098238916862456,
+   "matematyka-06": 0.17497681444765562,
+   "matematyka-07": 0.22278800378790647,
+   "matematyka-08": 0.18600349372911887,
+   "matematyka-09": 0.1756490237797754,
+   "matematyka-10": 0.2562793174375331,
+   "matematyka-11": 0.19299699239864204,
+   "matematyka-12": 0.15464867221672737,
+   "matematyka-13": 0.263962997437715,
+   "matematyka-14": 0.18345933020429964,
+   "matematyka-15": 0.19285329140700216,
+   "matematyka-16": 0.28294021573370937,
+   "matematyka-17": 0.15857830709252255,
+   "matematyka-18": 0.2094417639215885,
+   "matematyka-19": 0.29403180291003295,
+   "matematyka-20": 0.2337029713674364,
+   "matematyka-21": 0.24115861589143567,
+   "matematyka-22": 0.26912146714028645,
+   "matematyka-23": 0.2252932582278143,
+   "matematyka-24": 0.25287509520482104,
+   "matematyka-25": 0.2051956971742541,
+   "matematyka-26": 0.25292389153629213,
+   "matematyka-27": 0.24086370160918463,
+   "matematyka-28": 0.29127665393554963,
+   "matematyka-29": 0.3810282475736005,
+   "matematyka-30": 0.08487100767306273,
+   "kod-01": 0.18619049335254784,
+   "kod-02": 0.2779310803351777,
+   "kod-03": 0.10873241937274422,
+   "kod-04": 0.021759305695527368,
+   "kod-05": 0.043249994784549016,
+   "kod-06": 0.09315482208081624,
+   "kod-07": 0.06310333995611393,
+   "kod-08": 0.07371851240850816,
+   "kod-09": 0.047946392868744754,
+   "kod-10": 0.11542733695879775,
+   "kod-11": 0.1051602132321173,
+   "kod-12": 0.21626604607506547,
+   "kod-13": 0.11488415903068844,
+   "kod-14": 0.058289796869646394,
+   "kod-15": 0.08907353872140737,
+   "kod-16": 0.11106248844265541,
+   "kod-17": 0.09198044291719218,
+   "kod-18": 0.1223558176876949,
+   "kod-19": 0.06558391647096957,
+   "kod-20": 0.1921392782638491,
+   "kod-21": 0.13261284732332224,
+   "kod-22": 0.1175584239802479,
+   "kod-23": 0.10091968557041375,
+   "kod-24": 0.09728616014695622,
+   "kod-25": 0.1271260513757951,
+   "kod-26": 0.05808592512689743,
+   "kod-27": 0.08424421036833489,
+   "kod-28": 0.026755631346917944,
+   "kod-29": 0.09900973633425446,
+   "kod-30": 0.0925527314087364,
+   "angielski-01": 0.01996172681926723,
+   "angielski-02": 0.3236345242518847,
+   "angielski-03": 0.6731782856201687,
+   "angielski-04": 0.4608343172937798,
+   "angielski-05": 0.5212980996189573,
+   "angielski-06": 0.41753983422891416,
+   "angielski-07": 0.17393660328423433,
+   "angielski-08": 1.4302449301462674,
+   "angielski-09": 0.11188911875496921,
+   "angielski-10": 0.2095504952893657,
+   "angielski-11": 0.46795839595629846,
+   "angielski-12": 0.1124325333678247,
+   "angielski-13": 0.9527137811531229,
+   "angielski-14": 0.9472667683355104,
+   "angielski-15": 0.21982447435030955,
+   "angielski-16": 0.47314180977184006,
+   "angielski-17": 0.02542008367028906,
+   "angielski-18": 0.04399981914063261,
+   "angielski-19": 0.03486899477473643,
+   "angielski-20": 0.013765453575079637,
+   "angielski-21": 0.023671502230316267,
+   "angielski-22": 0.049393086559274976,
+   "angielski-23": 0.01722069061782961,
+   "angielski-24": 0.023750769160887805,
+   "angielski-25": 0.15611667204867158,
+   "angielski-26": 0.07968070406380538,
+   "angielski-27": 0.13266653383330382,
+   "angielski-28": 0.0743986333335176,
+   "angielski-29": 0.11496305156078374,
+   "angielski-30": 0.11666949766199541,
+   "tekst_techniczny-01": 0.13852611639752482,
+   "tekst_techniczny-02": 0.13784546647462656,
+   "tekst_techniczny-03": 0.15221517964825976,
+   "tekst_techniczny-04": 0.09756094349800641,
+   "tekst_techniczny-05": 0.16036623883945475,
+   "tekst_techniczny-06": 0.13978279005102143,
+   "tekst_techniczny-07": 0.17821517516014823,
+   "tekst_techniczny-08": 0.08182663373298096,
+   "tekst_techniczny-09": 0.15175609514665428,
+   "tekst_techniczny-10": 0.1435253487315899,
+   "tekst_techniczny-11": 0.12416566515184724,
+   "tekst_techniczny-12": 0.13462019736869368,
+   "tekst_techniczny-13": 0.15306787054435805,
+   "tekst_techniczny-14": 0.19269639202444422,
+   "tekst_techniczny-15": 0.14115859241074094,
+   "tekst_techniczny-16": 0.14543577012157233,
+   "tekst_techniczny-17": 0.0820597722573758,
+   "tekst_techniczny-18": 0.15387760725090893,
+   "tekst_techniczny-19": 0.09572474387098909,
+   "tekst_techniczny-20": 0.18918981563644682,
+   "tekst_techniczny-21": 0.1273283683224736,
+   "tekst_techniczny-22": 0.16644944110450444,
+   "tekst_techniczny-23": 0.1295852982993177,
+   "tekst_techniczny-24": 0.1327256495361674,
+   "tekst_techniczny-25": 0.12739858316880356,
+   "tekst_techniczny-26": 0.16330478738955315,
+   "tekst_techniczny-27": 0.1119500244230613,
+   "tekst_techniczny-28": 0.13053618292910413,
+   "tekst_techniczny-29": 0.15930812363013014,
+   "tekst_techniczny-30": 0.1349919392885251
+  }
+ },
+ "a2": {
+  "pl_jezyk": {
+   "slayer": {
+    "seedy_pearson_srednia": 0.4231080040806621,
+    "seedy_pearson_pary": [
+     0.25819888974716115,
+     0.4146442144313647,
+     0.5964809080634605
+    ],
+    "seedy_ten_sam_wynik": 0.7083333333333334,
+    "greedy_A_B_pearson": 0.7777777777777779,
+    "greedy_A_B_zgodnosc": 0.9166666666666666,
+    "bpb_A_B_pearson": 0.8859670501462239,
+    "bpb_A_B_spearman": 0.9546162402669635
+   },
+   "bielik": {
+    "seedy_pearson_srednia": 0.48792503481134103,
+    "seedy_pearson_pary": [
+     0.23652495839563306,
+     0.7491587023046326,
+     0.47809144373375745
+    ],
+    "seedy_ten_sam_wynik": 0.625,
+    "greedy_A_B_pearson": 0.5913123959890826,
+    "greedy_A_B_zgodnosc": 0.7916666666666666,
+    "bpb_A_B_pearson": 0.8145600068505877,
+    "bpb_A_B_spearman": 0.9087875417130147
+   },
+   "lfm": {
+    "seedy_pearson_srednia": 0.5197549457861205,
+    "seedy_pearson_pary": [
+     0.4509560339299333,
+     0.7130240959073807,
+     0.3952847075210474
+    ],
+    "seedy_ten_sam_wynik": 0.7083333333333334,
+    "greedy_A_B_pearson": 0.8997354108424375,
+    "greedy_A_B_zgodnosc": 0.9583333333333334,
+    "bpb_A_B_pearson": 0.9537503445786014,
+    "bpb_A_B_spearman": 0.9644048943270302
+   },
+   "snr_poprawnosc": {
+    "sygnal": 0.04423868312757201,
+    "szum": 0.004436728395061728,
+    "snr": 9.971014492753621,
+    "srednie_modeli": [
+     0.20833333333333334,
+     0.5972222222222222,
+     0.2638888888888889
+    ]
+   },
+   "snr_bpb_wzgledem_szablonu": {
+    "sygnal": 0.07646644412761489,
+    "szum": 0.014637127518263902,
+    "snr": 5.224142785679885,
+    "srednie_modeli": [
+     0.4955156675334028,
+     0.29831455818295144,
+     0.844389273269768
+    ]
+   }
+  },
+  "pl_wiedza": {
+   "slayer": {
+    "seedy_pearson_srednia": 0.5839770683451565,
+    "seedy_pearson_pary": [
+     0.4629100498862757,
+     0.7071067811865475,
+     0.5819143739626462
+    ],
+    "seedy_ten_sam_wynik": 0.7333333333333333,
+    "greedy_A_B_pearson": 0.030082841879809332,
+    "greedy_A_B_zgodnosc": 0.4666666666666667,
+    "bpb_A_B_pearson": 0.6586700098657776,
+    "bpb_A_B_spearman": 0.606674082313682
+   },
+   "bielik": {
+    "seedy_pearson_srednia": 0.7426270756766137,
+    "seedy_pearson_pary": [
+     0.6139406135149205,
+     1.0,
+     0.6139406135149205
+    ],
+    "seedy_ten_sam_wynik": 0.9,
+    "greedy_A_B_pearson": 0.5091750772173156,
+    "greedy_A_B_zgodnosc": 0.8,
+    "bpb_A_B_pearson": 0.6109901323081627,
+    "bpb_A_B_spearman": 0.677864293659622
+   },
+   "lfm": {
+    "seedy_pearson_srednia": 0.4535838045180574,
+    "seedy_pearson_pary": [
+     0.5232166435699435,
+     0.4570135746606336,
+     0.3805211953235953
+    ],
+    "seedy_ten_sam_wynik": 0.6,
+    "greedy_A_B_pearson": 0.4444444444444445,
+    "greedy_A_B_zgodnosc": 0.7333333333333333,
+    "bpb_A_B_pearson": 0.9421018689357091,
+    "bpb_A_B_spearman": 0.8464961067853172
+   },
+   "snr_poprawnosc": {
+    "sygnal": 0.05271604938271604,
+    "szum": 0.002839506172839509,
+    "snr": 18.565217391304326,
+    "srednie_modeli": [
+     0.7222222222222222,
+     0.8444444444444444,
+     0.4
+    ]
+   },
+   "snr_bpb_wzgledem_szablonu": {
+    "sygnal": 0.08613681277994657,
+    "szum": 0.0200983609022482,
+    "snr": 4.285763062912823,
+    "srednie_modeli": [
+     0.19537332194612814,
+     0.10246385338795409,
+     0.650851164144219
+    ]
+   }
+  },
+  "wiedza_ogolna": {
+   "slayer": {
+    "seedy_pearson_srednia": 0.4630627592741862,
+    "seedy_pearson_pary": [
+     0.4242640687119285,
+     0.6225430174794672,
+     0.34238119163116293
+    ],
+    "seedy_ten_sam_wynik": 0.6,
+    "greedy_A_B_pearson": 0.3086066999241838,
+    "greedy_A_B_zgodnosc": 0.5666666666666667,
+    "bpb_A_B_pearson": 0.7866835764380629,
+    "bpb_A_B_spearman": 0.6026696329254728
+   },
+   "bielik": {
+    "seedy_pearson_srednia": 0.17720001686098674,
+    "seedy_pearson_pary": [
+     0.08770580193070293,
+     0.47913961749476935,
+     -0.03524536884251211
+    ],
+    "seedy_ten_sam_wynik": 0.6333333333333333,
+    "greedy_A_B_pearson": 0.42870148709208494,
+    "greedy_A_B_zgodnosc": 0.8,
+    "bpb_A_B_pearson": 0.6260732963147204,
+    "bpb_A_B_spearman": 0.6000000000000001
+   },
+   "lfm": {
+    "seedy_pearson_srednia": 0.5121742736410636,
+    "seedy_pearson_pary": [
+     0.6747699033149638,
+     0.46428571428571436,
+     0.3974672033225129
+    ],
+    "seedy_ten_sam_wynik": 0.6333333333333333,
+    "greedy_A_B_pearson": 0.4472135954999579,
+    "greedy_A_B_zgodnosc": 0.6666666666666666,
+    "bpb_A_B_pearson": 0.6770008109394506,
+    "bpb_A_B_spearman": 0.677864293659622
+   },
+   "snr_poprawnosc": {
+    "sygnal": 0.01930041152263376,
+    "szum": 0.004567901234567899,
+    "snr": 4.2252252252252305,
+    "srednie_modeli": [
+     0.6,
+     0.8222222222222223,
+     0.5666666666666667
+    ]
+   },
+   "snr_bpb_wzgledem_szablonu": {
+    "sygnal": 0.016043126986138603,
+    "szum": 0.0462797576728059,
+    "snr": 0.3466553800813349,
+    "srednie_modeli": [
+     0.36060988446357406,
+     0.14563109057662943,
+     0.3691699148887956
+    ]
+   }
+  },
+  "rozumowanie": {
+   "slayer": {
+    "seedy_pearson_srednia": 0.1663304118342248,
+    "seedy_pearson_pary": [
+     0.6929023281557338,
+     -0.06741998624632424,
+     -0.12649110640673517
+    ],
+    "seedy_ten_sam_wynik": 0.5333333333333333,
+    "greedy_A_B_pearson": 0.5499999999999998,
+    "greedy_A_B_zgodnosc": 0.8,
+    "bpb_A_B_pearson": 0.9051578220833896,
+    "bpb_A_B_spearman": 0.7219132369299223
+   },
+   "bielik": {
+    "seedy_pearson_srednia": 0.4801467048399602,
+    "seedy_pearson_pary": [
+     0.7333333333333333,
+     0.28284271247461895,
+     0.42426406871192845
+    ],
+    "seedy_ten_sam_wynik": 0.6,
+    "greedy_A_B_pearson": 0.6651836553993732,
+    "greedy_A_B_zgodnosc": 0.8333333333333334,
+    "bpb_A_B_pearson": 0.9352125400132824,
+    "bpb_A_B_spearman": 0.7419354838709679
+   },
+   "lfm": {
+    "seedy_pearson_srednia": 0.3494247220780317,
+    "seedy_pearson_pary": [
+     0.5217732845620353,
+     0.23782574707724702,
+     0.2886751345948128
+    ],
+    "seedy_ten_sam_wynik": 0.5333333333333333,
+    "greedy_A_B_pearson": 0.408248290463863,
+    "greedy_A_B_zgodnosc": 0.7,
+    "bpb_A_B_pearson": 0.9479880396522077,
+    "bpb_A_B_spearman": 0.814015572858732
+   },
+   "snr_poprawnosc": {
+    "sygnal": 0.009423868312757202,
+    "szum": 0.006296296296296297,
+    "snr": 1.4967320261437906,
+    "srednie_modeli": [
+     0.25555555555555554,
+     0.4444444444444444,
+     0.3888888888888889
+    ]
+   },
+   "snr_bpb_wzgledem_szablonu": {
+    "sygnal": 0.0077343951529711,
+    "szum": 0.0018135922441976128,
+    "snr": 4.264682525918623,
+    "srednie_modeli": [
+     0.5333301035673726,
+     0.41885480579227513,
+     0.5917416661271587
+    ]
+   }
+  },
+  "matematyka": {
+   "slayer": {
+    "seedy_pearson_srednia": null,
+    "seedy_pearson_pary": [
+     null,
+     null,
+     null
+    ],
+    "seedy_ten_sam_wynik": 0.9666666666666667,
+    "greedy_A_B_pearson": null,
+    "greedy_A_B_zgodnosc": 1.0,
+    "bpb_A_B_pearson": 0.9862465574829781,
+    "bpb_A_B_spearman": 0.9822024471635152
+   },
+   "bielik": {
+    "seedy_pearson_srednia": 0.7500318647996053,
+    "seedy_pearson_pary": [
+     0.8666666666666667,
+     0.760885910252682,
+     0.6225430174794672
+    ],
+    "seedy_ten_sam_wynik": 0.8,
+    "greedy_A_B_pearson": 0.6054055145966812,
+    "greedy_A_B_zgodnosc": 0.8,
+    "bpb_A_B_pearson": 0.9794339288979007,
+    "bpb_A_B_spearman": 0.9701890989988878
+   },
+   "lfm": {
+    "seedy_pearson_srednia": 0.8050570539141529,
+    "seedy_pearson_pary": [
+     0.8499999999999998,
+     0.7825855808712295,
+     0.7825855808712295
+    ],
+    "seedy_ten_sam_wynik": 0.8666666666666667,
+    "greedy_A_B_pearson": 0.7117435966472906,
+    "greedy_A_B_zgodnosc": 0.8333333333333334,
+    "bpb_A_B_pearson": 0.9558071265240596,
+    "bpb_A_B_spearman": 0.9621802002224696
+   },
+   "snr_poprawnosc": {
+    "sygnal": 0.07259259259259258,
+    "szum": 0.0022222222222222214,
+    "snr": 32.66666666666668,
+    "srednie_modeli": [
+     0.01111111111111111,
+     0.5444444444444444,
+     0.34444444444444444
+    ]
+   },
+   "snr_bpb_wzgledem_szablonu": {
+    "sygnal": 0.040513874658767414,
+    "szum": 0.00011814894883685748,
+    "snr": 342.9050792039615,
+    "srednie_modeli": [
+     0.7333025883801251,
+     0.3334932700777606,
+     0.49270387898506585
+    ]
+   }
+  },
+  "kod": {
+   "slayer": {
+    "seedy_pearson_srednia": null,
+    "seedy_pearson_pary": [
+     null,
+     null,
+     null
+    ],
+    "seedy_ten_sam_wynik": 1.0,
+    "greedy_A_B_pearson": null,
+    "greedy_A_B_zgodnosc": 1.0,
+    "bpb_A_B_pearson": 0.9995468859852074,
+    "bpb_A_B_spearman": 0.9968854282536154
+   },
+   "bielik": {
+    "seedy_pearson_srednia": 0.6215855159296094,
+    "seedy_pearson_pary": [
+     0.5833333333333333,
+     0.8291561975888498,
+     0.4522670168666454
+    ],
+    "seedy_ten_sam_wynik": 0.8,
+    "greedy_A_B_pearson": 0.9211323729436766,
+    "greedy_A_B_zgodnosc": 0.9666666666666667,
+    "bpb_A_B_pearson": 0.9995118467150613,
+    "bpb_A_B_spearman": 0.9959955506117911
+   },
+   "lfm": {
+    "seedy_pearson_srednia": 0.4734320764739994,
+    "seedy_pearson_pary": [
+     null,
+     null,
+     0.4734320764739994
+    ],
+    "seedy_ten_sam_wynik": 0.8666666666666667,
+    "greedy_A_B_pearson": 0.23904572186687872,
+    "greedy_A_B_zgodnosc": 0.8333333333333334,
+    "bpb_A_B_pearson": 0.9994599360661274,
+    "bpb_A_B_spearman": 0.9897664071190213
+   },
+   "snr_poprawnosc": {
+    "sygnal": 0.013374485596707815,
+    "szum": 0.0020987654320987655,
+    "snr": 6.372549019607841,
+    "srednie_modeli": [
+     0.0,
+     0.2222222222222222,
+     0.05555555555555555
+    ]
+   },
+   "snr_bpb_wzgledem_szablonu": {
+    "sygnal": 0.009380196385880103,
+    "szum": 8.547217549348624e-08,
+    "snr": 109745.61407524908,
+    "srednie_modeli": [
+     0.2915420350846401,
+     0.09922749014273016,
+     0.17533667017375743
+    ]
+   }
+  },
+  "angielski": {
+   "slayer": {
+    "seedy_pearson_srednia": 0.5661625048847925,
+    "seedy_pearson_pary": [
+     0.6078080037565888,
+     0.7526178090063819,
+     0.33806170189140666
+    ],
+    "seedy_ten_sam_wynik": 0.6666666666666666,
+    "greedy_A_B_pearson": 0.6761234037828133,
+    "greedy_A_B_zgodnosc": 0.8333333333333334,
+    "bpb_A_B_pearson": 0.9036578480450526,
+    "bpb_A_B_spearman": 0.8892102335928812
+   },
+   "bielik": {
+    "seedy_pearson_srednia": 0.35809730232276066,
+    "seedy_pearson_pary": [
+     0.3333333333333334,
+     0.2646280620124816,
+     0.4763305116224669
+    ],
+    "seedy_ten_sam_wynik": 0.625,
+    "greedy_A_B_pearson": 0.4265617038812147,
+    "greedy_A_B_zgodnosc": 0.8333333333333334,
+    "bpb_A_B_pearson": 0.835549880295051,
+    "bpb_A_B_spearman": 0.8451612903225808
+   },
+   "lfm": {
+    "seedy_pearson_srednia": 0.9256822110924258,
+    "seedy_pearson_pary": [
+     0.8885233166386386,
+     0.8885233166386386,
+     1.0000000000000002
+    ],
+    "seedy_ten_sam_wynik": 0.9583333333333334,
+    "greedy_A_B_pearson": 0.7367883976130072,
+    "greedy_A_B_zgodnosc": 0.9166666666666666,
+    "bpb_A_B_pearson": 0.8000788965076607,
+    "bpb_A_B_spearman": 0.9323692992213573
+   },
+   "snr_poprawnosc": {
+    "sygnal": 0.02340534979423868,
+    "szum": 0.0017361111111111093,
+    "snr": 13.481481481481495,
+    "srednie_modeli": [
+     0.4861111111111111,
+     0.7361111111111112,
+     0.7638888888888888
+    ]
+   },
+   "snr_bpb_wzgledem_szablonu": {
+    "sygnal": 0.05419584724893821,
+    "szum": 0.04221822031114778,
+    "snr": 1.2837075283968737,
+    "srednie_modeli": [
+     0.7970693925522213,
+     0.3976238299782863,
+     0.3901752482543177
+    ]
+   }
+  },
+  "tekst_techniczny": {
+   "slayer": {
+    "bpb_A_B_pearson": 0.9995887978914082,
+    "bpb_A_B_spearman": 0.9977753058954396
+   },
+   "bielik": {
+    "bpb_A_B_pearson": 0.9994177819187493,
+    "bpb_A_B_spearman": 0.9937708565072304
+   },
+   "lfm": {
+    "bpb_A_B_pearson": 0.9951761234665659,
+    "bpb_A_B_spearman": 0.9857619577308122
+   },
+   "snr_bpb_wzgledem_szablonu": {
+    "sygnal": 0.018661677975197636,
+    "szum": 2.0212454118876515e-06,
+    "snr": 9232.76207106855,
+    "srednie_modeli": [
+     0.7031500200119665,
+     0.5859428010788563,
+     0.8582796199398979
+    ]
+   }
+  }
+ },
+ "a3": {
+  "pl_jezyk": {
+   "nasza_metryka": "poprawnosc_A_srednia_seedow (wyzej lepiej)",
+   "nasza": {
+    "slayer": 0.20833333333333334,
+    "bielik": 0.5972222222222222,
+    "lfm": 0.2638888888888889
+   },
+   "testy": {
+    "multiblimp-pl": {
+     "wartosci": {
+      "slayer": 98.74694376528117,
+      "bielik": 94.46821515892421,
+      "lfm": 82.94621026894865
+     },
+     "wersje": {
+      "slayer": {
+       "katalog": "results/full-run-2026-11/multiblimp-pl/slayer1b-1.08/results.json",
+       "model": [
+        {
+         "model_id": "SlayerLab/Slayer1B-1.08",
+         "repo": "SlayerLab/Slayer1B-1.08",
+         "revision": "5f854a0cc7160594d54d1788d37a44e8ebabe16c",
+         "weights_sha256": "1c510d9a59d3b9e62360d1db57e08fa450fb9b09df849df7f2eef132ea6715a4"
+        }
+       ],
+       "metryka": "accuracy",
+       "wyzej_lepiej": true,
+       "results_sha256": "2e303e04e5fb5978e4a506c52179d92d7598310a01ab485e249643aebb39005a"
+      },
+      "bielik": {
+       "katalog": "results/full-run-2026-11/multiblimp-pl/bielik-1.5b-v3/results.json",
+       "model": [
+        {
+         "model_id": "speakleash/Bielik-1.5B-v3",
+         "repo": "speakleash/Bielik-1.5B-v3",
+         "revision": "4b25049621bf3952a1fc9314c89773102eda0333",
+         "weights_sha256": "691558032d8d1fd264d27c32c914d11691cc06a7f43170176e5a7030f92aa658"
+        }
+       ],
+       "metryka": "accuracy",
+       "wyzej_lepiej": true,
+       "results_sha256": "6d4591f913c520ac21fc1c28bacef1a96bbcd96232808cd5aa9087254930e50c"
+      },
+      "lfm": {
+       "katalog": "results/full-run-2026-11/multiblimp-pl/lfm2.5-1.2b-base/results.json",
+       "model": [
+        {
+         "model_id": "LiquidAI/LFM2.5-1.2B-Base",
+         "repo": "LiquidAI/LFM2.5-1.2B-Base",
+         "revision": "7453bca97ca1e67754c4035a4b4c584e1c9dd725",
+         "weights_sha256": "7678ab9546a0c51c1fca161876b1efc4f0906277f170b5822045f40fdaf9eeff"
+        }
+       ],
+       "metryka": "accuracy",
+       "wyzej_lepiej": true,
+       "results_sha256": "539f5283ce8b69e4262e383072a2022a97b6fa611e14bd8bfa64ad0122c1a86b"
+      }
+     },
+     "kendall_tau": -0.3333333333333333,
+     "roznice_par": {
+      "slayer-bielik": {
+       "nasza": -0.38888888888888884,
+       "centralny": 4.278728606356964,
+       "zgodny_znak": false
+      },
+      "slayer-lfm": {
+       "nasza": -0.05555555555555555,
+       "centralny": 15.800733496332526,
+       "zgodny_znak": false
+      },
+      "bielik-lfm": {
+       "nasza": 0.3333333333333333,
+       "centralny": 11.522004889975562,
+       "zgodny_znak": true
+      }
+     }
+    }
+   }
+  },
+  "pl_wiedza": {
+   "nasza_metryka": "poprawnosc_A_srednia_seedow (wyzej lepiej)",
+   "nasza": {
+    "slayer": 0.7222222222222222,
+    "bielik": 0.8444444444444444,
+    "lfm": 0.4
+   },
+   "testy": {},
+   "stan": "NOT RUN: brak dopasowanego testu w przebiegu centralnym (aneks A3)"
+  },
+  "wiedza_ogolna": {
+   "nasza_metryka": "poprawnosc_A_srednia_seedow (wyzej lepiej)",
+   "nasza": {
+    "slayer": 0.6,
+    "bielik": 0.8222222222222223,
+    "lfm": 0.5666666666666667
+   },
+   "testy": {
+    "arc-easy": {
+     "wartosci": {
+      "slayer": 0.5837542087542088,
+      "bielik": 0.5458754208754208,
+      "lfm": 0.42887205387205385
+     },
+     "wersje": {
+      "slayer": {
+       "katalog": "results/full-run-2026-11/arc-easy/slayer1b-1.08/results.json",
+       "model": [
+        {
+         "model_id": "SlayerLab/Slayer1B-1.08",
+         "repo": "SlayerLab/Slayer1B-1.08",
+         "revision": "5f854a0cc7160594d54d1788d37a44e8ebabe16c",
+         "weights_sha256": "1c510d9a59d3b9e62360d1db57e08fa450fb9b09df849df7f2eef132ea6715a4"
+        }
+       ],
+       "metryka": "acc,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "f21b6af4e94ecf996b77ad0b3d2dfca2981aa4731f24e131076993e2372d4046"
+      },
+      "bielik": {
+       "katalog": "results/full-run-2026-11/arc-easy/bielik-1.5b-v3/results.json",
+       "model": [
+        {
+         "model_id": "speakleash/Bielik-1.5B-v3",
+         "repo": "speakleash/Bielik-1.5B-v3",
+         "revision": "4b25049621bf3952a1fc9314c89773102eda0333",
+         "weights_sha256": "691558032d8d1fd264d27c32c914d11691cc06a7f43170176e5a7030f92aa658"
+        }
+       ],
+       "metryka": "acc,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "77b99cc8576f2792864420852092c50b8cb6734782f5bb79f0aba835fde850cf"
+      },
+      "lfm": {
+       "katalog": "results/full-run-2026-11/arc-easy/lfm2.5-1.2b-base/results.json",
+       "model": [
+        {
+         "model_id": "LiquidAI/LFM2.5-1.2B-Base",
+         "repo": "LiquidAI/LFM2.5-1.2B-Base",
+         "revision": "7453bca97ca1e67754c4035a4b4c584e1c9dd725",
+         "weights_sha256": "7678ab9546a0c51c1fca161876b1efc4f0906277f170b5822045f40fdaf9eeff"
+        }
+       ],
+       "metryka": "acc,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "f23dac870827869d246e0c7c04595ae60d2974be7224ed146dd908b178def7e6"
+      }
+     },
+     "kendall_tau": 0.3333333333333333,
+     "roznice_par": {
+      "slayer-bielik": {
+       "nasza": -0.22222222222222232,
+       "centralny": 0.037878787878787956,
+       "zgodny_znak": false
+      },
+      "slayer-lfm": {
+       "nasza": 0.033333333333333326,
+       "centralny": 0.15488215488215495,
+       "zgodny_znak": true
+      },
+      "bielik-lfm": {
+       "nasza": 0.25555555555555565,
+       "centralny": 0.117003367003367,
+       "zgodny_znak": true
+      }
+     }
+    },
+    "arc-challenge": {
+     "wartosci": {
+      "slayer": 0.3003412969283277,
+      "bielik": 0.3609215017064846,
+      "lfm": 0.25170648464163825
+     },
+     "wersje": {
+      "slayer": {
+       "katalog": "results/full-run-2026-11/arc-challenge/slayer1b-1.08/results.json",
+       "model": [
+        {
+         "model_id": "SlayerLab/Slayer1B-1.08",
+         "repo": "SlayerLab/Slayer1B-1.08",
+         "revision": "5f854a0cc7160594d54d1788d37a44e8ebabe16c",
+         "weights_sha256": "1c510d9a59d3b9e62360d1db57e08fa450fb9b09df849df7f2eef132ea6715a4"
+        }
+       ],
+       "metryka": "acc_norm,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "8d0f006411c01b60e22ecee7b1f9909278abb72ffd74ba65072f55b898c5b50b"
+      },
+      "bielik": {
+       "katalog": "results/full-run-2026-11/arc-challenge/bielik-1.5b-v3/results.json",
+       "model": [
+        {
+         "model_id": "speakleash/Bielik-1.5B-v3",
+         "repo": "speakleash/Bielik-1.5B-v3",
+         "revision": "4b25049621bf3952a1fc9314c89773102eda0333",
+         "weights_sha256": "691558032d8d1fd264d27c32c914d11691cc06a7f43170176e5a7030f92aa658"
+        }
+       ],
+       "metryka": "acc_norm,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "e0b5c89eeedcabc7221b3d07c8d7cddf40163c34dc545d41e1d608bc3fd9b0f6"
+      },
+      "lfm": {
+       "katalog": "results/full-run-2026-11/arc-challenge/lfm2.5-1.2b-base/results.json",
+       "model": [
+        {
+         "model_id": "LiquidAI/LFM2.5-1.2B-Base",
+         "repo": "LiquidAI/LFM2.5-1.2B-Base",
+         "revision": "7453bca97ca1e67754c4035a4b4c584e1c9dd725",
+         "weights_sha256": "7678ab9546a0c51c1fca161876b1efc4f0906277f170b5822045f40fdaf9eeff"
+        }
+       ],
+       "metryka": "acc_norm,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "4b75ba5d230a28eb24613d710054045e60275dcfa007e5cf26d497f11ad5f815"
+      }
+     },
+     "kendall_tau": 1.0,
+     "roznice_par": {
+      "slayer-bielik": {
+       "nasza": -0.22222222222222232,
+       "centralny": -0.060580204778156954,
+       "zgodny_znak": true
+      },
+      "slayer-lfm": {
+       "nasza": 0.033333333333333326,
+       "centralny": 0.04863481228668942,
+       "zgodny_znak": true
+      },
+      "bielik-lfm": {
+       "nasza": 0.25555555555555565,
+       "centralny": 0.10921501706484638,
+       "zgodny_znak": true
+      }
+     }
+    }
+   }
+  },
+  "rozumowanie": {
+   "nasza_metryka": "poprawnosc_A_srednia_seedow (wyzej lepiej)",
+   "nasza": {
+    "slayer": 0.25555555555555554,
+    "bielik": 0.4444444444444444,
+    "lfm": 0.3888888888888889
+   },
+   "testy": {
+    "winogrande": {
+     "wartosci": {
+      "slayer": 0.5367008681925809,
+      "bielik": 0.6235201262825573,
+      "lfm": 0.510655090765588
+     },
+     "wersje": {
+      "slayer": {
+       "katalog": "results/full-run-2026-11/winogrande/slayer1b-1.08/results.json",
+       "model": [
+        {
+         "model_id": "SlayerLab/Slayer1B-1.08",
+         "repo": "SlayerLab/Slayer1B-1.08",
+         "revision": "5f854a0cc7160594d54d1788d37a44e8ebabe16c",
+         "weights_sha256": "1c510d9a59d3b9e62360d1db57e08fa450fb9b09df849df7f2eef132ea6715a4"
+        }
+       ],
+       "metryka": "acc,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "a03c5058195b626b61c85d24804c17e595f9fcc4c3790f46b70574ebd3bf5b03"
+      },
+      "bielik": {
+       "katalog": "results/full-run-2026-11/winogrande/bielik-1.5b-v3/results.json",
+       "model": [
+        {
+         "model_id": "speakleash/Bielik-1.5B-v3",
+         "repo": "speakleash/Bielik-1.5B-v3",
+         "revision": "4b25049621bf3952a1fc9314c89773102eda0333",
+         "weights_sha256": "691558032d8d1fd264d27c32c914d11691cc06a7f43170176e5a7030f92aa658"
+        }
+       ],
+       "metryka": "acc,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "d2b01873f517b876e37fba7ffebc7309785508e8337b737beb3dc264535145f2"
+      },
+      "lfm": {
+       "katalog": "results/full-run-2026-11/winogrande/lfm2.5-1.2b-base/results.json",
+       "model": [
+        {
+         "model_id": "LiquidAI/LFM2.5-1.2B-Base",
+         "repo": "LiquidAI/LFM2.5-1.2B-Base",
+         "revision": "7453bca97ca1e67754c4035a4b4c584e1c9dd725",
+         "weights_sha256": "7678ab9546a0c51c1fca161876b1efc4f0906277f170b5822045f40fdaf9eeff"
+        }
+       ],
+       "metryka": "acc,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "8dd0169689872ad5037c67659cf0eecff06c7484be70e4a2dcee84c95339289a"
+      }
+     },
+     "kendall_tau": 0.3333333333333333,
+     "roznice_par": {
+      "slayer-bielik": {
+       "nasza": -0.18888888888888888,
+       "centralny": -0.08681925808997637,
+       "zgodny_znak": true
+      },
+      "slayer-lfm": {
+       "nasza": -0.13333333333333336,
+       "centralny": 0.026045777426992878,
+       "zgodny_znak": false
+      },
+      "bielik-lfm": {
+       "nasza": 0.055555555555555525,
+       "centralny": 0.11286503551696925,
+       "zgodny_znak": true
+      }
+     }
+    },
+    "wsc273": {
+     "wartosci": {
+      "slayer": 0.6153846153846154,
+      "bielik": 0.7655677655677655,
+      "lfm": 0.5018315018315018
+     },
+     "wersje": {
+      "slayer": {
+       "katalog": "results/full-run-2026-11/wsc273/slayer1b-1.08/results.json",
+       "model": [
+        {
+         "model_id": "SlayerLab/Slayer1B-1.08",
+         "repo": "SlayerLab/Slayer1B-1.08",
+         "revision": "5f854a0cc7160594d54d1788d37a44e8ebabe16c",
+         "weights_sha256": "1c510d9a59d3b9e62360d1db57e08fa450fb9b09df849df7f2eef132ea6715a4"
+        }
+       ],
+       "metryka": "acc,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "6489d32a09428af76f746a50c49d2993630b9d4391253ba48f460a85cb29f061"
+      },
+      "bielik": {
+       "katalog": "results/full-run-2026-11/wsc273/bielik-1.5b-v3/results.json",
+       "model": [
+        {
+         "model_id": "speakleash/Bielik-1.5B-v3",
+         "repo": "speakleash/Bielik-1.5B-v3",
+         "revision": "4b25049621bf3952a1fc9314c89773102eda0333",
+         "weights_sha256": "691558032d8d1fd264d27c32c914d11691cc06a7f43170176e5a7030f92aa658"
+        }
+       ],
+       "metryka": "acc,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "fbf894ae544a16ee66009a7493c7b2e1c1d58d0798e6e325840bdec7341cf693"
+      },
+      "lfm": {
+       "katalog": "results/full-run-2026-11/wsc273/lfm2.5-1.2b-base/results.json",
+       "model": [
+        {
+         "model_id": "LiquidAI/LFM2.5-1.2B-Base",
+         "repo": "LiquidAI/LFM2.5-1.2B-Base",
+         "revision": "7453bca97ca1e67754c4035a4b4c584e1c9dd725",
+         "weights_sha256": "7678ab9546a0c51c1fca161876b1efc4f0906277f170b5822045f40fdaf9eeff"
+        }
+       ],
+       "metryka": "acc,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "9c911a8152848d063b1818c7aa56a5e85a4bd56c1a19c5393b99aaf72898f856"
+      }
+     },
+     "kendall_tau": 0.3333333333333333,
+     "roznice_par": {
+      "slayer-bielik": {
+       "nasza": -0.18888888888888888,
+       "centralny": -0.1501831501831501,
+       "zgodny_znak": true
+      },
+      "slayer-lfm": {
+       "nasza": -0.13333333333333336,
+       "centralny": 0.1135531135531136,
+       "zgodny_znak": false
+      },
+      "bielik-lfm": {
+       "nasza": 0.055555555555555525,
+       "centralny": 0.2637362637362637,
+       "zgodny_znak": true
+      }
+     }
+    }
+   }
+  },
+  "matematyka": {
+   "nasza_metryka": "poprawnosc_A_srednia_seedow (wyzej lepiej)",
+   "nasza": {
+    "slayer": 0.01111111111111111,
+    "bielik": 0.5444444444444444,
+    "lfm": 0.34444444444444444
+   },
+   "testy": {
+    "mathqa": {
+     "wartosci": {
+      "slayer": 0.22814070351758794,
+      "bielik": 0.3239530988274707,
+      "lfm": 0.24288107202680068
+     },
+     "wersje": {
+      "slayer": {
+       "katalog": "results/full-run-2026-11/mathqa/slayer1b-1.08/results.json",
+       "model": [
+        {
+         "model_id": "SlayerLab/Slayer1B-1.08",
+         "repo": "SlayerLab/Slayer1B-1.08",
+         "revision": "5f854a0cc7160594d54d1788d37a44e8ebabe16c",
+         "weights_sha256": "1c510d9a59d3b9e62360d1db57e08fa450fb9b09df849df7f2eef132ea6715a4"
+        }
+       ],
+       "metryka": "acc_norm,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "8304d95102775de68036192aef4ea7b398cd5abb92d7e1898c0cb99fff36840b"
+      },
+      "bielik": {
+       "katalog": "results/full-run-2026-11/mathqa/bielik-1.5b-v3/results.json",
+       "model": [
+        {
+         "model_id": "speakleash/Bielik-1.5B-v3",
+         "repo": "speakleash/Bielik-1.5B-v3",
+         "revision": "4b25049621bf3952a1fc9314c89773102eda0333",
+         "weights_sha256": "691558032d8d1fd264d27c32c914d11691cc06a7f43170176e5a7030f92aa658"
+        }
+       ],
+       "metryka": "acc_norm,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "183ca0661c6b5d52a04daa3ef55bb9c1fef5db7ffa89bb42ab6654d28e220f14"
+      },
+      "lfm": {
+       "katalog": "results/full-run-2026-11/mathqa/lfm2.5-1.2b-base/results.json",
+       "model": [
+        {
+         "model_id": "LiquidAI/LFM2.5-1.2B-Base",
+         "repo": "LiquidAI/LFM2.5-1.2B-Base",
+         "revision": "7453bca97ca1e67754c4035a4b4c584e1c9dd725",
+         "weights_sha256": "7678ab9546a0c51c1fca161876b1efc4f0906277f170b5822045f40fdaf9eeff"
+        }
+       ],
+       "metryka": "acc_norm,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "8b1ab0129d971c62a529a482fe779a2dea38393a9a255dd92b233ee978f73d6b"
+      }
+     },
+     "kendall_tau": 1.0,
+     "roznice_par": {
+      "slayer-bielik": {
+       "nasza": -0.5333333333333333,
+       "centralny": -0.09581239530988275,
+       "zgodny_znak": true
+      },
+      "slayer-lfm": {
+       "nasza": -0.3333333333333333,
+       "centralny": -0.014740368509212731,
+       "zgodny_znak": true
+      },
+      "bielik-lfm": {
+       "nasza": 0.19999999999999996,
+       "centralny": 0.08107202680067002,
+       "zgodny_znak": true
+      }
+     }
+    }
+   }
+  },
+  "kod": {
+   "nasza_metryka": "poprawnosc_A_srednia_seedow (wyzej lepiej)",
+   "nasza": {
+    "slayer": 0.0,
+    "bielik": 0.2222222222222222,
+    "lfm": 0.05555555555555555
+   },
+   "testy": {},
+   "stan": "NOT RUN: brak dopasowanego testu w przebiegu centralnym (aneks A3)"
+  },
+  "angielski": {
+   "nasza_metryka": "poprawnosc_A_srednia_seedow (wyzej lepiej)",
+   "nasza": {
+    "slayer": 0.4861111111111111,
+    "bielik": 0.7361111111111112,
+    "lfm": 0.7638888888888888
+   },
+   "testy": {
+    "blimp": {
+     "wartosci": {
+      "slayer": 0.8047313432835821,
+      "bielik": 0.8191044776119403,
+      "lfm": 0.786
+     },
+     "wersje": {
+      "slayer": {
+       "katalog": "results/full-run-2026-11/blimp/slayer1b-1.08/results.json",
+       "model": [
+        {
+         "model_id": "SlayerLab/Slayer1B-1.08",
+         "repo": "SlayerLab/Slayer1B-1.08",
+         "revision": "5f854a0cc7160594d54d1788d37a44e8ebabe16c",
+         "weights_sha256": "1c510d9a59d3b9e62360d1db57e08fa450fb9b09df849df7f2eef132ea6715a4"
+        }
+       ],
+       "metryka": "acc,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "f17e5da12ae490d6a6257154929681c9a62f66476cf1076bff5172cd76c6a671"
+      },
+      "bielik": {
+       "katalog": "results/full-run-2026-11/blimp/bielik-1.5b-v3/results.json",
+       "model": [
+        {
+         "model_id": "speakleash/Bielik-1.5B-v3",
+         "repo": "speakleash/Bielik-1.5B-v3",
+         "revision": "4b25049621bf3952a1fc9314c89773102eda0333",
+         "weights_sha256": "691558032d8d1fd264d27c32c914d11691cc06a7f43170176e5a7030f92aa658"
+        }
+       ],
+       "metryka": "acc,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "13e161874ecc7c378879c5c73defecc8bf6e2abd725e3d9e9fe85ed4f984ba57"
+      },
+      "lfm": {
+       "katalog": "results/full-run-2026-11/blimp/lfm2.5-1.2b-base/results.json",
+       "model": [
+        {
+         "model_id": "LiquidAI/LFM2.5-1.2B-Base",
+         "repo": "LiquidAI/LFM2.5-1.2B-Base",
+         "revision": "7453bca97ca1e67754c4035a4b4c584e1c9dd725",
+         "weights_sha256": "7678ab9546a0c51c1fca161876b1efc4f0906277f170b5822045f40fdaf9eeff"
+        }
+       ],
+       "metryka": "acc,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "fa63b1b8d5f2059c4839a824579fefe89e428f805e53d90f5dda5fc2c3978d4b"
+      }
+     },
+     "kendall_tau": -0.3333333333333333,
+     "roznice_par": {
+      "slayer-bielik": {
+       "nasza": -0.25000000000000006,
+       "centralny": -0.014373134328358184,
+       "zgodny_znak": true
+      },
+      "slayer-lfm": {
+       "nasza": -0.27777777777777773,
+       "centralny": 0.018731343283582058,
+       "zgodny_znak": false
+      },
+      "bielik-lfm": {
+       "nasza": -0.02777777777777768,
+       "centralny": 0.03310447761194024,
+       "zgodny_znak": false
+      }
+     }
+    },
+    "lambada": {
+     "wartosci": {
+      "slayer": 0.4013196196390452,
+      "bielik": 0.6107122064816611,
+      "lfm": 0.13021540849990296
+     },
+     "wersje": {
+      "slayer": {
+       "katalog": "results/full-run-2026-11/lambada/slayer1b-1.08/results.json",
+       "model": [
+        {
+         "model_id": "SlayerLab/Slayer1B-1.08",
+         "repo": "SlayerLab/Slayer1B-1.08",
+         "revision": "5f854a0cc7160594d54d1788d37a44e8ebabe16c",
+         "weights_sha256": "1c510d9a59d3b9e62360d1db57e08fa450fb9b09df849df7f2eef132ea6715a4"
+        }
+       ],
+       "metryka": "acc,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "f8cad6420a0a233af2c7c1f834dc90524bf8e84a55ef456fb0f97a177e4314f6"
+      },
+      "bielik": {
+       "katalog": "results/full-run-2026-11/lambada/bielik-1.5b-v3/results.json",
+       "model": [
+        {
+         "model_id": "speakleash/Bielik-1.5B-v3",
+         "repo": "speakleash/Bielik-1.5B-v3",
+         "revision": "4b25049621bf3952a1fc9314c89773102eda0333",
+         "weights_sha256": "691558032d8d1fd264d27c32c914d11691cc06a7f43170176e5a7030f92aa658"
+        }
+       ],
+       "metryka": "acc,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "9cec060a77e8238b275c8b31fad69c368006e2fa4ff575ba5b1e44e92024951a"
+      },
+      "lfm": {
+       "katalog": "results/full-run-2026-11/lambada/lfm2.5-1.2b-base/results.json",
+       "model": [
+        {
+         "model_id": "LiquidAI/LFM2.5-1.2B-Base",
+         "repo": "LiquidAI/LFM2.5-1.2B-Base",
+         "revision": "7453bca97ca1e67754c4035a4b4c584e1c9dd725",
+         "weights_sha256": "7678ab9546a0c51c1fca161876b1efc4f0906277f170b5822045f40fdaf9eeff"
+        }
+       ],
+       "metryka": "acc,none",
+       "wyzej_lepiej": true,
+       "results_sha256": "a5f4ef98ecbc7ea9dab847c44629252c89f3c0ca3bf365ce0da0d1aa9f1f669c"
+      }
+     },
+     "kendall_tau": -0.3333333333333333,
+     "roznice_par": {
+      "slayer-bielik": {
+       "nasza": -0.25000000000000006,
+       "centralny": -0.2093925868426159,
+       "zgodny_znak": true
+      },
+      "slayer-lfm": {
+       "nasza": -0.27777777777777773,
+       "centralny": 0.2711042111391423,
+       "zgodny_znak": false
+      },
+      "bielik-lfm": {
+       "nasza": -0.02777777777777768,
+       "centralny": 0.48049679798175815,
+       "zgodny_znak": false
+      }
+     }
+    }
+   }
+  },
+  "tekst_techniczny": {
+   "nasza_metryka": "minus BPB_A (wyzej lepiej)",
+   "nasza": {
+    "slayer": -0.7031500200119665,
+    "bielik": -0.5859428010788563,
+    "lfm": -0.8582796199398979
+   },
+   "testy": {},
+   "stan": "NOT RUN: brak dopasowanego testu w przebiegu centralnym (aneks A3)"
+  }
+ }
+}

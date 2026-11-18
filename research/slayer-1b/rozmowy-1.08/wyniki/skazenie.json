@@ -1,0 +1,150 @@
+{
+ "zbiory": {
+  "gsm8k": {
+   "rekordy": 8792,
+   "pliki": [
+    {
+     "plik": "train-00000-of-00001.parquet",
+     "sha256": "ea82612ea9582142387730c793eb67d3b12849002bc0b7fa6f8efafa7351419d",
+     "n": 7473
+    },
+    {
+     "plik": "test-00000-of-00001.parquet",
+     "sha256": "ee7b8da9e381df27b9e3f7758a159ab2bdaa4dbaa910546cbbc47e0cb44e4f59",
+     "n": 1319
+    }
+   ],
+   "rewizja": "cache HF, sha w ścieżce"
+  },
+  "arc": {
+   "rekordy": 7787,
+   "pliki": [
+    {
+     "plik": "train-00000-of-00001.parquet",
+     "sha256": "e488c1587ffdcfc8443f916c53488a95cd471c5790e0746c6bfe4cecf20962cb",
+     "n": 1119
+    },
+    {
+     "plik": "validation-00000-of-00001.parquet",
+     "sha256": "395a5c88d1580d69855fbaee9450270578df1ad5af6259771cd0a42c20e99f05",
+     "n": 299
+    },
+    {
+     "plik": "test-00000-of-00001.parquet",
+     "sha256": "62f03257e737aed263f55c6abf87c7bb0028a44a6bdd2a26eb1279eb42c1d1e9",
+     "n": 1172
+    },
+    {
+     "plik": "train-00000-of-00001.parquet",
+     "sha256": "b315db8a4be597dc7daa50a4e70d48dd7c990c32085629e6ccd8c926beaa80b5",
+     "n": 2251
+    },
+    {
+     "plik": "validation-00000-of-00001.parquet",
+     "sha256": "ed890ff1e4cef7a7140d3a30dcea3ed2c9d467c6458f447ad9ef0176d8dcbb74",
+     "n": 570
+    },
+    {
+     "plik": "test-00000-of-00001.parquet",
+     "sha256": "4160597d618ae851c7eb04e281574f3f654776216ac6b6641588d64527b47177",
+     "n": 2376
+    }
+   ],
+   "rewizja": "cache HF, sha w ścieżce"
+  },
+  "openbookqa": {
+   "rekordy": 5957,
+   "pliki": [
+    {
+     "plik": "train-00000-of-00001.parquet",
+     "sha256": "98148f8a54e62eb862346a75192d5fb824d6cbb68f2f59aecd793d39ecb5cd8b",
+     "n": 4957
+    },
+    {
+     "plik": "validation-00000-of-00001.parquet",
+     "sha256": "35370b9cfee8c1ff325ccc74adc434d12c47ca0ac3244aa87f3fa77069285206",
+     "n": 500
+    },
+    {
+     "plik": "test-00000-of-00001.parquet",
+     "sha256": "cd5483e366daa230c1c87bbdc512d8b7229f14f6dd04d19fc8b1a3855aaaa8a3",
+     "n": 500
+    }
+   ],
+   "rewizja": "cache HF, sha w ścieżce"
+  },
+  "humaneval": {
+   "rekordy": 164,
+   "pliki": [
+    {
+     "plik": "test.parquet",
+     "sha256": "2f2871a15fbc95b6c683043359f4ed8e144c5a1c4f24f25f66bc51f598dfcfb6",
+     "n": 164
+    }
+   ],
+   "rewizja": "openai/openai_humaneval@7dce6050"
+  },
+  "mbpp": {
+   "rekordy": 500,
+   "pliki": [
+    {
+     "plik": "full.parquet",
+     "sha256": "566fd53060ffba5766dace1d1e2f4c38906781526de222b0dfbdbc325b696c77",
+     "n": 500
+    }
+   ],
+   "rewizja": "google-research-datasets/mbpp@4bb6404f (full/test)"
+  }
+ },
+ "n_pozycji": 240,
+ "trafienia": {
+  "13": {
+   "gsm8k": [],
+   "arc": [],
+   "openbookqa": [],
+   "humaneval": [],
+   "mbpp": []
+  },
+  "8": {
+   "gsm8k": [
+    {
+     "id": "kod-28",
+     "wspolne": [
+      "1 2 3 4 1 2 3 4",
+      "1 2 3 4 5 1 2 3",
+      "2 3 4 5 1 2 3 4",
+      "3 4 5 1 2 3 4 5"
+     ]
+    }
+   ],
+   "arc": [],
+   "openbookqa": [],
+   "humaneval": [
+    {
+     "id": "kod-15",
+     "wspolne": [
+      "a b c a 1 b 1 c",
+      "b c a 1 b 1 c 1"
+     ]
+    },
+    {
+     "id": "kod-28",
+     "wspolne": [
+      "1 2 3 4 1 2 3 4"
+     ]
+    }
+   ],
+   "mbpp": [
+    {
+     "id": "kod-28",
+     "wspolne": [
+      "1 2 3 4 5 1 2 3",
+      "2 3 4 5 1 2 3 4",
+      "3 4 5 1 2 3 4 5",
+      "4 5 1 2 3 4 5 assert"
+     ]
+    }
+   ]
+  }
+ }
+}

@@ -10,6 +10,7 @@ Mierzy: przewidzenie ostatniego słowa fragmentu powieści, które da się odgad
 - Licencja (karta zbioru na przypiętej rewizji): `mit`; licencja autorów zbioru: CC BY 4.0.
 - Definicja zadania: lm-eval `lambada_openai`, `6d2abda4` ([METODOLOGIA, „Wersja lm-eval”](../../METODOLOGIA.md#wersja-lm-eval)); przebieg liczy lm-eval 0.4.9.1 (`lock`) i 0.4.13 (`new`).
 - Przebieg centralny: podpięty (`T17` w `common/zadania.py` i `KATALOGI` w `tools/przebieg_centralny.sh`); przepis w [`RECIPE.md`](RECIPE.md).
-- Etap B (`REPRODUCTION.md`): jeszcze go nie ma.
+- Etap B: [`REPRODUCTION.md`](REPRODUCTION.md), kontrola `EleutherAI/pythia-1b-v0` @ `step143000` z przebiegu centralnego; werdykt po przebiegu.
+- Test: `tests/test_lambada.py`.
 
 Karta oryginału: [`ORIGINAL.md`](ORIGINAL.md).

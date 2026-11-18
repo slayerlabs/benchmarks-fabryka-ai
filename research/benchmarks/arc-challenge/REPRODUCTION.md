@@ -18,20 +18,22 @@ Procedurę opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworze
 | różnica | nie dotyczy |
 | kontrola odróżnia działający kod od zepsutego | bez modelu kontrolnego nie ma kontroli. Informacyjnie niżej: cztery modele przebiegu leżą wysoko nad b, Slayer nie. |
 | warunek odtworzenia | ±2 pkt w skali metryki; gdy 2 SE > 2 pkt, w granicach 2 SE |
-| werdykt | bez kontroli: nierozstrzygnięte. Wynik T02 z przebiegu centralnego nie idzie do tabeli CodeSOTA ani do meta-oceny, dopóki model kontrolny (Pythia-2.8b-v0 0-shot albo EuroLLM-1.7B 25-shot) nie zostanie policzony tym kodem. |
+| policzona kontrola EuroLLM-1.7B 25-shot | `acc_norm` 0,4087, SE 0,0144, n = 1172; odniesienie 0,4061 (karta EuroLLM), różnica +0,0026, warunek ±2 SE (0,0286) spełniony liczbowo. Ustawienia referencji nie odtworzono: `common/zadania.py` dla T02 nie ustawia `fewshot_split`, więc demonstracje pochodzą z testu (log runnera: `num_fewshot > 0 but fewshot_split is None`), a źródła demonstracji w Open LLM Leaderboard v1 nie ustalono. Wynik: `results/full-run-2026-11/bos-window-check/`. <!-- liczba-spoza-wynikow: bos-window-check/LICZBY.json, kontrola_arc; odniesienie z ORIGINAL.md --> |
+| werdykt | bez kontroli: nierozstrzygnięte. Kontrola EuroLLM-1.7B 25-shot jest nierozstrzygnięta (wiersz wyżej), więc wynik T02 nie idzie do tabeli CodeSOTA ani do meta-oceny, dopóki model kontrolny (Pythia-2.8b-v0 0-shot albo EuroLLM-1.7B 25-shot na demonstracjach z właściwego splitu) nie zostanie policzony tym kodem. |
 
 ## Modele przebiegu wobec bazy (informacyjnie, to nie jest kontrola)
 
 b = 0,2654, stała odpowiedź „zawsze indeks 1”, wyższa niż baza losowa 0,2502 (`ORIGINAL.md`, „Bazy”). <!-- liczba-spoza-wynikow: reference.majority_value i chance_value w results.json przebiegu centralnego, T02 -->
-SE A = √(p(1−p)/1172). z liczone wobec stałej b, bez parowania z predyktorem stałym (przybliżenie).
+SE A = √(p(1−p)/1172). b to stała odpowiedź, więc różnica wobec b jest parowana po pytaniach z wynikami predyktora
+stałego (METODOLOGIA, „b”; `wobec_b` w `results_rozszerzone.json`, `tools/statystyka.wobec_stalej`).
 
-| model | `acc_norm` | trafienia | SE | z wobec b |
-|---|---|---|---|---|
-| Slayer 1.06 | 0,2577 | 302 | 0,0128 | −0,60 <!-- liczba-spoza-wynikow: probki/T02_space.jsonl.gz przebiegu centralnego, slayer1b-1.06 --> |
-| EuroLLM-1.7B | 0,3746 | 439 | 0,0141 | 7,72 <!-- liczba-spoza-wynikow: probki/T02_space.jsonl.gz przebiegu centralnego, eurollm-1.7b --> |
-| LFM2.5-1.2B-Base | 0,5094 | 597 | 0,0146 | 16,71 <!-- liczba-spoza-wynikow: probki/T02_space.jsonl.gz przebiegu centralnego, lfm2.5-1.2b-base --> |
-| LFM3-1.7B-Base | 0,4292 | 503 | 0,0145 | 11,33 <!-- liczba-spoza-wynikow: probki/T02_space.jsonl.gz przebiegu centralnego, lfm3-1.7b-base --> |
-| Qwen3.5-0.8B-Base | 0,4044 | 474 | 0,0143 | 9,70 <!-- liczba-spoza-wynikow: probki/T02_space.jsonl.gz przebiegu centralnego, qwen3.5-0.8b-base --> |
+| model | `acc_norm` | trafienia | SE A | wynik − b | SE par. | z wobec b (parowane) |
+|---|---|---|---|---|---|---|
+| Slayer 1.06 | 0,2577 | 302 | 0,0128 | −0,77 pkt | 0,0190 | −0,41 <!-- liczba-spoza-wynikow: probki/T02_space.jsonl.gz przebiegu centralnego, slayer1b-1.06 --> |
+| EuroLLM-1.7B | 0,3746 | 439 | 0,0141 | +10,92 pkt | 0,0195 | 5,60 <!-- liczba-spoza-wynikow: probki/T02_space.jsonl.gz przebiegu centralnego, eurollm-1.7b --> |
+| LFM2.5-1.2B-Base | 0,5094 | 597 | 0,0146 | +24,40 pkt | 0,0195 | 12,51 <!-- liczba-spoza-wynikow: probki/T02_space.jsonl.gz przebiegu centralnego, lfm2.5-1.2b-base --> |
+| LFM3-1.7B-Base | 0,4292 | 503 | 0,0145 | +16,38 pkt | 0,0198 | 8,27 <!-- liczba-spoza-wynikow: probki/T02_space.jsonl.gz przebiegu centralnego, lfm3-1.7b-base --> |
+| Qwen3.5-0.8B-Base | 0,4044 | 474 | 0,0143 | +13,91 pkt | 0,0196 | 7,10 <!-- liczba-spoza-wynikow: probki/T02_space.jsonl.gz przebiegu centralnego, qwen3.5-0.8b-base --> |
 
 EuroLLM-1.7B w 0-shot ma 0,3746, a karta modelu podaje 0,4061 w 25-shot; różnica liczby przykładów w prompcie robi z tego dwa różne protokoły, więc to nie jest odtworzenie. <!-- liczba-spoza-wynikow: results.json przebiegu centralnego, eurollm-1.7b; karta EuroLLM-1.7B @ c730cd9 -->
 

@@ -1,0 +1,144 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-EleutherAI_pythia-1b-v0-f3f1b6d5-20261110T102816Z",
+ "models": [
+  {
+   "model_id": "EleutherAI/pythia-1b-v0",
+   "repo": "EleutherAI/pythia-1b-v0",
+   "revision": "f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0",
+   "weights_sha256": "92589a02cfd745884f8473b0a975a93cea4cdaacf8333b0c047dab41623396b2"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T07",
+   "task": "winogrande",
+   "family": "winogrande",
+   "language": "EN",
+   "split": "validation"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T07",
+   "model_id": "EleutherAI/pythia-1b-v0",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 1267,
+   "n_selected": 1267,
+   "n_scored": 1267,
+   "state": "ok",
+   "value": 0.5438042620363063,
+   "ci95": {
+    "lower": 0.5193057810811464,
+    "upper": 0.5687356392380204,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "51090e4bd363c098f6fba50bd8901ee1ffd5bc39a7ca7723d9f077664a6dbe5d",
+   "results_sha256": "f35769cbea813b6fa479ef7313b818abb81bfc3083b95a11983840dfc0d6a87d",
+   "runner_sha256": "7597c0de7273004dcd099c7e2fb7083b6232e43c17e1822fc291923210d5c1fa",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.5,
+    "majority_value": 0.5043409629044988,
+    "majority_prediction_share": 0.5185477505919495,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.5438042620363063,
+      "n": 1267,
+      "se": 0.012545376550243254,
+      "ci95": [
+       0.5193057810811464,
+       0.5687356392380204
+      ],
+      "se_a": 0.0139984536109243,
+      "k": 983,
+      "df": 982,
+      "metoda_se": "K"
+     },
+     "acc_norm": {
+      "value": 0.5438042620363063,
+      "n": 1267,
+      "se": 0.012545376550243254,
+      "ci95": [
+       0.5193057810811464,
+       0.5687356392380204
+      ],
+      "se_a": 0.0139984536109243,
+      "k": 983,
+      "df": 982,
+      "metoda_se": "K"
+     },
+     "bpb_poprawnej": {
+      "value": 1.2351307779604965,
+      "n": 1267,
+      "se": 0.02921537503769503,
+      "ci95": [
+       1.1800438782173126,
+       1.2946930765992999
+      ],
+      "se_a": 0.024496580303294636,
+      "k": 983,
+      "df": 982,
+      "metoda_se": "K"
+     },
+     "bazy": {
+      "chance_value": 0.5,
+      "majority_value": 0.5043409629044988,
+      "majority_prediction_share": 0.5185477505919495,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.5185477505919495,
+     "wobec_b": {
+      "b": 0.5043409629044988,
+      "baza": "stala odpowiedz",
+      "roznica": 0.03946329913180742,
+      "se": 0.01624291272473188,
+      "z": null,
+      "t": 2.429570348655483,
+      "df": 982,
+      "werdykt": "prawdopodobne",
+      "metoda": "K"
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "allenai/winogrande",
+    "rewizja": "01e74176c63542e6b0bcb004dcdea22d94fb67b5",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "fe82b632887857585cc5482741d19b500868698d",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-EleutherAI_pythia-1b-v0-f3f1b6d5-20261110T102816Z",
+    "results_sha256": "f35769cbea813b6fa479ef7313b818abb81bfc3083b95a11983840dfc0d6a87d"
+   }
+  ],
+  "qualification_sha256": "9c26852b439412e065bf9a1a43c986d8efb19f02e18bfcbcf6f8cbaacab736e4",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "71786a33269e4d1b7a3183efcdb213f98e4702163f7f2bdcacc146159866cd5b"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_5090",
+ "sprzet": "NVIDIA GeForce RTX 5090",
+ "max_length": 2048,
+ "dtype": "float32"
+}

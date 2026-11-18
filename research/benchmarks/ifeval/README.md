@@ -7,7 +7,7 @@ IFEval sprawdza wykonywanie instrukcji sprawdzanych regułami (długość, forma
 Metryka decyzyjna: `prompt_level_strict_acc`. Typ `ifeval` ([README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy)).
 
 Stan: podpięty do przebiegu centralnego (wpis `T36` w `common/zadania.py` i `KATALOGI`), wyników jeszcze nie ma.
-Kartę oryginału i odtworzenie (`ORIGINAL.md`, `REPRODUCTION.md`) dopisuje osobne zadanie.
+Karta oryginału (etap A): [`ORIGINAL.md`](ORIGINAL.md). Odtworzenie (`REPRODUCTION.md`, etap B) dopisuje osobne zadanie.
 
 ## Ustawienia poza YAML-em lm-eval
 

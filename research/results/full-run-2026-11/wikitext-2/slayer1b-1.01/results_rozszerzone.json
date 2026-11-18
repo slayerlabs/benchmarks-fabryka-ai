@@ -1,0 +1,118 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-SlayerLab_Slayer1B-1.01-727b5f5e-20261109T230133Z",
+ "models": [
+  {
+   "model_id": "SlayerLab/Slayer1B-1.01",
+   "repo": "SlayerLab/Slayer1B-1.01",
+   "revision": "727b5f5ea4598e685af98d7aac2f3d4aad7f72d5",
+   "weights_sha256": "607d1a6c476bebb7f2cffb822c874b73855d26a9b8395658389f9aeff7485edd"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T03",
+   "task": "wikitext",
+   "family": "wikitext2",
+   "language": "EN",
+   "split": "test"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T03",
+   "model_id": "SlayerLab/Slayer1B-1.01",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "byte_perplexity,none",
+   "unit": "byte_ppl",
+   "higher_is_better": false,
+   "n_population": 62,
+   "n_selected": 62,
+   "n_scored": 62,
+   "state": "ok",
+   "value": 1.9591411458121757,
+   "ci95": {
+    "lower": 1.9256649578118652,
+    "upper": 1.995105188105933,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "46858cfa7cbb51fd96956dca1fcdfe11fa20ba30c0432cc023cafcf7a78ed872",
+   "results_sha256": "60dba63e80d2c660511ef96b7f7377dbe8ca892b29a25c95daf2e7fff64f2ea6",
+   "runner_sha256": "7597c0de7273004dcd099c7e2fb7083b6232e43c17e1822fc291923210d5c1fa",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": null,
+   "dodatkowe": {
+    "space": {
+     "word_perplexity": {
+      "value": 36.45919302135639,
+      "n": 62,
+      "se": 1.55359180224553,
+      "ci95": [
+       33.563692376174814,
+       39.63215688790391
+      ]
+     },
+     "byte_perplexity": {
+      "value": 1.9591411458121757,
+      "n": 62,
+      "se": 0.01780712748322476,
+      "ci95": [
+       1.9256649578118652,
+       1.995105188105933
+      ]
+     },
+     "bits_per_byte": {
+      "value": 0.9702213399372221,
+      "n": 62,
+      "se": 0.013105851914728163,
+      "ci95": [
+       0.9453567136949421,
+       0.9964648117872785
+      ]
+     },
+     "token_perplexity": {
+      "value": 17.14621683357997,
+      "n": 62,
+      "se": 0.7044513260214905,
+      "ci95": [
+       15.905630907778418,
+       18.640249949589766
+      ]
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "EleutherAI/wikitext_document_level",
+    "rewizja": "647234772b9554e208af6c826f23b99e3cac88c8",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "fe82b632887857585cc5482741d19b500868698d",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-SlayerLab_Slayer1B-1.01-727b5f5e-20261109T230133Z",
+    "results_sha256": "60dba63e80d2c660511ef96b7f7377dbe8ca892b29a25c95daf2e7fff64f2ea6"
+   }
+  ],
+  "qualification_sha256": "22160388386eeac6aede48e2ea7ec5300aceb22e4b114e40a4fae02e817a77c6",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "eca1f90714008611a9d1606b9ebe23cb737f60ff7d3eb2c274ea6e2aeae0d1f8"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_5090",
+ "sprzet": "NVIDIA GeForce RTX 5090",
+ "max_length": 4096,
+ "dtype": "float32"
+}

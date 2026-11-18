@@ -1,0 +1,195 @@
+{
+ "model": "bielik",
+ "cache_vs_pelny": [
+  {
+   "id": "pl_jezyk-01",
+   "pelny": -0.0927950916396788,
+   "cache": -0.0927950916396788,
+   "roznica": 0.0
+  },
+  {
+   "id": "pl_jezyk-25",
+   "pelny": -59.754135531211176,
+   "cache": -59.754046111574695,
+   "roznica": 8.941963648112505e-05
+  },
+  {
+   "id": "pl_wiedza-19",
+   "pelny": -2.8336072816394062,
+   "cache": -2.8336072816394062,
+   "roznica": 0.0
+  },
+  {
+   "id": "wiedza_ogolna-13",
+   "pelny": -0.23554290241049466,
+   "cache": -0.23554290408056663,
+   "roznica": 1.6700719696061128e-09
+  },
+  {
+   "id": "rozumowanie-07",
+   "pelny": -1.2260527174360778,
+   "cache": -1.2260527174360778,
+   "roznica": 0.0
+  }
+ ],
+ "batch_vs_1": [
+  {
+   "id": "pl_jezyk-01",
+   "rowne": true
+  },
+  {
+   "id": "pl_jezyk-25",
+   "rowne": true
+  },
+  {
+   "id": "pl_wiedza-19",
+   "rowne": true
+  },
+  {
+   "id": "wiedza_ogolna-13",
+   "rowne": true
+  },
+  {
+   "id": "rozumowanie-07",
+   "rowne": true
+  },
+  {
+   "id": "matematyka-01",
+   "rowne": true
+  },
+  {
+   "id": "matematyka-25",
+   "rowne": true
+  },
+  {
+   "id": "kod-19",
+   "rowne": true
+  },
+  {
+   "id": "angielski-13",
+   "rowne": true
+  },
+  {
+   "id": "tekst_techniczny-07",
+   "rowne": true
+  }
+ ],
+ "przyklady": [
+  {
+   "id": "pl_jezyk-01",
+   "prompt": "Polecenie: Podaj mianownik liczby mnogiej rzeczownika „dom”.\nOdpowiedź: domy\n\nPolecenie: Popraw błąd w zdaniu i napisz całe zdanie poprawnie: Na śniadanie zjadłem kanapke z serem.\nOdpowiedź: Na śniadanie zjadłem kanapkę z serem.\n\nPolecenie: Napisz krótką wiadomość do sąsiadki z podziękowaniem za pożyczenie drabiny i informacją, że oddasz ją jutro rano.\nOdpowiedź:\nDzień dobry, Pani Ewo, bardzo dziękuję za pożyczenie drabiny, bardzo mi pomogła przy malowaniu. Oddam ją jutro rano, około ósmej. Pozdrawiam serdecznie, Adam z drugiego piętra.\n\nPolecenie: Podaj mianownik liczby mnogiej rzeczownika „dziecko”.\nOdpowiedź:",
+   "odpowiedzi": [
+    {
+     "dekodowanie": "s1",
+     "seed": 1,
+     "odpowiedz": "dzieci\n",
+     "surowa": "dzieci\n\nPolecenie:",
+     "tokeny": 7,
+     "koniec": "stop"
+    },
+    {
+     "dekodowanie": "s2",
+     "seed": 2,
+     "odpowiedz": "dzieci\n",
+     "surowa": "dzieci\n\nPolecenie:",
+     "tokeny": 7,
+     "koniec": "stop"
+    },
+    {
+     "dekodowanie": "s3",
+     "seed": 3,
+     "odpowiedz": "dzieci\n",
+     "surowa": "dzieci\n\nPolecenie:",
+     "tokeny": 7,
+     "koniec": "stop"
+    },
+    {
+     "dekodowanie": "greedy",
+     "seed": 0,
+     "odpowiedz": "dzieci\n",
+     "surowa": "dzieci\n\nPolecenie:",
+     "tokeny": 7,
+     "koniec": "stop"
+    }
+   ]
+  },
+  {
+   "id": "pl_jezyk-25",
+   "prompt": "Polecenie: Podaj mianownik liczby mnogiej rzeczownika „dom”.\nOdpowiedź: domy\n\nPolecenie: Popraw błąd w zdaniu i napisz całe zdanie poprawnie: Na śniadanie zjadłem kanapke z serem.\nOdpowiedź: Na śniadanie zjadłem kanapkę z serem.\n\nPolecenie: Napisz krótką wiadomość do sąsiadki z podziękowaniem za pożyczenie drabiny i informacją, że oddasz ją jutro rano.\nOdpowiedź:\nDzień dobry, Pani Ewo, bardzo dziękuję za pożyczenie drabiny, bardzo mi pomogła przy malowaniu. Oddam ją jutro rano, około ósmej. Pozdrawiam serdecznie, Adam z drugiego piętra.\n\nPolecenie: Napisz krótkie ogłoszenie (3-4 zdania) o zgubionym czarnym plecaku. Plecak zginął wczoraj na przystanku autobusowym przy ulicy Lipowej. Poproś o kontakt pod numerem 600 123 456.\nOdpowiedź:",
+   "odpowiedzi": [
+    {
+     "dekodowanie": "s1",
+     "seed": 1,
+     "odpowiedz": "\nZaginął czarny plecak, prawdopodobnie należący do osoby o imieniu Anna. Plecak został znaleziony wczoraj na przystanku autobusowym przy ulicy Lipowej. Prosimy o kontakt pod numerem 600 123 456.\n",
+     "surowa": "\nZaginął czarny plecak, prawdopodobnie należący do osoby o imieniu Anna. Plecak został znaleziony wczoraj na przystanku autobusowym przy ulicy Lipowej. Prosimy o kontakt pod numerem 600 123 456.\n\nPolecenie:",
+     "tokeny": 58,
+     "koniec": "stop"
+    },
+    {
+     "dekodowanie": "s2",
+     "seed": 2,
+     "odpowiedz": "\nOgłaszamy:\nZgubiłem czarny plecak na przystanku autobusowym przy ulicy Lipowej. Plecak jest w dobrym stanie, ale bardzo mi się podoba. Jeśli ktoś go znalazł, proszony jest o kontakt pod numerem 600 123 456.\n",
+     "surowa": "\nOgłaszamy:\nZgubiłem czarny plecak na przystanku autobusowym przy ulicy Lipowej. Plecak jest w dobrym stanie, ale bardzo mi się podoba. Jeśli ktoś go znalazł, proszony jest o kontakt pod numerem 600 123 456.\n",
+     "tokeny": 64,
+     "koniec": "limit"
+    },
+    {
+     "dekodowanie": "s3",
+     "seed": 3,
+     "odpowiedz": "\nUwaga! Ukryty w plecaku przedmiot:\nZgubiony czarny plecak, który zaginął wczoraj na przystanku autobusowym przy ulicy Lipowej.\nPlecak ma wymiary 50x30x20 cm i jest wykonany z wysokiej jakości materiału.\nJeśli ktoś go znajdzie",
+     "surowa": "\nUwaga! Ukryty w plecaku przedmiot:\nZgubiony czarny plecak, który zaginął wczoraj na przystanku autobusowym przy ulicy Lipowej.\nPlecak ma wymiary 50x30x20 cm i jest wykonany z wysokiej jakości materiału.\nJeśli ktoś go znajdzie",
+     "tokeny": 64,
+     "koniec": "limit"
+    },
+    {
+     "dekodowanie": "greedy",
+     "seed": 0,
+     "odpowiedz": "\nZgubiłem czarny plecak na przystanku autobusowym przy ulicy Lipowej. Jeśli ktoś go widział, proszę o kontakt pod numerem 600 123 456.\n",
+     "surowa": "\nZgubiłem czarny plecak na przystanku autobusowym przy ulicy Lipowej. Jeśli ktoś go widział, proszę o kontakt pod numerem 600 123 456.\n\nPolecenie:",
+     "tokeny": 47,
+     "koniec": "stop"
+    }
+   ]
+  },
+  {
+   "id": "pl_wiedza-19",
+   "prompt": "Polecenie: W którym mieście stoi Pałac Kultury i Nauki?\nOdpowiedź: Warszawa\n\nPolecenie: Kto napisał dramat „Balladyna”?\nOdpowiedź: Juliusz Słowacki\n\nPolecenie: W którym mieście znajduje się klasztor na Jasnej Górze?\nOdpowiedź: Częstochowa\n\nPolecenie: W którym mieście urodził się Mikołaj Kopernik?\nOdpowiedź:",
+   "odpowiedzi": [
+    {
+     "dekodowanie": "s1",
+     "seed": 1,
+     "odpowiedz": "Kraków\n",
+     "surowa": "Kraków\n\nPolecenie:",
+     "tokeny": 7,
+     "koniec": "stop"
+    },
+    {
+     "dekodowanie": "s2",
+     "seed": 2,
+     "odpowiedz": "Kraków\n",
+     "surowa": "Kraków\n\nPolecenie:",
+     "tokeny": 7,
+     "koniec": "stop"
+    },
+    {
+     "dekodowanie": "s3",
+     "seed": 3,
+     "odpowiedz": "Kraków\n",
+     "surowa": "Kraków\n\nPolecenie:",
+     "tokeny": 7,
+     "koniec": "stop"
+    },
+    {
+     "dekodowanie": "greedy",
+     "seed": 0,
+     "odpowiedz": "Kraków\n",
+     "surowa": "Kraków\n\nPolecenie:",
+     "tokeny": 7,
+     "koniec": "stop"
+    }
+   ]
+  }
+ ],
+ "max_roznica_cache": 8.941963648112505e-05,
+ "rozne_batch": 0
+}

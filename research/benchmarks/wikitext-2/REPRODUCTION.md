@@ -13,7 +13,7 @@ w commicie `6d2abda4fd171e68a8789330c4149e37c1ca0bda`.
 | kod | nasz: `common/hipoteza_formatu.py` `cmd_wikitext` z forwardem z `common/slayer_model.py`; detokenizer i okna rolling wzięte z lm-eval (`preprocess_wikitext.py`, `lm_eval.utils.get_rolling_token_windows`) |
 | nasza perpleksja na bajt | 1,846283824 (`analyses/answer-format/results/raport_formatu.json`, `slayer_wikitext_kontrola`); drugi przebieg forwardu w `slayer-1b/wygaszanie/wyniki/1.06/wikitext.json` daje 1,846283823 |
 | odniesienie (Space) | 1,846283836 |
-| SE | brak: ani nasze pliki, ani skopiowana wartość ze Space nie mają SE ani CI dla tej perpleksji |
+| SE | pliki tego przeliczenia i wartość ze Space nie mają SE; przebieg centralny z 03.11 (ten sam model i rewizja, 1,8463) ma SE B po 62 dokumentach 0,0162, CI95 1,8156–1,8787 (`results/central-run/wikitext-2/slayer1b-1.06`), kodem sprzed zmian BOS z 04.11, do przeliczenia w przebiegu Slayera 1.07 <!-- liczba-spoza-wynikow: results/central-run/wikitext-2/slayer1b-1.06/results_rozszerzone.json, byte_perplexity --> |
 | różnica | zgodność do ósmej cyfry znaczącej (`roznica_po_przeliczeniu_proc` w `results/bajty.json`) |
 | werdykt | zgodne; dla perpleksji nie ma formalnego progu ([METODOLOGIA.md, „Próg dla perpleksji i BPB”](../../METODOLOGIA.md#próg-dla-perpleksji-i-bpb)), więc wobec spisanej reguły werdykt jest nierozstrzygalny |
 

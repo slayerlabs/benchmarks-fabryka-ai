@@ -47,9 +47,9 @@
    "contamination_receipt_sha256": null,
    "reference": {
     "chance_value": 0.3333333333333354,
-    "majority_value": null,
-    "majority_prediction_share": null,
-    "constant_prediction": null
+    "majority_value": 0.33623336745138177,
+    "majority_prediction_share": 0.34800409416581374,
+    "constant_prediction": false
    },
    "dodatkowe": {
     "space": {
@@ -91,11 +91,22 @@
      },
      "bazy": {
       "chance_value": 0.3333333333333354,
-      "majority_value": null,
-      "majority_prediction_share": null,
-      "constant_prediction": null
+      "majority_value": 0.33623336745138177,
+      "majority_prediction_share": 0.34800409416581374,
+      "constant_prediction": false
      },
-     "udzial_najczestszej_predykcji": 0.34800409416581374
+     "udzial_najczestszej_predykcji": 0.34800409416581374,
+     "wobec_b": {
+      "b": 0.33623336745138177,
+      "baza": "stala odpowiedz",
+      "roznica": 0.05322415557830092,
+      "se": 0.015326860063487624,
+      "z": 3.472606610736536,
+      "t": null,
+      "df": null,
+      "werdykt": "pewne",
+      "metoda": "A parowane"
+     }
     }
    },
    "zrodlo_danych": {
@@ -117,12 +128,16 @@
   ],
   "qualification_sha256": "883bdd4d21f871db9f51892ac27dd694ff9f14ab4c332a61a9dcb535ef587628",
   "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
-  "references_sha256": "33df0d3885f5c922128ac901a44bb2c5369d2e82420f3f5d9b42c6e96e236434"
+  "references_sha256": "292a8a1e23b153a59312692eeb489fd80b7cbca21d3c2c891dba8c65454b7d56"
  },
  "ewaluator": "niezależny (slayer_eval)",
  "lm_eval": "0.4.9.1",
  "dane": "hf",
  "probka": "pelna",
  "eval_gpu": "NVIDIA_GeForce_RTX_4090",
- "sprzet": "NVIDIA GeForce RTX 4090"
+ "sprzet": "NVIDIA GeForce RTX 4090",
+ "podsumowanie_ponowne": {
+  "narzedzie": "tools/podsumuj_ponownie.py",
+  "powod": "SE K dla testów +klastry i stała odpowiedź testów mc (METODOLOGIA, „Typy testów”)"
+ }
 }

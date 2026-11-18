@@ -8,7 +8,7 @@ Jeden wpis na każdy wynik. Wyniki liczy przebieg centralny.
 - Środowisko: `common/requirements.lock.txt` + piny `LOCK_ENV_PINS` / `NEW_ENV_PINS` z `tools/przebieg_centralny.sh` (env `lock`: lm-eval 0.4.9.1, env `new`: lm-eval 0.4.13); wersje w `results/central-run/freeze_lock.txt` i `freeze_new.txt`
 - Modele: lista `MODELE` w `tools/przebieg_centralny.sh` (rewizje z METODOLOGII)
 - Zbiór: `allenai/social_i_qa@8835ceb9141d7896d9d968634a9b21ae440e3ec5`, dane z `refs/convert/parquet` (gałąź, bez przypiętego SHA), split `validation` (wpis `T46` w `common/zadania.py`)
-- Komenda (w `research/`): `bash tools/przebieg_centralny.sh licz` liczy wszystkie zadania; dla tego zadania woła `common/ewaluuj.py --zadania T46 --probka pelna --device cuda` (pełne linie: `bash tools/przebieg_centralny.sh plan | grep -- '--zadania T46 '`)
+- Komenda (w `research/`): `bash tools/przebieg_centralny.sh licz` liczy wszystkie modele z `MODELE` i wszystkie zadania (lista etykiet wymaga `POMIN` z pominiętymi modelami); dla tego zadania woła `common/ewaluuj.py --zadania T46 --probka pelna --device cuda` (pełne linie: `bash tools/przebieg_centralny.sh plan | grep -- '--zadania T46 '`)
 - Seed: python 0, numpy 1234, torch 1234, fewshot 1234
 - Precyzja: float32, batch 1
 - Sprzęt: NVIDIA GeForce RTX 4090 (`results/central-run/environment.json`)
@@ -43,7 +43,7 @@ zgadzają się z przebiegiem centralnym we wszystkich 1954 pytaniach. <!-- liczb
 
 - Plik liczb: `python benchmarks/social-iqa/zbierz_wyniki.py <katalog panelu> <katalog pełnego splitu>` przepisuje z
   `results_rozszerzone.json` wartości, SE i CI95 (nie liczy metryk ponownie) i dokłada bazy policzone z goldów, bo
-  `ewaluuj.py` zostawia je puste przy `klasy_stale=False`.
+  wyjścia `ewaluuj.py` sprzed `klasy_stale=True` dla T46 mają je puste.
 - Wynik: `results/social_iqa.json`; per pytanie `results/slayer-1.06/social_iqa.jsonl.gz` (panel) i
   `results/slayer-1.06/social_iqa_full.jsonl.gz` (pełny split). `source_id_digest` pełnego splitu
   `e92365ff54129c93eb518df4c5544bb39847ea762c2b5c970cef0ad5afeef808`, ten sam co w przebiegu centralnym.

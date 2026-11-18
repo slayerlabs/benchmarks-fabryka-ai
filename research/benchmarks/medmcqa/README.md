@@ -13,6 +13,8 @@ Pytania z egzaminów medycznych, 4 opcje, odpowiedź literą. lm-eval `0.4.9.1`,
 
 ## Wyniki
 
+Wyniki przebiegu centralnego z 03.11 policzył kod sprzed zmian z 04.11 (limit 4096 tokenów z BOS, budżet loglik jak HFLM), więc są do przeliczenia w przebiegu Slayera 1.07; bazy, SE i porównanie z b przeliczono 07.11 z próbek per pytanie bez modelu (`tools/podsumuj_ponownie.py`). <!-- liczba-spoza-wynikow: daty commitów 592c8af i 3ba8ae3 -->
+
 Pełny split, n = 4183. b = 0,3223 (stała odpowiedź „zawsze `A`”), baza losowa 0,25. Różnica wobec b parowana po
 pytaniach. <!-- liczba-spoza-wynikow: rozkład celu z probki/ przebiegu centralnego -->
 

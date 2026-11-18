@@ -1,0 +1,43 @@
+{
+ "seed": 20261113,
+ "n": 63,
+ "zgodnosc": 1.0,
+ "odsetek_bledow": 0.0,
+ "falszywe_trafienia": 0,
+ "falszywe_odrzucenia": 0,
+ "falszywe_trafienia_id": [],
+ "falszywe_odrzucenia_id": [],
+ "auto_poprawnych": 27,
+ "czlowiek_poprawnych": 27,
+ "po_kategoriach": {
+  "pl_jezyk": {
+   "n": 9,
+   "bledy": 0
+  },
+  "pl_wiedza": {
+   "n": 9,
+   "bledy": 0
+  },
+  "wiedza_ogolna": {
+   "n": 9,
+   "bledy": 0
+  },
+  "rozumowanie": {
+   "n": 9,
+   "bledy": 0
+  },
+  "matematyka": {
+   "n": 9,
+   "bledy": 0
+  },
+  "kod": {
+   "n": 9,
+   "bledy": 0
+  },
+  "angielski": {
+   "n": 9,
+   "bledy": 0
+  }
+ },
+ "bledy_szczegoly": []
+}

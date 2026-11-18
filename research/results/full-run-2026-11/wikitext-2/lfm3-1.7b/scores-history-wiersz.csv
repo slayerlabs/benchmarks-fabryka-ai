@@ -1,0 +1,2 @@
+model,step,tokens,checkpoint_sha256,arc_easy,blimp,wikitext2_token_ppl,wikitext2_byte_ppl,eff,multiblimp_pl,arc_easy_pl,eval_gpu
+lfm3-1.7b,,,135922caef64e81e52af88ede8b7c3ddaa9d6da220a9737fb3065275dbfb4330,,,12.3148,1.7241,,,,NVIDIA_GeForce_RTX_5090

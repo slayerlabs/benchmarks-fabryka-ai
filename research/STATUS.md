@@ -1,6 +1,6 @@
 # Stan benchmarków
 
-Stan na **7.11.2026**. Benchmark jest zrobiony, gdy jest **opisany, przygotowany i podpięty do przebiegu
+Stan na **16.11.2026**. Benchmark jest zrobiony, gdy jest **opisany, przygotowany i podpięty do przebiegu
 centralnego** ([METODOLOGIA, „Definicja „zrobione””](METODOLOGIA.md#definicja-zrobione)). Wtedy jedno uruchomienie
 `tools/przebieg_centralny.sh` na wynajętej karcie liczy wszystkie naraz. Zmieniasz stan benchmarku? Przestaw jego
 wiersz w tym samym PR.
@@ -14,10 +14,10 @@ wiersz w tym samym PR.
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {'pie1': '#1a7f37', 'pie2': '#9a6700', 'pie3': '#bc4c00', 'pie4': '#6e7781', 'pieStrokeColor': '#ffffff', 'pieOuterStrokeWidth': '0px'}}}%%
 pie showData
-    "Gotowe" : 10
-    "W przebiegu, brak opisu" : 42
+    "Gotowe" : 16
+    "W przebiegu, brak opisu" : 37
     "Opisane, poza przebiegiem" : 2
-    "Niezaczęte" : 30
+    "Niezaczęte" : 29
 ```
 
 **A** karta `ORIGINAL.md` · **B** `REPRODUCTION.md` (kontrola albo „bez kontroli”) · **przebieg** wpis w `ZADANIA`
@@ -28,40 +28,45 @@ i `KATALOGI` · ✓ jest · ✗ brak
 
 <a name="gotowe"></a>
 
-## ✅ Gotowe · 10
+## ✅ Gotowe · 16
 
 Każdy ma A, B, wpis w przebiegu, `RECIPE.md`, wiersz w [README, „Benchmarki i typy”](README.md#benchmarki-i-typy) i
 test `tests/test_<name>.py`.
 
 | benchmark | test | A | B | przebieg | uwaga |
 |---|---|---|---|---|---|
-| [BLiMP](benchmarks/blimp/README.md) | T01 | ✓ | ✓ | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia) |
+| [BLiMP](benchmarks/blimp/README.md) | T01 | ✓ | ✓ | ✓ | sprawdzone 07.11, błędu nie ma ([REPRODUCTION](benchmarks/blimp/REPRODUCTION.md)) |
 | [ARC-Challenge](benchmarks/arc-challenge/README.md) | T02 | ✓ | bez kontroli | ✓ | Slayer na poziomie bazy losowej |
-| [WikiText-2](benchmarks/wikitext-2/README.md) | T03 | ✓ | ✓ | ✓ | próg dla perpleksji: #41 |
+| [WikiText-2](benchmarks/wikitext-2/README.md) | T03 | ✓ | bez kontroli | ✓ | próg dla perpleksji: #41 |
 | [MultiBLiMP PL](benchmarks/multiblimp-pl/README.md) | T04 | ✓ | bez kontroli | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia): możliwy przeciek (#36) |
+| [HellaSwag](benchmarks/hellaswag/README.md) | T05 | ✓ | ✓ | ✓ | kontrolę (EuroLLM, spełniona) liczono 10-shot osobnym kodem poza przebiegiem; przebieg liczy T05 0-shot |
 | [PIQA](benchmarks/piqa/README.md) | T06 | ✓ | ✓ | ✓ | |
 | [WinoGrande](benchmarks/winogrande/README.md) | T07 | ✓ | ✓ | ✓ | |
-| [PubMedQA](benchmarks/pubmedqa/README.md) | T44 | ✓ | bez kontroli | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia) |
+| [WSC273](benchmarks/wsc273/README.md) | T14 | ✓ | bez kontroli | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia): kontrola spoza listy |
+| [LAMBADA](benchmarks/lambada/README.md) | T17 | ✓ | ✓ | ✓ | kontrola Pythia v0: spełniony, pełny przebieg 2026-11 |
+| [MathQA](benchmarks/mathqa/README.md) | T19 | ✓ | bez kontroli | ✓ | Slayer na poziomie bazy większościowej |
+| [PolEmo 2.0 (in-domain)](benchmarks/polemo2/README.md) | T22 | ✓ | kontrola `+pl` | ✓ | bez kandydata z opublikowanym wynikiem; model znający polski (Bielik-1.5B-v3, zapas EuroLLM-1.7B), werdykt po przebiegu centralnym (#166) |
+| [PubMedQA](benchmarks/pubmedqa/README.md) | T44 | ✓ | bez kontroli | ✓ | Slayer pod b, prompt i mapowanie sprawdzone ([werdykt](benchmarks/pubmedqa/REPRODUCTION.md#werdykt-sprawdzenia)) |
 | [MedMCQA](benchmarks/medmcqa/README.md) | T45 | ✓ | bez kontroli | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia) |
 | [Social IQa](benchmarks/social-iqa/README.md) | T46 | ✓ | bez kontroli | ✓ | Slayer nad b, pod czterema modelami odniesienia |
+| [ARC-Easy](benchmarks/arc-easy/README.md) | T51 | ✓ | ✓ | ✓ | kontrola Pythia v0: spełniony, pełny przebieg 2026-11 |
 | [EWoK](benchmarks/ewok/README.md) | T53 | ✓ | ✓ | ✓ własny kod | zbiór za bramką zgody na HF: token przebiegu musi mieć dostęp |
 
 <a name="brak-opisu"></a>
 
-## 🟡 W przebiegu, brak opisu · 42
+## 🟡 W przebiegu, brak opisu · 37
 
-Wpis w przebiegu jest. Brakuje karty (A) albo zapisu kontroli (B), a poza WSC273, ARC-Easy i BLiMP Supplement także
-testu `tests/test_<name>.py`. Po zamknięciu karty automat zakłada zadanie B.
+Wpis w przebiegu jest. Brakuje karty (A), zapisu kontroli (B) albo testu `tests/test_<name>.py`; w wierszu „tylko B”
+test jest, w wierszu „B i test” jest karta A, w wierszach „A i B” brakuje też testu. Po zamknięciu karty automat zakłada zadanie B.
 
 | brakuje | benchmarki |
 |---|---|
-| tylko B | [BoolQ](benchmarks/boolq/) T10 #26 · [HellaSwag](benchmarks/hellaswag/) T05 #24 · [LAMBADA](benchmarks/lambada/) T17 #32 · [OpenBookQA](benchmarks/openbookqa/) T08 #31 · [SciQ](benchmarks/sciq/) T09 #30 · [ARC-Easy](benchmarks/arc-easy/ORIGINAL.md) T51 #23 · [BLiMP Supplement](benchmarks/blimp-supplement/ORIGINAL.md) T52 #33 |
-| tylko A | [WSC273](benchmarks/wsc273/) T14 #108 |
-| A i B, angielskie | COPA T11 #105 · CB T12 #106 · WiC T13 #107 · RTE T15 #109 · ANLI T16 #110 · LogiQA T18 #19 (PR #139) · MathQA T19 #28 · PROST T20 #111 · SST-2 T21 #112 · MMLU T32 #123 · GSM8K T33 #124 · MATH T34 #125 (PR #141) · TruthfulQA T35 #126 · IFEval T36 #40 · SQuAD 2.0 T38 #128 · DROP T39 #129 · RACE T40 #130 · CoQA T41 #131 · NQ-Open T42 #132 · TriviaQA T43 #133 · BBH T47 #135 · PAWS T48 #136 · CoLA T49 #137 · ReCoRD T50 #138 |
-| A i B, polskie | PolEmo 2.0 T22 #113 · 8TAGS T23 #114 · Belebele T24 #115 · DYK T25 #116 · PPC T26 #117 · PSC T27 #118 · CBD T28 #119 · NKJP-NER T29 #120 · PolQA T30 #121 · PoQuAD T31 #122 |
+| tylko B | [BoolQ](benchmarks/boolq/) T10 #26 · [OpenBookQA](benchmarks/openbookqa/) T08 #31 · [SciQ](benchmarks/sciq/) T09 #30 · [BLiMP Supplement](benchmarks/blimp-supplement/README.md) T52 #33 · [COPA](benchmarks/copa/) T11 #105 · [8TAGS](benchmarks/8tags/) T23 #114 · [Belebele](benchmarks/belebele-pl/) T24 #115 · [DYK](benchmarks/dyk/) T25 #116 · [PPC](benchmarks/ppc/) T26 #117 · [LogiQA](benchmarks/logiqa/README.md) T18 #19 · [LLMzSzŁ](benchmarks/llmzszl/ORIGINAL.md) T37 #127 (B „bez kontroli”, kontrola `+pl`; kolumna informacyjna) |
+| B i test | [ANLI](benchmarks/anli-r3/ORIGINAL.md) T16 #110 · [IFEval](benchmarks/ifeval/ORIGINAL.md) T36 #40 · [SQuAD 2.0](benchmarks/squad2/ORIGINAL.md) T38 #128 · [DROP](benchmarks/drop/ORIGINAL.md) T39 #129 · [CoQA](benchmarks/coqa/ORIGINAL.md) T41 #131 · [BBH](benchmarks/bbh/ORIGINAL.md) T47 #135 · [PAWS](benchmarks/paws-en/ORIGINAL.md) T48 #136 |
+| A i B, angielskie | CB T12 #106 · WiC T13 #107 · RTE T15 #109 · PROST T20 #111 · SST-2 T21 #112 · MMLU T32 #123 · GSM8K T33 #124 · MATH T34 #125 (PR #141) · TruthfulQA T35 #126 · RACE T40 #130 · NQ-Open T42 #132 · TriviaQA T43 #133 · CoLA T49 #137 · ReCoRD T50 #138 |
+| A i B, polskie | PSC T27 #118 · CBD T28 #119 · NKJP-NER T29 #120 · PolQA T30 #121 · PoQuAD T31 #122 |
 
-Poza ARC-Easy i BLiMP Supplement (sama karta `ORIGINAL.md`) każdy z tych katalogów ma `README.md` i `RECIPE.md` ze
-zbiorem, rewizją, splitem, metryką i licencją.
+Każdy z tych katalogów ma `README.md` i `RECIPE.md` ze zbiorem, rewizją, splitem, metryką i licencją.
 
 <a name="poza-przebiegiem"></a>
 
@@ -74,13 +79,12 @@ zbiorem, rewizją, splitem, metryką i licencją.
 
 <a name="niezaczete"></a>
 
-## ⬜ Niezaczęte · 30
+## ⬜ Niezaczęte · 29
 
 <a href="https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22"><img src="../docs/img/zadania-na-start.svg" alt="Zadania na start" height="36"></a>
 
 | co | benchmarki |
 |---|---|
-| bez karty | [LLMzSzŁ](benchmarks/llmzszl/README.md) T37 #127: brak karty z promptem; kolumna informacyjna |
 | held-out | NLL EN/PL/kod #22 · kod źródłowy #42 |
 | [katalog CodeSOTA](https://beta.codesota.com/api/sub1b/benchmarks), bez issue | GPQA · GPQA Diamond · MMLU-Pro · IFBench · Multi-IF · MGSM · MMMLU · CaseReportBench · BFCL v3 · BFCL v4 · τ²-Bench Telecom · τ²-Bench Retail · GSM-Symbolic · SVAMP · AIME 2025 · HumanEval · HumanEval+ · MBPP · MBPP+ · LiveCodeBench · RULER · LongBench v2 · SimpleQA · WildBench · AlpacaEval 2.0 LC · MT-Bench · ARC-AGI-1 |
 
@@ -92,12 +96,9 @@ Nie idzie do tabeli CodeSOTA, dopóki ktoś nie sprawdzi i nie przestawi wiersza
 
 | co | problem | co zrobić | gdzie |
 |---|---|---|---|
-| **BLiMP** | wszystkie 5 modeli [przebiegu](results/central-run/scores.png) około 80%, checkpointy Slayera prawie płasko | druga osoba liczy od zera; per paradygmat: czy któryś stoi na 50% albo 100%; czy checkpointy nie czytają tych samych wag | [BLIMP](benchmarks/blimp/results/BLIMP.md) · [CHECKPOINTS](benchmarks/blimp/results/CHECKPOINTS.md) |
-| **MedMCQA** | Slayer wybiera „A” w 93% pytań; jego 0,316 to prawie dokładnie stała odpowiedź „zawsze A” (0,322), więc wynik nie mówi nic o wiedzy medycznej | sprawdzić ładowanie Slayera i format promptu w przebiegu | [REPRODUCTION](benchmarks/medmcqa/REPRODUCTION.md) | <!-- liczba-spoza-wynikow: results/central-run/medmcqa/slayer1b-1.06; b z benchmarks/medmcqa/ORIGINAL.md -->
-| **PubMedQA** | Slayer pod bazą większościową, żaden model nie wybiera `maybe` | sprawdzić prompt i mapowanie odpowiedzi | [REPRODUCTION](benchmarks/pubmedqa/REPRODUCTION.md) |
-| **MultiBLiMP PL** | Slayer blisko 100% | sprawdzić, czy zbiór nie jest w danych treningowych | [REPRODUCTION](benchmarks/multiblimp-pl/REPRODUCTION.md) · #36 |
-| **Belebele PL** | jedyny split to test: bank przykładów z testu, poza oceną; pełny split ocenia 895 z 900 | raport podaje n ocenianych, nie n splitu | [README](benchmarks/belebele-pl/README.md) |
+| **MedMCQA** | sprawdzone 07.11: zachowanie modelu, nie kod. Prompt i opcje = lm-eval 0.4.9.1 `medmcqa`; w cloze ten sam załadowany Slayer wybiera A w 24,6% pytań (jak pozostałe modele), a w literach `A` w 93,3%, więc jego `acc` 0,316 to prawie stała odpowiedź (b 0,322); EuroLLM wybiera `B` w 62,9% | przy 1.07 czytać `acc` wobec b razem z udziałem najczęstszej litery; do CodeSOTA dopiero, gdy `acc` przejdzie b + 2 SE | [REPRODUCTION](benchmarks/medmcqa/REPRODUCTION.md) | <!-- liczba-spoza-wynikow: probki przebiegu centralnego T45 (space i cloze); b z benchmarks/medmcqa/ORIGINAL.md -->
+| **MultiBLiMP PL** | Slayer 98,59%; sprawdzone 07.11: wynik nie idzie za długością zdań (97,9% na parach z dłuższym poprawnym zdaniem), równo na zjawiskach (98,1–98,9%); przeciek nierozstrzygnięty | skan nakładania zdań UD_Polish (PDB, LFG, PUD) na dane treningowe Slayera albo kontrola Goldfish 125M | [REPRODUCTION](benchmarks/multiblimp-pl/REPRODUCTION.md) · #36 | <!-- liczba-spoza-wynikow: probki przebiegu centralnego T04, slayer1b-1.06 -->
 | **WSC273** | kontrola spoza listy, panel ≠ pełny split | kontrola z listy METODOLOGII | [REPRODUCTION](benchmarks/wsc273/REPRODUCTION.md) |
 | **EWoK-PL** | przetłumaczona 1 domena z 11, tłumaczenie bez przeglądu | przegląd i pozostałe 10 domen | [POLISH](benchmarks/ewok-pl/POLISH.md) |
-| **Bielik-1.5B-v3** | model odniesienia poza przebiegiem: repo z bramką zgody na HF, przebieg liczy 4 modele odniesienia | konto uruchamiające przebieg akceptuje warunki na HF, potem wiersz Bielika w `MODELE` | [METODOLOGIA](METODOLOGIA.md#pięć-modeli-odniesienia) |
+| **Bielik-1.5B-v3** | repo z bramką zgody na HF: wiersz Bielika w `MODELE` jest, ale przebieg liczy go tylko, gdy token HF ma dostęp, inaczej pomija z komunikatem (`dostep_hf`) | konto uruchamiające przebieg akceptuje warunki na HF | [METODOLOGIA](METODOLOGIA.md#pięć-modeli-odniesienia) · `tools/przebieg_centralny.sh` |
 | **katalog CodeSOTA** | statusy ≠ repo | ustalić, kto prowadzi katalog | [API](https://beta.codesota.com/api/sub1b/benchmarks) |

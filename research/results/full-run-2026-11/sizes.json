@@ -1,0 +1,159 @@
+{
+ "bielik-1.5b-v3": {
+  "repo": "speakleash/Bielik-1.5B-v3",
+  "revision": "4b25049621bf3952a1fc9314c89773102eda0333",
+  "files": [
+   "model.safetensors"
+  ],
+  "params": 1596507648,
+  "method": "safetensors block of the HF API (gated repo, headers not readable without a token)"
+ },
+ "bielik-11b-v3-instruct": {
+  "repo": "speakleash/Bielik-11B-v3.0-Instruct",
+  "revision": "735bfee1125fe8b497ac2769de94822a11f77167",
+  "files": [
+   "model-00001-of-00005.safetensors",
+   "model-00002-of-00005.safetensors",
+   "model-00003-of-00005.safetensors",
+   "model-00004-of-00005.safetensors",
+   "model-00005-of-00005.safetensors"
+  ],
+  "params": 11168796672,
+  "method": "safetensors block of the HF API (gated repo, headers not readable without a token)"
+ },
+ "eurollm-1.7b": {
+  "repo": "utter-project/EuroLLM-1.7B",
+  "revision": "c730cd9b616799ace3c65e927d63191446f59374",
+  "files": [
+   "pytorch_model.bin"
+  ],
+  "params": 1656850432,
+  "method": "sum of tensor-shape products from the pickle of pytorch_model.bin"
+ },
+ "lfm2.5-1.2b-base": {
+  "repo": "LiquidAI/LFM2.5-1.2B-Base",
+  "revision": "7453bca97ca1e67754c4035a4b4c584e1c9dd725",
+  "files": [
+   "model.safetensors"
+  ],
+  "params": 1170340608,
+  "method": "sum of tensor-shape products from the safetensors headers"
+ },
+ "lfm3-1.7b": {
+  "repo": "LiquidAI/LFM3-1.7B",
+  "revision": "1da06bec6a819da10b54c67e5c90972b46d81871",
+  "files": [
+   "model.safetensors"
+  ],
+  "params": 1728801536,
+  "method": "sum of tensor-shape products from the safetensors headers"
+ },
+ "lfm3-1.7b-base": {
+  "repo": "LiquidAI/LFM3-1.7B-Base",
+  "revision": "545fc8f4c7b5fa9f405105274cd29c4f8f44b526",
+  "files": [
+   "model.safetensors"
+  ],
+  "params": 1728801536,
+  "method": "sum of tensor-shape products from the safetensors headers"
+ },
+ "pythia-1b-v0": {
+  "repo": "EleutherAI/pythia-1b-v0",
+  "revision": "f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0",
+  "files": [
+   "pytorch_model.bin"
+  ],
+  "params": 1078891024,
+  "method": "sum of tensor-shape products from the pickle of pytorch_model.bin"
+ },
+ "qwen3.5-0.8b-base": {
+  "repo": "Qwen/Qwen3.5-0.8B-Base",
+  "revision": "dc7cdfe2ee4154fa7e30f5b51ca41bfa40174e68",
+  "files": [
+   "model.safetensors-00001-of-00001.safetensors"
+  ],
+  "params": 873438784,
+  "method": "sum of tensor-shape products from the safetensors headers"
+ },
+ "slayer1b-1.00": {
+  "repo": "SlayerLab/Slayer1B-1.00",
+  "revision": "43e7ca2022dbd96a1bd0ed448f1ebb78209dbbfc",
+  "files": [
+   "model.safetensors"
+  ],
+  "params": 1073912851,
+  "method": "sum of tensor-shape products from the safetensors headers"
+ },
+ "slayer1b-1.01": {
+  "repo": "SlayerLab/Slayer1B-1.01",
+  "revision": "727b5f5ea4598e685af98d7aac2f3d4aad7f72d5",
+  "files": [
+   "model.safetensors"
+  ],
+  "params": 1073912851,
+  "method": "sum of tensor-shape products from the safetensors headers"
+ },
+ "slayer1b-1.02": {
+  "repo": "SlayerLab/Slayer1B-1.02",
+  "revision": "bf7117b97417b22c6a76710a91038724f2be927d",
+  "files": [
+   "model.safetensors"
+  ],
+  "params": 1073912851,
+  "method": "sum of tensor-shape products from the safetensors headers"
+ },
+ "slayer1b-1.03": {
+  "repo": "SlayerLab/Slayer1B-1.03",
+  "revision": "fee113efcad47f48dd0b80aa37952434f00bed43",
+  "files": [
+   "model.safetensors"
+  ],
+  "params": 1073912851,
+  "method": "sum of tensor-shape products from the safetensors headers"
+ },
+ "slayer1b-1.04": {
+  "repo": "SlayerLab/Slayer1B-1.04",
+  "revision": "09aa8abf19e8a6edc00615e739c949578b6b1021",
+  "files": [
+   "model.safetensors"
+  ],
+  "params": 1073912851,
+  "method": "sum of tensor-shape products from the safetensors headers"
+ },
+ "slayer1b-1.05": {
+  "repo": "SlayerLab/Slayer1B-1.05",
+  "revision": "21a05bc59932b54ac90da995e3ffb994c427ae16",
+  "files": [
+   "model.safetensors"
+  ],
+  "params": 1073912851,
+  "method": "sum of tensor-shape products from the safetensors headers"
+ },
+ "slayer1b-1.06": {
+  "repo": "SlayerLab/Slayer1B-1.06",
+  "revision": "ef81be58742544ad32e1afab38db011fec209609",
+  "files": [
+   "model.safetensors"
+  ],
+  "params": 1073912851,
+  "method": "sum of tensor-shape products from the safetensors headers"
+ },
+ "slayer1b-1.07-hf": {
+  "repo": "SlayerLab/Slayer1B-1.07",
+  "revision": "a090b54e658fb57dc5166c1fcc90cc6bf5c80106",
+  "files": [
+   "model.safetensors"
+  ],
+  "params": 1073912851,
+  "method": "sum of tensor-shape products from the safetensors headers"
+ },
+ "slayer1b-1.08": {
+  "repo": "SlayerLab/Slayer1B-1.08",
+  "revision": "5f854a0cc7160594d54d1788d37a44e8ebabe16c",
+  "files": [
+   "model.safetensors"
+  ],
+  "params": 1073912851,
+  "method": "sum of tensor-shape products from the safetensors headers"
+ }
+}

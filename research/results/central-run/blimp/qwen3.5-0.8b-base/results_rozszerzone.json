@@ -33,8 +33,8 @@
    "state": "ok",
    "value": 0.7985671641791044,
    "ci95": {
-    "lower": 0.7955522388059701,
-    "upper": 0.8016268656716418,
+    "lower": 0.7540746268656716,
+    "upper": 0.840761567164179,
     "level": 0.95,
     "method": "paired_bootstrap",
     "replicates": 10000,
@@ -56,29 +56,41 @@
      "acc": {
       "value": 0.7985671641791044,
       "n": 67000,
-      "se": 0.001549482577913773,
+      "se": 0.022323818732565247,
       "ci95": [
-       0.7955522388059701,
-       0.8016268656716418
-      ]
+       0.7540746268656716,
+       0.840761567164179
+      ],
+      "se_a": 0.001549482577913773,
+      "k": 67,
+      "df": 66,
+      "metoda_se": "K"
      },
      "acc_norm": {
       "value": 0.7344925373134328,
       "n": 67000,
-      "se": 0.001706074138094742,
+      "se": 0.02666624863818375,
       "ci95": [
-       0.7311343283582089,
-       0.7378805970149254
-      ]
+       0.6810869402985075,
+       0.7845078358208954
+      ],
+      "se_a": 0.001706074138094742,
+      "k": 67,
+      "df": 66,
+      "metoda_se": "K"
      },
      "bpb_poprawnej": {
       "value": 2.4667286921805776,
       "n": 67000,
-      "se": 0.0017530585289247244,
+      "se": 0.03614245389636948,
       "ci95": [
-       2.463321532860451,
-       2.470142011033594
-      ]
+       2.3979214267114637,
+       2.5372036229376116
+      ],
+      "se_a": 0.0017530585289247244,
+      "k": 67,
+      "df": 66,
+      "metoda_se": "K"
      },
      "bazy": {
       "chance_value": 0.5,
@@ -86,7 +98,17 @@
       "majority_prediction_share": null,
       "constant_prediction": null
      },
-     "udzial_najczestszej_predykcji": 0.7985671641791044
+     "udzial_najczestszej_predykcji": 0.7985671641791044,
+     "wobec_b": {
+      "b": 0.5,
+      "baza": "losowa",
+      "roznica": 0.29856716417910445,
+      "se": 0.022323818732565247,
+      "t": 13.374376837398549,
+      "df": 66,
+      "metoda": "K",
+      "werdykt": "pewne"
+     }
     }
    },
    "zrodlo_danych": {
@@ -115,5 +137,9 @@
  "dane": "hf",
  "probka": "pelna",
  "eval_gpu": "NVIDIA_GeForce_RTX_4090",
- "sprzet": "NVIDIA GeForce RTX 4090"
+ "sprzet": "NVIDIA GeForce RTX 4090",
+ "podsumowanie_ponowne": {
+  "narzedzie": "tools/podsumuj_ponownie.py",
+  "powod": "SE K dla testów +klastry i stała odpowiedź testów mc (METODOLOGIA, „Typy testów”)"
+ }
 }

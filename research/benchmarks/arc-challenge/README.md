@@ -11,3 +11,5 @@ Pytania przyrodnicze ze szkolnych testów, cztery opcje, część trudna (ARC-Ch
 - [`RECIPE.md`](RECIPE.md): przepis przebiegu centralnego.
 - Test: [`tests/test_arc_challenge.py`](../../tests/test_arc_challenge.py).
 - Wyniki: [`results/central-run/arc-challenge/`](../../results/central-run/arc-challenge/) (przebieg centralny).
+
+Wyniki przebiegu centralnego z 03.11 policzył kod sprzed zmian z 04.11 (limit 4096 tokenów z BOS, budżet loglik jak HFLM), więc są do przeliczenia w przebiegu Slayera 1.07; bazy, SE i porównanie z b przeliczono 07.11 z próbek per pytanie bez modelu (`tools/podsumuj_ponownie.py`). <!-- liczba-spoza-wynikow: daty commitów 592c8af i 3ba8ae3 -->

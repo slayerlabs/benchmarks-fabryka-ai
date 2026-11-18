@@ -1,0 +1,70 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-SlayerLab_Slayer1B-1.06-ef81be58-20261107T164035Z",
+ "models": [
+  {
+   "model_id": "SlayerLab/Slayer1B-1.06",
+   "repo": "SlayerLab/Slayer1B-1.06",
+   "revision": "ef81be58742544ad32e1afab38db011fec209609",
+   "weights_sha256": "e10df6d50101d8424ff7338c97373ab9e151e359a6fcb23108023ac4a6400214"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T19",
+   "task": "mathqa",
+   "family": "mathqa",
+   "language": "EN",
+   "split": "test"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T19",
+   "model_id": "SlayerLab/Slayer1B-1.06",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc_norm,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 2985,
+   "n_selected": 2985,
+   "n_scored": 2985,
+   "state": "ok",
+   "value": 0.2187604690117253,
+   "ci95": {
+    "lower": 0.20368509212730318,
+    "upper": 0.2338358458961474,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "c52a9d6dffc6acdbc03a59a3717fc843232c910f30445df54edfa8ce95f27bdf",
+   "results_sha256": "cb63e6714088caf91c9986ef66f003e0269cfa676b3986e66d8541419255cbe4",
+   "runner_sha256": "db353879b5464efd76878dec83a71814496b019ae7dc02cbb3b223993a6a39f8",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.2,
+    "majority_value": null,
+    "majority_prediction_share": null,
+    "constant_prediction": null
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "366aa7e879437f4cb9c18f2bc7cdea108fe24bee",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-SlayerLab_Slayer1B-1.06-ef81be58-20261107T164035Z",
+    "results_sha256": "cb63e6714088caf91c9986ef66f003e0269cfa676b3986e66d8541419255cbe4"
+   }
+  ],
+  "qualification_sha256": "f110cef4c29be9accba1949dc40dd5c7b14788832ea84315592cd7a3d10cfa03",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "37d746707ba5d0a2afd4220b6aa154b9ea06335bf710fbff2747e2266b0212e4"
+ }
+}

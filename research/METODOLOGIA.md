@@ -1,3 +1,6 @@
+> Rules of the earlier lm-eval run for the benchmarks in `benchmarks/`. New benchmarks follow
+> [METHODOLOGY.md](METHODOLOGY.md).
+
 # Metodologia: wspólny rdzeń i typy testów
 
 Repo mierzy każdy model, który da się pobrać z Hugging Face, nie tylko Slayera 1B. Każdy test ma część wspólną
@@ -88,8 +91,10 @@ Obowiązuje każdy test. Gdzie treść reguły zależy od typu, reguła odsyła 
    podtestów. Wpis w `RECIPE.md` podaje ich id i to, co się zgadzało (wzór:
    [WinoGrande, „Smoke test przed przebiegiem”](benchmarks/winogrande/RECIPE.md#smoke-test-przed-przebiegiem)). *Recenzent:* otwiera jeden z podanych przykładów.
 9. **Bramka liczb.** Każda liczba w raporcie `.md` pod `research/` stoi w `results/LICZBY.json` albo ma na końcu
-   linii znacznik `<!-- liczba-spoza-wynikow: skąd jest liczba -->`, jedna linia na jeden wynik (wzór:
-   `benchmarks/arc-easy/ORIGINAL.md`). Bramka sprawdza raporty, warunek odtworzenia z etapu B sprawdza kod; to dwie
+   linii znacznik `<!-- liczba-spoza-wynikow: skąd jest liczba -->`, jedno źródło na linię: liczby z różnych źródeł
+   (inny model, inny plik, inne przeliczenie) stoją w osobnych liniach, każda ze swoim znacznikiem (wzór:
+   `benchmarks/arc-easy/ORIGINAL.md`). Znacznik zwalnia z bramki wszystkie liczby linii, więc ich zgodność ze
+   źródłem sprawdza recenzent. Bramka sprawdza raporty, warunek odtworzenia z etapu B sprawdza kod; to dwie
    różne rzeczy. *Recenzent:* komendy z [„Przed PR”](../CONTRIBUTING.md#przed-pr) kończą się kodem 0.
 10. **Czystość i kontaminacja.** Pytania testu nie trafiają do treningu, a karta ma pole „Kontaminacja” (sekcja
     „Czystość benchmarku”). *Recenzent:* przy wartości „sprawdzona” jest metoda.
@@ -101,7 +106,9 @@ tylko kolumny, w których nie stoi „typ bazowy”. Gdy dwa modyfikatory wypeł
 `+klastry`, warunek `+pl` (SE większe niż w oryginale → kolumna informacyjna) nadal obowiązuje, a w kolumnie
 „kontrola” stoją wszystkie sprawdzenia naraz (typu bazowego i modyfikatorów). **Klaster**
 to pozycje wygenerowane z jednego szablonu albo jednej gramatyki z podmianą słów, dwa warianty jednego zdania (pary
-bliźniacze) albo kilka pytań do tego samego tekstu w prompcie. **Warstwa** to podtest, po którym oryginał uśrednia
+bliźniacze), kilka pytań do tego samego tekstu w prompcie albo to samo pytanie powtórzone w splicie (TriviaQA
+`rc.nocontext` skleja dev web i dev Wikipedii, więc 7984 pytania stoją w nim dwa razy z tym samym promptem i tym
+samym wynikiem). **Warstwa** to podtest, po którym oryginał uśrednia
 wynik, a który nie jest pojedynczym szablonem; dopóki karta nie pokaże, że podtest to jeden szablon, jest warstwą.
 Typ każdego testu repo i Space podaje [README, „Benchmarki i typy”](README.md#benchmarki-i-typy).
 Typ nowego testu wpisujesz tylko tam, a karta do tego wiersza linkuje; test, który nie pasuje do żadnego wiersza
@@ -115,25 +122,32 @@ tabeli typów, dostaje nowy wiersz w tym PR, a nie najbliższy istniejący.
 | `para`: dwa (albo 2×2) zdania oceniane osobno | BLiMP, BLiMP Supplement, MultiBLiMP, EWoK | trafność 0–1 (rekord EWoK: 0, ½ albo 1) | 1/2 | N/A: poprawne zdanie stoi na stałej pozycji (pełna) albo stała preferencja daje 1/2 (EWoK); b = 1/2 | A | jak `mc`; pary z jednego paradygmatu albo szablonu: `+klastry` | wynik > b + 2 SE; przebieg z zamienioną kolejnością zdań w parze różni się od oryginalnego najwyżej o udział remisów (par o równym log-prawdopodobieństwie), który podajesz; para 2×2 bez pozycji (EWoK): zamiana N/A, bo stała preferencja daje dokładnie b | jak `mc` |
 | `cloze`: jedno słowo, otwarty słownik | LAMBADA | trafność 0–1 | N/A: otwarty słownik, przyjmujesz 0 | udział najczęstszego słowa docelowego w splicie | A | jak `mc` | wynik > b + 2 SE | ≥ 99% zgodnych decyzji per fragment |
 | `ppl`: perpleksja, BPB | WikiText-2, UncheatableEval | ciągła, niżej znaczy lepiej, nigdy w pkt | N/A: nie ma odpowiedzi do wyboru | N/A: nie ma stałej odpowiedzi; zamiast b porównanie z kolumny „kontrola” | B po dokumentach, metryka liczona od nowa agregacją oryginału (np. suma/suma) | jeden na test, po dokumentach | z oryginałem: odtworzenie opublikowanej wartości z progiem zapisanym przed pomiarem („Próg dla perpleksji i BPB”); bez oryginału: kontrola kolejności, czyli większy model tej samej rodziny ma BPB niższe o ≥ 2 SE (np. `EleutherAI/pythia-1b-v0` wobec `EleutherAI/pythia-160m-v0`, oba `step143000`), a przy zbiorze nieangielskim dodatkowo model znający język zbioru ma BPB niższe o ≥ 2 SE niż model bez niego | względna różnica NLL każdego dokumentu < 0,1% |
-| `gen`: generacja, dokładne dopasowanie | GSM8K, MATH, NQ, TriviaQA, BBH | trafność 0–1 | N/A: brak opcji, przyjmujesz 0 | wyższy z wyników pustej odpowiedzi i najczęstszej złotej odpowiedzi splitu | A | jak `mc` | wynik > b + 2 SE | ≥ 99% zgodnych ocen per pytanie, dekodowanie zachłanne |
+| `gen`: generacja, dokładne dopasowanie | GSM8K, MATH, NQ, TriviaQA, BBH; PolQA i PoQuAD (próg odległości Levenshteina daje 0 albo 1) | trafność 0–1 | N/A: brak opcji, przyjmujesz 0 | wyższy z wyników pustej odpowiedzi i najczęstszej złotej odpowiedzi splitu | A | jak `mc` | wynik > b + 2 SE | ≥ 99% zgodnych ocen per pytanie, dekodowanie zachłanne |
 | `ifeval`: instrukcje sprawdzane regułami | IFEval | `prompt_level_strict_acc` 0–1 | N/A: brak opcji, przyjmujesz 0 | wynik pustej odpowiedzi; to jedyne b testu, także w kontroli i meta-ocenie | A | jak `mc` | wynik > b + 2 SE | ≥ 99% zgodnych ocen per prompt |
 | `sedzia`: ocena modelem-sędzią | żaden test repo | N/A: repo ocenia deterministycznie, bez modelu-sędziego | N/A | N/A | N/A | N/A | N/A | N/A: test z sędzią wchodzi po decyzji zapisanej w issue, która wypełni ten wiersz |
 | `f1-korpus`: klasyfikacja, F1 na całym zbiorze | DYK, PSC, CBD (OpenPL) | F1 0–1 | oczekiwane F1 losowej predykcji klas z równymi szansami, na etykietach splitu | F1 najlepszej stałej predykcji (np. zawsze klasa pozytywna), nie udział klasy | B po pytaniach (z `+klastry` po klastrach) | jeden na test | wynik > b + 2 SE | ≥ 99% zgodnych predykcji klasy |
-| `ciagla`: średnia wartości ciągłej per pytanie | F1 tokenów (SQuAD2, DROP, CoQA, ReCoRD), Levenshtein (PolQA, PoQuAD) | 0–1 | N/A: generacja bez opcji, przyjmujesz 0 | wyższy z wyników pustej odpowiedzi i najczęstszej złotej odpowiedzi | A | jak `mc` | wynik > b + 2 SE; gdy pusta odpowiedź daje b, którego model wielkości mierzonego nie przekracza (SQuAD2: pytania bez odpowiedzi), b i kontrolę liczysz na podzbiorze z odpowiedzią (SQuAD2: HasAns, pusta odpowiedź daje tam 0), a wynik pełny stoi obok | wartość per pytanie równa do trzech miejsc po przecinku na ≥ 99% pytań |
-| `masa`: znormalizowana masa prawdopodobieństwa poprawnych opcji | TruthfulQA MC2 | 0–1 | średni udział poprawnych opcji wśród opcji pytania | N/A: każda opcja jest oceniana osobno, więc nie ma odpowiedzi do powtarzania; b = baza losowa | A | jak `mc` | wynik > b + 2 SE; sprawdzenie pozycji N/A z tego samego powodu | wartość per pytanie równa do trzech miejsc po przecinku na ≥ 99% pytań |
+| `ciagla`: średnia wartości ciągłej per pytanie | F1 tokenów (SQuAD2, DROP, CoQA, ReCoRD) | 0–1 | N/A: generacja bez opcji, przyjmujesz 0; gdy implementacja wybiera odpowiedź spośród opcji (ReCoRD w lm-eval: encje z tekstu), średnia metryki po losowej opcji (`baza="wybor_losowy"`) | wyższy z wyników pustej odpowiedzi i najczęstszej złotej odpowiedzi; przy wyborze spośród opcji N/A, bo model nie odda pustej odpowiedzi; b = baza losowa | A | jak `mc` | wynik > b + 2 SE; gdy pusta odpowiedź daje b, którego model wielkości mierzonego nie przekracza (SQuAD2: pytania bez odpowiedzi), b i kontrolę liczysz na podzbiorze z odpowiedzią (SQuAD2: HasAns, pusta odpowiedź daje tam 0), a wynik pełny stoi obok | wartość per pytanie równa do trzech miejsc po przecinku na ≥ 99% pytań |
+| `masa`: znormalizowana masa prawdopodobieństwa poprawnych opcji | TruthfulQA MC2 | 0–1 | metryka testu przy równych log-prawdopodobieństwach opcji, czyli średni udział opcji, które metryka liczy jako poprawne (MC2 z `6d2abda4`, `metryki.mc2`: opcje przed pierwszym 0 w `labels`) | N/A: każda opcja jest oceniana osobno, więc nie ma odpowiedzi do powtarzania; b = baza losowa | A | jak `mc` | wynik > b + 2 SE; sprawdzenie pozycji N/A z tego samego powodu | wartość per pytanie równa do trzech miejsc po przecinku na ≥ 99% pytań |
 | `mcc`: współczynnik Matthewsa | CoLA | −1…1, poziom losowy 0 | 0 | 0 (MCC stałej predykcji); b = 0 | B po pytaniach | jeden na test | wynik > 0 + 2 SE | ≥ 99% zgodnych predykcji klasy |
 | `+proc`: wynik w procentach | MultiBLiMP (T04), SQuAD2 (T38) | dzielisz przez 100, dalej typ bazowy | typ bazowy | typ bazowy | typ bazowy | typ bazowy | typ bazowy | typ bazowy |
 | `+warstwy`: średnia podtestów z wagami oryginału | BLiMP Supplement, UncheatableEval, MMLU, MATH, BBH | typ bazowy | w każdym podteście osobno, potem średnia z wagami oryginału | w każdym podteście osobno, potem średnia z wagami oryginału | W; bootstrap losuje wewnątrz podtestów | jeden na test z SE warstwowym; tabela podtestów informacyjnie | typ bazowy z SE warstwowym | typ bazowy w każdym podteście |
-| `+klastry`: pozycje w klastrach (definicja nad tabelą) | BLiMP (paradygmaty), EWoK i EWoK-PL (szablony), WinoGrande i WSC273 (pary bliźniacze), BoolQ i DYK (pytania do jednego tekstu) | typ bazowy | typ bazowy | typ bazowy | K, a przy metryce korpusowej B po klastrach; tym SE liczysz też SNR, MDE i kontrolę | jeden na test, z SE klastrowanym; tabele per klaster i per poziom tematyczny (zjawisko, domena) informacyjnie, każda z Holmem | typ bazowy z SE klastrowanym | typ bazowy |
+| `+klastry`: pozycje w klastrach (definicja nad tabelą) | BLiMP (paradygmaty), EWoK i EWoK-PL (szablony), WinoGrande i WSC273 (pary bliźniacze), BoolQ, DYK, ReCoRD i PoQuAD (pytania do jednego tekstu), TriviaQA (powtórzone pytania) | typ bazowy | typ bazowy | typ bazowy | K, a przy metryce korpusowej B po klastrach; tym SE liczysz też SNR, MDE i kontrolę | jeden na test, z SE klastrowanym; tabele per klaster i per poziom tematyczny (zjawisko, domena) informacyjnie, każda z Holmem | typ bazowy z SE klastrowanym | typ bazowy |
 | `+pl`: wersja polska albo test polski | EWoK-PL, testy OpenPL (T22–T31), LLMzSzŁ | typ bazowy | typ bazowy, na polskim zbiorze | typ bazowy, na polskim zbiorze | typ bazowy; gdy SE jest większe niż w oryginale, karta podaje oba, a test jest w meta-ocenie kolumną informacyjną | typ bazowy | z opublikowanym wynikiem jak test z oryginałem (etap B); bez niego model znający polski > b + 2 SE, a przy `ppl` BPB niższe o ≥ 2 SE niż `EleutherAI/pythia-1b-v0` | kod wersji polskiej na danych oryginalnych daje wynik etapu B (D3) |
 
 Pojęcia z tabeli:
 
 - **b:** wyższa z dwóch baz, losowej i stałej odpowiedzi, w skali 0–1 (po `+proc`). Przy „N/A” w kolumnie stałej
   odpowiedzi b to baza losowa. Porównanie z bazą: gdy b to baza losowa, z = (wynik − b) / SE wyniku; gdy b to stała
-  odpowiedź, porównanie jest parowane z wynikami per pytanie stałego predyktora, jak w rdzeniu (punkt 4).
-- **Stała odpowiedź:** najlepszy wynik kodu, który zawsze zwraca to samo (pozycję, klasę, słowo, tekst), liczony
-  metryką testu na liczonych pytaniach. Wartość jest dokładna ze splitu, nie zaokrąglona z abstraktu.
+  odpowiedź, porównanie jest parowane z wynikami per pytanie stałego predyktora, jak w rdzeniu (punkt 4). Wynik bez
+  wyników per pytanie (opublikowany wynik kandydata kontroli) porównujesz jak z bazą losową: z = (wynik − b) / SE
+  wyniku metodą z rdzenia, punkt 6, także gdy b to stała odpowiedź. Parowania nie szacujesz, ani z najgorszego, ani z
+  najlepszego przypadku.
+- **Stała odpowiedź:** wynik kodu, który zawsze zwraca to samo, liczony metryką testu na liczonych pytaniach dla
+  odpowiedzi z kolumny „stała odpowiedź” typu (liczy `bazy_proby` w `common/ewaluuj.py`, przy `mc` `bazy_mc`). Gdy
+  odpowiedzi do wyboru jest skończenie wiele (pozycja, klasa), kolumna bierze najlepszą z nich. Przy odpowiedzi
+  tekstowej kolumna wskazuje kandydatów (pusta, najczęstsza złota) i b nie jest górną granicą stałego predyktora:
+  tekst z częściowym trafieniem (F1 tokenów, próg Levenshteina) może dać więcej, a takiego tekstu się nie szuka.
+  Wartość jest dokładna ze splitu, nie zaokrąglona z abstraktu.
 - **SE A (analityczne):** s / √n, gdzie s to odchylenie standardowe wyników per pytanie; dla wyników 0/1 to
   √(p(1−p)/n). Różnica parowana: s różnic per pytanie / √n; różnica niezależna: √(SE₁² + SE₂²). Gdy wszystkie wyniki
   per pytanie są równe (s = 0, np. trafność 0), liczysz √(p̃(1−p̃)/(n + 4)) przy p̃ = (x + 2)/(n + 4), gdzie x to suma
@@ -171,13 +185,42 @@ wpisujesz dopiero po przeczytaniu kodu przypiętej wersji (sekcja „Wersja lm-e
 | Metryka decyzyjna | **jedna** metryka, po której porównujesz modele; pozostałe są pomocnicze |
 | Agregacja i grupy | średnia po pytaniach czy po podtestach, wagi; poziomy grup i ten, który wiąże (kolumna „Wiążący werdykt”) |
 | Bazy | baza losowa, stała odpowiedź i b według kolumn typu, dokładne wartości ze splitu |
-| SNR | odchylenie standardowe opublikowanych wyników wszystkich modeli jednego źródła o rozmiarze od 400 mln do 3 mld parametrów, z końca ich treningu, poza mierzonym modelem i modelami odniesienia (gdy takich modeli jest mniej niż 3, wszystkich modeli źródła); źródło z największą liczbą takich modeli; SE jednego wyniku dla n pełnego splitu metodą z kolumny „SE”; iloraz; szum checkpointów (odchylenie standardowe 5 ostatnich checkpointów jednego modelu), gdy są opublikowane |
+| SNR | „po przebiegu centralnym”, dopóki przebieg nie objął testu; potem rozrzut na panelu (akapit pod tabelą) z listą modeli i commitem przebiegu; SE jednego wyniku dla n pełnego splitu metodą z kolumny „SE”; iloraz z przedziałem 95% i najmniejszym ilorazem bez jednego modelu panelu (`tools/snr_panelu.py`); szum checkpointów (odchylenie standardowe 5 ostatnich checkpointów jednego modelu), gdy są opublikowane |
 | MDE | dla panelu 200 i dla pełnego splitu (rdzeń, punkt 5) |
-| Wyniki referencyjne | co najmniej jeden opublikowany wynik modelu, który da się pobrać, z datą odczytu; bez takiego wyniku „brak” i miejsca, w których szukano (etap B idzie wtedy jako „bez kontroli”) |
+| Wyniki referencyjne | co najmniej jeden opublikowany wynik modelu, który da się pobrać, z datą odczytu; bez takiego wyniku „brak” i miejsca, w których szukano (etap B idzie wtedy jako „bez kontroli”). Przeszukujesz każde miejsce z listy „Model kontrolny etapu B”, także katalog `results/` lm-eval @ `afbf8e66` po nazwie zadania (komenda w szablonie karty), i wypisujesz każdy model z tego katalogu i z cytowanej tabeli, który da się pobrać, nie tylko jedną rodzinę modeli |
 | Train policy | `eval_only` (domyślnie, żaden split nie trafia do treningu) albo `train_allowed` dla wymienionych splitów z numerem issue z decyzją |
 | Decyzja treningowa | co oznacza słaby wynik i czego nie wolno z niego wnioskować; różnica w pkt, która zmieniłaby decyzję, albo „nieustalona” |
 | Kontaminacja | „sprawdzona: metoda, odsetek pokrytych pytań”, „znana: źródło” albo „nieznana” |
 | Znane rozbieżności | czym implementacje (np. lm-eval) różnią się od kodu autorów, znane błędy danych; katalog zadania lm-eval w obu wersjach (sekcja „Wersja lm-eval”); gdy implementacja mierzy co innego niż praca, wpisujesz to, co mierzy implementacja, a rozbieżność z polem `domain` Space zgłaszasz w zadaniu |
+
+**Panel SNR.** Panel to wiersze `MODELE` w `tools/przebieg_centralny.sh` poza wierszem `SlayerLab/` (mierzony
+model), które mają wyniki per pytanie tego testu: modele odniesienia i `EleutherAI/pythia-1b-v0`, czyli model kontrolny
+etapu B wpisany do `MODELE` (sekcja „Kto liczy które modele”). Model kontrolny etapu B spoza `MODELE` do panelu nie
+wchodzi, tak samo jak modele kontrolne z sekcji „Modele kontrolne etapu B w przebiegu”. Panel jest ten sam dla każdego testu, jak w [Signal and Noise](https://arxiv.org/abs/2508.13144). Rozrzut to
+odchylenie standardowe (mianownik n − 1) wyników metryki decyzyjnej modeli panelu, SE to średnia po modelach panelu SE
+jednego wyniku metodą z kolumny „SE”, SNR to ich iloraz. Panel krótszy niż 4 modele daje SNR „nieustalony”. Liczy
+`tools/snr_panelu.py` z `results/central-run/`, a karta podaje SNR, jego przedział 95%, najmniejszy SNR bez jednego
+modelu panelu, listę modeli i commit wyników. Opublikowane wyniki innych modeli możesz podać informacyjnie, ale nie są
+podstawą werdyktu. Karty sprzed tej reguły mają SNR z publikacji i przechodzą na panel przy pierwszym przebiegu, który
+obejmuje test.
+
+**Niepewność SNR.** Odchylenie standardowe z 4–7 modeli samo jest szumne, więc SNR karty to estymata. Narzędzie podaje
+ją na dwa sposoby: przedział 95% z bootstrapu po pytaniach (po klastrach przy SE klastrowym), z tym samym losowaniem
+pytań dla każdego modelu panelu, 2000 powtórzeń i ziarnem w wyniku; oraz SNR panelu bez każdego jednego modelu.
+Przedział jest typu „basic”: [2·SNR − q₉₇,₅; 2·SNR − q₂,₅], gdzie q to kwantyle SNR z powtórzeń. Losowanie pytań
+dokłada ich szum do rozrzutu, więc SNR z powtórzeń leżą wyżej niż SNR karty i przedział z samych kwantyli
+(percentylowy) byłby przesunięty w górę; „basic” odbija to przesunięcie. Dolna granica poniżej zera znaczy, że rozrzut
+panelu nie odróżnia się od szumu pytań. Przedział mówi, ile SNR zależy od doboru pytań, a SNR bez jednego modelu, ile
+zależy od składu panelu. Dziś panel ma 4 modele, bo Bielik i Pythia nie mają jeszcze próbek w `results/central-run/`,
+więc SNR bez jednego modelu liczy się z 3 modeli i jest surowy. Próg 4 modeli to najmniejszy panel, przy którym to
+kryterium ma sens: bez jednego z 3 modeli rozrzut liczyłby się z 2.
+
+**Panel a ranking.** Modele odniesienia są w panelu i w rankingu, a panel rozdzielony od rankingu potrzebowałby co
+najmniej 4 modeli spoza rankingu (przebieg liczy jeden, Pythię). Dobór testów na tych samych wynikach szkodzi, gdy
+test wchodzi dzięki szumowi pytań albo dzięki jednemu odstającemu modelowi, bo wtedy ranking zawyża różnice albo
+wyróżnia ten model. Dlatego warunek SNR w [LEADERBOARD, „Który test wchodzi”](LEADERBOARD.md#który-test-wchodzi)
+spełnia test, u którego próg przekraczają dolna granica przedziału 95% i najmniejszy SNR bez jednego modelu panelu.
+Wtedy decyzja o teście nie zależy ani od szumu pytań, ani od żadnego pojedynczego modelu rankingu.
 
 ## B. Odtworzenie wyniku oryginalnym kodem (REPRODUCTION.md)
 
@@ -315,7 +358,16 @@ który ma taki wynik i przechodzi kontrolę z tabeli typów**:
 3. **Opublikowany wynik dowolnego modelu, który da się pobrać,** z dowolnego publicznego źródła z rewizją i
    ustawieniami (prompt, liczba przykładów, metryka, wersja kodu), np. tabela w pracy autorów,
    [Open LLM Leaderboard](https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard), praca modelu z
-   otwartymi wagami albo katalog wyników w repo lm-eval.
+   otwartymi wagami albo katalog `results/` w repo lm-eval (jest w starszych commitach, np. `afbf8e66`, a w v0.4.8 i
+   nowszych już nie). Rewizja, której źródło nie podaje (`model_args` plików `results/` ma samo ID modelu), jest
+   ustalona, gdy pliki wag w repo modelu na HF nie zmieniły się od ich pierwszego commitu do daty commitu pliku z
+   wynikiem; karta podaje wtedy ostatnią rewizję sprzed tej daty z dopiskiem „rewizja z daty”. Model liczony z
+   lokalnej ścieżki (`pretrained=/…`) tej drogi nie ma.
+
+Kandydat spełnia swój punkt listy w całości albo nie jest kandydatem. Wynik bez któregoś z wymaganych ustawień
+wpisujesz w „Wyniki referencyjne” z nazwą brakującego ustawienia i bierzesz następny model; statusu „warunkowy” karta
+nie ma. Kandydat spoza `MODELE` jest pełnym kandydatem, a jego werdykt etapu B czeka na wpis do `MODELE` (sekcja „Kto
+liczy które modele”).
 
 Model z wynikiem, który nie przechodzi kontroli z tabeli typów (np. Pythia v0 przy poziomie losowym na ARC-Challenge
 i LogiQA albo znany wynik 1B pod bazą większościową na BoolQ), pomijasz i bierzesz następny. Benchmark polski albo bez
@@ -342,13 +394,40 @@ Każdy benchmark porównuje mierzony model z pięcioma modelami, zawsze w tych r
 Bielik wchodzi do przebiegu centralnego, gdy konto uruchamiające przebieg ma zaakceptowaną zgodę na jego warunki na HF;
 do tego czasu przebieg liczy 4 modele odniesienia.
 
+### Modele porównawcze z #190
+
+Przebieg centralny liczy też te modele tą samą komendą, poza porównaniem z pięcioma modelami odniesienia (blok
+`MODELE+=` w `tools/przebieg_centralny.sh`):
+
+| model | rewizja | uwagi |
+|---|---|---|
+| `speakleash/Bielik-11B-v3.1-Instruct` | `d6e755d356ad418d0f0e30b8c428db267415ddb9` | repo z bramką zgody na HF; bfloat16, bo wagi float32 (ok. 45 GB) nie mieszczą się na karcie 32 GB; wynik ma pole `dtype` |
+| `LiquidAI/LFM3-1.7B` | `1da06bec6a819da10b54c67e5c90972b46d81871` | model instruct, `trust_remote_code`, środowisko `new` |
+| `SlayerLab/Slayer1B-1.09-checkpoints` | `cff81fdcc05f0d91e9ba45b09fe78f769d7e0903` | plik `wagi_40000.pt`, wzorzec konwersji `SlayerLab/Slayer1B-1.08` @ `5f854a0cc7160594d54d1788d37a44e8ebabe16c` |
+
+### Modele kontrolne etapu B w przebiegu
+
+Przebieg centralny liczy też modele kontrolne etapu B spoza listy, wskazane w kartach z punktu 3 listy „Model
+kontrolny etapu B”. Każdy liczy tylko swoje testy (`TESTY_MODELU` w `tools/przebieg_centralny.sh`), w ustawieniach
+wpisu zadania, i nie wchodzi ani do porównania z modelami odniesienia, ani do panelu SNR, ani do raportu przebiegu.
+Precyzja to float32, a bfloat16 tylko wtedy, gdy źródło wyniku liczyło w bf16 model od 6 mld parametrów.
+
+| model | rewizja | testy | uwagi |
+|---|---|---|---|
+| `bigscience/bloom-560m` | `e985a63cdc139290c5f700ff1929f0b5942cced2` | T20 | rewizja z daty; inna niż kontrola WSC273 |
+| `bigscience/bloom-1b7` | `258ce6c9fe66893de0218d9e6a322947987c8349` | T38, T40, T41 | rewizja z daty |
+| `EleutherAI/pythia-1b` | `f73d7dcc545c8bd326d8559c8ef84ffe92fea6b2` | T36 | nie `pythia-1b-v0` |
+| `Qwen/Qwen1.5-7B` | `e52fa2ef47411cc8bc9f752d1d8d9072b37742e7` | T35 | bfloat16: wynik źródła liczony w bf16, a float32 (ok. 31 GB) nie mieści się na karcie 32 GB |
+| `babylm/babyllama-10m-2024` | `073b4258651a7a6268fc48e708cdbad6a20bddab` | T52 | rewizja z daty |
+
 ### Kto liczy które modele
 
 Wszystkie modele liczy przebieg centralny tym samym kodem (sekcja „Następna wersja Slayera”): mierzony model, modele
 odniesienia i model kontrolny benchmarku. Autor PR niczego nie liczy na GPU. Lista `MODELE` w
 `tools/przebieg_centralny.sh` ma Slayera, modele odniesienia i pierwszy model kontrolny z listy,
-`EleutherAI/pythia-1b-v0` @ `step143000` (commit `f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0`). Werdykt etapu B z
-dalszym modelem z listy czeka, aż ktoś dopisze go do `MODELE`.
+`EleutherAI/pythia-1b-v0` @ `step143000` (commit `f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0`), a za nimi modele
+porównawcze i modele kontrolne etapu B ze swoimi testami. Werdykt etapu B z
+dalszym modelem z listy czeka, aż ktoś dopisze go do `MODELE` i `TESTY_MODELU`.
 
 ## Przepis (RECIPE.md)
 
@@ -381,7 +460,10 @@ obu wersji, i jaką rewizję zbioru zadanie ładuje. *Recenzent:* porównuje has
 benchmarku, a wpis w `ZADANIA` musi się z nią zgadzać (`tests/test_zgodnosc_karty.py`). Wspólne dla wszystkich
 zadań reguły `common/ewaluuj.py`:
 
-- **Wejście.** Każde żądanie ma dokładnie jeden wiodący token BOS. Prompt z BOS plus budżet odpowiedzi (generacja:
+- **Wejście.** Każde żądanie ma dokładnie jeden wiodący token BOS tokenizera modelu, także gdy tokenizer sam go nie
+  dokleja (`common/jeden_bos.py`, Slayer: `common/slayer_lm.py`). Model, którego tokenizer nie ma `bos_token`
+  (Qwen3.5), dostaje żądania bez BOS, a pusty kontekst zaczyna się wtedy od EOS, jak w HFLM. Ile wiodących BOS dostało
+  żądanie, zapisuje pole `bos` w `results_rozszerzone.json`. Testy z własnym kodem (EWoK) mają regułę z karty. Prompt z BOS plus budżet odpowiedzi (generacja:
   `max_gen_toks` z YAML-a, domyślnie 256 tokenów; MC: BOS, kontekst i najdłuższa kontynuacja liczone jako jeden tekst, tak jak w HFLM) mieści się w oknie modelu,
   najwyżej 4096 tokenów. Za długi prompt traci demonstracje od końca, a wynik zadania zapisuje w polu
   `demonstracje_skrocone`, ile pytań dostało mniej demonstracji. Pytań, opcji i odniesień nie przycinamy, więc prompt
@@ -432,19 +514,20 @@ nie w tym dokumencie.
 ## Następna wersja Slayera
 
 **Mierzony dziś model:** `SlayerLab/Slayer1B-1.07-checkpoints` @ `89630be756618acbb47a78fa5cafd4e4aa6f1a63`, plik
-`ckpt_22327.pt`. Ta linia i wiersz Slayera w `MODELE` w `tools/przebieg_centralny.sh` (z `SLAYER_CKPT`) muszą się
-zgadzać, pilnuje tego `tests/test_przebieg_centralny.py`. Krok 22327 to ostatni krok treningu 1.07 według karty
+`ckpt_22327.pt`. Ta linia i pierwszy wiersz Slayera w `MODELE` w `tools/przebieg_centralny.sh` (z polem pliku
+checkpointu) muszą się zgadzać, pilnuje tego `tests/test_przebieg_centralny.py`. Krok 22327 to ostatni krok treningu 1.07 według karty
 `SlayerLab/Slayer1B-1.07` („training complete at step 22327”); repo modelu nie ma jeszcze wag w safetensors. Wyniki
 1.06 (`SlayerLab/Slayer1B-1.06` @ `ef81be58742544ad32e1afab38db011fec209609`) zostają w
 `results/central-run/<benchmark>/slayer1b-1.06/`.
 
 **Jedna komenda.** Nową wersję liczy przebieg centralny. Zmieniasz wiersz Slayera w `MODELE` na
 `slayer1b-<wersja>|SlayerLab/Slayer1B-<wersja>|<rewizja>|slayer|lock` i linię wyżej. Gdy wersja ma na HF tylko
-checkpointy trenera (`ckpt_N.pt`), wiersz ma loader `slayer-ckpt`, repo `SlayerLab/Slayer1B-<wersja>-checkpoints`, a
-nazwę pliku `SLAYER_CKPT`: `licz` pobiera ten plik, konwertuje go `slayer-1b/wygaszanie/konwertuj.py` względem modelu
-z `SLAYER_WZORZEC` (klucze, kształty, `config.json`, `tokenizer.json`) i liczy na wyniku. Konwersja zatrzymuje się,
-gdy konfiguracja architektury w checkpoincie różni się od wzorca, gdy checkpoint nie ma `config` i gdy suma pliku
-nie zgadza się z `SLAYER_CKPT_SHA256`.
+checkpointy trenera (`ckpt_N.pt`, `wagi_N.pt`), wiersz ma loader `slayer-ckpt`, repo
+`SlayerLab/Slayer1B-<wersja>-checkpoints` i trzy dodatkowe pola po `lock|float32`: plik checkpointu, jego sha256 i
+model wzorca `repo@rewizja`. `licz` pobiera ten plik, konwertuje go `tools/konwertuj.py` względem wzorca (klucze,
+kształty, `config.json`, `tokenizer.json`) i liczy na wyniku. Konwersja zatrzymuje się, gdy konfiguracja
+architektury w checkpoincie różni się od wzorca, gdy checkpoint nie ma `config` i gdy suma pliku nie zgadza się z
+sumą z wiersza.
 
 **Krok po kroku (Slayer 1.07).** Maszyna to instancja vast.ai z kartą GPU i obrazem PyTorch 2.8.0 (`torch` z obrazu
 wchodzi do obu środowisk).
@@ -459,9 +542,8 @@ wchodzi do obu środowisk).
 3. **Kod i token** (w powłoce na instancji):
 
    ```bash
-   git clone --depth 1 https://github.com/slayerlabs/benchmarks-fabryka-ai /workspace/repo
-   cp -r /workspace/repo/research /workspace/kod
-   cd /workspace/kod
+   git clone https://github.com/slayerlabs/benchmarks-fabryka-ai
+   cd benchmarks-fabryka-ai/research
    export HF_TOKEN=<token z kroku 1>
    ```
 
@@ -471,10 +553,15 @@ wchodzi do obu środowisk).
 4. **Przygotowanie i liczenie:**
 
    ```bash
-   bash tools/przebieg_centralny.sh przygotuj 172800   # środowiska lock i new, bezpiecznik, strażnik bezczynności
-   bash tools/przebieg_centralny.sh licz "slayer1b-1.07"
-   bash tools/przebieg_centralny.sh stan               # postęp; `ponow` powtarza zadania zakończone błędem
+   bash tools/start.sh slayer1b-1.07   # przygotuj 172800, potem w tle licz testów z „Gotowe” w STATUS.md
+   bash tools/przebieg_centralny.sh stan   # postęp; `ponow` powtarza zadania zakończone błędem
    ```
+
+   `start.sh` to dwie komendy `przebieg_centralny.sh`: `przygotuj 172800` (środowiska lock i new, bezpiecznik,
+   strażnik bezczynności) i `POMIN=reszta licz "slayer1b-1.07:<GOTOWE>"`. Lista `GOTOWE` stoi w `przebieg_centralny.sh`, a
+   `tests/test_start.py` pilnuje, że to testy z sekcji „Gotowe” w `STATUS.md`. `start.sh slayer1b-1.07 wszystkie`
+   liczy wszystkie zadania przebiegu, `START_SUCHO=1` tylko wypisuje obie komendy. Kod skrypty biorą z katalogu, w
+   którym leżą (`K`), więc klon może stać gdziekolwiek.
 
    `przygotuj <limit_s>` po `<limit_s>` sekundach pakuje wyniki i niszczy instancję razem z dyskiem, bez względu
    na stan. Czasu przebiegu 52 zadań na
@@ -487,10 +574,10 @@ wchodzi do obu środowisk).
    w `/workspace/wyjscie/`) i zatrzymuje instancję. Zatrzymana instancja nie płaci za GPU, płaci za dysk, a dysk z
    wynikami zostaje. Uruchom `licz` w ciągu 600 s od końca `przygotuj`: dłuższa przerwa też zatrzyma instancję.
    Po wznowieniu zatrzymanej instancji nie działa już ani strażnik, ani limit z `przygotuj`; przed dalszym
-   liczeniem uruchom je ponownie w `/workspace/kod` (z `export HF_TOKEN=…` jak w kroku 3):
+   liczeniem uruchom je ponownie w `research/` klonu (z `export HF_TOKEN=…` jak w kroku 3):
 
    ```bash
-   nohup python3 slayer-1b/wygaszanie/bezpiecznik.py po 172800 "bash /workspace/kod/tools/przebieg_centralny.sh pakuj" \
+   nohup python3 tools/bezpiecznik.py po 172800 "bash $PWD/tools/przebieg_centralny.sh pakuj" \
      > /workspace/logi/bezpiecznik.log 2>&1 &
    bash tools/przebieg_centralny.sh straznik
    ```
@@ -499,7 +586,7 @@ wchodzi do obu środowisk).
    dalej dziala” stoi w `/workspace/logi/straznik.log`, w `/workspace/stan/STOP_NIEUDANY.txt` i na początku
    `stan`. Instancja dalej płaci za GPU do ręcznego zatrzymania albo limitu z `przygotuj`.
 5. **Wyniki.** `licz` pobiera `ckpt_22327.pt`, sprawdza jego sumę, konwertuje go do
-   `/workspace/modele/slayer1b-1.07/` i liczy 52 zadania do `/workspace/wyniki/<benchmark>/slayer1b-1.07/`, na
+   `/workspace/modele/slayer1b-1.07/` i liczy zadania z `GOTOWE` (z `wszystkie`: 52) do `/workspace/wyniki/<benchmark>/slayer1b-1.07/`, na
    końcu kontrola sensu. Gdy instancja jest zatrzymana: `vastai start instance <ID>` (albo Start w panelu vast.ai),
    po starcie `scp` pliku `/workspace/wyniki.tgz` na swój komputer, potem `vastai destroy instance <ID>` (albo
    Destroy w panelu); usunięcie robisz ręcznie. Wznowienie zależy od wolnej karty na tej samej maszynie vast.ai
@@ -507,16 +594,24 @@ wchodzi do obu środowisk).
    sposobami z https://vast.ai/docs/gpu-instances/data-movement (odsyłacz z opisu `vastai stop instance`). W repo rozpakowujesz archiwum w `results/central-run/`. Pole `repo`
    w `results.json` to `SlayerLab/Slayer1B-1.07-checkpoints` @ `89630be…`, a `weights_sha256` to suma
    skonwertowanego `model.safetensors` (`d826b4a1…`).
+   Komenda z kroku 4 liczy tylko Slayera 1.07; LFM2.5 (jak każdy model odniesienia) przebieg liczy od nowa tylko z jego etykietą w `licz` (np. `POMIN=reszta licz "slayer1b-1.07 lfm2.5-1.2b-base"`), w środowisku z `MODELE` (`lock`, lm-eval 0.4.9.1), a dzisiejsze wyniki LFM2.5 w `results/central-run/*/lfm2.5-1.2b-base/` (lm-eval 0.4.13, Apple MPS) nie są z tak policzonymi porównywalne.
 
 Punkt odniesienia z CPU: `proba_cpu "slayer1b-1.07"` (`PROBA_N=2`, 4 wątki, Apple M5 Pro, 07.11.2026): 49 zadań
 sprzed #154 w 1592 s (najdłuższe MMLU 319 s, MATH 192 s, IFEval 127 s, BBH 114 s), T51 i T52 razem 33 s, czyli 51
 z 52 zadań w ok. 27 min. T53 nie był liczony na danych EWoK (token bez dostępu do `ewok-core-1.0`, `GatedRepoError`). Na
 instancji `ZOSTAW_WAGI=1 bash tools/przebieg_centralny.sh proba_cpu "slayer1b-1.07"` przed `licz` sprawdza
-ładowanie, a `licz` nie pobiera wag drugi raz.
+ładowanie, a `licz` nie pobiera wag drugi raz. Przy kilku kartach wagi przejmuje pierwsza kolejka, która liczy ten
+model (`modele/<etykieta>.gpu<N>`); model pocięty przez `tools/queue_plan.py` na części pobiera wagi osobno dla
+każdej kolejnej karty.
 
 `plan "slayer1b-<wersja>"` wypisuje komendy bez liczenia, także lokalnie (`K=$PWD WS=$(mktemp -d)`). `stan` pokazuje
-postęp, `ponow` powtarza zadania zakończone błędem, a `licz` kończy się `tools/kontrola_sensu.py` (zadanie bez
-wyniku, wynik równy 1, wynik pod bazą losową o ponad 5 pkt, perpleksja nieskończona). Przebieg liczy pełne zbiory.
+postęp, `ponow` powtarza zadania zakończone błędem. `licz` bez listy liczy wszystkie modele z `MODELE`. Lista
+etykiet musi wymienić w `POMIN` każdy pominięty model z `MODELE` (albo `POMIN=reszta`, jeden model na instancję), bo
+lista przepisana ręcznie zgubiła już model mierzony. `licz` kończy się `tools/kontrola_sensu.py` i sprawdzeniem, że
+każda para model × test z planu `licz` ma wynik (zadanie bez
+wyniku, wynik równy 1, wynik pod bazą losową o ponad 5 pkt, perpleksja nieskończona); osobno, bez błędu, wypisuje wyniki
+„at baseline level”, które nie przechodzą kontroli z tabeli typów (wynik > b + 2 SE; przy testach MC z porównania
+`wobec_b`, parowanego ze stałą odpowiedzią). Przebieg liczy pełne zbiory.
 
 **Gdzie trafiają wyniki.** `pakuj` tworzy `wyniki.tgz`; jego zawartość trafia do
 `results/central-run/<benchmark>/<etykieta>/`: `results.json` w schemacie Space, `results_rozszerzone.json` i wyniki
@@ -599,8 +694,8 @@ skali, SE i miejsca w rankingu: [LEADERBOARD.md](LEADERBOARD.md).
 - **Perpleksja, BPB:** koszt tekstu z NLL, na token albo słowo (perpleksja) albo w bitach na bajt (BPB); niżej znaczy
   lepiej. BPB da się porównać między tokenizerami, perpleksję tylko przy tym samym tokenizerze albo na słowach.
 - **SE i werdykt:** SE mówi, o ile wynik waha się od samego doboru pytań; werdykt z z (rdzeń, punkt 4).
-- **SNR:** odchylenie standardowe wyników kilku modeli podzielone przez SE jednego wyniku (pole SNR karty). To inny
-  iloraz niż SNR w [Signal and Noise](https://arxiv.org/abs/2508.13144), więc progów z tamtej pracy nie przenosisz.
+- **SNR:** odchylenie standardowe wyników modeli przebiegu centralnego poza mierzonym modelem podzielone przez SE
+  jednego wyniku (pole SNR karty, akapit „Panel SNR”). To inny iloraz niż SNR w [Signal and Noise](https://arxiv.org/abs/2508.13144), więc progów z tamtej pracy nie przenosisz.
 - **MDE:** najmniejsza różnica, którą test wykryje przy danym n (rdzeń, punkt 5).
 
 Pytania i potknięcia w dokumencie zgłaszasz na Discordzie ([CONTRIBUTING, „Kontakt”](../CONTRIBUTING.md#kontakt)).

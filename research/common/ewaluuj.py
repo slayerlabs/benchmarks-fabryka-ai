@@ -25,6 +25,7 @@ KATALOG = Path(__file__).resolve().parent
 sys.path.insert(0, str(KATALOG))
 
 import metryki as M  # noqa: E402
+import statystyka as S  # noqa: E402  (research/tools, on the path through metryki)
 import zadania as Z  # noqa: E402
 
 PROTOKOLY = {"panel200": "bench50-v0.3.1-panel200", "pelna": "bench50-v0.3.1-fullB"}
@@ -44,12 +45,12 @@ def zbuduj_model(a):
     weights_path = a.model_path or a.repo
     if a.model == "slayer":
         import slayer_lm
-        lm = slayer_lm.SlayerLM(pretrained=weights_path, dtype="float32", batch_size=a.batch, device=a.device)
+        lm = slayer_lm.SlayerLM(pretrained=weights_path, dtype=a.dtype, batch_size=a.batch, device=a.device)
     else:
-        from lm_eval.models.huggingface import HFLM
-        lm = HFLM(pretrained=weights_path, revision=None if a.model_path else a.revision,
-                  dtype="float32", batch_size=a.batch, device=a.device, trust_remote_code=a.trust_remote_code,
-                  max_length=a.max_length)
+        from jeden_bos import HFLMJedenBOS  # METODOLOGIA, „Wejście”: jeden wiodący BOS w każdym żądaniu
+        lm = HFLMJedenBOS(pretrained=weights_path, revision=None if a.model_path else a.revision,
+                          dtype=a.dtype, batch_size=a.batch, device=a.device, trust_remote_code=a.trust_remote_code,
+                          max_length=a.max_length)
     return lm, a.repo or Path(a.model_path).resolve().name, a.revision
 
 
@@ -388,6 +389,80 @@ def meta_srednia_makro(cfg):
     return any("macro" in getattr(m.get("aggregation"), "__name__", "") for m in cfg.get("metric_list") or [])
 
 
+def _klastry_winogrande(docs):
+    modul = Z._modul_lm_eval("winogrande/przelicz.py", Z.BENCHMARKI)
+    return modul.klastry_z_opcji([(d["option1"], d["option2"]) for d in docs])
+
+
+def _klastry_wsc273(docs):
+    return Z._modul_lm_eval("wsc273/wsc273.py", Z.BENCHMARKI).schematy(docs)
+
+
+def _klastry_paws(docs):
+    """PAWS pairs sharing a sentence (variants of one source sentence) form one cluster: connected components of
+    the graph "row shares `sentence1` or `sentence2` with row", id = index of the component's first row."""
+    rodzic = list(range(len(docs)))
+
+    def korzen(i):
+        while rodzic[i] != i:
+            rodzic[i] = rodzic[rodzic[i]]
+            i = rodzic[i]
+        return i
+
+    pierwszy = {}
+    for i, d in enumerate(docs):
+        for zdanie in (d["sentence1"], d["sentence2"]):
+            j = pierwszy.setdefault(zdanie, i)
+            a, b = korzen(i), korzen(j)
+            rodzic[max(a, b)] = min(a, b)
+    return [korzen(i) for i in range(len(docs))]
+
+
+# Rules over documents in split order, the same code the benchmark's own pipeline uses
+REGULY_KLASTROW = {"pary_winogrande": _klastry_winogrande, "schematy_wsc273": _klastry_wsc273,
+                   "zdania_paws": _klastry_paws}
+
+
+def klastry_probek(meta, probki):
+    """Cluster id of every sample of a `+klastry` test (README "Benchmarki i typy"), None without `meta["klastry"]`:
+    a document field (BLiMP `UID`, BoolQ `passage`, DYK `question`) or a rule of REGULY_KLASTROW applied to the
+    documents ordered by doc_id (twin pairs and schemas sit next to each other in the split)."""
+    regula = meta.get("klastry")
+    if not regula:
+        return None
+    if regula not in REGULY_KLASTROW:
+        return [p["doc"][regula] for p in probki]
+    kolejnosc = sorted(range(len(probki)), key=lambda i: probki[i]["doc_id"])
+    ids = [None] * len(probki)
+    for i, c in zip(kolejnosc, REGULY_KLASTROW[regula]([probki[i]["doc"] for i in kolejnosc])):
+        ids[i] = c
+    return ids
+
+
+def wobec_b(wyniki, zlote, glowna, bazy, klastry=None):
+    """Score against b (METODOLOGIA, "b"): the higher of the random baseline and the constant answer. A constant
+    answer above random is compared paired with its per-question results (statystyka.wobec_stalej; with `klastry`
+    SE K of the differences, t at df = k - 1); otherwise z = (score - b) / SE of the score (SE K and t when the
+    score is clustered). The type-table control "score > b + 2 SE" holds when the difference is positive and the
+    verdict is pewne or prawdopodobne."""
+    losowa, stala = bazy.get("chance_value"), bazy.get("majority_value")
+    if len(wyniki) < 2:  # one question (load test): no spread, nothing to compare
+        return {"b": max(losowa, stala or 0.0), "werdykt": S.NIEROZSTRZYGALNE}
+    if stala is not None and stala > losowa:
+        r = S.wobec_stalej(wyniki, zlote, klastry)
+        return {"b": r["b"], "baza": "stala odpowiedz", **{k: r.get(k) for k in ("roznica", "se", "z", "t", "df")},
+                "werdykt": r["werdykt"], "metoda": r["metoda"]}
+    roznica, se = glowna["value"] - losowa, glowna["se"]
+    out = {"b": losowa, "baza": "losowa", "roznica": roznica, "se": se}
+    if not se:
+        return {**out, "werdykt": S.NIEROZSTRZYGALNE}
+    if glowna.get("metoda_se") == "K":
+        t = roznica / se
+        return {**out, "t": t, "df": glowna["df"], "metoda": "K", "werdykt": S.werdykt_t(t, glowna["df"])
+                if glowna["k"] >= S.MIN_KLASTROW else S.NIEROZSTRZYGALNE}
+    return {**out, "z": roznica / se, "werdykt": S.werdykt(roznica / se), "metoda": "A"}
+
+
 def podsumuj_wariant(meta, czlonkowie):
     """Metryki jednego wariantu. `czlonkowie` = [(podtest, cfg, zad, próbki)]; więcej niż jeden = grupa, średnia
     podtestów z wagami populacji (MMLU, MATH, BBH) i bazy złożone tymi samymi wagami; `wagi="rowne"` (BLiMP
@@ -399,13 +474,19 @@ def podsumuj_wariant(meta, czlonkowie):
         korpus = klucz not in ("acc", "acc_norm")  # f1 of the OpenPL fork (T25, T27, T28)
         if len(czlonkowie) == 1:
             _, cfg, zad, probki = czlonkowie[0]
-            wynik = M.podsumuj_mc(probki, klasy_stale, z_pmi=z_pmi(cfg), klucz="acc" if korpus else klucz)
+            klastry = klastry_probek(meta, probki)
+            wynik = M.podsumuj_mc(probki, klasy_stale, z_pmi=z_pmi(cfg), klucz="acc" if korpus else klucz,
+                                  klastry=klastry)
             if korpus:
                 oceny = [M.oceny_mc(p, z_pmi(cfg)) for p in probki]
                 zlote, pred = [o["gold"] for o in oceny], [o["pred"] for o in oceny]
                 f = funkcja_korpusowa(cfg, klucz)
-                wynik["glowna"] = {**M.korpusowa_z_niepewnoscia(zlote, pred, f), "metryka": klucz}
+                wynik["glowna"] = {**M.korpusowa_z_niepewnoscia(zlote, pred, f, klastry=klastry), "metryka": klucz}
                 wynik["bazy"] = bazy_f1_korpus(zlote, max(o["k"] for o in oceny), f)
+            else:
+                oceny = [M.oceny_mc(p, z_pmi(cfg)) for p in probki]
+                wynik["wobec_b"] = wobec_b([o[klucz] for o in oceny], [o["gold"] for o in oceny], wynik[klucz],
+                                           wynik["bazy"], klastry)
             return wynik
         oceny = {n: [M.oceny_mc(p, z_pmi(cfg)) for p in probki] for n, cfg, _, probki in czlonkowie}
         wynik = {m: M.warstwy({n: [o[m] for o in oc] for n, oc in oceny.items()}, wagi)
@@ -417,9 +498,11 @@ def podsumuj_wariant(meta, czlonkowie):
                                                   / len(wszystkie))
         return wynik
     nazwa, filtr = metryka(meta), meta.get("filtr", "none")
-    wartosci, bazy, szczegoly, predykcje, wynik = {}, {}, {}, [], {}
+    wartosci, bazy, szczegoly, predykcje, wynik, klastry = {}, {}, {}, [], {}, None
     for n, cfg, zad, probki in czlonkowie:
         wybrane = [s for s in probki if s.get("filter", "none") == filtr]
+        if len(czlonkowie) == 1:  # +klastry (TriviaQA, ReCoRD, PoQuAD): SE K, like the mc branch
+            klastry = klastry_probek(meta, wybrane)
         if rodzaj(meta) == "korpus":
             pary = [s[nazwa] for s in wybrane]  # lm-eval MC: (gold, pred)
             f = funkcja_korpusowa(cfg, nazwa)
@@ -440,8 +523,12 @@ def podsumuj_wariant(meta, czlonkowie):
                                  "glowna": M.srednia_z_niepewnoscia([v for v, m in zip(wartosci[n], maska) if m]),
                                  "bazy": bazy_proby(zad, meta, [s["doc"] for s, m in zip(wybrane, maska) if m])[0]}
     if "glowna" not in wynik:
-        glowna = (M.srednia_z_niepewnoscia(next(iter(wartosci.values()))) if len(wartosci) == 1
-                  else M.warstwy(wartosci, wagi))
+        if len(wartosci) > 1:
+            glowna = M.warstwy(wartosci, wagi)
+        elif klastry:
+            glowna = M.srednia_klastrowa(next(iter(wartosci.values())), klastry)
+        else:
+            glowna = M.srednia_z_niepewnoscia(next(iter(wartosci.values())))
         wynik["glowna"] = {**glowna, "metryka": nazwa}
     wynik["bazy"] = next(iter(bazy.values())) if len(bazy) == 1 else M.wazona_baza(bazy, wagi)
     wynik["bazy_szczegoly"] = szczegoly
@@ -567,6 +654,9 @@ def main():
     p.add_argument("--device", default="cpu")
     p.add_argument("--batch", default="1")
     p.add_argument("--trust_remote_code", action="store_true")
+    p.add_argument("--dtype", choices=["float32", "bfloat16"], default="float32",
+                   help="float32 = metodologia; bfloat16 tylko dla modeli, których wagi fp32 nie mieszczą się na karcie "
+                   "(wynik ma pole dtype i nie jest porównywalny 1:1 z fp32)")
     p.add_argument("--max_length", type=int, help="token window of the model (rolling perplexity: window size); "
                    "default from the model config, which for 128k-262k context models does not fit a 24 GB GPU in float32")
     p.add_argument("--model_path", help="lokalny katalog wag zamiast pobierania z HF; przy --model slayer wymagany")
@@ -583,6 +673,8 @@ def main():
     for podkatalog in ("probki", "trace"):
         (wyj / podkatalog).mkdir(parents=True, exist_ok=True)
     lm, model_id, rewizja = zbuduj_model(a)
+    from jeden_bos import zbadaj_bos
+    bos = zbadaj_bos(lm)
     licz_tokeny = licznik_tokenow(lm)
     sprzet = opis_sprzetu(a.device)
     protocol_id = PROTOKOLY.get(a.probka, PROTOKOLY["panel200"])
@@ -634,7 +726,8 @@ def main():
     (wyj / "results_rozszerzone.json").write_text(
         json.dumps({**wyniki, "observations": rozszerzone, "ewaluator": "niezależny (slayer_eval)",
                     "lm_eval": __import__("lm_eval").__version__, "dane": a.dane, "probka": a.probka,
-                    "eval_gpu": a.eval_gpu, "sprzet": sprzet, "max_length": getattr(lm, "max_length", None)},
+                    "eval_gpu": a.eval_gpu, "sprzet": sprzet, "max_length": getattr(lm, "max_length", None),
+                    "dtype": a.dtype, "bos": bos},
                    ensure_ascii=False, indent=1))
     (wyj / "podsumowanie.md").write_text(M.tabela_md(rozszerzone))
     tokens = a.tokens if a.tokens is not None else (a.step * 2 ** 20 if a.step is not None else None)

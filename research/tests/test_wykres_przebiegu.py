@@ -16,8 +16,9 @@ def test_slayer_label_is_the_slayer_row_of_modele():
     env = {**os.environ, "WS": tempfile.mkdtemp(), "K": str(KORZEN)}
     lista = subprocess.run(["bash", str(KORZEN / "tools" / "przebieg_centralny.sh"), "lista"], capture_output=True,
                            text=True, check=True, env=env).stdout.splitlines()
+    # the measured Slayer is the first SlayerLab row; later ones (1.09 checkpoints) come from the MODELE+= block
     slayery = [l.split("|")[0] for l in lista if l.split("|")[1].startswith("SlayerLab/")]
-    assert Wp.M[0][0] == Wp.etykieta_slayera() == slayery[0] and len(slayery) == 1
+    assert Wp.M[0][0] == Wp.etykieta_slayera() == slayery[0]
 
 
 def test_label_follows_the_script_and_rejects_two_slayers(tmp_path):

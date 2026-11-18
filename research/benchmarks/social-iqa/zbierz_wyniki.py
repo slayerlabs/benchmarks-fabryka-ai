@@ -6,7 +6,7 @@ Użycie:
 Katalogi to wyjścia `common/ewaluuj.py` (muszą zawierać `results_rozszerzone.json` i `probki/T46_space.jsonl`).
 Domyślny plik wyjściowy to `results/social_iqa.json` w katalogu benchmarku.
 Skrypt nie liczy metryk od nowa: przepisuje wartości, SE i CI95 z `ewaluuj.py`, a bazy liczy z goldów
-(`label` zbioru), bo `ewaluuj.py` zostawia je puste (`klasy_stale=False` w `common/zadania.py`).
+(`label` zbioru), bo wyjścia `ewaluuj.py` sprzed `klasy_stale=True` dla T46 w `common/zadania.py` mają je puste.
 """
 import json
 import sys

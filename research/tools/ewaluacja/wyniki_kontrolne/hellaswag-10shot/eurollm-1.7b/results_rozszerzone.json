@@ -1,0 +1,148 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-utter-project_EuroLLM-1.7B-c730cd9b-20261108T151358Z",
+ "models": [
+  {
+   "model_id": "utter-project/EuroLLM-1.7B",
+   "repo": "utter-project/EuroLLM-1.7B",
+   "revision": "c730cd9b616799ace3c65e927d63191446f59374",
+   "weights_sha256": "bfe9be53d19031a71d013ded9939747ae8e0c5dd7f07b9173cfa25521d7a9bc8"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T05",
+   "task": "hellaswag",
+   "family": "hellaswag",
+   "language": "EN",
+   "split": "validation"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T05",
+   "model_id": "utter-project/EuroLLM-1.7B",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc_norm,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 10042,
+   "n_selected": 10042,
+   "n_scored": 10042,
+   "state": "ok",
+   "value": 0.606652061342362,
+   "ci95": {
+    "lower": 0.5971917944632543,
+    "upper": 0.616211909978092,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "6e06230bb2d69924a23142a52b771c5a888eb1296e12408c6398bcbe203d59c1",
+   "results_sha256": "0689afe59b2543d86ff439a9f92e31c6a108542755e14b7747ec1fd248cab5dc",
+   "runner_sha256": "7c9092d0e0163c498212c5271adcdc17d2b5cef4a514beff5449166eef6335a0",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.25,
+    "majority_value": 0.25731925911173076,
+    "majority_prediction_share": 0.2531368253335989,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.45289782911770565,
+      "n": 10042,
+      "se": 0.004967591267557279,
+      "ci95": [
+       0.4433379804819757,
+       0.46255725951005777
+      ]
+     },
+     "acc_norm": {
+      "value": 0.606652061342362,
+      "n": 10042,
+      "se": 0.004874945833947125,
+      "ci95": [
+       0.5971917944632543,
+       0.616211909978092
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.4736108344951205,
+      "n": 10042,
+      "se": 0.004982826916687032,
+      "ci95": [
+       0.4638518223461462,
+       0.4833698466440948
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 0.764953212225373,
+      "n": 10042,
+      "se": 0.0019151662090187958,
+      "ci95": [
+       0.7612010285050647,
+       0.7686476466787012
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.25,
+      "majority_value": 0.25731925911173076,
+      "majority_prediction_share": 0.2531368253335989,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.2531368253335989,
+     "wobec_b": {
+      "b": 0.25731925911173076,
+      "baza": "stala odpowiedz",
+      "roznica": 0.34933280223063135,
+      "se": 0.006529229300774394,
+      "z": 53.50291529648055,
+      "t": null,
+      "df": null,
+      "werdykt": "pewne",
+      "metoda": "A parowane"
+     },
+     "demonstracje_skrocone": {
+      "zadane": 10,
+      "pytania": 10042,
+      "pytania_z_mniejsza_liczba": 0,
+      "srednio_przykladow": 10.0,
+      "pytania_bez_sladu": 0
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "Rowan/hellaswag",
+    "rewizja": "218ec52e09a7e7462a5400043bb9a69a41d06b76",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "026f6132b073de130235fda2c5a8bb2e42ab95f9",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-utter-project_EuroLLM-1.7B-c730cd9b-20261108T151358Z",
+    "results_sha256": "0689afe59b2543d86ff439a9f92e31c6a108542755e14b7747ec1fd248cab5dc"
+   }
+  ],
+  "qualification_sha256": "d47dc0a8aaa8b927d961547c331b9754a32a3af3fa6fb16e688f7afe44390b65",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "dc0f4fd96a59ab438918a36014be1417e88984ec569c7d4c4747f35358ed7bee"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_5060_Ti",
+ "sprzet": "NVIDIA GeForce RTX 5060 Ti",
+ "max_length": 4096,
+ "shoty": 10
+}

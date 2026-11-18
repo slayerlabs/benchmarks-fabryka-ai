@@ -22,4 +22,4 @@ Wynik LogiQA Slayera 1.06 policzony protokołem Space, wynik wstępny (bez kontr
 - Wynik: [`results/logiqa.json`](results/logiqa.json)
 - Surowe wyniki: `results/slayer-1.06/panel200/probki/T18_space.jsonl`, `results/slayer-1.06/pelna/probki/T18_space.jsonl`
 
-Slayer 1.06: acc_norm 0,260 (panel, n=200) / 0,2673 (pełny, n=651). Bazy: losowa 0,25, większościowa 0,278 (181/651, najczęstsza poprawna „d”) — policzona z danych, bo wpis `T18` na `main` ma `klasy_stale=False` i przebieg sam tej bazy nie liczy. Bez kontroli. Refs #19.
+Slayer 1.06: acc_norm 0,260 (panel, n=200) / 0,2673 (pełny, n=651). Bazy: losowa 0,25, większościowa 0,278 (181/651, najczęstsza poprawna „d”) — policzona z danych, bo ten przebieg liczył się, gdy wpis `T18` miał `klasy_stale=False` i przebieg tej bazy nie liczył (teraz `True`, liczy). Bez kontroli. Refs #19.

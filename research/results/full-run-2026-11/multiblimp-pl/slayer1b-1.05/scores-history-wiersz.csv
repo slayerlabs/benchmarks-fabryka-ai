@@ -1,0 +1,2 @@
+model,step,tokens,checkpoint_sha256,arc_easy,blimp,wikitext2_token_ppl,wikitext2_byte_ppl,eff,multiblimp_pl,arc_easy_pl,eval_gpu
+slayer1b-1.05,,,fa87b09c9d63238bb9d16f577e09e02871319a77dbbd1b4687c38930035ab857,,,,,,98.75,,NVIDIA_GeForce_RTX_5090

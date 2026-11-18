@@ -1,0 +1,70 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-EleutherAI_pythia-1b-v0-f3f1b6d5-20261109T215822Z",
+ "models": [
+  {
+   "model_id": "EleutherAI/pythia-1b-v0",
+   "repo": "EleutherAI/pythia-1b-v0",
+   "revision": "f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0",
+   "weights_sha256": "92589a02cfd745884f8473b0a975a93cea4cdaacf8333b0c047dab41623396b2"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T01",
+   "task": "blimp",
+   "family": "blimp",
+   "language": "EN",
+   "split": "train"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T01",
+   "model_id": "EleutherAI/pythia-1b-v0",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 67000,
+   "n_selected": 67000,
+   "n_scored": 67000,
+   "state": "ok",
+   "value": 0.8243880597014925,
+   "ci95": {
+    "lower": 0.7827287313432836,
+    "upper": 0.8627470149253732,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "020c6996a99df1be54df6ef628f4e98f50f1cf87b4233b7ef90bb7ecb13712f9",
+   "results_sha256": "bbe8e8c3fa56bc828910a78510a9a53bd980a5fe1583d4ae53d27c76c5f66d5b",
+   "runner_sha256": "7597c0de7273004dcd099c7e2fb7083b6232e43c17e1822fc291923210d5c1fa",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.5,
+    "majority_value": null,
+    "majority_prediction_share": null,
+    "constant_prediction": null
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "fe82b632887857585cc5482741d19b500868698d",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-EleutherAI_pythia-1b-v0-f3f1b6d5-20261109T215822Z",
+    "results_sha256": "bbe8e8c3fa56bc828910a78510a9a53bd980a5fe1583d4ae53d27c76c5f66d5b"
+   }
+  ],
+  "qualification_sha256": "22160388386eeac6aede48e2ea7ec5300aceb22e4b114e40a4fae02e817a77c6",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "f7d6fddbdd49db9d9b9631ada04e3dbf7069cf2f7ff5b44df67b4acb21c6ced3"
+ }
+}

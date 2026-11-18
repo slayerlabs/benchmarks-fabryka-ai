@@ -11,4 +11,4 @@ Mierzy: czy podana odpowiedź pasuje do pytania, Tak/Nie.
 - Definicja zadania: fork OpenPL `speakleash/lm-evaluation-harness` @ `21d0ea9c`; kopia YAML-a w `lm_eval_tasks/` (nagłówek z commitem źródła), `common/zadania.py` przypina rewizję zbioru.
 - Przebieg centralny: podpięty (`T25` w `common/zadania.py` i `KATALOGI` w `tools/przebieg_centralny.sh`); przepis w [`RECIPE.md`](RECIPE.md).
 
-5-shot. Demonstracje z banku przykładów ([METODOLOGIA, „Przykłady few-shot”](../../METODOLOGIA.md#przykłady-few-shot)), nie z samplera YAML-a. F1 korpusowe (`utils.f1`, `utils.agg_f1` forka) liczy lm-eval; `common/ewaluuj.py` nie liczy jeszcze metryki głównej `f1` (zadanie generacji i nowych metryk).
+5-shot. Demonstracje z banku przykładów ([METODOLOGIA, „Przykłady few-shot”](../../METODOLOGIA.md#przykłady-few-shot)), nie z samplera YAML-a. Metryka główna to F1 korpusowe (`utils.agg_f1` forka na parach indeksów opcji, klasa pozytywna „Tak”), liczone w `common/ewaluuj.py` (`funkcja_korpusowa`); `utils.f1` forka nie jest wołane ([`ORIGINAL.md`](ORIGINAL.md), pole „Ocena”).

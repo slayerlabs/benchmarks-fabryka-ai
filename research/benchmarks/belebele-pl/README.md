@@ -5,7 +5,7 @@
 Mierzy: czytanie ze zrozumieniem fragmentu FLORES, 4 odpowiedzi literą.
 
 - Test T24, typ `mc +pl` ([README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy)).
-- Zbiór: `facebook/belebele` @ `7899cdfa4e1e0d733fd77c848e2c273cb1d32be2`, konfiguracja `pol_Latn`, split `test`, n = 900.
+- Zbiór: `facebook/belebele` @ `7899cdfa4e1e0d733fd77c848e2c273cb1d32be2`, konfiguracja `pol_Latn`, split `test` (900 pytań). Oceniane w pełnym przebiegu: n = 895, bo 5 dokumentów banku demonstracji wypada z oceny (niżej); wynik podaje się z n = 895, tak jak `n_population` i `n_scored` w `results.json`.
 - Metryka decyzyjna: `acc`.
 - Licencja (karta zbioru na przypiętej rewizji): cc-by-sa-4.0.
 - Definicja zadania: fork OpenPL `speakleash/lm-evaluation-harness` @ `21d0ea9c`; kopia YAML-a w `lm_eval_tasks/` (nagłówek z commitem źródła), `common/zadania.py` przypina rewizję zbioru.

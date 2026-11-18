@@ -138,7 +138,31 @@ def test_bramki_przechodza_na_raporcie_blimp():
     assert [m["plik"] for m in liczby["raporty"]][0] == "benchmarks/blimp/results/BLIMP.md"
     assert set(m["plik"] for m in liczby["raporty"]) <= {"benchmarks/blimp/results/BLIMP.md",
                                                          "benchmarks/blimp/results/CHECKPOINTS.md",
-                                                         "benchmarks/piqa/results/PIQA.md"}
+                                                         "benchmarks/piqa/results/PIQA.md",
+                                                         "slayer-1b/rozmowy-1.08/PAPER.md"}
+
+
+def test_bramka_g_lapie_podmieniona_liczbe_w_paperze_rozmow(tmp_path):
+    # pula LICZBY.json badania rozmowy-1.08 ma tysiące wartości, więc (a) przepuszcza podmienioną liczbę
+    # 3-cyfrową; łapie ją dopiero (g): PAPER.md bajt w bajt z code/paper.py
+    import shutil
+    liczby = L.zbuduj()
+    meta = next((m for m in liczby["raporty"] if m["plik"] == "slayer-1b/rozmowy-1.08/PAPER.md"), None)
+    if meta is None:
+        return  # badanie bez wyniki/LICZBY.json: brak raportu do sprawdzenia
+    kat = "slayer-1b/rozmowy-1.08"
+    for rel in ("code", "dane/polecenia.jsonl", "wyniki/LICZBY.json", "wyniki/oceny_pozycji.jsonl.gz",
+                "wyniki/surowe/gen_slayer_A.jsonl.gz", "wyniki/surowe/gen_bielik_A.jsonl.gz",
+                "wyniki/surowe/gen_lfm_A.jsonl.gz", "PAPER.md", "ROZMOWY.md"):
+        src, dst = S.KORZEN / kat / rel, tmp_path / kat / rel
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        (shutil.copytree if src.is_dir() else shutil.copy)(src, dst)
+    assert S.bramka_generatora(meta, liczby, tmp_path) == []
+    p = tmp_path / kat / "PAPER.md"
+    t = p.read_text(encoding="utf-8")
+    i = t.index("| razem | ")
+    p.write_text(t[:i] + t[i:].replace("0,", "0,9", 1), encoding="utf-8")
+    assert any("(g)" in b[2] for b in S.bramka_generatora(meta, liczby, tmp_path))
 
 
 def test_bramka_d_werdykt_bez_se_klastrowego():
@@ -614,14 +638,19 @@ def test_regula_k_milczy_gdy_jest_liczba_po_paradygmatach():
     assert _reguly_ijk("Holm-significant: 17 of 36 on the pairs.") == []  # bez paradygmatów w pobliżu nie ma czego żądać
 
 
-def test_rozroznialny_bez_probek_jest_ostrozny(tmp_path, monkeypatch):
+def test_rozroznialny_bez_probek_jest_ostrozny(tmp_path):
     import wykres_przebiegu as Wp
     assert Wp.rozroznialny(tmp_path, "blimp", 1) is False
-    # próbki BLiMP w repo są dla 1.06; etykieta z MODELE wskazuje wersję, której wyników jeszcze może nie być
-    monkeypatch.setattr(Wp, "M", [("slayer1b-1.06", "Slayer 1B")] + Wp.M[1:])
-    centralny = KORZEN / "results/central-run"
-    assert Wp.klastry_blimp(centralny, "blimp", "slayer1b-1.06")  # liczy na próbkach, nie na ich braku
-    assert [Wp.rozroznialny(centralny, "blimp", i) for i in range(1, len(Wp.M))] == [False] * 4  # szum po paradygmatach
+    # próbki BLiMP w repo są dla 1.06; etykieta z MODELE wskazuje wersję, której wyników jeszcze może nie być.
+    # Podmiana z przywróceniem w finally, nie fixture monkeypatch: plik uruchamia się też skryptem, bez pytesta.
+    stare_m = Wp.M
+    Wp.M = [("slayer1b-1.06", "Slayer 1B")] + stare_m[1:]
+    try:
+        centralny = KORZEN / "results/central-run"
+        assert Wp.klastry_blimp(centralny, "blimp", "slayer1b-1.06")  # liczy na próbkach, nie na ich braku
+        assert [Wp.rozroznialny(centralny, "blimp", i) for i in range(1, len(Wp.M))] == [False] * 4  # szum po paradygmatach
+    finally:
+        Wp.M = stare_m
 
 
 def test_rozroznialny_widzi_roznice_po_paradygmatach(tmp_path):
@@ -728,8 +757,8 @@ if __name__ == "__main__":
             else:
                 f()
             print(f"PASS {n}")
-        except AssertionError as e:
+        except Exception as e:  # nie tylko AssertionError: np. brakująca fixture nie przerywa reszty testów
             zle += 1
-            print(f"FAIL {n}: {e}")
+            print(f"FAIL {n}: {type(e).__name__}: {e}")
     print(f"{len(testy) - zle}/{len(testy)}")
     sys.exit(1 if zle else 0)

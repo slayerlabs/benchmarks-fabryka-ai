@@ -1,0 +1,201 @@
+{
+ "model": "bielik",
+ "n": 32,
+ "rozne": 0,
+ "sekundy": 175,
+ "eksploracyjne": true,
+ "pozycje": [
+  {
+   "id": "pl_jezyk-01",
+   "rowne": true,
+   "tokeny_b4": 7,
+   "tokeny_b1": 7
+  },
+  {
+   "id": "pl_jezyk-08",
+   "rowne": true,
+   "tokeny_b4": 7,
+   "tokeny_b1": 7
+  },
+  {
+   "id": "pl_jezyk-16",
+   "rowne": true,
+   "tokeny_b4": 18,
+   "tokeny_b1": 18
+  },
+  {
+   "id": "pl_jezyk-23",
+   "rowne": true,
+   "tokeny_b4": 16,
+   "tokeny_b1": 16
+  },
+  {
+   "id": "pl_wiedza-01",
+   "rowne": true,
+   "tokeny_b4": 7,
+   "tokeny_b1": 7
+  },
+  {
+   "id": "pl_wiedza-08",
+   "rowne": true,
+   "tokeny_b4": 10,
+   "tokeny_b1": 10
+  },
+  {
+   "id": "pl_wiedza-16",
+   "rowne": true,
+   "tokeny_b4": 12,
+   "tokeny_b1": 12
+  },
+  {
+   "id": "pl_wiedza-23",
+   "rowne": true,
+   "tokeny_b4": 7,
+   "tokeny_b1": 7
+  },
+  {
+   "id": "wiedza_ogolna-01",
+   "rowne": true,
+   "tokeny_b4": 8,
+   "tokeny_b1": 8
+  },
+  {
+   "id": "wiedza_ogolna-08",
+   "rowne": true,
+   "tokeny_b4": 12,
+   "tokeny_b1": 12
+  },
+  {
+   "id": "wiedza_ogolna-16",
+   "rowne": true,
+   "tokeny_b4": 10,
+   "tokeny_b1": 10
+  },
+  {
+   "id": "wiedza_ogolna-23",
+   "rowne": true,
+   "tokeny_b4": 9,
+   "tokeny_b1": 9
+  },
+  {
+   "id": "rozumowanie-01",
+   "rowne": true,
+   "tokeny_b4": 7,
+   "tokeny_b1": 7
+  },
+  {
+   "id": "rozumowanie-08",
+   "rowne": true,
+   "tokeny_b4": 9,
+   "tokeny_b1": 9
+  },
+  {
+   "id": "rozumowanie-16",
+   "rowne": true,
+   "tokeny_b4": 7,
+   "tokeny_b1": 7
+  },
+  {
+   "id": "rozumowanie-23",
+   "rowne": true,
+   "tokeny_b4": 7,
+   "tokeny_b1": 7
+  },
+  {
+   "id": "matematyka-01",
+   "rowne": true,
+   "tokeny_b4": 31,
+   "tokeny_b1": 31
+  },
+  {
+   "id": "matematyka-08",
+   "rowne": true,
+   "tokeny_b4": 30,
+   "tokeny_b1": 30
+  },
+  {
+   "id": "matematyka-16",
+   "rowne": true,
+   "tokeny_b4": 41,
+   "tokeny_b1": 41
+  },
+  {
+   "id": "matematyka-23",
+   "rowne": true,
+   "tokeny_b4": 25,
+   "tokeny_b1": 25
+  },
+  {
+   "id": "kod-01",
+   "rowne": true,
+   "tokeny_b4": 110,
+   "tokeny_b1": 110
+  },
+  {
+   "id": "kod-08",
+   "rowne": true,
+   "tokeny_b4": 111,
+   "tokeny_b1": 111
+  },
+  {
+   "id": "kod-16",
+   "rowne": true,
+   "tokeny_b4": 244,
+   "tokeny_b1": 244
+  },
+  {
+   "id": "kod-23",
+   "rowne": true,
+   "tokeny_b4": 256,
+   "tokeny_b1": 256
+  },
+  {
+   "id": "angielski-01",
+   "rowne": true,
+   "tokeny_b4": 8,
+   "tokeny_b1": 8
+  },
+  {
+   "id": "angielski-08",
+   "rowne": true,
+   "tokeny_b4": 14,
+   "tokeny_b1": 14
+  },
+  {
+   "id": "angielski-16",
+   "rowne": true,
+   "tokeny_b4": 16,
+   "tokeny_b1": 16
+  },
+  {
+   "id": "angielski-23",
+   "rowne": true,
+   "tokeny_b4": 18,
+   "tokeny_b1": 18
+  },
+  {
+   "id": "tekst_techniczny-01",
+   "rowne": true,
+   "tokeny_b4": 90,
+   "tokeny_b1": 90
+  },
+  {
+   "id": "tekst_techniczny-08",
+   "rowne": true,
+   "tokeny_b4": 137,
+   "tokeny_b1": 137
+  },
+  {
+   "id": "tekst_techniczny-16",
+   "rowne": true,
+   "tokeny_b4": 243,
+   "tokeny_b1": 243
+  },
+  {
+   "id": "tekst_techniczny-23",
+   "rowne": true,
+   "tokeny_b4": 18,
+   "tokeny_b1": 18
+  }
+ ]
+}

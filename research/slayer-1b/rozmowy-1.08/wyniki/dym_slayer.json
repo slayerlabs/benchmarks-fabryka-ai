@@ -1,0 +1,195 @@
+{
+ "model": "slayer",
+ "cache_vs_pelny": [
+  {
+   "id": "pl_jezyk-01",
+   "pelny": -0.9176259033196278,
+   "cache": -0.9176255867379823,
+   "roznica": 3.1658164545422807e-07
+  },
+  {
+   "id": "pl_jezyk-25",
+   "pelny": -80.79012210110368,
+   "cache": -80.79017727578199,
+   "roznica": 5.5174678308844705e-05
+  },
+  {
+   "id": "pl_wiedza-19",
+   "pelny": -2.3154791187952326,
+   "cache": -2.315478043595484,
+   "roznica": 1.0751997487901122e-06
+  },
+  {
+   "id": "wiedza_ogolna-13",
+   "pelny": -2.5855561381510594,
+   "cache": -2.585551101438248,
+   "roznica": 5.0367128112682735e-06
+  },
+  {
+   "id": "rozumowanie-07",
+   "pelny": -1.2542869098689344,
+   "cache": -1.254276297088774,
+   "roznica": 1.0612780160457191e-05
+  }
+ ],
+ "batch_vs_1": [
+  {
+   "id": "pl_jezyk-01",
+   "rowne": true
+  },
+  {
+   "id": "pl_jezyk-25",
+   "rowne": true
+  },
+  {
+   "id": "pl_wiedza-19",
+   "rowne": true
+  },
+  {
+   "id": "wiedza_ogolna-13",
+   "rowne": true
+  },
+  {
+   "id": "rozumowanie-07",
+   "rowne": true
+  },
+  {
+   "id": "matematyka-01",
+   "rowne": true
+  },
+  {
+   "id": "matematyka-25",
+   "rowne": true
+  },
+  {
+   "id": "kod-19",
+   "rowne": true
+  },
+  {
+   "id": "angielski-13",
+   "rowne": true
+  },
+  {
+   "id": "tekst_techniczny-07",
+   "rowne": true
+  }
+ ],
+ "przyklady": [
+  {
+   "id": "pl_jezyk-01",
+   "prompt": "Polecenie: Podaj mianownik liczby mnogiej rzeczownika „dom”.\nOdpowiedź: domy\n\nPolecenie: Popraw błąd w zdaniu i napisz całe zdanie poprawnie: Na śniadanie zjadłem kanapke z serem.\nOdpowiedź: Na śniadanie zjadłem kanapkę z serem.\n\nPolecenie: Napisz krótką wiadomość do sąsiadki z podziękowaniem za pożyczenie drabiny i informacją, że oddasz ją jutro rano.\nOdpowiedź:\nDzień dobry, Pani Ewo, bardzo dziękuję za pożyczenie drabiny, bardzo mi pomogła przy malowaniu. Oddam ją jutro rano, około ósmej. Pozdrawiam serdecznie, Adam z drugiego piętra.\n\nPolecenie: Podaj mianownik liczby mnogiej rzeczownika „dziecko”.\nOdpowiedź:",
+   "odpowiedzi": [
+    {
+     "dekodowanie": "s1",
+     "seed": 1,
+     "odpowiedz": " dzieci\n",
+     "surowa": " dzieci\n\nPolecenie:",
+     "tokeny": 7,
+     "koniec": "stop"
+    },
+    {
+     "dekodowanie": "s2",
+     "seed": 2,
+     "odpowiedz": "\nDzieci\n",
+     "surowa": "\nDzieci\n\nPolecenie:",
+     "tokeny": 8,
+     "koniec": "stop"
+    },
+    {
+     "dekodowanie": "s3",
+     "seed": 3,
+     "odpowiedz": " dzieci\n",
+     "surowa": " dzieci\n\nPolecenie:",
+     "tokeny": 7,
+     "koniec": "stop"
+    },
+    {
+     "dekodowanie": "greedy",
+     "seed": 0,
+     "odpowiedz": " dzieci\n",
+     "surowa": " dzieci\n\nPolecenie:",
+     "tokeny": 7,
+     "koniec": "stop"
+    }
+   ]
+  },
+  {
+   "id": "pl_jezyk-25",
+   "prompt": "Polecenie: Podaj mianownik liczby mnogiej rzeczownika „dom”.\nOdpowiedź: domy\n\nPolecenie: Popraw błąd w zdaniu i napisz całe zdanie poprawnie: Na śniadanie zjadłem kanapke z serem.\nOdpowiedź: Na śniadanie zjadłem kanapkę z serem.\n\nPolecenie: Napisz krótką wiadomość do sąsiadki z podziękowaniem za pożyczenie drabiny i informacją, że oddasz ją jutro rano.\nOdpowiedź:\nDzień dobry, Pani Ewo, bardzo dziękuję za pożyczenie drabiny, bardzo mi pomogła przy malowaniu. Oddam ją jutro rano, około ósmej. Pozdrawiam serdecznie, Adam z drugiego piętra.\n\nPolecenie: Napisz krótkie ogłoszenie (3-4 zdania) o zgubionym czarnym plecaku. Plecak zginął wczoraj na przystanku autobusowym przy ulicy Lipowej. Poproś o kontakt pod numerem 600 123 456.\nOdpowiedź:",
+   "odpowiedzi": [
+    {
+     "dekodowanie": "s1",
+     "seed": 1,
+     "odpowiedz": "\nDzień dobry, zgubiłem wczoraj czarny plecak na przystanku autobusowym przy ulicy Lipowej. Proszę o kontakt pod numerem 600 123 456.\n",
+     "surowa": "\nDzień dobry, zgubiłem wczoraj czarny plecak na przystanku autobusowym przy ulicy Lipowej. Proszę o kontakt pod numerem 600 123 456.\n\nPolecenie:",
+     "tokeny": 37,
+     "koniec": "stop"
+    },
+    {
+     "dekodowanie": "s2",
+     "seed": 2,
+     "odpowiedz": "\nDzień dobry, Bardzo proszę o kontakt, zgubiłem plecak na przystanku autobusowym przy ulicy Lipowej. Plecak leży na ławce, więc nie będę go szukał. Jeśli ktokolwiek posiada informację o miejscu, gdzie go można znaleźć, proszę o kontakt pod numerem 600 123 456.\n\nPo",
+     "surowa": "\nDzień dobry, Bardzo proszę o kontakt, zgubiłem plecak na przystanku autobusowym przy ulicy Lipowej. Plecak leży na ławce, więc nie będę go szukał. Jeśli ktokolwiek posiada informację o miejscu, gdzie go można znaleźć, proszę o kontakt pod numerem 600 123 456.\n\nPo",
+     "tokeny": 64,
+     "koniec": "limit"
+    },
+    {
+     "dekodowanie": "s3",
+     "seed": 3,
+     "odpowiedz": "\nDzień dobry, Szanowna Pani, Plecak został zgubiony wczoraj na przystanku autobusowym przy ulicy Lipowej. Bardzo proszę o kontakt pod numerem 600 123 456.\n",
+     "surowa": "\nDzień dobry, Szanowna Pani, Plecak został zgubiony wczoraj na przystanku autobusowym przy ulicy Lipowej. Bardzo proszę o kontakt pod numerem 600 123 456.\n\nPolecenie:",
+     "tokeny": 43,
+     "koniec": "stop"
+    },
+    {
+     "dekodowanie": "greedy",
+     "seed": 0,
+     "odpowiedz": "\nDzień dobry, zgubiłem wczoraj czarnego plecaka. Proszę o kontakt pod numerem 600 123 456.\n",
+     "surowa": "\nDzień dobry, zgubiłem wczoraj czarnego plecaka. Proszę o kontakt pod numerem 600 123 456.\n\nPolecenie:",
+     "tokeny": 28,
+     "koniec": "stop"
+    }
+   ]
+  },
+  {
+   "id": "pl_wiedza-19",
+   "prompt": "Polecenie: W którym mieście stoi Pałac Kultury i Nauki?\nOdpowiedź: Warszawa\n\nPolecenie: Kto napisał dramat „Balladyna”?\nOdpowiedź: Juliusz Słowacki\n\nPolecenie: W którym mieście znajduje się klasztor na Jasnej Górze?\nOdpowiedź: Częstochowa\n\nPolecenie: W którym mieście urodził się Mikołaj Kopernik?\nOdpowiedź:",
+   "odpowiedzi": [
+    {
+     "dekodowanie": "s1",
+     "seed": 1,
+     "odpowiedz": " Torunia\n",
+     "surowa": " Torunia\n\nPolecenie:",
+     "tokeny": 8,
+     "koniec": "stop"
+    },
+    {
+     "dekodowanie": "s2",
+     "seed": 2,
+     "odpowiedz": " Toruniu\n",
+     "surowa": " Toruniu\n\nPolecenie:",
+     "tokeny": 8,
+     "koniec": "stop"
+    },
+    {
+     "dekodowanie": "s3",
+     "seed": 3,
+     "odpowiedz": " Toruniu\n",
+     "surowa": " Toruniu\n\nPolecenie:",
+     "tokeny": 8,
+     "koniec": "stop"
+    },
+    {
+     "dekodowanie": "greedy",
+     "seed": 0,
+     "odpowiedz": " Toruniu\n",
+     "surowa": " Toruniu\n\nPolecenie:",
+     "tokeny": 8,
+     "koniec": "stop"
+    }
+   ]
+  }
+ ],
+ "max_roznica_cache": 5.5174678308844705e-05,
+ "rozne_batch": 0
+}

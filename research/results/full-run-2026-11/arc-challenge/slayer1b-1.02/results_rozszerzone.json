@@ -1,0 +1,315 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-SlayerLab_Slayer1B-1.02-bf7117b9-20261109T230341Z",
+ "models": [
+  {
+   "model_id": "SlayerLab/Slayer1B-1.02",
+   "repo": "SlayerLab/Slayer1B-1.02",
+   "revision": "bf7117b97417b22c6a76710a91038724f2be927d",
+   "weights_sha256": "22583557d1b2f2af05fd5565a718ffc270298da22a785b40027c86c34e12b9e0"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T02",
+   "task": "arc_challenge",
+   "family": "arc",
+   "language": "EN",
+   "split": "test"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T02",
+   "model_id": "SlayerLab/Slayer1B-1.02",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc_norm,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 1172,
+   "n_selected": 1172,
+   "n_scored": 1172,
+   "state": "ok",
+   "value": 0.24658703071672355,
+   "ci95": {
+    "lower": 0.22184300341296928,
+    "upper": 0.2713310580204778,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "e27b72037814d2c6c1e5e9eba2706103cd4b35834bb3fac12b9254c5890da01a",
+   "results_sha256": "f1fea62e64eb57aa2ccab5aa1b22ebc5e183df206cd0ccec536bd76f7fca8d35",
+   "runner_sha256": "7597c0de7273004dcd099c7e2fb7083b6232e43c17e1822fc291923210d5c1fa",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.25015642775881686,
+    "majority_value": 0.26535836177474403,
+    "majority_prediction_share": 0.29948805460750855,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.2167235494880546,
+      "n": 1172,
+      "se": 0.012040156713481203,
+      "ci95": [
+       0.19283276450511946,
+       0.24061433447098976
+      ]
+     },
+     "acc_norm": {
+      "value": 0.24658703071672355,
+      "n": 1172,
+      "se": 0.012595726268789992,
+      "ci95": [
+       0.22184300341296928,
+       0.2713310580204778
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.27559726962457337,
+      "n": 1172,
+      "se": 0.013057169655761753,
+      "ci95": [
+       0.25,
+       0.30119453924914674
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 1.5290186420903003,
+      "n": 1172,
+      "se": 0.02413024335916626,
+      "ci95": [
+       1.481883375281957,
+       1.5770412482357468
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.25015642775881686,
+      "majority_value": 0.26535836177474403,
+      "majority_prediction_share": 0.29948805460750855,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.29948805460750855,
+     "wobec_b": {
+      "b": 0.26535836177474403,
+      "baza": "stala odpowiedz",
+      "roznica": -0.01877133105802048,
+      "se": 0.01861541609379661,
+      "z": -1.008375583088676,
+      "t": null,
+      "df": null,
+      "werdykt": "szum",
+      "metoda": "A parowane"
+     },
+     "rozklad_wyborow": {
+      "n": 1172,
+      "poprawne_pozycje": {
+       "A": 266,
+       "B": 311,
+       "C": 310,
+       "D": 285
+      },
+      "poprawna_najkrotsza": 0.19197952218430034,
+      "poprawna_najdluzsza": 0.2721843003412969,
+      "reguly": {
+       "acc": {
+        "trafnosc": 0.2167235494880546,
+        "pozycje": {
+         "A": 412,
+         "B": 332,
+         "C": 229,
+         "D": 197,
+         "E": 2
+        },
+        "najkrotsza": 0.40273037542662116,
+        "najdluzsza": 0.1493174061433447
+       },
+       "acc_norm": {
+        "trafnosc": 0.24658703071672355,
+        "pozycje": {
+         "A": 246,
+         "B": 277,
+         "C": 297,
+         "D": 351,
+         "E": 1
+        },
+        "najkrotsza": 0.09897610921501707,
+        "najdluzsza": 0.47013651877133106
+       },
+       "bpb": {
+        "trafnosc": 0.24573378839590443,
+        "pozycje": {
+         "A": 250,
+         "B": 284,
+         "C": 293,
+         "D": 344,
+         "E": 1
+        },
+        "najkrotsza": 0.10494880546075085,
+        "najdluzsza": 0.45563139931740615
+       },
+       "pmi": {
+        "trafnosc": 0.27559726962457337,
+        "pozycje": {
+         "A": 262,
+         "B": 309,
+         "C": 291,
+         "D": 309,
+         "E": 1
+        },
+        "najkrotsza": 0.21843003412969283,
+        "najdluzsza": 0.3003412969283277
+       }
+      }
+     }
+    },
+    "mc": {
+     "acc": {
+      "value": 0.23208191126279865,
+      "n": 1172,
+      "se": 0.012336718284948816,
+      "ci95": [
+       0.20819112627986347,
+       0.25597269624573377
+      ]
+     },
+     "acc_norm": {
+      "value": 0.23208191126279865,
+      "n": 1172,
+      "se": 0.012336718284948816,
+      "ci95": [
+       0.20819112627986347,
+       0.25597269624573377
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.22610921501706485,
+      "n": 1172,
+      "se": 0.012224202097063335,
+      "ci95": [
+       0.2022184300341297,
+       0.25
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 3.342685271603555,
+      "n": 1172,
+      "se": 0.027421505972610918,
+      "ci95": [
+       3.288356813891257,
+       3.3965654142258224
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.25015642775881686,
+      "majority_value": 0.26535836177474403,
+      "majority_prediction_share": 0.939419795221843,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.939419795221843,
+     "wobec_b": {
+      "b": 0.26535836177474403,
+      "baza": "stala odpowiedz",
+      "roznica": -0.033276450511945395,
+      "se": 0.02040998499108192,
+      "z": -1.6304005380937534,
+      "t": null,
+      "df": null,
+      "werdykt": "szum",
+      "metoda": "A parowane"
+     },
+     "rozklad_wyborow": {
+      "n": 1172,
+      "poprawne_pozycje": {
+       "A": 266,
+       "B": 311,
+       "C": 310,
+       "D": 285
+      },
+      "poprawna_najkrotsza": 0.22696245733788395,
+      "poprawna_najdluzsza": 0.22696245733788395,
+      "reguly": {
+       "acc": {
+        "trafnosc": 0.23208191126279865,
+        "pozycje": {
+         "A": 1101,
+         "B": 23,
+         "C": 36,
+         "D": 12
+        },
+        "najkrotsza": 0.939419795221843,
+        "najdluzsza": 0.939419795221843
+       },
+       "acc_norm": {
+        "trafnosc": 0.23208191126279865,
+        "pozycje": {
+         "A": 1101,
+         "B": 23,
+         "C": 36,
+         "D": 12
+        },
+        "najkrotsza": 0.939419795221843,
+        "najdluzsza": 0.939419795221843
+       },
+       "bpb": {
+        "trafnosc": 0.23208191126279865,
+        "pozycje": {
+         "A": 1101,
+         "B": 23,
+         "C": 36,
+         "D": 12
+        },
+        "najkrotsza": 0.939419795221843,
+        "najdluzsza": 0.939419795221843
+       },
+       "pmi": {
+        "trafnosc": 0.22610921501706485,
+        "pozycje": {
+         "A": 906,
+         "B": 32,
+         "C": 215,
+         "D": 19
+        },
+        "najkrotsza": 0.773037542662116,
+        "najdluzsza": 0.773037542662116
+       }
+      }
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "allenai/ai2_arc",
+    "rewizja": "210d026faf9955653af8916fad021475a3f00453",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "fe82b632887857585cc5482741d19b500868698d",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-SlayerLab_Slayer1B-1.02-bf7117b9-20261109T230341Z",
+    "results_sha256": "f1fea62e64eb57aa2ccab5aa1b22ebc5e183df206cd0ccec536bd76f7fca8d35"
+   }
+  ],
+  "qualification_sha256": "22160388386eeac6aede48e2ea7ec5300aceb22e4b114e40a4fae02e817a77c6",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "986cd69c6bd702bb1ce803d4e2c82953472a382cb3a1849445b0a93f46dfbbdb"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_5090",
+ "sprzet": "NVIDIA GeForce RTX 5090",
+ "max_length": 4096,
+ "dtype": "float32"
+}

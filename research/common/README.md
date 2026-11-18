@@ -27,7 +27,8 @@ rosnąco po SHA-256 `20261028|benchmark_id|member_task|source_id`, ta sama dla w
 WikiText-2 idzie pełnym strumieniem (62 dokumenty). EN 0-shot, 12 zadań PL 5-shot, BBH 3-shot.
 Jedna metryka główna na benchmark i brak średniej. CI95: bootstrap 10 000 powtórzeń, seed 20261028.
 Kontrasty: sparowany test permutacyjny z poprawką Holma. Bazy odniesienia: losowa, większościowa
-(ten kod, jak Space, liczy ją tylko dla zadań o stałym zbiorze klas; regułę dla karty podaje
+(Space liczy ją tylko dla zadań o stałym zbiorze klas, ten kod według typu testu z METODOLOGII: dla `mc`, `mc-k`
+i `f1-korpus` tak, dla `para` i `poz` nie; regułę dla karty podaje
 `research/README.md`, „Bazy: losowa i większościowa”), udział najczęstszej predykcji, flaga stałej predykcji.
 Kontaminacja: n-gramy 13 względem korpusu treningowego; dla flagowanych wyników także wartość
 na pytaniach bez trafień.
@@ -93,6 +94,12 @@ Niczego nie stroimy pod benchmark: prompt i metryka główna są takie jak w Spa
 służą do diagnozy.
 
 ## Uruchomienie
+
+**Modele HF: `jeden_bos.py`.** `ewaluuj.py --model hf` buduje model klasą `HFLMJedenBOS`: tokenizer koduje tekst
+bez tokenów specjalnych, a nakładka stawia jeden BOS tokenizera przed kontekstem par loglik i przed promptem
+generacji (METODOLOGIA, „Wejście”). Pusty kontekst i okna perpleksji zaczynają się od `prefix_token_id`, jak w HFLM.
+Tokenizer bez `bos_token` (Qwen3.5) daje żądania bez BOS. Pole `bos` w `results_rozszerzone.json` podaje token BOS
+i liczbę wiodących BOS w próbnej parze loglik, w prompcie generacji i przy pustym kontekście.
 
 **Slayer w lm-eval: `slayer_lm.py`.** `HFLM` nie wczyta Slayera (`config.json` nie ma `model_type`:
 `AutoConfig.from_pretrained` kończy się `ValueError: Unrecognized model`, sprawdzone na 1.06 z

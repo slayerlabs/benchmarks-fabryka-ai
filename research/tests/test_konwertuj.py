@@ -1,4 +1,4 @@
-"""slayer-1b/wygaszanie/konwertuj.py on a tiny stand-in checkpoint and template (no network, no real weights):
+"""tools/konwertuj.py on a tiny stand-in checkpoint and template (no network, no real weights):
 the weights and the step land in the output, a checkpoint with another architecture in its config stops."""
 import hashlib
 import json
@@ -11,7 +11,7 @@ import torch
 from safetensors.torch import load_file, save_file
 
 KORZEN = Path(__file__).resolve().parent.parent
-SKRYPT = KORZEN / "slayer-1b" / "wygaszanie" / "konwertuj.py"
+SKRYPT = KORZEN / "tools" / "konwertuj.py"
 CFG = {"n_layer": 1, "n_embd": 4, "n_head": 2, "vocab": 8, "qk_norm": True, "data_seed": 1}
 
 

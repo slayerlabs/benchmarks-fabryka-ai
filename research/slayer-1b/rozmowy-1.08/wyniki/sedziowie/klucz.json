@@ -1,0 +1,1014 @@
+{
+ "seed": 20261112,
+ "dekodowanie": "s1",
+ "pary": {
+  "P001": {
+   "id": "pl_jezyk-28",
+   "kat": "pl_jezyk",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P002": {
+   "id": "tekst_techniczny-07",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P003": {
+   "id": "tekst_techniczny-01",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P004": {
+   "id": "angielski-26",
+   "kat": "angielski",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P005": {
+   "id": "tekst_techniczny-15",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P006": {
+   "id": "tekst_techniczny-29",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P007": {
+   "id": "tekst_techniczny-05",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P008": {
+   "id": "tekst_techniczny-15",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P009": {
+   "id": "tekst_techniczny-27",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P010": {
+   "id": "tekst_techniczny-12",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P011": {
+   "id": "tekst_techniczny-24",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P012": {
+   "id": "angielski-29",
+   "kat": "angielski",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P013": {
+   "id": "tekst_techniczny-23",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "limit"
+  },
+  "P014": {
+   "id": "angielski-30",
+   "kat": "angielski",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P015": {
+   "id": "tekst_techniczny-30",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P016": {
+   "id": "tekst_techniczny-10",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "eos",
+   "koniec_B": "stop"
+  },
+  "P017": {
+   "id": "pl_jezyk-27",
+   "kat": "pl_jezyk",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P018": {
+   "id": "tekst_techniczny-20",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P019": {
+   "id": "tekst_techniczny-26",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P020": {
+   "id": "tekst_techniczny-23",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "limit",
+   "koniec_B": "stop"
+  },
+  "P021": {
+   "id": "tekst_techniczny-07",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P022": {
+   "id": "tekst_techniczny-14",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "limit",
+   "koniec_B": "stop"
+  },
+  "P023": {
+   "id": "tekst_techniczny-04",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P024": {
+   "id": "tekst_techniczny-18",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P025": {
+   "id": "tekst_techniczny-06",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P026": {
+   "id": "tekst_techniczny-20",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P027": {
+   "id": "tekst_techniczny-22",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P028": {
+   "id": "tekst_techniczny-12",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P029": {
+   "id": "tekst_techniczny-10",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "eos"
+  },
+  "P030": {
+   "id": "tekst_techniczny-05",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P031": {
+   "id": "tekst_techniczny-22",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P032": {
+   "id": "tekst_techniczny-06",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P033": {
+   "id": "tekst_techniczny-03",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P034": {
+   "id": "pl_jezyk-26",
+   "kat": "pl_jezyk",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "eos"
+  },
+  "P035": {
+   "id": "tekst_techniczny-05",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P036": {
+   "id": "tekst_techniczny-27",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P037": {
+   "id": "tekst_techniczny-01",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P038": {
+   "id": "tekst_techniczny-13",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P039": {
+   "id": "pl_jezyk-26",
+   "kat": "pl_jezyk",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "eos",
+   "koniec_B": "stop"
+  },
+  "P040": {
+   "id": "tekst_techniczny-16",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "eos",
+   "koniec_B": "stop"
+  },
+  "P041": {
+   "id": "tekst_techniczny-23",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P042": {
+   "id": "tekst_techniczny-30",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P043": {
+   "id": "pl_jezyk-29",
+   "kat": "pl_jezyk",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P044": {
+   "id": "angielski-28",
+   "kat": "angielski",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P045": {
+   "id": "tekst_techniczny-13",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P046": {
+   "id": "angielski-30",
+   "kat": "angielski",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P047": {
+   "id": "tekst_techniczny-25",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P048": {
+   "id": "tekst_techniczny-19",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P049": {
+   "id": "tekst_techniczny-04",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P050": {
+   "id": "tekst_techniczny-08",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P051": {
+   "id": "tekst_techniczny-27",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P052": {
+   "id": "angielski-30",
+   "kat": "angielski",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P053": {
+   "id": "tekst_techniczny-16",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P054": {
+   "id": "tekst_techniczny-28",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P055": {
+   "id": "tekst_techniczny-11",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "limit"
+  },
+  "P056": {
+   "id": "tekst_techniczny-03",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P057": {
+   "id": "tekst_techniczny-19",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P058": {
+   "id": "pl_jezyk-28",
+   "kat": "pl_jezyk",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P059": {
+   "id": "tekst_techniczny-02",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P060": {
+   "id": "tekst_techniczny-02",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P061": {
+   "id": "angielski-27",
+   "kat": "angielski",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P062": {
+   "id": "angielski-27",
+   "kat": "angielski",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P063": {
+   "id": "tekst_techniczny-21",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "eos"
+  },
+  "P064": {
+   "id": "tekst_techniczny-26",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P065": {
+   "id": "tekst_techniczny-14",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "limit",
+   "koniec_B": "stop"
+  },
+  "P066": {
+   "id": "tekst_techniczny-01",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P067": {
+   "id": "angielski-28",
+   "kat": "angielski",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P068": {
+   "id": "tekst_techniczny-21",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "eos",
+   "koniec_B": "limit"
+  },
+  "P069": {
+   "id": "tekst_techniczny-25",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P070": {
+   "id": "angielski-25",
+   "kat": "angielski",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P071": {
+   "id": "tekst_techniczny-17",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P072": {
+   "id": "pl_jezyk-30",
+   "kat": "pl_jezyk",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "eos"
+  },
+  "P073": {
+   "id": "tekst_techniczny-30",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P074": {
+   "id": "angielski-26",
+   "kat": "angielski",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P075": {
+   "id": "pl_jezyk-25",
+   "kat": "pl_jezyk",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P076": {
+   "id": "angielski-29",
+   "kat": "angielski",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P077": {
+   "id": "tekst_techniczny-10",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P078": {
+   "id": "tekst_techniczny-15",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P079": {
+   "id": "tekst_techniczny-04",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P080": {
+   "id": "tekst_techniczny-02",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P081": {
+   "id": "pl_jezyk-30",
+   "kat": "pl_jezyk",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "eos"
+  },
+  "P082": {
+   "id": "pl_jezyk-26",
+   "kat": "pl_jezyk",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P083": {
+   "id": "tekst_techniczny-08",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P084": {
+   "id": "pl_jezyk-29",
+   "kat": "pl_jezyk",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P085": {
+   "id": "tekst_techniczny-11",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "limit",
+   "koniec_B": "stop"
+  },
+  "P086": {
+   "id": "tekst_techniczny-18",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P087": {
+   "id": "tekst_techniczny-11",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P088": {
+   "id": "tekst_techniczny-24",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P089": {
+   "id": "pl_jezyk-28",
+   "kat": "pl_jezyk",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P090": {
+   "id": "tekst_techniczny-17",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P091": {
+   "id": "tekst_techniczny-28",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P092": {
+   "id": "tekst_techniczny-18",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P093": {
+   "id": "tekst_techniczny-16",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "eos"
+  },
+  "P094": {
+   "id": "tekst_techniczny-20",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P095": {
+   "id": "pl_jezyk-25",
+   "kat": "pl_jezyk",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P096": {
+   "id": "tekst_techniczny-28",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P097": {
+   "id": "angielski-25",
+   "kat": "angielski",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P098": {
+   "id": "tekst_techniczny-03",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P099": {
+   "id": "tekst_techniczny-25",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P100": {
+   "id": "pl_jezyk-25",
+   "kat": "pl_jezyk",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P101": {
+   "id": "tekst_techniczny-09",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P102": {
+   "id": "angielski-26",
+   "kat": "angielski",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P103": {
+   "id": "pl_jezyk-30",
+   "kat": "pl_jezyk",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P104": {
+   "id": "tekst_techniczny-12",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P105": {
+   "id": "angielski-25",
+   "kat": "angielski",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P106": {
+   "id": "pl_jezyk-27",
+   "kat": "pl_jezyk",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P107": {
+   "id": "tekst_techniczny-17",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P108": {
+   "id": "tekst_techniczny-09",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P109": {
+   "id": "pl_jezyk-27",
+   "kat": "pl_jezyk",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P110": {
+   "id": "tekst_techniczny-08",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P111": {
+   "id": "tekst_techniczny-13",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P112": {
+   "id": "tekst_techniczny-29",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "bielik",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P113": {
+   "id": "tekst_techniczny-26",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P114": {
+   "id": "angielski-28",
+   "kat": "angielski",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P115": {
+   "id": "tekst_techniczny-21",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "bielik",
+   "koniec_A": "limit",
+   "koniec_B": "stop"
+  },
+  "P116": {
+   "id": "angielski-27",
+   "kat": "angielski",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P117": {
+   "id": "tekst_techniczny-29",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P118": {
+   "id": "tekst_techniczny-07",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P119": {
+   "id": "tekst_techniczny-09",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P120": {
+   "id": "tekst_techniczny-14",
+   "kat": "tekst_techniczny",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P121": {
+   "id": "tekst_techniczny-06",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P122": {
+   "id": "tekst_techniczny-19",
+   "kat": "tekst_techniczny",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P123": {
+   "id": "pl_jezyk-29",
+   "kat": "pl_jezyk",
+   "A": "slayer",
+   "B": "lfm",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P124": {
+   "id": "angielski-29",
+   "kat": "angielski",
+   "A": "bielik",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P125": {
+   "id": "tekst_techniczny-24",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  },
+  "P126": {
+   "id": "tekst_techniczny-22",
+   "kat": "tekst_techniczny",
+   "A": "lfm",
+   "B": "slayer",
+   "koniec_A": "stop",
+   "koniec_B": "stop"
+  }
+ }
+}

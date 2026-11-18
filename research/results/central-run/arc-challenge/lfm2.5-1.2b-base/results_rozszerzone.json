@@ -155,6 +155,17 @@
         "najdluzsza": 0.32337883959044367
        }
       }
+     },
+     "wobec_b": {
+      "b": 0.26535836177474403,
+      "baza": "stala odpowiedz",
+      "roznica": 0.2440273037542662,
+      "se": 0.01950651052819609,
+      "z": 12.510043936435064,
+      "t": null,
+      "df": null,
+      "werdykt": "pewne",
+      "metoda": "A parowane"
      }
     },
     "mc": {
@@ -261,6 +272,17 @@
         "najdluzsza": 0.024744027303754267
        }
       }
+     },
+     "wobec_b": {
+      "b": 0.26535836177474403,
+      "baza": "stala odpowiedz",
+      "roznica": 0.4564846416382253,
+      "se": 0.018363073553724123,
+      "z": 24.858836419878518,
+      "t": null,
+      "df": null,
+      "werdykt": "pewne",
+      "metoda": "A parowane"
      }
     }
    },
@@ -291,5 +313,9 @@
  "probka": "pelna",
  "eval_gpu": "Apple_M5_Pro_mps",
  "sprzet": "mps",
- "max_length": 128000
+ "max_length": 128000,
+ "podsumowanie_ponowne": {
+  "narzedzie": "tools/podsumuj_ponownie.py",
+  "powod": "SE K dla testów +klastry i stała odpowiedź testów mc (METODOLOGIA, „Typy testów”)"
+ }
 }

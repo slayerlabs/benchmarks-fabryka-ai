@@ -1,0 +1,144 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-LiquidAI_LFM3-1.7B-1da06bec-20261110T032141Z",
+ "models": [
+  {
+   "model_id": "LiquidAI/LFM3-1.7B",
+   "repo": "LiquidAI/LFM3-1.7B",
+   "revision": "1da06bec6a819da10b54c67e5c90972b46d81871",
+   "weights_sha256": "135922caef64e81e52af88ede8b7c3ddaa9d6da220a9737fb3065275dbfb4330"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T07",
+   "task": "winogrande",
+   "family": "winogrande",
+   "language": "EN",
+   "split": "validation"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T07",
+   "model_id": "LiquidAI/LFM3-1.7B",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 1267,
+   "n_selected": 1267,
+   "n_scored": 1267,
+   "state": "ok",
+   "value": 0.5540647198105761,
+   "ci95": {
+    "lower": 0.5285379202501954,
+    "upper": 0.5799050632911392,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "51090e4bd363c098f6fba50bd8901ee1ffd5bc39a7ca7723d9f077664a6dbe5d",
+   "results_sha256": "f7ca094e0b004335fe96dc9c5e4c2627cbb1630dfdc706b5d93e060b5f355363",
+   "runner_sha256": "7597c0de7273004dcd099c7e2fb7083b6232e43c17e1822fc291923210d5c1fa",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.5,
+    "majority_value": 0.5043409629044988,
+    "majority_prediction_share": 0.531965272296764,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.5540647198105761,
+      "n": 1267,
+      "se": 0.013126738417375473,
+      "ci95": [
+       0.5285379202501954,
+       0.5799050632911392
+      ],
+      "se_a": 0.013970093482330689,
+      "k": 983,
+      "df": 982,
+      "metoda_se": "K"
+     },
+     "acc_norm": {
+      "value": 0.5540647198105761,
+      "n": 1267,
+      "se": 0.013126738417375473,
+      "ci95": [
+       0.5285379202501954,
+       0.5799050632911392
+      ],
+      "se_a": 0.013970093482330689,
+      "k": 983,
+      "df": 982,
+      "metoda_se": "K"
+     },
+     "bpb_poprawnej": {
+      "value": 1.4596672371932458,
+      "n": 1267,
+      "se": 0.03778801174032211,
+      "ci95": [
+       1.3889370149342797,
+       1.5362672550857837
+      ],
+      "se_a": 0.03190788494661195,
+      "k": 983,
+      "df": 982,
+      "metoda_se": "K"
+     },
+     "bazy": {
+      "chance_value": 0.5,
+      "majority_value": 0.5043409629044988,
+      "majority_prediction_share": 0.531965272296764,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.531965272296764,
+     "wobec_b": {
+      "b": 0.5043409629044988,
+      "baza": "stala odpowiedz",
+      "roznica": 0.049723756906077346,
+      "se": 0.016395524223629207,
+      "z": null,
+      "t": 3.0327640780412217,
+      "df": 982,
+      "werdykt": "pewne",
+      "metoda": "K"
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "allenai/winogrande",
+    "rewizja": "01e74176c63542e6b0bcb004dcdea22d94fb67b5",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "fe82b632887857585cc5482741d19b500868698d",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-LiquidAI_LFM3-1.7B-1da06bec-20261110T032141Z",
+    "results_sha256": "f7ca094e0b004335fe96dc9c5e4c2627cbb1630dfdc706b5d93e060b5f355363"
+   }
+  ],
+  "qualification_sha256": "347cb48955a60bebba7d426a3095cf296d7d39cea44e358ce4a343011371aeb0",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "d7ecb6c936400c99250553252543d174309ad06fb6f4afde1cd242fe4e8c6bf7"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.13",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_5090",
+ "sprzet": "NVIDIA GeForce RTX 5090",
+ "max_length": 262144,
+ "dtype": "float32"
+}

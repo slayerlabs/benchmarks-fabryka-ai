@@ -55,12 +55,14 @@ METRICS = ("ewok", "both", "constant_target")
 # ---------------------------------------------------------------- models
 
 class HFModel:
-    """A transformers model in float32 with the interface `hipoteza_formatu.licz_logliki` expects."""
+    """A transformers model (float32 unless `dtype` says otherwise) with the interface `hipoteza_formatu.licz_logliki`
+    expects. bfloat16 only for a model whose float32 weights do not fit the card (central run, `--dtype`)."""
 
-    def __init__(self, path, device):
+    def __init__(self, path, device, dtype="float32"):
         from transformers import AutoModelForCausalLM, AutoTokenizer
         self.tok = AutoTokenizer.from_pretrained(path, trust_remote_code=True)
-        self.m = AutoModelForCausalLM.from_pretrained(path, dtype=torch.float32, trust_remote_code=True).to(device).eval()
+        self.m = AutoModelForCausalLM.from_pretrained(path, dtype=getattr(torch, dtype),
+                                                      trust_remote_code=True).to(device).eval()
         self.device = device
         bos = self.tok.bos_token_id if self.tok.bos_token_id is not None else self.tok.eos_token_id
         self.prefiks, self.prefiks_pusty = [bos], [bos]
@@ -105,7 +107,7 @@ MODES = {"authors": "tokenizer's special tokens (BOS where the tokenizer adds it
          "bos": "one BOS before the context, C + ' ' + T, float32"}
 
 
-def build_model(path, device, rule="authors"):
+def build_model(path, device, rule="authors", dtype="float32"):
     """Slayer (config.json without model_type) through common/slayer_model.py, anything else through transformers.
     Only `bos` keeps a BOS in `prefiks`; `authors` takes special tokens from the tokenizer instead (`authors_pair`).
     A target without context keeps its BOS, since its first token needs something before it (only the `bezw`
@@ -113,12 +115,13 @@ def build_model(path, device, rule="authors"):
     assert rule in RULES, rule
     cfg = json.loads((Path(path) / "config.json").read_text())
     if "n_embd" in cfg and "model_type" not in cfg:
+        assert dtype == "float32", "Slayer is scored in float32 only"
         model = ModelSlayer(path, device)
         # Slayer's tokenizer.json has no post-processor (no special tokens) and no pad token: EOS is <|endoftext|>
         model.encode_special = lambda s: model.s.tok.encode(s).ids
         model.masked_id = lambda: model.s.bos
     else:
-        model = HFModel(path, device)
+        model = HFModel(path, device, dtype)
     model.rule = rule
     if rule != "bos":
         model.prefiks = []
@@ -404,13 +407,14 @@ def cmd_przebieg(a):
     out = Path(a.wyjscie)
     (out / "probki").mkdir(parents=True, exist_ok=True)
     protokol = {"dataset": f"{DATASET_REPO}@{DATASET_REV}", "rule": "authors", "mode": MODES["authors"],
-                "probka": a.probka, "batch": a.batch, "device": a.device, "eval_gpu": getattr(a, "eval_gpu", "")}
+                "probka": a.probka, "batch": a.batch, "device": a.device, "eval_gpu": getattr(a, "eval_gpu", ""),
+                "dtype": getattr(a, "dtype", "float32")}
     try:
         recs = load_records()
         tmpl = templates(recs)
         wybrane = recs if a.probka == "pelna" else recs[:int(a.probka)]
         plik = out / "probki" / "ewok.jsonl"
-        score(build_model(a.model_path, a.device), wybrane, plik, batch=a.batch)
+        score(build_model(a.model_path, a.device, dtype=getattr(a, "dtype", "float32")), wybrane, plik, batch=a.batch)
         obs = przebieg_wynik(a.zadania, wybrane, read_rows(plik), tmpl)
         obs["n_population"] = len(recs)
     except Exception as e:  # noqa: BLE001 - the run records the failure and goes on with the next pair
@@ -459,6 +463,8 @@ def main():
     c.add_argument("--repo", default="")
     c.add_argument("--revision", default="")
     c.add_argument("--wyjscie", required=True)
+    c.add_argument("--dtype", choices=["float32", "bfloat16"], default="float32",
+                   help="as common/ewaluuj.py --dtype: bfloat16 only when float32 weights do not fit the card")
     a = p.parse_args()
     kod = {"score": cmd_score, "report": cmd_report, "holm": cmd_holm, "przebieg": cmd_przebieg}[a.cmd](a)
     sys.exit(kod or 0)

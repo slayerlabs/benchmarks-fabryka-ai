@@ -38,8 +38,10 @@ Ta sama suma NLL (791319 natów) podzielona przez mniej bajtów daje wyższą pe
 ## Wyniki przed poprawką i po niej
 
 Przeliczenie bez modelu: nowe ln(ppl) = stare ln(ppl) x stary mianownik / nowy mianownik, osobno dla
-bajtów i słów (`przelicz_mianownik.py`). Wszystkie wartości: n = 62 dokumenty. W naszych plikach
-perpleksja nie ma SE (nie liczyliśmy bootstrapu po dokumentach), więc żaden wiersz go nie ma.
+bajtów i słów (`przelicz_mianownik.py`). Wszystkie wartości: n = 62 dokumenty. Pliki tego przeliczenia nie mają
+SE, więc żaden wiersz tabeli go nie ma.
+SE B (bootstrap po 62 dokumentach, 10 000 powtórzeń) ma przebieg centralny z 03.11: Slayer 1.06 ppl na bajt 1,8463, SE 0,0162, CI95 1,8156–1,8787; EuroLLM-1.7B 1,6077, SE 0,0137, CI95 1,5816–1,6352. <!-- liczba-spoza-wynikow: results/central-run/wikitext-2/{slayer1b-1.06,eurollm-1.7b}/results_rozszerzone.json, byte_perplexity -->
+Przebieg z 03.11 liczył kod sprzed zmian limitu kontekstu i BOS z 04.11, więc te wartości są do przeliczenia w przebiegu centralnym Slayera 1.07.
 
 | model | ppl na bajt przed | ppl na bajt po | bity na bajt po | ppl na słowo przed | ppl na słowo po |
 |---|---:|---:|---:|---:|---:|
@@ -93,8 +95,8 @@ zadanie do wzięcia.
 - [ ] Model kontrolny `EleutherAI/pythia-1b-v0` @ `step143000` na WikiText-2, przez lm-eval i naszym kodem.
 - [ ] Ustalić próg zgodności dla perpleksji i BPB ([METODOLOGIA.md, „Próg dla perpleksji i BPB”](../../METODOLOGIA.md#próg-dla-perpleksji-i-bpb)),
       potem dać etapowi B formalny werdykt.
-- [ ] Dodać SE albo CI dla perpleksji na bajt (np. bootstrap po 62 dokumentach), żeby porównania
-      checkpointów (A wobec B) dostały werdykt.
+- [ ] Dodać SE dla porównania checkpointów A wobec B (bootstrap po 62 dokumentach, jak w przebiegu centralnym,
+      który ma już SE B dla Slayera 1.06 i EuroLLM-1.7B), żeby to porównanie dostało werdykt.
 - [ ] Test zgodności `tests/test_wikitext_zgodnosc.py`: wartości per dokument z oryginalnego kodu dla 10-20
       dokumentów w pliku, nasz kod w granicach limitu per dokument, bez sieci. Obecny
       `tests/test_wikitext_mianownik.py` sprawdza tylko mianownik.

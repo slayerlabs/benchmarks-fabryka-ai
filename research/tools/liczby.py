@@ -233,7 +233,20 @@ def benchmarki(korzen=KORZEN):
         out[nazwa] = {"zrodla": [p.relative_to(korzen).as_posix() for p in raporty], "aliasy": u.get("aliasy", [nazwa]),
                       "pliki": [f"benchmarks/{nazwa}/"], "skala": u.get("skala", 1),
                       "with_global": u.get("with_global", False), "wartosci": wartosci}
+    # Badania poza benchmarks/ z własnym wyniki/LICZBY.json: ta sama zasada puli (liczby tylko w plikach katalogu).
+    for nazwa, katalog in BADANIA.items():
+        p = korzen / katalog / "wyniki" / "LICZBY.json"
+        if not p.exists():
+            continue
+        wartosci = {}
+        splaszcz(json.loads(p.read_text()), nazwa, wartosci, ("pozycje",))
+        out[nazwa] = {"zrodla": [p.relative_to(korzen).as_posix()], "aliasy": [nazwa], "pliki": [f"{katalog}/"],
+                      "skala": 100, "with_global": False, "wartosci": wartosci}
     return out
+
+
+# Badanie -> katalog z wyniki/LICZBY.json (generowany skryptem badania); alias nazwy nie występuje w innych raportach.
+BADANIA = {"rozmowy-1.08": "slayer-1b/rozmowy-1.08"}
 
 
 def porownania_blimp(bl):
@@ -462,6 +475,20 @@ def raporty_piqa(korzen):
                            "komenda": "python benchmarks/piqa/piqa.py report"}}]
 
 
+def raporty_badan(korzen):
+    """PAPER.md badań z BADANIA dla bramki (g): pula LICZBY.json badania ma tysiące wartości, więc sama bramka (a)
+    przepuszcza podmienioną 3-cyfrową liczbę; raport ma być bajt w bajt wyjściem code/paper.py z LICZBY.json."""
+    out = []
+    for nazwa, katalog in BADANIA.items():
+        if not (korzen / katalog / "wyniki" / "LICZBY.json").exists():
+            continue
+        out.append({"plik": f"{katalog}/PAPER.md", "test": nazwa, "wieloparadygmatowy": False, "grupy": [],
+                    "generator": {"modul": f"{katalog}/code/paper.py", "funkcja": "pliki",
+                                  "wejscie": f"{katalog}/wyniki/LICZBY.json",
+                                  "komenda": f"python -I {katalog}/code/paper.py"}})
+    return out
+
+
 def zbuduj(korzen=KORZEN):
     raport = json.loads((korzen / FORMAT).read_text())
     por = json.loads((korzen / WYGASZANIE / "porownanie.json").read_text())
@@ -488,6 +515,11 @@ def zbuduj(korzen=KORZEN):
         # per-paradigm values live in `porownania` (with SE and verdict), not twice in `wartosci`
         splaszcz({k: v for k, v in bl.items() if k != "porownanie"}, "blimp", wartosci,
                  pomin=("okna", "per_grupa", "per_grupa_acc_norm", "paradygmaty"))
+        # `se` of blimp.json is the stratified SE; the type `para +klastry` binds SE K over the 67 paradigms, t vs b
+        for m, v in bl["modele"].items():
+            r = klastrowe_wazone([(p["n"], p["acc"] - v["baza_losowa"]) for p in v["paradygmaty"].values()])
+            wartosci.update({f"blimp/modele/{m}/se_k": r["se"], f"blimp/modele/{m}/t_k": r["t"],
+                             f"blimp/modele/{m}/df_k": r["df"]})
         porownania += porownania_blimp(bl)
         raporty += raporty_blimp(bl)
     plik_krzywej = korzen / KRZYWA
@@ -497,6 +529,7 @@ def zbuduj(korzen=KORZEN):
         porownania += porownania_krzywej(kr)
         raporty += raporty_krzywej(kr)
     raporty += raporty_piqa(korzen)
+    raporty += raporty_badan(korzen)
     bench = benchmarki(korzen)
     return {"zrodla": zrodla + [z for b in bench.values() for z in b["zrodla"]],
             "benchmarki": bench, "raporty": raporty,

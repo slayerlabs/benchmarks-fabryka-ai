@@ -152,6 +152,17 @@
         "najdluzsza": 0.310580204778157
        }
       }
+     },
+     "wobec_b": {
+      "b": 0.26535836177474403,
+      "baza": "stala odpowiedz",
+      "roznica": 0.10921501706484642,
+      "se": 0.019503004301327526,
+      "z": 5.599907346449818,
+      "t": null,
+      "df": null,
+      "werdykt": "pewne",
+      "metoda": "A parowane"
      }
     },
     "mc": {
@@ -254,6 +265,17 @@
         "najdluzsza": 0.0017064846416382253
        }
       }
+     },
+     "wobec_b": {
+      "b": 0.26535836177474403,
+      "baza": "stala odpowiedz",
+      "roznica": 0.005972696245733789,
+      "se": 0.009388049879788914,
+      "z": 0.636202014498466,
+      "t": null,
+      "df": null,
+      "werdykt": "szum",
+      "metoda": "A parowane"
      }
     }
    },
@@ -283,5 +305,9 @@
  "dane": "hf",
  "probka": "pelna",
  "eval_gpu": "NVIDIA_GeForce_RTX_4090",
- "sprzet": "NVIDIA GeForce RTX 4090"
+ "sprzet": "NVIDIA GeForce RTX 4090",
+ "podsumowanie_ponowne": {
+  "narzedzie": "tools/podsumuj_ponownie.py",
+  "powod": "SE K dla testów +klastry i stała odpowiedź testów mc (METODOLOGIA, „Typy testów”)"
+ }
 }
