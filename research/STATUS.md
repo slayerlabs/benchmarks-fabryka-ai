@@ -42,7 +42,7 @@ test `tests/test_<name>.py`.
 | [HellaSwag](benchmarks/hellaswag/README.md) | T05 | ✓ | ✓ | ✓ | kontrolę (EuroLLM, spełniona) liczono 10-shot osobnym kodem poza przebiegiem; przebieg liczy T05 0-shot |
 | [PIQA](benchmarks/piqa/README.md) | T06 | ✓ | ✓ | ✓ | |
 | [WinoGrande](benchmarks/winogrande/README.md) | T07 | ✓ | ✓ | ✓ | |
-| [COPA](benchmarks/copa/README.md) | T11 | ✓ | bez kontroli | ✓ | werdykt „bez kontroli: nierozstrzygnięte”; wyniku przebiegu jeszcze nie ma (#165) |
+| [COPA](benchmarks/copa/README.md) | T11 | ✓ | czeka na MODELE | ✓ | kandydat `facebook/xglm-2.9B` @ `33c659ae`; werdykt po wpisie do `MODELE` i przebiegu (#165) |
 | [WSC273](benchmarks/wsc273/README.md) | T14 | ✓ | bez kontroli | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia): kontrola spoza listy |
 | [LAMBADA](benchmarks/lambada/README.md) | T17 | ✓ | ✓ | ✓ | kontrola Pythia v0: spełniony, pełny przebieg 2026-11 |
 | [MathQA](benchmarks/mathqa/README.md) | T19 | ✓ | bez kontroli | ✓ | Slayer na poziomie bazy większościowej |

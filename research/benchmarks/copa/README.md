@@ -11,7 +11,7 @@ Mierzy: wybór przyczyny albo skutku zdarzenia, 2 opcje.
 - Definicja zadania: lm-eval `6d2abda4` ([METODOLOGIA, „Wersja lm-eval”](../../METODOLOGIA.md#wersja-lm-eval)); przebieg liczy lm-eval 0.4.9.1 (`lock`) i 0.4.13 (`new`) z promptem wziętym z `super_glue/copa/utils.py` w `common/zadania.py`.
 - Przebieg centralny: podpięty (`T11` w `common/zadania.py` i `KATALOGI` w `tools/przebieg_centralny.sh`); przepis w [`RECIPE.md`](RECIPE.md).
 - [`ORIGINAL.md`](ORIGINAL.md): karta oryginału (etap A).
-- [`REPRODUCTION.md`](REPRODUCTION.md): etap B, werdykt bez kontroli: nierozstrzygnięte. Wyniku przebiegu jeszcze nie ma.
+- [`REPRODUCTION.md`](REPRODUCTION.md): etap B, kandydat `facebook/xglm-2.9B` @ `33c659ae27de09c0a54123d3902dac48cbb8592a`. Werdykt czeka na wpis do `MODELE`.
 - Test: `tests/test_copa.py`.
 
 Prompt z `super_glue/copa/utils.py` zainstalowanego lm-eval.
