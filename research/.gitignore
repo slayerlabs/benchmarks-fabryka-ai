@@ -10,7 +10,7 @@ models/
 *.parquet
 *.arrow
 *.npy
-# paczka dla testerów idzie osobno, poza repo
+# archives are never committed (CONTRIBUTING.md, "Pliki w repo")
 *.zip
 # wyniki per pytanie (kopia w slayer-1b/wygaszanie/wyniki/pelne_wyniki.tgz)
 slayer-1b/wygaszanie/wyniki/*/*.jsonl
