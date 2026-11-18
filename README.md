@@ -71,7 +71,7 @@ oryginałem, i budujemy polskie benchmarki.
 
 5. **Otwórz PR do `main`** z `Refs #N` w opisie, według [`CONTRIBUTING.md`, „PR”](CONTRIBUTING.md#pr).
 
-Jak powstaje test: [METODOLOGIA, „Etapy pracy”](research/METODOLOGIA.md#etapy-pracy).
+How to run a benchmark through the API, which files to add and in what format: [METHODOLOGY.md](research/METHODOLOGY.md).
 
 <a name="definicja-zrobione"></a>Kiedy test jest skończony: [METODOLOGIA, „Definicja „zrobione””](research/METODOLOGIA.md#definicja-zrobione).
 
@@ -82,7 +82,7 @@ Jak powstaje test: [METODOLOGIA, „Etapy pracy”](research/METODOLOGIA.md#etap
 | gdzie | co tam jest |
 |---|---|
 | <a href="research/STATUS.md"><img src="docs/img/stan-benchmarkow.svg" alt="Stan benchmarków" height="36"></a> | co gotowe, czego brakuje, co do sprawdzenia |
-| <a href="research/METODOLOGIA.md"><img src="docs/img/metodologia.svg" alt="Metodologia" height="36"></a> | jak powstaje benchmark: etapy A–D, typy testów, SE i werdykt |
+| <a href="research/METHODOLOGY.md"><img src="docs/img/metodologia.svg" alt="Methodology" height="36"></a> | how to run a benchmark through the API, which files to add and in what format |
 | <a href="research/benchmarks/_template"><img src="docs/img/nowy-test.svg" alt="Nowy test" height="36"></a> | wzór nowego benchmarku; każdy benchmark ma katalog w `research/benchmarks/` |
 | <a href="https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks"><img src="docs/img/wyniki-na-hf.svg" alt="Wyniki na HF" height="36"></a> | wyniki Slayera 1B w Space |
 | <a href="research/slayer-1b/dane/DANE_TRENINGOWE.md"><img src="docs/img/dane-treningowe.svg" alt="Dane treningowe" height="36"></a> | na czym trenowano każdą wersję Slayera 1B (1.00–1.09) i znane przecieki testów do danych |
