@@ -15,6 +15,8 @@ Wszystkie komendy niżej uruchamiasz w katalogu `research/`.
 
 | katalog albo plik | co tam jest |
 |---|---|
+| `METHODOLOGY.md` | how to run a benchmark through the Fabryka AI API, which files to add and in what format |
+| `api-benchmarks/<name>/` | one benchmark run through the API: `README.md`, `run.sh`, `results/<model-id>.json` and `.jsonl.gz` |
 | `METODOLOGIA.md` | wspólny rdzeń reguł, tabela typów testów, etapy A–D, modele, przepis, następna wersja Slayera |
 | `LEADERBOARD.md` | zasady meta-oceny i rankingu modeli |
 | `BENCHMARKI_PL.md` | które benchmarki przetłumaczyć, a które napisać od zera po polsku |
