@@ -519,10 +519,27 @@ def test_kompletnosc_reports_pairs_without_a_result_and_skips_gated_models():
 
 
 def test_plan_four_gpus_balances_by_time_not_by_list_order():
-    """17.11: round robin put lfm3-1.7b and lfm3-1.7b-base (two whole models) on one GPU. Now the longest queue is at
-    most the ideal share plus one pair, and the estimate per GPU is printed."""
+    """17.11: round robin put lfm3-1.7b and lfm3-1.7b-base (two whole models) on one GPU. Now the longest estimated
+    queue is within 10% of the ideal share (round robin without cutting gives ~1.22x on these data, the plan ~1.01x),
+    and the estimate per GPU is printed."""
     linie = plan_na_gpu(4).splitlines()
     szacunki = [float(re.search(r"~([\d.]+) h", l)[1]) for l in linie if l.startswith("# estimate GPU ")]
     assert len(szacunki) == 4
     idealnie = float(re.search(r"ideal per GPU ([\d.]+) h", next(l for l in linie if "ideal per GPU" in l))[1])
-    assert max(szacunki) <= idealnie * 1.5
+    assert max(szacunki) <= idealnie * 1.1
+
+
+def test_failed_queue_planner_stops_plan_and_licz_instead_of_running_zero_queues():
+    """A process substitution `< <(kolejki ...)` hid a queue_plan.py error: zero queues, `licz` ended with code 0."""
+    with tempfile.TemporaryDirectory() as ws, tempfile.TemporaryDirectory() as bin_:
+        for nazwa, tresc in (("nvidia-smi", "[ \"$1\" = -L ] && { echo 'GPU 0: A'; echo 'GPU 1: B'; exit 0; }\necho A\n"),
+                             ("python3", "exit 1\n")):  # every python3 call fails, the planner too
+            p = Path(bin_) / nazwa
+            p.write_text("#!/bin/sh\n" + tresc)
+            p.chmod(0o755)
+        env = {**os.environ, "WS": ws, "K": str(KORZEN), "PATH": f"{bin_}:{os.environ['PATH']}"}
+        plan = subprocess.run(["bash", str(SKRYPT), "plan", "pythia-1b-v0"], capture_output=True, text=True, env=env)
+        licz = subprocess.run(["bash", "-c", f"source {SKRYPT} _funkcje; licz_rownolegle proba pythia-1b-v0"],
+                              capture_output=True, text=True, env=env)
+    assert plan.returncode != 0 and "queue plan failed" in plan.stderr and "CUDA_VISIBLE_DEVICES" not in plan.stdout
+    assert licz.returncode != 0 and "queue plan failed" in licz.stderr
