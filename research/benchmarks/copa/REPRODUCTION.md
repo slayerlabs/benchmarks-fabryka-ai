@@ -2,7 +2,7 @@
 
 Procedurę opisuje [METODOLOGIA.md](../../METODOLOGIA.md), sekcja „B. Odtworzenie wyniku oryginalnym kodem
 (REPRODUCTION.md)” i „Bez kontroli”. Komenda i środowisko: [`RECIPE.md`](RECIPE.md). Wyniki po przebiegu:
-[`results/central-run/copa/`](../../results/central-run/copa/). Ustalenia poniżej biorą się z
+`results/central-run/copa/` (katalog powstanie przy przebiegu). Ustalenia poniżej biorą się z
 [`ORIGINAL.md`](ORIGINAL.md); źródła karty odczytano 2026-11-05. Ten plik nie jest nowym przeglądem tych źródeł.
 
 | | wartość |
