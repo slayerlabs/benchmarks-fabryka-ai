@@ -218,7 +218,7 @@ ZADANIA = {
     "T28": dict(benchmark_id="cbd", task="polish_cbd_multiple_choice", family="cbd", language="PL",
                 metric="f1,none", unit="score", higher_is_better=True, klucz="f1",
                 repo="ptaszynski/PolishCyberbullyingDataset", rewizja="be3b1236598a02eff6db05ea7ac386afaabc33e8",
-                split="test", rodzaj="mc", klasy_stale=True, shoty=5,
+                split="test", rodzaj="mc", klasy_stale=True, klastry="TEXT", shoty=5,
                 yaml="cbd/lm_eval_tasks/polish_cbd/cbd_mc.yaml"),
     "T29": dict(benchmark_id="klej_ner", task="polish_klej_ner_multiple_choice", family="klej_ner", language="PL",
                 metric="acc,none", unit="score", higher_is_better=True,
