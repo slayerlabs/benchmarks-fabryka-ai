@@ -47,10 +47,10 @@ def zbuduj_model(a):
         import slayer_lm
         lm = slayer_lm.SlayerLM(pretrained=weights_path, dtype=a.dtype, batch_size=a.batch, device=a.device)
     else:
-        from lm_eval.models.huggingface import HFLM
-        lm = HFLM(pretrained=weights_path, revision=None if a.model_path else a.revision,
-                  dtype=a.dtype, batch_size=a.batch, device=a.device, trust_remote_code=a.trust_remote_code,
-                  max_length=a.max_length)
+        from jeden_bos import HFLMJedenBOS  # METODOLOGIA, „Wejście”: jeden wiodący BOS w każdym żądaniu
+        lm = HFLMJedenBOS(pretrained=weights_path, revision=None if a.model_path else a.revision,
+                          dtype=a.dtype, batch_size=a.batch, device=a.device, trust_remote_code=a.trust_remote_code,
+                          max_length=a.max_length)
     return lm, a.repo or Path(a.model_path).resolve().name, a.revision
 
 
@@ -673,6 +673,8 @@ def main():
     for podkatalog in ("probki", "trace"):
         (wyj / podkatalog).mkdir(parents=True, exist_ok=True)
     lm, model_id, rewizja = zbuduj_model(a)
+    from jeden_bos import zbadaj_bos
+    bos = zbadaj_bos(lm)
     licz_tokeny = licznik_tokenow(lm)
     sprzet = opis_sprzetu(a.device)
     protocol_id = PROTOKOLY.get(a.probka, PROTOKOLY["panel200"])
@@ -725,7 +727,7 @@ def main():
         json.dumps({**wyniki, "observations": rozszerzone, "ewaluator": "niezależny (slayer_eval)",
                     "lm_eval": __import__("lm_eval").__version__, "dane": a.dane, "probka": a.probka,
                     "eval_gpu": a.eval_gpu, "sprzet": sprzet, "max_length": getattr(lm, "max_length", None),
-                    "dtype": a.dtype},
+                    "dtype": a.dtype, "bos": bos},
                    ensure_ascii=False, indent=1))
     (wyj / "podsumowanie.md").write_text(M.tabela_md(rozszerzone))
     tokens = a.tokens if a.tokens is not None else (a.step * 2 ** 20 if a.step is not None else None)

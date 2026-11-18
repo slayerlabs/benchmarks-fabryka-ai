@@ -1,3 +1,6 @@
+> Rules of the earlier lm-eval run for the benchmarks in `benchmarks/`. New benchmarks follow
+> [METHODOLOGY.md](METHODOLOGY.md).
+
 # Metodologia: wspólny rdzeń i typy testów
 
 Repo mierzy każdy model, który da się pobrać z Hugging Face, nie tylko Slayera 1B. Każdy test ma część wspólną
@@ -193,7 +196,7 @@ wpisujesz dopiero po przeczytaniu kodu przypiętej wersji (sekcja „Wersja lm-e
 **Panel SNR.** Panel to wiersze `MODELE` w `tools/przebieg_centralny.sh` poza wierszem `SlayerLab/` (mierzony
 model), które mają wyniki per pytanie tego testu: modele odniesienia i `EleutherAI/pythia-1b-v0`, czyli model kontrolny
 etapu B wpisany do `MODELE` (sekcja „Kto liczy które modele”). Model kontrolny etapu B spoza `MODELE` do panelu nie
-wchodzi. Panel jest ten sam dla każdego testu, jak w [Signal and Noise](https://arxiv.org/abs/2508.13144). Rozrzut to
+wchodzi, tak samo jak modele kontrolne z sekcji „Modele kontrolne etapu B w przebiegu”. Panel jest ten sam dla każdego testu, jak w [Signal and Noise](https://arxiv.org/abs/2508.13144). Rozrzut to
 odchylenie standardowe (mianownik n − 1) wyników metryki decyzyjnej modeli panelu, SE to średnia po modelach panelu SE
 jednego wyniku metodą z kolumny „SE”, SNR to ich iloraz. Panel krótszy niż 4 modele daje SNR „nieustalony”. Liczy
 `tools/snr_panelu.py` z `results/central-run/`, a karta podaje SNR, jego przedział 95%, najmniejszy SNR bez jednego
@@ -402,14 +405,29 @@ Przebieg centralny liczy też te modele tą samą komendą, poza porównaniem z 
 | `LiquidAI/LFM3-1.7B` | `1da06bec6a819da10b54c67e5c90972b46d81871` | model instruct, `trust_remote_code`, środowisko `new` |
 | `SlayerLab/Slayer1B-1.09-checkpoints` | `cff81fdcc05f0d91e9ba45b09fe78f769d7e0903` | plik `wagi_40000.pt`, wzorzec konwersji `SlayerLab/Slayer1B-1.08` @ `5f854a0cc7160594d54d1788d37a44e8ebabe16c` |
 
+### Modele kontrolne etapu B w przebiegu
+
+Przebieg centralny liczy też modele kontrolne etapu B spoza listy, wskazane w kartach z punktu 3 listy „Model
+kontrolny etapu B”. Każdy liczy tylko swoje testy (`TESTY_MODELU` w `tools/przebieg_centralny.sh`), w ustawieniach
+wpisu zadania, i nie wchodzi ani do porównania z modelami odniesienia, ani do panelu SNR, ani do raportu przebiegu.
+Precyzja to float32, a bfloat16 tylko wtedy, gdy źródło wyniku liczyło w bf16 model od 6 mld parametrów.
+
+| model | rewizja | testy | uwagi |
+|---|---|---|---|
+| `bigscience/bloom-560m` | `e985a63cdc139290c5f700ff1929f0b5942cced2` | T20 | rewizja z daty; inna niż kontrola WSC273 |
+| `bigscience/bloom-1b7` | `258ce6c9fe66893de0218d9e6a322947987c8349` | T38, T40, T41 | rewizja z daty |
+| `EleutherAI/pythia-1b` | `f73d7dcc545c8bd326d8559c8ef84ffe92fea6b2` | T36 | nie `pythia-1b-v0` |
+| `Qwen/Qwen1.5-7B` | `e52fa2ef47411cc8bc9f752d1d8d9072b37742e7` | T35 | bfloat16: wynik źródła liczony w bf16, a float32 (ok. 31 GB) nie mieści się na karcie 32 GB |
+| `babylm/babyllama-10m-2024` | `073b4258651a7a6268fc48e708cdbad6a20bddab` | T52 | rewizja z daty |
+
 ### Kto liczy które modele
 
 Wszystkie modele liczy przebieg centralny tym samym kodem (sekcja „Następna wersja Slayera”): mierzony model, modele
 odniesienia i model kontrolny benchmarku. Autor PR niczego nie liczy na GPU. Lista `MODELE` w
 `tools/przebieg_centralny.sh` ma Slayera, modele odniesienia i pierwszy model kontrolny z listy,
 `EleutherAI/pythia-1b-v0` @ `step143000` (commit `f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0`), a za nimi modele
-porównawcze. Werdykt etapu B z
-dalszym modelem z listy czeka, aż ktoś dopisze go do `MODELE`.
+porównawcze i modele kontrolne etapu B ze swoimi testami. Werdykt etapu B z
+dalszym modelem z listy czeka, aż ktoś dopisze go do `MODELE` i `TESTY_MODELU`.
 
 ## Przepis (RECIPE.md)
 
@@ -442,7 +460,10 @@ obu wersji, i jaką rewizję zbioru zadanie ładuje. *Recenzent:* porównuje has
 benchmarku, a wpis w `ZADANIA` musi się z nią zgadzać (`tests/test_zgodnosc_karty.py`). Wspólne dla wszystkich
 zadań reguły `common/ewaluuj.py`:
 
-- **Wejście.** Każde żądanie ma dokładnie jeden wiodący token BOS. Prompt z BOS plus budżet odpowiedzi (generacja:
+- **Wejście.** Każde żądanie ma dokładnie jeden wiodący token BOS tokenizera modelu, także gdy tokenizer sam go nie
+  dokleja (`common/jeden_bos.py`, Slayer: `common/slayer_lm.py`). Model, którego tokenizer nie ma `bos_token`
+  (Qwen3.5), dostaje żądania bez BOS, a pusty kontekst zaczyna się wtedy od EOS, jak w HFLM. Ile wiodących BOS dostało
+  żądanie, zapisuje pole `bos` w `results_rozszerzone.json`. Testy z własnym kodem (EWoK) mają regułę z karty. Prompt z BOS plus budżet odpowiedzi (generacja:
   `max_gen_toks` z YAML-a, domyślnie 256 tokenów; MC: BOS, kontekst i najdłuższa kontynuacja liczone jako jeden tekst, tak jak w HFLM) mieści się w oknie modelu,
   najwyżej 4096 tokenów. Za długi prompt traci demonstracje od końca, a wynik zadania zapisuje w polu
   `demonstracje_skrocone`, ile pytań dostało mniej demonstracji. Pytań, opcji i odniesień nie przycinamy, więc prompt
@@ -537,7 +558,7 @@ wchodzi do obu środowisk).
    ```
 
    `start.sh` to dwie komendy `przebieg_centralny.sh`: `przygotuj 172800` (środowiska lock i new, bezpiecznik,
-   strażnik bezczynności) i `licz "slayer1b-1.07:<GOTOWE>"`. Lista `GOTOWE` stoi w `przebieg_centralny.sh`, a
+   strażnik bezczynności) i `POMIN=reszta licz "slayer1b-1.07:<GOTOWE>"`. Lista `GOTOWE` stoi w `przebieg_centralny.sh`, a
    `tests/test_start.py` pilnuje, że to testy z sekcji „Gotowe” w `STATUS.md`. `start.sh slayer1b-1.07 wszystkie`
    liczy wszystkie zadania przebiegu, `START_SUCHO=1` tylko wypisuje obie komendy. Kod skrypty biorą z katalogu, w
    którym leżą (`K`), więc klon może stać gdziekolwiek.
@@ -573,16 +594,21 @@ wchodzi do obu środowisk).
    sposobami z https://vast.ai/docs/gpu-instances/data-movement (odsyłacz z opisu `vastai stop instance`). W repo rozpakowujesz archiwum w `results/central-run/`. Pole `repo`
    w `results.json` to `SlayerLab/Slayer1B-1.07-checkpoints` @ `89630be…`, a `weights_sha256` to suma
    skonwertowanego `model.safetensors` (`d826b4a1…`).
-   Komenda z kroku 4 liczy tylko Slayera 1.07; LFM2.5 (jak każdy model odniesienia) przebieg liczy od nowa tylko z jego etykietą w `licz` (np. `licz "slayer1b-1.07 lfm2.5-1.2b-base"`), w środowisku z `MODELE` (`lock`, lm-eval 0.4.9.1), a dzisiejsze wyniki LFM2.5 w `results/central-run/*/lfm2.5-1.2b-base/` (lm-eval 0.4.13, Apple MPS) nie są z tak policzonymi porównywalne.
+   Komenda z kroku 4 liczy tylko Slayera 1.07; LFM2.5 (jak każdy model odniesienia) przebieg liczy od nowa tylko z jego etykietą w `licz` (np. `POMIN=reszta licz "slayer1b-1.07 lfm2.5-1.2b-base"`), w środowisku z `MODELE` (`lock`, lm-eval 0.4.9.1), a dzisiejsze wyniki LFM2.5 w `results/central-run/*/lfm2.5-1.2b-base/` (lm-eval 0.4.13, Apple MPS) nie są z tak policzonymi porównywalne.
 
 Punkt odniesienia z CPU: `proba_cpu "slayer1b-1.07"` (`PROBA_N=2`, 4 wątki, Apple M5 Pro, 07.11.2026): 49 zadań
 sprzed #154 w 1592 s (najdłuższe MMLU 319 s, MATH 192 s, IFEval 127 s, BBH 114 s), T51 i T52 razem 33 s, czyli 51
 z 52 zadań w ok. 27 min. T53 nie był liczony na danych EWoK (token bez dostępu do `ewok-core-1.0`, `GatedRepoError`). Na
 instancji `ZOSTAW_WAGI=1 bash tools/przebieg_centralny.sh proba_cpu "slayer1b-1.07"` przed `licz` sprawdza
-ładowanie, a `licz` nie pobiera wag drugi raz.
+ładowanie, a `licz` nie pobiera wag drugi raz. Przy kilku kartach wagi przejmuje pierwsza kolejka, która liczy ten
+model (`modele/<etykieta>.gpu<N>`); model pocięty przez `tools/queue_plan.py` na części pobiera wagi osobno dla
+każdej kolejnej karty.
 
 `plan "slayer1b-<wersja>"` wypisuje komendy bez liczenia, także lokalnie (`K=$PWD WS=$(mktemp -d)`). `stan` pokazuje
-postęp, `ponow` powtarza zadania zakończone błędem, a `licz` kończy się `tools/kontrola_sensu.py` (zadanie bez
+postęp, `ponow` powtarza zadania zakończone błędem. `licz` bez listy liczy wszystkie modele z `MODELE`. Lista
+etykiet musi wymienić w `POMIN` każdy pominięty model z `MODELE` (albo `POMIN=reszta`, jeden model na instancję), bo
+lista przepisana ręcznie zgubiła już model mierzony. `licz` kończy się `tools/kontrola_sensu.py` i sprawdzeniem, że
+każda para model × test z planu `licz` ma wynik (zadanie bez
 wyniku, wynik równy 1, wynik pod bazą losową o ponad 5 pkt, perpleksja nieskończona); osobno, bez błędu, wypisuje wyniki
 „at baseline level”, które nie przechodzą kontroli z tabeli typów (wynik > b + 2 SE; przy testach MC z porównania
 `wobec_b`, parowanego ze stałą odpowiedzią). Przebieg liczy pełne zbiory.
