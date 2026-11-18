@@ -1,3 +1,38 @@
+# WAŻNE
+
+1) proszę nie używać sowich prywatnych GPU zasobów - nie musicie wydawać własnych zasobów na to - dajcie znać jakiego API potrzebujecie
+2) Korzystajcie z https://fabryka.ai/platform --- jak coś nie działa to to jest #1 priorytet aby mi o tym mówić
+3) Kluczowa jest ta lista benchmarków:  ( te mają priorytet )
+4) Kluczowe jest aby policzyć to dla przede wszystkim Bielik 11B 3.1 ( w sumie może też dla 3.0 )  oraz dla Slayer 1B 
+
+LiveClaw
+Claw-Eval General (EN)
+BrowseComp-Plus (OpenClaw subset)
+WebArena-Verified
+EnterpriseOps-Gym
+AutomationBench
+BFCL V4
+ToolSandbox
+MCP-Atlas
+τ³-bench
+SWE-bench Verified
+SWE-bench Multilingual
+Terminal-Bench 2.1
+LiveCodeBench v6
+LiveCodeBench Pro 25Q2
+SciCode
+IFEval
+IFBench
+IFStruct
+Multi-IF
+GPQA Diamond
+Humanity’s Last Exam
+AA-Omniscience
+AA-LCR
+RULER 128K
+
+
+
 # benchmarks-fabryka-ai
 
 Mierzymy otwarte modele językowe, dziś polsko-angielskiego **Slayer 1B**, na benchmarkach odtworzonych zgodnie z
@@ -36,7 +71,7 @@ oryginałem, i budujemy polskie benchmarki.
 
 5. **Otwórz PR do `main`** z `Refs #N` w opisie, według [`CONTRIBUTING.md`, „PR”](CONTRIBUTING.md#pr).
 
-Jak powstaje test: [METODOLOGIA, „Etapy pracy”](research/METODOLOGIA.md#etapy-pracy).
+How to run a benchmark through the API, which files to add and in what format: [METHODOLOGY.md](research/METHODOLOGY.md).
 
 <a name="definicja-zrobione"></a>Kiedy test jest skończony: [METODOLOGIA, „Definicja „zrobione””](research/METODOLOGIA.md#definicja-zrobione).
 
@@ -47,7 +82,7 @@ Jak powstaje test: [METODOLOGIA, „Etapy pracy”](research/METODOLOGIA.md#etap
 | gdzie | co tam jest |
 |---|---|
 | <a href="research/STATUS.md"><img src="docs/img/stan-benchmarkow.svg" alt="Stan benchmarków" height="36"></a> | co gotowe, czego brakuje, co do sprawdzenia |
-| <a href="research/METODOLOGIA.md"><img src="docs/img/metodologia.svg" alt="Metodologia" height="36"></a> | jak powstaje benchmark: etapy A–D, typy testów, SE i werdykt |
+| <a href="research/METHODOLOGY.md"><img src="docs/img/metodologia.svg" alt="Methodology" height="36"></a> | how to run a benchmark through the API, which files to add and in what format |
 | <a href="research/benchmarks/_template"><img src="docs/img/nowy-test.svg" alt="Nowy test" height="36"></a> | wzór nowego benchmarku; każdy benchmark ma katalog w `research/benchmarks/` |
 | <a href="https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks"><img src="docs/img/wyniki-na-hf.svg" alt="Wyniki na HF" height="36"></a> | wyniki Slayera 1B w Space |
 | <a href="research/slayer-1b/dane/DANE_TRENINGOWE.md"><img src="docs/img/dane-treningowe.svg" alt="Dane treningowe" height="36"></a> | na czym trenowano każdą wersję Slayera 1B (1.00–1.09) i znane przecieki testów do danych |
