@@ -65,4 +65,4 @@ W każdym z siedmiu promptów są dokładnie 5 demonstracji i pytanie, opcje A�
 a cudzysłów wokół fragmentu i pytania pochodzi z szablonu. Na wszystkich 895 liczonych: 0 pustych opcji, 3 pytania z dwiema
 identycznymi opcjami (indeksy 401, 431, 779, opisane w karcie), żaden dokument banku nie jest wśród nich; cudzysłów `"`
 stoi w 2 fragmentach i w 0 pytaniach, więc szablon `"…"` rzadko się z nim miesza. Druga demonstracja banku kończy się
-opcją z białym znakiem na końcu (karta: 106 takich opcji w 99 pytaniach), który zostaje w prompcie przed `\n`. <!-- liczba-spoza-wynikow: zadanie lm-eval T24 @ 7899cdfa, liczone 895, odczyt 2026-11-17 -->
+opcją z białym znakiem na końcu (karta: 105 takich opcji w 98 pytaniach, a 1 opcja ma biały znak na początku), który zostaje w prompcie przed `\n`. <!-- liczba-spoza-wynikow: zadanie lm-eval T24 @ 7899cdfa, liczone 895, odczyt 2026-11-17 -->
