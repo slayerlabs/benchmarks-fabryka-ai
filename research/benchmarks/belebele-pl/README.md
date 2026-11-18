@@ -4,7 +4,7 @@
 
 Mierzy: czytanie ze zrozumieniem fragmentu FLORES, 4 odpowiedzi literą.
 
-- Test T24, typ `mc +pl` ([README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy)).
+- Test T24, typ `mc +klastry +pl` ([README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy)); klastry: fragment FLORES (`link`; 900 pytań, 488 fragmentów, 412 z 2 pytaniami; w pełnym przebiegu ocenianych 895 pytań, 487 fragmentów, 408 z 2 pytaniami).
 - Zbiór: `facebook/belebele` @ `7899cdfa4e1e0d733fd77c848e2c273cb1d32be2`, konfiguracja `pol_Latn`, split `test` (900 pytań). Oceniane w pełnym przebiegu: n = 895, bo 5 dokumentów banku demonstracji wypada z oceny (niżej); wynik podaje się z n = 895, tak jak `n_population` i `n_scored` w `results.json`.
 - Metryka decyzyjna: `acc`.
 - Licencja (karta zbioru na przypiętej rewizji): cc-by-sa-4.0.
