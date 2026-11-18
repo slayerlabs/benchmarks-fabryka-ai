@@ -392,7 +392,7 @@ def test_f1_corpus_for_openpl_mc_tasks():
 # --- Belebele (T24): demonstrations from the only split, never scored (METODOLOGIA "Przykłady few-shot") ---
 
 BELEBELE = [{"flores_passage": f"P{i}", "question": f"Q{i}?", "mc_answer1": "a", "mc_answer2": "b",
-             "mc_answer3": "c", "mc_answer4": "d", "correct_answer_num": "1"} for i in range(8)]
+             "mc_answer3": "c", "mc_answer4": "d", "correct_answer_num": "1", "link": f"L{i}"} for i in range(8)]
 
 
 @pytest.mark.parametrize("probka, n_populacji, n_ocenianych", [("pelna", 3, 3), ("2", 8, 2)])

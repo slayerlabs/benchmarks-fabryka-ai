@@ -27,7 +27,7 @@ Wszystkie komendy niżej uruchamiasz w katalogu `research/`.
 | `tools/` | bramka liczb (`liczby.py`, `sprawdz_raporty.py`), przebieg centralny (`przebieg_centralny.sh`, `kontrola_sensu.py`, `bezpiecznik.py`, `konwertuj.py`) |
 | `results/` | `LICZBY.json` i `LICZBY.md`: wszystkie liczby raportów, wygenerowane przez bramkę liczb; `central-run/`: wyniki przebiegu centralnego |
 | `tests/` | testy kodu, bez sieci i bez wag |
-| `slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami: `dane/` (spis zbiorów: [`REJESTR_DATASETOW.md`](slayer-1b/dane/REJESTR_DATASETOW.md)), `testy_danych_slayer/`, `wygaszanie/`, `tokenizer/`, `lab/`, `paczka_testerzy/` (komendy w ich README uruchamiasz w `research/slayer-1b/`) |
+| `slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami: `dane/` (spis zbiorów: [`REJESTR_DATASETOW.md`](slayer-1b/dane/REJESTR_DATASETOW.md)), `testy_danych_slayer/`, `wygaszanie/`, `tokenizer/`, `rozmowy-1.08/` (komendy w ich README uruchamiasz w `research/slayer-1b/`) |
 
 Jest też jedna analiza: [`analyses/answer-format/`](analyses/answer-format/README.md). Testy T01–T52 liczy kod
 w `common/`, opisany w [`common/README.md`](common/README.md).
@@ -45,7 +45,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`arc-challenge`](benchmarks/arc-challenge/README.md) | T02 | `mc-k` | | T02 | nieustalone |
 | [`arc-easy`](benchmarks/arc-easy/README.md) | T51 | `mc-k` | | T51 | tak |
 | [`bbh`](benchmarks/bbh/README.md) | T47 | `gen +warstwy` | warstwy: 27 zadań, wagi populacji | T47 | nieustalone |
-| [`belebele-pl`](benchmarks/belebele-pl/README.md) | T24 | `mc +pl` | | T24 | nieustalone |
+| [`belebele-pl`](benchmarks/belebele-pl/README.md) | T24 | `mc +klastry +pl` | klastry: fragment FLORES (`link`; 900 pytań, 488 fragmentów, 412 z 2 pytaniami) | T24 | nieustalone |
 | [`blimp`](benchmarks/blimp/README.md) | T01 | `para +klastry` | klastry: paradygmaty; zjawiska informacyjnie | T01 | tak |
 | [`blimp-supplement`](benchmarks/blimp-supplement/README.md) | T52 | `para +warstwy` | warstwy: podzadania, średnia bez wag (karta nie pokazuje, że podzadanie to jeden szablon) | T52 | nieustalone |
 | [`boolq`](benchmarks/boolq/README.md) | T10 | `mc +klastry` | klastry: wspólny ustęp (3270 pytań, 2938 ustępów, 578 pytań dzieli ustęp, do 9 na ustęp) | T10 | nieustalone |
@@ -77,7 +77,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`polemo2`](benchmarks/polemo2/README.md) | T22 | `mc +pl` | | T22 | nieustalone |
 | [`polqa`](benchmarks/polqa/README.md) | T30 | `gen +pl` | | T30 | nieustalone |
 | [`poquad`](benchmarks/poquad/README.md) | T31 | `gen +klastry +pl` | klastry: `context` (5764 pytania do 1449 tekstów) | T31 | nieustalone |
-| [`ppc`](benchmarks/ppc/README.md) | T26 | `mc +pl` | | T26 | nieustalone |
+| [`ppc`](benchmarks/ppc/README.md) | T26 | `mc +klastry +pl` | klastry: pary dzielące zdanie (53 z 1000 wierszy w 25 grupach; 972 grupy) | T26 | nieustalone |
 | [`prost`](benchmarks/prost/README.md) | T20 | `mc` | | T20 | nieustalone |
 | [`psc`](benchmarks/psc/README.md) | T27 | `f1-korpus +klastry +pl` | klastry: `extract_text` (1078 wierszy do 507 tekstów) | T27 | nieustalone |
 | [`pubmedqa`](benchmarks/pubmedqa/README.md) | T44 | `mc` | | T44 | nieustalone |
@@ -99,7 +99,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 Wczesny sygnał (kryterium w METODOLOGII) policzono z publicznych plików zero-shot 15 checkpointów
 [`pythia-1b-v0`](https://github.com/EleutherAI/pythia/tree/main/evals/pythia-v0/pythia-1b/zero-shot); karta przejmuje
 wartość dopiero z własnym przeliczeniem. Plik Pythii nie ma zadań HellaSwag, BoolQ, OpenBookQA, EWoK, BLiMP
-Supplement, UncheatableEval ani WikiText-2, a jego `wsc` to inny zbiór niż WSC273, stąd „nieustalone”.
+Supplement, MATH, UncheatableEval ani WikiText-2, a jego `wsc` to inny zbiór niż WSC273, stąd „nieustalone”.
 
 Testy T01–T50 według typu:
 
@@ -278,7 +278,7 @@ To testy zmienionego benchmarku, `tests/test_liczby_raportow.py` i bramka liczb.
 
 ## Bramka liczb
 
-Uruchom ją przed każdą zmianą raportu (README, `benchmarks/`, `analyses/`, `slayer-1b/lab/`, `slayer-1b/wygaszanie/`,
+Uruchom ją przed każdą zmianą raportu (README, `benchmarks/`, `analyses/`, `slayer-1b/wygaszanie/`,
 `slayer-1b/testy_danych_slayer/`, strona HTML):
 
 ```bash
