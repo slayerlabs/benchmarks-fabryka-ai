@@ -5,19 +5,8 @@ English: documents, code, comments, issues, PRs and commit messages.
 
 ## API
 
-Models run only through the Fabryka AI API: [fabryka.ai/platform](https://fabryka.ai/platform).
-
-- Base URL `https://fabryka.ai/v1`, OpenAI-compatible (chat completions, streaming, tool calls), so most benchmark
-  harnesses connect to it as an OpenAI-compatible provider.
-- The API serves several models, and the list changes. Check the current models and their context length with
-  `curl https://fabryka.ai/v1/models`. Which models to run is written in the task.
-- Create a free account and keep the key in `FABRYKA_API_KEY`, never in code or in the repo.
-
-## Problems: report them right away
-
-A model missing from the list, an API error, a missing feature (tool calls, context length) or a harness that does
-not work with the API: write in **#bench-team** on [Discord](https://discord.gg/HnTkVR4c5T) right away, instead of
-working around it. Fixing the API has priority.
+If the benchmark needs a model API, use ours: [fabryka.ai/platform](https://fabryka.ai/platform). If something is
+wrong with it, write in **#bench-team** on [Discord](https://discord.gg/HnTkVR4c5T) right away.
 
 ## Machine
 
