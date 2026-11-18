@@ -410,11 +410,16 @@ def test_plan_four_gpus_gives_four_queues_each_pair_once():
     modele = [m[0] for m in modele_skryptu()]
     assert sorted(pary) == sorted((m, t) for m in modele for t in zadania_planu(m))
     kolejka = None
-    for l in linie:  # every model sits whole in the queue of its header, and its commands see only that GPU
+    for l in linie:  # every command sits in the queue whose header names its model, sees only that GPU and reads
+        # weights of that queue (a model cut into parts may run on two GPUs at once)
+        if l.startswith("# estimate") or l.startswith("# never timed"):
+            continue
         if l.startswith("# GPU "):
-            kolejka, etykiety = l.split()[2].rstrip(":"), l.split(":", 1)[1].split()
+            kolejka, etykiety = l.split()[2].rstrip(":"), [x.split(":")[0] for x in l.split(":", 1)[1].split()]
         else:
-            assert l.startswith(f"CUDA_VISIBLE_DEVICES={kolejka} ") and re.search(r"--etykieta (\S+)", l)[1] in etykiety
+            etykieta = re.search(r"--etykieta (\S+)", l)[1]
+            assert l.startswith(f"CUDA_VISIBLE_DEVICES={kolejka} ") and etykieta in etykiety
+            assert f"--model_path <WS>/modele/{etykieta}.gpu{kolejka} " in l
 
 
 def test_plan_one_gpu_same_as_without_gpu():
@@ -451,3 +456,90 @@ if __name__ == "__main__":
     import pytest
 
     raise SystemExit(pytest.main([__file__]))
+
+
+def lista_licz(lista, pomin=None):
+    """`lista_licz LIST` from the sourced script (the check `licz` runs before anything starts)."""
+    env = {**os.environ, "WS": tempfile.mkdtemp(), "K": str(KORZEN)}
+    env.pop("POMIN", None)
+    if pomin is not None:
+        env["POMIN"] = pomin
+    return subprocess.run(["bash", "-c", f"source {SKRYPT} _funkcje; lista_licz \"$1\"", "-", lista],
+                          capture_output=True, text=True, env=env)
+
+
+def test_licz_without_a_list_takes_every_model_like_plan():
+    wynik = lista_licz("")
+    assert wynik.returncode == 0, wynik.stderr
+    assert wynik.stdout.split() == [m[0] for m in modele_skryptu()]
+
+
+def test_licz_list_that_drops_a_model_stops_and_names_it():
+    """17.11: a hand-typed list without slayer1b-1.07 started the run without the measured model."""
+    reszta = [m[0] for m in modele_skryptu() if m[0] != "slayer1b-1.07"]
+    wynik = lista_licz(" ".join(reszta))
+    assert wynik.returncode == 2
+    assert "slayer1b-1.07" in wynik.stderr
+
+
+def test_licz_list_runs_when_pomin_names_what_it_leaves_out():
+    reszta = [m[0] for m in modele_skryptu() if m[0] != "slayer1b-1.07"]
+    wynik = lista_licz(" ".join(reszta), pomin="slayer1b-1.07")
+    assert wynik.returncode == 0, wynik.stderr
+    assert wynik.stdout.split() == reszta
+    assert "slayer1b-1.07" in wynik.stderr  # said out loud in the log
+
+
+def test_licz_one_model_per_instance_with_pomin_reszta():
+    wynik = lista_licz("qwen3.5-0.8b-base:T01,T02", pomin="reszta")
+    assert wynik.returncode == 0, wynik.stderr
+    assert wynik.stdout.split() == ["qwen3.5-0.8b-base:T01,T02"]
+
+
+def test_licz_unknown_label_stops():
+    wynik = lista_licz("slayer1b-1.7", pomin="reszta")
+    assert wynik.returncode == 2
+    assert "unknown label slayer1b-1.7" in wynik.stderr
+
+
+def test_kompletnosc_reports_pairs_without_a_result_and_skips_gated_models():
+    with tempfile.TemporaryDirectory() as ws:
+        for etykieta in ("pythia-1b-v0",):
+            d = Path(ws) / "wyniki" / "arc-challenge" / etykieta
+            d.mkdir(parents=True)
+            (d / "results_rozszerzone.json").write_text("{}")
+        (Path(ws) / "stan").mkdir()
+        (Path(ws) / "stan" / "pominiety_bielik-1.5b-v3.txt").write_text("POMINIETY")
+        env = {**os.environ, "WS": ws, "K": str(KORZEN)}
+        wynik = subprocess.run(["bash", "-c", f"source {SKRYPT} _funkcje; kompletnosc pythia-1b-v0:T02,T04 "
+                                              "bielik-1.5b-v3:T02 eurollm-1.7b:T02"],
+                               capture_output=True, text=True, env=env)
+    assert wynik.returncode == 1
+    assert wynik.stdout.split("\n")[:-1] == ["MISSING pythia-1b-v0 T04", "MISSING eurollm-1.7b T02"]
+
+
+def test_plan_four_gpus_balances_by_time_not_by_list_order():
+    """17.11: round robin put lfm3-1.7b and lfm3-1.7b-base (two whole models) on one GPU. Now the longest estimated
+    queue is within 10% of the ideal share (round robin without cutting gives ~1.22x on these data, the plan ~1.01x),
+    and the estimate per GPU is printed."""
+    linie = plan_na_gpu(4).splitlines()
+    szacunki = [float(re.search(r"~([\d.]+) h", l)[1]) for l in linie if l.startswith("# estimate GPU ")]
+    assert len(szacunki) == 4
+    idealnie = float(re.search(r"ideal per GPU ([\d.]+) h", next(l for l in linie if "ideal per GPU" in l))[1])
+    assert max(szacunki) <= idealnie * 1.1
+
+
+def test_failed_queue_planner_stops_plan_and_licz_instead_of_running_zero_queues():
+    """A process substitution `< <(kolejki ...)` hid a queue_plan.py error: zero queues, `licz` ended with code 0."""
+    with tempfile.TemporaryDirectory() as ws, tempfile.TemporaryDirectory() as bin_:
+        for nazwa, tresc in (("nvidia-smi", "[ \"$1\" = -L ] && { echo 'GPU 0: A'; echo 'GPU 1: B'; exit 0; }\necho A\n"),
+                             ("python3", "exit 1\n")):  # every python3 call fails, the planner too
+            p = Path(bin_) / nazwa
+            p.write_text("#!/bin/sh\n" + tresc)
+            p.chmod(0o755)
+        env = {**os.environ, "WS": ws, "K": str(KORZEN), "PATH": f"{bin_}:{os.environ['PATH']}"}
+        plan = subprocess.run(["bash", str(SKRYPT), "plan", "pythia-1b-v0"], capture_output=True, text=True, env=env)
+        licz = subprocess.run(["bash", "-c", f"source {SKRYPT} _funkcje; licz_rownolegle proba pythia-1b-v0"],
+                              capture_output=True, text=True, env=env)
+    assert plan.returncode != 0 and "queue plan failed" in plan.stderr and "CUDA_VISIBLE_DEVICES" not in plan.stdout
+    assert licz.returncode != 0 and "queue plan failed" in licz.stderr
