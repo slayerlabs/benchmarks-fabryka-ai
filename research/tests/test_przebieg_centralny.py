@@ -410,11 +410,16 @@ def test_plan_four_gpus_gives_four_queues_each_pair_once():
     modele = [m[0] for m in modele_skryptu()]
     assert sorted(pary) == sorted((m, t) for m in modele for t in zadania_planu(m))
     kolejka = None
-    for l in linie:  # every model sits whole in the queue of its header, and its commands see only that GPU
+    for l in linie:  # every command sits in the queue whose header names its model, sees only that GPU and reads
+        # weights of that queue (a model cut into parts may run on two GPUs at once)
+        if l.startswith("# estimate") or l.startswith("# never timed"):
+            continue
         if l.startswith("# GPU "):
-            kolejka, etykiety = l.split()[2].rstrip(":"), l.split(":", 1)[1].split()
+            kolejka, etykiety = l.split()[2].rstrip(":"), [x.split(":")[0] for x in l.split(":", 1)[1].split()]
         else:
-            assert l.startswith(f"CUDA_VISIBLE_DEVICES={kolejka} ") and re.search(r"--etykieta (\S+)", l)[1] in etykiety
+            etykieta = re.search(r"--etykieta (\S+)", l)[1]
+            assert l.startswith(f"CUDA_VISIBLE_DEVICES={kolejka} ") and etykieta in etykiety
+            assert f"--model_path <WS>/modele/{etykieta}.gpu{kolejka} " in l
 
 
 def test_plan_one_gpu_same_as_without_gpu():
@@ -511,3 +516,13 @@ def test_kompletnosc_reports_pairs_without_a_result_and_skips_gated_models():
                                capture_output=True, text=True, env=env)
     assert wynik.returncode == 1
     assert wynik.stdout.split("\n")[:-1] == ["MISSING pythia-1b-v0 T04", "MISSING eurollm-1.7b T02"]
+
+
+def test_plan_four_gpus_balances_by_time_not_by_list_order():
+    """17.11: round robin put lfm3-1.7b and lfm3-1.7b-base (two whole models) on one GPU. Now the longest queue is at
+    most the ideal share plus one pair, and the estimate per GPU is printed."""
+    linie = plan_na_gpu(4).splitlines()
+    szacunki = [float(re.search(r"~([\d.]+) h", l)[1]) for l in linie if l.startswith("# estimate GPU ")]
+    assert len(szacunki) == 4
+    idealnie = float(re.search(r"ideal per GPU ([\d.]+) h", next(l for l in linie if "ideal per GPU" in l))[1])
+    assert max(szacunki) <= idealnie * 1.5
