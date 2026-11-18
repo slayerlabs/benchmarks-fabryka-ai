@@ -106,7 +106,7 @@ KATALOGI+=" T39:drop T41:coqa T42:nq-open T43:triviaqa T47:bbh T49:cola T50:reco
 KATALOGI+=" T51:arc-easy T52:blimp-supplement T53:ewok"
 # Tasks of the "✅ Gotowe" section of STATUS.md, counted by default by tools/start.sh. tests/test_start.py checks
 # this line against STATUS.md: a row moved there without changing GOTOWE (or the reverse) fails the test.
-GOTOWE="T01 T02 T03 T04 T05 T06 T07 T14 T17 T19 T22 T44 T45 T46 T51 T53"
+GOTOWE="T01 T02 T03 T04 T05 T06 T07 T14 T17 T19 T22 T25 T44 T45 T46 T51 T53"
 # Tasks with their own code (`kod` in ZADANIA): `polecenie` runs this script with the ewaluuj.py flags instead
 KOD="T53:benchmarks/ewok/ewok.py"
 ZADANIA_ID=${ZADANIA_ID:-$(for p in $KATALOGI; do printf '%s ' "${p%%:*}"; done)}
