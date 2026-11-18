@@ -1,3 +1,6 @@
+> Rules of the earlier lm-eval run for the benchmarks in `benchmarks/`. New benchmarks follow
+> [METHODOLOGY.md](METHODOLOGY.md).
+
 # Metodologia: wspólny rdzeń i typy testów
 
 Repo mierzy każdy model, który da się pobrać z Hugging Face, nie tylko Slayera 1B. Każdy test ma część wspólną
@@ -597,7 +600,9 @@ Punkt odniesienia z CPU: `proba_cpu "slayer1b-1.07"` (`PROBA_N=2`, 4 wątki, App
 sprzed #154 w 1592 s (najdłuższe MMLU 319 s, MATH 192 s, IFEval 127 s, BBH 114 s), T51 i T52 razem 33 s, czyli 51
 z 52 zadań w ok. 27 min. T53 nie był liczony na danych EWoK (token bez dostępu do `ewok-core-1.0`, `GatedRepoError`). Na
 instancji `ZOSTAW_WAGI=1 bash tools/przebieg_centralny.sh proba_cpu "slayer1b-1.07"` przed `licz` sprawdza
-ładowanie, a `licz` nie pobiera wag drugi raz.
+ładowanie, a `licz` nie pobiera wag drugi raz. Przy kilku kartach wagi przejmuje pierwsza kolejka, która liczy ten
+model (`modele/<etykieta>.gpu<N>`); model pocięty przez `tools/queue_plan.py` na części pobiera wagi osobno dla
+każdej kolejnej karty.
 
 `plan "slayer1b-<wersja>"` wypisuje komendy bez liczenia, także lokalnie (`K=$PWD WS=$(mktemp -d)`). `stan` pokazuje
 postęp, `ponow` powtarza zadania zakończone błędem. `licz` bez listy liczy wszystkie modele z `MODELE`. Lista
