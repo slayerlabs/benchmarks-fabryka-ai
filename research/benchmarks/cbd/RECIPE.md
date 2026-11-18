@@ -23,14 +23,14 @@ Wpis przed przebiegiem; po przebiegu dostaje commit, precyzję, sprzęt, datę i
 
 - Commit kodu: niezapisane (przed przebiegiem)
 - Środowisko: `lock` (`common/requirements.lock.txt`, lm-eval 0.4.9.1)
-- Model: `speakleash/Bielik-1.5B-v3` @ `4b25049621bf3952a1fc9314c89773102eda0333` (etykieta `bielik-1.5b-v3`); gdy przebieg go pominie (brak zgody na HF), `utter-project/EuroLLM-1.7B` @ `c730cd9b616799ace3c65e927d63191446f59374` (etykieta `eurollm-1.7b`). Oba liczy zwykły przebieg z listy `MODELE`, bez osobnego wpisu w `TESTY_MODELU`.
+- Model: `speakleash/Bielik-1.5B-v3` @ `4b25049621bf3952a1fc9314c89773102eda0333` (etykieta `bielik-1.5b-v3`), liczony zwykłym przebiegiem z listy `MODELE`, bez osobnego wpisu w `TESTY_MODELU`. Bez zapasu: gdy przebieg go pominie (brak zgody na HF albo `POMIN`), werdykt to „bez kontroli: nierozstrzygnięte”, bo wiersz leaderboardu EuroLLM-1.7B jest pod b ([`REPRODUCTION.md`](REPRODUCTION.md)).
 - Zbiór: `ptaszynski/PolishCyberbullyingDataset@be3b1236598a02eff6db05ea7ac386afaabc33e8`, split `test`, n = 1000 (wpis `T28` w `common/zadania.py`), demonstracje z banku splitu `train`
-- Komenda przebiegu (w `research/`): `common/ewaluuj.py --zadania T28 --probka pelna --device cuda` z modelem z wiersza wyżej (pełna linia: `bash tools/przebieg_centralny.sh plan | grep -- '--zadania T28 ' | grep bielik-1.5b-v3`)
+- Komenda przebiegu (w `research/`): linia `bash tools/przebieg_centralny.sh plan | grep -- '--zadania T28 ' | grep bielik-1.5b-v3`, czyli `common/ewaluuj.py --model hf --repo speakleash/Bielik-1.5B-v3 --revision 4b25049621bf3952a1fc9314c89773102eda0333 --model_path /workspace/modele/bielik-1.5b-v3 --zadania T28 --probka pelna --device cuda --batch 1 --eval_gpu <GPU> --etykieta bielik-1.5b-v3 --wyjscie /workspace/wyniki/cbd/bielik-1.5b-v3` (nazwę GPU i katalog wag, przy kilku GPU z sufiksem `.gpu<N>`, ustawia przebieg)
 - Seed: python 0, numpy 1234, torch 1234, fewshot 1234; bootstrap kontroli: `metryki.SEED`, 10 000 powtórzeń
 - Precyzja: float32 (domyślna w `MODELE`); niezapisane, dopóki przebieg nie zapisze pola `dtype`
 - Sprzęt i data: niezapisane (przed przebiegiem)
 - Wynik: `results/central-run/cbd/bielik-1.5b-v3/results.json`, próbki `probki/T28_space.jsonl.gz`
-- Kontrola z próbek (różnica makro-F1 modelu i makro-F1 stałej klasy 0 „nieszkodliwa”, SE B parowane po wierszach, obok udział predykcji klasy 0 i `acc`), w `research/`:
+- Kontrola z próbek (różnica makro-F1 modelu i makro-F1 stałej klasy 0 „nieszkodliwa”, SE B parowane po klastrach `TEXT`, spełniona przy dodatniej różnicy i z ≥ 2, obok udział predykcji klasy 0 i `acc`), w `research/`:
 
 ```bash
 python - results/central-run/cbd/bielik-1.5b-v3/probki/T28_space.jsonl.gz <<'PY'
@@ -41,10 +41,11 @@ cfg = Z.konfiguracje("T28")[0][1]
 f, pmi = E.funkcja_korpusowa(cfg, "f1"), E.z_pmi(cfg)
 p = [json.loads(l) for l in gzip.open(sys.argv[1], "rt", encoding="utf-8")]
 o = [M.oceny_mc(s, pmi) for s in p]
-z, q = [x["gold"] for x in o], [x["pred"] for x in o]
-r = M.korpusowa_z_niepewnoscia(z, q, lambda z, q: f(z, q) - f(z, [0] * len(z)))
+z, q, k = [x["gold"] for x in o], [x["pred"] for x in o], [s["doc"]["TEXT"] for s in p]
+r = M.korpusowa_z_niepewnoscia(z, q, lambda z, q: f(z, q) - f(z, [0] * len(z)), klastry=k)
 print({"f1": f(z, q), "b": f(z, [0] * len(z)), **r, "z": r["value"] / r["se"] if r["se"] else None,
        "werdykt": S.werdykt(r["value"] / r["se"]) if r["se"] else S.NIEROZSTRZYGALNE,
+       "spelniona": bool(r["se"]) and r["value"] / r["se"] >= 2,
        "udzial_klasy0": sum(1 for x in q if x == 0) / len(q), "acc": sum(x["acc"] for x in o) / len(o)})
 PY
 ```

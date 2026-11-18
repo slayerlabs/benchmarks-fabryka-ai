@@ -4,7 +4,7 @@
 
 Mierzy: rodzaj szkodliwości wypowiedzi, 6 klas.
 
-- Test T28, typ `f1-korpus +pl` ([README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy)).
+- Test T28, typ `f1-korpus +klastry +pl`, klastry `TEXT` ([README, „Benchmarki i typy”](../../README.md#benchmarki-i-typy)).
 - Zbiór: `ptaszynski/PolishCyberbullyingDataset` @ `be3b1236598a02eff6db05ea7ac386afaabc33e8`, split `test`, n = 1000.
 - Metryka decyzyjna: `f1 (makro, korpusowe)`.
 - Licencja (karta zbioru na przypiętej rewizji): cc-by-4.0.

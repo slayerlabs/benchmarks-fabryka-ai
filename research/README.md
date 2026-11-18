@@ -50,7 +50,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`blimp-supplement`](benchmarks/blimp-supplement/README.md) | T52 | `para +warstwy` | warstwy: podzadania, średnia bez wag (karta nie pokazuje, że podzadanie to jeden szablon) | T52 | nieustalone |
 | [`boolq`](benchmarks/boolq/README.md) | T10 | `mc +klastry` | klastry: wspólny ustęp (3270 pytań, 2938 ustępów, 578 pytań dzieli ustęp, do 9 na ustęp) | T10 | nieustalone |
 | [`cb`](benchmarks/cb/README.md) | T12 | `mc` | | T12 | nieustalone |
-| [`cbd`](benchmarks/cbd/README.md) | T28 | `f1-korpus +pl` | | T28 | nieustalone |
+| [`cbd`](benchmarks/cbd/README.md) | T28 | `f1-korpus +klastry +pl` | klastry: `TEXT` (1000 wierszy do 961 tekstów, 39 tekstów powtórzonych po 2 razy) | T28 | nieustalone |
 | [`cola`](benchmarks/cola/README.md) | T49 | `mcc` | | T49 | nieustalone |
 | [`copa`](benchmarks/copa/README.md) | T11 | `mc` | | T11 | nieustalone |
 | [`coqa`](benchmarks/coqa/README.md) | T41 | `ciagla` | | T41 | nieustalone |
@@ -114,7 +114,7 @@ Testy T01–T50 według typu:
 | `ppl` | T03 WikiText-2 |
 | `gen` | T30 PolQA (`+pl`), T31 PoQuAD (`+klastry +pl`), T33 GSM8K, T34 MATH (`+warstwy`), T42 NQ, T43 TriviaQA (`+klastry`), T47 BBH (`+warstwy`) |
 | `ifeval` | T36 IFEval |
-| `f1-korpus` | T25 DYK (`+klastry`: 1029 wierszy do 264 pytań), T27 PSC (`+klastry`: 1078 wierszy do 507 tekstów), T28 CBD (wszystkie `+pl`) |
+| `f1-korpus` | T25 DYK (`+klastry`: 1029 wierszy do 264 pytań), T27 PSC (`+klastry`: 1078 wierszy do 507 tekstów), T28 CBD (`+klastry`: 1000 wierszy do 961 tekstów) (wszystkie `+pl`) |
 | `ciagla` | T38 SQuAD2 (`+proc`, b i kontrola na HasAns), T39 DROP (`+klastry`), T41 CoQA, T50 ReCoRD (`+klastry`; wybór encji, więc b to baza losowa po opcjach) |
 | `masa` | T35 TruthfulQA MC2 |
 | `mcc` | T49 CoLA |

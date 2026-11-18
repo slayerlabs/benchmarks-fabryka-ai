@@ -36,9 +36,9 @@ def test_entry_matches_the_card():
     """Values copied from the card; each must be in ZADANIA, the card, RECIPE.md and the README row."""
     oczekiwane = {"repo": "ptaszynski/PolishCyberbullyingDataset", "rewizja": "be3b1236598a02eff6db05ea7ac386afaabc33e8",
                   "split": "test", "metric": "f1,none", "klucz": "f1", "task": "polish_cbd_multiple_choice",
-                  "yaml": "cbd/lm_eval_tasks/polish_cbd/cbd_mc.yaml"}
-    meta, karta = W.sprawdz_wpis("T28", oczekiwane, shoty=5, typ="f1-korpus +pl")
-    assert meta["klasy_stale"] and "klastry" not in meta
+                  "klastry": "TEXT", "yaml": "cbd/lm_eval_tasks/polish_cbd/cbd_mc.yaml"}
+    meta, karta = W.sprawdz_wpis("T28", oczekiwane, shoty=5, typ="f1-korpus +klastry +pl")
+    assert meta["klasy_stale"]
     for k in ("repo", "rewizja"):
         assert oczekiwane[k] in karta, k
     assert "| Metryka decyzyjna | `f1` (makro, korpusowe)" in karta
@@ -71,6 +71,14 @@ def test_five_shot_prompt_and_decision_metric_macro_f1(tmp_path, monkeypatch):
     assert space["acc"]["value"] == pytest.approx(2 / 4) and space["acc_norm"]["value"] == pytest.approx(2 / 4)
     assert space["glowna"]["metryka"] == "f1" and space["glowna"]["value"] == pytest.approx(7 / 18)
     assert roz["metric"] == "f1,none" and roz["value"] == pytest.approx(7 / 18) and roz["n_scored"] == 4
+
+
+def test_clusters_are_repeated_texts():
+    """The test split repeats 39 texts twice (ORIGINAL.md, "Typ testu"): a repeated `TEXT` is one cluster."""
+    docs = DANE[:2] + [dict(DANE[0], CATEGORIES="obelga")]
+    probki = [{"doc_id": i, "doc": d} for i, d in enumerate(docs)]
+    teksty = [d["TEXT"] for d in docs]
+    assert E.klastry_probek(Z.ZADANIA["T28"], probki) == teksty and teksty[0] == teksty[2] != teksty[1]
 
 
 if __name__ == "__main__":
