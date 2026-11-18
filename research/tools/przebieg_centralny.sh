@@ -8,7 +8,8 @@
 #   lista                 model list, the MODELE rows (read by tests/test_przebieg_centralny.py)
 #   plan "LABEL ..."       ewaluuj.py commands that `licz` would run, without running them ("# GPU N:" per queue)
 #   przygotuj LIMIT_S      safety destroy after LIMIT_S, both venvs, HF download speed test
-#   licz "LABEL ..."       in the background: per model download weights, every task (a stage B control model:
+#   licz ["LABEL ..."]     no list: every MODELE row; a list must name what it leaves out in POMIN ("LABEL ...")
+#                          or POMIN=reszta (lista_licz). In the background: per model download weights, every task (a stage B control model:
 #                          only its TESTY_MODELU tests), delete weights (a gated
 #                          repo the HF token cannot read is skipped: log line POMINIETY, $ST/pominiety_<label>.txt);
 #                          with N > 1 GPUs (nvidia-smi -L) models go round robin to N queues, one per GPU
@@ -17,7 +18,8 @@
 #   ponow                  in the background: every (model, task) whose latest run failed
 #   straznik               idle guard (also started by przygotuj): tools/straznik_bezczynnosci.py
 #   proba_cpu ["LABEL ..."] load test on CPU: PROBA_N (2) questions, WikiText-2 1 document; every pair must finish
-#   kontrola               sanity check of the full results (tools/kontrola_sensu.py); licz runs it at its end
+#   kontrola               sanity check of the full results (tools/kontrola_sensu.py) and, after licz, every pair
+#                          of its plan has a result (kompletnosc); licz runs it at its end
 #   pakuj                  wyniki.tgz to copy back
 #   stan                   state files, last log lines, GPU
 # Instance files map to the repo as: wyniki/<benchmark>/<label>/ -> results/central-run/<benchmark>/<label>/,
@@ -119,6 +121,44 @@ zadania_modelu() {  # zadania_modelu LABEL: $ZADANIA_ID, for a TESTY_MODELU labe
 }
 katalog() { local p; for p in $KATALOGI; do [[ ${p%%:*} == "$1" ]] && echo "${p#*:}" && return 0; done; return 1; }
 kod_zadania() { local p; for p in $KOD; do [[ ${p%%:*} == "$1" ]] && echo "${p#*:}" && return 0; done; return 0; }
+etykiety() { local m; for m in "${MODELE[@]}"; do printf '%s ' "${m%%|*}"; done; }
+
+lista_licz() {  # lista_licz ["ITEM ..."]: the items `licz` runs, ITEM = LABEL or LABEL:T01,T02; none = every MODELE row.
+  # The model list lives only in MODELE: a list typed by hand must name every MODELE label it leaves out in POMIN
+  # ("label ..."), or POMIN=reszta (one model per instance, tools/start.sh). An unknown label stops as well.
+  local wszystkie lista x brak=()
+  wszystkie=" $(etykiety)"
+  lista=${1:-$wszystkie}
+  for x in $lista; do
+    [[ $wszystkie == *" ${x%%:*} "* ]] && continue
+    echo "unknown label ${x%%:*}; labels: bash tools/przebieg_centralny.sh lista" >&2; return 2
+  done
+  for x in $wszystkie; do [[ " $lista " =~ [[:space:]]$x(:|[[:space:]]) ]] || brak+=("$x"); done
+  if [[ ${POMIN:-} != reszta ]]; then
+    for x in ${brak[@]+"${brak[@]}"}; do
+      [[ " ${POMIN:-} " == *" $x "* ]] && continue
+      echo "the list leaves out $x without saying so: add it, or POMIN=\"${brak[*]-}\" to leave out on purpose" >&2
+      return 2
+    done
+  fi
+  (( ${#brak[@]} == 0 )) || echo "left out of this run (POMIN=${POMIN:-}): ${brak[*]-}" >&2
+  echo $lista
+}
+
+kompletnosc() {  # kompletnosc ITEM...: every (model, task) pair of the items has results_rozszerzone.json, unless
+  # the model was skipped for a gated repo ($ST/pominiety_<label>.txt); prints the missing pairs, 1 when any
+  local x L T zad brak=0
+  for x in "$@"; do
+    L=${x%%:*}
+    [[ -e $ST/pominiety_$L.txt ]] && continue
+    if [[ $x == *:* ]]; then zad=${x#*:}; zad=${zad//,/ }; else zad=$(zadania_modelu "$L"); fi
+    for T in $zad; do
+      [[ -s ${WYNIKI:-$WS/wyniki}/$(katalog "$T")/$L/results_rozszerzone.json ]] && continue
+      echo "MISSING $L $T"; brak=1
+    done
+  done
+  return $brak
+}
 
 # python, not `date +%N` / `du -b`: proba_cpu also runs on macOS (BSD date and du)
 teraz() { python3 -c 'import time; print(time.time())'; }
@@ -328,10 +368,16 @@ case "$etap" in
     nproc; free -g; df -h $WS; nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv
     ;;
   licz)
-    LISTA=${2:?model labels}
+    LISTA=$(lista_licz "${2:-}") || exit 2
+    mkdir -p "$ST" "$WS/logi"
+    echo "$LISTA" > "$ST/plan_licz.txt"  # read by `kontrola` (pair completeness)
+    zapisz_czas licz_plan "$(teraz)" "$(python3 -c 'import json,sys; print(json.dumps({"lista": sys.argv[1].split(), "pomin": sys.argv[2]}))' "$LISTA" "${POMIN:-}")"
+    NAZWA="licz_${LISTA// /_}"
+    [[ -n ${2:-} ]] || NAZWA=licz_wszystkie
+    (( ${#NAZWA} <= 120 )) || NAZWA="licz_$(wc -w <<< "$LISTA" | tr -d ' ')_pozycji"  # file names stop at 255 bytes
     export PYTHONUNBUFFERED=1 NVIDIA_TF32_OVERRIDE=0 HF_HUB_DISABLE_PROGRESS_BARS=1
-    w_tle "licz_${LISTA// /_}" "set -e; source $K/tools/przebieg_centralny.sh _funkcje; kod=0; \
-      licz_rownolegle licz_${LISTA// /_} $LISTA || kod=1; \
+    w_tle "$NAZWA" "set -e; source $K/tools/przebieg_centralny.sh _funkcje; kod=0; \
+      licz_rownolegle $NAZWA $LISTA || kod=1; \
       bash $K/tools/przebieg_centralny.sh kontrola || true; exit \$kod"
     ;;
   ponow)  # in the background: (model, task) pairs whose latest czasy.jsonl entry has kod != 0, again
@@ -370,6 +416,10 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
   kontrola)  # sanity of full results (score 1.000, below random - 5 points, ...): $WS/logi/kontrola_sensu.txt
     mkdir -p "$WS/logi"
     python3 $K/tools/kontrola_sensu.py "${WYNIKI:-$WS/wyniki}"/*/*/ > $WS/logi/kontrola_sensu.txt && kod=0 || kod=$?
+    # pairs of the last `licz` plan without a result: a missing pair is an error, not silence
+    if [[ -s $ST/plan_licz.txt ]]; then
+      kompletnosc $(cat "$ST/plan_licz.txt") >> $WS/logi/kontrola_sensu.txt || kod=1
+    fi
     cat $WS/logi/kontrola_sensu.txt; exit $kod
     ;;
   pakuj)  # wyniki.tgz for the repo: per-question files gzipped, podsumowanie.md left out (number gate reads *.md)
@@ -384,6 +434,6 @@ print(' '.join(l+':'+','.join(t) for l,t in m.items()))" "$CZ" "${WYNIKI:-$WS/wy
     ;;
   _funkcje) ;;  # sourced: functions only
   *)
-    echo "stages: gotowe | lista | katalogi | plan 'LABEL ...' | przygotuj LIMIT_S | licz 'LABEL ...' | ponow | straznik | proba_cpu ['LABEL ...'] | kontrola | pakuj | stan"; exit 2
+    echo "stages: gotowe | lista | katalogi | plan 'LABEL ...' | przygotuj LIMIT_S | licz ['LABEL ...'] | ponow | straznik | proba_cpu ['LABEL ...'] | kontrola | pakuj | stan"; exit 2
     ;;
 esac

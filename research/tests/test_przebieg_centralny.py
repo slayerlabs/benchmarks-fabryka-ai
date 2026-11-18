@@ -451,3 +451,63 @@ if __name__ == "__main__":
     import pytest
 
     raise SystemExit(pytest.main([__file__]))
+
+
+def lista_licz(lista, pomin=None):
+    """`lista_licz LIST` from the sourced script (the check `licz` runs before anything starts)."""
+    env = {**os.environ, "WS": tempfile.mkdtemp(), "K": str(KORZEN)}
+    env.pop("POMIN", None)
+    if pomin is not None:
+        env["POMIN"] = pomin
+    return subprocess.run(["bash", "-c", f"source {SKRYPT} _funkcje; lista_licz \"$1\"", "-", lista],
+                          capture_output=True, text=True, env=env)
+
+
+def test_licz_without_a_list_takes_every_model_like_plan():
+    wynik = lista_licz("")
+    assert wynik.returncode == 0, wynik.stderr
+    assert wynik.stdout.split() == [m[0] for m in modele_skryptu()]
+
+
+def test_licz_list_that_drops_a_model_stops_and_names_it():
+    """17.11: a hand-typed list without slayer1b-1.07 started the run without the measured model."""
+    reszta = [m[0] for m in modele_skryptu() if m[0] != "slayer1b-1.07"]
+    wynik = lista_licz(" ".join(reszta))
+    assert wynik.returncode == 2
+    assert "slayer1b-1.07" in wynik.stderr
+
+
+def test_licz_list_runs_when_pomin_names_what_it_leaves_out():
+    reszta = [m[0] for m in modele_skryptu() if m[0] != "slayer1b-1.07"]
+    wynik = lista_licz(" ".join(reszta), pomin="slayer1b-1.07")
+    assert wynik.returncode == 0, wynik.stderr
+    assert wynik.stdout.split() == reszta
+    assert "slayer1b-1.07" in wynik.stderr  # said out loud in the log
+
+
+def test_licz_one_model_per_instance_with_pomin_reszta():
+    wynik = lista_licz("qwen3.5-0.8b-base:T01,T02", pomin="reszta")
+    assert wynik.returncode == 0, wynik.stderr
+    assert wynik.stdout.split() == ["qwen3.5-0.8b-base:T01,T02"]
+
+
+def test_licz_unknown_label_stops():
+    wynik = lista_licz("slayer1b-1.7", pomin="reszta")
+    assert wynik.returncode == 2
+    assert "unknown label slayer1b-1.7" in wynik.stderr
+
+
+def test_kompletnosc_reports_pairs_without_a_result_and_skips_gated_models():
+    with tempfile.TemporaryDirectory() as ws:
+        for etykieta in ("pythia-1b-v0",):
+            d = Path(ws) / "wyniki" / "arc-challenge" / etykieta
+            d.mkdir(parents=True)
+            (d / "results_rozszerzone.json").write_text("{}")
+        (Path(ws) / "stan").mkdir()
+        (Path(ws) / "stan" / "pominiety_bielik-1.5b-v3.txt").write_text("POMINIETY")
+        env = {**os.environ, "WS": ws, "K": str(KORZEN)}
+        wynik = subprocess.run(["bash", "-c", f"source {SKRYPT} _funkcje; kompletnosc pythia-1b-v0:T02,T04 "
+                                              "bielik-1.5b-v3:T02 eurollm-1.7b:T02"],
+                               capture_output=True, text=True, env=env)
+    assert wynik.returncode == 1
+    assert wynik.stdout.split("\n")[:-1] == ["MISSING pythia-1b-v0 T04", "MISSING eurollm-1.7b T02"]
