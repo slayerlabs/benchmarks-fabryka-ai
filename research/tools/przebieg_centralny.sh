@@ -12,8 +12,9 @@
 #                          or POMIN=reszta (lista_licz). In the background: per model download weights, every task (a stage B control model:
 #                          only its TESTY_MODELU tests), delete weights (a gated
 #                          repo the HF token cannot read is skipped: log line POMINIETY, $ST/pominiety_<label>.txt);
-#                          with N > 1 GPUs (nvidia-smi -L) models go round robin to N queues, one per GPU
-#                          (CUDA_VISIBLE_DEVICES), queue log $WS/logi/<stage>_gpu<N>.log
+#                          with N > 1 GPUs (nvidia-smi -L) tools/queue_plan.py splits the (model, task) pairs into N
+#                          queues by estimated time, one per GPU (CUDA_VISIBLE_DEVICES), a long model in parts on
+#                          several GPUs, each with its own weights copy; queue log $WS/logi/<stage>_gpu<N>.log
 # ENV_OVERRIDE=new WYNIKI=$WS/wyniki_nowe on licz: same models in the other venv, for the environment check.
 #   ponow                  in the background: every (model, task) whose latest run failed
 #   straznik               idle guard (also started by przygotuj): tools/straznik_bezczynnosci.py
@@ -196,13 +197,13 @@ polecenie() {  # polecenie LABEL TASK_ID -> ewaluuj.py command line (own-code ta
   [[ $DTYPE == float32 ]] || dt=" --dtype $DTYPE"  # float32 rows keep the command of earlier runs
   kod=$(kod_zadania "$T")
   if [[ -n $kod ]]; then
-    echo "$WS/venv-$ENV/bin/python $K/$kod przebieg --repo $REPO --revision $REV --model_path $WS/modele/$L --zadania $T" \
+    echo "$WS/venv-$ENV/bin/python $K/$kod przebieg --repo $REPO --revision $REV --model_path $(weights_dir "$L") --zadania $T" \
       "--probka ${PROBKA:-pelna} --device ${DEVICE:-cuda} --batch $BATCH --eval_gpu $(gpu_nazwa) --etykieta $L" \
       "--wyjscie ${WYNIKI:-$WS/wyniki}/$(katalog "$T")/$L$dt"
     return
   fi
   local args=(--model "$([[ $LOADER == slayer* ]] && echo slayer || echo hf)" --repo "$REPO" --revision "$REV"
-              --model_path "$WS/modele/$L" --zadania "$T" --probka "$([[ $T == T03 && -n ${PROBKA_ROLLING:-} ]] && echo "$PROBKA_ROLLING" || echo "${PROBKA:-pelna}")" --device "${DEVICE:-cuda}" --batch "$BATCH"
+              --model_path "$(weights_dir "$L")" --zadania "$T" --probka "$([[ $T == T03 && -n ${PROBKA_ROLLING:-} ]] && echo "$PROBKA_ROLLING" || echo "${PROBKA:-pelna}")" --device "${DEVICE:-cuda}" --batch "$BATCH"
               --eval_gpu "$(gpu_nazwa)" --etykieta "$L" --wyjscie "${WYNIKI:-$WS/wyniki}/$(katalog "$T")/$L")
   [[ $LOADER == hf-trust ]] && args+=(--trust_remote_code)
   [[ $T == T03 && $LOADER != slayer* ]] && args+=(--max_length "$OKNO_ROLLING")
@@ -227,8 +228,16 @@ except GatedRepoError as e:
     sys.exit(3)" "$REPO"
 }
 
-pobierz_wagi() {  # pobierz_wagi LABEL (after `model`): $WS/modele/LABEL ready for ewaluuj.py --model_path
-  local d=$WS/modele/$1 py="$WS/venv-$ENV/bin/python"
+weights_dir() {  # weights_dir LABEL: weights directory of LABEL in this queue. Each GPU queue has its own copy
+  # (.gpu<N>): parts of one model may run on two GPUs at once, and a queue deletes its weights when its part ends.
+  echo "$WS/modele/$1${GPU_NR:+.gpu$GPU_NR}"
+}
+
+pobierz_wagi() {  # pobierz_wagi LABEL (after `model`): $(weights_dir LABEL) ready for ewaluuj.py --model_path
+  local d py="$WS/venv-$ENV/bin/python"; d=$(weights_dir "$1")
+  # weights kept by `ZOSTAW_WAGI=1 ... proba_cpu` sit in $WS/modele/LABEL: the first GPU queue that needs them takes
+  # them over (rename, no second download, no copy left behind); another part of the same model downloads its own
+  if [[ $d != "$WS/modele/$1" && ! -e $d && -d $WS/modele/$1 ]]; then mv "$WS/modele/$1" "$d" 2> /dev/null || true; fi
   if [[ $LOADER != slayer-ckpt ]]; then
     "$py" -c "from huggingface_hub import snapshot_download as s; s('$REPO', revision='$REV', local_dir='$d')"
     return
@@ -269,7 +278,7 @@ licz_model() {  # licz_model LABEL: download, every task, delete weights; a fail
   local znacznik="$ST/praca/${BASHPID:-$$}_$L"
   mkdir -p "$ST/praca"; echo "$L" > "$znacznik"
   pobierz_wagi "$L"
-  zapisz_czas pobranie "$t" "{\"model\": \"$L\", \"bajty\": $(bajty "$WS/modele/$L")}"
+  zapisz_czas pobranie "$t" "{\"model\": \"$L\", \"bajty\": $(bajty "$(weights_dir "$L")")}"
   for T in $zad; do
     t=$(teraz)
     kod=0
@@ -278,18 +287,41 @@ licz_model() {  # licz_model LABEL: download, every task, delete weights; a fail
     zapisz_czas ewaluacja "$t" "{\"model\": \"$L\", \"zadanie\": \"$T\", \"kod\": $kod, \"gpu\": \"$(gpu_nazwa)\", \"gpu_nr\": \"${GPU_NR:-}\", \"batch\": \"$BATCH\", \"env\": \"$ENV\", \"dtype\": \"$DTYPE\", \"wyniki\": \"${WYNIKI:-$WS/wyniki}\"}"
   done
   # ZOSTAW_WAGI=1: proba_cpu followed by licz on the same instance downloads each model once
-  [[ ${ZOSTAW_WAGI:-0} == 1 ]] || rm -rf "$WS/modele/$L"
+  [[ ${ZOSTAW_WAGI:-0} == 1 ]] || rm -rf "$(weights_dir "$L")"
   rm -f "$znacznik"
 }
 
 liczba_gpu() { nvidia-smi -L 2>/dev/null | grep -c '^GPU ' || true; }
 
-kolejki() {  # kolejki ITEM...: "<gpu> ITEM ..." per queue, items round robin; one line "- ITEM ..." with 0 or 1 GPU
-  local n i=0 x; n=$(liczba_gpu)
+item_tasks() {  # item_tasks ITEM: tasks of LABEL (zadania_modelu) or of LABEL:T01,T02 (those)
+  local z
+  if [[ $1 == *:* ]]; then z=${1#*:}; echo "${z//,/ }"; else zadania_modelu "$1"; fi
+}
+
+kolejki() {  # kolejki ITEM...: "<gpu> ITEM ..." per queue; one line "- ITEM ..." with 0 or 1 GPU.
+  # With N > 1 GPUs tools/queue_plan.py splits the (model, task) pairs by estimated time (czasy.jsonl of earlier runs
+  # in results/ and of this one), not by list order: a model longer than PART (1/3) of the ideal share total / N is
+  # cut into LABEL:T.. parts that run on several GPUs. Estimates per queue: $ST/plan_kolejek.txt (only for N > 1).
+  # A failed planner fails kolejki (pipefail); a model with no task in this run is named on stderr, not dropped silently.
+  local n x z; n=$(liczba_gpu)
+  rm -f "$ST/plan_kolejek.txt"
   if (( n <= 1 )); then echo "- $*"; return; fi
-  local -a q=()
-  for x in "$@"; do q[i % n]+=" $x"; i=$((i + 1)); done
-  for i in "${!q[@]}"; do echo "$i${q[i]}"; done
+  mkdir -p "$ST"
+  for x in "$@"; do
+    z=$(item_tasks "$x")
+    if [[ -z ${z// /} ]]; then echo "BEZ TESTOW $x: zadne z jego testow nie jest w ZADANIA_ID" >&2; continue; fi
+    printf '%s\t%s\n' "$x" "$z"
+  done | python3 "$K/tools/queue_plan.py" --gpus "$n" --repo "$K" --czasy "$CZ" 2> "$ST/plan_kolejek.txt" | tr -d '\r'
+}
+
+plan_kolejek() {  # plan_kolejek ITEM...: output of `kolejki`, or 1 with the planner's error on stderr (a process
+  # substitution `< <(kolejki ...)` would hide the error from set -e and run zero queues with code 0)
+  local q
+  if ! q=$(kolejki "$@") || [[ -z $q ]]; then
+    echo "queue plan failed for: $*" >&2; cat "$ST/plan_kolejek.txt" >&2 2> /dev/null || true
+    return 1
+  fi
+  echo "$q"
 }
 
 licz_kolejke() {  # licz_kolejke GPU ITEM...: ITEM = LABEL (whole model, logs the model stage) or LABEL:T01,T02
@@ -303,13 +335,14 @@ licz_kolejke() {  # licz_kolejke GPU ITEM...: ITEM = LABEL (whole model, logs th
 }
 
 licz_rownolegle() {  # licz_rownolegle NAME ITEM...: the `kolejki` queues side by side; fails when any queue fails
-  local nazwa=$1 nr reszta p kod=0; shift
+  local nazwa=$1 nr reszta p q kod=0; shift
   local -a pidy=()
+  q=$(plan_kolejek "$@") || return 1
   while read -r nr reszta; do
     if [[ $nr == - ]]; then licz_kolejke - $reszta; return; fi
     licz_kolejke "$nr" $reszta < /dev/null > "$WS/logi/${nazwa}_gpu$nr.log" 2>&1 &
     pidy+=($!)
-  done < <(kolejki "$@")
+  done <<< "$q"
   for p in "${pidy[@]}"; do wait "$p" || kod=1; done
   return $kod
 }
@@ -326,13 +359,15 @@ case "$etap" in
     for T in $ZADANIA_ID; do echo "$T $(katalog "$T")"; done
     ;;
   plan)
+    Q=$(plan_kolejek ${2:-$(printf '%s\n' "${MODELE[@]}" | cut -d'|' -f1)}) || exit 1
     while read -r nr reszta; do
       [[ $nr == - ]] || echo "# GPU $nr: $reszta"
-      for L in $reszta; do for T in $(zadania_modelu "$L"); do
+      for p in $reszta; do L=${p%%:*}; for T in $(item_tasks "$p"); do
         if [[ $nr == - ]]; then polecenie "$L" "$T"
         else echo "CUDA_VISIBLE_DEVICES=$nr $(GPU_NR=$nr polecenie "$L" "$T")"; fi
       done; done
-    done < <(kolejki ${2:-$(printf '%s\n' "${MODELE[@]}" | cut -d'|' -f1)})
+    done <<< "$Q"
+    if [[ -s $ST/plan_kolejek.txt ]]; then cat "$ST/plan_kolejek.txt"; fi  # estimated hours per GPU (tools/queue_plan.py)
     ;;
   przygotuj)
     LIMIT=${2:?safety limit in seconds}
