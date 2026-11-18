@@ -37,6 +37,7 @@ def test_entry_matches_the_card():
                   "split": "test", "metric": "acc,none", "task": "polish_ppc_multiple_choice",
                   "yaml": "ppc/lm_eval_tasks/polish_ppc/ppc_mc.yaml"}
     assert {k: meta[k] for k in oczekiwane} == oczekiwane and ZK.shoty(meta) == 5
+    assert meta["klastry"] == "zdania_ppc"
     for k in ("repo", "rewizja"):
         assert oczekiwane[k] in karta, k
     assert "| Metryka decyzyjna | `acc` |" in karta and "split: test" in karta and "5-shot" in karta
@@ -44,6 +45,14 @@ def test_entry_matches_the_card():
     assert '\\nPrawidłowa odpowiedź:"`' in karta and "`1`→A" in karta and "`3`→C" in karta
     assert ZK.rozbieznosci(meta, karta) == {}
     assert ZK.KATALOGI["T26"] == "ppc"
+
+
+def test_sentence_sharing_pairs_form_one_cluster():
+    import ewaluuj as E
+    docs = [{"sentence_A": "To samo zdanie.", "sentence_B": "Inne."},
+            {"sentence_A": "Trzecie.", "sentence_B": "To samo zdanie."},
+            {"sentence_A": "Czwarte.", "sentence_B": "Piate."}]
+    assert E._klastry_ppc(docs) == [0, 0, 2]
 
 
 # the model answers A for every pair: gold A (label 1) hit, C (label 3) and B (label 2) missed -> acc 1/3 = acc_norm
