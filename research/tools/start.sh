@@ -38,10 +38,10 @@ echo "kod (K): $K"
 echo "model: $MODEL, testy ($ZAKRES, $(wc -w <<< "$Z" | tr -d ' ')): $Z"
 if [[ ${START_SUCHO:-0} == 1 ]]; then
   echo "bash $P przygotuj ${LIMIT_S:-172800}"
-  echo "bash $P licz \"$POZYCJA\""
+  echo "POMIN=reszta bash $P licz \"$POZYCJA\""
 else
   bash "$P" przygotuj "${LIMIT_S:-172800}"
-  bash "$P" licz "$POZYCJA"
+  POMIN=reszta bash "$P" licz "$POZYCJA"  # one model per instance: the other MODELE rows go elsewhere
 fi
 
 cat <<KONIEC
