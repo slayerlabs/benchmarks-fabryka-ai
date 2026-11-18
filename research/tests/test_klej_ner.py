@@ -42,9 +42,9 @@ def test_entry_matches_the_card():
     """Values copied from the card; each must be in ZADANIA, the card, RECIPE.md and the README row."""
     oczekiwane = {"repo": "allegro/klej-nkjp-ner", "rewizja": "bfae4047738b985bc2ad533d339dd89c3f7de00d",
                   "split": "test", "metric": "acc,none", "rodzaj": "mc", "klasy_stale": True,
-                  "task": "polish_klej_ner_multiple_choice",
+                  "task": "polish_klej_ner_multiple_choice", "klastry": "sentence",
                   "yaml": "klej-ner/lm_eval_tasks/polish_klej_ner/klej_ner_mc.yaml"}
-    meta, karta = W.sprawdz_wpis("T29", oczekiwane, shoty=5, typ="mc +pl")
+    meta, karta = W.sprawdz_wpis("T29", oczekiwane, shoty=5, typ="mc +klastry +pl")
     assert "| Metryka decyzyjna | `acc`. `acc_norm` jest pomocnicza. |" in karta
     assert "split: test; n: 2058;" in karta
     assert ("Rozkład etykiet testu: 705 `placeName`, 500 `noEntity`, 372 `persName`, 237 `orgName`, 143 `time`, "

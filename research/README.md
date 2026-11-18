@@ -61,7 +61,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`gsm8k`](benchmarks/gsm8k/README.md) | T33 | `gen` | | T33 | nieustalone |
 | [`hellaswag`](benchmarks/hellaswag/README.md) | T05 | `mc` | | T05 | nieustalone |
 | [`ifeval`](benchmarks/ifeval/README.md) | T36 | `ifeval` | | T36 | nieustalone |
-| [`klej-ner`](benchmarks/klej-ner/README.md) | T29 | `mc +pl` | | T29 | nieustalone |
+| [`klej-ner`](benchmarks/klej-ner/README.md) | T29 | `mc +klastry +pl` | klastry: `sentence` (2058 wierszy do 2050 zdań; 5 grup identycznych zdań, 13 wierszy) | T29 | nieustalone |
 | [`lambada`](benchmarks/lambada/README.md) | T17 | `cloze` | | T17 | tak |
 | [`llmzszl`](benchmarks/llmzszl/README.md) | T37 | `mc +pl` | | T37; kolumna informacyjna (brak licencji, kontaminacja) | nieustalone |
 | [`logiqa`](benchmarks/logiqa/README.md) | T18 | `mc` | | T18 | nieustalone |
@@ -77,7 +77,7 @@ kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy p
 | [`polemo2`](benchmarks/polemo2/README.md) | T22 | `mc +pl` | | T22 | nieustalone |
 | [`polqa`](benchmarks/polqa/README.md) | T30 | `gen +pl` | | T30 | nieustalone |
 | [`poquad`](benchmarks/poquad/README.md) | T31 | `gen +klastry +pl` | klastry: `context` (5764 pytania do 1449 tekstów) | T31 | nieustalone |
-| [`ppc`](benchmarks/ppc/README.md) | T26 | `mc +pl` | | T26 | nieustalone |
+| [`ppc`](benchmarks/ppc/README.md) | T26 | `mc +klastry +pl` | klastry: pary dzielące zdanie (53 z 1000 wierszy w 25 grupach; 972 grupy) | T26 | nieustalone |
 | [`prost`](benchmarks/prost/README.md) | T20 | `mc` | | T20 | nieustalone |
 | [`psc`](benchmarks/psc/README.md) | T27 | `f1-korpus +klastry +pl` | klastry: `extract_text` (1078 wierszy do 507 tekstów) | T27 | nieustalone |
 | [`pubmedqa`](benchmarks/pubmedqa/README.md) | T44 | `mc` | | T44 | nieustalone |
@@ -105,7 +105,7 @@ Testy T01–T50 według typu:
 
 | typ | testy |
 |---|---|
-| `mc` | T05–T08, T10–T16, T18–T21, T40, T44–T46, T48 (T07, T10, T14, T16 i T48 z `+klastry`); polskie (`+pl`): T22–T24, T26, T29, T37 |
+| `mc` | T05–T08, T10–T16, T18–T21, T40, T44–T46, T48 (T07, T10, T14, T16 i T48 z `+klastry`); polskie (`+pl`): T22–T24, T26, T29, T37 (T29 z `+klastry`) |
 | `mc +warstwy` | T32 MMLU (57 przedmiotów) |
 | `mc-k` | T02 ARC-Challenge |
 | `poz` | T09 SciQ |
