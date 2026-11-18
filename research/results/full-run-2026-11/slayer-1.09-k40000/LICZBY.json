@@ -1,6 +1,6 @@
 {
  "protokol": "PROTOKOL.md",
- "etykieta": "1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny",
+ "etykieta": "1.09, krok 40 000 (~67 mld tokenów), trening w toku, wynik wstępny",
  "model": "slayer1b-1.09-k40000",
  "odniesienie": "slayer1b-1.08",
  "m_holm": 15,

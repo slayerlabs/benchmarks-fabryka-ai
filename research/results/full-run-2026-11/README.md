@@ -13,9 +13,10 @@
 
 <p align="center"><img src="charts/macierz.svg" alt="Macierz modeli i testów" width="100%"></p>
 
-**Slayer 1.07**: ostatnia przyjęta wersja, bez wygaszania LR. **1.08**: [karta modelu](https://huggingface.co/SlayerLab/Slayer1B-1.08/blob/5f854a0cc7160594d54d1788d37a44e8ebabe16c/README.md), checkpoint eksperymentalny: bramka przyjęcia niezaliczona (ARC-Easy), nie jest następcą 1.07.
+**Slayer 1.07**: ostatnia przyjęta wersja, bez wygaszania LR. **1.08**: [karta modelu](https://huggingface.co/SlayerLab/Slayer1B-1.08/blob/5f854a0cc7160594d54d1788d37a44e8ebabe16c/README.md), bramka przyjęcia niezaliczona (ARC-Easy); kontynuacja 1.07, punkt startowy 1.09.
 
-**Slayer 1B 1.09, krok 40 000 (w toku)**: 1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny. Poza tabelą CodeSOTA; w animacji i macierzy jako checkpoint w toku; porównanie parowane z 1.08 w [postępie wersji](#postęp-wersji-slayera).
+**Slayer 1B 1.09, krok 40 000 (w toku)**: 1.09, krok 40 000 (~67 mld tokenów), trening w toku, wynik wstępny. Poza tabelą CodeSOTA; w animacji i macierzy jako checkpoint w toku; porównanie parowane z 1.08 w [postępie wersji](#postęp-wersji-slayera).
+Tokeny treningu: 1.08 skończyło trening na 25,2 mld tokenów, a Slayer 1B 1.09, krok 40 000 (w toku) ma 67,1 mld, czyli o 41,9 mld więcej ([dane treningowe](../../slayer-1b/dane/DANE_TRENINGOWE.md#tokeny-wersji)). <!-- liczba-spoza-wynikow: tokeny z DANE_TRENINGOWE.md, tabela „Tokeny wersji”, krok 40 000 = 1.08 + 40 000 × 2^20 -->
 
 ## Wyniki Slayer 1B 1.09, krok 40 000 (w toku) wobec 1.08
 
@@ -329,7 +330,7 @@ Klasa „ok. 1B”: do 1,10B parametrów policzonych z wag ([`sizes.json`](sizes
 <details>
 <summary><b>1.08 → Slayer 1B 1.09, krok 40 000 (w toku)</b> (15 porównań, Holm m = 15)</summary>
 
-Etykieta: 1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny. Checkpoint w trakcie treningu, nie następca 1.08; poza tabelą CodeSOTA, w animacji i macierzy jako checkpoint w toku. Protokół, liczby i raport: [`slayer-1.09-k40000/`](slayer-1.09-k40000/RAPORT.md). 1.08 w tabeli z `manifest.jsonl` przebiegu; Δ i SE Δ z 1.08 przeliczonego na tej samej karcie co 1.09, na tych samych pytaniach. Kontrola narzędzia: 1.08 przeliczone − 1.08 z manifestu, w SE testu; niezgodna (> 0,5 SE albo inne n) zmienia werdykt na nierozstrzygnięty.
+Etykieta: 1.09, krok 40 000 (~67 mld tokenów), trening w toku, wynik wstępny. Checkpoint w trakcie treningu, kontynuacja 1.08, jeszcze nie wydana wersja; poza tabelą CodeSOTA, w animacji i macierzy jako checkpoint w toku. Protokół, liczby i raport: [`slayer-1.09-k40000/`](slayer-1.09-k40000/RAPORT.md). 1.08 w tabeli z `manifest.jsonl` przebiegu; Δ i SE Δ z 1.08 przeliczonego na tej samej karcie co 1.09, na tych samych pytaniach. Kontrola narzędzia: 1.08 przeliczone − 1.08 z manifestu, w SE testu; niezgodna (> 0,5 SE albo inne n) zmienia werdykt na nierozstrzygnięty.
 
 | test | 1.08 | 1.09 k40000 | Δ | SE Δ | statystyka | werdykt | po Holmie | kontrola (SE) | wynik |
 |---|---:|---:|---:|---:|---|---|---|---:|---|
@@ -354,7 +355,7 @@ Etykieta: 1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny. Checkpoin
 <details>
 <summary><b>Wszystkie wersje Slayera</b>, wartości</summary>
 
-Wszystkie wersje mają tę samą architekturę i tokenizer; rewizje HF w `manifest.jsonl`. 1.07 to wagi z HF (sha256 checkpointu zgodne z `SLAYER_CKPT_SHA256`), etykieta: ostatnia przyjęta wersja, bez wygaszania LR. 1.08: checkpoint eksperymentalny: bramka przyjęcia niezaliczona (ARC-Easy), nie jest następcą 1.07; z wygaszaniem LR ([karta modelu](https://huggingface.co/SlayerLab/Slayer1B-1.08/blob/5f854a0cc7160594d54d1788d37a44e8ebabe16c/README.md)). Pozostałe wersje: bez wygaszania LR.
+Wszystkie wersje mają tę samą architekturę i tokenizer; rewizje HF w `manifest.jsonl`. 1.07 to wagi z HF (sha256 checkpointu zgodne z wierszem `slayer1b-1.07` w `MODELE` w `tools/przebieg_centralny.sh`), etykieta: ostatnia przyjęta wersja, bez wygaszania LR. 1.08: bramka przyjęcia niezaliczona (ARC-Easy); kontynuacja 1.07, punkt startowy 1.09; z wygaszaniem LR ([karta modelu](https://huggingface.co/SlayerLab/Slayer1B-1.08/blob/5f854a0cc7160594d54d1788d37a44e8ebabe16c/README.md)). Pozostałe wersje: bez wygaszania LR.
 
 | test | 1.00 | 1.01 | 1.02 | 1.03 | 1.04 | 1.05 | 1.06 | 1.07 | 1.08 |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -491,7 +492,7 @@ acc_norm, `T02`, n = 1 172, wynik losowy 0,2502, najczęstsza odpowiedź 0,2654.
 | 3 | Qwen3.5-0.8B-Base | – | 0,87B | 0,4044 | 0,0143 | 0,3763 – 0,4326 | 0.4.13 | float32 | nieznana | [plik](arc-challenge/qwen3.5-0.8b-base/results_rozszerzone.json) |
 | 4 | EuroLLM-1.7B | – | 1,66B | 0,3746 | 0,0141 | 0,3473 – 0,4027 | 0.4.9.1 | float32 | nieznana | [plik](arc-challenge/eurollm-1.7b/results_rozszerzone.json) |
 | 5 | Bielik-1.5B-v3 | – | 1,60B | 0,3609 | 0,0140 | 0,3336 – 0,3891 | 0.4.9.1 | float32 | nieznana | [plik](arc-challenge/bielik-1.5b-v3/results_rozszerzone.json) |
-| – | Slayer 1B 1.09, krok 40 000 (w toku) | 1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny | nieustalone | 0,3498 | 0,0139 | 0,3225 – 0,3771 | 0.4.9.1 | float32 | nieznana | [plik](arc-challenge/slayer1b-1.09-k40000/results_rozszerzone.json) |
+| – | Slayer 1B 1.09, krok 40 000 (w toku) | 1.09, krok 40 000 (~67 mld tokenów), trening w toku, wynik wstępny | nieustalone | 0,3498 | 0,0139 | 0,3225 – 0,3771 | 0.4.9.1 | float32 | nieznana | [plik](arc-challenge/slayer1b-1.09-k40000/results_rozszerzone.json) |
 | 6 | Pythia-1B v0 | – | 1,08B | 0,2747 | 0,0130 | 0,2500 – 0,3020 | 0.4.9.1 | float32 | nieznana | [plik](arc-challenge/pythia-1b-v0/results_rozszerzone.json) |
 | 7 | **Slayer 1B 1.07** | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | **0,2730** | 0,0130 | 0,2474 – 0,2995 | 0.4.9.1 | float32 | nieznana | [plik](arc-challenge/slayer1b-1.07-hf/results_rozszerzone.json) |
 
@@ -514,7 +515,7 @@ acc_norm, `T19`, n = 2 985, wynik losowy 0,2000, najczęstsza odpowiedź 0,2265.
 | 5 | EuroLLM-1.7B | – | 1,66B | 0,2422 | 0,0078 | 0,2271 – 0,2580 | 0.4.9.1 | float32 | nieznana | [plik](mathqa/eurollm-1.7b/results_rozszerzone.json) |
 | 6 | Pythia-1B v0 | – | 1,08B | 0,2352 | 0,0078 | 0,2204 – 0,2503 | 0.4.9.1 | float32 | nieznana | [plik](mathqa/pythia-1b-v0/results_rozszerzone.json) |
 | 7 | **Slayer 1B 1.07** | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | **0,2345** | 0,0078 | 0,2194 – 0,2499 | 0.4.9.1 | float32 | nieznana | [plik](mathqa/slayer1b-1.07-hf/results_rozszerzone.json) |
-| – | Slayer 1B 1.09, krok 40 000 (w toku) | 1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny | nieustalone | 0,2251 | 0,0076 | 0,2104 – 0,2402 | 0.4.9.1 | float32 | nieznana | [plik](mathqa/slayer1b-1.09-k40000/results_rozszerzone.json) |
+| – | Slayer 1B 1.09, krok 40 000 (w toku) | 1.09, krok 40 000 (~67 mld tokenów), trening w toku, wynik wstępny | nieustalone | 0,2251 | 0,0076 | 0,2104 – 0,2402 | 0.4.9.1 | float32 | nieznana | [plik](mathqa/slayer1b-1.09-k40000/results_rozszerzone.json) |
 
 </details>
 
@@ -532,7 +533,7 @@ acc, `T45`, n = 4 183, wynik losowy 0,2500, najczęstsza odpowiedź 0,3223.
 | 2 | Qwen3.5-0.8B-Base | – | 0,87B | 0,4026 | 0,0076 | 0,3880 – 0,4176 | 0.4.13 | float32 | nieznana | [plik](medmcqa/qwen3.5-0.8b-base/results_rozszerzone.json) |
 | 3 | Bielik-1.5B-v3 | – | 1,60B | 0,3913 | 0,0075 | 0,3765 – 0,4062 | 0.4.9.1 | float32 | nieznana | [plik](medmcqa/bielik-1.5b-v3/results_rozszerzone.json) |
 | 4 | LFM3-1.7B-Base | – | 1,73B | 0,3782 | 0,0075 | 0,3636 – 0,3930 | 0.4.13 | float32 | nieznana | [plik](medmcqa/lfm3-1.7b-base/results_rozszerzone.json) |
-| – | Slayer 1B 1.09, krok 40 000 (w toku) | 1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny | nieustalone | 0,3005 | 0,0071 | 0,2866 – 0,3141 | 0.4.9.1 | float32 | nieznana | [plik](medmcqa/slayer1b-1.09-k40000/results_rozszerzone.json) |
+| – | Slayer 1B 1.09, krok 40 000 (w toku) | 1.09, krok 40 000 (~67 mld tokenów), trening w toku, wynik wstępny | nieustalone | 0,3005 | 0,0071 | 0,2866 – 0,3141 | 0.4.9.1 | float32 | nieznana | [plik](medmcqa/slayer1b-1.09-k40000/results_rozszerzone.json) |
 | 5 | **Slayer 1B 1.07** | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | **0,2991** | 0,0071 | 0,2854 – 0,3125 | 0.4.9.1 | float32 | nieznana | [plik](medmcqa/slayer1b-1.07-hf/results_rozszerzone.json) |
 | 6 | Pythia-1B v0 | – | 1,08B | 0,2811 | 0,0070 | 0,2678 – 0,2948 | 0.4.9.1 | float32 | nieznana | [plik](medmcqa/pythia-1b-v0/results_rozszerzone.json) |
 | 7 | EuroLLM-1.7B | – | 1,66B | 0,2582 | 0,0068 | 0,2450 – 0,2713 | 0.4.9.1 | float32 | nieznana | [plik](medmcqa/eurollm-1.7b/results_rozszerzone.json) |
@@ -551,7 +552,7 @@ acc, `T04`, n = 3 272, wynik losowy 0,5000.
 |---:|---|---|---:|---:|---:|---|---|---|---|---|
 | 1 | Bielik-11B-v3.0-Instruct | instruct, surowy tekst | 11,17B | 0,9957 | 0,0011 | 0,9933 – 0,9979 | 0.4.9.1 | bfloat16 | nieznana | [plik](multiblimp-pl/bielik-11b-v3-instruct/results_rozszerzone.json) |
 | 2 | **Slayer 1B 1.07** | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | **0,9887** | 0,0018 | 0,9850 – 0,9921 | 0.4.9.1 | float32 | nieznana | [plik](multiblimp-pl/slayer1b-1.07-hf/results_rozszerzone.json) |
-| – | Slayer 1B 1.09, krok 40 000 (w toku) | 1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny | nieustalone | 0,9856 | 0,0021 | 0,9814 – 0,9896 | 0.4.9.1 | float32 | nieznana | [plik](multiblimp-pl/slayer1b-1.09-k40000/results_rozszerzone.json) |
+| – | Slayer 1B 1.09, krok 40 000 (w toku) | 1.09, krok 40 000 (~67 mld tokenów), trening w toku, wynik wstępny | nieustalone | 0,9856 | 0,0021 | 0,9814 – 0,9896 | 0.4.9.1 | float32 | nieznana | [plik](multiblimp-pl/slayer1b-1.09-k40000/results_rozszerzone.json) |
 | 3 | Bielik-1.5B-v3 | – | 1,60B | 0,9447 | 0,0040 | 0,9364 – 0,9526 | 0.4.9.1 | float32 | nieznana | [plik](multiblimp-pl/bielik-1.5b-v3/results_rozszerzone.json) |
 | 4 | EuroLLM-1.7B | – | 1,66B | 0,9386 | 0,0042 | 0,9303 – 0,9468 | 0.4.9.1 | float32 | nieznana | [plik](multiblimp-pl/eurollm-1.7b/results_rozszerzone.json) |
 | 5 | LFM3-1.7B-Base | – | 1,73B | 0,8915 | 0,0054 | 0,8808 – 0,9022 | 0.4.13 | float32 | nieznana | [plik](multiblimp-pl/lfm3-1.7b-base/results_rozszerzone.json) |
@@ -575,7 +576,7 @@ acc, `T44`, n = 500, wynik losowy 0,3333, najczęstsza odpowiedź 0,5520.
 | 3 | Bielik-1.5B-v3 | – | 1,60B | 0,6240 | 0,0217 | 0,5820 – 0,6660 | 0.4.9.1 | float32 | nieznana | [plik](pubmedqa/bielik-1.5b-v3/results_rozszerzone.json) |
 | 4 | LFM3-1.7B-Base | – | 1,73B | 0,5940 | 0,0220 | 0,5500 – 0,6360 | 0.4.13 | float32 | nieznana | [plik](pubmedqa/lfm3-1.7b-base/results_rozszerzone.json) |
 | 5 | Pythia-1B v0 | – | 1,08B | 0,5660 | 0,0222 | 0,5220 – 0,6080 | 0.4.9.1 | float32 | nieznana | [plik](pubmedqa/pythia-1b-v0/results_rozszerzone.json) |
-| – | Slayer 1B 1.09, krok 40 000 (w toku) | 1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny | nieustalone | 0,5620 | 0,0222 | 0,5180 – 0,6060 | 0.4.9.1 | float32 | nieznana | [plik](pubmedqa/slayer1b-1.09-k40000/results_rozszerzone.json) |
+| – | Slayer 1B 1.09, krok 40 000 (w toku) | 1.09, krok 40 000 (~67 mld tokenów), trening w toku, wynik wstępny | nieustalone | 0,5620 | 0,0222 | 0,5180 – 0,6060 | 0.4.9.1 | float32 | nieznana | [plik](pubmedqa/slayer1b-1.09-k40000/results_rozszerzone.json) |
 | 6 | **Slayer 1B 1.07** | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | **0,5360** | 0,0223 | 0,4920 – 0,5800 | 0.4.9.1 | float32 | nieznana | [plik](pubmedqa/slayer1b-1.07-hf/results_rozszerzone.json) |
 | 7 | EuroLLM-1.7B | – | 1,66B | 0,5300 | 0,0223 | 0,4860 – 0,5740 | 0.4.9.1 | float32 | nieznana | [plik](pubmedqa/eurollm-1.7b/results_rozszerzone.json) |
 
@@ -596,7 +597,7 @@ acc, `T46`, n = 1 954, wynik losowy 0,3333, najczęstsza odpowiedź 0,3362.
 | 3 | Bielik-1.5B-v3 | – | 1,60B | 0,4360 | 0,0112 | 0,4135 – 0,4585 | 0.4.9.1 | float32 | nieznana | [plik](social-iqa/bielik-1.5b-v3/results_rozszerzone.json) |
 | 4 | Qwen3.5-0.8B-Base | – | 0,87B | 0,4186 | 0,0112 | 0,3966 – 0,4406 | 0.4.13 | float32 | nieznana | [plik](social-iqa/qwen3.5-0.8b-base/results_rozszerzone.json) |
 | 5 | EuroLLM-1.7B | – | 1,66B | 0,4150 | 0,0111 | 0,3930 – 0,4371 | 0.4.9.1 | float32 | nieznana | [plik](social-iqa/eurollm-1.7b/results_rozszerzone.json) |
-| – | Slayer 1B 1.09, krok 40 000 (w toku) | 1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny | nieustalone | 0,4089 | 0,0111 | 0,3874 – 0,4314 | 0.4.9.1 | float32 | nieznana | [plik](social-iqa/slayer1b-1.09-k40000/results_rozszerzone.json) |
+| – | Slayer 1B 1.09, krok 40 000 (w toku) | 1.09, krok 40 000 (~67 mld tokenów), trening w toku, wynik wstępny | nieustalone | 0,4089 | 0,0111 | 0,3874 – 0,4314 | 0.4.9.1 | float32 | nieznana | [plik](social-iqa/slayer1b-1.09-k40000/results_rozszerzone.json) |
 | 6 | Pythia-1B v0 | – | 1,08B | 0,4023 | 0,0111 | 0,3808 – 0,4237 | 0.4.9.1 | float32 | nieznana | [plik](social-iqa/pythia-1b-v0/results_rozszerzone.json) |
 | 7 | **Slayer 1B 1.07** | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | **0,3910** | 0,0110 | 0,3695 – 0,4130 | 0.4.9.1 | float32 | nieznana | [plik](social-iqa/slayer1b-1.07-hf/results_rozszerzone.json) |
 
@@ -617,7 +618,7 @@ byte perplexity, `T03`, n = 62.
 | 3 | LFM3-1.7B-Base | – | 1,73B | 1,616 | 0,0142 | 1,588 – 1,644 | 0.4.13 | float32 | nieznana | [plik](wikitext-2/lfm3-1.7b-base/results_rozszerzone.json) |
 | 4 | Bielik-1.5B-v3 | – | 1,60B | 1,674 | 0,0109 | 1,653 – 1,695 | 0.4.9.1 | float32 | nieznana | [plik](wikitext-2/bielik-1.5b-v3/results_rozszerzone.json) |
 | 5 | Pythia-1B v0 | – | 1,08B | 1,688 | 0,0139 | 1,661 – 1,715 | 0.4.9.1 | float32 | nieznana | [plik](wikitext-2/pythia-1b-v0/results_rozszerzone.json) |
-| – | Slayer 1B 1.09, krok 40 000 (w toku) | 1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny | nieustalone | 1,702 | 0,0156 | 1,673 – 1,734 | 0.4.9.1 | float32 | nieznana | [plik](wikitext-2/slayer1b-1.09-k40000/results_rozszerzone.json) |
+| – | Slayer 1B 1.09, krok 40 000 (w toku) | 1.09, krok 40 000 (~67 mld tokenów), trening w toku, wynik wstępny | nieustalone | 1,702 | 0,0156 | 1,673 – 1,734 | 0.4.9.1 | float32 | nieznana | [plik](wikitext-2/slayer1b-1.09-k40000/results_rozszerzone.json) |
 | 6 | Qwen3.5-0.8B-Base | – | 0,87B | 1,717 | 0,0130 | 1,692 – 1,743 | 0.4.13 | float32 | nieznana | [plik](wikitext-2/qwen3.5-0.8b-base/results_rozszerzone.json) |
 | 7 | **Slayer 1B 1.07** | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | **1,782** | 0,0147 | 1,754 – 1,811 | 0.4.9.1 | float32 | nieznana | [plik](wikitext-2/slayer1b-1.07-hf/results_rozszerzone.json) |
 
@@ -639,7 +640,7 @@ acc, `T14`, n = 273, wynik losowy 0,5000, najczęstsza odpowiedź 0,5018.
 | 4 | Qwen3.5-0.8B-Base | – | 0,87B | 0,7143 | 0,0233 | 0,6691 – 0,7591 | 0.4.13 | float32 | nieznana | [plik](wsc273/qwen3.5-0.8b-base/results_rozszerzone.json) |
 | 5 | EuroLLM-1.7B | – | 1,66B | 0,7106 | 0,0263 | 0,6593 – 0,7609 | 0.4.9.1 | float32 | nieznana | [plik](wsc273/eurollm-1.7b/results_rozszerzone.json) |
 | 6 | Pythia-1B v0 | – | 1,08B | 0,6740 | 0,0211 | 0,6327 – 0,7143 | 0.4.9.1 | float32 | nieznana | [plik](wsc273/pythia-1b-v0/results_rozszerzone.json) |
-| – | Slayer 1B 1.09, krok 40 000 (w toku) | 1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny | nieustalone | 0,6374 | 0,0241 | 0,5897 – 0,6850 | 0.4.9.1 | float32 | nieznana | [plik](wsc273/slayer1b-1.09-k40000/results_rozszerzone.json) |
+| – | Slayer 1B 1.09, krok 40 000 (w toku) | 1.09, krok 40 000 (~67 mld tokenów), trening w toku, wynik wstępny | nieustalone | 0,6374 | 0,0241 | 0,5897 – 0,6850 | 0.4.9.1 | float32 | nieznana | [plik](wsc273/slayer1b-1.09-k40000/results_rozszerzone.json) |
 | 7 | **Slayer 1B 1.07** | ostatnia przyjęta wersja, bez wygaszania LR | 1,07B | **0,6154** | 0,0206 | 0,5745 – 0,6556 | 0.4.9.1 | float32 | nieznana | [plik](wsc273/slayer1b-1.07-hf/results_rozszerzone.json) |
 
 </details>

@@ -161,7 +161,7 @@ def raport(L: dict) -> str:
     a("")
     a("<!-- Plik wygenerowany przez code/raport_md.py z LICZBY.json. Nie edytuj ręcznie. -->")
     a("")
-    a(f"Etykieta: **{L['etykieta']}**. Checkpoint w trakcie treningu, nie wersja przyjęta i nie następca 1.08; "
+    a(f"Etykieta: **{L['etykieta']}**. Checkpoint w trakcie treningu, kontynuacja 1.08, jeszcze nie wydana wersja; "
       "porównanie nie mówi nic o modelu końcowym 1.09. Protokół: [`PROTOKOL.md`](PROTOKOL.md).")
     a("")
     a("## Główne twierdzenie")
