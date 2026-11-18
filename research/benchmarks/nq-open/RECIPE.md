@@ -7,7 +7,7 @@
   (`NEW_ENV_PINS` w `tools/przebieg_centralny.sh`)
 - Model: modele z `MODELE` w `tools/przebieg_centralny.sh`
 - Zbiór: `google-research-datasets/nq_open@5dd9790a83002ad084ddeb7c420dc716852c6f28`
-- Komenda (w `research/`): `bash tools/przebieg_centralny.sh licz "<etykiety>"`; jedno zadanie:
+- Komenda (w `research/`): `bash tools/przebieg_centralny.sh licz` (wszystkie modele z `MODELE`; lista etykiet wymaga `POMIN` z pominiętymi modelami); jedno zadanie:
   `python common/ewaluuj.py --model hf --repo <repo> --revision <rewizja> --zadania T42 --probka pelna --device cuda --wyjscie results/central-run/nq-open/<etykieta>`
 - Seed: harness (python, numpy, torch, fewshot) = (0, 1234, 1234, 1234); bootstrap 20261028
 - Precyzja: float32

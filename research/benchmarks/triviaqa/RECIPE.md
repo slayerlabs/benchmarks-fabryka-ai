@@ -7,7 +7,7 @@
   (`NEW_ENV_PINS` w `tools/przebieg_centralny.sh`)
 - Model: modele z `MODELE` w `tools/przebieg_centralny.sh`
 - Zbiór: `mandarjoshi/trivia_qa@0f7faf33a3908546c6fd5b73a660e0f8ff173c2f (`rc.nocontext`)`
-- Komenda (w `research/`): `bash tools/przebieg_centralny.sh licz "<etykiety>"`; jedno zadanie:
+- Komenda (w `research/`): `bash tools/przebieg_centralny.sh licz` (wszystkie modele z `MODELE`; lista etykiet wymaga `POMIN` z pominiętymi modelami); jedno zadanie:
   `python common/ewaluuj.py --model hf --repo <repo> --revision <rewizja> --zadania T43 --probka pelna --device cuda --wyjscie results/central-run/triviaqa/<etykieta>`
 - Seed: harness (python, numpy, torch, fewshot) = (0, 1234, 1234, 1234); bootstrap 20261028
 - Precyzja: float32
