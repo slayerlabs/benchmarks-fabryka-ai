@@ -91,7 +91,8 @@ A pull request that adds or changes an evaluation shows:
 - **Description:** fill in every section of the [pull request template](../../.github/pull_request_template.md).
   A trivial documentation fix (a `docs:` title and the "Documentation only" scope box ticked) needs only Problem,
   Result, Scope, and Related issue.
-  The `PR policy` check verifies the structure (not the quality) of the description.
+  The `PR policy` check verifies the structure (not the quality) of the description. A PR that changes only
+  `research/` is checked in the lighter research form described in [CONTRIBUTING.md](../../CONTRIBUTING.md).
 - **Issue reference:** `Refs #123` links an issue without closing it. Many issues here are closed through the project
   board, so use `Closes #123` only when merging the PR should close the issue. With no issue, write
   `No issue: <reason>`.

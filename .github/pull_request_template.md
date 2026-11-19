@@ -3,6 +3,9 @@ Title: Conventional Commits in English, e.g. "fix(benchmarks): ..." or "docs: ..
 title and that each required section below has real content (HTML comments do not count).
 Trivial documentation fixes (title starting with "docs:" AND the "Documentation only" box ticked) need only:
 Problem, Result, Scope, and Related issue.
+PRs that change only files under research/ (benchmarks) need none of the sections below: a title of at most 100
+characters in any style (the benchmark and what it measures), a description of what the PR adds and its result, and
+"Refs #N". See CONTRIBUTING.md.
 Guides: benchmarks/docs/contributing.md (benchmarks/), CONTRIBUTING.md (research/).
 -->
 

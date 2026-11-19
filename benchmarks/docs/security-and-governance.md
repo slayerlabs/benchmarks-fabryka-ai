@@ -17,7 +17,7 @@ for:
 |---|---|---|
 | `pr-policy.yml` (`PR policy`) | `.github/scripts/pr_policy.py` from the **default branch**, checked out explicitly; nothing from the PR runs | the PR title and description policy, against a PR that edits the checker. Not against a PR that edits `pr-policy.yml` itself (see below) |
 | `codesota.yml` (`CodeSOTA CI`) | the PR's own workflow, scripts, and `benchmarks/` code | testing contributor code; a PR can weaken it |
-| `repo-checks.yml` (`Repository scripts tests`, `CODEOWNERS validation`) | the PR's own `.github/scripts` and their tests; GitHub's parser for the PR's `CODEOWNERS` | testing changes to repository scripts; validating `CODEOWNERS` |
+| `repo-checks.yml` (`Repository scripts tests`, `CODEOWNERS validation`) | the PR's own `.github/scripts` and their tests; GitHub's parser for `CODEOWNERS` in the PR's merge result | testing changes to repository scripts; validating `CODEOWNERS` |
 
 - **What the policy check does and does not resist.** Because the checker comes from the default branch, editing
   `pr_policy.py` in a PR does not change the policy that PR is checked against; the change is tested by
@@ -33,7 +33,7 @@ for:
 - **Missing checker.** If the default branch has no checker, `PR policy` fails for every PR numbered above 310 (the
   PR that introduced the check), so deleting the checker cannot silently turn it off.
 - **Every workflow** declares `permissions: {}` at the top and grants each job only what it needs (`contents: read`;
-  `pull-requests: read` for the job that lists changed files). Every job has a timeout.
+  `pull-requests: read` for the jobs that list changed files). Every job has a timeout.
 - **Untrusted text is never interpolated into a shell.** PR title and body reach scripts only through environment
   variables and are parsed in Python.
 - **Actions are pinned to full commit SHAs**, with the release tag in a comment.

@@ -4,8 +4,16 @@ It checks structure only: a Conventional Commits title, the required sections, r
 or a placeholder does not count), at least one ticked scope box, and an issue reference or a stated reason for none.
 It does not judge whether the change is good; reviewers do.
 
+A PR that changes only files under research/ (a benchmark one person runs from start to end, CONTRIBUTING.md) is
+checked in a lighter form: a title of at most TITLE_MAX characters in any style, a description in any layout, and an
+issue reference. Which form applies is decided from GitHub's list of the PR's files, never from the PR's text, and
+falls back to the full form when that list is missing or may be incomplete.
+
 Input comes from environment variables, never from the command line, so untrusted text never passes through a shell:
-PR_TITLE, PR_BODY, PR_NUMBER. Exit code 0 when the PR passes (or predates the policy), 1 otherwise.
+PR_TITLE, PR_BODY, PR_NUMBER, and optionally PR_FILES (path of a file with one changed file per line as
+`<filename>\t<previous_filename or empty>`, from `gh api --paginate repos/{repo}/pulls/{n}/files --jq '.[] |
+[.filename, (.previous_filename // "")] | @tsv'`) with CHANGED_FILES (the PR's `changed_files` count). Exit code 0
+when the PR passes (or predates the policy), 1 otherwise.
 
     PR_TITLE="docs: fix link" PR_BODY="$(cat body.md)" PR_NUMBER=400 python3 .github/scripts/pr_policy.py
 """
@@ -45,6 +53,10 @@ ISSUE = re.compile(r"\b(?:Refs|Closes|Fixes|Resolves):? #[1-9]\d*\b", re.IGNOREC
 NO_ISSUE = re.compile(r"^No issue: *(?!<)\S.{4,}", re.IGNORECASE | re.MULTILINE)
 CHECKED = re.compile(r"^\s*[-*] \[[xX]\] ", re.MULTILINE)
 DOCS_BOX = re.compile(r"^\s*[-*] \[[xX]\] Documentation only\b", re.MULTILINE)
+
+RESEARCH_PREFIX = "research/"
+MAX_LISTED = 3000
+"""GitHub's "list pull request files" endpoint returns at most 3000 files."""
 
 
 @dataclass(frozen=True)
@@ -165,6 +177,24 @@ def is_placeholder(text: str) -> bool:
     return text.strip().strip(".").strip().lower() in PLACEHOLDERS
 
 
+def research_only(listing: str, changed_files: int) -> bool:
+    """Whether every changed file, old and new path of a rename, is under research/. False (the full form) when the
+    listing may be incomplete: GitHub lists at most MAX_LISTED files, and a shorter list than the PR's count."""
+    lines = [line for line in listing.splitlines() if line]
+    if not lines or changed_files >= MAX_LISTED or len(lines) < changed_files:
+        return False
+    for line in lines:
+        filename, _, previous = line.partition("\t")
+        if not filename.startswith(RESEARCH_PREFIX) or (previous and not previous.startswith(RESEARCH_PREFIX)):
+            return False
+    return True
+
+
+def has_issue(text: str) -> bool:
+    reason = any(not is_placeholder(m.group(0).split(":", 1)[1]) for m in NO_ISSUE.finditer(text))
+    return bool(ISSUE.search(text) or reason)
+
+
 def check_title(title: str) -> list[str]:
     title = title.strip()
     errors = []
@@ -175,6 +205,25 @@ def check_title(title: str) -> list[str]:
         )
     if len(title) > TITLE_MAX:
         errors.append(f"Title is {len(title)} characters; keep it at most {TITLE_MAX}.")
+    return errors
+
+
+def check_research(title: str, body: str) -> list[str]:
+    """The research/ form: the title is the benchmark and what was measured, in any style; the description is free
+    but must say something besides the issue reference."""
+    title = title.strip()
+    errors = []
+    if is_placeholder(title):
+        errors.append("Title is empty; name the benchmark and what the PR measures.")
+    elif len(title) > TITLE_MAX:
+        errors.append(f"Title is {len(title)} characters; keep it at most {TITLE_MAX}.")
+    text = "\n".join(visible_lines(body)).strip()
+    if not has_issue(text):
+        errors.append("Description: write 'Refs #<number>' with the task's issue (or 'Closes #<number>'), or "
+                      "'No issue: <reason>'.")
+    rest = ISSUE.sub("", NO_ISSUE.sub("", text)).strip()
+    if is_placeholder(rest) or len(rest) < NARRATIVE_MIN:
+        errors.append("Description: say what the PR adds or changes and the result, not only the issue reference.")
     return errors
 
 
@@ -192,8 +241,7 @@ def check_body(body: str, docs_only: bool) -> list[str]:
             if not CHECKED.search(text):
                 errors.append("Section 'Scope': tick at least one box.")
         elif name == "Related issue":
-            reason = any(not is_placeholder(m.group(0).split(":", 1)[1]) for m in NO_ISSUE.finditer(text))
-            if not (ISSUE.search(text) or reason):
+            if not has_issue(text):
                 errors.append("Section 'Related issue': write 'Refs #<number>' (or 'Closes #<number>'), or "
                               "'No issue: <reason>'.")
         elif is_placeholder(text):
@@ -203,13 +251,26 @@ def check_body(body: str, docs_only: bool) -> list[str]:
     return errors
 
 
-def check(title: str, body: str, number: int | None) -> Result:
-    # The short form needs both a docs title and the ticked "Documentation only" box, so a title alone cannot relax it.
-    docs_only = title.strip().startswith(("docs:", "docs(")) and DOCS_BOX.search(sections(body).get("scope", ""))
-    docs_only = bool(docs_only)
-    errors = tuple(check_title(title) + check_body(body, docs_only))
+def check(title: str, body: str, number: int | None, research: bool = False) -> Result:
+    if research:
+        errors = tuple(check_research(title, body))
+    else:
+        # The short form needs both a docs title and the ticked "Documentation only" box, so a title alone cannot
+        # relax it.
+        docs_only = title.strip().startswith(("docs:", "docs(")) and DOCS_BOX.search(sections(body).get("scope", ""))
+        errors = tuple(check_title(title) + check_body(body, bool(docs_only)))
     enforced = number is None or number >= FIRST_ENFORCED_PR
     return Result(errors, enforced)
+
+
+def read_research(path: str | None, raw_count: str | None) -> bool:
+    """Whether the PR changes only research/, from the PR_FILES listing. No listing: the full form."""
+    if not path:
+        return False
+    if raw_count is None or not raw_count.isdigit():
+        raise SystemExit(f"CHANGED_FILES must be a non-negative integer, got {raw_count!r}")
+    with open(path, encoding="utf-8") as f:
+        return research_only(f.read(), int(raw_count))
 
 
 def annotation(level: str, message: str) -> str:
@@ -230,7 +291,10 @@ def parse_number(raw: str | None) -> int | None:
 def main() -> int:
     title = os.environ.get("PR_TITLE", "")
     body = os.environ.get("PR_BODY") or ""
-    result = check(title, body, parse_number(os.environ.get("PR_NUMBER")))
+    research = read_research(os.environ.get("PR_FILES"), os.environ.get("CHANGED_FILES"))
+    result = check(title, body, parse_number(os.environ.get("PR_NUMBER")), research)
+    if research:
+        print("The PR changes only research/: checked in the research form (title, description, issue reference).")
     level = "error" if result.enforced else "notice"
     for e in result.errors:
         print(annotation(level, e))

@@ -31,6 +31,7 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: read # check out the default branch's checker
+      pull-requests: read # list the files the PR changes (gh api .../pulls/N/files)
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -39,11 +40,24 @@ jobs:
           persist-credentials: false
           sparse-checkout: .github/scripts/pr_policy.py
           sparse-checkout-cone-mode: false
+      - name: List the PR's files
+        # The checker uses the lighter research form only when every file is under research/. The list comes from
+        # GitHub, not from the PR's text; an API error fails this job.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          gh api --paginate "repos/$REPO/pulls/$PR/files" \
+            --jq '.[] | [.filename, (.previous_filename // "")] | @tsv' > "$RUNNER_TEMP/files.tsv"
       - name: Check title and description with the default branch's checker
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
           PR_BODY: ${{ github.event.pull_request.body }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          CHANGED_FILES: ${{ github.event.pull_request.changed_files }}
+          PR_FILES: ${{ runner.temp }}/files.tsv
         run: |
           # Bootstrap only: before the PR that introduces the policy (#310) is merged, the default branch has no
           # checker; that PR and older ones pass with a notice. For any later PR a missing checker is an error, so

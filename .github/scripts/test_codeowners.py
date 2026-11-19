@@ -55,7 +55,7 @@ class Codeowners(unittest.TestCase):
     def test_live_validation_job_wiring(self) -> None:
         # A literal wiring guard on the YAML, not a behavior test: the behavior was checked on GitHub (PR description).
         workflow = (REPO / ".github" / "workflows" / "repo-checks.yml").read_text(encoding="utf-8")
-        self.assertIn("codeowners/errors?ref=refs/pull/$PR/head", workflow)
+        self.assertIn("codeowners/errors?ref=refs/pull/$PR/merge", workflow)
         self.assertIn('[ "$errors" = "[]" ]', workflow)
         self.assertIn("::error::GitHub found no CODEOWNERS file", workflow)  # 404 fails with a message
 

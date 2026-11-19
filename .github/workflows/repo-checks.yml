@@ -35,7 +35,7 @@ jobs:
     permissions:
       contents: read # GET /repos/{owner}/{repo}/codeowners/errors
     steps:
-      - name: Ask GitHub to parse the PR's CODEOWNERS
+      - name: Ask GitHub to parse CODEOWNERS as the PR would merge it
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -43,9 +43,12 @@ jobs:
         run: |
           set -euo pipefail
           # GitHub's parser reports unknown owners, owners without write access, and syntax errors for a ref.
-          # It answers 404 when the PR has no CODEOWNERS file; that fails too, with a message (fail closed).
-          if ! errors=$(gh api "repos/$REPO/codeowners/errors?ref=refs/pull/$PR/head" --jq '.errors'); then
-            echo "::error::GitHub found no CODEOWNERS file in this PR (or the API call failed)."
+          # The ref is the PR's merge result, not its head: a branch started before CODEOWNERS existed still merges
+          # the base's file, while a PR that deletes the file has none in its merge result either.
+          # It answers 404 when the merge result has no CODEOWNERS file, or when there is no merge result because
+          # the PR has conflicts; both fail with a message (fail closed).
+          if ! errors=$(gh api "repos/$REPO/codeowners/errors?ref=refs/pull/$PR/merge" --jq '.errors'); then
+            echo "::error::GitHub found no CODEOWNERS file in the PR's merge result (or the PR has merge conflicts, or the API call failed)."
             exit 1
           fi
           echo "$errors"

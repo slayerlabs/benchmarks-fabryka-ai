@@ -36,7 +36,11 @@ Bierzesz jedno zadanie naraz. Jeśli zaczynasz, weź
 2. Uruchom komendy z sekcji [„Przed PR”](#przed-pr) niżej. CI katalogu `research/` puszcza tylko testy bez
    torch i lm-eval, więc resztę robisz sam, a każda komenda musi zakończyć się kodem 0.
 
-3. Otwórz PR do `main` i wypełnij checklistę z szablonu. W opisie wpisz `Refs #N` z numerem zadania z tego repo.
+3. Otwórz PR do `main`. Tytuł to nazwa benchmarku i to, co mierzysz, np. `IFEval: Slayer 1B 1.08 and Bielik 11B v3.1`.
+   W opisie napisz, co PR dodaje i jaki wyszedł wynik, i wpisz `Refs #N` z numerem zadania z tego repo. Gdy PR
+   zmienia tylko pliki w `research/`, układ opisu jest dowolny: sekcji szablonu nie wypełniasz, a `PR policy`
+   sprawdza tylko tytuł (do 100 znaków), opis i `Refs #N`. PR, który zmienia coś poza `research/`, wypełnia cały
+   szablon.
    Dopóki pracujesz, PR jest w trybie **Draft** (`gh pr create --draft`), a zadanie stoi w In Progress. Gdy
    komendy z punktu 2 kończą się kodem 0 i ktoś inny może PR przejąć, kliknij **Ready for review** (`gh pr ready`)
    i przestaw zadanie na Review.

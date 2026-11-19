@@ -3,6 +3,7 @@
 import os
 import subprocess
 import sys
+import tempfile
 import time
 import unittest
 from pathlib import Path
@@ -219,6 +220,60 @@ No issue: a one-word typo fix
         self.assertTrue(any("AI assistance" in e for e in errors))
 
 
+class Research(unittest.TestCase):
+    """PRs that change only research/: a benchmark one person runs from start to end (CONTRIBUTING.md)."""
+
+    TITLE = "IFEval: Slayer 1B 1.08 and Bielik 11B v3.1"
+    BODY = """\
+## What this PR changes
+
+Adds IFEval (541 prompts, `prompt_level_strict_acc`) in `research/api-benchmarks/ifeval/`.
+
+Refs #298
+
+## Checklist
+
+- [x] Pre-PR commands from CONTRIBUTING.md exit 0
+"""
+    LISTING = "research/api-benchmarks/ifeval/README.md\t\nresearch/api-benchmarks/ifeval/run.sh\t\n"
+
+    def test_benchmark_pr_passes_in_its_own_layout(self) -> None:
+        self.assertEqual(P.check(self.TITLE, self.BODY, 500, research=True).errors, ())
+
+    def test_same_pr_outside_research_needs_the_full_form(self) -> None:
+        errors = P.check(self.TITLE, self.BODY, 500).errors
+        self.assertTrue(any("Conventional Commits" in e for e in errors))
+        self.assertTrue(any("Validation" in e for e in errors))
+
+    def test_issue_reference_is_required(self) -> None:
+        errors = P.check(self.TITLE, self.BODY.replace("Refs #298", ""), 500, research=True).errors
+        self.assertTrue(any("Refs #<number>" in e for e in errors))
+        self.assertEqual(P.check(self.TITLE, self.BODY.replace("Refs #298", "No issue: a rerun on new hardware"),
+                                 500, research=True).errors, ())
+
+    def test_description_must_say_more_than_the_issue(self) -> None:
+        self.assertTrue(P.check(self.TITLE, "Refs #298", 500, research=True).errors)
+        self.assertTrue(P.check(self.TITLE, "<!-- Adds IFEval results for two models. -->\nRefs #298", 500,
+                                research=True).errors)
+
+    def test_title_must_exist_and_stay_short(self) -> None:
+        self.assertTrue(P.check("  ", self.BODY, 500, research=True).errors)
+        self.assertTrue(P.check("x" * (P.TITLE_MAX + 1), self.BODY, 500, research=True).errors)
+
+    def test_only_research_files_select_the_research_form(self) -> None:
+        self.assertTrue(P.research_only(self.LISTING, 2))
+        self.assertFalse(P.research_only(self.LISTING + "benchmarks/src/x.py\t\n", 3))
+        self.assertFalse(P.research_only(self.LISTING + ".github/workflows/research-tests.yml\t\n", 3))
+
+    def test_rename_out_of_another_area_needs_the_full_form(self) -> None:
+        self.assertFalse(P.research_only("research/x.py\tbenchmarks/x.py\n", 1))
+
+    def test_incomplete_or_missing_listing_needs_the_full_form(self) -> None:
+        self.assertFalse(P.research_only(self.LISTING, 3))
+        self.assertFalse(P.research_only("", 0))
+        self.assertFalse(P.research_only(self.LISTING, P.MAX_LISTED))
+
+
 class Grandfathering(unittest.TestCase):
     def test_old_pr_reports_but_passes(self) -> None:
         r = P.check("przebieg: stara konwencja", "", P.FIRST_ENFORCED_PR - 1)
@@ -235,9 +290,28 @@ class Grandfathering(unittest.TestCase):
 class CommandLine(unittest.TestCase):
     """The script reads only environment variables; shell metacharacters in them stay data."""
 
-    def run_script(self, title: str, body: str, number: str) -> subprocess.CompletedProcess[str]:
-        env = {**os.environ, "PR_TITLE": title, "PR_BODY": body, "PR_NUMBER": number}
+    def run_script(self, title: str, body: str, number: str, **extra: str) -> subprocess.CompletedProcess[str]:
+        env = {**os.environ, "PR_TITLE": title, "PR_BODY": body, "PR_NUMBER": number, **extra}
         return subprocess.run([sys.executable, str(Path(P.__file__))], env=env, capture_output=True, text=True)
+
+    def run_with_listing(self, listing: str, count: str) -> subprocess.CompletedProcess[str]:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "files.tsv"
+            path.write_text(listing, encoding="utf-8")
+            return self.run_script(Research.TITLE, Research.BODY, "500", PR_FILES=str(path), CHANGED_FILES=count)
+
+    def test_research_listing_selects_the_research_form(self) -> None:
+        r = self.run_with_listing(Research.LISTING, "2")
+        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIn("research form", r.stdout)
+
+    def test_listing_with_other_files_keeps_the_full_form(self) -> None:
+        r = self.run_with_listing(Research.LISTING + "benchmarks/x.py\t\n", "3")
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("Conventional Commits", r.stdout)
+
+    def test_listing_without_a_file_count_is_rejected(self) -> None:
+        self.assertNotEqual(self.run_with_listing(Research.LISTING, "").returncode, 0)
 
     def test_pass_exits_zero(self) -> None:
         r = self.run_script("ci: run CodeSOTA CI on workflow changes", FILLED, "500")
@@ -296,10 +370,30 @@ class PolicyWorkflowTrust(unittest.TestCase):
                           "actions/cache", "download-artifact"):
             self.assertNotIn(forbidden, self.code, forbidden)
 
+    def test_research_form_is_chosen_from_githubs_file_list(self) -> None:
+        self.assertIn('gh api --paginate "repos/$REPO/pulls/$PR/files"', self.code)
+        self.assertIn("CHANGED_FILES: ${{ github.event.pull_request.changed_files }}", self.code)
+        self.assertIn("PR_FILES: ${{ runner.temp }}/files.tsv", self.code)
+
+    def run_blocks(self) -> list[str]:
+        """The shell script of every `run: |` step: the lines indented deeper than the `run:` key."""
+        blocks, lines = [], self.code.splitlines()
+        for i, line in enumerate(lines):
+            if line.strip() == "run: |":
+                key = len(line) - len(line.lstrip())
+                script = []
+                for nxt in lines[i + 1:]:
+                    if nxt.strip() and len(nxt) - len(nxt.lstrip()) <= key:
+                        break
+                    script.append(nxt)
+                blocks.append("\n".join(script))
+        return blocks
+
     def test_untrusted_text_only_through_env(self) -> None:
-        run = self.code[self.code.index("run: |"):]
-        for field in ("pull_request.title", "pull_request.body"):
-            self.assertNotIn(field, run)
+        blocks = self.run_blocks()
+        self.assertEqual(len(blocks), 2)
+        for run in blocks:
+            self.assertNotIn("${{", run)
         self.assertIn("PR_TITLE: ${{ github.event.pull_request.title }}", self.code)
         self.assertIn("PR_BODY: ${{ github.event.pull_request.body }}", self.code)
 
