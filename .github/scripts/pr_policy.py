@@ -15,7 +15,7 @@ import re
 import sys
 from dataclasses import dataclass
 
-FIRST_ENFORCED_PR = 314
+FIRST_ENFORCED_PR = 310
 """PRs numbered below this were opened before the policy and its template existed: they get the report as a notice,
 and the check passes. This is the number of the PR that introduced the policy."""
 
