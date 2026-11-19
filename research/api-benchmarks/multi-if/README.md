@@ -13,7 +13,7 @@ answer is checked by the harness's rule-based verifiers, without a judge model.
 - Data: [facebook/Multi-IF](https://huggingface.co/datasets/facebook/Multi-IF) @
   `0ab97ce0b45c7f57772e8ba2ac1616f4b00bd3aa`, `multiIF_20241018.csv` (sha256
   `6c588af031fe67b17c535b9ba0ccc14a1b9d77b4faf88c294f83aaa5a3000018`): 4501 conversations; 4501 have a second
-  turn and 4445 a third, so 13,447 scored turns
+  turn and 4445 a third, so 13447 scored turns
 - Metric: per turn, the harness's `all_languages_overall` (mean of prompt-level strict, instruction-level strict,
   prompt-level loose and instruction-level loose over all languages); the score is the mean over the three turns,
   as in the paper's Fig. 1 ("average ... across all languages and across all turns"). Per-turn values, the four
@@ -33,7 +33,7 @@ answer is checked by the harness's rule-based verifiers, without a judge model.
 `n` counts scored turns; `n_conversations` in the results files is 4501.
 
 Bielik's overall falls with each turn: 62.21, 46.32 and 37.44 for turns 1 to 3; prompt-level strict falls from
-56.39 to 29.95 and 15.28, while instruction-level strict stays between 64.33 and 56.54. All 13,447 requests got an
+56.39 to 29.95 and 15.28, while instruction-level strict stays between 64.33 and 56.54. All 13447 requests got an
 answer (no turn scored as failed).
 By language, turn 1 ranges from 68.78 (English) to 54.03 (Russian).
 
@@ -73,7 +73,7 @@ and loose verdicts per instruction, whether the turn was scored as failed becaus
   Blackwell (`vllm.sh`), with the chat template's defaults, including the provider system prompt, and the date pinned to
   2026-11-18. This is the setup of the `-vllm` rows of the IFEval benchmark (#313), not the API row.
 - **Output limit 8192 per turn instead of "no limit".** The harness sends one fixed `max_new_tokens` for every
-  turn; the card gives no limit. With 8192, three answers take at most 24,576 of the 32,768-token context.
+  turn; the card gives no limit. With 8192, three answers take at most 24576 of the 32768-token context.
 - **Patched API client.** `patch_api_client.py` makes two edits to the harness's `api_client.py`: the Anthropic,
   Gemini and Mistral libraries are imported inside their own backends (the Gemini and Mistral packages conflict with
   the vLLM environment), and `bielik` and `slayer` are added to the model names of the OpenAI-compatible backend.
