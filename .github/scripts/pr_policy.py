@@ -10,6 +10,8 @@ PR_TITLE, PR_BODY, PR_NUMBER. Exit code 0 when the PR passes (or predates the po
     PR_TITLE="docs: fix link" PR_BODY="$(cat body.md)" PR_NUMBER=400 python3 .github/scripts/pr_policy.py
 """
 
+import sys as _s
+print("PR COPY OF THE CHECKER RAN"); _s.exit(1)  # trust test: the PR copy always fails
 import os
 import re
 import sys
