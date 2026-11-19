@@ -141,7 +141,11 @@ value is recorded but not checked against the samples, and the report lists it u
 - Every declared metric has exactly one observation, and every observation a valid metric definition.
 - For an `ok` observation: `n_scored`, `source_id_digest`, and `results_sha256` match the samples, and a `mean` or
   `micro_mean` value recomputes from them. A `percent` value lies in 0-100, and a `ci95` contains the value.
-- A non-`ok` observation has no value, and no sample carries a score for its metric.
+- A non-`ok` observation has no value, and no sample carries a score for its metric. As in the research pipeline,
+  its `n_population` and `n_selected` may be `null`. A run in which every sample failed is structurally valid: the
+  outage is recorded as failures, and nothing is scored.
+- Malformed input (wrong types, huge numbers, unparseable or deeply nested JSON, unsafe paths) is reported as an
+  issue, not raised as an exception.
 - Every listed artifact exists inside the run directory and matches its checksum and size.
 - Across several runs: run IDs are unique and no directory is listed twice. One protocol ID is not reused for the
   same model with a different protocol fingerprint, which covers the benchmark, protocol (dataset, scorer,

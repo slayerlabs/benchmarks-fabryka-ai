@@ -456,3 +456,106 @@ def test_command_line_reports_the_three_levels(local: Path, api: Path, capsys: p
     report = json.loads(capsys.readouterr().out)
     assert report["structurally_valid"] is False and report["issues"][0]["code"] == "checksum.mismatch"
     assert report["scientific_verification"].startswith("not checked")
+
+
+# Regressions from the independent review: malformed input is reported, never raised.
+@pytest.mark.parametrize(
+    "change",
+    [
+        lambda m: m["inference"].update(temperature=10**400),
+        lambda m: m["observations"][0].update(value=10**400),
+        lambda m: m["artifacts"][0].update(path="a\x00b"),
+    ],
+)
+def test_extreme_values_are_reported_not_raised(local: Path, change: Mutation) -> None:
+    m = load(local)
+    change(m)
+    save(local, m)
+    assert not validate_run(local).ok
+
+
+def test_huge_per_sample_score_is_reported_not_raised(local: Path) -> None:
+    rewrite_samples(local, lambda recs: recs[0]["scores"].update(prompt_level_strict_acc=10**400), fix_sha=True)
+    assert "observations.recompute" in validate_run(local).codes()
+
+
+@pytest.mark.parametrize("payload", ["[" * 200_000 + "]" * 200_000, "1" * 5000])
+@pytest.mark.parametrize("target", ["manifest.json", "samples.jsonl"])
+def test_unparseable_json_is_reported_not_raised(local: Path, payload: str, target: str) -> None:
+    if target == "samples.jsonl":
+        rewrite_samples(local, lambda recs: None, fix_sha=True)
+        (local / target).write_text(payload + "\n", encoding="utf-8")
+    else:
+        (local / target).write_text(payload, encoding="utf-8")
+    reports = validate_runs([local])
+    assert not reports[0].ok
+
+
+def test_failed_observation_as_research_writes_it_is_accepted(local: Path) -> None:
+    # research/common/ewaluuj.py writes n_population and n_selected as None when a task fails.
+    def drop(recs: list[dict[str, Any]]) -> None:
+        for r in recs:
+            r["scores"].pop("prompt_level_loose_acc")
+
+    rewrite_samples(local, drop, fix_sha=True)
+    m = load(local)
+    obs = next(o for o in m["observations"] if o["metric"] == "prompt_level_loose_acc")
+    obs.update(
+        state="failed",
+        value=None,
+        ci95=None,
+        n_population=None,
+        n_selected=None,
+        n_scored=0,
+        source_id_digest=None,
+        results_sha256=None,
+        runner_sha256=None,
+        reason="RuntimeError: x",
+        reference=None,
+    )
+    save(local, m)
+    report = validate_run(local)
+    assert report.ok, [str(i) for i in report.issues]
+
+
+def test_same_artifact_listed_under_two_spellings_is_rejected(local: Path) -> None:
+    m = load(local)
+    m["artifacts"].append({**m["artifacts"][0], "path": "./samples.jsonl", "role": "log"})
+    save(local, m)
+    assert "artifacts.duplicate" in validate_run(local).codes()
+
+
+@pytest.mark.parametrize(
+    ("key", "value"), [("n_selected", 6.0), ("higher_is_better", 1), ("n_population", "6"), ("n_scored", True)]
+)
+def test_observation_field_types_are_checked(local: Path, key: str, value: Any) -> None:
+    m = load(local)
+    m["observations"][0][key] = value
+    save(local, m)
+    assert "observation.type" in validate_run(local).codes()
+
+
+def test_invalid_value_does_not_count_as_known_provenance(local: Path) -> None:
+    m = load(local)
+    m["model"]["revision"] = {}
+    save(local, m)
+    report = validate_run(local)
+    assert not report.ok and not report.provenance_complete
+
+
+def test_fingerprint_ignores_number_spelling_and_metric_order(tmp_path: Path, local: Path) -> None:
+    m = runs.base_manifest("synthetic.toy.respelled.20261119T140000Z")
+    m["inference"]["temperature"] = 0  # 0.0 in the other run
+    m["metrics"] = list(reversed(m["metrics"]))
+    other = runs.write_run(tmp_path / "respelled", m, runs.records())
+    assert all(r.ok for r in validate_runs([local, other]))
+
+
+def test_run_with_every_sample_failed_is_structurally_valid(tmp_path: Path) -> None:
+    # Structural validity only: an outage is recorded as failures, not as a score. Nothing is scored.
+    m = runs.base_manifest("synthetic.toy.outage.20261119T150000Z")
+    recs = runs.records(failed=tuple(s[0] for s in runs.SAMPLES))
+    run = runs.write_run(tmp_path / "outage", m, recs, observation_state="failed")
+    report = validate_run(run)
+    assert report.ok, [str(i) for i in report.issues]
+    assert report.counts == {"failed": 6}

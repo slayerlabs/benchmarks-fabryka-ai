@@ -146,10 +146,15 @@ def records(failed: tuple[str, ...] = ()) -> list[dict[str, Any]]:
     return out
 
 
-def observations(manifest: dict[str, Any], recs: list[dict[str, Any]], samples_sha: str) -> list[dict[str, Any]]:
+def observations(
+    manifest: dict[str, Any], recs: list[dict[str, Any]], samples_sha: str, state: str = "ok"
+) -> list[dict[str, Any]]:
     scored = [r for r in recs if r["state"] == "ok"]
     out = []
     for m in manifest["metrics"]:
+        if state != "ok":
+            out.append(not_scored(manifest, m, state))
+            continue
         values = [r["scores"][m["sample_key"]] for r in scored]
         flat = [v for vs in values for v in vs] if m["aggregation"] == "micro_mean" else values
         value = 100 * sum(flat) / len(flat)
@@ -177,7 +182,34 @@ def observations(manifest: dict[str, Any], recs: list[dict[str, Any]], samples_s
     return out
 
 
-def write_run(run_dir: Path, manifest: dict[str, Any], recs: list[dict[str, Any]]) -> Path:
+def not_scored(manifest: dict[str, Any], metric: dict[str, Any], state: str) -> dict[str, Any]:
+    """An observation that was not scored, shaped as research/common/metryki.py `obserwacja` writes one."""
+    return {
+        "task_id": manifest["benchmark"]["id"],
+        "model_id": manifest["model"]["id"],
+        "protocol_id": manifest["protocol"]["id"],
+        "metric": metric["id"],
+        "unit": metric["unit"],
+        "higher_is_better": metric["higher_is_better"],
+        "n_population": None,
+        "n_selected": None,
+        "n_scored": 0,
+        "state": state,
+        "value": None,
+        "ci95": None,
+        "source_id_digest": None,
+        "results_sha256": None,
+        "runner_sha256": None,
+        "contamination": "unscanned",
+        "contamination_receipt_sha256": None,
+        "reference": None,
+        "reason": "every request failed",
+    }
+
+
+def write_run(
+    run_dir: Path, manifest: dict[str, Any], recs: list[dict[str, Any]], observation_state: str = "ok"
+) -> Path:
     """Write samples.jsonl and a manifest whose checksums and aggregates match it."""
     run_dir.mkdir(parents=True, exist_ok=True)
     samples = run_dir / "samples.jsonl"
@@ -186,7 +218,7 @@ def write_run(run_dir: Path, manifest: dict[str, Any], recs: list[dict[str, Any]
     manifest = {
         **manifest,
         "artifacts": [{"path": "samples.jsonl", "role": "samples", "sha256": sha, "bytes": samples.stat().st_size}],
-        "observations": observations(manifest, recs, sha),
+        "observations": observations(manifest, recs, sha, observation_state),
     }
     (run_dir / "manifest.json").write_bytes((json.dumps(manifest, indent=2, sort_keys=True) + "\n").encode("utf-8"))
     return run_dir

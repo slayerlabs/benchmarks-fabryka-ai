@@ -127,7 +127,13 @@ def positive(v: Json) -> bool:
 
 
 def number(v: Json) -> bool:
-    return isinstance(v, int | float) and not isinstance(v, bool) and math.isfinite(v)
+    """A finite JSON number that converts to float (a huge integer does not)."""
+    if isinstance(v, bool) or not isinstance(v, int | float):
+        return False
+    try:
+        return math.isfinite(float(v))
+    except OverflowError:
+        return False
 
 
 def boolean(v: Json) -> bool:
@@ -225,6 +231,9 @@ FIELDS: tuple[tuple[tuple[str, ...], Check, str], ...] = (
 )
 
 
+FIELD_CHECKS: dict[tuple[str, ...], Check] = {path: check for path, check, _ in FIELDS}
+
+
 def check_manifest(manifest: Json, report: Report) -> None:
     if not isinstance(manifest, dict):
         report.add("manifest.type", "$", "the manifest is not a JSON object")
@@ -276,9 +285,16 @@ def check_manifest(manifest: Json, report: Report) -> None:
 
 
 def known(value: Json, manifest: Json, path: Sequence[str]) -> bool:
-    """Recorded and not an explicit unknown (and present in the manifest)."""
+    """Present, a valid value for its field, and not an explicit unknown."""
     parent = get(manifest, path[:-1])
-    return isinstance(parent, dict) and path[-1] in parent and value is not None and not is_unknown(value)
+    check = FIELD_CHECKS.get(tuple(path))
+    return (
+        isinstance(parent, dict)
+        and path[-1] in parent
+        and value is not None
+        and not is_unknown(value)
+        and (check is None or check(value))
+    )
 
 
 METRIC_FIELDS: tuple[tuple[str, Check, str], ...] = (
@@ -332,13 +348,14 @@ def check_artifacts(manifest: Json, run_dir: Path, report: Report) -> Path | Non
             report.add("artifacts.invalid", where, "an artifact needs a path")
             continue
         rel = PurePosixPath(a["path"])
-        if rel.is_absolute() or ".." in rel.parts or "\\" in a["path"] or ":" in a["path"]:
+        if rel.is_absolute() or ".." in rel.parts or any(c in a["path"] for c in ("\\", ":", "\x00")):
             report.add("artifacts.path", f"{where}.path", "paths are relative to the run directory, with /")
             continue
-        if a["path"] in seen:
+        # Compared after normalisation, so "./samples.jsonl" and "samples.jsonl" are the same file.
+        if str(rel) in seen:
             report.add("artifacts.duplicate", f"{where}.path", f"{a['path']} is listed twice")
-        seen.add(a["path"])
-        if a["path"] == "manifest.json":
+        seen.add(str(rel))
+        if str(rel) == "manifest.json":
             report.add("artifacts.path", f"{where}.path", "the manifest cannot list itself")
             continue
         if not one_of(schema.ARTIFACT_ROLES)(a.get("role")):
@@ -368,8 +385,8 @@ def read_samples(path: Path, report: Report) -> list[dict[str, Json]]:
                 continue
             try:
                 record = json.loads(line)
-            except json.JSONDecodeError as e:
-                report.add("samples.json", f"{path.name}:{line_no}", f"not valid JSON: {e.msg}")
+            except (ValueError, RecursionError) as e:  # JSONDecodeError, int digit limit, deep nesting
+                report.add("samples.json", f"{path.name}:{line_no}", f"not valid JSON: {str(e)[:120]}")
                 continue
             if not isinstance(record, dict):
                 report.add("samples.json", f"{path.name}:{line_no}", "a record is a JSON object")
@@ -489,9 +506,11 @@ def check_observations(
             ("protocol_id", get(manifest, ("protocol", "id"))),
             ("unit", metric["unit"]),
             ("higher_is_better", metric["higher_is_better"]),
-            ("n_population", get(manifest, ("protocol", "dataset", "n_population"))),
         ]
-        # research/common/ewaluuj.py writes n_selected None for a task that failed before selecting samples.
+        # research/common/ewaluuj.py writes n_population and n_selected as None for a task that failed before
+        # selecting samples; such an observation is not compared on them.
+        if state == "ok" or obs.get("n_population") is not None:
+            expected.append(("n_population", get(manifest, ("protocol", "dataset", "n_population"))))
         if state == "ok" or obs.get("n_selected") is not None:
             expected.append(("n_selected", len(records)))
         for key, value in expected:
@@ -580,6 +599,11 @@ def observation_issues(obs: Json) -> list[Issue]:
         return issues
     if not isinstance(obs.get("unit"), str) or obs["unit"] not in schema.UNITS:
         issues.append(Issue("observation.unit", "$.unit", f"unit must be one of {sorted(schema.UNITS)}"))
+    if "higher_is_better" in obs and not boolean(obs["higher_is_better"]):
+        issues.append(Issue("observation.type", "$.higher_is_better", "true or false"))
+    for k in ("n_population", "n_selected", "n_scored"):
+        if k in obs and obs[k] is not None and not count(obs[k]):
+            issues.append(Issue("observation.type", f"$.{k}", "a non-negative integer or null"))
     if state == "ok":
         if not number(obs.get("value")) or not (count(obs.get("n_scored")) and obs["n_scored"] >= 1):
             issues.append(Issue("observation.value", "$.value", "state ok needs a value and n_scored >= 1"))
@@ -603,7 +627,7 @@ def observation_issues(obs: Json) -> list[Issue]:
     else:
         if obs.get("value") is not None or obs.get("ci95") is not None:
             issues.append(Issue("observation.value", "$.value", f"state {state} has no value and no ci95"))
-        if obs.get("n_scored") not in (0, None):
+        if obs.get("n_scored") is not None and not (count(obs["n_scored"]) and obs["n_scored"] == 0):
             issues.append(Issue("observation.n_scored", "$.n_scored", f"state {state} has n_scored 0"))
     return issues
 
@@ -617,8 +641,8 @@ def validate_run(run_dir: Path) -> Report:
         return report
     try:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, UnicodeDecodeError) as e:
-        report.add("manifest.json", str(manifest_path), f"not valid UTF-8 JSON: {e}")
+    except (ValueError, RecursionError) as e:  # JSONDecodeError, UnicodeDecodeError, int digit limit, deep nesting
+        report.add("manifest.json", str(manifest_path), f"not valid UTF-8 JSON: {str(e)[:120]}")
         return report
     report.manifest_sha256 = sha256_file(manifest_path)
     run_id = manifest.get("run_id") if isinstance(manifest, dict) else None
@@ -641,10 +665,25 @@ def validate_run(run_dir: Path) -> Report:
 FINGERPRINT_SECTIONS = ("benchmark", "protocol", "model", "inference", "metrics")
 
 
+def canonical(value: Json) -> Json:
+    """The same settings spelled the same way: numbers as floats (0 and 0.0 are one temperature)."""
+    if isinstance(value, dict):
+        return {k: canonical(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [canonical(v) for v in value]
+    if number(value):
+        return float(value)
+    return value
+
+
 def protocol_fingerprint(manifest: Json) -> str:
     """Digest of what defines a measurement: benchmark, protocol (data, scorer, preprocessing), model identity,
-    inference settings, and metric definitions. Run ID, timing, environment, and artifacts are not part of it."""
-    part = {k: manifest.get(k) for k in FINGERPRINT_SECTIONS} if isinstance(manifest, dict) else {}
+    inference settings, and metric definitions (in any order). Run ID, timing, environment, and artifacts are not
+    part of it."""
+    part = {k: canonical(manifest.get(k)) for k in FINGERPRINT_SECTIONS} if isinstance(manifest, dict) else {}
+    metrics = part.get("metrics")
+    if isinstance(metrics, list) and all(isinstance(m, dict) for m in metrics):
+        part["metrics"] = sorted(metrics, key=lambda m: json.dumps(m, sort_keys=True))
     return hashlib.sha256(json.dumps(part, sort_keys=True).encode("utf-8")).hexdigest()
 
 
@@ -687,7 +726,7 @@ def validate_runs(run_dirs: Sequence[Path]) -> list[Report]:
             by_samples.setdefault(report.samples_sha256, report)
         try:
             manifest = json.loads((d / "manifest.json").read_text(encoding="utf-8"))
-        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        except (OSError, ValueError, RecursionError):  # already reported by validate_run
             continue
         key = (json.dumps(get(manifest, ("protocol", "id"))), json.dumps(get(manifest, ("model", "id"))))
         fp = protocol_fingerprint(manifest)
