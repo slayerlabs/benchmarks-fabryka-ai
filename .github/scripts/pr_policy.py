@@ -45,6 +45,8 @@ ISSUE = re.compile(r"\b(?:Refs|Closes|Fixes|Resolves):? #\d+\b", re.IGNORECASE)
 NO_ISSUE = re.compile(r"^No issue: *(?!<)\S.{4,}", re.IGNORECASE | re.MULTILINE)
 CHECKED = re.compile(r"^\s*[-*] \[[xX]\] ", re.MULTILINE)
 COMMENT = re.compile(r"<!--.*?(?:-->|\Z)", re.DOTALL)
+FENCE = re.compile(r"^ {0,3}(```|~~~).*?^ {0,3}\1[^\n]*$", re.DOTALL | re.MULTILINE)
+INLINE_CODE = re.compile(r"`[^`\n]*`")
 HEADING = re.compile(r"^#{2,3} +(.+?) *#* *$", re.MULTILINE)
 
 
@@ -59,8 +61,15 @@ class Result:
 
 
 def sections(body: str) -> dict[str, str]:
-    """Section heading (case-insensitive key) -> its text without HTML comments. A repeated heading keeps the first."""
-    text = COMMENT.sub("", body.replace("\r\n", "\n"))
+    """Section heading (case-insensitive key) -> its text without HTML comments. A repeated heading keeps the first.
+
+    Code is masked first, so a heading or a "<!--" inside a code block or inline code is text, not structure. A masked
+    span still counts as content.
+    """
+    text = body.replace("\r\n", "\n")
+    text = FENCE.sub("[code]", text)
+    text = INLINE_CODE.sub("[code]", text)
+    text = COMMENT.sub("", text)
     found: dict[str, str] = {}
     matches = list(HEADING.finditer(text))
     for i, m in enumerate(matches):
@@ -100,7 +109,10 @@ def check_body(body: str, docs_only: bool) -> list[str]:
             if not CHECKED.search(text):
                 errors.append("Section 'Scope': tick at least one box.")
         elif name == "Related issue":
-            if not (ISSUE.search(text) or NO_ISSUE.search(text)):
+            reason = NO_ISSUE.search(text)
+            if reason and is_placeholder(reason.group(0).split(":", 1)[1]):
+                reason = None
+            if not (ISSUE.search(text) or reason):
                 errors.append("Section 'Related issue': write 'Refs #<number>' (or 'Closes #<number>'), or "
                               "'No issue: <reason>'.")
         elif is_placeholder(text):
@@ -117,6 +129,13 @@ def check(title: str, body: str, number: int | None) -> Result:
     return Result(errors, enforced)
 
 
+def annotation(level: str, message: str) -> str:
+    """One GitHub workflow-command line. The message is data: '%', CR and LF are escaped as GitHub requires, so text
+    from the PR can never start a second workflow command on a new line."""
+    escaped = message.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+    return f"::{level}::{escaped}"
+
+
 def parse_number(raw: str | None) -> int | None:
     if raw is None or raw == "":
         return None
@@ -131,8 +150,7 @@ def main() -> int:
     result = check(title, body, parse_number(os.environ.get("PR_NUMBER")))
     level = "error" if result.enforced else "notice"
     for e in result.errors:
-        # GitHub workflow command; the message is data only, newlines escaped as GitHub requires.
-        print(f"::{level}::{e.replace('%', '%25').replace(chr(13), '%0D').replace(chr(10), '%0A')}")
+        print(annotation(level, e))
     if not result.errors:
         print("PR title and description follow the policy.")
     elif not result.enforced:

@@ -113,6 +113,19 @@ class Body(unittest.TestCase):
         body = FILLED.replace("## ", "### ").replace("\n", "\r\n")
         self.assertEqual(P.check_body(body, False), [])
 
+    def test_comment_marker_in_inline_code_is_text(self) -> None:
+        body = FILLED.replace("Ran `python3", "Searched with `grep '<!--' x` and ran `python3")
+        self.assertEqual(P.check_body(body, False), [])
+
+    def test_heading_in_fenced_code_is_text(self) -> None:
+        body = FILLED.replace("No migration required.", "No migration required.\n\n```md\n## Validation\nTODO\n```")
+        self.assertEqual(P.check_body(body, False), [])
+
+    def test_no_issue_with_placeholder_reason_fails(self) -> None:
+        for reason in ("No issue: TODO.", "No issue: n/a", "No issue: tbd"):
+            self.assertTrue(any("Related issue" in e for e in P.check_body(FILLED.replace("Refs #42", reason), False)),
+                            reason)
+
     def test_empty_body_fails(self) -> None:
         self.assertEqual(len(P.check_body("", False)), len(P.SECTIONS))
 
@@ -168,9 +181,10 @@ class CommandLine(unittest.TestCase):
         self.assertEqual(r.returncode, 1)
         self.assertIn("::error::", r.stdout)
 
-    def test_newlines_in_messages_are_escaped(self) -> None:
-        r = self.run_script("bad\n::set-output name=x::y", "", "500")
-        self.assertNotIn("\n::set-output", r.stdout)
+    def test_annotation_escapes_newlines_and_percent(self) -> None:
+        line = P.annotation("error", "bad\r\n::set-output name=x::y 100%")
+        self.assertEqual(line, "::error::bad%0D%0A::set-output name=x::y 100%25")
+        self.assertNotIn("\n", line)
 
     def test_old_pr_exits_zero_with_notices(self) -> None:
         r = self.run_script("Stary tytul", "", str(P.FIRST_ENFORCED_PR - 1))
