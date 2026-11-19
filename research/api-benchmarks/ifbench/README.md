@@ -12,7 +12,7 @@ sentence with a different punctuation mark") on real user prompts, checked by ru
   `ed7c12452594b7028b15807b86d3938150b663ae`, 300 prompts (full set, single turn)
 - Metric: prompt-level strict accuracy (`follow_all_instructions` in `eval_results_strict`); instruction-level and
   loose scores in `other_metrics`
-- Settings: single turn, 1 trial. Bielik: temperature 0.6, top_p 0.95, up to 31,238 output tokens (LFM3-1.7B card
+- Settings: single turn, 1 trial. Bielik: temperature 0.6, top_p 0.95, up to 31238 output tokens (LFM3-1.7B card
   defaults, see Deviations). Slayer: greedy, up to 1280 output tokens, raw prompt
 - Extra services: none
 
@@ -41,8 +41,8 @@ prompt and the raw `output`.
   IFEval the two differed by about 5 points.
 - **top_p is set on the server.** `generate_responses.py` sends only temperature, max_tokens and seed, so the card's
   top_p 0.95 is a server default (`--override-generation-config`), visible in vLLM's startup log.
-- **Output limit 31,238 instead of "no limit".** The card gives no output limit; the served context is 32,768
-  tokens, and the longest prompt of the set with the chat template is 1,530 tokens. No prompt was cut.
+- **Output limit 31238 instead of "no limit".** The card gives no output limit; the served context is 32768
+  tokens, and the longest prompt of the set with the chat template is 1530 tokens. No prompt was cut.
 - **One seed for all requests.** `generate_responses.py` sends the same `seed` (20261119) with every request, so
   sampling is reproducible per prompt on the same server, but the prompts do not get independent seeds.
 - **Data from Hugging Face, not the repo copy.** The pinned Hugging Face revision differs from the repo's bundled

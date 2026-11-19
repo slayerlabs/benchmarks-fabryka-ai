@@ -3,7 +3,7 @@
 Wersja angielska: [README.md](README.md).
 
 Czy model przestrzega nowych, trudniejszych, sprawdzalnych ograniczeń wyjścia ("use exactly 3 palindromes", "end
-every sentence with a different punctuation mark") na prawdziwych promptach użytkowników. Sprawdzają to reguły, bez
+every sentence with a different punctuation mark") na rzeczywistych promptach użytkowników. Sprawdzają to reguły, bez
 modelu-sędziego.
 
 - Publikacja: [Pyatkin et al. 2025, Generalizing Verifiable Instruction Following](https://arxiv.org/abs/2507.02833)
