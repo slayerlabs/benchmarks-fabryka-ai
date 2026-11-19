@@ -22,8 +22,10 @@ answer in JSON"), checked by rules, without a judge model.
 | Bielik 11B v3.1 (`bielik-11b-v3.1`) | 55.27 | 2.14 | 541 | 2026-11-19 |
 | Bielik 11B v3.1, own vLLM, template defaults (`bielik-11b-v3.1-vllm`) | 60.63 | 2.10 | 541 | 2026-11-19 |
 | Bielik 11B v3.1, own vLLM, no provider prompt (`bielik-11b-v3.1-vllm-no-provider`) | 57.30 | 2.13 | 541 | 2026-11-19 |
+| LFM3-1.7B, own vLLM, reference (`lfm3-1.7b`) | 94.64 | 0.97 | 541 | 2026-11-19 |
 
-The main row for Bielik is the API run. The two vLLM rows test the hidden prompt (see Deviations).
+The main row for Bielik is the API run. The two vLLM rows test the hidden prompt, and the LFM3-1.7B row checks
+our setup against the LFM3-1.7B card (see Deviations, "Main metric").
 
 ## Deviations
 
@@ -79,6 +81,23 @@ The main row for Bielik is the API run. The two vLLM rows test the hidden prompt
 - **Main metric.** The LFM3-1.7B card does not say which IFEval metric it reports. We report
   `prompt_level_strict_acc` and give the other three (`inst_level_strict_acc`, `prompt_level_loose_acc`,
   `inst_level_loose_acc`) in `other_metrics` of each result file.
+  To find the card's metric we ran LFM3-1.7B itself (`lfm3.sh`: vLLM 0.34.0, bf16, temperature 0.6, top_p 0.95,
+  reasoning on, the template's default system prompt, as in the card's "Evaluation details"). The card reports
+  96.66. Our four metrics, with the distance from 96.66 in SE of our run:
+
+  | metric | score | SE | minus card |
+  |---|---|---|---|
+  | `prompt_level_strict_acc` | 94.64 | 0.97 | -2.02 (z = -2.1) |
+  | `inst_level_strict_acc` | 96.40 | 0.65 | -0.26 (z = -0.4) |
+  | `prompt_level_loose_acc` | 96.49 | 0.79 | -0.17 (z = -0.2) |
+  | `inst_level_loose_acc` | 97.72 | 0.52 | +1.06 (z = 2.0) |
+  | mean of the four | 96.31 | | -0.35 |
+
+  The instruction-level SE treats the 834 instructions as independent, so it is too small. Three readings match
+  the card within noise: `prompt_level_loose_acc`, `inst_level_strict_acc` and the mean of the four. The card
+  probably does not report `prompt_level_strict_acc` (z = -2.1), but one run at temperature 0.6 cannot single out
+  one of the other three. The card has no output limit; we used 32768 tokens, and all 541 responses ended their
+  reasoning with `</think>` before it (longest response: 75914 characters).
 
 ## Reproduce
 
@@ -101,4 +120,5 @@ modal run modal_ifeval.py
 ```
 
 On any other GPU machine: `HF_TOKEN=hf_... bash vllm.sh`. Slayer on Modal: `modal run modal_ifeval.py --model
-slayer1b-1.08` (about 10 minutes, written as `results/slayer1b-1.08-modal.*`).
+slayer1b-1.08` (about 10 minutes, written as `results/slayer1b-1.08-modal.*`). LFM3-1.7B: `modal run
+modal_ifeval.py --model lfm3-1.7b`, or `bash lfm3.sh` on any GPU machine (no token needed).

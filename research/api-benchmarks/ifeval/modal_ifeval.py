@@ -10,6 +10,7 @@ Run:
     modal run modal_ifeval.py                             # Bielik 11B v3.1 with vLLM, both runs (see vllm.sh)
     modal run modal_ifeval.py --model slayer1b-1.08       # Slayer, as `bash run.sh slayer1b-1.08`,
                                                           # written as results/slayer1b-1.08-modal.*
+    modal run modal_ifeval.py --model lfm3-1.7b           # LiquidAI/LFM3-1.7B with vLLM 0.34.0 (see lfm3.sh)
 
 The venvs are installed when Modal builds the image (no GPU time). The weights are cached in the Modal volume
 `hf-cache`, so a second run does not download them again. Results land in results/ and the lm-eval output (with
@@ -43,8 +44,12 @@ image = (
         f"uv pip install --python /opt/venv/bin/python --index-url {TORCH_INDEX} torch",
         "uv pip install --python /opt/venv/bin/python safetensors tokenizers huggingface_hub",
     )
+    # LFM3 needs vLLM 0.34.0 in its own venv (added after the steps above so their cached layers stay valid)
+    .add_local_file(HERE / "lfm3.sh", "/opt/lfm3.sh", copy=True)
+    .run_commands("VENV_VLLM_LFM3=/opt/venv-vllm-lfm3 VENV=/opt/venv bash /opt/lfm3.sh --setup-only")
     .env({
         "VENV_VLLM": "/opt/venv-vllm",
+        "VENV_VLLM_LFM3": "/opt/venv-vllm-lfm3",
         "VENV": "/opt/venv",
         "HF_HOME": "/hf",
         "OUT_DIR": f"{WORK}/out",
@@ -69,6 +74,8 @@ def ifeval(model: str, limit: int = 0) -> tuple[int, dict[str, bytes]]:
     env = dict(os.environ)
     if model == "bielik":
         args = ["bash", f"{REMOTE}/vllm.sh", *limit_args]
+    elif model == "lfm3-1.7b":
+        args = ["bash", f"{REMOTE}/lfm3.sh", *limit_args]
     else:
         args = ["bash", f"{REMOTE}/run.sh", model, *limit_args]
         env["RESULT_ID"] = f"{model}-modal"
@@ -80,8 +87,8 @@ def ifeval(model: str, limit: int = 0) -> tuple[int, dict[str, bytes]]:
 
 @app.local_entrypoint()
 def main(model: str = "bielik", limit: int = 0):
-    if model not in ("bielik", "slayer1b-1.08"):
-        sys.exit(f"unknown --model {model} (bielik | slayer1b-1.08)")
+    if model not in ("bielik", "slayer1b-1.08", "lfm3-1.7b"):
+        sys.exit(f"unknown --model {model} (bielik | slayer1b-1.08 | lfm3-1.7b)")
     returncode, files = ifeval.remote(model, limit)
     for rel, data in files.items():
         path = HERE / rel
