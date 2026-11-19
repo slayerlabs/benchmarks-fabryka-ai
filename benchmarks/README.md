@@ -22,29 +22,42 @@ family is special in the code.
 
 A benchmark score is only useful when someone else can reproduce it and knows exactly what it measured. Reported
 scores move with prompt formats, answer extraction, truncation, chat templates, scorer versions, and dataset
-revisions, and a run that failed for infrastructure reasons can look like a model that scored zero. CodeSOTA treats
-these as engineering problems:
+revisions, and a run that failed for infrastructure reasons can look like a model that scored zero.
 
-- **Official implementations, pinned.** Benchmarks run through their official harness and scorer at fixed commits,
-  on dataset revisions recorded with every result. Where no official implementation can be used, the deviation and
-  its reason are recorded with the benchmark.
-- **Reproduce before you compare.** A benchmark's results enter comparison tables only after a published reference
-  result has been reproduced, or after the benchmark is documented as having no reference to reproduce.
+**Methodology.** These are the standards every CodeSOTA evaluation is held to. They are requirements for new and
+updated work, not a claim that every benchmark already meets all of them; the next section says where things stand.
+
+- **Official implementations, pinned.** Run the benchmark's official harness and scorer at a fixed commit, on a
+  recorded dataset revision. Any deviation is recorded with its reason.
+- **Reproduce before you compare.** Results enter comparison tables only after a published reference result has been
+  reproduced, or the benchmark is documented as having no reference to reproduce.
 - **Explicit failures, not misleading zeros.** A run that failed, or a model that cannot run an evaluation, is
   recorded as such.
-- **Uncertainty with every comparison.** Scores come with standard errors, and differences between models with a
-  statistical verdict.
-- **Raw outputs and provenance.** Per-question outputs, settings, and versions are kept where licenses allow, so any
-  number can be recomputed.
+- **Uncertainty with every comparison.** Scores carry standard errors, and differences between models a statistical
+  verdict.
+- **Raw outputs and provenance.** Per-question outputs, settings, and versions are kept where licenses allow, so
+  numbers can be recomputed.
+
+**Where the repository stands.** What is in place today, checked against the repository:
+
+- 55 benchmark directories, each with a card describing the original benchmark (`ORIGINAL.md`) and a run recipe
+  (`RECIPE.md`).
+- 25 of them have a reproduction report (`REPRODUCTION.md`). Its verdict is stated in each report and is not always
+  a pass: some reproductions are met, some wait for the central run, some are inconclusive.
+- The central run evaluates every model with the same pinned settings and dataset revisions
+  ([`research/common/zadania.py`](../research/common/zadania.py)).
+- In the published results, only benchmarks with a met reproduction appear in the comparison table, every score has a
+  standard error, and comparisons have a statistical verdict.
+- Per-question outputs are stored in the repository for some benchmarks and runs, not yet for all.
 
 ## Evaluation domains
 
-The repository holds evaluation code, reference documentation, and results for benchmarks across these areas.
-Completeness varies by benchmark: some are documented and reproduced against a reference, others are integrated
-into the evaluation run but not yet documented. [`research/STATUS.md`](../research/STATUS.md) tracks each one
-(written in Polish).
+The table lists the benchmarks that have a directory in the repository, grouped by area. A listed benchmark is not
+necessarily a completed, reproducible integration: [`research/STATUS.md`](../research/STATUS.md) (written in Polish,
+last updated 16 Nov 2026) counts 23 as complete (documented, prepared, and in the central run), 30 as in the central
+run without full documentation, and 2 as documented but outside the run.
 
-| Domain | Benchmarks in the repository |
+| Domain | Benchmarks with a directory in the repository |
 |---|---|
 | Reasoning and mathematics | GSM8K, MATH, MathQA, BIG-Bench Hard, LogiQA, ANLI, ARC-Challenge |
 | Knowledge and question answering | MMLU, TriviaQA, Natural Questions, SciQ, OpenBookQA, MedMCQA, PubMedQA, TruthfulQA |
@@ -55,8 +68,8 @@ into the evaluation run but not yet documented. [`research/STATUS.md`](../resear
 | Polish language | Belebele (PL), PolEmo 2.0, PolQA, PoQuAD, KLEJ NER, LLMzSzL, 8TAGS, CBD, PSC, PPC, DYK, MultiBLiMP (PL), EWoK (PL) |
 | Coding, tool use, and agentic tasks | planned; no integrations in the repository yet |
 
-Each benchmark lives in [`research/benchmarks/<name>/`](../research/benchmarks/) with its code, a card describing
-the original benchmark, and, where done, a reproduction report.
+Each benchmark lives in [`research/benchmarks/<name>/`](../research/benchmarks/) with its card, recipe, any
+benchmark-specific code, and, where done, a reproduction report.
 
 ## Methodology and reproducibility
 
@@ -82,18 +95,21 @@ the original benchmark, and, where done, a reproduction report.
 
 ## Getting started
 
-Clone the repository (or your fork). Each block below starts from the repository root.
+Clone the repository (or your fork):
 
 ```bash
 git clone https://github.com/slayerlabs/benchmarks-fabryka-ai.git
 cd benchmarks-fabryka-ai
 ```
 
+The blocks below can run in any order. Each starts by moving into its directory from wherever you are inside the
+clone, so running them one after another works.
+
 **Test the evaluation code.** The lightweight tests need no GPU, weights, or network. This runs one of them; CI runs
 the full lightweight set listed in [`research-tests.yml`](../.github/workflows/research-tests.yml):
 
 ```bash
-cd research
+cd "$(git rev-parse --show-toplevel)/research"
 python -m pip install pytest numpy==2.0.2 scipy==1.13.1
 python -m pytest -q tests/test_statystyka.py
 ```
@@ -101,12 +117,12 @@ python -m pytest -q tests/test_statystyka.py
 Running full evaluations needs model weights and the pinned environment described in
 [`research/README.md`](../research/README.md) (written in Polish).
 
-**Develop the `codesota` Python package** in this directory. It is the home of new shared tooling and currently
+**Develop the `codesota` Python package** in `benchmarks/`. It is the home of new shared tooling and currently
 contains packaging, tests, and checks only; it does not run evaluations or provide a command-line interface yet.
 It needs Python 3.11+ and [uv](https://docs.astral.sh/uv/):
 
 ```bash
-cd benchmarks
+cd "$(git rev-parse --show-toplevel)/benchmarks"
 uv sync --locked
 uv run pytest
 uv run ruff format --check
