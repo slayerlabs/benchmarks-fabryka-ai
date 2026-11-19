@@ -1,7 +1,7 @@
 name: CodeSOTA CI
 # Checks for benchmarks/ (CodeSOTA v2), independent of the research/ test environment.
 #
-# It runs on every PR so that the final `CodeSOTA CI` job always reports and can later be made a required check
+# It runs on every PR GitHub runs workflows for, so that the final `CodeSOTA CI` job reports and can later be required
 # without leaving unrelated PRs pending. The test job runs only when the PR touches benchmarks/, this file, or the
 # change detector (.github/scripts/codesota_changes.py, which fails closed); otherwise it is skipped and
 # `CodeSOTA CI` reports success.

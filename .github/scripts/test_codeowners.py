@@ -52,10 +52,12 @@ class Codeowners(unittest.TestCase):
             if not re.search(r"[*?\[]", pattern):
                 self.assertTrue((REPO / pattern.strip("/")).exists(), pattern)
 
-    def test_live_validation_job_exists(self) -> None:
+    def test_live_validation_job_wiring(self) -> None:
+        # A literal wiring guard on the YAML, not a behavior test: the behavior was checked on GitHub (PR description).
         workflow = (REPO / ".github" / "workflows" / "repo-checks.yml").read_text(encoding="utf-8")
         self.assertIn("codeowners/errors?ref=refs/pull/$PR/head", workflow)
         self.assertIn('[ "$errors" = "[]" ]', workflow)
+        self.assertIn("::error::GitHub found no CODEOWNERS file", workflow)  # 404 fails with a message
 
 
 if __name__ == "__main__":

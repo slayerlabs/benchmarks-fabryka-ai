@@ -3,6 +3,7 @@
 import os
 import subprocess
 import sys
+import time
 import unittest
 from pathlib import Path
 
@@ -126,6 +127,33 @@ class Body(unittest.TestCase):
             self.assertTrue(any("Related issue" in e for e in P.check_body(FILLED.replace("Refs #42", reason), False)),
                             reason)
 
+    def test_long_heading_lines_are_fast(self) -> None:
+        # Review 2: the old heading regex backtracked cubically ("## a" + spaces + "b" took 8.6 s at 2000 spaces).
+        body = FILLED + "\n## a" + " " * 60000 + "b\n" + ("## x  " + " " * 3000 + "#\n") * 20
+        start = time.perf_counter()
+        P.check_body(body, False)
+        self.assertLess(time.perf_counter() - start, 1.0)
+
+    def test_unclosed_fence_hides_the_rest_like_github(self) -> None:
+        body = FILLED.replace("## Validation", "```\n## Validation")
+        self.assertTrue(any("Validation" in e for e in P.check_body(body, False)))
+
+    def test_fence_opener_inside_a_comment_is_ignored(self) -> None:
+        body = FILLED.replace("No migration required.", "No migration required.\n<!-- ``` -->")
+        self.assertEqual(P.check_body(body, False), [])
+
+    def test_indented_and_closed_headings_count(self) -> None:
+        body = FILLED.replace("## Validation", "   ## Validation ##").replace("## Scope", "### Scope ###")
+        self.assertEqual(P.check_body(body, False), [])
+
+    def test_four_spaces_is_not_a_heading(self) -> None:
+        body = FILLED.replace("## Validation", "    ## Validation")
+        self.assertIn("Missing section '## Validation' (from .github/pull_request_template.md).",
+                      P.check_body(body, False))
+
+    def test_issue_zero_is_not_a_reference(self) -> None:
+        self.assertTrue(any("Related issue" in e for e in P.check_body(FILLED.replace("Refs #42", "Refs #0"), False)))
+
     def test_empty_body_fails(self) -> None:
         self.assertEqual(len(P.check_body("", False)), len(P.SECTIONS))
 
@@ -150,6 +178,13 @@ No issue: a one-word typo fix
 
     def test_same_body_with_a_code_title_fails(self) -> None:
         self.assertNotEqual(P.check("fix: setup command", self.SHORT, 500).errors, ())
+
+    def test_docs_title_without_the_docs_box_needs_every_section(self) -> None:
+        # Review 2: a code PR titled "docs: ..." could skip Validation and AI assistance.
+        body = self.SHORT.replace("- [x] Documentation only", "- [x] `benchmarks/` (CodeSOTA v2)")
+        errors = P.check("docs: fix setup command", body, 500).errors
+        self.assertTrue(any("Validation" in e for e in errors))
+        self.assertTrue(any("AI assistance" in e for e in errors))
 
 
 class Grandfathering(unittest.TestCase):
@@ -199,33 +234,45 @@ WORKFLOWS = Path(__file__).resolve().parents[1] / "workflows"
 
 
 class PolicyWorkflowTrust(unittest.TestCase):
-    """pr-policy.yml must run the base branch's checker, never PR code (the PR controls `pull_request` workflows)."""
+    """pr-policy.yml must decide with the default branch's checker, never the PR's copy, and run no PR code."""
 
     text = (WORKFLOWS / "pr-policy.yml").read_text(encoding="utf-8")
+    code = "\n".join(line.split("#", 1)[0] for line in text.splitlines())
 
-    def test_runs_on_pull_request_target_only(self) -> None:
-        self.assertRegex(self.text, r"(?m)^  pull_request_target:")
-        self.assertNotRegex(self.text, r"(?m)^  pull_request:")
+    def test_runs_on_pull_request_only(self) -> None:
+        self.assertRegex(self.code, r"(?m)^  pull_request:")
+        self.assertNotIn("pull_request_target", self.code)
 
-    def test_checks_out_only_the_base_branch_checker(self) -> None:
-        self.assertIn("ref: ${{ github.event.pull_request.base.ref }}", self.text)
-        self.assertIn("sparse-checkout: .github/scripts/pr_policy.py", self.text)
-        self.assertIn("persist-credentials: false", self.text)
+    def test_checks_out_only_the_default_branch_checker(self) -> None:
+        self.assertIn("ref: ${{ github.event.repository.default_branch }}", self.code)
+        self.assertIn("path: trusted", self.code)
+        self.assertIn("sparse-checkout: .github/scripts/pr_policy.py", self.code)
+        self.assertIn("persist-credentials: false", self.code)
+        self.assertEqual(self.code.count("actions/checkout@"), 1)
+
+    def test_runs_the_trusted_copy_not_the_pr_copy(self) -> None:
+        self.assertIn("python3 trusted/.github/scripts/pr_policy.py", self.code)
+        self.assertNotRegex(self.code, r"python3 \.github/scripts/pr_policy\.py")
 
     def test_no_head_code_secrets_or_write_permissions(self) -> None:
-        code = "\n".join(line.split("#", 1)[0] for line in self.text.splitlines())
         for forbidden in ("head.sha", "head.ref", "head.repo", "refs/pull", "secrets.", ": write",
                           "actions/cache", "download-artifact"):
-            self.assertNotIn(forbidden, code, forbidden)
+            self.assertNotIn(forbidden, self.code, forbidden)
 
     def test_untrusted_text_only_through_env(self) -> None:
-        run_lines = [line for line in self.text.splitlines() if line.strip().startswith("run:")]
-        self.assertEqual(run_lines, ["        run: python3 .github/scripts/pr_policy.py"])
+        run = self.code[self.code.index("run: |"):]
+        for field in ("pull_request.title", "pull_request.body"):
+            self.assertNotIn(field, run)
+        self.assertIn("PR_TITLE: ${{ github.event.pull_request.title }}", self.code)
+        self.assertIn("PR_BODY: ${{ github.event.pull_request.body }}", self.code)
 
-    def test_no_other_workflow_uses_pull_request_target(self) -> None:
-        users = sorted(p.name for p in WORKFLOWS.glob("*.yml")
-                       if "pull_request_target" in p.read_text(encoding="utf-8").split("\non:", 1)[-1][:400])
-        self.assertEqual(users, ["pr-policy.yml"])
+    def test_no_workflow_uses_pull_request_target(self) -> None:
+        users = []
+        for p in sorted(WORKFLOWS.glob("*.yml")):
+            body = "\n".join(line.split("#", 1)[0] for line in p.read_text(encoding="utf-8").splitlines())
+            if "pull_request_target" in body:
+                users.append(p.name)
+        self.assertEqual(users, [])
 
 
 if __name__ == "__main__":

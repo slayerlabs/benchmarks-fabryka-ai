@@ -61,7 +61,8 @@ class CommandLine(unittest.TestCase):
 
 
 class WorkflowWiring(unittest.TestCase):
-    """The workflow must feed the script what it expects and fail closed in the aggregator."""
+    """Literal wiring guards on codesota.yml (string checks, not behavior): the workflow feeds the script what it
+    expects and calls the tested verdict. The behavior is tested in Decision and Verdict, and was checked on GitHub."""
 
     def test_listing_includes_previous_filenames(self) -> None:
         self.assertIn('[.filename, (.previous_filename // "")] | @tsv', WORKFLOW)

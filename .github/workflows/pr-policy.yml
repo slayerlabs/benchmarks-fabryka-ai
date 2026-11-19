@@ -1,20 +1,21 @@
 name: PR policy
-# Structural check of the PR title and description (.github/scripts/pr_policy.py). It does not judge code quality.
+# Structural check of the PR title and description. It does not judge code quality.
 #
-# Why pull_request_target: on `pull_request`, the workflow definition itself comes from the PR, so a contributor could
-# edit this file or the checker and make "PR policy" pass. On `pull_request_target`, both the workflow definition and
-# the checked-out checker come from the PR's base branch; for PRs into `main` that is protected code. That is what
-# lets this check be trusted as a required status check.
+# Trust: the checker that decides is .github/scripts/pr_policy.py from the DEFAULT branch, checked out explicitly,
+# never the PR's copy, so a PR cannot change the policy it is checked against by editing the checker. Changes to the
+# checker are tested separately (repo-checks.yml) and take effect after merge.
 #
-# SECURITY (pull_request_target runs with the base repository's context, so the rules are strict):
-#   - never check out, build, or run anything from the PR head (no `ref: ...head...`, no PR artifacts or caches);
-#   - the only PR-controlled inputs are the title and body, passed as environment variables, never interpolated
-#     into a shell command;
-#   - no secrets are referenced; the token is read-only (`contents: read`) and not persisted by checkout;
-#   - only one file is checked out: the checker, from the base branch.
-# Tests of changes to the checker run separately, on `pull_request`, in repo-checks.yml.
+# Limitation: on `pull_request` the workflow definition itself comes from the PR, so a PR that edits THIS file could
+# still skip the check. Closing that needs a GitHub setting, not code: an organization ruleset that requires this
+# workflow from the default branch, or code owner review of .github/ by a trusted team
+# (benchmarks/docs/security-and-governance.md). `pull_request_target` would also close it, but GitHub blocks that
+# trigger by default in public repositories from 2026-12-02 unless an admin allows it, and it runs with the base
+# repository's context, so it is not used.
+#
+# SECURITY: `pull_request` only; fork PRs get a read-only token and no secrets. No code from the PR is checked out or
+# run. The title and body reach the checker only through environment variables.
 on:
-  pull_request_target: # zizmor: ignore[dangerous-triggers] -- runs base-branch code only, read-only token, no secrets
+  pull_request:
     types: [opened, edited, reopened, synchronize, ready_for_review]
 
 permissions: {}
@@ -29,17 +30,24 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
-      contents: read # check out the base branch's checker
+      contents: read # check out the default branch's checker
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.pull_request.base.ref }}
+          ref: ${{ github.event.repository.default_branch }}
+          path: trusted
           persist-credentials: false
           sparse-checkout: .github/scripts/pr_policy.py
           sparse-checkout-cone-mode: false
-      - name: Check title and description with the base branch's checker
+      - name: Check title and description with the default branch's checker
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
           PR_BODY: ${{ github.event.pull_request.body }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: python3 .github/scripts/pr_policy.py
+        run: |
+          # Bootstrap only: before the PR that introduces the policy is merged, the default branch has no checker.
+          if [ ! -f trusted/.github/scripts/pr_policy.py ]; then
+            echo "::notice::The default branch has no .github/scripts/pr_policy.py yet; nothing to enforce."
+            exit 0
+          fi
+          python3 trusted/.github/scripts/pr_policy.py

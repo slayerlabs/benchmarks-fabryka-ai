@@ -43,6 +43,10 @@ jobs:
         run: |
           set -euo pipefail
           # GitHub's parser reports unknown owners, owners without write access, and syntax errors for a ref.
-          errors=$(gh api "repos/$REPO/codeowners/errors?ref=refs/pull/$PR/head" --jq '.errors')
+          # It answers 404 when the PR has no CODEOWNERS file; that fails too, with a message (fail closed).
+          if ! errors=$(gh api "repos/$REPO/codeowners/errors?ref=refs/pull/$PR/head" --jq '.errors'); then
+            echo "::error::GitHub found no CODEOWNERS file in this PR (or the API call failed)."
+            exit 1
+          fi
           echo "$errors"
           [ "$errors" = "[]" ]

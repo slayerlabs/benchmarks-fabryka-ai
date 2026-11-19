@@ -9,25 +9,29 @@ them again before relying on them.
 Everything that runs on a pull request in this public repository is treated as untrusted, including the PR title,
 description, branch name, and changed files.
 
-There are two kinds of PR checks, with different trust:
+All PR workflows run on `pull_request`. For PRs from forks, GitHub gives them a read-only token and no repository
+secrets. On this event the workflow definition comes from the PR itself, which decides what each check can be trusted
+for:
 
-| Workflow (check names) | Event | Code it runs | Trusted for |
-|---|---|---|---|
-| `pr-policy.yml` (`PR policy`) | `pull_request_target` | workflow definition and `.github/scripts/pr_policy.py` from the PR's **base branch**; nothing from the PR | enforcing the PR title and description policy, for PRs into `main` |
-| `codesota.yml` (`CodeSOTA CI`) | `pull_request` | the PR's own workflow, scripts, and v2 code | testing contributor code; a PR can weaken it, so `.github/` changes need human review |
-| `repo-checks.yml` (`Repository scripts tests`, `CODEOWNERS validation`) | `pull_request` | the PR's own `.github/scripts` and their tests; GitHub's parser for the PR's `CODEOWNERS` | testing changes to the repository scripts; validating `CODEOWNERS` |
+| Workflow (check names) | Code that decides | Trusted for |
+|---|---|---|
+| `pr-policy.yml` (`PR policy`) | `.github/scripts/pr_policy.py` from the **default branch**, checked out explicitly; nothing from the PR runs | the PR title and description policy, against a PR that edits the checker. Not against a PR that edits `pr-policy.yml` itself (see below) |
+| `codesota.yml` (`CodeSOTA CI`) | the PR's own workflow, scripts, and v2 code | testing contributor code; a PR can weaken it |
+| `repo-checks.yml` (`Repository scripts tests`, `CODEOWNERS validation`) | the PR's own `.github/scripts` and their tests; GitHub's parser for the PR's `CODEOWNERS` | testing changes to repository scripts; validating `CODEOWNERS` |
 
-- **Why the policy check uses `pull_request_target`.** On `pull_request`, the workflow definition itself comes from
-  the PR, so a contributor could edit the workflow or the checker and make the check pass; no step inside such a
-  workflow can prevent that. On `pull_request_target`, GitHub runs the workflow file from the base branch. The job
-  checks out only `pr_policy.py` from the base branch, never anything from the PR head, references no secrets, has a
-  read-only token that checkout does not persist, and passes the title and body only through environment variables.
-  For PRs into `main`, the checker is therefore protected code. For a PR into another branch, it is as trusted as that
-  branch. Because the definition comes from the base branch, a change to `pr-policy.yml` or `pr_policy.py` takes effect
-  for other PRs only after it is merged, and the PR that introduces or changes it is checked by the version already on
-  its base branch.
-- **The other workflows** run on `pull_request`. For PRs from forks, GitHub gives them a read-only token and no
-  repository secrets.
+- **What the policy check does and does not resist.** Because the checker comes from the default branch, editing
+  `pr_policy.py` in a PR does not change the policy that PR is checked against; the change is tested by
+  `Repository scripts tests` and takes effect after merge. A PR that edits `pr-policy.yml` itself could still skip
+  the check, because the workflow definition comes from the PR. That gap is closed by a GitHub setting, not by code:
+  an organization ruleset that requires this workflow from the default branch, or code owner review of `.github/` by
+  a trusted team. Until one of them is in place, every change to `.github/workflows/` needs a careful human review,
+  and `PR policy` should not be treated as an enforcement control.
+- **Why not `pull_request_target`.** It would take the workflow definition from the default branch, but it runs with
+  the base repository's context, and GitHub blocks it by default in public repositories from 2026-12-02 unless an
+  admin allows it in an Actions event policy
+  ([changelog](https://github.blog/changelog/2026-11-02-pull_request_target-blocked-by-default-december-2/)).
+- **Bootstrap.** Until this foundation is merged, the default branch has no checker, and `PR policy` reports a notice
+  and passes.
 - **Every workflow** declares `permissions: {}` at the top and grants each job only what it needs (`contents: read`;
   `pull-requests: read` for the job that lists changed files). Every job has a timeout.
 - **Untrusted text is never interpolated into a shell.** PR title and body reach scripts only through environment
@@ -45,7 +49,8 @@ There are two kinds of PR checks, with different trust:
 
 `CodeSOTA CI` and `Repository checks` run the PR's own version of their workflows and scripts, so a PR that edits them
 can weaken them. They are trustworthy only together with human review of changes under `.github/`, which today rests
-on the general one-approval rule (see [Code owners](#code-owners)). `PR policy` does not have this weakness.
+on the general one-approval rule (see [Code owners](#code-owners)). `PR policy` resists edits to its checker but
+not to its own workflow file (above).
 
 ## Review roles
 
@@ -99,11 +104,16 @@ None of these is done by the foundation PR; each needs an explicit decision.
    `/.github/`, `/.github/CODEOWNERS`, and core v2 paths to `CODEOWNERS` in a reviewed PR.
 3. In `Protect main`, enable "Require review from Code Owners" only after steps 1 and 2.
 4. After the checks have run successfully on real PRs, consider adding them as required status checks. The check
-   names are `PR policy`, `CodeSOTA CI`, `Repository scripts tests`, and `CODEOWNERS validation`. All report on every
-   PR (`CodeSOTA CI` reports success without running its tests when a PR does not touch v2), so requiring them does
-   not leave unrelated PRs pending. `PR policy` runs from the base branch, so it starts reporting only after this
-   foundation is merged; require it only once it has reported on later PRs. For `PR policy`, set the expected source
-   to GitHub Actions so that only this repository's workflow can satisfy it.
+   names are `PR policy`, `CodeSOTA CI`, `Repository scripts tests`, and `CODEOWNERS validation`. Each workflow runs
+   on every PR that GitHub runs workflows for (`CodeSOTA CI` reports success without running its tests when a PR does
+   not touch v2), so requiring them does not hold back unrelated PRs. GitHub runs no `pull_request` workflows while a
+   PR has merge conflicts, and a first-time contributor's fork PR waits for an approval to run them; those PRs stay
+   pending until resolved, as with any required check. `PR policy` enforces only after this foundation is merged
+   (before that it passes with a notice); require it only after it has reported on later PRs.
+   **A required check is matched by name, so any workflow can satisfy it,** including a workflow a PR adds or edits:
+   a job named `PR policy` that exits 0 would pass. Requiring these checks therefore adds protection only together
+   with a control on `.github/workflows/` changes: an organization ruleset that requires the workflow from the
+   default branch, or code owner review of `.github/` by a trusted team.
 5. Decide whether `benchmark-team` keeps write access or moves to triage, once review responsibility is clear.
 6. Enable private vulnerability reporting, then add a `SECURITY.md` that points to it. Do not publish a contact
    address or a response time the project has not committed to.

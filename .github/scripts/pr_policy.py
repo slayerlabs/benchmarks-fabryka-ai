@@ -41,13 +41,12 @@ NARRATIVE = ("Problem or current behavior", "Result or new behavior", "Validatio
 NARRATIVE_MIN = 20
 PLACEHOLDERS = {"", "-", "n/a", "na", "tbd", "todo", "...", "wip", "same", "see above", "see title"}
 
-ISSUE = re.compile(r"\b(?:Refs|Closes|Fixes|Resolves):? #\d+\b", re.IGNORECASE)
+ISSUE = re.compile(r"\b(?:Refs|Closes|Fixes|Resolves):? #[1-9]\d*\b", re.IGNORECASE)
 NO_ISSUE = re.compile(r"^No issue: *(?!<)\S.{4,}", re.IGNORECASE | re.MULTILINE)
 CHECKED = re.compile(r"^\s*[-*] \[[xX]\] ", re.MULTILINE)
-COMMENT = re.compile(r"<!--.*?(?:-->|\Z)", re.DOTALL)
-FENCE = re.compile(r"^ {0,3}(```|~~~).*?^ {0,3}\1[^\n]*$", re.DOTALL | re.MULTILINE)
-INLINE_CODE = re.compile(r"`[^`\n]*`")
-HEADING = re.compile(r"^#{2,3} +(.+?) *#* *$", re.MULTILINE)
+DOCS_BOX = re.compile(r"^\s*[-*] \[[xX]\] Documentation only\b", re.MULTILINE)
+CODE_MARK = "[code]"
+"""What a code block or inline code span becomes: it still counts as content, but nothing inside it is structure."""
 
 
 @dataclass(frozen=True)
@@ -60,21 +59,88 @@ class Result:
         return not self.errors or not self.enforced
 
 
-def sections(body: str) -> dict[str, str]:
-    """Section heading (case-insensitive key) -> its text without HTML comments. A repeated heading keeps the first.
+def fence_marker(line: str) -> str | None:
+    """The fence characters (``` or ~~~, possibly longer) if the line opens or closes a fenced code block."""
+    stripped = line[: len(line) - len(line.lstrip(" "))]
+    if len(stripped) > 3:
+        return None
+    rest = line.lstrip(" ")
+    for ch in ("`", "~"):
+        n = len(rest) - len(rest.lstrip(ch))
+        if n >= 3:
+            return ch * n
+    return None
 
-    Code is masked first, so a heading or a "<!--" inside a code block or inline code is text, not structure. A masked
-    span still counts as content.
-    """
-    text = body.replace("\r\n", "\n")
-    text = FENCE.sub("[code]", text)
-    text = INLINE_CODE.sub("[code]", text)
-    text = COMMENT.sub("", text)
+
+def visible_lines(body: str) -> list[str]:
+    """The body's lines as GitHub would show them for structure: HTML comments removed (an unclosed one hides the rest),
+    fenced blocks and inline code replaced by CODE_MARK (an unclosed fence runs to the end). One linear pass, so no
+    input can make it slow."""
+    out: list[str] = []
+    fence: str | None = None
+    in_comment = False
+    for line in body.replace("\r\n", "\n").replace("\r", "\n").split("\n"):
+        if fence is not None:
+            marker = fence_marker(line)
+            if marker is not None and marker[0] == fence[0] and len(marker) >= len(fence) and not line.strip(" `~"):
+                fence = None
+            out.append(CODE_MARK)
+            continue
+        if not in_comment and (marker := fence_marker(line)) is not None:
+            fence = marker
+            out.append(CODE_MARK)
+            continue
+        kept, i = [], 0
+        while i < len(line):
+            if in_comment:
+                end = line.find("-->", i)
+                if end < 0:
+                    i = len(line)
+                else:
+                    in_comment, i = False, end + 3
+                continue
+            tick, comment = line.find("`", i), line.find("<!--", i)
+            if comment >= 0 and (tick < 0 or comment < tick):
+                kept.append(line[i:comment])
+                in_comment, i = True, comment + 4
+            elif tick >= 0 and (close := line.find("`", tick + 1)) >= 0:
+                kept.append(line[i:tick] + CODE_MARK)
+                i = close + 1
+            else:
+                kept.append(line[i:])
+                i = len(line)
+        out.append("".join(kept))
+    return out
+
+
+def heading(line: str) -> str | None:
+    """The text of a level-2 or level-3 ATX heading, or None. Plain string operations, no backtracking."""
+    rest = line.lstrip(" ")
+    if len(line) - len(rest) > 3:
+        return None
+    level = len(rest) - len(rest.lstrip("#"))
+    if level not in (2, 3) or rest[level : level + 1] not in (" ", "\t"):
+        return None
+    text = rest[level:].strip()
+    closing = text.rstrip("#")
+    if closing != text and (not closing or closing[-1] in " \t"):
+        text = closing.strip()
+    return text
+
+
+def sections(body: str) -> dict[str, str]:
+    """Section heading (case-insensitive key) -> its visible text. A repeated heading keeps the first."""
     found: dict[str, str] = {}
-    matches = list(HEADING.finditer(text))
-    for i, m in enumerate(matches):
-        end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
-        found.setdefault(m.group(1).strip().lower(), text[m.end() : end].strip())
+    current: str | None = None
+    lines: list[str] = []
+    for line in [*visible_lines(body), "## "]:
+        name = heading(line)
+        if name is None:
+            lines.append(line)
+            continue
+        if current is not None:
+            found.setdefault(current, "\n".join(lines).strip())
+        current, lines = name.lower(), []
     return found
 
 
@@ -123,7 +189,9 @@ def check_body(body: str, docs_only: bool) -> list[str]:
 
 
 def check(title: str, body: str, number: int | None) -> Result:
-    docs_only = title.strip().startswith(("docs:", "docs("))
+    # The short form needs both a docs title and the ticked "Documentation only" box, so a title alone cannot relax it.
+    docs_only = title.strip().startswith(("docs:", "docs(")) and DOCS_BOX.search(sections(body).get("scope", ""))
+    docs_only = bool(docs_only)
     errors = tuple(check_title(title) + check_body(body, docs_only))
     enforced = number is None or number >= FIRST_ENFORCED_PR
     return Result(errors, enforced)
