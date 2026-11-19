@@ -1,39 +1,20 @@
-# WAŻNE
+## Aktualizacja — 19.11.2026
 
-1) proszę nie używać sowich prywatnych GPU zasobów - nie musicie wydawać własnych zasobów na to - dajcie znać jakiego API potrzebujecie
-2) Korzystajcie z https://fabryka.ai/platform --- jak coś nie działa to to jest #1 priorytet aby mi o tym mówić
-3) Kluczowa jest ta lista benchmarków:  ( te mają priorytet )
-4) Kluczowe jest aby policzyć to dla przede wszystkim Bielik 11B 3.1 ( w sumie może też dla 3.0 )  oraz dla Slayer 1B 
+Rozwijamy **[CodeSOTA](benchmarks/README.md)** jako wspólną infrastrukturę do wykonywania benchmarków, zapisywania wyników i ich weryfikacji.
 
-LiveClaw
-Claw-Eval General (EN)
-BrowseComp-Plus (OpenClaw subset)
-WebArena-Verified
-EnterpriseOps-Gym
-AutomationBench
-BFCL V4
-ToolSandbox
-MCP-Atlas
-τ³-bench
-SWE-bench Verified
-SWE-bench Multilingual
-Terminal-Bench 2.1
-LiveCodeBench v6
-LiveCodeBench Pro 25Q2
-SciCode
-IFEval
-IFBench
-IFStruct
-Multi-IF
-GPQA Diamond
-Humanity’s Last Exam
-AA-Omniscience
-AA-LCR
-RULER 128K
+**`research/` pozostaje głównym miejscem zgłaszania benchmarków, wyników i prac badawczych.** Dotychczasowa metodologia i zasady współpracy nadal obowiązują. Równolegle rozwijamy wspólne narzędzia i standardy w `benchmarks/`, z których będziemy stopniowo korzystać w kolejnych ewaluacjach.
 
+Przed rozpoczęciem nowych prac warto zapoznać się z:
 
+- [CodeSOTA — dokumentacja i metodologia](benchmarks/README.md)
+- [Zasady współpracy](benchmarks/docs/contributing.md)
+- [Instrukcje dla agentów AI](benchmarks/AGENTS.md)
 
-# benchmarks-fabryka-ai
+**Pełna lista 25 benchmarków i wymagania infrastrukturalne](benchmarks/docs/research-priorities.md)**
+
+Priorytetem pozostają rzeczywiste, powtarzalne wyniki, szczególnie dla **Bielik 11B v3.1 i Slayer 1B**. Do testów przez API korzystamy z [Fabryka AI Platform](https://fabryka.ai/platform). Nie wykorzystujcie prywatnych zasobów GPU ani płatnych kont; problemy z API i potrzeby infrastrukturalne zgłaszajcie zespołowi na `#bench-team`.
+
+---
 
 Mierzymy otwarte modele językowe, dziś polsko-angielskiego **Slayer 1B**, na benchmarkach odtworzonych zgodnie z
 oryginałem, i budujemy polskie benchmarki.
