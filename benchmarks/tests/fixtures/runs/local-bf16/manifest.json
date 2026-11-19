@@ -1,0 +1,161 @@
+{
+  "analysis": {
+    "kind": "primary"
+  },
+  "artifacts": [
+    {
+      "bytes": 1578,
+      "path": "samples.jsonl",
+      "role": "samples",
+      "sha256": "d3f065298bc4b5077c99379c73b2b4f76acdf1f0910571d86633b0cb3214f1ed"
+    }
+  ],
+  "benchmark": {
+    "definition": "tests/runs.py (synthetic)",
+    "id": "toy-instructions"
+  },
+  "claim": "verified",
+  "execution": {
+    "environment": {
+      "gpu": "synthetic",
+      "python": "3.12"
+    },
+    "finished_at": "2026-11-19T10:05:00Z",
+    "source_commit": "0000000000000000000000000000000000000001",
+    "started_at": "2026-11-19T10:00:00Z"
+  },
+  "format": "urn:codesota:run-manifest:1",
+  "inference": {
+    "backend": {
+      "name": "vllm",
+      "version": "0.0.0-fixture"
+    },
+    "batch_size": 1,
+    "chat_template": "model default",
+    "concurrency": 1,
+    "context_length": 4096,
+    "dtype": "bfloat16",
+    "max_output_tokens": 1280,
+    "quantization": null,
+    "seed": 1234,
+    "system_prompt": "none",
+    "temperature": 0.0,
+    "thinking": "not_applicable",
+    "top_p": null
+  },
+  "metrics": [
+    {
+      "aggregation": "mean",
+      "higher_is_better": true,
+      "id": "prompt_level_strict_acc",
+      "kind": "quality",
+      "sample_key": "prompt_level_strict_acc",
+      "unit": "percent"
+    },
+    {
+      "aggregation": "mean",
+      "higher_is_better": true,
+      "id": "prompt_level_loose_acc",
+      "kind": "quality",
+      "sample_key": "prompt_level_loose_acc",
+      "unit": "percent"
+    },
+    {
+      "aggregation": "micro_mean",
+      "higher_is_better": true,
+      "id": "inst_level_strict_acc",
+      "kind": "quality",
+      "sample_key": "inst_level_strict_acc",
+      "unit": "percent"
+    }
+  ],
+  "model": {
+    "id": "example/model-1b",
+    "repo": "example/model-1b",
+    "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "weights_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "observations": [
+    {
+      "ci95": null,
+      "contamination": "unscanned",
+      "contamination_receipt_sha256": null,
+      "higher_is_better": true,
+      "metric": "prompt_level_strict_acc",
+      "model_id": "example/model-1b",
+      "n_population": 6,
+      "n_scored": 6,
+      "n_selected": 6,
+      "protocol_id": "toy-instructions-chat-greedy",
+      "results_sha256": "d3f065298bc4b5077c99379c73b2b4f76acdf1f0910571d86633b0cb3214f1ed",
+      "runner_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "source_id_digest": "3fb29a5482d7194248d3a354d0b235b2ed2e6e361aeef75dc06055530964f688",
+      "state": "ok",
+      "task_id": "toy-instructions",
+      "unit": "percent",
+      "value": 50.0
+    },
+    {
+      "ci95": null,
+      "contamination": "unscanned",
+      "contamination_receipt_sha256": null,
+      "higher_is_better": true,
+      "metric": "prompt_level_loose_acc",
+      "model_id": "example/model-1b",
+      "n_population": 6,
+      "n_scored": 6,
+      "n_selected": 6,
+      "protocol_id": "toy-instructions-chat-greedy",
+      "results_sha256": "d3f065298bc4b5077c99379c73b2b4f76acdf1f0910571d86633b0cb3214f1ed",
+      "runner_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "source_id_digest": "3fb29a5482d7194248d3a354d0b235b2ed2e6e361aeef75dc06055530964f688",
+      "state": "ok",
+      "task_id": "toy-instructions",
+      "unit": "percent",
+      "value": 66.66666666666667
+    },
+    {
+      "ci95": null,
+      "contamination": "unscanned",
+      "contamination_receipt_sha256": null,
+      "higher_is_better": true,
+      "metric": "inst_level_strict_acc",
+      "model_id": "example/model-1b",
+      "n_population": 6,
+      "n_scored": 6,
+      "n_selected": 6,
+      "protocol_id": "toy-instructions-chat-greedy",
+      "results_sha256": "d3f065298bc4b5077c99379c73b2b4f76acdf1f0910571d86633b0cb3214f1ed",
+      "runner_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "source_id_digest": "3fb29a5482d7194248d3a354d0b235b2ed2e6e361aeef75dc06055530964f688",
+      "state": "ok",
+      "task_id": "toy-instructions",
+      "unit": "percent",
+      "value": 72.72727272727273
+    }
+  ],
+  "protocol": {
+    "dataset": {
+      "n_population": 6,
+      "repo": "synthetic/toy-instructions",
+      "revision": "fixture-1",
+      "split": "test"
+    },
+    "id": "toy-instructions-chat-greedy",
+    "output_preprocessing": "none",
+    "scorer": {
+      "name": "synthetic rules",
+      "randomness": {
+        "controlled": true,
+        "limitations": null,
+        "policy": "the synthetic scorer is deterministic"
+      },
+      "version": "fixture-1"
+    }
+  },
+  "publication": {
+    "license": "CC0-1.0 (synthetic)",
+    "outputs": "included"
+  },
+  "run_id": "toy-instructions.example-model-1b.local-bf16.20261119T100000Z"
+}
