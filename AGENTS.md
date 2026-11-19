@@ -1,6 +1,7 @@
 # AGENTS.md
 
-> Work in `benchmarks/` (CodeSOTA v2) follows [`benchmarks/AGENTS.md`](benchmarks/AGENTS.md) instead of this file.
+> Work in `benchmarks/` (the `codesota` package) follows [`benchmarks/AGENTS.md`](benchmarks/AGENTS.md) instead of this
+> file. This file covers `research/`.
 
 Krótki opis repo dla każdego, kto pisze tu kod. Szczegóły są w [`README.md`](README.md),
 [`research/README.md`](research/README.md) i [`research/METHODOLOGY.md`](research/METHODOLOGY.md).

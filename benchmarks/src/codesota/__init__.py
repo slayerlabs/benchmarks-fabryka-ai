@@ -1,7 +1,7 @@
-"""CodeSOTA v2.
+"""CodeSOTA: reproducible evaluation for language models and AI agents.
 
-This package is a pre-alpha foundation. It does not run evaluations yet; the working evaluation pipeline is the
-legacy one under ``research/`` in this repository. See ``benchmarks/README.md``.
+Pre-alpha. The package contains no evaluation code yet; the benchmark implementations and results live under
+``research/`` in this repository. See ``benchmarks/README.md``.
 """
 
 __version__ = "0.1.0.dev0"

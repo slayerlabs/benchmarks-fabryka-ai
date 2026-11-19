@@ -1,4 +1,4 @@
-"""Tests for the v2 change detection. Run: python3 -m unittest discover -s .github/scripts -p "test_codesota_changes.py" """
+"""Tests for the benchmarks/ change detection. Run: python3 -m unittest discover -s .github/scripts -p "test_codesota_changes.py" """
 
 import os
 import subprocess

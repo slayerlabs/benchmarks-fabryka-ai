@@ -15,13 +15,13 @@ TEMPLATE = (Path(__file__).resolve().parents[1] / "pull_request_template.md").re
 
 FILLED = """\
 ## Problem or current behavior
-The v2 CI did not run on pull requests that changed only the workflow file itself.
+CodeSOTA CI did not run on pull requests that changed only the workflow file itself.
 
 ## Result or new behavior
 The workflow now lists its own path among the changes that trigger the test job.
 
 ## Scope
-- [ ] `benchmarks/` (CodeSOTA v2)
+- [ ] `benchmarks/` (`codesota` package)
 - [x] Repository infrastructure (`.github/`, CI, policy)
 
 ## Compatibility and migration
@@ -51,7 +51,7 @@ def fill(**replace: str) -> str:
 class Title(unittest.TestCase):
     def test_conventional_titles_pass(self) -> None:
         for t in ("fix: handle empty body", "feat(benchmarks): add task", "ci!: drop python 3.10",
-                  "docs(contributing/v2): fix link"):
+                  "docs(contributing/benchmarks): fix link"):
             self.assertEqual(P.check_title(t), [], t)
 
     def test_other_titles_fail(self) -> None:
@@ -65,7 +65,7 @@ class Title(unittest.TestCase):
 
 class Body(unittest.TestCase):
     def test_filled_description_passes(self) -> None:
-        self.assertEqual(P.check("ci: run v2 CI on workflow changes", FILLED, 500).errors, ())
+        self.assertEqual(P.check("ci: run CodeSOTA CI on workflow changes", FILLED, 500).errors, ())
 
     def test_unfilled_template_fails_every_required_section(self) -> None:
         errors = P.check("fix: something", TEMPLATE, 500).errors
@@ -73,7 +73,7 @@ class Body(unittest.TestCase):
             self.assertTrue(any(f"'{name}'" in e or f"## {name}" in e for e in errors), name)
 
     def test_comments_do_not_count_as_content(self) -> None:
-        body = fill(**{"The v2 CI did not run on pull requests that changed only the workflow file itself.":
+        body = fill(**{"CodeSOTA CI did not run on pull requests that changed only the workflow file itself.":
                        "<!-- explain the problem here, with enough words to pass a length check -->"})
         self.assertIn("Section 'Problem or current behavior' is empty or a placeholder.", P.check_body(body, False))
 
@@ -213,7 +213,7 @@ No issue: a one-word typo fix
 
     def test_docs_title_without_the_docs_box_needs_every_section(self) -> None:
         # Review 2: a code PR titled "docs: ..." could skip Validation and AI assistance.
-        body = self.SHORT.replace("- [x] Documentation only", "- [x] `benchmarks/` (CodeSOTA v2)")
+        body = self.SHORT.replace("- [x] Documentation only", "- [x] `benchmarks/` (`codesota` package)")
         errors = P.check("docs: fix setup command", body, 500).errors
         self.assertTrue(any("Validation" in e for e in errors))
         self.assertTrue(any("AI assistance" in e for e in errors))
@@ -240,7 +240,7 @@ class CommandLine(unittest.TestCase):
         return subprocess.run([sys.executable, str(Path(P.__file__))], env=env, capture_output=True, text=True)
 
     def test_pass_exits_zero(self) -> None:
-        r = self.run_script("ci: run v2 CI on workflow changes", FILLED, "500")
+        r = self.run_script("ci: run CodeSOTA CI on workflow changes", FILLED, "500")
         self.assertEqual(r.returncode, 0, r.stdout)
 
     def test_fail_exits_one_with_error_annotations(self) -> None:

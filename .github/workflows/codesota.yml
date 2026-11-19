@@ -1,5 +1,5 @@
 name: CodeSOTA CI
-# Checks for benchmarks/ (CodeSOTA v2), independent of the research/ test environment.
+# Checks for benchmarks/ (the codesota package), independent of the research/ test environment.
 #
 # It runs on every PR GitHub runs workflows for, so that the final `CodeSOTA CI` job reports and can later be required
 # without leaving unrelated PRs pending. The test job runs only when the PR touches benchmarks/, this file, or the
@@ -30,7 +30,7 @@ concurrency:
 
 jobs:
   changes:
-    name: Detect v2 changes
+    name: Detect benchmarks/ changes
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -105,7 +105,7 @@ jobs:
           sparse-checkout: .github/scripts/codesota_changes.py
           sparse-checkout-cone-mode: false
       # Passes only when detection succeeded with a definite decision, and the tests passed, or were skipped because
-      # the decision was "no v2 changes". Failed, cancelled, or timed-out jobs fail it (codesota_changes.verdict).
+      # the decision was "no benchmarks/ changes". Failed, cancelled, or timed-out jobs fail it (codesota_changes.verdict).
       - env:
           CHANGES: ${{ needs.changes.result }}
           V2: ${{ needs.changes.outputs.v2 }}
