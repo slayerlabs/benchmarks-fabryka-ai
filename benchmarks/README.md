@@ -117,9 +117,9 @@ python -m pytest -q tests/test_statystyka.py
 Running full evaluations needs model weights and the pinned environment described in
 [`research/README.md`](../research/README.md) (written in Polish).
 
-**Develop the `codesota` Python package** in `benchmarks/`. It is the home of new shared tooling and currently
-contains packaging, tests, and checks only; it does not run evaluations or provide a command-line interface yet.
-It needs Python 3.11+ and [uv](https://docs.astral.sh/uv/):
+**Develop the `codesota` Python package** in `benchmarks/`. It is the home of new shared tooling. Today it
+validates result artifacts (`python -m codesota.results`, see [`docs/result-artifacts.md`](docs/result-artifacts.md));
+it does not run evaluations yet. It needs Python 3.11+ and [uv](https://docs.astral.sh/uv/):
 
 ```bash
 cd "$(git rev-parse --show-toplevel)/benchmarks"
@@ -135,7 +135,7 @@ uv build
 benchmarks/
 ├── src/codesota/   the package
 ├── tests/          deterministic tests; no network, GPU, or weights
-├── docs/           contributor, security, and governance documentation
+├── docs/           result artifacts, contributor, security, and governance documentation
 ├── AGENTS.md       engineering rules for contributors and coding agents
 └── pyproject.toml  package metadata and tool configuration; uv.lock pins the environment
 ```
