@@ -1,17 +1,51 @@
-## Co zmienia ten PR
+<!--
+Title: Conventional Commits in English, e.g. "fix(benchmarks): ..." or "docs: ...". The PR policy check verifies the
+title and that each required section below has real content (HTML comments do not count).
+Trivial documentation fixes (title starting with "docs:") need only: Problem, Result, Scope, and Related issue.
+Guides: benchmarks/docs/contributing.md (v2), CONTRIBUTING.md (research/).
+-->
 
-<!-- Jedno-dwa zdania: jaki benchmark albo etap, jaki wynik. -->
+## Problem or current behavior
+<!-- What was wrong or missing before this PR, and how you reproduced or observed it (command and output, failing
+test, or a link). -->
 
-Refs #
+## Result or new behavior
+<!-- What changes for users, contributors, or results. Why this solution over the alternatives you considered. -->
 
-## Checklista benchmarku
+## Scope
+<!-- Tick every area this PR changes. -->
+- [ ] `benchmarks/` (CodeSOTA v2)
+- [ ] `research/` (legacy pipeline)
+- [ ] `frontend-beta/`
+- [ ] Repository infrastructure (`.github/`, CI, policy)
+- [ ] Documentation only
 
-<!-- Usuń punkty, które nie dotyczą PR (np. PR z samą kartą oryginału). Definicja „zrobione”: research/METODOLOGIA.md. PR z samą kartą oryginału zostawia punkt 1 (tylko bramka liczb), `ORIGINAL.md` z punktu 2 i ostatni punkt. -->
+## Compatibility and migration
+<!-- Who must change what, or "No migration required." Include behavior changes to existing commands, files,
+schemas, or results. -->
 
-- [ ] Komendy z sekcji „Przed PR” w CONTRIBUTING.md kod 0 (w `research/`): bramka liczb, testy zmienionego benchmarku (z testem zgodności, jeśli jest własna implementacja), `tests/test_liczby_raportow.py`
-- [ ] `ORIGINAL.md` i `REPRODUCTION.md` z wartością referencyjną, modelem kontrolnym i warunkiem odtworzenia albo „bez kontroli” (albo `DATASET.md`)
-- [ ] Podpięty do przebiegu centralnego: wpis w `ZADANIA` (`research/common/zadania.py`) i `KATALOGI` (`research/tools/przebieg_centralny.sh`), test bez sieci sprawdza wpis
-- [ ] Wiersz testu w `research/README.md`, „Benchmarki i typy” (karta linkuje do niego, nie powtarza typu)
-- [ ] `RECIPE.md` z komendą przebiegu; wiersz w `research/STATUS.md` przestawiony
-- [ ] Jeśli PR wnosi wynik: n i SE, każde porównanie różnicę w SE i werdykt
-- [ ] Bez wag modeli, zbiorów i plików powyżej 10 MB w commitach
+## Evaluation methodology impact
+<!-- Does this change how any score is produced or interpreted (prompts, extraction, scoring, datasets, settings,
+statistics)? If yes: which results move, in which direction, and the reference used. Otherwise: "None". -->
+
+## Validation
+<!-- Exact commands you ran and their actual outcomes, before and after where relevant. List checks you did not
+run and why. Do not repeat routine green CI. -->
+
+## Related issue
+<!-- "Refs #123" links without closing (most issues here are closed through the project board). Use "Closes #123"
+only when merging should close the issue. With no issue: "No issue: <reason>". -->
+
+## AI assistance
+<!-- "None", or: which tools wrote or changed code; whether an independent review ran in a fresh context (tool or
+model, number of passes); findings fixed or dismissed, with a one-line reason each. If no review ran, say so. -->
+
+## Reviewer checklist
+<!-- For reviewers; authors may leave it unticked. -->
+- [ ] The problem is real and this PR addresses it; nothing unrelated is bundled.
+- [ ] Reported validation matches the commands run; CI is green or failures are explained.
+- [ ] No credentials, model weights, gated datasets, or files over 10 MB are committed.
+- [ ] Evaluation changes: official sources pinned, failures not scored as zeros, deviations named, same protocol for
+      every model.
+- [ ] `research/` benchmark PRs: the steps in `research/METHODOLOGY.md` (or `research/METODOLOGIA.md` for
+      `research/benchmarks/`) are met, and the number gate and tests from CONTRIBUTING.md "Przed PR" pass.

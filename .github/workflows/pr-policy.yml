@@ -1,0 +1,51 @@
+name: PR policy
+# Structural check of the PR title and description (.github/scripts/pr_policy.py). It does not judge code quality.
+#
+# SECURITY: runs on `pull_request`, never `pull_request_target`: fork PRs get a read-only token and no secrets.
+# The title and body are untrusted; they reach the script only as environment variables and are never interpolated
+# into a shell command. The checkout is the PR's own version of the script, so this check is a contributor aid, not a
+# security control (benchmarks/docs/security-and-governance.md).
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+
+permissions: {}
+
+concurrency:
+  group: pr-policy-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  self-test:
+    name: PR policy self-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            .github
+            benchmarks
+      - name: Test the checker and CODEOWNERS
+        run: |
+          python3 -m unittest discover -s .github/scripts -p "test_pr_policy.py" -v
+          python3 -m unittest discover -s .github/scripts -p "test_codeowners.py" -v
+
+  check:
+    name: PR policy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+      - name: Check title and description
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: python3 .github/scripts/pr_policy.py

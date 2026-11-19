@@ -1,5 +1,7 @@
 # Jak współtworzyć
 
+> Work in `benchmarks/` (CodeSOTA v2) follows [`benchmarks/docs/contributing.md`](benchmarks/docs/contributing.md) instead of this file.
+
 ## Kontakt
 
 Rozmawiamy na Discordzie, na kanale **#bench-team**: https://discord.gg/HnTkVR4c5T. Na start napisz tam do LoIlita
