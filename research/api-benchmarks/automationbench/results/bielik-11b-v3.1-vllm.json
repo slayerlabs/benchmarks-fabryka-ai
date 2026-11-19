@@ -1,0 +1,29 @@
+{
+  "benchmark": "AutomationBench (public)",
+  "model": "bielik-11b-v3.1-vllm",
+  "metric": "pass_rate",
+  "score": 0.0,
+  "stderr": 0.0,
+  "n": 600,
+  "date": "2026-11-19",
+  "harness": "https://github.com/zapier/AutomationBench @ 4a8e1061254004d9dac807054eed33fad7d1ff14 (auto-bench 1.0.6)",
+  "data": "bundled with the harness, public domains sales, marketing, operations, support, finance, hr @ 4a8e1061254004d9dac807054eed33fad7d1ff14",
+  "settings": {
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "seed": 20261119,
+    "max_tokens_per_turn": null,
+    "max_concurrent": 16,
+    "toolset": "api",
+    "max_steps": 50,
+    "trials": 1
+  },
+  "other_metrics": {
+    "partial_credit": 0.0,
+    "assertions_passed": 0,
+    "assertions_scored": 5729,
+    "tasks_without_tool_calls": 235,
+    "tool_calls": 1614
+  },
+  "deviations": "see README.md, Deviations"
+}

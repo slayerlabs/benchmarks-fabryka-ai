@@ -1,0 +1,14 @@
+{
+  "benchmark": "AutomationBench (public)",
+  "model": "slayer1b-60000",
+  "metric": "pass_rate",
+  "score": null,
+  "stderr": null,
+  "n": 0,
+  "date": "2026-11-19",
+  "harness": "https://github.com/zapier/AutomationBench @ 4a8e1061254004d9dac807054eed33fad7d1ff14",
+  "data": "bundled with the harness, public domains",
+  "settings": {},
+  "score_null_reason": "Slayer 1B is a base model without a chat template or tool-calling format; the serving endpoint rejects requests with tools (HTTP 400), so no syntactically valid call is possible.",
+  "deviations": "see README.md, Deviations"
+}
