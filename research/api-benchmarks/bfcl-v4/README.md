@@ -14,8 +14,8 @@ by the harness (AST match, executed state or memory answers), without a judge mo
 - Metric: Overall Acc of the harness (`score/data_overall.csv`), reported as `score: null` here because it needs
   `web_search`; the five group scores the harness computes are in `other_metrics` (see Results)
 - Settings: function-calling mode (`bielik-FC`: native tool calls through the vLLM tool parser), BFCL's default
-  temperature 0.001, no output limit other than the 32,768-token context, 1 trial (LFM3-1.7B card: "greedy
-  decoding, up to 32,768 output tokens")
+  temperature 0.001, no output limit other than the 32768-token context, 1 trial (LFM3-1.7B card: "greedy
+  decoding, up to 32,768 output tokens") <!-- liczba-spoza-wynikow: dosłowny cytat karty LFM3, separator tysięcy -->
 - Extra services: none (multi-turn and memory tasks run locally in the harness)
 
 ## Results
@@ -70,7 +70,7 @@ the raw `output`.
 - **Memory prerequisites.** The memory categories first generate 37 prerequisite conversations per backend (111
   in total), which fill the memory; the harness does not score them, and neither does `summarize.py`.
 - **17 multi-turn tasks hit the context limit.** In `multi_turn_long_context`, 17 of 200 conversations grew past
-  the 32,768-token context and vLLM rejected the next request (HTTP 400, "maximum context length"). The harness
+  the 32768-token context and vLLM rejected the next request (HTTP 400, "maximum context length"). The harness
   scores them as failed, and so do we, in the full N; they are listed in `context_window_exceeded` of
   `results/bielik-11b-v3.1-vllm.json`. No other request failed.
 - **Slayer cannot run the benchmark.** Slayer 1B is a base model without a chat template or tool-calling format;

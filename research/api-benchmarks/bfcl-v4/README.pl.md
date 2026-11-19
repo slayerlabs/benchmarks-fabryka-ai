@@ -15,7 +15,7 @@ względem wzorca (zgodność AST, stan po wykonaniu albo odpowiedzi z pamięci),
   pięć wyników grup liczonych przez harness jest w `other_metrics` (zob. Wyniki)
 - Ustawienia: tryb wywoływania funkcji (`bielik-FC`: natywne wywołania narzędzi przez parser narzędzi vLLM),
   domyślna temperatura BFCL 0.001, bez limitu wyjścia poza kontekstem 32 768 tokenów, 1 próba (karta LFM3-1.7B:
-  "greedy decoding, up to 32,768 output tokens")
+  "greedy decoding, up to 32,768 output tokens") <!-- liczba-spoza-wynikow: dosłowny cytat karty LFM3, separator tysięcy -->
 - Dodatkowe usługi: brak (zadania wieloetapowe i z pamięcią działają lokalnie w harnessie)
 
 ## Wyniki
@@ -42,7 +42,7 @@ to jedno zadanie: `task_id`, `category`, `score` (0/1), `error_type` harnessu dl
 ## Odstępstwa
 
 - **`web_search` nie jest uruchamiany, więc nie ma wyniku Overall.** Jego dwie kategorie (`web_search_base`,
-  `web_search_no_snippet`, po 100 zadań) wywołują prawdziwe API wyszukiwarki, które wymaga klucza (SerpAPI).
+  `web_search_no_snippet`, po 100 zadań) wywołują rzeczywiste API wyszukiwarki, które wymaga klucza (SerpAPI).
   Overall Acc w BFCL to 10% non-live + 10% live + 10% irrelevance + 30% multi-turn + 40% agentic, gdzie agentic =
   średnia(web search, memory) (`bfcl_eval/eval_checker/eval_runner_helper.py`), a brakująca kategoria liczy się
   jako 0. Bez web search Overall straciłby połowę wagi agentic, więc zostawiamy `score` jako null i podajemy wyniki
