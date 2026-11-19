@@ -110,4 +110,7 @@ A pull request that adds or changes an evaluation shows:
 
 AI coding tools are welcome. You must understand, and be able to explain and defend, every line you submit. Follow
 [`AGENTS.md`](../AGENTS.md) and fill in the "AI assistance" section of the PR description, including any independent
-review and its findings.
+review and its findings. Before you open a PR, mark it ready for review, or publish anything, review and verify the
+final diff, methodology, results, and public text yourself; an agent working here reminds you to
+([`AGENTS.md`, "Human verification before every submission"](../AGENTS.md#human-verification-before-every-submission)).
+Passing tests, CI, and AI reviews are automated checks, not human approval.

@@ -6,6 +6,17 @@ supervise them and submit their work. Humans follow the same rules. Work in `res
 
 The person who opens a pull request is responsible for every line in it, whoever or whatever wrote the line.
 
+## Human verification before every submission
+
+High priority, following guidance from Aleksander (Elwenor). Before a pull request is opened, marked ready for
+review, or anything is published, the agent reminds the responsible person, unprompted, to personally review and
+verify the substantive changes: code, benchmark methodology, results, and public-facing text. The reminder is
+required even when tests, CI, and independent AI reviews pass. In it, the agent:
+
+- lists which checks were automated, and says that none of them is a human approval;
+- flags every claim it could not verify itself;
+- asks the person to check the final diff and the exact text that will be published.
+
 ## Before writing code
 
 1. **Read first.** Read the source files, tests, and documentation of the area you will change, plus
