@@ -69,8 +69,13 @@ The manifest does not list itself; the validator reports its SHA-256 so a table 
 that contract unchanged: the contract describes observations and reported metrics, and the manifest describes
 execution identity, configuration, provenance, artifacts, and integrity.
 
-The compatibility is with what is available in this repository, not with the contract's full JSON Schema
-(`results.schema.json`, kept in the Space and not in this repository). Concretely:
+The compatibility is with what is available in this repository, not with the contract's full JSON Schema. That
+schema is `results.schema.json` in the Space `SlayerLab/Slayer1B-Benchmarks` (read at revision `fac43007`, SHA-256
+`c133a37d…7553eec`); it is not in this repository and the validator does not apply it. It is specific to one
+protocol (`$id` `urn:fabryka-ai:benchmark-results:2:protocol-0.3.1`: `task_id` `T01`-`T50`, two `protocol_id`
+values, fixed bootstrap settings in `ci95`), so observations of other benchmarks and protocols cannot satisfy it as
+written. Constraints of that schema the validator does not check include the `contamination` values, the length of
+`reason`, the fields of `reference`, and the fixed `ci95` method, replicates, and seed. Concretely:
 
 - Observations must have the required fields, states, and units that `research/common/metryki.py` defines and
   checks (`WYMAGANE_OBS`, `STANY`, `bledy_schematu`). A test compares these constants with that file's source.

@@ -559,3 +559,16 @@ def test_run_with_every_sample_failed_is_structurally_valid(tmp_path: Path) -> N
     report = validate_run(run)
     assert report.ok, [str(i) for i in report.issues]
     assert report.counts == {"failed": 6}
+
+
+def test_deeply_nested_setting_is_reported_across_runs(local: Path) -> None:
+    # Parses as JSON, but is too deep to canonicalise for the protocol fingerprint.
+    value: Any = "x"
+    for _ in range(900):
+        value = [value]
+    m = load(local)
+    m["inference"]["chat_template"] = value
+    save(local, m)
+    report = validate_runs([local])[0]
+    assert "runs.fingerprint" in report.codes() or "field.invalid" in report.codes()
+    assert not report.ok

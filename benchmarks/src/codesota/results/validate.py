@@ -729,7 +729,11 @@ def validate_runs(run_dirs: Sequence[Path]) -> list[Report]:
         except (OSError, ValueError, RecursionError):  # already reported by validate_run
             continue
         key = (json.dumps(get(manifest, ("protocol", "id"))), json.dumps(get(manifest, ("model", "id"))))
-        fp = protocol_fingerprint(manifest)
+        try:
+            fp = protocol_fingerprint(manifest)
+        except RecursionError:  # a value nested too deeply to canonicalise; the manifest parsed, so report it
+            report.add("runs.fingerprint", "$", "the protocol sections are nested too deeply to compare")
+            continue
         if key in fingerprints and fingerprints[key][0] != fp:
             report.add(
                 "runs.protocol_reused",
