@@ -48,8 +48,10 @@ STATES: Final = frozenset(
 # Units of schema 2: `percent` is 0-100, `score` is a fraction (0-1 for accuracies), `byte_ppl` a perplexity.
 UNITS: Final = frozenset({"percent", "score", "byte_ppl"})
 
-# What a run claims to be. Only `verified` requires complete provenance; the others say why they are not.
-CLAIMS: Final = frozenset({"verified", "unverified", "exploratory"})
+# What the manifest claims about its own provenance. `complete`: every field in PROVENANCE_REQUIRED is known.
+# `partial`: some are recorded as unknown. Neither says anything about scientific correctness (official scorer and
+# protocol, dataset integrity, benchmark-specific evidence): that is established by review, not by this package.
+PROVENANCE_CLAIMS: Final = frozenset({"complete", "partial"})
 # `primary`: the benchmark as defined. `exploratory`: a post-hoc analysis (a filtered subset, a corrected scorer)
 # derived from another run; it never replaces that run's result.
 ANALYSIS_KINDS: Final = frozenset({"primary", "exploratory"})
@@ -62,8 +64,8 @@ METRIC_KINDS: Final = frozenset({"quality", "efficiency"})
 ARTIFACT_ROLES: Final = frozenset({"samples", "config", "log", "other"})
 OUTPUT_PUBLICATION: Final = frozenset({"included", "withheld"})
 
-# Fields that must be known (not an explicit unknown) for a run that claims to be `verified`.
-VERIFIED_REQUIRES_KNOWN: Final = (
+# Fields that must be known (not an explicit unknown) for `provenance_claim: complete`.
+PROVENANCE_REQUIRED: Final = (
     ("model", "repo"),
     ("model", "revision"),
     ("protocol", "dataset", "repo"),
@@ -71,4 +73,6 @@ VERIFIED_REQUIRES_KNOWN: Final = (
     ("protocol", "scorer", "version"),
     ("inference", "backend", "version"),
     ("execution", "source_commit"),
+    ("execution", "started_at"),
+    ("execution", "finished_at"),
 )

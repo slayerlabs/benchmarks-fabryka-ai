@@ -1,5 +1,8 @@
 """Deterministic synthetic runs for the validator tests. No model, network, or real benchmark data.
 
+These are synthetic validation data, not model evaluations. `local_bf16` has complete provenance only in the sense
+the validator checks (every required field is recorded); its model, dataset, scorer, and scores are invented.
+
 The benchmark is a made-up six-prompt instruction task with three metrics: strict and loose prompt-level accuracy
 (one boolean per prompt) and strict instruction-level accuracy (one boolean per instruction, `micro_mean`). The
 committed fixtures in tests/fixtures/runs/ are exactly what `write_run` produces (test_fixtures_are_reproducible).
@@ -57,13 +60,13 @@ def base_manifest(run_id: str) -> dict[str, Any]:
     return {
         "format": schema.MANIFEST_FORMAT,
         "run_id": run_id,
-        "claim": "verified",
+        "provenance_claim": "complete",
         "analysis": {"kind": "primary"},
-        "benchmark": {"id": "toy-instructions", "definition": "tests/runs.py (synthetic)"},
+        "benchmark": {"id": "synthetic-toy-instructions", "definition": "tests/runs.py (synthetic validation data)"},
         "protocol": {
-            "id": "toy-instructions-chat-greedy",
+            "id": "synthetic-toy-chat-greedy",
             "dataset": {
-                "repo": "synthetic/toy-instructions",
+                "repo": "synthetic/toy-instructions (not a real dataset)",
                 "revision": "fixture-1",
                 "split": "test",
                 "n_population": len(SAMPLES),
@@ -164,7 +167,7 @@ def observations(manifest: dict[str, Any], recs: list[dict[str, Any]], samples_s
                 "state": "ok",
                 "value": value,
                 "ci95": None,
-                "source_id_digest": source_id_digest(r["sample_id"] for r in scored),
+                "source_id_digest": source_id_digest(r["sample_id"] for r in recs),
                 "results_sha256": samples_sha,
                 "runner_sha256": "c" * 64,
                 "contamination": "unscanned",
@@ -190,15 +193,16 @@ def write_run(run_dir: Path, manifest: dict[str, Any], recs: list[dict[str, Any]
 
 
 def local_bf16(run_dir: Path) -> Path:
-    """A complete, verified run: local engine, bf16, greedy, every provenance field known."""
-    return write_run(run_dir, base_manifest("toy-instructions.example-model-1b.local-bf16.20261119T100000Z"), records())
+    """Synthetic run with complete provenance fields: local engine, bf16, greedy. Not a real evaluation."""
+    return write_run(run_dir, base_manifest("synthetic.toy.example-model-1b.local-bf16.20261119T100000Z"), records())
 
 
 def provider_api(run_dir: Path) -> Path:
-    """The same model through an API: another protocol, an unknown served revision, and one failed request."""
-    m = base_manifest("toy-instructions.example-model-1b.provider-api.20261119T110000Z")
-    m["claim"] = "unverified"
-    m["protocol"]["id"] = "toy-instructions-chat-sampled-api"
+    """Synthetic run of the same model through an API: another protocol, an unknown served revision, and one failed
+    request. Not a real evaluation."""
+    m = base_manifest("synthetic.toy.example-model-1b.provider-api.20261119T110000Z")
+    m["provenance_claim"] = "partial"
+    m["protocol"]["id"] = "synthetic-toy-chat-sampled-api"
     m["model"]["revision"] = {"unknown": "the provider does not expose the served model revision"}
     m["model"]["weights_sha256"] = {"unknown": "weights are served by the provider"}
     m["inference"].update(

@@ -1,13 +1,22 @@
 """Validation of a CodeSOTA run directory: manifest, per-sample records, aggregates, and checksums.
 
 A run directory holds `manifest.json` and the artifacts it lists, among them exactly one per-sample JSONL file
-(role `samples`). Nothing here runs a model, calls a network, or rescores outputs: the validator checks that the
-recorded evidence is complete, consistent with itself, and unmodified.
+(role `samples`). Nothing here runs a model, calls a network, or rescores outputs.
+
+What a passing report establishes, and what it does not:
+
+- Structural validity: fields and types, consistent sample records, recomputed `mean`/`micro_mean` aggregates, and
+  unmodified artifacts. Checked.
+- Provenance completeness: the identities and settings listed in `schema.PROVENANCE_REQUIRED` are recorded, not
+  left unknown. Checked for presence only; the validator cannot tell whether a recorded revision is the true one.
+- Scientific verification: that the benchmark is implemented and scored correctly (official scorer and protocol,
+  dataset integrity, benchmark-specific evidence). Not checked here; it is established by review.
 
 Unknown metadata is written as `{"unknown": "<why it is unknown>"}`, never guessed. `null` means "does not apply"
 (for example `top_p` under greedy decoding) and is accepted only where a field allows it.
 """
 
+import datetime
 import hashlib
 import json
 import math
@@ -34,7 +43,7 @@ Check = Callable[[Json], bool]
 
 @dataclass(frozen=True)
 class Issue:
-    """One reason a run is not valid: a stable code for tests and tools, the JSON path, and a sentence."""
+    """One finding: a stable code for tests and tools, the JSON path, and a sentence."""
 
     code: str
     path: str
@@ -46,11 +55,19 @@ class Issue:
 
 @dataclass
 class Report:
+    """Result of validating one run. `issues` make the run invalid; `warnings` do not, but are reported."""
+
     run_dir: Path
     run_id: str | None = None
     issues: list[Issue] = field(default_factory=list)
+    warnings: list[Issue] = field(default_factory=list)
     counts: dict[str, int] = field(default_factory=dict)
     manifest_sha256: str | None = None
+    samples_sha256: str | None = None
+    # Every field of schema.PROVENANCE_REQUIRED is recorded and not unknown (independent of the manifest's claim).
+    provenance_complete: bool = False
+    # Metrics whose recorded value was not recomputed from the samples (aggregation `external`).
+    not_recomputed: list[str] = field(default_factory=list)
 
     @property
     def ok(self) -> bool:
@@ -59,8 +76,14 @@ class Report:
     def add(self, code: str, path: str, message: str) -> None:
         self.issues.append(Issue(code, path, message))
 
+    def warn(self, code: str, path: str, message: str) -> None:
+        self.warnings.append(Issue(code, path, message))
+
     def codes(self) -> set[str]:
         return {i.code for i in self.issues}
+
+    def warning_codes(self) -> set[str]:
+        return {i.code for i in self.warnings}
 
 
 def sha256_file(path: Path) -> str:
@@ -72,7 +95,8 @@ def sha256_file(path: Path) -> str:
 
 
 def source_id_digest(sample_ids: Iterable[object]) -> str:
-    """Digest of the scored sample IDs in record order, as research/common/ewaluuj.py computes `source_id_digest`."""
+    """Digest of the selected sample IDs in record order, as research/common/ewaluuj.py computes `source_id_digest`
+    (SHA-256 of the IDs joined with newlines)."""
     return hashlib.sha256("\n".join(str(i) for i in sample_ids).encode("utf-8")).hexdigest()
 
 
@@ -118,6 +142,20 @@ def matches(pattern: re.Pattern[str]) -> Check:
     return lambda v: isinstance(v, str) and pattern.fullmatch(v) is not None
 
 
+def timestamp(v: Json) -> bool:
+    return matches(TIMESTAMP)(v) and parse_time(v) is not None
+
+
+def parse_time(v: Json) -> datetime.datetime | None:
+    """A UTC timestamp matching TIMESTAMP and naming a real date and time, else None."""
+    if not matches(TIMESTAMP)(v):
+        return None
+    try:
+        return datetime.datetime.fromisoformat(v.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
 def is_null(v: Json) -> bool:
     return v is None
 
@@ -146,7 +184,7 @@ def get(data: Json, path: Sequence[str]) -> Json:
 FIELDS: tuple[tuple[tuple[str, ...], Check, str], ...] = (
     (("format",), one_of(frozenset({schema.MANIFEST_FORMAT})), schema.MANIFEST_FORMAT),
     (("run_id",), matches(RUN_ID), "a run ID: letters, digits, . _ : -"),
-    (("claim",), one_of(schema.CLAIMS), "one of " + ", ".join(sorted(schema.CLAIMS))),
+    (("provenance_claim",), one_of(schema.PROVENANCE_CLAIMS), "complete or partial"),
     (("analysis", "kind"), one_of(schema.ANALYSIS_KINDS), "primary or exploratory"),
     (("benchmark", "id"), text, "a benchmark ID"),
     (("benchmark", "definition"), known_or_unknown(text), "where the benchmark is defined, or an unknown"),
@@ -178,8 +216,8 @@ FIELDS: tuple[tuple[tuple[str, ...], Check, str], ...] = (
     (("inference", "batch_size"), any_of(positive, is_unknown, is_null), "a positive integer, an unknown, or null"),
     (("inference", "concurrency"), any_of(positive, is_unknown, is_null), "a positive integer, an unknown, or null"),
     (("inference", "seed"), any_of(integer, is_unknown, is_null), "an integer, an unknown, or null"),
-    (("execution", "started_at"), known_or_unknown(matches(TIMESTAMP)), "a UTC timestamp, or an unknown"),
-    (("execution", "finished_at"), known_or_unknown(matches(TIMESTAMP)), "a UTC timestamp, or an unknown"),
+    (("execution", "started_at"), known_or_unknown(timestamp), "a UTC timestamp, or an unknown"),
+    (("execution", "finished_at"), known_or_unknown(timestamp), "a UTC timestamp, or an unknown"),
     (("execution", "source_commit"), known_or_unknown(matches(GIT_COMMIT)), "a 40-hex git commit, or an unknown"),
     (("execution", "environment"), any_of(mapping, is_unknown), "an object, or an unknown"),
     (("publication", "outputs"), one_of(schema.OUTPUT_PUBLICATION), "included or withheld"),
@@ -200,6 +238,11 @@ def check_manifest(manifest: Json, report: Report) -> None:
         elif not check(value):
             report.add("field.invalid", where, f"expected {expected}, got {json.dumps(value)[:80]}")
 
+    started = parse_time(get(manifest, ("execution", "started_at")))
+    finished = parse_time(get(manifest, ("execution", "finished_at")))
+    if started and finished and finished < started:
+        report.add("execution.time_order", "$.execution.finished_at", "the run finishes before it starts")
+
     randomness = get(manifest, ("protocol", "scorer", "randomness"))
     if (
         isinstance(randomness, dict)
@@ -218,44 +261,59 @@ def check_manifest(manifest: Json, report: Report) -> None:
             report.add("analysis.description", "$.analysis.description", "an exploratory analysis says what it did")
         if not any_of(matches(RUN_ID), is_unknown)(analysis.get("derived_from")):
             report.add("analysis.derived_from", "$.analysis.derived_from", "the run ID it derives from, or unknown")
+        if analysis.get("derived_from") == manifest.get("run_id"):
+            report.add("analysis.derived_from", "$.analysis.derived_from", "an analysis cannot derive from itself")
 
-    if manifest.get("claim") == "verified":
-        if isinstance(analysis, dict) and analysis.get("kind") != "primary":
-            report.add("claim.verified", "$.analysis.kind", "an exploratory analysis cannot be a verified result")
-        for path in schema.VERIFIED_REQUIRES_KNOWN:
-            if is_unknown(get(manifest, path)):
-                report.add(
-                    "claim.verified",
-                    "$." + ".".join(path),
-                    "a verified result needs this provenance; it is recorded as unknown",
-                )
+    unknown = [p for p in schema.PROVENANCE_REQUIRED if not known(get(manifest, p), manifest, p)]
+    report.provenance_complete = not unknown
+    if manifest.get("provenance_claim") == "complete":
+        for path in unknown:
+            report.add(
+                "provenance.incomplete",
+                "$." + ".".join(path),
+                "the manifest claims complete provenance, but this is missing or unknown",
+            )
 
 
-def check_metrics(manifest: Json, report: Report) -> dict[str, Json]:
+def known(value: Json, manifest: Json, path: Sequence[str]) -> bool:
+    """Recorded and not an explicit unknown (and present in the manifest)."""
+    parent = get(manifest, path[:-1])
+    return isinstance(parent, dict) and path[-1] in parent and value is not None and not is_unknown(value)
+
+
+METRIC_FIELDS: tuple[tuple[str, Check, str], ...] = (
+    ("id", text, "a metric ID"),
+    ("sample_key", text, "the per-sample score key"),
+    ("unit", one_of(schema.UNITS), "one of " + ", ".join(sorted(schema.UNITS))),
+    ("higher_is_better", boolean, "true or false"),
+    ("aggregation", one_of(schema.AGGREGATIONS), "one of " + ", ".join(sorted(schema.AGGREGATIONS))),
+    ("kind", one_of(schema.METRIC_KINDS), "quality or efficiency"),
+)
+
+
+def check_metrics(manifest: Json, report: Report) -> dict[str, dict[str, Json]]:
+    """Valid metric definitions by ID. An invalid definition is reported and left out."""
     metrics = manifest.get("metrics") if isinstance(manifest, dict) else None
     if not isinstance(metrics, list) or not metrics:
         report.add("metrics.missing", "$.metrics", "at least one metric definition is required")
         return {}
-    by_id: dict[str, Json] = {}
+    by_id: dict[str, dict[str, Json]] = {}
+    seen: set[str] = set()
     for n, m in enumerate(metrics):
         where = f"$.metrics[{n}]"
         if not isinstance(m, dict):
             report.add("metrics.invalid", where, "not an object")
             continue
-        for key, check, expected in (
-            ("id", text, "a metric ID"),
-            ("sample_key", text, "the per-sample score key"),
-            ("unit", one_of(schema.UNITS), "one of " + ", ".join(sorted(schema.UNITS))),
-            ("higher_is_better", boolean, "true or false"),
-            ("aggregation", one_of(schema.AGGREGATIONS), "one of " + ", ".join(sorted(schema.AGGREGATIONS))),
-            ("kind", one_of(schema.METRIC_KINDS), "quality or efficiency"),
-        ):
-            if not check(m.get(key)):
+        bad = [key for key, check, _ in METRIC_FIELDS if not check(m.get(key))]
+        for key, _, expected in METRIC_FIELDS:
+            if key in bad:
                 report.add("metrics.invalid", f"{where}.{key}", f"expected {expected}")
         if text(m.get("id")):
-            if m["id"] in by_id:
+            if m["id"] in seen:
                 report.add("metrics.duplicate", f"{where}.id", f"metric {m['id']!r} is defined twice")
-            by_id[m["id"]] = m
+            seen.add(m["id"])
+            if not bad:
+                by_id[m["id"]] = m
     return by_id
 
 
@@ -274,12 +332,15 @@ def check_artifacts(manifest: Json, run_dir: Path, report: Report) -> Path | Non
             report.add("artifacts.invalid", where, "an artifact needs a path")
             continue
         rel = PurePosixPath(a["path"])
-        if rel.is_absolute() or ".." in rel.parts or "\\" in a["path"]:
+        if rel.is_absolute() or ".." in rel.parts or "\\" in a["path"] or ":" in a["path"]:
             report.add("artifacts.path", f"{where}.path", "paths are relative to the run directory, with /")
             continue
         if a["path"] in seen:
             report.add("artifacts.duplicate", f"{where}.path", f"{a['path']} is listed twice")
         seen.add(a["path"])
+        if a["path"] == "manifest.json":
+            report.add("artifacts.path", f"{where}.path", "the manifest cannot list itself")
+            continue
         if not one_of(schema.ARTIFACT_ROLES)(a.get("role")):
             report.add("artifacts.invalid", f"{where}.role", "one of " + ", ".join(sorted(schema.ARTIFACT_ROLES)))
         if not matches(SHA256)(a.get("sha256")) or not count(a.get("bytes")):
@@ -317,19 +378,37 @@ def read_samples(path: Path, report: Report) -> list[dict[str, Json]]:
     return records
 
 
-def check_samples(records: list[dict[str, Json]], manifest: Json, metrics: Mapping[str, Json], report: Report) -> None:
+def scored_metric_ids(manifest: Json) -> set[str]:
+    """Metrics with an observation in state ok: every scored sample must carry their per-sample score. A metric
+    whose observation is not ok (for example `blocked_judge`) is not scored, so samples do not carry it."""
+    observations = manifest.get("observations") if isinstance(manifest, dict) else None
+    if not isinstance(observations, list):
+        return set()
+    return {
+        o["metric"]
+        for o in observations
+        if isinstance(o, dict) and o.get("state") == "ok" and isinstance(o.get("metric"), str)
+    }
+
+
+def check_samples(
+    records: list[dict[str, Json]], manifest: Json, metrics: Mapping[str, dict[str, Json]], report: Report
+) -> None:
     outputs = get(manifest, ("publication", "outputs"))
+    scored_metrics = scored_metric_ids(manifest)
     ids = [r.get("sample_id") for r in records]
+    # IDs are compared as text, as source_id_digest joins them: 7 and "7" are the same sample.
     for sample_id, n in Counter(map(str, ids)).items():
         if n > 1:
             report.add("samples.duplicate_id", f"samples[sample_id={sample_id}]", f"sample ID appears {n} times")
-    keys = [m["sample_key"] for m in metrics.values() if m.get("aggregation") != "external"]
+    if len({type(i) for i in ids if text(i) or integer(i)}) > 1:
+        report.add("samples.id_type", "samples[*].sample_id", "sample IDs mix strings and integers")
     for n, r in enumerate(records):
         where = f"samples[{n}]"
         if not (text(r.get("sample_id")) or integer(r.get("sample_id"))):
             report.add("samples.invalid", f"{where}.sample_id", "a sample ID is a non-empty string or an integer")
         state = r.get("state")
-        if state not in schema.STATES:
+        if not isinstance(state, str) or state not in schema.STATES:
             report.add("samples.state", f"{where}.state", f"state must be one of the schema states, got {state!r}")
             continue
         scores = r.get("scores")
@@ -339,11 +418,16 @@ def check_samples(records: list[dict[str, Json]], manifest: Json, metrics: Mappi
             if not isinstance(scores, dict):
                 report.add("samples.scores", f"{where}.scores", "a scored sample needs its scores")
             else:
-                for key in keys:
-                    if key not in scores:
-                        report.add("samples.scores", f"{where}.scores.{key}", "missing score of a declared metric")
-            if outputs == "included" and not isinstance(r.get("raw_output"), str):
-                report.add("samples.output", f"{where}.raw_output", "outputs are declared included but missing")
+                for m in metrics.values():
+                    if m["aggregation"] != "external" and m["id"] in scored_metrics and m["sample_key"] not in scores:
+                        report.add(
+                            "samples.scores", f"{where}.scores.{m['sample_key']}", "missing score of a declared metric"
+                        )
+            if outputs == "included":
+                # An empty string is a legitimate model output (and scores as it scores); a missing one is not.
+                for key in ("raw_output", "scored_output"):
+                    if not isinstance(r.get(key), str):
+                        report.add("samples.output", f"{where}.{key}", "outputs are declared included but missing")
         else:
             # A request or execution failure is not a wrong answer: no scores, and the reason is recorded.
             if scores is not None:
@@ -355,8 +439,8 @@ def check_samples(records: list[dict[str, Json]], manifest: Json, metrics: Mappi
     report.counts = dict(Counter(str(r.get("state")) for r in records))
 
 
-def aggregate(values: list[Json], aggregation: str) -> float | None:
-    """Mean of the per-sample values; None when they are not numbers of the declared shape."""
+def flatten(values: list[Json], aggregation: str) -> list[float] | None:
+    """The numbers a `mean` or `micro_mean` averages; None when a value has the wrong shape or type."""
     flat: list[Json] = []
     for v in values:
         if aggregation == "micro_mean":
@@ -365,15 +449,15 @@ def aggregate(values: list[Json], aggregation: str) -> float | None:
             flat.extend(v)
         else:
             flat.append(v)
-    if not flat or not all(number(x) or isinstance(x, bool) for x in flat):
+    if not all(number(x) or isinstance(x, bool) for x in flat):
         return None
-    return sum(float(x) for x in flat) / len(flat)
+    return [float(x) for x in flat]
 
 
 def check_observations(
     records: list[dict[str, Json]],
     manifest: Json,
-    metrics: Mapping[str, Json],
+    metrics: Mapping[str, dict[str, Json]],
     samples_sha256: str | None,
     report: Report,
 ) -> None:
@@ -386,62 +470,98 @@ def check_observations(
     for n, obs in enumerate(observations):
         where = f"$.observations[{n}]"
         for issue in observation_issues(obs):
-            report.add(issue.code, f"{where}{issue.path[1:]}", issue.message)
+            target = report.warnings if issue.code == "observation.extra" else report.issues
+            target.append(Issue(issue.code, f"{where}{issue.path[1:]}", issue.message))
         if not isinstance(obs, dict):
             continue
-        metric = metrics.get(obs.get("metric", ""))
-        if metric is None:
-            report.add("observations.metric", f"{where}.metric", f"metric {obs.get('metric')!r} is not defined")
+        name = obs.get("metric")
+        metric = metrics.get(name) if isinstance(name, str) else None
+        if not isinstance(name, str) or metric is None:
+            report.add("observations.metric", f"{where}.metric", f"metric {name!r} has no valid definition")
             continue
-        if obs["metric"] in seen:
-            report.add("observations.duplicate", f"{where}.metric", f"two observations for {obs['metric']!r}")
-        seen.add(obs["metric"])
-        for key, expected in (
+        if name in seen:
+            report.add("observations.duplicate", f"{where}.metric", f"two observations for {name!r}")
+        seen.add(name)
+        state = obs.get("state")
+        expected: list[tuple[str, Json]] = [
             ("task_id", get(manifest, ("benchmark", "id"))),
             ("model_id", get(manifest, ("model", "id"))),
             ("protocol_id", get(manifest, ("protocol", "id"))),
-            ("unit", metric.get("unit")),
-            ("higher_is_better", metric.get("higher_is_better")),
+            ("unit", metric["unit"]),
+            ("higher_is_better", metric["higher_is_better"]),
             ("n_population", get(manifest, ("protocol", "dataset", "n_population"))),
-            ("n_selected", len(records)),
-        ):
-            if obs.get(key) != expected:
+        ]
+        # research/common/ewaluuj.py writes n_selected None for a task that failed before selecting samples.
+        if state == "ok" or obs.get("n_selected") is not None:
+            expected.append(("n_selected", len(records)))
+        for key, value in expected:
+            if obs.get(key) != value:
                 report.add(
-                    "observations.contradiction", f"{where}.{key}", f"is {obs.get(key)!r}, the run says {expected!r}"
+                    "observations.contradiction", f"{where}.{key}", f"is {obs.get(key)!r}, the run says {value!r}"
                 )
-        if obs.get("state") != "ok":
+        if state != "ok":
+            carrying = [r for r in scored if isinstance(r.get("scores"), dict) and metric["sample_key"] in r["scores"]]
+            if carrying:
+                report.add(
+                    "observations.state",
+                    f"{where}.state",
+                    f"is {state!r}, but {len(carrying)} samples carry a score for it; a scored metric has state ok",
+                )
             continue
         if obs.get("n_scored") != len(scored):
             report.add(
-                "observations.n_scored",
-                f"{where}.n_scored",
-                f"is {obs.get('n_scored')}, {len(scored)} samples have state ok",
+                "observations.n_scored", f"{where}.n_scored", f"is {obs.get('n_scored')}, {len(scored)} samples are ok"
             )
         if obs.get("results_sha256") != samples_sha256:
             report.add("observations.results_sha256", f"{where}.results_sha256", "differs from the samples artifact")
-        if obs.get("source_id_digest") != source_id_digest(r.get("sample_id") for r in scored):
+        if obs.get("source_id_digest") != source_id_digest(r.get("sample_id") for r in records):
             report.add(
                 "observations.source_id_digest",
                 f"{where}.source_id_digest",
-                "differs from the digest of the scored sample IDs",
+                "differs from the digest of the selected sample IDs",
             )
-        if metric.get("aggregation") == "external" or not number(obs.get("value")):
-            continue
-        mean = aggregate([(r.get("scores") or {}).get(metric["sample_key"]) for r in scored], metric["aggregation"])
-        if mean is None:
-            report.add("observations.recompute", f"{where}.value", "per-sample scores cannot be aggregated")
-            continue
-        recomputed = 100 * mean if metric.get("unit") == "percent" else mean
-        if abs(recomputed - obs["value"]) > TOLERANCE:
-            report.add(
-                "observations.value",
-                f"{where}.value",
-                f"recorded {obs['value']}, recomputed from the samples {recomputed}",
-            )
+        check_value(obs, metric, scored, where, report)
+    for name in metrics:
+        if name not in seen:
+            report.add("metrics.unobserved", f"$.metrics[id={name}]", "a declared metric has no observation")
+
+
+def check_value(
+    obs: dict[str, Json], metric: dict[str, Json], scored: list[dict[str, Json]], where: str, report: Report
+) -> None:
+    """Range of the recorded value, and the recomputation of `mean` and `micro_mean` metrics."""
+    if not number(obs.get("value")):
+        return
+    value = float(obs["value"])
+    if metric["unit"] == "percent" and not 0 <= value <= 100:
+        report.add("observations.range", f"{where}.value", f"a percent value is between 0 and 100, got {value}")
+    if metric["aggregation"] == "external":
+        report.not_recomputed.append(metric["id"])
+        return
+    flat = flatten([(r.get("scores") or {}).get(metric["sample_key"]) for r in scored], metric["aggregation"])
+    if not flat:
+        report.add("observations.recompute", f"{where}.value", "per-sample scores cannot be aggregated")
+        return
+    if metric["unit"] == "percent" and not all(0 <= x <= 1 for x in flat):
+        # Percent metrics are recomputed as 100 * mean, so each per-sample score is a fraction.
+        report.add("samples.range", f"$.metrics[id={metric['id']}]", "per-sample scores of a percent metric are 0-1")
+        return
+    mean = sum(flat) / len(flat)
+    recomputed = 100 * mean if metric["unit"] == "percent" else mean
+    if abs(recomputed - value) > TOLERANCE:
+        report.add(
+            "observations.value", f"{where}.value", f"recorded {value}, recomputed from the samples {recomputed}"
+        )
 
 
 def observation_issues(obs: Json) -> list[Issue]:
-    """Checks of one schema-2 observation on its own, as research/common/metryki.py `bledy_schematu` does."""
+    """Checks of one schema-2 observation on its own.
+
+    These are the fields and invariants that research/common/metryki.py `bledy_schematu` checks (required fields,
+    states, value and digests for `ok`, no value otherwise), plus ci95 and unit checks. This is not validation
+    against the full JSON Schema of the results contract, which is not in this repository. Fields outside the ones
+    `metryki.py` writes are reported as `observation.extra`; `check_observations` treats them as warnings.
+    """
     issues: list[Issue] = []
     if not isinstance(obs, dict):
         return [Issue("observation.type", "$", "an observation is a JSON object")]
@@ -450,13 +570,15 @@ def observation_issues(obs: Json) -> list[Issue]:
     ]
     allowed = set(schema.OBSERVATION_FIELDS) | schema.OBSERVATION_OPTIONAL_FIELDS
     issues += [
-        Issue("observation.extra", f"$.{k}", "not a field of the results schema") for k in obs if k not in allowed
+        Issue("observation.extra", f"$.{k}", "not a field research/common/metryki.py writes; not checked")
+        for k in obs
+        if k not in allowed
     ]
     state = obs.get("state")
-    if state not in schema.STATES:
+    if not isinstance(state, str) or state not in schema.STATES:
         issues.append(Issue("observation.state", "$.state", f"state must be one of the schema states, got {state!r}"))
         return issues
-    if obs.get("unit") not in schema.UNITS:
+    if not isinstance(obs.get("unit"), str) or obs["unit"] not in schema.UNITS:
         issues.append(Issue("observation.unit", "$.unit", f"unit must be one of {sorted(schema.UNITS)}"))
     if state == "ok":
         if not number(obs.get("value")) or not (count(obs.get("n_scored")) and obs["n_scored"] >= 1):
@@ -471,9 +593,13 @@ def observation_issues(obs: Json) -> list[Issue]:
                 and number(ci.get("lower"))
                 and number(ci.get("upper"))
                 and number(obs.get("value"))
+                and number(ci.get("level"))
+                and 0 < ci["level"] < 1
             )
             if not ok_ci or not ci["lower"] <= obs["value"] <= ci["upper"]:
-                issues.append(Issue("observation.ci95", "$.ci95", "ci95 needs lower <= value <= upper"))
+                issues.append(
+                    Issue("observation.ci95", "$.ci95", "ci95 needs a level in (0, 1) and lower <= value <= upper")
+                )
     else:
         if obs.get("value") is not None or obs.get("ci95") is not None:
             issues.append(Issue("observation.value", "$.value", f"state {state} has no value and no ci95"))
@@ -483,7 +609,7 @@ def observation_issues(obs: Json) -> list[Issue]:
 
 
 def validate_run(run_dir: Path) -> Report:
-    """Validate one run directory. The result lists every problem found; an empty list means valid."""
+    """Validate one run directory. The result lists every problem found; no issues means structurally valid."""
     report = Report(run_dir)
     manifest_path = run_dir / "manifest.json"
     if not manifest_path.is_file():
@@ -491,55 +617,85 @@ def validate_run(run_dir: Path) -> Report:
         return report
     try:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as e:
-        report.add("manifest.json", str(manifest_path), f"not valid JSON: {e.msg}")
+    except (json.JSONDecodeError, UnicodeDecodeError) as e:
+        report.add("manifest.json", str(manifest_path), f"not valid UTF-8 JSON: {e}")
         return report
     report.manifest_sha256 = sha256_file(manifest_path)
-    report.run_id = manifest.get("run_id") if isinstance(manifest, dict) else None
+    run_id = manifest.get("run_id") if isinstance(manifest, dict) else None
+    report.run_id = run_id if isinstance(run_id, str) else None
     check_manifest(manifest, report)
     metrics = check_metrics(manifest, report)
     samples_path = check_artifacts(manifest, run_dir, report)
-    records = read_samples(samples_path, report) if samples_path else []
+    records: list[dict[str, Json]] = []
     if samples_path:
+        report.samples_sha256 = sha256_file(samples_path)
+        try:
+            records = read_samples(samples_path, report)
+        except UnicodeDecodeError as e:
+            report.add("samples.json", samples_path.name, f"not valid UTF-8: {e}")
         check_samples(records, manifest, metrics, report)
-    check_observations(records, manifest, metrics, sha256_file(samples_path) if samples_path else None, report)
+    check_observations(records, manifest, metrics, report.samples_sha256, report)
     return report
 
 
+FINGERPRINT_SECTIONS = ("benchmark", "protocol", "model", "inference", "metrics")
+
+
 def protocol_fingerprint(manifest: Json) -> str:
-    """Digest of everything that defines how a run was produced: protocol, model identity, and inference settings."""
-    part = {k: manifest.get(k) for k in ("protocol", "model", "inference")} if isinstance(manifest, dict) else {}
+    """Digest of what defines a measurement: benchmark, protocol (data, scorer, preprocessing), model identity,
+    inference settings, and metric definitions. Run ID, timing, environment, and artifacts are not part of it."""
+    part = {k: manifest.get(k) for k in FINGERPRINT_SECTIONS} if isinstance(manifest, dict) else {}
     return hashlib.sha256(json.dumps(part, sort_keys=True).encode("utf-8")).hexdigest()
 
 
 def validate_runs(run_dirs: Sequence[Path]) -> list[Report]:
-    """Validate several runs together: each on its own, plus run IDs unique and protocol IDs used consistently.
+    """Validate several runs together: each on its own, plus checks across runs.
 
-    Two runs of the same model may share a protocol ID only when their protocol, model, and inference settings are
-    identical; otherwise one ID would stand for two different measurements (for example bf16 and a quantized model).
-    Repeated runs of one protocol (to measure run-to-run variance) are allowed: they differ only in run ID.
+    - Run IDs are unique, and no directory is listed twice.
+    - Two runs of the same model may share a protocol ID only with an identical protocol fingerprint; otherwise one
+      ID would name two different measurements (for example bf16 and a quantized model). Repeated runs of one
+      protocol, to measure run-to-run variance, are allowed: they differ only in run ID and timing.
+    - Runs with byte-identical samples get a warning: a copy relabelled as another run looks the same as a fully
+      deterministic rerun, and the validator cannot tell them apart.
     """
     reports = [validate_run(d) for d in run_dirs]
     by_run: dict[str, Report] = {}
+    by_dir: dict[Path, Report] = {}
+    by_samples: dict[str, Report] = {}
     fingerprints: dict[tuple[str, str], tuple[str, Report]] = {}
     for d, report in zip(run_dirs, reports, strict=True):
-        if report.run_id in by_run:
-            report.add(
-                "runs.duplicate_id", "$.run_id", f"run ID {report.run_id!r} is used by {by_run[report.run_id].run_dir}"
-            )
-        if report.run_id:
-            by_run[report.run_id] = report
+        resolved = d.resolve()
+        if resolved in by_dir:
+            report.add("runs.duplicate_dir", "$", f"the same directory is listed twice ({by_dir[resolved].run_dir})")
+            continue
+        by_dir[resolved] = report
+        if report.run_id is not None:
+            if report.run_id in by_run:
+                report.add(
+                    "runs.duplicate_id",
+                    "$.run_id",
+                    f"run ID {report.run_id!r} is used by {by_run[report.run_id].run_dir}",
+                )
+            by_run.setdefault(report.run_id, report)
+        if report.samples_sha256 is not None:
+            if report.samples_sha256 in by_samples:
+                report.warn(
+                    "runs.same_samples",
+                    "$.artifacts",
+                    f"samples are byte-identical to {by_samples[report.samples_sha256].run_dir}",
+                )
+            by_samples.setdefault(report.samples_sha256, report)
         try:
             manifest = json.loads((d / "manifest.json").read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
             continue
-        key = (str(get(manifest, ("protocol", "id"))), str(get(manifest, ("model", "id"))))
+        key = (json.dumps(get(manifest, ("protocol", "id"))), json.dumps(get(manifest, ("model", "id"))))
         fp = protocol_fingerprint(manifest)
         if key in fingerprints and fingerprints[key][0] != fp:
             report.add(
                 "runs.protocol_reused",
                 "$.protocol.id",
-                f"protocol {key[0]!r} has different settings in {fingerprints[key][1].run_dir}",
+                f"protocol {get(manifest, ('protocol', 'id'))!r} has other settings in {fingerprints[key][1].run_dir}",
             )
         fingerprints.setdefault(key, (fp, report))
     return reports

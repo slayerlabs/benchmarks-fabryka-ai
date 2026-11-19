@@ -11,10 +11,9 @@
     }
   ],
   "benchmark": {
-    "definition": "tests/runs.py (synthetic)",
-    "id": "toy-instructions"
+    "definition": "tests/runs.py (synthetic validation data)",
+    "id": "synthetic-toy-instructions"
   },
-  "claim": "unverified",
   "execution": {
     "environment": {
       "gpu": "synthetic",
@@ -96,12 +95,12 @@
       "n_population": 6,
       "n_scored": 5,
       "n_selected": 6,
-      "protocol_id": "toy-instructions-chat-sampled-api",
+      "protocol_id": "synthetic-toy-chat-sampled-api",
       "results_sha256": "f6c0c85f482a8ff63075234f21b3c3c48d74dd444a7060457a65f9b50ae17deb",
       "runner_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
-      "source_id_digest": "2f4c336aa2ebd6c3ed76df81be02832ba450bdf0983ef1af16e9506d7fc4b301",
+      "source_id_digest": "3fb29a5482d7194248d3a354d0b235b2ed2e6e361aeef75dc06055530964f688",
       "state": "ok",
-      "task_id": "toy-instructions",
+      "task_id": "synthetic-toy-instructions",
       "unit": "percent",
       "value": 60.0
     },
@@ -115,12 +114,12 @@
       "n_population": 6,
       "n_scored": 5,
       "n_selected": 6,
-      "protocol_id": "toy-instructions-chat-sampled-api",
+      "protocol_id": "synthetic-toy-chat-sampled-api",
       "results_sha256": "f6c0c85f482a8ff63075234f21b3c3c48d74dd444a7060457a65f9b50ae17deb",
       "runner_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
-      "source_id_digest": "2f4c336aa2ebd6c3ed76df81be02832ba450bdf0983ef1af16e9506d7fc4b301",
+      "source_id_digest": "3fb29a5482d7194248d3a354d0b235b2ed2e6e361aeef75dc06055530964f688",
       "state": "ok",
-      "task_id": "toy-instructions",
+      "task_id": "synthetic-toy-instructions",
       "unit": "percent",
       "value": 80.0
     },
@@ -134,12 +133,12 @@
       "n_population": 6,
       "n_scored": 5,
       "n_selected": 6,
-      "protocol_id": "toy-instructions-chat-sampled-api",
+      "protocol_id": "synthetic-toy-chat-sampled-api",
       "results_sha256": "f6c0c85f482a8ff63075234f21b3c3c48d74dd444a7060457a65f9b50ae17deb",
       "runner_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
-      "source_id_digest": "2f4c336aa2ebd6c3ed76df81be02832ba450bdf0983ef1af16e9506d7fc4b301",
+      "source_id_digest": "3fb29a5482d7194248d3a354d0b235b2ed2e6e361aeef75dc06055530964f688",
       "state": "ok",
-      "task_id": "toy-instructions",
+      "task_id": "synthetic-toy-instructions",
       "unit": "percent",
       "value": 80.0
     }
@@ -147,11 +146,11 @@
   "protocol": {
     "dataset": {
       "n_population": 6,
-      "repo": "synthetic/toy-instructions",
+      "repo": "synthetic/toy-instructions (not a real dataset)",
       "revision": "fixture-1",
       "split": "test"
     },
-    "id": "toy-instructions-chat-sampled-api",
+    "id": "synthetic-toy-chat-sampled-api",
     "output_preprocessing": "none",
     "scorer": {
       "name": "synthetic rules",
@@ -163,9 +162,10 @@
       "version": "fixture-1"
     }
   },
+  "provenance_claim": "partial",
   "publication": {
     "license": "CC0-1.0 (synthetic)",
     "outputs": "included"
   },
-  "run_id": "toy-instructions.example-model-1b.provider-api.20261119T110000Z"
+  "run_id": "synthetic.toy.example-model-1b.provider-api.20261119T110000Z"
 }
