@@ -1,0 +1,59 @@
+name: PR policy
+# Structural check of the PR title and description. It does not judge code quality.
+#
+# Trust: the checker that decides is .github/scripts/pr_policy.py from the DEFAULT branch, checked out explicitly,
+# never the PR's copy, so a PR cannot change the policy it is checked against by editing the checker. Changes to the
+# checker are tested separately (repo-checks.yml) and take effect after merge.
+#
+# Limitation: on `pull_request` the workflow definition itself comes from the PR, so a PR that edits THIS file could
+# still skip the check. Closing that needs a GitHub setting, not code: an organization ruleset that requires this
+# workflow from the default branch, or code owner review of .github/ by a trusted team
+# (benchmarks/docs/security-and-governance.md). `pull_request_target` would also close it, but GitHub blocks that
+# trigger by default in public repositories from 2026-12-02 unless an admin allows it, and it runs with the base
+# repository's context, so it is not used.
+#
+# SECURITY: `pull_request` only; fork PRs get a read-only token and no secrets. No code from the PR is checked out or
+# run. The title and body reach the checker only through environment variables.
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+
+permissions: {}
+
+concurrency:
+  group: pr-policy-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: PR policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read # check out the default branch's checker
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          path: trusted
+          persist-credentials: false
+          sparse-checkout: .github/scripts/pr_policy.py
+          sparse-checkout-cone-mode: false
+      - name: Check title and description with the default branch's checker
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          # Bootstrap only: before the PR that introduces the policy (#310) is merged, the default branch has no
+          # checker; that PR and older ones pass with a notice. For any later PR a missing checker is an error, so
+          # removing it from the default branch cannot silently turn the check off.
+          if [ ! -f trusted/.github/scripts/pr_policy.py ]; then
+            if [ "$PR_NUMBER" -le 310 ]; then
+              echo "::notice::The default branch has no .github/scripts/pr_policy.py yet; nothing to enforce."
+              exit 0
+            fi
+            echo "::error::The default branch has no .github/scripts/pr_policy.py; the policy cannot be checked."
+            exit 1
+          fi
+          python3 trusted/.github/scripts/pr_policy.py
