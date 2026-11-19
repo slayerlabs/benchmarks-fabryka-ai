@@ -1,0 +1,49 @@
+# Research priorities — 19.11.2026
+
+The following priorities were communicated by **Kacper Wikieł** to the Benchmark Team and are preserved here as a reference for CodeSOTA contributors.
+
+## Infrastructure and evaluation priorities
+
+1. **Do not use personal GPU resources or paid accounts.** Contributors should not spend their own resources on benchmark evaluations. Contact the team when compute resources or API access are needed.
+2. **Use [Fabryka AI Platform](https://fabryka.ai/platform)** for model API evaluations. Problems with the API should be reported to the team as the highest priority.
+3. **Prioritize the benchmark list below** when planning evaluation work.
+4. **Prioritize Bielik 11B v3.1 and Slayer 1B** for evaluation, with Bielik 11B v3.0 as an additional option.
+
+## Priority benchmarks
+
+1. LiveClaw
+2. Claw-Eval General (EN)
+3. BrowseComp-Plus (OpenClaw subset)
+4. WebArena-Verified
+5. EnterpriseOps-Gym
+6. AutomationBench
+7. BFCL V4
+8. ToolSandbox
+9. MCP-Atlas
+10. τ³-bench
+11. SWE-bench Verified
+12. SWE-bench Multilingual
+13. Terminal-Bench 2.1
+14. LiveCodeBench v6
+15. LiveCodeBench Pro 25Q2
+16. SciCode
+17. IFEval
+18. IFBench
+19. IFStruct
+20. Multi-IF
+21. GPQA Diamond
+22. Humanity’s Last Exam
+23. AA-Omniscience
+24. AA-LCR
+25. RULER 128K
+
+## How these priorities relate to CodeSOTA
+
+- `research/` remains the current contribution path for benchmark evaluations and research results.
+- `benchmarks/` develops shared tooling for reproducible execution, result artifacts and validation.
+- Existing contributions continue under their documented methodology.
+- New CodeSOTA components should support these research priorities where technically appropriate.
+
+The list records the team's stated priorities. It does not mean every benchmark is implemented, assigned, funded, or ready to run.
+
+**Source:** Kacper Wikieł's instructions to the Benchmark Team, recorded in the repository README before this documentation update.
