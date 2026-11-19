@@ -12,7 +12,7 @@ harness's validator, without a judge model.
   `2e342ca5f2673fb1287411fdbadcdfde82b35682`, 2000 samples (full set: 1000 JSON, 1000 YAML)
 - Metric: pass rate (a sample passes only if the validator reports no error); pass rates by format in
   `other_metrics`
-- Settings: single turn, 1 trial. Bielik: temperature 0.6, top_p 0.95, up to 29,603 output tokens (LFM3-1.7B card
+- Settings: single turn, 1 trial. Bielik: temperature 0.6, top_p 0.95, up to 29603 output tokens (LFM3-1.7B card
   defaults, see Deviations). Slayer: greedy, up to 1280 output tokens, raw text
 - Extra services: none
 
@@ -46,8 +46,8 @@ error after retries, none outside the model's 4096-token window: the longest pro
 - **top_p is set on the server.** `ifstruct-eval` sends only temperature and max_tokens, so the card's top_p 0.95
   is a server default (`--override-generation-config`), visible in vLLM's startup log. The harness has no seed
   option, so requests are not seeded.
-- **Output limit 29,603 instead of "no limit".** The card gives no output limit; the served context is 32,768
-  tokens, and the longest prompt of the set with the chat template is 3,165 tokens. No prompt was cut.
+- **Output limit 29603 instead of "no limit".** The card gives no output limit; the served context is 32768
+  tokens, and the longest prompt of the set with the chat template is 3165 tokens. No prompt was cut.
 - **Data from Hugging Face.** The pinned revision is identical to the repo's bundled `data/test.jsonl` (0 of 2000
   samples differ); `convert_hf.py` turns the parquet's JSON-string columns back into objects.
 - **Requests are batched.** Bielik: 32 requests at a time, batched by vLLM; the harness retries a failed request
