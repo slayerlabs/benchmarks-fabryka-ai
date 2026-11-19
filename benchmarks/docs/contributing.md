@@ -1,14 +1,20 @@
-# Contributing to CodeSOTA v2
+# Contributing to CodeSOTA
 
-This guide covers work in `benchmarks/`. Work in `research/` follows the root [`CONTRIBUTING.md`](../../CONTRIBUTING.md)
-and [`research/METHODOLOGY.md`](../../research/METHODOLOGY.md). If your change touches both, follow both.
+Which guide applies depends on where your change goes:
 
-v2 is pre-alpha (see [Status](../README.md#status)). Most useful contributions right now are small: fixing the
-foundation, improving these documents, or proposing the first integrations through an issue.
+| You are changing | Follow |
+|---|---|
+| `benchmarks/`: the `codesota` package, its tests and docs | this guide and [`../AGENTS.md`](../AGENTS.md) |
+| `research/benchmarks/`: benchmarks evaluated with lm-eval, results, research code | the root [`CONTRIBUTING.md`](../../CONTRIBUTING.md) and [`research/METODOLOGIA.md`](../../research/METODOLOGIA.md) (Polish) |
+| a new benchmark run through a model API, in `research/api-benchmarks/<name>/` (the first such PR creates the directory) | [`research/METHODOLOGY.md`](../../research/METHODOLOGY.md) |
+
+If your change touches both, follow both. The `codesota` package does not run evaluations yet (see
+[Getting started](../README.md#getting-started)), so most useful contributions to it right now are small: improving
+the package foundation and these documents, or proposing its first evaluation integration through an issue.
 
 ## 1. Fork, clone, and set up
 
-You do not need access to any private infrastructure, chat, or credentials to contribute.
+You do not need access to any private infrastructure, chat, or credentials to work on the `codesota` package.
 
 ```bash
 # Fork slayerlabs/benchmarks-fabryka-ai on GitHub, then:
@@ -54,8 +60,8 @@ Prefer primary sources. If a source is inaccessible, say so; do not reconstruct 
 
 ## 5. Writing an integration
 
-v2 has no benchmark integrations yet, so there is no template to copy. The first integration will define the
-layout, and is expected to:
+The `codesota` package has no evaluation integrations yet, so there is no template to copy. The first integration
+will define the layout, and is expected to:
 
 - run through the official implementation and scorer where one exists, pinned;
 - record failures as failures: an infrastructure error, a timeout of our own machinery, or a model that cannot run the

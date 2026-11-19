@@ -1,7 +1,7 @@
 [project]
 name = "codesota"
 version = "0.1.0.dev0"
-description = "CodeSOTA v2: reproducible evaluation for language models and AI agents (pre-alpha foundation)."
+description = "CodeSOTA: reproducible evaluation for language models and AI agents (pre-alpha package)."
 readme = "README.md"
 requires-python = ">=3.11"
 # No runtime dependencies yet: the package holds no evaluation code. Add a dependency only together with the code

@@ -1,74 +1,128 @@
+<div align="center">
+
 # CodeSOTA
 
 **Reproducible evaluation for language models and AI agents.**
 
-CodeSOTA is an open-source project for building, running, validating, and comparing language model evaluations.
-This directory, `benchmarks/`, is where its second version (v2) is being built.
+[![CodeSOTA CI](https://github.com/slayerlabs/benchmarks-fabryka-ai/actions/workflows/codesota.yml/badge.svg?branch=main)](https://github.com/slayerlabs/benchmarks-fabryka-ai/actions/workflows/codesota.yml)
+[![Research tests](https://github.com/slayerlabs/benchmarks-fabryka-ai/actions/workflows/research-tests.yml/badge.svg?branch=main)](https://github.com/slayerlabs/benchmarks-fabryka-ai/actions/workflows/research-tests.yml)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
 
-[Status](#status) · [Why](#why-codesota) · [Principles](#principles) · [v2 and `research/`](#v2-and-the-legacy-research-pipeline) ·
-[Development](#development) · [Contributing](docs/contributing.md) · [Security and governance](docs/security-and-governance.md) ·
-[Agent rules](AGENTS.md)
+[Overview](#overview) · [Evaluations](#evaluation-domains) · [Methodology](#methodology-and-reproducibility) ·
+[Results](#results) · [Getting started](#getting-started) · [Contributing](docs/contributing.md) ·
+[Security](docs/security-and-governance.md)
 
-## Status
+</div>
 
-**Pre-alpha. v2 does not run evaluations yet.**
+## Overview
 
-What exists today:
+CodeSOTA is an open-source project for building, running, validating, and comparing evaluations of language models
+and AI agents. It is model-neutral: any open-weight or API model can be measured with the same protocol, and no model
+family is special in the code.
 
-- an installable Python package, `codesota`, that contains only its version and type marker;
-- a lightweight test suite, linting, type checking, and a CI workflow for this directory;
-- contribution, agent, and security rules for v2 work.
+A benchmark score is only useful when someone else can reproduce it and knows exactly what it measured. Reported
+scores move with prompt formats, answer extraction, truncation, chat templates, scorer versions, and dataset
+revisions, and a run that failed for infrastructure reasons can look like a model that scored zero.
 
-What does not exist yet: model backends, benchmark integrations, a CLI, a published package, an API, or results.
-Each of these arrives in its own reviewed pull request, with tests, when a concrete requirement needs it. Nothing in
-this README describes a feature that is not in the code.
+**Methodology.** These are the standards every CodeSOTA evaluation is held to. They are requirements for new and
+updated work, not a claim that every benchmark already meets all of them; the next section says where things stand.
 
-The evaluations this project runs today live in [`research/`](../research/README.md) and keep working as before.
+- **Official implementations, pinned.** Run the benchmark's official harness and scorer at a fixed commit, on a
+  recorded dataset revision. Any deviation is recorded with its reason.
+- **Reproduce before you compare.** Results enter comparison tables only after a published reference result has been
+  reproduced, or the benchmark is documented as having no reference to reproduce.
+- **Explicit failures, not misleading zeros.** A run that failed, or a model that cannot run an evaluation, is
+  recorded as such.
+- **Uncertainty with every comparison.** Scores carry standard errors, and differences between models a statistical
+  verdict.
+- **Raw outputs and provenance.** Per-question outputs, settings, and versions are kept where licenses allow, so
+  numbers can be recomputed.
 
-## Why CodeSOTA
+**Where the repository stands.** What is in place today, checked against the repository:
 
-A benchmark score is only useful when someone else can reproduce it and knows exactly what it measured. In practice,
-reported scores move with prompt formats, answer extraction, truncation, chat templates, scorer versions, and
-dataset revisions, and a run that failed for infrastructure reasons can look like a model that scored zero.
+- 55 benchmark directories, each with a card describing the original benchmark (`ORIGINAL.md`) and a run recipe
+  (`RECIPE.md`).
+- 25 of them have a reproduction report (`REPRODUCTION.md`). Its verdict is stated in each report and is not always
+  a pass: some reproductions are met, some wait for the central run, some are inconclusive.
+- The central run evaluates every model with the same pinned settings and dataset revisions
+  ([`research/common/zadania.py`](../research/common/zadania.py)).
+- In the published results, only benchmarks with a met reproduction appear in the comparison table, every score has a
+  standard error, and comparisons have a statistical verdict.
+- Per-question outputs are stored in the repository for some benchmarks and runs, not yet for all.
 
-CodeSOTA's goal is to make changing the research question cheap (another model, checkpoint, or benchmark suite)
-while making changes to evaluation methodology explicit, versioned, and auditable.
+## Evaluation domains
 
-## Principles
+The table lists the benchmarks that have a directory in the repository, grouped by area. A listed benchmark is not
+necessarily a completed, reproducible integration: [`research/STATUS.md`](../research/STATUS.md) (written in Polish,
+last updated 16 Nov 2026) counts 23 as complete (documented, prepared, and in the central run), 30 as in the central
+run without full documentation, and 2 as documented but outside the run.
 
-- **Correctness over impressive abstractions.** Prefer the official implementation and scorer of a benchmark, pinned
-  to a revision. Every deviation from the reference protocol is recorded and justified.
-- **Evidence over claims.** A score comes with the inputs needed to reproduce it: model and dataset revisions, harness
-  version, settings, raw outputs where licensing allows, and an uncertainty estimate where one is meaningful.
-- **Explicit failures over misleading zeros.** A model that cannot run an evaluation, or a run that failed for
-  infrastructure reasons, is recorded as such, never as a score of zero. The legacy results contract already models
-  this with a per-observation `state` field ([`research/common/README.md`](../research/common/README.md)); v2 will
-  start from that contract rather than invent a new one.
-- **Model-neutral.** No model, family, or checkpoint is special in the code. Research priorities belong in
-  configuration and campaigns, not in core interfaces.
-- **Small, reviewable changes.** See [`AGENTS.md`](AGENTS.md).
+| Domain | Benchmarks with a directory in the repository |
+|---|---|
+| Reasoning and mathematics | GSM8K, MATH, MathQA, BIG-Bench Hard, LogiQA, ANLI, ARC-Challenge |
+| Knowledge and question answering | MMLU, TriviaQA, Natural Questions, SciQ, OpenBookQA, MedMCQA, PubMedQA, TruthfulQA |
+| Reading comprehension | SQuAD 2.0, CoQA, DROP, RACE, ReCoRD, BoolQ |
+| Commonsense and world knowledge | HellaSwag, PIQA, WinoGrande, Social IQa, COPA, WSC273, EWoK |
+| Instruction following | IFEval |
+| Language modeling and linguistics | WikiText-2, LAMBADA, BLiMP, CoLA, UncheatableEval |
+| Polish language | Belebele (PL), PolEmo 2.0, PolQA, PoQuAD, KLEJ NER, LLMzSzL, 8TAGS, CBD, PSC, PPC, DYK, MultiBLiMP (PL), EWoK (PL) |
+| Coding, tool use, and agentic tasks | planned; no integrations in the repository yet |
 
-## v2 and the legacy research pipeline
+Each benchmark lives in [`research/benchmarks/<name>/`](../research/benchmarks/) with its card, recipe, any
+benchmark-specific code, and, where done, a reproduction report.
 
-The repository runs a parallel migration:
+## Methodology and reproducibility
 
-| | `research/` (legacy) | `benchmarks/` (v2, this directory) |
-|---|---|---|
-| State | working; produces the current published results | foundation only; no evaluations |
-| Instructions | [`research/README.md`](../research/README.md), [`research/METHODOLOGY.md`](../research/METHODOLOGY.md) | this README, [`docs/contributing.md`](docs/contributing.md), [`AGENTS.md`](AGENTS.md) |
-| CI | `Research tests (light)` | `CodeSOTA CI` |
+- [`research/METODOLOGIA.md`](../research/METODOLOGIA.md): the full protocol behind the benchmarks in
+  `research/benchmarks/`: reproduction against references, test types, baselines, standard errors and verdicts, and
+  the central run that evaluates every model with the same settings. Written in Polish.
+- [`research/METHODOLOGY.md`](../research/METHODOLOGY.md): how a benchmark run through a model API is documented:
+  sources, settings, machine-readable results, per-question outputs, deviations, and when it counts as done.
+- [`research/common/README.md`](../research/common/README.md): the machine-readable results format, with schema
+  version, protocol and run identifiers, per-observation states for non-success outcomes, confidence intervals, and
+  artifact hashes. Written in Polish.
+- [`AGENTS.md`](AGENTS.md): the engineering rules for contributions to `benchmarks/`, including official scorers,
+  failure states, golden checks for scoring changes, and disclosure of AI assistance.
 
-v2 does not import from, move, or modify `research/`. Results, the public frontend, and result feeds keep coming from
-`research/` until a later, separately reviewed cutover.
+## Results
 
-## Development
+- [Full run, November 2026](../research/results/full-run-2026-11/README.md): 15 benchmarks on full test sets for
+  8 open reference models and 9 development checkpoints of one 1B model under development, with standard errors,
+  statistical verdicts, and the settings of every run. Report written in Polish; an interactive view of the same
+  results is on [Hugging Face](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks).
+- [`research/results/`](../research/results/): all numbers used in reports, generated from raw outputs and checked
+  by an automated number gate.
 
-Requirements: Python 3.11 or newer and [uv](https://docs.astral.sh/uv/). No GPU, model weights, API keys, or large
-downloads are needed.
+## Getting started
+
+Clone the repository (or your fork):
 
 ```bash
-git clone https://github.com/slayerlabs/benchmarks-fabryka-ai.git   # or your fork
-cd benchmarks-fabryka-ai/benchmarks
+git clone https://github.com/slayerlabs/benchmarks-fabryka-ai.git
+cd benchmarks-fabryka-ai
+```
+
+The blocks below can run in any order. Each starts by moving into its directory from wherever you are inside the
+clone, so running them one after another works.
+
+**Test the evaluation code.** The lightweight tests need no GPU, weights, or network. This runs one of them; CI runs
+the full lightweight set listed in [`research-tests.yml`](../.github/workflows/research-tests.yml):
+
+```bash
+cd "$(git rev-parse --show-toplevel)/research"
+python -m pip install pytest numpy==2.0.2 scipy==1.13.1
+python -m pytest -q tests/test_statystyka.py
+```
+
+Running full evaluations needs model weights and the pinned environment described in
+[`research/README.md`](../research/README.md) (written in Polish).
+
+**Develop the `codesota` Python package** in `benchmarks/`. It is the home of new shared tooling and currently
+contains packaging, tests, and checks only; it does not run evaluations or provide a command-line interface yet.
+It needs Python 3.11+ and [uv](https://docs.astral.sh/uv/):
+
+```bash
+cd "$(git rev-parse --show-toplevel)/benchmarks"
 uv sync --locked
 uv run pytest
 uv run ruff format --check
@@ -77,21 +131,37 @@ uv run mypy
 uv build
 ```
 
-These are the same checks `CodeSOTA CI` runs on every pull request that touches this directory.
-
-Layout:
-
 ```
 benchmarks/
-├── src/codesota/   the package (version and type marker only, for now)
+├── src/codesota/   the package
 ├── tests/          deterministic tests; no network, GPU, or weights
-├── docs/           contributor and governance documentation
-├── AGENTS.md       rules for coding agents and the people supervising them
-└── pyproject.toml  package metadata and tool configuration; uv.lock pins the dev environment
+├── docs/           contributor, security, and governance documentation
+├── AGENTS.md       engineering rules for contributors and coding agents
+└── pyproject.toml  package metadata and tool configuration; uv.lock pins the environment
 ```
+
+## Contributing
+
+Contributions from researchers and developers are welcome. Work on the `codesota` package needs no access to
+private infrastructure; running full evaluations on rented machines or the project's model API is coordinated with
+the maintainers ([`research/METHODOLOGY.md`](../research/METHODOLOGY.md)).
+
+- [`docs/contributing.md`](docs/contributing.md): how to set up, choose a task, find official sources, prepare
+  reproducible evidence, and open a pull request.
+- [`AGENTS.md`](AGENTS.md): rules for coding agents and the people who supervise them.
+- [`docs/security-and-governance.md`](docs/security-and-governance.md): review roles, CI trust boundaries, and how
+  to report a security problem.
+- Pull requests use the [template](../.github/pull_request_template.md), checked automatically for structure.
+
+## Community
+
+CodeSOTA is maintained by the Benchmark Team of [Fabryka AI](https://fabryka.ai) in the
+[`slayerlabs`](https://github.com/slayerlabs) GitHub organization. Discussion happens in
+[issues](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues) and on
+[Discord](https://discord.gg/HnTkVR4c5T).
 
 ## License
 
-The repository has no license file yet. Choosing one is pending a decision by the project owners; until then,
-do not assume any license grants. Benchmark datasets, upstream harness code, model weights, and model outputs can
-carry their own terms, independent of the license chosen for CodeSOTA's code.
+The repository does not yet have a license; one is pending a decision by the project owners, and until then no
+license grant should be assumed. Benchmark datasets, upstream harness code, model weights, and model outputs carry
+their own terms, independent of CodeSOTA's code.

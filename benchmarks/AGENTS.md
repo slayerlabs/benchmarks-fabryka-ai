@@ -71,7 +71,7 @@ The person who opens a pull request is responsible for every line in it, whoever
 1. **Review the full diff against the base branch** (`git diff origin/main...HEAD`), not only your last change.
 2. **Remove everything unrelated to the problem:** stray formatting, debug output, experimental files, unrelated
    refactors.
-3. **Run the checks** from [`README.md`](README.md#development) and any tests of the area you changed.
+3. **Run the checks** from [`README.md`](README.md#getting-started) and any tests of the area you changed.
 4. **Report exact commands and actual outcomes** in the PR's "Validation" section. A test you did not run is
    listed as not run, with the reason. A run that collected no tests counts as not run.
 5. **Explain changes to behavior, schemas, compatibility, and results**, including "none" where that is the answer.

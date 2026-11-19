@@ -3,7 +3,7 @@
 # Every owner here must be a team or user with write access; .github/scripts/test_codeowners.py checks the list.
 # Rationale and pending steps: benchmarks/docs/security-and-governance.md, "Code owners".
 
-# CodeSOTA v2: ordinary benchmark work is reviewed by Benchmark Reviewers, not by the lead maintainers.
+# benchmarks/ (the codesota package): reviewed by Benchmark Reviewers, not by the lead maintainers.
 /benchmarks/ @slayerlabs/benchmark-reviewers
 
 # Pending, deliberately unowned until a core maintainers team exists (see the document above):

@@ -1,4 +1,4 @@
-"""Decide whether a pull request needs the CodeSOTA v2 test job (.github/workflows/codesota.yml).
+"""Decide whether a pull request needs the `codesota` package test job (.github/workflows/codesota.yml).
 
 Input on stdin: one changed file per line as `<filename>\t<previous_filename or empty>`, from
 `gh api --paginate repos/{repo}/pulls/{n}/files --jq '.[] | [.filename, (.previous_filename // "")] | @tsv'`.
@@ -25,7 +25,7 @@ def touches_v2(path: str) -> bool:
 
 def needs_tests(lines: list[str], changed_files: int) -> bool:
     if changed_files >= MAX_LISTED or len(lines) < changed_files:
-        return True  # incomplete listing: cannot prove v2 is untouched
+        return True  # incomplete listing: cannot prove benchmarks/ is untouched
     for line in lines:
         filename, _, previous = line.partition("\t")
         if touches_v2(filename) or (previous and touches_v2(previous)):

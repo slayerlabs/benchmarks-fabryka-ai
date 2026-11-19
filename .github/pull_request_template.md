@@ -3,7 +3,7 @@ Title: Conventional Commits in English, e.g. "fix(benchmarks): ..." or "docs: ..
 title and that each required section below has real content (HTML comments do not count).
 Trivial documentation fixes (title starting with "docs:" AND the "Documentation only" box ticked) need only:
 Problem, Result, Scope, and Related issue.
-Guides: benchmarks/docs/contributing.md (v2), CONTRIBUTING.md (research/).
+Guides: benchmarks/docs/contributing.md (benchmarks/), CONTRIBUTING.md (research/).
 -->
 
 ## Problem or current behavior
@@ -15,8 +15,8 @@ test, or a link). -->
 
 ## Scope
 <!-- Tick every area this PR changes. -->
-- [ ] `benchmarks/` (CodeSOTA v2)
-- [ ] `research/` (legacy pipeline)
+- [ ] `benchmarks/` (`codesota` package)
+- [ ] `research/` (benchmarks, results, research code)
 - [ ] `frontend-beta/`
 - [ ] Repository infrastructure (`.github/`, CI, policy)
 - [ ] Documentation only

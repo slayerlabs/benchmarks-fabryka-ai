@@ -1,6 +1,7 @@
 # Jak współtworzyć
 
-> Work in `benchmarks/` (CodeSOTA v2) follows [`benchmarks/docs/contributing.md`](benchmarks/docs/contributing.md) instead of this file.
+> Work in `benchmarks/` (the `codesota` package) follows [`benchmarks/docs/contributing.md`](benchmarks/docs/contributing.md)
+> instead of this file. This file covers `research/`.
 
 ## Kontakt
 
