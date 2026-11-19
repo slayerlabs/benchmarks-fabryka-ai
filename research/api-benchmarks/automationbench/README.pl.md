@@ -53,7 +53,7 @@ systemowego (wiadomości modelu, wywołania narzędzi i ich wyniki).
 - **Wywołania narzędzi zostawione w tekście.** W 10 z 600 zadań ostatnia wiadomość modelu zawiera wywołanie
   narzędzia zapisane jako tekst, którego parser narzędzi vLLM nie zamienił na wywołanie; harness traktuje ją jako
   odpowiedź końcową.
-- **Data.** Symulowane usługi działają według prawdziwego zegara (2026-11-19), a szablon czatu podaje modelowi
+- **Data.** Symulowane usługi działają według rzeczywistego zegara (2026-11-19), a szablon czatu podaje modelowi
   2026-11-18.
 - **Zapytania idą w partiach.** 16 zadań naraz; ten sam serwer vLLM obsługiwał w trakcie biegu także inne
   benchmarki.
