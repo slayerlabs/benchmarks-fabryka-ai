@@ -13,7 +13,7 @@ Komendy i środowisko obu przebiegów kontrolnych Pythii-1b (etap B) oraz przebi
 | dtype | float32 (Pythia), bf16 (Bielik) |
 | rozmiar batcha | 1 |
 | dekodowanie | zachłanne, 0-shot, bez szablonu czatu |
-| zbiór | `google/IFEval` @ `966cd89545d6b6acfd7638bc708b98261ca58e84`, split `train`, n = 541 |
+| zbiór | `google/IFEval@966cd89545d6b6acfd7638bc708b98261ca58e84`, split `train`, n = 541 |
 | seed | harness (python, numpy, torch, fewshot) = (0, 1234, 1234, 1234); bootstrap 20261028 |
 
 ## Przebieg 1: 1 BOS (protokół repo, `bench50-v0.3.1-fullB`)
