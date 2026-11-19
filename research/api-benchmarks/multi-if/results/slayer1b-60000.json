@@ -1,0 +1,43 @@
+{
+  "benchmark": "Multi-IF",
+  "model": "slayer1b-60000",
+  "metric": "mean over 3 turns of all-languages overall",
+  "score": null,
+  "stderr": null,
+  "n": 0,
+  "date": "2026-11-19",
+  "harness": "https://github.com/facebookresearch/Multi-IF @ 1cdb53ed18499ad729e0766e5d3099dd5344406f",
+  "data": "https://huggingface.co/datasets/facebook/Multi-IF @ 0ab97ce0b45c7f57772e8ba2ac1616f4b00bd3aa (multiIF_20241018.csv)",
+  "settings": {
+    "temperature": 0,
+    "max_tokens_per_turn": 1280,
+    "max_turns": 3,
+    "trials": 1,
+    "chat_template": false
+  },
+  "score_null_reason": "run stopped after 2 of 3 turns (compute budget); turn 3 ran at about 10 conversations per minute",
+  "other_metrics": {
+    "turn_1_prompts_number": 4501,
+    "turn_1_all_languages_overall": 23.65,
+    "turn_1_Italian_overall": 25.25,
+    "turn_1_Spanish_overall": 29.84,
+    "turn_1_Hindi_overall": 21.34,
+    "turn_1_Portuguese_overall": 26.81,
+    "turn_1_English_overall": 20.57,
+    "turn_1_French_overall": 24.09,
+    "turn_1_Chinese_overall": 26.2,
+    "turn_1_Russian_overall": 17.88,
+    "turn_2_prompts_number": 4501,
+    "turn_2_all_languages_overall": 15.82,
+    "turn_2_Italian_overall": 16.52,
+    "turn_2_Spanish_overall": 16.89,
+    "turn_2_Hindi_overall": 12.44,
+    "turn_2_Portuguese_overall": 16.69,
+    "turn_2_English_overall": 15.05,
+    "turn_2_French_overall": 17.71,
+    "turn_2_Chinese_overall": 22.42,
+    "turn_2_Russian_overall": 10.3
+  },
+  "other_metrics_note": "turns that finished, computed by the harness during the run, not re-scored",
+  "deviations": "see README.md, Deviations"
+}
