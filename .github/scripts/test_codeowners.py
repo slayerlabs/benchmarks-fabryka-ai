@@ -1,7 +1,12 @@
-"""CODEOWNERS names only owners verified to exist with write access, and only paths that exist.
+"""Static invariants of .github/CODEOWNERS. This is not a check of live permissions.
 
-GitHub silently ignores an owner it cannot resolve, so a typo or an invented team would leave a path unowned while the
-file suggests otherwise. Run: python3 -m unittest discover -s .github/scripts -p "test_codeowners.py"
+What this file can check offline: every rule has an owner, every owner is one recorded below as verified, owners are
+spelled as GitHub expects, and literal paths exist. What it cannot check: that the team still exists, still has write
+access, or has members, or that GitHub parses the file the same way. GitHub's own parser checks the first two and the
+syntax on every PR (`CODEOWNERS validation` job in .github/workflows/repo-checks.yml, via the codeowners/errors API).
+Whether an owner's approval is required at all is a ruleset setting, which neither check can see.
+
+Run: python3 -m unittest discover -s .github/scripts -p "test_codeowners.py"
 """
 
 import re
@@ -12,8 +17,9 @@ REPO = Path(__file__).resolve().parents[2]
 CODEOWNERS = REPO / ".github" / "CODEOWNERS"
 
 VERIFIED_OWNERS = {"@slayerlabs/benchmark-reviewers"}
-"""Checked with `gh api repos/slayerlabs/benchmarks-fabryka-ai/teams` on 2026-11-19: the team exists and has write
-("push") access. Add an owner here only in the same reviewed PR that verifies it the same way."""
+"""Recorded after `gh api repos/slayerlabs/benchmarks-fabryka-ai/teams` on 2026-11-19 showed the team with write
+("push") access. A new owner is added here in the same reviewed PR that adds it to CODEOWNERS, so adding an owner is
+always a visible, deliberate change."""
 
 
 def rules() -> list[tuple[str, list[str]]]:
@@ -32,7 +38,7 @@ class Codeowners(unittest.TestCase):
         for pattern, owners in rules():
             self.assertTrue(owners, f"{pattern} has no owner; leave unowned paths as comments instead")
 
-    def test_owners_are_verified(self) -> None:
+    def test_owners_are_recorded_as_verified(self) -> None:
         for pattern, owners in rules():
             self.assertLessEqual(set(owners), VERIFIED_OWNERS, pattern)
 
@@ -45,6 +51,11 @@ class Codeowners(unittest.TestCase):
         for pattern, _ in rules():
             if not re.search(r"[*?\[]", pattern):
                 self.assertTrue((REPO / pattern.strip("/")).exists(), pattern)
+
+    def test_live_validation_job_exists(self) -> None:
+        workflow = (REPO / ".github" / "workflows" / "repo-checks.yml").read_text(encoding="utf-8")
+        self.assertIn("codeowners/errors?ref=refs/pull/$PR/head", workflow)
+        self.assertIn('[ "$errors" = "[]" ]', workflow)
 
 
 if __name__ == "__main__":

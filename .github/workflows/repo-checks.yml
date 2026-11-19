@@ -1,0 +1,48 @@
+name: Repository checks
+# Tests of the repository scripts in .github/scripts (as changed by the PR) and GitHub's own validation of the PR's
+# CODEOWNERS file. This is contributor code under test, in a restricted runner: it is not the policy enforcement
+# itself, which runs from the base branch in pr-policy.yml.
+#
+# SECURITY: `pull_request` only; fork PRs get a read-only token and no secrets; no PR-controlled text is interpolated
+# into a shell; actions are pinned to commit SHAs.
+on:
+  pull_request:
+
+permissions: {}
+
+concurrency:
+  group: repo-checks-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  scripts:
+    name: Repository scripts tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Unit tests of .github/scripts
+        run: python3 -m unittest discover -s .github/scripts -p "test_*.py" -v
+
+  codeowners:
+    name: CODEOWNERS validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read # GET /repos/{owner}/{repo}/codeowners/errors
+    steps:
+      - name: Ask GitHub to parse the PR's CODEOWNERS
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          # GitHub's parser reports unknown owners, owners without write access, and syntax errors for a ref.
+          errors=$(gh api "repos/$REPO/codeowners/errors?ref=refs/pull/$PR/head" --jq '.errors')
+          echo "$errors"
+          [ "$errors" = "[]" ]

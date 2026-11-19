@@ -1,12 +1,20 @@
 name: PR policy
 # Structural check of the PR title and description (.github/scripts/pr_policy.py). It does not judge code quality.
 #
-# SECURITY: runs on `pull_request`, never `pull_request_target`: fork PRs get a read-only token and no secrets.
-# The title and body are untrusted; they reach the script only as environment variables and are never interpolated
-# into a shell command. The checkout is the PR's own version of the script, so this check is a contributor aid, not a
-# security control (benchmarks/docs/security-and-governance.md).
+# Why pull_request_target: on `pull_request`, the workflow definition itself comes from the PR, so a contributor could
+# edit this file or the checker and make "PR policy" pass. On `pull_request_target`, both the workflow definition and
+# the checked-out checker come from the PR's base branch; for PRs into `main` that is protected code. That is what
+# lets this check be trusted as a required status check.
+#
+# SECURITY (pull_request_target runs with the base repository's context, so the rules are strict):
+#   - never check out, build, or run anything from the PR head (no `ref: ...head...`, no PR artifacts or caches);
+#   - the only PR-controlled inputs are the title and body, passed as environment variables, never interpolated
+#     into a shell command;
+#   - no secrets are referenced; the token is read-only (`contents: read`) and not persisted by checkout;
+#   - only one file is checked out: the checker, from the base branch.
+# Tests of changes to the checker run separately, on `pull_request`, in repo-checks.yml.
 on:
-  pull_request:
+  pull_request_target: # zizmor: ignore[dangerous-triggers] -- runs base-branch code only, read-only token, no secrets
     types: [opened, edited, reopened, synchronize, ready_for_review]
 
 permissions: {}
@@ -16,34 +24,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  self-test:
-    name: PR policy self-test
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          sparse-checkout: |
-            .github
-            benchmarks
-      - name: Test the checker and CODEOWNERS
-        run: |
-          python3 -m unittest discover -s .github/scripts -p "test_pr_policy.py" -v
-          python3 -m unittest discover -s .github/scripts -p "test_codeowners.py" -v
-
   check:
     name: PR policy
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
-      contents: read
+      contents: read # check out the base branch's checker
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.event.pull_request.base.ref }}
           persist-credentials: false
-          sparse-checkout: .github/scripts
-      - name: Check title and description
+          sparse-checkout: .github/scripts/pr_policy.py
+          sparse-checkout-cone-mode: false
+      - name: Check title and description with the base branch's checker
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
           PR_BODY: ${{ github.event.pull_request.body }}

@@ -195,5 +195,38 @@ class CommandLine(unittest.TestCase):
         self.assertNotEqual(self.run_script("fix: x", FILLED, "12; rm -rf /").returncode, 0)
 
 
+WORKFLOWS = Path(__file__).resolve().parents[1] / "workflows"
+
+
+class PolicyWorkflowTrust(unittest.TestCase):
+    """pr-policy.yml must run the base branch's checker, never PR code (the PR controls `pull_request` workflows)."""
+
+    text = (WORKFLOWS / "pr-policy.yml").read_text(encoding="utf-8")
+
+    def test_runs_on_pull_request_target_only(self) -> None:
+        self.assertRegex(self.text, r"(?m)^  pull_request_target:")
+        self.assertNotRegex(self.text, r"(?m)^  pull_request:")
+
+    def test_checks_out_only_the_base_branch_checker(self) -> None:
+        self.assertIn("ref: ${{ github.event.pull_request.base.ref }}", self.text)
+        self.assertIn("sparse-checkout: .github/scripts/pr_policy.py", self.text)
+        self.assertIn("persist-credentials: false", self.text)
+
+    def test_no_head_code_secrets_or_write_permissions(self) -> None:
+        code = "\n".join(line.split("#", 1)[0] for line in self.text.splitlines())
+        for forbidden in ("head.sha", "head.ref", "head.repo", "refs/pull", "secrets.", ": write",
+                          "actions/cache", "download-artifact"):
+            self.assertNotIn(forbidden, code, forbidden)
+
+    def test_untrusted_text_only_through_env(self) -> None:
+        run_lines = [line for line in self.text.splitlines() if line.strip().startswith("run:")]
+        self.assertEqual(run_lines, ["        run: python3 .github/scripts/pr_policy.py"])
+
+    def test_no_other_workflow_uses_pull_request_target(self) -> None:
+        users = sorted(p.name for p in WORKFLOWS.glob("*.yml")
+                       if "pull_request_target" in p.read_text(encoding="utf-8").split("\non:", 1)[-1][:400])
+        self.assertEqual(users, ["pr-policy.yml"])
+
+
 if __name__ == "__main__":
     unittest.main()
