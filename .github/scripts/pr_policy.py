@@ -45,8 +45,6 @@ ISSUE = re.compile(r"\b(?:Refs|Closes|Fixes|Resolves):? #[1-9]\d*\b", re.IGNOREC
 NO_ISSUE = re.compile(r"^No issue: *(?!<)\S.{4,}", re.IGNORECASE | re.MULTILINE)
 CHECKED = re.compile(r"^\s*[-*] \[[xX]\] ", re.MULTILINE)
 DOCS_BOX = re.compile(r"^\s*[-*] \[[xX]\] Documentation only\b", re.MULTILINE)
-CODE_MARK = "[code]"
-"""What a code block or inline code span becomes: it still counts as content, but nothing inside it is structure."""
 
 
 @dataclass(frozen=True)
@@ -59,36 +57,50 @@ class Result:
         return not self.errors or not self.enforced
 
 
-def fence_marker(line: str) -> str | None:
-    """The fence characters (``` or ~~~, possibly longer) if the line opens or closes a fenced code block."""
-    stripped = line[: len(line) - len(line.lstrip(" "))]
-    if len(stripped) > 3:
+def indent(line: str) -> int:
+    return len(line) - len(line.lstrip(" "))
+
+
+def fence_opener(line: str) -> str | None:
+    """The fence (``` or ~~~, possibly longer) if the line opens a fenced code block, as in GitHub Flavored Markdown:
+    at most 3 spaces of indent, and a backtick fence's info string contains no backtick."""
+    if indent(line) > 3:
         return None
     rest = line.lstrip(" ")
     for ch in ("`", "~"):
         n = len(rest) - len(rest.lstrip(ch))
-        if n >= 3:
+        if n >= 3 and not (ch == "`" and "`" in rest[n:]):
             return ch * n
     return None
 
 
+def closes_fence(line: str, fence: str) -> bool:
+    """A closing fence: at most 3 spaces of indent, the same character at least as long as the opener, then spaces."""
+    rest = line.strip(" ")
+    return indent(line) <= 3 and len(rest) >= len(fence) and set(rest) == {fence[0]}
+
+
 def visible_lines(body: str) -> list[str]:
-    """The body's lines as GitHub would show them for structure: HTML comments removed (an unclosed one hides the rest),
-    fenced blocks and inline code replaced by CODE_MARK (an unclosed fence runs to the end). One linear pass, so no
-    input can make it slow."""
+    """The body's lines as GitHub would show them for structure, in one linear pass (no input can make it slow):
+
+    - HTML comments are removed. A comment that is not closed on its line hides the following lines only when it starts
+      the line, as an HTML block does; mid-line, an unclosed "<!--" is plain text.
+    - Code is kept as content but can never be structure: fenced block lines are indented by 4 spaces (so none is a
+      heading) and the fence lines themselves dropped; an unclosed fence runs to the end, as in GitHub. Inline code
+      keeps its text, and nothing inside it starts a comment.
+    """
     out: list[str] = []
     fence: str | None = None
     in_comment = False
     for line in body.replace("\r\n", "\n").replace("\r", "\n").split("\n"):
         if fence is not None:
-            marker = fence_marker(line)
-            if marker is not None and marker[0] == fence[0] and len(marker) >= len(fence) and not line.strip(" `~"):
+            if closes_fence(line, fence):
                 fence = None
-            out.append(CODE_MARK)
+            else:
+                out.append("    " + line if line.strip() else "")
             continue
-        if not in_comment and (marker := fence_marker(line)) is not None:
-            fence = marker
-            out.append(CODE_MARK)
+        if not in_comment and (opener := fence_opener(line)) is not None:
+            fence = opener
             continue
         kept, i = [], 0
         while i < len(line):
@@ -101,10 +113,15 @@ def visible_lines(body: str) -> list[str]:
                 continue
             tick, comment = line.find("`", i), line.find("<!--", i)
             if comment >= 0 and (tick < 0 or comment < tick):
-                kept.append(line[i:comment])
-                in_comment, i = True, comment + 4
+                starts_line = not line[:comment].strip() and indent(line) <= 3
+                if starts_line or line.find("-->", comment + 4) >= 0:
+                    kept.append(line[i:comment])
+                    in_comment, i = True, comment + 4
+                else:
+                    kept.append(line[i : comment + 4])
+                    i = comment + 4
             elif tick >= 0 and (close := line.find("`", tick + 1)) >= 0:
-                kept.append(line[i:tick] + CODE_MARK)
+                kept.append(line[i:close + 1])
                 i = close + 1
             else:
                 kept.append(line[i:])
@@ -175,9 +192,7 @@ def check_body(body: str, docs_only: bool) -> list[str]:
             if not CHECKED.search(text):
                 errors.append("Section 'Scope': tick at least one box.")
         elif name == "Related issue":
-            reason = NO_ISSUE.search(text)
-            if reason and is_placeholder(reason.group(0).split(":", 1)[1]):
-                reason = None
+            reason = any(not is_placeholder(m.group(0).split(":", 1)[1]) for m in NO_ISSUE.finditer(text))
             if not (ISSUE.search(text) or reason):
                 errors.append("Section 'Related issue': write 'Refs #<number>' (or 'Closes #<number>'), or "
                               "'No issue: <reason>'.")

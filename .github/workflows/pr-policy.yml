@@ -45,9 +45,15 @@ jobs:
           PR_BODY: ${{ github.event.pull_request.body }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          # Bootstrap only: before the PR that introduces the policy is merged, the default branch has no checker.
+          # Bootstrap only: before the PR that introduces the policy (#310) is merged, the default branch has no
+          # checker; that PR and older ones pass with a notice. For any later PR a missing checker is an error, so
+          # removing it from the default branch cannot silently turn the check off.
           if [ ! -f trusted/.github/scripts/pr_policy.py ]; then
-            echo "::notice::The default branch has no .github/scripts/pr_policy.py yet; nothing to enforce."
-            exit 0
+            if [ "$PR_NUMBER" -le 310 ]; then
+              echo "::notice::The default branch has no .github/scripts/pr_policy.py yet; nothing to enforce."
+              exit 0
+            fi
+            echo "::error::The default branch has no .github/scripts/pr_policy.py; the policy cannot be checked."
+            exit 1
           fi
           python3 trusted/.github/scripts/pr_policy.py

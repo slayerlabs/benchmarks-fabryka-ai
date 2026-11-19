@@ -97,6 +97,9 @@ class Verdict(unittest.TestCase):
             r = subprocess.run([sys.executable, C.__file__, "--verdict"], env=e, capture_output=True, text=True)
             self.assertEqual(r.returncode, code, r.stdout)
 
+    def test_push_runs_get_one_concurrency_group_per_commit(self) -> None:
+        self.assertIn("group: codesota-ci-${{ github.event.pull_request.number || github.sha }}", WORKFLOW)
+
     def test_every_job_has_a_timeout(self) -> None:
         self.assertEqual(WORKFLOW.count("timeout-minutes:"), WORKFLOW.count("runs-on:"))
 

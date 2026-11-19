@@ -154,6 +154,38 @@ class Body(unittest.TestCase):
     def test_issue_zero_is_not_a_reference(self) -> None:
         self.assertTrue(any("Related issue" in e for e in P.check_body(FILLED.replace("Refs #42", "Refs #0"), False)))
 
+    def test_empty_code_block_is_not_content(self) -> None:
+        # Review 3: an empty fenced block used to count as 20 characters of content.
+        body = FILLED.replace("Ran `python3 -m unittest discover -s .github/scripts`: 30 tests, OK.", "```\n\n```")
+        self.assertTrue(any("Validation" in e for e in P.check_body(body, False)))
+
+    def test_code_block_with_real_output_is_content(self) -> None:
+        body = FILLED.replace("Ran `python3 -m unittest discover -s .github/scripts`: 30 tests, OK.",
+                              "```\n$ python3 -m unittest discover -s .github/scripts\nRan 30 tests\nOK\n```")
+        self.assertEqual(P.check_body(body, False), [])
+
+    def test_unclosed_comment_mid_line_is_text(self) -> None:
+        # Review 3: "text <!-- note" mid-line hid every later section; GitHub shows it literally.
+        body = FILLED.replace("No migration required.", "No migration required. <!-- see the docs")
+        self.assertEqual(P.check_body(body, False), [])
+
+    def test_unclosed_comment_at_line_start_hides_the_rest(self) -> None:
+        body = FILLED.replace("## Validation", "<!-- draft\n## Validation")
+        self.assertTrue(any("Validation" in e for e in P.check_body(body, False)))
+
+    def test_mixed_fence_line_does_not_close_a_block(self) -> None:
+        body = FILLED.replace("No migration required.", "No migration required.\n```\n```~~~\n## Validation\nx\n```")
+        self.assertEqual(P.check_body(body, False), [])  # the real Validation section below still counts
+
+    def test_backtick_in_info_string_is_not_a_fence(self) -> None:
+        body = FILLED.replace("No migration required.", "No migration required. ```py`x")
+        body = body.replace("No migration required. ```py`x", "No migration required.\n```py`x")
+        self.assertEqual(P.check_body(body, False), [])
+
+    def test_a_later_no_issue_reason_counts(self) -> None:
+        body = FILLED.replace("Refs #42", "No issue: see above\nNo issue: a one-line typo fix in a comment")
+        self.assertEqual(P.check_body(body, False), [])
+
     def test_empty_body_fails(self) -> None:
         self.assertEqual(len(P.check_body("", False)), len(P.SECTIONS))
 
@@ -249,6 +281,11 @@ class PolicyWorkflowTrust(unittest.TestCase):
         self.assertIn("sparse-checkout: .github/scripts/pr_policy.py", self.code)
         self.assertIn("persist-credentials: false", self.code)
         self.assertEqual(self.code.count("actions/checkout@"), 1)
+
+    def test_bootstrap_pass_is_limited_to_the_bootstrap_pr(self) -> None:
+        # Review 3: without a limit, deleting the checker on main would make every later PR pass.
+        self.assertIn(f'[ "$PR_NUMBER" -le {P.FIRST_ENFORCED_PR} ]', self.code)
+        self.assertIn("::error::The default branch has no .github/scripts/pr_policy.py", self.code)
 
     def test_runs_the_trusted_copy_not_the_pr_copy(self) -> None:
         self.assertIn("python3 trusted/.github/scripts/pr_policy.py", self.code)

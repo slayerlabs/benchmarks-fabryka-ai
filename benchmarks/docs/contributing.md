@@ -83,6 +83,8 @@ A pull request that adds or changes an evaluation shows:
 - **Title:** [Conventional Commits](https://www.conventionalcommits.org/) in English, for example
   `feat(benchmarks): add GPQA Diamond integration` or `docs: fix setup command`.
 - **Description:** fill in every section of the [pull request template](../../.github/pull_request_template.md).
+  A trivial documentation fix (a `docs:` title and the "Documentation only" scope box ticked) needs only Problem,
+  Result, Scope, and Related issue.
   The `PR policy` check verifies the structure (not the quality) of the description.
 - **Issue reference:** `Refs #123` links an issue without closing it. Many issues here are closed through the project
   board, so use `Closes #123` only when merging the PR should close the issue. With no issue, write

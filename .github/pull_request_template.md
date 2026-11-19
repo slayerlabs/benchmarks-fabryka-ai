@@ -1,7 +1,8 @@
 <!--
 Title: Conventional Commits in English, e.g. "fix(benchmarks): ..." or "docs: ...". The PR policy check verifies the
 title and that each required section below has real content (HTML comments do not count).
-Trivial documentation fixes (title starting with "docs:") need only: Problem, Result, Scope, and Related issue.
+Trivial documentation fixes (title starting with "docs:" AND the "Documentation only" box ticked) need only:
+Problem, Result, Scope, and Related issue.
 Guides: benchmarks/docs/contributing.md (v2), CONTRIBUTING.md (research/).
 -->
 

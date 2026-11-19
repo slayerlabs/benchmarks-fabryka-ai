@@ -23,8 +23,9 @@ on:
 permissions: {}
 
 concurrency:
-  group: codesota-ci-${{ github.event.pull_request.number || github.ref }}
-  # Superseded PR runs are cancelled; runs on main are not, so every main commit keeps a completed result.
+  # One group per PR (a superseded run is cancelled) and one per pushed commit on main (never cancelled or dropped:
+  # GitHub keeps only one pending run per group, so a shared main group could skip commits).
+  group: codesota-ci-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
