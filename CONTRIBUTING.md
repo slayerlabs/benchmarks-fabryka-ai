@@ -1,5 +1,8 @@
 # Jak współtworzyć
 
+> Work in `benchmarks/` (the `codesota` package) follows [`benchmarks/docs/contributing.md`](benchmarks/docs/contributing.md)
+> instead of this file. This file covers `research/`.
+
 ## Kontakt
 
 Rozmawiamy na Discordzie, na kanale **#bench-team**: https://discord.gg/HnTkVR4c5T. Na start napisz tam do LoIlita
@@ -110,11 +113,10 @@ Pola zadania:
 
 ## How we write tasks
 
-A benchmark task is short. Title: the benchmark name. Body: which models to run, links to the
-[LFM3-1.7B model card](https://huggingface.co/LiquidAI/LFM3-1.7B), the [Fabryka AI API](https://fabryka.ai/platform)
-and [METHODOLOGY.md](research/METHODOLOGY.md), a note that compute is available on request, and an empty result
-table with one row per model. How to run the benchmark and which files to add belongs to the methodology, not the
-task.
+A benchmark task is short. Title: the benchmark name. Body: which models to run, a link to the reference with
+published scores and settings when there is one, links to the [Fabryka AI API](https://fabryka.ai/platform) and
+[METHODOLOGY.md](research/METHODOLOGY.md), a note that a machine is available on request, and an empty result table
+with one row per model. How to run the benchmark and what to deliver belongs to the methodology, not the task.
 
 ## Pliki w repo
 

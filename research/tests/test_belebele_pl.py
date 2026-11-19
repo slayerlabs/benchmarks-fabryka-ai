@@ -19,9 +19,10 @@ import test_zgodnosc_karty as ZK  # noqa: E402
 
 Z, M = C.Z, C.M
 LITERY = ["A", "B", "C", "D"]
+LINKI = ["L0", "L6", "L4", "L5", "L1", "L3", "L2"]  # keep the bank order below with the new `link` field
 DANE = [{"flores_passage": f"Fragment numer {i}.", "question": f"Pytanie {i}?", "mc_answer1": "jeden",
-         "mc_answer2": "dwa", "mc_answer3": "trzy", "mc_answer4": "cztery", "correct_answer_num": str(i % 4 + 1)}
-        for i in range(7)]
+         "mc_answer2": "dwa", "mc_answer3": "trzy", "mc_answer4": "cztery", "correct_answer_num": str(i % 4 + 1),
+         "link": LINKI[i]} for i in range(7)]
 BANK = [3, 4, 5, 0, 2]  # M.ranking_banku order of DANE (first 5); documents 1 and 6 are scored
 
 
@@ -38,6 +39,7 @@ def test_entry_matches_the_card():
                   "nazwa_hf": "pol_Latn", "split": "test", "metric": "acc,none", "task": "polish_belebele_mc",
                   "yaml": "belebele-pl/lm_eval_tasks/polish_belebele/belebele_mc.yaml"}
     assert {k: meta[k] for k in oczekiwane} == oczekiwane and ZK.shoty(meta) == 5
+    assert meta["klastry"] == "link"
     for k in ("repo", "rewizja", "nazwa_hf", "task"):
         assert oczekiwane[k] in karta, k
     assert "belebele_mc.yaml" in karta and "| Metryka decyzyjna | `acc` (pole `metric`" in karta

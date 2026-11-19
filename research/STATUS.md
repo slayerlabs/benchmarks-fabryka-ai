@@ -14,8 +14,8 @@ wiersz w tym samym PR.
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {'pie1': '#1a7f37', 'pie2': '#9a6700', 'pie3': '#bc4c00', 'pie4': '#6e7781', 'pieStrokeColor': '#ffffff', 'pieOuterStrokeWidth': '0px'}}}%%
 pie showData
-    "Gotowe" : 16
-    "W przebiegu, brak opisu" : 37
+    "Gotowe" : 23
+    "W przebiegu, brak opisu" : 30
     "Opisane, poza przebiegiem" : 2
     "Niezaczęte" : 29
 ```
@@ -28,7 +28,7 @@ i `KATALOGI` · ✓ jest · ✗ brak
 
 <a name="gotowe"></a>
 
-## ✅ Gotowe · 16
+## ✅ Gotowe · 23
 
 Każdy ma A, B, wpis w przebiegu, `RECIPE.md`, wiersz w [README, „Benchmarki i typy”](README.md#benchmarki-i-typy) i
 test `tests/test_<name>.py`.
@@ -46,6 +46,13 @@ test `tests/test_<name>.py`.
 | [LAMBADA](benchmarks/lambada/README.md) | T17 | ✓ | ✓ | ✓ | kontrola Pythia v0: spełniony, pełny przebieg 2026-11 |
 | [MathQA](benchmarks/mathqa/README.md) | T19 | ✓ | bez kontroli | ✓ | Slayer na poziomie bazy większościowej |
 | [PolEmo 2.0 (in-domain)](benchmarks/polemo2/README.md) | T22 | ✓ | kontrola `+pl` | ✓ | bez kandydata z opublikowanym wynikiem; model znający polski (Bielik-1.5B-v3, zapas EuroLLM-1.7B), werdykt po przebiegu centralnym (#166) |
+| [8TAGS](benchmarks/8tags/README.md) | T23 | ✓ | kontrola `+pl` | ✓ | bez kandydata z opublikowanym wynikiem; model znający polski (Bielik-1.5B-v3, zapas EuroLLM-1.7B), werdykt po przebiegu centralnym (#167) |
+| [Belebele](benchmarks/belebele-pl/README.md) | T24 | ✓ | kontrola `+pl` | ✓ | kontrola `+pl` (Bielik-1.5B-v3, porównanie parowane z b, SE K po fragmentach `link`), werdykt po przebiegu centralnym (#168) |
+| [DYK](benchmarks/dyk/README.md) | T25 | ✓ | kontrola `+pl` | ✓ | kontrola `+pl` (model znający polski: F1 > b + 2 SE), werdykt po przebiegu centralnym (#169); F1 a skłonność do „Tak”: #157 |
+| [PPC](benchmarks/ppc/README.md) | T26 | ✓ | kontrola `+pl` | ✓ | bez kandydata z opublikowanym wynikiem; model znający polski (Bielik-1.5B-v3; EuroLLM-1.7B odpada, 35,6 < b), werdykt po przebiegu centralnym (#170) | <!-- liczba-spoza-wynikow: eksport all_data.json z 2026-11-18, SHA-256 68cc602c56518b6127d463da5b2af3847ffaad203855b74d6ded050e80fb96ec -->
+| [PSC](benchmarks/psc/README.md) | T27 | ✓ | kontrola `+pl` | ✓ | bez kandydata z opublikowanym wynikiem; model znający polski Bielik-11B-v3.1-Instruct (Bielik-1.5B-v3 i EuroLLM-1.7B pod b na leaderboardzie), bez zapasu, F1 parowane po klastrach `extract_text`, werdykt po przebiegu centralnym (#222) |
+| [CBD](benchmarks/cbd/README.md) | T28 | ✓ | kontrola `+pl` | ✓ | bez kandydata z opublikowanym wynikiem; model znający polski (Bielik-1.5B-v3, bez zapasu: EuroLLM-1.7B pod b na leaderboardzie), makro-F1 parowane ze stałą „nieszkodliwa”, SE po klastrach `TEXT`, werdykt po przebiegu centralnym (#223) |
+| [NKJP-NER (KLEJ)](benchmarks/klej-ner/README.md) | T29 | ✓ | kontrola `+pl` | ✓ | bez kandydata z opublikowanym wynikiem; model znający polski Bielik-11B-v3.1-Instruct, bez zapasu (Bielik-1.5B-v3 i EuroLLM-1.7B mają na leaderboardzie wynik pod b), werdykt po przebiegu centralnym (#224) |
 | [PubMedQA](benchmarks/pubmedqa/README.md) | T44 | ✓ | bez kontroli | ✓ | Slayer pod b, prompt i mapowanie sprawdzone ([werdykt](benchmarks/pubmedqa/REPRODUCTION.md#werdykt-sprawdzenia)) |
 | [MedMCQA](benchmarks/medmcqa/README.md) | T45 | ✓ | bez kontroli | ✓ | ⚠️ [do sprawdzenia](#do-sprawdzenia) |
 | [Social IQa](benchmarks/social-iqa/README.md) | T46 | ✓ | bez kontroli | ✓ | Slayer nad b, pod czterema modelami odniesienia |
@@ -54,17 +61,17 @@ test `tests/test_<name>.py`.
 
 <a name="brak-opisu"></a>
 
-## 🟡 W przebiegu, brak opisu · 37
+## 🟡 W przebiegu, brak opisu · 30
 
 Wpis w przebiegu jest. Brakuje karty (A), zapisu kontroli (B) albo testu `tests/test_<name>.py`; w wierszu „tylko B”
 test jest, w wierszu „B i test” jest karta A, w wierszach „A i B” brakuje też testu. Po zamknięciu karty automat zakłada zadanie B.
 
 | brakuje | benchmarki |
 |---|---|
-| tylko B | [BoolQ](benchmarks/boolq/) T10 #26 · [OpenBookQA](benchmarks/openbookqa/) T08 #31 · [SciQ](benchmarks/sciq/) T09 #30 · [BLiMP Supplement](benchmarks/blimp-supplement/README.md) T52 #33 · [COPA](benchmarks/copa/) T11 #105 · [8TAGS](benchmarks/8tags/) T23 #114 · [Belebele](benchmarks/belebele-pl/) T24 #115 · [DYK](benchmarks/dyk/) T25 #116 · [PPC](benchmarks/ppc/) T26 #117 · [LogiQA](benchmarks/logiqa/README.md) T18 #19 · [LLMzSzŁ](benchmarks/llmzszl/ORIGINAL.md) T37 #127 (B „bez kontroli”, kontrola `+pl`; kolumna informacyjna) |
+| tylko B | [BoolQ](benchmarks/boolq/) T10 #26 · [OpenBookQA](benchmarks/openbookqa/) T08 #31 · [SciQ](benchmarks/sciq/) T09 #30 · [BLiMP Supplement](benchmarks/blimp-supplement/README.md) T52 #33 · [LogiQA](benchmarks/logiqa/README.md) T18 #19 · [LLMzSzŁ](benchmarks/llmzszl/ORIGINAL.md) T37 #127 (B „bez kontroli”, kontrola `+pl`; kolumna informacyjna) |
 | B i test | [ANLI](benchmarks/anli-r3/ORIGINAL.md) T16 #110 · [IFEval](benchmarks/ifeval/ORIGINAL.md) T36 #40 · [SQuAD 2.0](benchmarks/squad2/ORIGINAL.md) T38 #128 · [DROP](benchmarks/drop/ORIGINAL.md) T39 #129 · [CoQA](benchmarks/coqa/ORIGINAL.md) T41 #131 · [BBH](benchmarks/bbh/ORIGINAL.md) T47 #135 · [PAWS](benchmarks/paws-en/ORIGINAL.md) T48 #136 |
 | A i B, angielskie | CB T12 #106 · WiC T13 #107 · RTE T15 #109 · PROST T20 #111 · SST-2 T21 #112 · MMLU T32 #123 · GSM8K T33 #124 · MATH T34 #125 (PR #141) · TruthfulQA T35 #126 · RACE T40 #130 · NQ-Open T42 #132 · TriviaQA T43 #133 · CoLA T49 #137 · ReCoRD T50 #138 |
-| A i B, polskie | PSC T27 #118 · CBD T28 #119 · NKJP-NER T29 #120 · PolQA T30 #121 · PoQuAD T31 #122 |
+| A i B, polskie | PolQA T30 #121 · PoQuAD T31 #122 |
 
 Każdy z tych katalogów ma `README.md` i `RECIPE.md` ze zbiorem, rewizją, splitem, metryką i licencją.
 

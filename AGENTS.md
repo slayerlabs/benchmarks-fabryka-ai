@@ -1,5 +1,8 @@
 # AGENTS.md
 
+> Work in `benchmarks/` (the `codesota` package) follows [`benchmarks/AGENTS.md`](benchmarks/AGENTS.md) instead of this
+> file. This file covers `research/`.
+
 Krótki opis repo dla każdego, kto pisze tu kod. Szczegóły są w [`README.md`](README.md),
 [`research/README.md`](research/README.md) i [`research/METHODOLOGY.md`](research/METHODOLOGY.md).
 
@@ -11,7 +14,7 @@ Układ katalogów opisuje [`research/README.md`, „Układ”](research/README.m
 ## Gdzie co dodać
 
 - New benchmark: directory `research/api-benchmarks/<name>/` with the files and formats from
-  `research/METHODOLOGY.md`. Benchmarks in `research/benchmarks/` (the earlier lm-eval run) follow `research/METODOLOGIA.md`.
+  `research/METHODOLOGY.md`. Benchmarks in `research/benchmarks/` (evaluated with lm-eval) follow `research/METODOLOGIA.md`.
 - Analiza na wielu benchmarkach: `research/analyses/<name>/`.
 - Kod trafia do `research/common/` tylko wtedy, gdy używa go więcej niż jeden benchmark. Inaczej zostaje w katalogu
   benchmarku.

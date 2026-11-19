@@ -392,7 +392,7 @@ def test_f1_corpus_for_openpl_mc_tasks():
 # --- Belebele (T24): demonstrations from the only split, never scored (METODOLOGIA "Przykłady few-shot") ---
 
 BELEBELE = [{"flores_passage": f"P{i}", "question": f"Q{i}?", "mc_answer1": "a", "mc_answer2": "b",
-             "mc_answer3": "c", "mc_answer4": "d", "correct_answer_num": "1"} for i in range(8)]
+             "mc_answer3": "c", "mc_answer4": "d", "correct_answer_num": "1", "link": f"L{i}"} for i in range(8)]
 
 
 @pytest.mark.parametrize("probka, n_populacji, n_ocenianych", [("pelna", 3, 3), ("2", 8, 2)])
@@ -568,13 +568,15 @@ def test_random_f1_baseline_uses_all_options_cbd():
     _, cfg = Z.konfiguracje("T28", "lokalne")[0]
     assert len(cfg["doc_to_choice"]) == 6
 
-    def probka(pred, gold):
+    def probka(pred, gold, n):
         konty = [" " + c for c in cfg["doc_to_choice"]]
-        return {"arguments": [("q", c) for c in konty] + [("", c) for c in konty], "target": gold, "doc": {},
+        # T28 clusters by `TEXT` (#276): one text per sample, so every cluster has one question
+        return {"arguments": [("q", c) for c in konty] + [("", c) for c in konty], "target": gold,
+                "doc": {"TEXT": f"tekst {n}"},
                 "filtered_resps": [(0.0 if i == pred else -1.0, False) for i in range(6)] + [(0.0, False)] * 6}
 
     zlote = [g for g in range(6) for _ in range(10)]
-    probki = [probka(g if i % 2 else (g + 1) % 6, g) for i, g in enumerate(zlote)]
+    probki = [probka(g if i % 2 else (g + 1) % 6, g, i) for i, g in enumerate(zlote)]
     d = E.podsumuj_wariant(Z.ZADANIA["T28"], [("polish_cbd_multiple_choice", cfg, SimpleNamespace(eval_docs=zlote),
                                                probki)])
     from sklearn.metrics import f1_score

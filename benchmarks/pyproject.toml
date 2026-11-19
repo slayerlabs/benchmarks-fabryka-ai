@@ -1,0 +1,45 @@
+[project]
+name = "codesota"
+version = "0.1.0.dev0"
+description = "CodeSOTA: reproducible evaluation for language models and AI agents (pre-alpha package)."
+readme = "README.md"
+requires-python = ">=3.11"
+# No runtime dependencies yet: the package holds no evaluation code. Add a dependency only together with the code
+# that needs it (benchmarks/AGENTS.md, "No unjustified dependencies").
+dependencies = []
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Programming Language :: Python :: 3",
+  "Private :: Do Not Upload",
+]
+
+[dependency-groups]
+dev = [
+  "mypy>=1.13",
+  "pytest>=8.3",
+  "ruff>=0.8",
+]
+
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/codesota"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-p", "no:cacheprovider", "--strict-markers"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.mypy]
+strict = true
+files = ["src", "tests"]
+mypy_path = "src"

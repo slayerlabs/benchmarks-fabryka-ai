@@ -415,7 +415,7 @@ Precyzja to float32, a bfloat16 tylko wtedy, gdy źródło wyniku liczyło w bf1
 | model | rewizja | testy | uwagi |
 |---|---|---|---|
 | `bigscience/bloom-560m` | `e985a63cdc139290c5f700ff1929f0b5942cced2` | T20 | rewizja z daty; inna niż kontrola WSC273 |
-| `bigscience/bloom-1b7` | `258ce6c9fe66893de0218d9e6a322947987c8349` | T38, T40, T41 | rewizja z daty |
+| `bigscience/bloom-1b7` | `258ce6c9fe66893de0218d9e6a322947987c8349` | T11, T38, T40, T41 | rewizja z daty |
 | `EleutherAI/pythia-1b` | `f73d7dcc545c8bd326d8559c8ef84ffe92fea6b2` | T36 | nie `pythia-1b-v0` |
 | `Qwen/Qwen1.5-7B` | `e52fa2ef47411cc8bc9f752d1d8d9072b37742e7` | T35 | bfloat16: wynik źródła liczony w bf16, a float32 (ok. 31 GB) nie mieści się na karcie 32 GB |
 | `babylm/babyllama-10m-2024` | `073b4258651a7a6268fc48e708cdbad6a20bddab` | T52 | rewizja z daty |

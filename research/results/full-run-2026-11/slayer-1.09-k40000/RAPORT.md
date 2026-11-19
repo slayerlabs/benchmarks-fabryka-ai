@@ -1,8 +1,8 @@
-# Slayer 1B 1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny: porównanie z 1.08 na 15 testach
+# Slayer 1B 1.09, krok 40 000 (~67 mld tokenów), trening w toku, wynik wstępny: porównanie z 1.08 na 15 testach
 
 <!-- Plik wygenerowany przez code/raport_md.py z LICZBY.json. Nie edytuj ręcznie. -->
 
-Etykieta: **1.09, krok 40 000 (~61 mld), trening w toku, wynik wstępny**. Checkpoint w trakcie treningu, nie wersja przyjęta i nie następca 1.08; porównanie nie mówi nic o modelu końcowym 1.09. Protokół: [`PROTOKOL.md`](PROTOKOL.md).
+Etykieta: **1.09, krok 40 000 (~67 mld tokenów), trening w toku, wynik wstępny**. Checkpoint w trakcie treningu, kontynuacja 1.08, jeszcze nie wydana wersja; porównanie nie mówi nic o modelu końcowym 1.09. Protokół: [`PROTOKOL.md`](PROTOKOL.md).
 
 ## Główne twierdzenie
 

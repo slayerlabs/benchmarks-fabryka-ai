@@ -1,0 +1,278 @@
+{
+ "dataset": "EleutherAI/hendrycks_math@21a5633873b6a120296cce3e2df9d5550074f4a3",
+ "split": "test",
+ "lm_eval_version": "0.4.9.1",
+ "lm_eval_utils_sha256": "8332e42f23c62043b23d74ee6d3934f997b209cd60a1ad45b7882d6b00929d5c",
+ "n": 5000,
+ "weights": {
+  "algebra": 0.2374,
+  "counting_and_probability": 0.0948,
+  "geometry": 0.0958,
+  "intermediate_algebra": 0.1806,
+  "number_theory": 0.108,
+  "prealgebra": 0.1742,
+  "precalculus": 0.1092
+ },
+ "subjects": {
+  "algebra": {
+   "task": "hendrycks_math_algebra",
+   "n": 1187,
+   "levels": {
+    "Level 1": 135,
+    "Level 2": 201,
+    "Level 3": 261,
+    "Level 4": 283,
+    "Level 5": 307
+   },
+   "types": {
+    "Algebra": 1187
+   },
+   "empty_answer": 0.0,
+   "empty_answer_hits": 0,
+   "most_frequent_gold": "2",
+   "most_frequent_gold_count": 50,
+   "most_frequent_gold_score": 0.04212299915754002,
+   "most_frequent_gold_hits": 50,
+   "constant": 0.04212299915754002
+  },
+  "counting_and_probability": {
+   "task": "hendrycks_math_counting_and_prob",
+   "n": 474,
+   "levels": {
+    "Level 1": 39,
+    "Level 2": 101,
+    "Level 3": 100,
+    "Level 4": 111,
+    "Level 5": 123
+   },
+   "types": {
+    "Counting & Probability": 474
+   },
+   "empty_answer": 0.0,
+   "empty_answer_hits": 0,
+   "most_frequent_gold": "12",
+   "most_frequent_gold_count": 12,
+   "most_frequent_gold_score": 0.02531645569620253,
+   "most_frequent_gold_hits": 12,
+   "constant": 0.02531645569620253
+  },
+  "geometry": {
+   "task": "hendrycks_math_geometry",
+   "n": 479,
+   "levels": {
+    "Level 1": 38,
+    "Level 2": 82,
+    "Level 3": 102,
+    "Level 4": 125,
+    "Level 5": 132
+   },
+   "types": {
+    "Geometry": 479
+   },
+   "empty_answer": 0.0,
+   "empty_answer_hits": 0,
+   "most_frequent_gold": "3",
+   "most_frequent_gold_count": 13,
+   "most_frequent_gold_score": 0.027139874739039668,
+   "most_frequent_gold_hits": 13,
+   "constant": 0.027139874739039668
+  },
+  "intermediate_algebra": {
+   "task": "hendrycks_math_intermediate_algebra",
+   "n": 903,
+   "levels": {
+    "Level 1": 52,
+    "Level 2": 128,
+    "Level 3": 195,
+    "Level 4": 248,
+    "Level 5": 280
+   },
+   "types": {
+    "Intermediate Algebra": 903
+   },
+   "empty_answer": 0.0,
+   "empty_answer_hits": 0,
+   "most_frequent_gold": "2",
+   "most_frequent_gold_count": 34,
+   "most_frequent_gold_score": 0.03765227021040975,
+   "most_frequent_gold_hits": 34,
+   "constant": 0.03765227021040975
+  },
+  "number_theory": {
+   "task": "hendrycks_math_num_theory",
+   "n": 540,
+   "levels": {
+    "Level 1": 30,
+    "Level 2": 92,
+    "Level 3": 122,
+    "Level 4": 142,
+    "Level 5": 154
+   },
+   "types": {
+    "Number Theory": 540
+   },
+   "empty_answer": 0.0,
+   "empty_answer_hits": 0,
+   "most_frequent_gold": "2",
+   "most_frequent_gold_count": 24,
+   "most_frequent_gold_score": 0.044444444444444446,
+   "most_frequent_gold_hits": 24,
+   "constant": 0.044444444444444446
+  },
+  "prealgebra": {
+   "task": "hendrycks_math_prealgebra",
+   "n": 871,
+   "levels": {
+    "Level 1": 86,
+    "Level 2": 177,
+    "Level 3": 224,
+    "Level 4": 191,
+    "Level 5": 193
+   },
+   "types": {
+    "Prealgebra": 871
+   },
+   "empty_answer": 0.0,
+   "empty_answer_hits": 0,
+   "most_frequent_gold": "8",
+   "most_frequent_gold_count": 23,
+   "most_frequent_gold_score": 0.02640642939150402,
+   "most_frequent_gold_hits": 23,
+   "constant": 0.02640642939150402
+  },
+  "precalculus": {
+   "task": "hendrycks_math_precalc",
+   "n": 546,
+   "levels": {
+    "Level 1": 57,
+    "Level 2": 113,
+    "Level 3": 127,
+    "Level 4": 114,
+    "Level 5": 135
+   },
+   "types": {
+    "Precalculus": 546
+   },
+   "empty_answer": 0.0,
+   "empty_answer_hits": 0,
+   "most_frequent_gold": "1",
+   "most_frequent_gold_count": 14,
+   "most_frequent_gold_score": 0.02564102564102564,
+   "most_frequent_gold_hits": 14,
+   "constant": 0.02564102564102564
+  }
+ },
+ "bases": {
+  "random": 0.0,
+  "constant": 0.034,
+  "b": 0.034
+ },
+ "paper_table2": {
+  "GPT-2 0.1B": {
+   "average_reported": 5.4,
+   "size_weighted": 5.43914,
+   "unweighted": 5.371428571428571
+  },
+  "GPT-2 0.3B": {
+   "average_reported": 6.2,
+   "size_weighted": 6.20816,
+   "unweighted": 6.085714285714285
+  },
+  "GPT-2 0.7B": {
+   "average_reported": 6.4,
+   "size_weighted": 6.40148,
+   "unweighted": 6.4714285714285715
+  },
+  "GPT-2 1.5B": {
+   "average_reported": 6.9,
+   "size_weighted": 6.84414,
+   "unweighted": 6.9
+  },
+  "GPT-3 13B*": {
+   "average_reported": 3.0,
+   "size_weighted": 2.9591,
+   "unweighted": 2.9285714285714284
+  },
+  "GPT-3 13B": {
+   "average_reported": 5.6,
+   "size_weighted": 5.58782,
+   "unweighted": 5.614285714285714
+  },
+  "GPT-3 175B*": {
+   "average_reported": 5.2,
+   "size_weighted": 5.21492,
+   "unweighted": 4.9
+  }
+ },
+ "paper_average_check": {
+  "rows": 7,
+  "size_weighted_within_0_05": 6,
+  "unweighted_within_0_05": 3
+ },
+ "snr": {
+  "source": "Qwen2.5 technical report, table 5, MATH 4-shot",
+  "models": {
+   "Qwen/Qwen2-0.5B": 0.11199999999999999,
+   "Qwen/Qwen2.5-0.5B": 0.195,
+   "Qwen/Qwen2-1.5B": 0.21600000000000003,
+   "Qwen/Qwen2.5-1.5B": 0.35,
+   "google/gemma-2-2b": 0.183
+  },
+  "excluded": {
+   "Qwen/Qwen2.5-3B": 3085938688
+  },
+  "sd": 0.08687174454332088,
+  "sd_ddof0": 0.07770045044914475,
+  "p_bar": 0.2112,
+  "se_full": 0.005772253632681086,
+  "ratio": 15.049883472111194
+ },
+ "snr_paper_gpt2": {
+  "models": {
+   "GPT-2 0.7B": 0.064,
+   "GPT-2 1.5B": 0.069
+  },
+  "se_full": {
+   "GPT-2 0.7B": 0.0034591805156713056,
+   "GPT-2 1.5B": 0.00356540977168123
+  },
+  "sd": 0.0035355339059327407,
+  "ratio": 1.0066164036067167
+ },
+ "mde": {
+  "at_p_bar_snr": {
+   "full": {
+    "p": 0.2112,
+    "n": 5000,
+    "se_one": 0.005772253632681086,
+    "se_diff": 0.008163199372794958,
+    "mde": 0.02318348621873768
+   },
+   "panel200": {
+    "p": 0.2112,
+    "n": 200,
+    "se_one": 0.02886126816340543,
+    "se_diff": 0.04081599686397479,
+    "mde": 0.1159174310936884
+   }
+  },
+  "at_paper_gpt2_1_5b": {
+   "full": {
+    "p": 0.069,
+    "n": 5000,
+    "se_one": 0.0035843827920577906,
+    "se_diff": 0.005069082757264869,
+    "mde": 0.014396195030632228
+   },
+   "panel200": {
+    "p": 0.069,
+    "n": 200,
+    "se_one": 0.017921913960288954,
+    "se_diff": 0.025345413786324347,
+    "mde": 0.07198097515316115
+   }
+  },
+  "z_threshold": 2.0,
+  "z_power": 0.84
+ }
+}
