@@ -5,7 +5,8 @@ Which guide applies depends on where your change goes:
 | You are changing | Follow |
 |---|---|
 | `benchmarks/`: the `codesota` package, its tests and docs | this guide and [`../AGENTS.md`](../AGENTS.md) |
-| `research/`: existing benchmarks, results, research code | the root [`CONTRIBUTING.md`](../../CONTRIBUTING.md) and [`research/METHODOLOGY.md`](../../research/METHODOLOGY.md) |
+| `research/benchmarks/`: benchmarks evaluated with lm-eval, results, research code | the root [`CONTRIBUTING.md`](../../CONTRIBUTING.md) and [`research/METODOLOGIA.md`](../../research/METODOLOGIA.md) (Polish) |
+| a new benchmark run through a model API, in `research/api-benchmarks/<name>/` (the first such PR creates the directory) | [`research/METHODOLOGY.md`](../../research/METHODOLOGY.md) |
 
 If your change touches both, follow both. The `codesota` package does not run evaluations yet (see
 [Getting started](../README.md#getting-started)), so most useful contributions to it right now are small: improving
@@ -13,7 +14,7 @@ the package foundation and these documents, or proposing its first evaluation in
 
 ## 1. Fork, clone, and set up
 
-You do not need access to any private infrastructure, chat, or credentials to contribute.
+You do not need access to any private infrastructure, chat, or credentials to work on the `codesota` package.
 
 ```bash
 # Fork slayerlabs/benchmarks-fabryka-ai on GitHub, then:

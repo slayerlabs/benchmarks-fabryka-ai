@@ -14,7 +14,7 @@ Układ katalogów opisuje [`research/README.md`, „Układ”](research/README.m
 ## Gdzie co dodać
 
 - New benchmark: directory `research/api-benchmarks/<name>/` with the files and formats from
-  `research/METHODOLOGY.md`. Benchmarks in `research/benchmarks/` (the earlier lm-eval run) follow `research/METODOLOGIA.md`.
+  `research/METHODOLOGY.md`. Benchmarks in `research/benchmarks/` (evaluated with lm-eval) follow `research/METODOLOGIA.md`.
 - Analiza na wielu benchmarkach: `research/analyses/<name>/`.
 - Kod trafia do `research/common/` tylko wtedy, gdy używa go więcej niż jeden benchmark. Inaczej zostaje w katalogu
   benchmarku.

@@ -26,9 +26,10 @@ revisions, and a run that failed for infrastructure reasons can look like a mode
 these as engineering problems:
 
 - **Official implementations, pinned.** Benchmarks run through their official harness and scorer at fixed commits,
-  on dataset revisions recorded with every result.
-- **Reproduce before you measure.** A benchmark is checked against a published reference result before its numbers
-  are used.
+  on dataset revisions recorded with every result. Where no official implementation can be used, the deviation and
+  its reason are recorded with the benchmark.
+- **Reproduce before you compare.** A benchmark's results enter comparison tables only after a published reference
+  result has been reproduced, or after the benchmark is documented as having no reference to reproduce.
 - **Explicit failures, not misleading zeros.** A run that failed, or a model that cannot run an evaluation, is
   recorded as such.
 - **Uncertainty with every comparison.** Scores come with standard errors, and differences between models with a
@@ -39,8 +40,9 @@ these as engineering problems:
 ## Evaluation domains
 
 The repository holds evaluation code, reference documentation, and results for benchmarks across these areas.
-Completeness varies by benchmark (some are fully reproduced against a reference, some are integrated but not yet
-documented); [`research/STATUS.md`](../research/STATUS.md) tracks each one.
+Completeness varies by benchmark: some are documented and reproduced against a reference, others are integrated
+into the evaluation run but not yet documented. [`research/STATUS.md`](../research/STATUS.md) tracks each one
+(written in Polish).
 
 | Domain | Benchmarks in the repository |
 |---|---|
@@ -58,36 +60,37 @@ the original benchmark, and, where done, a reproduction report.
 
 ## Methodology and reproducibility
 
-- [`research/METHODOLOGY.md`](../research/METHODOLOGY.md): what a well-done benchmark result contains (sources,
-  settings, machine-readable results, per-question outputs, deviations) and when it counts as done.
-- [`research/METODOLOGIA.md`](../research/METODOLOGIA.md): the full protocol behind the existing benchmarks:
-  reproduction against references, test types, baselines, standard errors and verdicts, and the central run that
-  evaluates every model with the same settings. Written in Polish.
+- [`research/METODOLOGIA.md`](../research/METODOLOGIA.md): the full protocol behind the benchmarks in
+  `research/benchmarks/`: reproduction against references, test types, baselines, standard errors and verdicts, and
+  the central run that evaluates every model with the same settings. Written in Polish.
+- [`research/METHODOLOGY.md`](../research/METHODOLOGY.md): how a benchmark run through a model API is documented:
+  sources, settings, machine-readable results, per-question outputs, deviations, and when it counts as done.
 - [`research/common/README.md`](../research/common/README.md): the machine-readable results format, with schema
   version, protocol and run identifiers, per-observation states for non-success outcomes, confidence intervals, and
   artifact hashes. Written in Polish.
-- [`AGENTS.md`](AGENTS.md): the engineering rules every contribution follows, including official scorers, failure
-  states, golden checks for scoring changes, and disclosure of AI assistance.
+- [`AGENTS.md`](AGENTS.md): the engineering rules for contributions to `benchmarks/`, including official scorers,
+  failure states, golden checks for scoring changes, and disclosure of AI assistance.
 
 ## Results
 
-- [Full run, November 2026](../research/results/full-run-2026-11/README.md): 17 open models on 15 benchmarks, full
-  test sets, with standard errors, statistical verdicts, and the settings of every run. Report written in Polish.
+- [Full run, November 2026](../research/results/full-run-2026-11/README.md): 15 benchmarks on full test sets for
+  8 open reference models and 9 development checkpoints of one 1B model under development, with standard errors,
+  statistical verdicts, and the settings of every run. Report written in Polish; an interactive view of the same
+  results is on [Hugging Face](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks).
 - [`research/results/`](../research/results/): all numbers used in reports, generated from raw outputs and checked
   by an automated number gate.
-- [Results viewer on Hugging Face](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks): an interactive view
-  of results for the Slayer 1B model family.
 
 ## Getting started
 
-Clone the repository (or your fork):
+Clone the repository (or your fork). Each block below starts from the repository root.
 
 ```bash
 git clone https://github.com/slayerlabs/benchmarks-fabryka-ai.git
 cd benchmarks-fabryka-ai
 ```
 
-**Run the benchmark test suite.** The lightweight tests of the evaluation code need no GPU, weights, or network:
+**Test the evaluation code.** The lightweight tests need no GPU, weights, or network. This runs one of them; CI runs
+the full lightweight set listed in [`research-tests.yml`](../.github/workflows/research-tests.yml):
 
 ```bash
 cd research
@@ -123,7 +126,9 @@ benchmarks/
 
 ## Contributing
 
-Contributions from researchers and developers are welcome, and no access to private infrastructure is needed.
+Contributions from researchers and developers are welcome. Work on the `codesota` package needs no access to
+private infrastructure; running full evaluations on rented machines or the project's model API is coordinated with
+the maintainers ([`research/METHODOLOGY.md`](../research/METHODOLOGY.md)).
 
 - [`docs/contributing.md`](docs/contributing.md): how to set up, choose a task, find official sources, prepare
   reproducible evidence, and open a pull request.

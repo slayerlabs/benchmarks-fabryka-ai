@@ -30,9 +30,8 @@ for:
   the base repository's context, and GitHub blocks it by default in public repositories from 2026-12-02 unless an
   admin allows it in an Actions event policy
   ([changelog](https://github.blog/changelog/2026-11-02-pull_request_target-blocked-by-default-december-2/)).
-- **Bootstrap.** Until this foundation (#310) is merged, the default branch has no checker, and `PR policy` reports a
-  notice and passes for #310 and older PRs. For any later PR, a missing checker on the default branch fails the
-  check, so deleting the checker cannot silently turn it off.
+- **Missing checker.** If the default branch has no checker, `PR policy` fails for every PR numbered above 310 (the
+  PR that introduced the check), so deleting the checker cannot silently turn it off.
 - **Every workflow** declares `permissions: {}` at the top and grants each job only what it needs (`contents: read`;
   `pull-requests: read` for the job that lists changed files). Every job has a timeout.
 - **Untrusted text is never interpolated into a shell.** PR title and body reach scripts only through environment
@@ -97,7 +96,7 @@ owner's approval is required is set in the ruleset, and that is the only thing t
 
 ## Manual steps for an admin
 
-None of these is done by the foundation PR; each needs an explicit decision.
+None of these is done in code; each needs an explicit decision by an admin.
 
 1. Add members to `benchmark-reviewers`. With one member, requiring code owner review would make that person a
    bottleneck for every `benchmarks/` PR.
@@ -109,8 +108,7 @@ None of these is done by the foundation PR; each needs an explicit decision.
    on every PR that GitHub runs workflows for (`CodeSOTA CI` reports success without running its tests when a PR does
    not touch `benchmarks/`), so requiring them does not hold back unrelated PRs. GitHub runs no `pull_request` workflows while a
    PR has merge conflicts, and a first-time contributor's fork PR waits for an approval to run them; those PRs stay
-   pending until resolved, as with any required check. `PR policy` enforces only after this foundation is merged
-   (before that it passes with a notice); require it only after it has reported on later PRs.
+   pending until resolved, as with any required check. Require `PR policy` only after it has reported on real PRs.
    **A required check is matched by name, so any workflow can satisfy it,** including a workflow a PR adds or edits:
    a job named `PR policy` that exits 0 would pass. Requiring these checks therefore adds protection only together
    with a control on `.github/workflows/` changes: an organization ruleset that requires the workflow from the
