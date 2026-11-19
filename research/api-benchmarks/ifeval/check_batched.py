@@ -24,10 +24,11 @@ def main():
     dtype = getattr(torch, sys.argv[4]) if len(sys.argv) > 4 else torch.bfloat16
     module = slayer_lm._SlayerModule(slayer_model.Slayer(weights, device="cuda", dtype=dtype))
     prompts = load_dataset("google/IFEval", revision=REVISION, split="train")["prompt"][:n]
-    rows = [[0] + module.slayer.encode(p) for p in prompts]  # one BOS, as SlayerLM.tok_batch_encode
-    width = max(map(len, rows))
-    ids = torch.tensor([[0] * (width - len(r)) + r for r in rows], device="cuda")
-    mask = torch.tensor([[0] * (width - len(r)) + [1] * len(r) for r in rows], device="cuda")
+    rows = [module.slayer.encode(p) for p in prompts]
+    width = max(map(len, rows)) + 1
+    # The layout SlayerLM.tok_batch_encode gives lm-eval: BOS first, then the left padding, then the prompt.
+    ids = torch.tensor([[module.slayer.bos] + [0] * (width - 1 - len(r)) + r for r in rows], device="cuda")
+    mask = torch.tensor([[1] + [0] * (width - 1 - len(r)) + [1] * len(r) for r in rows], device="cuda")
     out = {}
     for name, fn in (("per-row", lm_eval_slayer._per_row_generate), ("batched", lm_eval_slayer.generate)):
         torch.cuda.synchronize()
@@ -41,7 +42,7 @@ def main():
     for i in range(n):
         diff = (a[i] != b[i]).nonzero()
         where = "same" if not len(diff) else f"differs from token {int(diff[0])}"
-        print(f"prompt {i} (len {len(rows[i])}): {where}")
+        print(f"prompt {i} (len {len(rows[i]) + 1}): {where}")
 
 
 if __name__ == "__main__":

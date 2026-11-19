@@ -1,6 +1,8 @@
 """lm-eval output -> results/<model-id>.json and results/<model-id>.jsonl.gz (format from research/METHODOLOGY.md).
 
 Usage: python summarize.py <lm-eval output dir> <results/model-id>
+A run with --limit is written to <lm-eval output dir>/<model-id>-limit<N>.* instead, so a smoke test never
+replaces a published result.
 """
 
 import datetime
@@ -29,6 +31,10 @@ def main(out_dir, target):
     summary = json.loads(latest(out_dir, "results_*.json").read_text(encoding="utf-8"))
     rows = [json.loads(line) for line in latest(out_dir, f"samples_{TASK}_*.jsonl").read_text(encoding="utf-8").splitlines()]
     model = Path(target).name
+    limit = summary.get("config", {}).get("limit")
+    if limit:
+        target = Path(out_dir) / f"{model}-limit{int(limit)}"
+        print(f"summarize.py: --limit {limit}, writing to {target}.* (not results/)")
     passed = [bool(r[MAIN_METRIC]) for r in rows]
     n = len(passed)
     p = sum(passed) / n
@@ -41,7 +47,7 @@ def main(out_dir, target):
         "score": round(100 * p, 2),
         "stderr": round(100 * math.sqrt(p * (1 - p) / n), 2),
         "n": n,
-        "date": datetime.date.today().isoformat(),
+        "date": datetime.date.fromtimestamp(summary["date"]).isoformat(),  # day the run started (local time)
         "harness": f"https://github.com/EleutherAI/lm-evaluation-harness v{summary.get('lm_eval_version', '?')}",  # git_hash is this repo's commit, not lm-eval's
         "data": f"https://huggingface.co/datasets/google/IFEval @ {config.get('dataset_kwargs', {}).get('revision', 'unrecorded')}",
         "settings": {

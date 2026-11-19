@@ -29,7 +29,7 @@ import slayer_lm  # noqa: E402  registers the `slayer` model (the .pth hook runs
 from slayer_model import rmsnorm  # noqa: E402
 
 
-def _rope(m, x, cos, sin):
+def _rope(x, cos, sin):
     """Interleaved (gptj) RoPE with per-row angles: x [B, H, T, hd], cos/sin [B, 1, T, hd/2]."""
     xf = x.float()
     x1, x2 = xf[..., 0::2], xf[..., 1::2]
@@ -68,8 +68,8 @@ def batched_forward(m, ids, pos, kcache, vcache, start, key_ok):
                 v0 = v
             else:
                 v = v + w[p + "vr_lambda"] * v0
-        q = _rope(m, rmsnorm(q, w[p + "q_norm.weight"], m.eps), cos, sin)
-        k = _rope(m, rmsnorm(k, w[p + "k_norm.weight"], m.eps), cos, sin)
+        q = _rope(rmsnorm(q, w[p + "q_norm.weight"], m.eps), cos, sin)
+        k = _rope(rmsnorm(k, w[p + "k_norm.weight"], m.eps), cos, sin)
         kcache[i][:, :, start:end] = k
         vcache[i][:, :, start:end] = v
         a = F.scaled_dot_product_attention(q, kcache[i][:, :, :end], vcache[i][:, :, :end], attn_mask=mask,
@@ -105,8 +105,9 @@ def generate(self, input_ids, attention_mask=None, max_length=None, stopping_cri
         key_ok[empty, -1] = True
     lengths = key_ok.sum(1)
     pos = (key_ok.long().cumsum(1) - 1).clamp(min=0)
-    if int(lengths.max()) + limit > m.blok:
-        raise ValueError(f"Slayer: {int(lengths.max()) + limit} positions, but block = {m.blok}")
+    # The last new token is never fed back, so the forward passes use lengths + limit - 1 positions (as slayer_lm).
+    if int(lengths.max()) + limit - 1 > m.blok:
+        raise ValueError(f"Slayer: {int(lengths.max()) + limit - 1} positions, but block = {m.blok}")
     size = L + max(limit, 0)
     shape = (B, m.n_head, size, m.hd)
     kcache = [torch.empty(shape, dtype=m.dtype, device=device) for _ in range(m.n_layer)]

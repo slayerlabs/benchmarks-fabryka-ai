@@ -50,12 +50,15 @@ case "$MODEL" in
       --gen_kwargs "do_sample=true,temperature=0.6,top_p=0.95,max_gen_toks=30720" \
       "${TASK_ARGS[@]}" ;;
   slayer1b-1.08)
-    uv pip install --python "$PY" --index-url "$TORCH_INDEX" --reinstall-package torch torch
+    # torch with CUDA 12.8+; reinstalls only when the venv has a CPU or older CUDA build (lm-eval pulls torch from PyPI)
+    if ! "$PY" -c "import torch, sys; c = torch.version.cuda; sys.exit(not c or tuple(map(int, c.split('.')[:2])) < (12, 8))" 2>/dev/null; then
+      uv pip install --python "$PY" --index-url "$TORCH_INDEX" --reinstall-package torch torch
+    fi
     uv pip install --python "$PY" safetensors tokenizers huggingface_hub
     WEIGHTS="$("$PY" -c "from huggingface_hub import snapshot_download as s; print(s('$SLAYER_REPO', revision='$SLAYER_REVISION'))")"
     # Base model: no chat template, the raw IFEval prompt. Greedy only, and the context is 4,096.
     # lm_eval_slayer.py = research/common/slayer_lm.py with the whole batch in one forward per step
-    # (check_batched.py: the same tokens as slayer_lm, about 15x faster).
+    # (check_batched.py: the same tokens as slayer_lm in float32, about 15x faster; see README, Deviations).
     "$PY" "$HERE/lm_eval_slayer.py" \
       --model slayer \
       --model_args "pretrained=$WEIGHTS,dtype=bfloat16,device=cuda" \

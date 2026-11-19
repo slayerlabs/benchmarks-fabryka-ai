@@ -5,7 +5,7 @@
   "score": 55.27,
   "stderr": 2.14,
   "n": 541,
-  "date": "2026-11-19",
+  "date": "2026-11-18",
   "harness": "https://github.com/EleutherAI/lm-evaluation-harness v0.4.9.1",
   "data": "https://huggingface.co/datasets/google/IFEval @ 966cd89545d6b6acfd7638bc708b98261ca58e84",
   "settings": {

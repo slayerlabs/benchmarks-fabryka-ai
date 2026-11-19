@@ -15,7 +15,8 @@ import re
 import sys
 
 HERE = pathlib.Path(__file__).parent
-PL_WORDS = set("się nie jest jak oraz że to w na do dla są być który która tak może".split())
+# No words that also occur in English text ("to", "do", "w", "na", "tak"): they made English answers count as Polish.
+PL_WORDS = set("się nie jest jak oraz że dla są być który która może".split())
 
 
 def load(model_id: str) -> dict[str, dict]:
@@ -36,8 +37,11 @@ def main(ids: list[str]) -> None:
     runs = {i: load(i) for i in ids}
     for i, r in runs.items():
         acc = sum(x["prompt_level_strict_acc"] for x in r.values()) / len(r)
-        pl = sum(is_polish(x["scored_output"]) for x in r.values()) / len(r)
-        print(f"{i}: n={len(r)} prompt_level_strict_acc={100 * acc:.2f} polish={100 * pl:.1f}%")
+        pl = [x["prompt_level_strict_acc"] for x in r.values() if is_polish(x["scored_output"])]
+        rest = [x["prompt_level_strict_acc"] for x in r.values() if not is_polish(x["scored_output"])]
+        by_lang = ", ".join(f"{name} {100 * sum(s) / len(s):.1f}" for name, s in (("Polish", pl), ("other", rest)) if s)
+        print(f"{i}: n={len(r)} prompt_level_strict_acc={100 * acc:.2f} polish={100 * len(pl) / len(r):.1f}% "
+              f"(score: {by_lang})")
     base = ids[0]
     for other in ids[1:]:
         common = sorted(set(runs[base]) & set(runs[other]))
