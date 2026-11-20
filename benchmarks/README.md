@@ -118,8 +118,10 @@ Running full evaluations needs model weights and the pinned environment describe
 [`research/README.md`](../research/README.md) (written in Polish).
 
 **Develop the `codesota` Python package** in `benchmarks/`. It is the home of new shared tooling. Today it
-validates result artifacts (`python -m codesota.results`, see [`docs/result-artifacts.md`](docs/result-artifacts.md));
-it does not run evaluations yet. It needs Python 3.11+ and [uv](https://docs.astral.sh/uv/):
+runs the benchmarks of its catalog on a model (`python -m codesota.runner`, see [`docs/running.md`](docs/running.md)
+and [`BENCHMARKS.md`](BENCHMARKS.md)) and validates result artifacts (`python -m codesota.results`, see
+[`docs/result-artifacts.md`](docs/result-artifacts.md)). It needs Python 3.11+ and [uv](https://docs.astral.sh/uv/);
+running benchmarks also needs the `eval` extra (`uv sync --extra eval`):
 
 ```bash
 cd "$(git rev-parse --show-toplevel)/benchmarks"
@@ -135,7 +137,8 @@ uv build
 benchmarks/
 ├── src/codesota/   the package
 ├── tests/          deterministic tests; no network, GPU, or weights
-├── docs/           result artifacts, contributor, security, and governance documentation
+├── docs/           running benchmarks, result artifacts, contributor, security, and governance documentation
+├── BENCHMARKS.md   every benchmark and its status, generated from the catalog
 ├── AGENTS.md       engineering rules for contributors and coding agents
 └── pyproject.toml  package metadata and tool configuration; uv.lock pins the environment
 ```

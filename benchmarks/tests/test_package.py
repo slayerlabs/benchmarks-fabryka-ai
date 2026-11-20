@@ -13,6 +13,9 @@ def test_package_ships_type_marker() -> None:
     assert resources.files("codesota").joinpath("py.typed").is_file()
 
 
-def test_package_declares_no_runtime_dependencies() -> None:
-    # A runtime dependency arrives with the code that needs it, in the same reviewed PR.
-    assert metadata.requires("codesota") is None
+def test_package_declares_no_unconditional_dependencies() -> None:
+    # A runtime dependency arrives with the code that needs it, in the same reviewed PR. The catalog and the
+    # validator need none; the runner's evaluation stack is the `eval` extra.
+    requirements = metadata.requires("codesota") or []
+    assert requirements
+    assert all("extra == 'eval'" in r.replace('"', "'") for r in requirements), requirements
