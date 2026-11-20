@@ -33,7 +33,7 @@ class ContextTooLong(ValueError):
 
 
 class DatasetMismatch(ValueError):
-    """The loaded split does not have the pinned number of documents."""
+    """The loaded split does not have the pinned number of documents, or its sample IDs are not unique."""
 
 
 @dataclass(frozen=True)
@@ -114,6 +114,8 @@ def evaluate(
         )
     field = benchmark.dataset.id_field
     ids = [d.get(field, i) if field else i for i, d in enumerate(docs)]
+    if len(set(map(str, ids))) != len(ids):
+        raise DatasetMismatch(f"{benchmark.id}: the sample IDs (field {field!r}) are not unique")
     if benchmark.scoring.kind != "rolling":  # rolling windows are cut by the model, there is no prompt to reject
         enforce_context_limit(task, lm, min(CONTEXT_LIMIT, getattr(lm, "max_length", None) or CONTEXT_LIMIT))
     result = simple_evaluate(model=lm, tasks=[task], log_samples=True, bootstrap_iters=0, **LM_EVAL_SEEDS)
@@ -124,6 +126,13 @@ def evaluate(
         for s in samples:
             s["gold"] = int(task.doc_to_text(s["doc"]))
     return task, samples, ids
+
+
+def research_digest(benchmark: Benchmark, samples: list[dict[str, Any]]) -> str | None:
+    """`source_id_digest` as the research pipeline computes it, when it used a field other than the sample ID."""
+    assert benchmark.dataset is not None
+    field = benchmark.dataset.research_id_field
+    return source_id_digest(s["doc"][field] for s in samples) if field else None
 
 
 def score(benchmark: Benchmark, task: Any, samples: list[dict[str, Any]], ids: list[Any]) -> dict[str, Any]:
@@ -205,6 +214,7 @@ def run_benchmark(
     try:
         task, samples, ids = evaluate(benchmark, lm, data)
         scored = score(benchmark, task, samples, ids)
+        scored["research_digest"] = research_digest(benchmark, samples)
         state, reason, log = "ok", None, None
         config = json.dumps(task.dump_config(), indent=2, sort_keys=True, default=str).encode("utf-8")
     # The boundary of one benchmark in a run of several: every exception becomes the benchmark's recorded state,
@@ -398,6 +408,7 @@ def _manifest(
             "evidence": benchmark.evidence,
             "limitations": list(benchmark.limitations),
             "decision_metric": benchmark.scoring.decision_metric,
+            "research_source_id_digest": None if scored is None else scored.get("research_digest"),
             "uncertainty": None if scored is None else scored["metrics"][benchmark.scoring.decision_metric],
             "baselines": None if scored is None else scored["baselines"],
             "against_b": None if scored is None else scored["b"],

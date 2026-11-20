@@ -6,8 +6,8 @@ architecture that `HFLM` cannot load needs its own lm-eval model class, which pl
 
 Code shipped with a model (`trust_remote_code`) runs only when the caller asks for it, and the run records that it
 did. The BOS policy is part of the protocol: `one` puts exactly one leading BOS token of the model's tokenizer before
-every request with a context (research/METODOLOGIA.md, section on the model input; port of research/common/jeden_bos.py), and `none`
-keeps lm-eval 0.4.9.1's default, which encodes text without special tokens.
+every request with a context (research/METODOLOGIA.md, section on the model input; a port of
+research/common/jeden_bos.py), and `none` keeps lm-eval 0.4.9.1's default, which encodes text without special tokens.
 """
 
 import hashlib

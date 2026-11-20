@@ -47,6 +47,12 @@ def print_catalog() -> None:
         print(f"@{name:<22} {len(ids):>3} benchmarks")
 
 
+def write_index(out: Path, index: list[dict[str, Any]]) -> None:
+    """index.json: one row per selected benchmark, rewritten after each one, so a stopped run keeps its rows."""
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "index.json").write_text(json.dumps(index, indent=2) + "\n", encoding="utf-8")
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     args = parser().parse_args(argv)
     if args.list:
@@ -105,6 +111,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 }
             )
             print(f"{b.id:<18} {b.status:<22} {o.state:<14} {o.value if o.value is not None else '-'}", flush=True)
+            write_index(args.out, index)
     for row in index:
         if row["state"] == "not_run":
             print(f"{row['benchmark']:<18} {row['status']:<22} not_run        {row['reason']}")

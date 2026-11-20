@@ -233,7 +233,7 @@ def test_data_source_matches_research(benchmark: catalog.Benchmark, research: di
         benchmark.dataset.revision,
         benchmark.dataset.split,
     )
-    assert meta.get("pole_id") == benchmark.dataset.id_field
+    assert meta.get("pole_id") == (benchmark.dataset.id_field or benchmark.dataset.research_id_field)
 
 
 @pytest.mark.parametrize("benchmark", IMPLEMENTED, ids=lambda b: b.id)
@@ -448,3 +448,25 @@ def test_split_of_the_wrong_size_fails(tmp_path: Path) -> None:
     outcome, _ = run(tmp_path, FakeLM(), n=4)
     assert outcome.state == "failed"
     assert "DatasetMismatch" in (outcome.reason or "")
+
+
+def test_duplicate_sample_ids_fail_before_evaluation(tmp_path: Path) -> None:
+    lm = FakeLM()
+    duplicated = [ARC[0], {**ARC[1], "id": ARC[0]["id"]}, ARC[2]]
+    path = tmp_path / "dup.jsonl"
+    path.write_text("".join(json.dumps(d) + "\n" for d in duplicated), encoding="utf-8")
+    benchmark = catalog.CATALOG["arc-easy"]
+    assert benchmark.dataset is not None
+    benchmark = dataclasses.replace(benchmark, dataset=dataclasses.replace(benchmark.dataset, n_population=3))
+    outcome = execute.run_benchmark(benchmark, lm, SPEC, RECORD, tmp_path / "runs", local(path))
+    assert outcome.state == "failed" and "not unique" in (outcome.reason or "")
+    assert outcome.run_dir is not None and validate_run(outcome.run_dir).ok
+
+
+def test_research_digest_uses_the_research_id_field() -> None:
+    benchmark = catalog.CATALOG["hellaswag"]
+    samples = [{"doc": {"ind": 5}}, {"doc": {"ind": 5}}, {"doc": {"ind": 9}}]
+    from codesota.results import source_id_digest
+
+    assert execute.research_digest(benchmark, samples) == source_id_digest([5, 5, 9])
+    assert execute.research_digest(catalog.CATALOG["arc-easy"], samples) is None

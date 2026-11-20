@@ -45,6 +45,9 @@ class Dataset:
     file: str | None = None
     id_field: str | None = None
     """Document field used as the sample ID; without one, the document's index in the split."""
+    research_id_field: str | None = None
+    """The field the research pipeline used for `source_id_digest`, when it is not a unique ID (it is then recorded
+    as `research_source_id_digest`, so the selection can still be compared with research results)."""
 
 
 @dataclass(frozen=True)
@@ -183,12 +186,16 @@ IMPLEMENTED: Final[tuple[Benchmark, ...]] = (
             revision="218ec52e09a7e7462a5400043bb9a69a41d06b76",
             split="validation",
             n_population=10042,
-            id_field="ind",
+            research_id_field="ind",
         ),
         scoring=Scoring(kind="multiple_choice", decision_metric="acc_norm"),
         evidence=(
             "The reference check (EuroLLM-1.7B, met) was computed 10-shot with separate code; this protocol is "
             "0-shot, so no reference result has been reproduced for it (research/STATUS.md)."
+        ),
+        limitations=(
+            "Sample IDs are positions in the split: the dataset's `ind` field, which the research pipeline used, is "
+            "not unique in the validation split.",
         ),
     ),
     Benchmark(
