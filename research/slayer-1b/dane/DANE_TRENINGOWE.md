@@ -54,6 +54,7 @@ Status: `w budowie` (rezerwacja na [tablicy Dataset team](https://github.com/org
 
 | data | zbiór | kto | rezerwacja | status |
 |---|---|---|---|---|
+| 2026-11-20 | `finepdfs-technika-pl`: FinePDFs pol_Latn wybrane adnotacjami propella, technika (energetyka, elektronika, sprzęt IT, przemysł) | DarioRSL | [polish-dynaword-v2#145](https://github.com/slayerlabs/polish-dynaword-v2/issues/145) | w budowie |
 | 2026-11-14 | [DCLM-baseline 1.0 EN][dclm] | LoIlita | [#197](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/197) | w budowie |
 | 2026-11-14 | [`SlayerLab/hutnictwo-gornictwo-spawalnictwo-preview`][hgs] | SlayerLab | bez rezerwacji | opublikowany |
 | 2026-11-09 | [`SlayerLab/polish-dynaword-pretraining-mix`][pdpm] | SlayerLab | bez rezerwacji | opublikowany |
