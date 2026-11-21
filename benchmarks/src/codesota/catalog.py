@@ -92,6 +92,11 @@ class Benchmark:
     def cost(self) -> "Cost | None":
         return COST.get(self.id)
 
+    @property
+    def note(self) -> str:
+        """One line on why the benchmark has its status (BENCHMARKS.md); `evidence` has the details."""
+        return NOTES.get(self.id, "")
+
 
 @dataclass(frozen=True)
 class Cost:
@@ -107,6 +112,11 @@ class Cost:
     seconds: int
 
     @property
+    def approx(self) -> str:
+        """The time as a rough label (`< 1 min`, `~2 min`): an approximation, not a requirement."""
+        return "< 1 min" if self.seconds < 60 else f"~{round(self.seconds / 60)} min"
+
+    @property
     def size(self) -> "Size":
         return "small" if self.seconds < SMALL_BELOW else "medium" if self.seconds < BIG_FROM else "big"
 
@@ -118,6 +128,21 @@ REFERENCE_SETUP: Final = (
     "EleutherAI/pythia-1b-v0 (1B parameters), float32, batch 1, one BOS, NVIDIA GeForce RTX 5060 Ti, "
     "codesota.runner verification run of November 2026 (docs/running.md)"
 )
+NOTES: Final[dict[str, str]] = {
+    "arc-easy": "published reference reproduced",
+    "piqa": "published reference reproduced",
+    "winogrande": "published reference reproduced",
+    "lambada": "published reference reproduced",
+    "hellaswag": "reference reproduced 10-shot only; this protocol is 0-shot",
+    "arc-challenge": "no reference check in research",
+    "mathqa": "no reference check in research",
+    "pubmedqa": "no reference check in research",
+    "wikitext-2": "no reference check in research",
+    "medmcqa": "no reference check; marked for review in research",
+    "wsc273": "no reference check; marked for review in research",
+    "multiblimp-pl": "no reference check; possible test-set leak (#36)",
+    "social-iqa": "no reference check; data branch not pinned",
+}
 # (requests, seconds) of the one-BOS verification run on the reference setup.
 COST: Final[dict[str, Cost]] = {
     benchmark: Cost(requests, seconds)
@@ -552,62 +577,51 @@ def select(selection: str | Iterable[str]) -> list[Benchmark]:
 
 def markdown() -> str:
     """The catalog as BENCHMARKS.md (tests/test_catalog.py keeps the file equal to this)."""
-    counts = {s: sum(b.status == s for b in CATALOG.values()) for s in STATUSES}
+    counts = {st: sum(b.status == st for b in CATALOG.values()) for st in STATUSES}
     lines = [
         "# Benchmarks",
         "",
-        "Every benchmark the repository has a directory for, and where it stands in CodeSOTA. Generated from",
-        "[`src/codesota/catalog.py`](src/codesota/catalog.py); regenerate with",
-        "`uv run python -c \"from codesota.catalog import markdown; print(markdown(), end='')\" > BENCHMARKS.md`.",
+        "Every benchmark with a directory in `research/benchmarks/`, and its status in CodeSOTA. Generated from",
+        "[`src/codesota/catalog.py`](src/codesota/catalog.py); how to run them: [`docs/running.md`](docs/running.md).",
         "",
-        "| status | meaning |",
-        "|---|---|",
-        "| `verified` | the runner implements it; a published reference result was reproduced with this protocol, "
-        "and the runner reproduces the research pipeline for it. This is a claim about the protocol (0-shot "
-        "log-likelihood scoring through lm-eval HFLM), not about every model or inference setup |",
-        "| `needs-reference-check` | the runner implements it and reproduces the research pipeline, but no "
-        "published reference result has been reproduced for this protocol; its scores are measurements, not yet "
-        "validated |",
-        "| `not-implemented` | the benchmark has a directory in `research/benchmarks/`; the runner cannot run it yet |",
+        f"- `verified` ({counts['verified']}): a published reference result was reproduced with this protocol.",
+        f"- `needs-reference-check` ({counts['needs-reference-check']}): runs and matches the research pipeline, "
+        "but no reference result is reproduced yet.",
+        f"- `not-implemented` ({counts['not-implemented']}): not in the runner yet.",
         "",
-        f"{counts['verified']} verified, {counts['needs-reference-check']} need a reference check, "
-        f"{counts['not-implemented']} not implemented. Run them with `python -m codesota.runner` "
-        "([`docs/running.md`](docs/running.md)).",
-        "",
-        "A status is the scientific-verification level of the integration, established by review of its evidence. "
-        "The validator of every run (`codesota.results`) checks the other two levels, structure and provenance "
-        "completeness, and says nothing about this one ([`docs/result-artifacts.md`](docs/result-artifacts.md)).",
+        "A status applies to the protocol (0-shot, log-likelihood scoring through lm-eval), not to every model or "
+        "setup ([`docs/running.md`](docs/running.md#what-a-status-means)).",
         "",
         "## Implemented",
         "",
-        "| benchmark | ID | legacy ID | aliases | packs | decision metric | size | status | evidence |",
-        "|---|---|---|---|---|---|---|---|---|",
+        "| benchmark | ID | aliases | metric | size | time | status | note |",
+        "|---|---|---|---|---|---|---|---|",
     ]
     for status in STATUSES[:2]:
         for b in sorted((b for b in CATALOG.values() if b.status == status), key=lambda b: b.id):
             assert b.scoring is not None and b.cost is not None
-            evidence = " ".join((b.evidence, *b.limitations))
-            cost = f"`{b.cost.size}`: {b.cost.requests} requests, {b.cost.seconds} s"
+            names = ", ".join(f"`{a}`" for a in (*b.aliases, *((b.legacy_id,) if b.legacy_id else ())))
             lines.append(
-                f"| {b.name} | `{b.id}` | {b.legacy_id or ''} | {', '.join(f'`{a}`' for a in b.aliases)} | "
-                f"{', '.join(f'`@{p}`' for p in b.packs)} | `{b.scoring.decision_metric}` | {cost} | `{b.status}` | "
-                f"{evidence} |"
+                f"| {b.name} | `{b.id}` | {names} | `{b.scoring.decision_metric}` | `{b.cost.size}` | "
+                f"{b.cost.approx} | `{b.status}` | {b.note} |"
             )
     lines += [
         "",
-        f"**Size** is the benchmark's amount of work, measured on the reference setup: {REFERENCE_SETUP}. "
-        f"`small` takes under {SMALL_BELOW} s there, `medium` under {BIG_FROM} s, `big` {BIG_FROM} s or more. A "
-        "larger model or another GPU changes the seconds, not the order; every run records its own time and request "
-        "count (`execution.timing`).",
+        "Size and time are approximate, from one repeatable reference run (Pythia-1B, float32, one GPU); they scale "
+        "with the model and hardware and are not requirements.",
+        "",
+        "## Not implemented",
+        "",
+        "| benchmark | ID | legacy ID | language |",
+        "|---|---|---|---|",
     ]
-    lines += ["", "## Not implemented", "", "| benchmark | ID | legacy ID | language |", "|---|---|---|---|"]
     for b in sorted((b for b in CATALOG.values() if b.status == "not-implemented"), key=lambda b: b.id):
         lines.append(f"| {b.name} | `{b.id}` | {b.legacy_id or ''} | {b.language} |")
     lines += [
         "",
         "## Packs",
         "",
-        "Select a pack with `@name`, for example `--benchmarks @verified,arc-challenge` or `--benchmarks @small`.",
+        "Select a pack with `@name`, for example `--benchmarks @verified` or `--benchmarks @small,arc-challenge`.",
         "",
         "| pack | benchmarks |",
         "|---|---|",

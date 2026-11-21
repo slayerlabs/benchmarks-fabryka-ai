@@ -46,7 +46,7 @@ def print_catalog() -> None:
     rows = sorted(catalog.CATALOG.values(), key=lambda b: (catalog.STATUSES.index(b.status), b.id))
     for b in rows:
         names = ", ".join((*b.aliases, *((b.legacy_id,) if b.legacy_id else ())))
-        size = f"{b.cost.size:<6} {b.cost.seconds:>5} s" if b.cost else " " * 14
+        size = f"{b.cost.size:<6} {b.cost.approx:>8}" if b.cost else " " * 15
         print(f"{b.status:<22} {b.id:<18} {b.name:<26} {b.language}  {size}  {names}")
     print()
     for name, ids in catalog.packs().items():
