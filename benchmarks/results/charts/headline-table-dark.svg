@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="798" viewBox="0 0 760 798" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" fill="#e6edf3">
+<rect width="760" height="798" rx="8" fill="#0d1117"/>
+<text x="290.0" y="38" text-anchor="middle" font-weight="600">Slayer 1B</text>
+<text x="290.0" y="56" text-anchor="middle" font-size="12" fill="#9198a1">1.09 checkpoint</text>
+<text x="390.0" y="38" text-anchor="middle" font-weight="600">Bielik 11B</text>
+<text x="390.0" y="56" text-anchor="middle" font-size="12" fill="#9198a1">v3.0 Instruct</text>
+<text x="490.0" y="38" text-anchor="middle" font-weight="600">LFM3</text>
+<text x="490.0" y="56" text-anchor="middle" font-size="12" fill="#9198a1">1.7B Base</text>
+<text x="590.0" y="38" text-anchor="middle" font-weight="600">Bielik</text>
+<text x="590.0" y="56" text-anchor="middle" font-size="12" fill="#9198a1">1.5B v3</text>
+<text x="690.0" y="38" text-anchor="middle" font-weight="600">Qwen3.5</text>
+<text x="690.0" y="56" text-anchor="middle" font-size="12" fill="#9198a1">0.8B Base</text>
+<text x="20" y="56" font-size="12" fill="#9198a1">Benchmark</text>
+<line x1="20" x2="740" y1="70" y2="70" stroke="#3d444d"/>
+<text x="20" y="94" font-size="13" font-weight="600" fill="#9198a1">Polish</text>
+<line x1="20" x2="740" y1="104" y2="104" stroke="#21262d"/>
+<text x="20" y="127">MultiBLiMP (Polish)</text>
+<line x1="272.0" x2="308.0" y1="130" y2="130" stroke="#e6edf3"/>
+<text x="290.0" y="127" text-anchor="middle" data-benchmark="multiblimp-pl" data-model="slayer1b-1.09-k40000" data-rank="2">98.6</text>
+<rect x="356.0" y="111" width="68" height="22" rx="5" fill="#4a1d22"/>
+<text x="390.0" y="127" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="multiblimp-pl" data-model="bielik-11b-v3-instruct" data-rank="1">99.6</text>
+<text x="490.0" y="127" text-anchor="middle" data-benchmark="multiblimp-pl" data-model="lfm3-1.7b-base" data-rank="4">89.2</text>
+<text x="590.0" y="127" text-anchor="middle" data-benchmark="multiblimp-pl" data-model="bielik-1.5b-v3" data-rank="3">94.5</text>
+<text x="690.0" y="127" text-anchor="middle" data-benchmark="multiblimp-pl" data-model="qwen3.5-0.8b-base" data-rank="5">84.5</text>
+<text x="20" y="162" font-size="13" font-weight="600" fill="#9198a1">English · reasoning and science</text>
+<line x1="20" x2="740" y1="172" y2="172" stroke="#21262d"/>
+<text x="20" y="195">ARC-Easy</text>
+<text x="290.0" y="195" text-anchor="middle" data-benchmark="arc-easy" data-model="slayer1b-1.09-k40000" data-rank="4">66.6</text>
+<rect x="356.0" y="179" width="68" height="22" rx="5" fill="#4a1d22"/>
+<text x="390.0" y="195" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="arc-easy" data-model="bielik-11b-v3-instruct" data-rank="1">81.9</text>
+<line x1="472.0" x2="508.0" y1="198" y2="198" stroke="#e6edf3"/>
+<text x="490.0" y="195" text-anchor="middle" data-benchmark="arc-easy" data-model="lfm3-1.7b-base" data-rank="2">71.7</text>
+<text x="590.0" y="195" text-anchor="middle" data-benchmark="arc-easy" data-model="bielik-1.5b-v3" data-rank="5">54.6</text>
+<text x="690.0" y="195" text-anchor="middle" data-benchmark="arc-easy" data-model="qwen3.5-0.8b-base" data-rank="3">70.5</text>
+<line x1="20" x2="740" y1="206" y2="206" stroke="#21262d"/>
+<text x="20" y="229">ARC-Challenge</text>
+<text x="290.0" y="229" text-anchor="middle" data-benchmark="arc-challenge" data-model="slayer1b-1.09-k40000" data-rank="5">35.0</text>
+<rect x="356.0" y="213" width="68" height="22" rx="5" fill="#4a1d22"/>
+<text x="390.0" y="229" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="arc-challenge" data-model="bielik-11b-v3-instruct" data-rank="1">58.1</text>
+<line x1="472.0" x2="508.0" y1="232" y2="232" stroke="#e6edf3"/>
+<text x="490.0" y="229" text-anchor="middle" data-benchmark="arc-challenge" data-model="lfm3-1.7b-base" data-rank="2">42.9</text>
+<text x="590.0" y="229" text-anchor="middle" data-benchmark="arc-challenge" data-model="bielik-1.5b-v3" data-rank="4">36.1</text>
+<text x="690.0" y="229" text-anchor="middle" data-benchmark="arc-challenge" data-model="qwen3.5-0.8b-base" data-rank="3">40.4</text>
+<line x1="20" x2="740" y1="240" y2="240" stroke="#21262d"/>
+<text x="20" y="263">MathQA</text>
+<text x="290.0" y="263" text-anchor="middle" data-benchmark="mathqa" data-model="slayer1b-1.09-k40000" data-rank="5">22.5</text>
+<rect x="356.0" y="247" width="68" height="22" rx="5" fill="#4a1d22"/>
+<text x="390.0" y="263" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="mathqa" data-model="bielik-11b-v3-instruct" data-rank="1">48.5</text>
+<line x1="472.0" x2="508.0" y1="266" y2="266" stroke="#e6edf3"/>
+<text x="490.0" y="263" text-anchor="middle" data-benchmark="mathqa" data-model="lfm3-1.7b-base" data-rank="2">39.1</text>
+<text x="590.0" y="263" text-anchor="middle" data-benchmark="mathqa" data-model="bielik-1.5b-v3" data-rank="4">32.4</text>
+<text x="690.0" y="263" text-anchor="middle" data-benchmark="mathqa" data-model="qwen3.5-0.8b-base" data-rank="3">33.4</text>
+<text x="20" y="298" font-size="13" font-weight="600" fill="#9198a1">English · commonsense</text>
+<line x1="20" x2="740" y1="308" y2="308" stroke="#21262d"/>
+<text x="20" y="331">HellaSwag</text>
+<text x="290.0" y="331" text-anchor="middle" data-benchmark="hellaswag" data-model="slayer1b-1.09-k40000" data-rank="5">52.8</text>
+<rect x="356.0" y="315" width="68" height="22" rx="5" fill="#4a1d22"/>
+<text x="390.0" y="331" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="hellaswag" data-model="bielik-11b-v3-instruct" data-rank="1">79.4</text>
+<text x="490.0" y="331" text-anchor="middle" data-benchmark="hellaswag" data-model="lfm3-1.7b-base" data-rank="3">58.9</text>
+<line x1="572.0" x2="608.0" y1="334" y2="334" stroke="#e6edf3"/>
+<text x="590.0" y="331" text-anchor="middle" data-benchmark="hellaswag" data-model="bielik-1.5b-v3" data-rank="2">63.7</text>
+<text x="690.0" y="331" text-anchor="middle" data-benchmark="hellaswag" data-model="qwen3.5-0.8b-base" data-rank="4">54.8</text>
+<line x1="20" x2="740" y1="342" y2="342" stroke="#21262d"/>
+<text x="20" y="365">PIQA</text>
+<text x="290.0" y="365" text-anchor="middle" data-benchmark="piqa" data-model="slayer1b-1.09-k40000" data-rank="4">71.2</text>
+<rect x="356.0" y="349" width="68" height="22" rx="5" fill="#4a1d22"/>
+<text x="390.0" y="365" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="piqa" data-model="bielik-11b-v3-instruct" data-rank="1">78.9</text>
+<text x="490.0" y="365" text-anchor="middle" data-benchmark="piqa" data-model="lfm3-1.7b-base" data-rank="5">68.6</text>
+<line x1="572.0" x2="608.0" y1="368" y2="368" stroke="#e6edf3"/>
+<text x="590.0" y="365" text-anchor="middle" data-benchmark="piqa" data-model="bielik-1.5b-v3" data-rank="2">71.9</text>
+<text x="690.0" y="365" text-anchor="middle" data-benchmark="piqa" data-model="qwen3.5-0.8b-base" data-rank="3">71.3</text>
+<line x1="20" x2="740" y1="376" y2="376" stroke="#21262d"/>
+<text x="20" y="399">WinoGrande</text>
+<text x="290.0" y="399" text-anchor="middle" data-benchmark="winogrande" data-model="slayer1b-1.09-k40000" data-rank="5">57.7</text>
+<rect x="356.0" y="383" width="68" height="22" rx="5" fill="#4a1d22"/>
+<text x="390.0" y="399" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="winogrande" data-model="bielik-11b-v3-instruct" data-rank="1">73.0</text>
+<text x="490.0" y="399" text-anchor="middle" data-benchmark="winogrande" data-model="lfm3-1.7b-base" data-rank="4">58.6</text>
+<line x1="572.0" x2="608.0" y1="402" y2="402" stroke="#e6edf3"/>
+<text x="590.0" y="399" text-anchor="middle" data-benchmark="winogrande" data-model="bielik-1.5b-v3" data-rank="2">62.4</text>
+<text x="690.0" y="399" text-anchor="middle" data-benchmark="winogrande" data-model="qwen3.5-0.8b-base" data-rank="3">60.1</text>
+<line x1="20" x2="740" y1="410" y2="410" stroke="#21262d"/>
+<text x="20" y="433">Social IQa</text>
+<text x="290.0" y="433" text-anchor="middle" data-benchmark="social-iqa" data-model="slayer1b-1.09-k40000" data-rank="5">40.9</text>
+<rect x="356.0" y="417" width="68" height="22" rx="5" fill="#4a1d22"/>
+<text x="390.0" y="433" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="social-iqa" data-model="bielik-11b-v3-instruct" data-rank="1">51.1</text>
+<line x1="472.0" x2="508.0" y1="436" y2="436" stroke="#e6edf3"/>
+<text x="490.0" y="433" text-anchor="middle" data-benchmark="social-iqa" data-model="lfm3-1.7b-base" data-rank="2">45.4</text>
+<text x="590.0" y="433" text-anchor="middle" data-benchmark="social-iqa" data-model="bielik-1.5b-v3" data-rank="3">43.6</text>
+<text x="690.0" y="433" text-anchor="middle" data-benchmark="social-iqa" data-model="qwen3.5-0.8b-base" data-rank="4">41.9</text>
+<line x1="20" x2="740" y1="444" y2="444" stroke="#21262d"/>
+<text x="20" y="467">WSC273</text>
+<text x="290.0" y="467" text-anchor="middle" data-benchmark="wsc273" data-model="slayer1b-1.09-k40000" data-rank="4">63.7</text>
+<rect x="356.0" y="451" width="68" height="22" rx="5" fill="#4a1d22"/>
+<text x="390.0" y="467" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="wsc273" data-model="bielik-11b-v3-instruct" data-rank="1">82.4</text>
+<text x="490.0" y="467" text-anchor="middle" data-benchmark="wsc273" data-model="lfm3-1.7b-base" data-rank="3">71.4</text>
+<line x1="572.0" x2="608.0" y1="470" y2="470" stroke="#e6edf3"/>
+<text x="590.0" y="467" text-anchor="middle" data-benchmark="wsc273" data-model="bielik-1.5b-v3" data-rank="2">76.6</text>
+<text x="690.0" y="467" text-anchor="middle" data-benchmark="wsc273" data-model="qwen3.5-0.8b-base" data-rank="3">71.4</text>
+<line x1="20" x2="740" y1="478" y2="478" stroke="#21262d"/>
+<text x="20" y="501">EWoK</text>
+<text x="290.0" y="501" text-anchor="middle" data-benchmark="ewok" data-model="slayer1b-1.09-k40000" data-rank="4">62.8</text>
+<text x="390.0" y="501" text-anchor="middle" fill="#9198a1" data-benchmark="ewok" data-model="bielik-11b-v3-instruct" data-rank="0">n/a</text>
+<text x="490.0" y="501" text-anchor="middle" data-benchmark="ewok" data-model="lfm3-1.7b-base" data-rank="3">66.0</text>
+<rect x="556.0" y="485" width="68" height="22" rx="5" fill="#4a1d22"/>
+<text x="590.0" y="501" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="ewok" data-model="bielik-1.5b-v3" data-rank="1">69.5</text>
+<line x1="672.0" x2="708.0" y1="504" y2="504" stroke="#e6edf3"/>
+<text x="690.0" y="501" text-anchor="middle" data-benchmark="ewok" data-model="qwen3.5-0.8b-base" data-rank="2">67.6</text>
+<text x="20" y="536" font-size="13" font-weight="600" fill="#9198a1">English · medical knowledge</text>
+<line x1="20" x2="740" y1="546" y2="546" stroke="#21262d"/>
+<text x="20" y="569">MedMCQA</text>
+<text x="290.0" y="569" text-anchor="middle" data-benchmark="medmcqa" data-model="slayer1b-1.09-k40000" data-rank="5">30.1</text>
+<rect x="356.0" y="553" width="68" height="22" rx="5" fill="#4a1d22"/>
+<text x="390.0" y="569" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="medmcqa" data-model="bielik-11b-v3-instruct" data-rank="1">53.6</text>
+<text x="490.0" y="569" text-anchor="middle" data-benchmark="medmcqa" data-model="lfm3-1.7b-base" data-rank="4">37.8</text>
+<text x="590.0" y="569" text-anchor="middle" data-benchmark="medmcqa" data-model="bielik-1.5b-v3" data-rank="3">39.1</text>
+<line x1="672.0" x2="708.0" y1="572" y2="572" stroke="#e6edf3"/>
+<text x="690.0" y="569" text-anchor="middle" data-benchmark="medmcqa" data-model="qwen3.5-0.8b-base" data-rank="2">40.3</text>
+<line x1="20" x2="740" y1="580" y2="580" stroke="#21262d"/>
+<text x="20" y="603">PubMedQA</text>
+<text x="290.0" y="603" text-anchor="middle" data-benchmark="pubmedqa" data-model="slayer1b-1.09-k40000" data-rank="5">56.2</text>
+<rect x="356.0" y="587" width="68" height="22" rx="5" fill="#4a1d22"/>
+<text x="390.0" y="603" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="pubmedqa" data-model="bielik-11b-v3-instruct" data-rank="1">73.0</text>
+<text x="490.0" y="603" text-anchor="middle" data-benchmark="pubmedqa" data-model="lfm3-1.7b-base" data-rank="4">59.4</text>
+<text x="590.0" y="603" text-anchor="middle" data-benchmark="pubmedqa" data-model="bielik-1.5b-v3" data-rank="3">62.4</text>
+<line x1="672.0" x2="708.0" y1="606" y2="606" stroke="#e6edf3"/>
+<text x="690.0" y="603" text-anchor="middle" data-benchmark="pubmedqa" data-model="qwen3.5-0.8b-base" data-rank="2">67.6</text>
+<text x="20" y="638" font-size="13" font-weight="600" fill="#9198a1">English · language modeling and grammar</text>
+<line x1="20" x2="740" y1="648" y2="648" stroke="#21262d"/>
+<text x="20" y="671">LAMBADA (OpenAI)</text>
+<text x="290.0" y="671" text-anchor="middle" data-benchmark="lambada" data-model="slayer1b-1.09-k40000" data-rank="5">45.4</text>
+<rect x="356.0" y="655" width="68" height="22" rx="5" fill="#4a1d22"/>
+<text x="390.0" y="671" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="lambada" data-model="bielik-11b-v3-instruct" data-rank="1">71.4</text>
+<text x="490.0" y="671" text-anchor="middle" data-benchmark="lambada" data-model="lfm3-1.7b-base" data-rank="4">50.7</text>
+<line x1="572.0" x2="608.0" y1="674" y2="674" stroke="#e6edf3"/>
+<text x="590.0" y="671" text-anchor="middle" data-benchmark="lambada" data-model="bielik-1.5b-v3" data-rank="2">61.1</text>
+<text x="690.0" y="671" text-anchor="middle" data-benchmark="lambada" data-model="qwen3.5-0.8b-base" data-rank="3">51.2</text>
+<line x1="20" x2="740" y1="682" y2="682" stroke="#21262d"/>
+<text x="20" y="705">WikiText-2 ↓</text>
+<text x="290.0" y="705" text-anchor="middle" data-benchmark="wikitext-2" data-model="slayer1b-1.09-k40000" data-rank="4">1.702</text>
+<rect x="356.0" y="689" width="68" height="22" rx="5" fill="#4a1d22"/>
+<text x="390.0" y="705" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="wikitext-2" data-model="bielik-11b-v3-instruct" data-rank="1">1.566</text>
+<line x1="472.0" x2="508.0" y1="708" y2="708" stroke="#e6edf3"/>
+<text x="490.0" y="705" text-anchor="middle" data-benchmark="wikitext-2" data-model="lfm3-1.7b-base" data-rank="2">1.616</text>
+<text x="590.0" y="705" text-anchor="middle" data-benchmark="wikitext-2" data-model="bielik-1.5b-v3" data-rank="3">1.674</text>
+<text x="690.0" y="705" text-anchor="middle" data-benchmark="wikitext-2" data-model="qwen3.5-0.8b-base" data-rank="5">1.717</text>
+<line x1="20" x2="740" y1="716" y2="716" stroke="#21262d"/>
+<text x="20" y="739">BLiMP</text>
+<text x="290.0" y="739" text-anchor="middle" data-benchmark="blimp" data-model="slayer1b-1.09-k40000" data-rank="3">81.5</text>
+<rect x="356.0" y="723" width="68" height="22" rx="5" fill="#4a1d22"/>
+<text x="390.0" y="739" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="blimp" data-model="bielik-11b-v3-instruct" data-rank="1">83.2</text>
+<text x="490.0" y="739" text-anchor="middle" data-benchmark="blimp" data-model="lfm3-1.7b-base" data-rank="5">79.3</text>
+<line x1="572.0" x2="608.0" y1="742" y2="742" stroke="#e6edf3"/>
+<text x="590.0" y="739" text-anchor="middle" data-benchmark="blimp" data-model="bielik-1.5b-v3" data-rank="2">81.9</text>
+<text x="690.0" y="739" text-anchor="middle" data-benchmark="blimp" data-model="qwen3.5-0.8b-base" data-rank="4">79.9</text>
+<line x1="20" x2="740" y1="758" y2="758" stroke="#3d444d"/>
+<text x="20" y="782" font-size="12" fill="#9198a1">Accuracy in %, 0-shot · ↓ lower is better (WikiText-2: perplexity per byte) · best of the five highlighted, second underlined</text>
+</svg>

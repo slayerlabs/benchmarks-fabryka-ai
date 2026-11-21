@@ -1,10 +1,11 @@
-"""The results page: generated from the research result files, complete, and up to date. No matplotlib needed.
+"""The results page: generated from the research result files, complete, and up to date.
 
 The values are checked against the source files directly (not against the generator's own output), so a swapped
 column, a wrong scale, a lost standard error, or a swapped file fails a test.
 """
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -72,32 +73,61 @@ def test_every_ifeval_row_matches_its_file() -> None:
         assert row["model"] in (src["model"], f"{src['model']}-ifeval")
 
 
-def test_headline_cells_show_each_model_s_own_source_value() -> None:
-    """Every cell of the headline tables, recomputed from manifest.jsonl for its column's model."""
+def source_cell(row: dict[str, Any]) -> tuple[str, str]:
+    """A manifest row's value and SE as the page shows them."""
+    scale = 1.0 if row["metryka"] in ("accuracy", "byte_perplexity,none") else 100.0
+    digits = 3 if row["metryka"].startswith("byte_perplexity") else 1
+    return f"{row['wartosc'] * scale:.{digits}f}", f"{row['se'] * scale:.{digits}f}"
+
+
+def test_values_table_shows_each_model_s_own_source_value() -> None:
+    """Every cell of the Values table, recomputed from manifest.jsonl for its column's model."""
     src = {(r["benchmark"], r["model"]): r for r in published()}
-    readme = (leaderboard.OUT / "README.md").read_text(encoding="utf-8")
     names = {leaderboard.benchmark_name(b): b for b in leaderboard.CATEGORY_OF}
+    readme = (leaderboard.OUT / "README.md").read_text(encoding="utf-8")
     checked = 0
-    for line in readme.splitlines():
-        cells = [c.strip() for c in line.strip("|").split("|")]
-        if not line.startswith("| ") or cells[0] not in names or len(cells) != 2 + len(leaderboard.HEADLINE):
-            continue
-        benchmark = names[cells[0]]
-        for model, text in zip(leaderboard.HEADLINE, cells[2:], strict=True):
+    for name, html in re.findall(r"<tr><td>(.*?)</td>(.*?)</tr>", readme):
+        benchmark = names[name.removesuffix(" ↓")]
+        cells = re.findall(r'<td align="right">(.*?)</td>', html)
+        assert len(cells) == len(leaderboard.HEADLINE)
+        for model, text in zip(leaderboard.HEADLINE, cells, strict=True):
             row = src.get((benchmark, model))
             if row is None:
                 assert text == "n/a"
                 continue
-            scale = 1.0 if row["metryka"] in ("accuracy", "byte_perplexity,none") else 100.0
-            digits = 3 if row["metryka"].startswith("byte_perplexity") else 1
-            expected = f"{row['wartosc'] * scale:.{digits}f} ± {row['se'] * scale:.{digits}f}"
-            assert text == expected, (benchmark, model)
+            assert text == " ± ".join(source_cell(row)), (benchmark, model)
             checked += 1
     assert checked >= 60
 
 
+def test_table_image_shows_source_values_and_marks_the_best_and_second() -> None:
+    """Both table images: each value is its model's source value, rank 1 (highlighted) is the best shown value of
+    the row, and rank 2 (underlined) the next one."""
+    src = {(r["benchmark"], r["model"]): r for r in published()}
+    for name in ("headline-table.svg", "headline-table-dark.svg"):
+        svg = (leaderboard.OUT / "charts" / name).read_text(encoding="utf-8")
+        cells = re.findall(r'data-benchmark="(.*?)" data-model="(.*?)" data-rank="(\d)">(.*?)</text>', svg)
+        rows: dict[str, list[tuple[str, int, str]]] = {}
+        for benchmark, model, rank, text in cells:
+            rows.setdefault(benchmark, []).append((model, int(rank), text))
+        assert len(rows) >= 14, name
+        for benchmark, row in rows.items():
+            assert [m for m, _, _ in row] == list(leaderboard.HEADLINE)
+            shown = {}
+            for model, _, text in row:
+                source = src.get((benchmark, model))
+                assert text == ("n/a" if source is None else source_cell(source)[0]), (name, benchmark, model)
+                if source is not None:
+                    shown[model] = float(text)
+            lower = benchmark == "wikitext-2"
+            order = sorted(set(shown.values()), reverse=not lower)
+            for model, rank, _ in row:
+                expected = 0 if model not in shown else order.index(shown[model]) + 1
+                assert rank == expected, (name, benchmark, model, rank)
+
+
 def test_the_headline_has_no_flagged_result() -> None:
-    # README.md says so in "Read with care"; this keeps the sentence true.
+    # README.md says so in its notes; this keeps the sentence true.
     flagged = [r for r in leaderboard.collect() if r.model in leaderboard.HEADLINE and r.review_flag != "ok"]
     assert flagged == []
 

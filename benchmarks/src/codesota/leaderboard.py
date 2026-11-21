@@ -3,14 +3,14 @@
 `python -m codesota.leaderboard` reads the results the research pipeline published and writes `benchmarks/results/`:
 
 - `results.jsonl`: one line per benchmark, model, and metric, with its uncertainty, protocol, and source file;
-- `README.md`: the latest Slayer 1B next to the headline reference models, by category and language, with charts;
+- `README.md`: the latest Slayer 1B next to the headline reference models, by category and language;
 - `all-models.md`: every model of every run, by category;
 - `instruction-following.md`: instruction-following benchmarks, which use a different protocol per model;
-- `charts/*.png`: the headline charts (needs the `report` extra, matplotlib).
+- `charts/headline-table*.svg`: the headline table as an image, light and dark.
 
 The source files stay where they are: this module only reads them. Nothing here is recomputed; values, standard
 errors, and counts are those of the source. `python -m codesota.leaderboard --check` fails when the files differ from
-what the sources give (`tests/test_leaderboard.py` runs it for the text files).
+what the sources give (`tests/test_leaderboard.py` runs it).
 """
 
 import argparse
@@ -303,51 +303,198 @@ def cell(r: Result | None) -> str:
     return shown(r) + (" †" if r.review_flag != "ok" else "")
 
 
+# The headline table: column headers (name and a second line) of the HEADLINE models, and its row groups, Polish
+# first, then English by category.
+HEADER: Final[dict[str, tuple[str, str]]] = {
+    LATEST_SLAYER: ("Slayer 1B", "1.09 checkpoint"),
+    "bielik-11b-v3-instruct": ("Bielik 11B", "v3.0 Instruct"),
+    "lfm3-1.7b-base": ("LFM3", "1.7B Base"),
+    "bielik-1.5b-v3": ("Bielik", "1.5B v3"),
+    "qwen3.5-0.8b-base": ("Qwen3.5", "0.8B Base"),
+}
+SECTIONS: Final[tuple[tuple[str, tuple[str, ...]], ...]] = (
+    ("Polish", CATEGORIES["Polish"]),
+    ("English · reasoning and science", CATEGORIES["Reasoning and science"]),
+    ("English · commonsense", CATEGORIES["Commonsense"]),
+    ("English · medical knowledge", CATEGORIES["Knowledge (medical)"]),
+    ("English · language modeling and grammar", CATEGORIES["Language modeling and linguistics"]),
+)
+LEGEND: Final = (
+    "Accuracy in %, 0-shot · ↓ lower is better (WikiText-2: perplexity per byte) · best of the five highlighted, "
+    "second underlined"
+)
+
+
+def value_text(r: Result) -> str:
+    """The value alone, as the headline shows it: accuracy in percent with one decimal, perplexity with three."""
+    if r.unit == "byte_ppl":
+        return f"{r.value:.3f}"
+    return f"{r.value * (1.0 if r.unit == 'percent' else 100.0):.1f}"
+
+
+def ranks(cells: Sequence[Result | None]) -> list[int | None]:
+    """Rank of each cell among the others (1 = best), by the shown value, so equal shown values share a rank."""
+    present = [c for c in cells if c is not None]
+    values = sorted({float(value_text(c)) for c in present}, reverse=present[0].higher_is_better)
+    return [None if c is None else values.index(float(value_text(c))) + 1 for c in cells]
+
+
+Cell = tuple[str, Result | None, int | None]  # benchmark, result, rank
+
+
+def headline_rows(rows: Sequence[Result]) -> list[tuple[str, list[tuple[str, list[Cell]]]]]:
+    """The headline's row groups: per section, per benchmark its shown name and one cell per HEADLINE model."""
+    by = {(r.benchmark, r.model): r for r in rows if r.protocol == "full-run-2026-11"}
+    out = []
+    for section, benchmarks in SECTIONS:
+        lines = []
+        for b in benchmarks:
+            cells = [by.get((b, m)) for m in HEADLINE]
+            if all(c is None for c in cells):
+                continue
+            first = next(c for c in cells if c is not None)
+            name = benchmark_name(b) + ("" if first.higher_is_better else " ↓")
+            lines.append((name, [(b, c, k) for c, k in zip(cells, ranks(cells), strict=True)]))
+        out.append((section, lines))
+    return out
+
+
+@dataclass(frozen=True)
+class Theme:
+    background: str
+    text: str
+    muted: str
+    rule: str
+    row_rule: str
+    best_fill: str
+    accent: str
+
+
+LIGHT: Final = Theme("#ffffff", "#1f2328", "#59636e", "#d1d9e0", "#eef1f4", "#fbe3e4", "#b3202e")
+DARK: Final = Theme("#0d1117", "#e6edf3", "#9198a1", "#3d444d", "#21262d", "#4a1d22", "#ff8a80")
+FONT: Final = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+
+
+def _esc(text: str) -> str:
+    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def headline_svg(rows: Sequence[Result], t: Theme) -> str:
+    """The headline table as an SVG image, styled as GitHub cannot style a Markdown table: no grid, the best value
+    of each row highlighted in red, the second underlined. Each value carries its benchmark, model, and rank."""
+    name_width, col, pad, row_h = 220, 100, 20, 34
+    width = pad * 2 + name_width + col * len(HEADLINE)
+
+    def center(i: int) -> float:
+        return pad + name_width + col * i + col / 2
+
+    body: list[str] = []
+    for i, m in enumerate(HEADLINE):
+        body.append(f'<text x="{center(i)}" y="38" text-anchor="middle" font-weight="600">{_esc(HEADER[m][0])}</text>')
+        body.append(
+            f'<text x="{center(i)}" y="56" text-anchor="middle" font-size="12" fill="{t.muted}">'
+            f"{_esc(HEADER[m][1])}</text>"
+        )
+    body.append(f'<text x="{pad}" y="56" font-size="12" fill="{t.muted}">Benchmark</text>')
+    y = 70
+    body.append(f'<line x1="{pad}" x2="{width - pad}" y1="{y}" y2="{y}" stroke="{t.rule}"/>')
+    for section, lines in headline_rows(rows):
+        y += row_h
+        body.append(
+            f'<text x="{pad}" y="{y - 10}" font-size="13" font-weight="600" fill="{t.muted}">{_esc(section)}</text>'
+        )
+        for name, cells in lines:
+            body.append(f'<line x1="{pad}" x2="{width - pad}" y1="{y}" y2="{y}" stroke="{t.row_rule}"/>')
+            y += row_h
+            base = y - 11
+            body.append(f'<text x="{pad}" y="{base}">{_esc(name)}</text>')
+            for i, (b, c, k) in enumerate(cells):
+                if k == 1:
+                    body.append(
+                        f'<rect x="{center(i) - 34}" y="{base - 16}" width="68" height="22" rx="5" '
+                        f'fill="{t.best_fill}"/>'
+                    )
+                elif k == 2:
+                    body.append(
+                        f'<line x1="{center(i) - 18}" x2="{center(i) + 18}" y1="{base + 3}" y2="{base + 3}" '
+                        f'stroke="{t.text}"/>'
+                    )
+                style = f' font-weight="700" fill="{t.accent}"' if k == 1 else f' fill="{t.muted}"' if c is None else ""
+                body.append(
+                    f'<text x="{center(i)}" y="{base}" text-anchor="middle"{style} data-benchmark="{b}" '
+                    f'data-model="{HEADLINE[i]}" data-rank="{k or 0}">{"n/a" if c is None else value_text(c)}</text>'
+                )
+    y += 8
+    body.append(f'<line x1="{pad}" x2="{width - pad}" y1="{y}" y2="{y}" stroke="{t.rule}"/>')
+    y += 24
+    body.append(f'<text x="{pad}" y="{y}" font-size="12" fill="{t.muted}">{_esc(LEGEND)}</text>')
+    height = y + 16
+    return "\n".join(
+        [
+            f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+            f'viewBox="0 0 {width} {height}" font-family="{FONT}" font-size="14" fill="{t.text}">',
+            f'<rect width="{width}" height="{height}" rx="8" fill="{t.background}"/>',
+            *body,
+            "</svg>",
+            "",
+        ]
+    )
+
+
+def values_table(rows: Sequence[Result]) -> list[str]:
+    """The headline's values with their standard errors, as an HTML table (Markdown tables have no group rows)."""
+    head = "".join(f"<th>{HEADER[m][0]}<br><sub>{HEADER[m][1]}</sub></th>" for m in HEADLINE)
+    out = ["<table>", f'<tr><th align="left">Benchmark</th>{head}</tr>']
+    for section, lines in headline_rows(rows):
+        out.append(f'<tr><td colspan="{1 + len(HEADLINE)}"><b>{section}</b></td></tr>')
+        for name, cells in lines:
+            tds = "".join(f'<td align="right">{"n/a" if c is None else shown(c)}</td>' for _, c, _ in cells)
+            out.append(f"<tr><td>{name}</td>{tds}</tr>")
+    out.append("</table>")
+    return out
+
+
 def readme(rows: Sequence[Result]) -> str:
-    log_lik = [r for r in rows if r.protocol == "full-run-2026-11"]
+    ifeval_rows = {r.model: r for r in rows if r.benchmark == "ifeval"}
+    slayer_if, bielik_if = ifeval_rows["slayer1b-1.08"], ifeval_rows["bielik-11b-v3.1"]
     lines = [
         "# Results",
         "",
-        "Every published result of this repository in one place, generated from the research pipeline's result files",
-        "by `python -m codesota.leaderboard` (do not edit by hand). Slayer 1B first, next to reference models.",
+        "Slayer 1B next to its reference models, on the same benchmarks with the same settings.",
+        "",
+        "<picture>",
+        '  <source media="(prefers-color-scheme: dark)" srcset="charts/headline-table-dark.svg">',
+        '  <img src="charts/headline-table.svg" alt="Results table: Slayer 1B 1.09, Bielik 11B, LFM3-1.7B-Base, '
+        'Bielik 1.5B v3 and Qwen3.5-0.8B-Base on 14 benchmarks; the same values are in the Values table below" '
+        'width="100%">',
+        "</picture>",
+        "",
+        f"**Instruction following (IFEval):** Bielik 11B v3.1 Instruct {value_text(bielik_if)}, "
+        f"Slayer 1B 1.08 {value_text(slayer_if)}. Slayer is a base model without a chat template, so its score "
+        "mostly reflects broken output, not instruction following. [Details](instruction-following.md).",
         "",
         "[All models](all-models.md) · [Instruction following](instruction-following.md) · "
         "[All results as JSONL](results.jsonl) · [Benchmark status](../BENCHMARKS.md)",
         "",
-        '<p align="center"><img src="charts/headline.png" alt="Slayer 1B 1.09 and reference models, accuracy '
-        'per benchmark" width="100%"></p>',
+        "## Notes",
         "",
-        "## Headline",
+        "- **Slayer 1B 1.09 is a training checkpoint** (step 40 000), not a release.",
+        "- **Bielik 11B is about ten times larger** than the others and instruction-tuned; it is the closest Polish "
+        "reference. LFM3-1.7B (in the full tables) is instruction-tuned too. All are scored on raw text.",
+        "- **How it was measured:** the full test set of each benchmark, 0-shot, each answer scored by the "
+        "model's probability of it (lm-eval; BLiMP and EWoK: their own code), float32 (Bielik 11B: bfloat16), "
+        "no chat template. Slayer's inputs start with one BOS token, the other models' with none.",
+        "- **Small differences are noise:** a difference of one or two points is often within the standard errors "
+        "below.",
+        "- Results flagged for checking by the research review are marked † in the [full tables](all-models.md); "
+        "none is on this page.",
+        "- Generated by `python -m codesota.leaderboard` from the result files below; do not edit by hand.",
         "",
-        f"Value ± standard error; accuracies in percent. Protocol: {PROTOCOLS['full-run-2026-11']} {SE_NOTE}",
+        "## Values",
         "",
-    ]
-    for category, benchmarks in CATEGORIES.items():
-        if category == "Instruction following":
-            continue
-        lines += [f"### {category}", "", *table(log_lik, HEADLINE, benchmarks), ""]
-    lines += [
-        "### Instruction following",
+        f"Value ± standard error, accuracy in %. {SE_NOTE}",
         "",
-        "Bielik 11B is v3.1 here; the log-likelihood tables above have v3.0, the version the full run measured. "
-        f"{PROTOCOLS['ifeval-api']} {SLAYER_IFEVAL_NOTE} Every IFEval result, with the other setups: "
-        "[instruction-following.md](instruction-following.md).",
-        "",
-        *_ifeval_table(rows, ("slayer1b-1.08", "bielik-11b-v3.1")),
-        "",
-        "## Read with care",
-        "",
-        "- **Not one class.** Bielik 11B has ten times the parameters of the others, and it and LFM3-1.7B "
-        "(in the full tables) are instruction-tuned models scored here on raw text.",
-        "- **Slayer 1B 1.09 at step 40 000 is a training checkpoint**, not a release; its result is preliminary. The "
-        "research report of the run keeps it out of its comparison table for that reason; it leads this page as the "
-        "latest Slayer measured.",
-        "- **Flags.** Results the research review flagged for checking are marked † in the "
-        "[full tables](all-models.md); none is in the headline.",
-        "- **A difference between two models needs a paired test**, not two overlapping intervals; the research "
-        "report has them ([full run](../../research/results/full-run-2026-11/README.md)).",
-        "- **Status.** Only benchmarks marked `verified` in [BENCHMARKS.md](../BENCHMARKS.md) have a reproduced "
-        "reference result; the others are measurements without that check.",
+        *values_table(rows),
         "",
         "## Sources",
         "",
@@ -466,53 +613,14 @@ def text_files(repo: Path = REPO) -> dict[str, str]:
         "all-models.md": all_models(rows),
         "instruction-following.md": instruction_following(rows),
         "results.jsonl": jsonl(rows),
+        "charts/headline-table.svg": headline_svg(rows, LIGHT),
+        "charts/headline-table-dark.svg": headline_svg(rows, DARK),
     }
-
-
-# --- charts ---
-
-
-def charts(rows: Sequence[Result], out: Path) -> None:
-    """The headline chart: accuracy per benchmark for the headline models, with ± 1 SE."""
-    import matplotlib
-
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-
-    log_lik = [r for r in rows if r.protocol == "full-run-2026-11" and r.unit != "byte_ppl"]
-    benchmarks = [b for bs in CATEGORIES.values() for b in bs if any(r.benchmark == b for r in log_lik)]
-    by = {(r.benchmark, r.model): r for r in log_lik}
-    width = 0.8 / len(HEADLINE)
-    fig, ax = plt.subplots(figsize=(14, 5.5), dpi=120)
-    colors = ("#c0392b", "#2c3e50", "#7f8c8d", "#95a5a6", "#bdc3c7")
-    for i, (m, color) in enumerate(zip(HEADLINE, colors, strict=True)):
-        xs, ys, es = [], [], []
-        for j, b in enumerate(benchmarks):
-            r = by.get((b, m))
-            if r is None:
-                continue
-            scale = 1.0 if r.unit == "percent" else 100.0
-            xs.append(j - 0.4 + width * (i + 0.5))
-            ys.append(r.value * scale)
-            es.append((r.se or 0.0) * scale)
-        ax.bar(xs, ys, width, yerr=es, color=color, label=MODELS[m].name, capsize=2, linewidth=0)
-    ax.set_xticks(range(len(benchmarks)), [benchmark_name(b) for b in benchmarks], rotation=30, ha="right")
-    ax.set_ylabel("accuracy (%)")
-    ax.set_ylim(0, 100)
-    ax.grid(axis="y", alpha=0.3)
-    ax.set_axisbelow(True)
-    ax.legend(ncol=3, fontsize=8, frameon=False, loc="upper center", bbox_to_anchor=(0.5, 1.15))
-    ax.set_title("Full run 2026-11, 0-shot log-likelihood, ± 1 SE", fontsize=10, pad=40)
-    fig.tight_layout()
-    out.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out / "headline.png", metadata={"Software": None})
-    plt.close(fig)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="python -m codesota.leaderboard", description=__doc__.split("\n")[0])
     p.add_argument("--check", action="store_true", help="fail when the text files differ from the sources")
-    p.add_argument("--no-charts", action="store_true", help="write the text files only (no matplotlib needed)")
     args = p.parse_args(argv)
     files = text_files()
     if args.check:
@@ -522,9 +630,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 1 if stale else 0
     OUT.mkdir(parents=True, exist_ok=True)
     for n, t in files.items():
+        (OUT / n).parent.mkdir(parents=True, exist_ok=True)
         (OUT / n).write_text(t, encoding="utf-8", newline="\n")
-    if not args.no_charts:
-        charts(collect(), OUT / "charts")
     return 0
 
 
