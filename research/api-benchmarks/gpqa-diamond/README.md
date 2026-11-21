@@ -37,6 +37,13 @@ The 2048, 8192 and 16384 runs each have files in `results/`. The 16384 run is a 
 earlier two-budget projection of 59.09 that was never stored). A 32768 pass on the items still truncated at 16384 is
 running and will land as a follow-up commit.
 
+![LFM3-1.7B GPQA Diamond accuracy by token budget, 2048 to 32768; 32768 is a projection](charts/budget-curve.svg)
+
+The curve reads left to right as the budget doubles (x axis is log2). The three measured points are 2048, 8192 and
+16384; 32768 is a projection, drawn with a dashed segment and a hollow marker: the 162 items that concluded by 16384
+are kept and the 36 still truncated are re-scored at the rate truncated items reached once unblocked (~32%). It is
+not a measurement; the running 32768 pass will replace it.
+
 Paired tests (same 198 questions, paired difference per item, z = Δ / SE; the SE is the paired SE over the items,
 and the reading follows the repo convention |z| < 2 noise, 2-3 borderline, >= 3 clear):
 
