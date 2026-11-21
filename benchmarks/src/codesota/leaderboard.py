@@ -3,14 +3,14 @@
 `python -m codesota.leaderboard` reads the results the research pipeline published and writes `benchmarks/results/`:
 
 - `results.jsonl`: one line per benchmark, model, and metric, with its uncertainty, protocol, and source file;
-- `README.md`: the latest Slayer 1B next to the headline reference models, by category and language, with charts;
+- `README.md`: the latest Slayer 1B next to the headline reference models, by category and language;
 - `all-models.md`: every model of every run, by category;
 - `instruction-following.md`: instruction-following benchmarks, which use a different protocol per model;
-- `charts/*.png`: the headline charts (needs the `report` extra, matplotlib).
+- `charts/headline-table*.svg`: the headline table as an image, light and dark.
 
 The source files stay where they are: this module only reads them. Nothing here is recomputed; values, standard
 errors, and counts are those of the source. `python -m codesota.leaderboard --check` fails when the files differ from
-what the sources give (`tests/test_leaderboard.py` runs it for the text files).
+what the sources give (`tests/test_leaderboard.py` runs it).
 """
 
 import argparse
@@ -382,7 +382,7 @@ def _esc(text: str) -> str:
 def headline_svg(rows: Sequence[Result], t: Theme) -> str:
     """The headline table as an SVG image, styled as GitHub cannot style a Markdown table: no grid, the best value
     of each row highlighted in red, the second underlined. Each value carries its benchmark, model, and rank."""
-    name_width, col, pad, row_h = 300, 112, 24, 32
+    name_width, col, pad, row_h = 220, 100, 20, 34
     width = pad * 2 + name_width + col * len(HEADLINE)
 
     def center(i: int) -> float:
@@ -472,12 +472,6 @@ def readme(rows: Sequence[Result]) -> str:
         f"**Instruction following (IFEval):** Bielik 11B v3.1 Instruct {value_text(bielik_if)}, "
         f"Slayer 1B 1.08 {value_text(slayer_if)}. Slayer is a base model without a chat template, so its score "
         "mostly reflects broken output, not instruction following. [Details](instruction-following.md).",
-        "",
-        "<picture>",
-        '  <source media="(prefers-color-scheme: dark)" srcset="charts/headline-dark.png">',
-        '  <img src="charts/headline.png" alt="Accuracy per benchmark: Slayer 1B 1.09 and the reference models" '
-        'width="100%">',
-        "</picture>",
         "",
         "[All models](all-models.md) · [Instruction following](instruction-following.md) · "
         "[All results as JSONL](results.jsonl) · [Benchmark status](../BENCHMARKS.md)",
@@ -624,73 +618,9 @@ def text_files(repo: Path = REPO) -> dict[str, str]:
     }
 
 
-# --- charts ---
-
-
-def charts(rows: Sequence[Result], out: Path) -> None:
-    """The headline chart, light and dark: accuracy per benchmark for the headline models, with ± 1 SE."""
-    import matplotlib
-
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
-
-    log_lik = [r for r in rows if r.protocol == "full-run-2026-11" and r.unit != "byte_ppl"]
-    benchmarks = [b for _, bs in SECTIONS for b in bs if any(r.benchmark == b for r in log_lik)]
-    by = {(r.benchmark, r.model): r for r in log_lik}
-    width = 0.8 / len(HEADLINE)
-    # Slayer in red, Bielik 11B darkest, the other references in lighter greys.
-    greys = {LIGHT: ("#3d4148", "#6e737b", "#9da2a9", "#c9ccd1"), DARK: ("#c9d1d9", "#8b949e", "#6e7681", "#484f58")}
-    out.mkdir(parents=True, exist_ok=True)
-    for theme, name in ((LIGHT, "headline.png"), (DARK, "headline-dark.png")):
-        colors = (theme.accent, *greys[theme])
-        plt.rcParams.update(
-            {
-                "font.family": "DejaVu Sans",
-                "text.color": theme.text,
-                "axes.edgecolor": theme.rule,
-                "axes.labelcolor": theme.muted,
-                "xtick.color": theme.muted,
-                "ytick.color": theme.muted,
-            }
-        )
-        fig, ax = plt.subplots(figsize=(14, 5), dpi=120)
-        fig.patch.set_facecolor(theme.background)
-        ax.set_facecolor(theme.background)
-        for i, (m, color) in enumerate(zip(HEADLINE, colors, strict=True)):
-            xs, ys, es = [], [], []
-            for j, b in enumerate(benchmarks):
-                r = by.get((b, m))
-                if r is None:
-                    continue
-                scale = 1.0 if r.unit == "percent" else 100.0
-                xs.append(j - 0.4 + width * (i + 0.5))
-                ys.append(r.value * scale)
-                es.append((r.se or 0.0) * scale)
-            ax.bar(
-                xs,
-                ys,
-                width,
-                yerr=es,
-                color=color,
-                label=" ".join(HEADER[m]),
-                error_kw={"elinewidth": 0.6, "ecolor": theme.muted},
-            )
-        ax.set_xticks(range(len(benchmarks)), [benchmark_name(b) for b in benchmarks], rotation=30, ha="right")
-        ax.set_ylabel("accuracy (%)")
-        ax.set_ylim(0, 100)
-        ax.grid(axis="y", color=theme.row_rule)
-        ax.set_axisbelow(True)
-        ax.spines[["top", "right"]].set_visible(False)
-        ax.legend(ncol=5, fontsize=9, frameon=False, loc="upper center", bbox_to_anchor=(0.5, 1.1))
-        fig.tight_layout()
-        fig.savefig(out / name, metadata={"Software": None}, facecolor=theme.background)
-        plt.close(fig)
-
-
 def main(argv: Sequence[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="python -m codesota.leaderboard", description=__doc__.split("\n")[0])
     p.add_argument("--check", action="store_true", help="fail when the text files differ from the sources")
-    p.add_argument("--no-charts", action="store_true", help="write the text files only (no matplotlib needed)")
     args = p.parse_args(argv)
     files = text_files()
     if args.check:
@@ -702,8 +632,6 @@ def main(argv: Sequence[str] | None = None) -> int:
     for n, t in files.items():
         (OUT / n).parent.mkdir(parents=True, exist_ok=True)
         (OUT / n).write_text(t, encoding="utf-8", newline="\n")
-    if not args.no_charts:
-        charts(collect(), OUT / "charts")
     return 0
 
 

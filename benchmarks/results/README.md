@@ -9,11 +9,6 @@ Slayer 1B next to its reference models, on the same benchmarks with the same set
 
 **Instruction following (IFEval):** Bielik 11B v3.1 Instruct 55.3, Slayer 1B 1.08 18.1. Slayer is a base model without a chat template, so its score mostly reflects broken output, not instruction following. [Details](instruction-following.md).
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="charts/headline-dark.png">
-  <img src="charts/headline.png" alt="Accuracy per benchmark: Slayer 1B 1.09 and the reference models" width="100%">
-</picture>
-
 [All models](all-models.md) · [Instruction following](instruction-following.md) · [All results as JSONL](results.jsonl) · [Benchmark status](../BENCHMARKS.md)
 
 ## Notes

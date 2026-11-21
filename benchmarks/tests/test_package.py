@@ -15,8 +15,8 @@ def test_package_ships_type_marker() -> None:
 
 def test_package_declares_no_unconditional_dependencies() -> None:
     # A runtime dependency arrives with the code that needs it, in the same reviewed PR. The catalog and the
-    # validator need none; the runner's evaluation stack is the `eval` extra, the results charts the `report` extra.
+    # validator need none; the runner's evaluation stack is the `eval` extra.
     requirements = metadata.requires("codesota") or []
     assert requirements
-    extras = ("extra == 'eval'", "extra == 'report'")
+    extras = ("extra == 'eval'",)
     assert all(any(e in r.replace('"', "'") for e in extras) for r in requirements), requirements

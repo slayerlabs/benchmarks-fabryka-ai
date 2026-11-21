@@ -1,4 +1,4 @@
-"""The results page: generated from the research result files, complete, and up to date. No matplotlib needed.
+"""The results page: generated from the research result files, complete, and up to date.
 
 The values are checked against the source files directly (not against the generator's own output), so a swapped
 column, a wrong scale, a lost standard error, or a swapped file fails a test.
