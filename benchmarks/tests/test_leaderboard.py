@@ -5,6 +5,7 @@ column, a wrong scale, a lost standard error, or a swapped file fails a test.
 """
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -72,32 +73,51 @@ def test_every_ifeval_row_matches_its_file() -> None:
         assert row["model"] in (src["model"], f"{src['model']}-ifeval")
 
 
-def test_headline_cells_show_each_model_s_own_source_value() -> None:
-    """Every cell of the headline tables, recomputed from manifest.jsonl for its column's model."""
-    src = {(r["benchmark"], r["model"]): r for r in published()}
+def headline_rows() -> list[tuple[str, list[str]]]:
+    """The benchmark rows of the headline table: the benchmark's name and its cells' HTML."""
     readme = (leaderboard.OUT / "README.md").read_text(encoding="utf-8")
+    out = []
+    for row in re.findall(r"<tr><td>(.*?)</td>(.*?)</tr>", readme):
+        out.append((row[0], re.findall(r'<td align="right">(.*?)</td>', row[1])))
+    return out
+
+
+def test_headline_cells_show_each_model_s_own_source_value() -> None:
+    """Every cell of the headline table, recomputed from manifest.jsonl for its column's model."""
+    src = {(r["benchmark"], r["model"]): r for r in published()}
     names = {leaderboard.benchmark_name(b): b for b in leaderboard.CATEGORY_OF}
+    models = (*leaderboard.RANKED, *leaderboard.LARGER)
     checked = 0
-    for line in readme.splitlines():
-        cells = [c.strip() for c in line.strip("|").split("|")]
-        if not line.startswith("| ") or cells[0] not in names or len(cells) != 2 + len(leaderboard.HEADLINE):
-            continue
-        benchmark = names[cells[0]]
-        for model, text in zip(leaderboard.HEADLINE, cells[2:], strict=True):
+    for name, cells in headline_rows():
+        benchmark = names[name.removesuffix(" ↓")]
+        assert len(cells) == len(models)
+        for model, text in zip(models, cells, strict=True):
             row = src.get((benchmark, model))
             if row is None:
                 assert text == "n/a"
                 continue
             scale = 1.0 if row["metryka"] in ("accuracy", "byte_perplexity,none") else 100.0
             digits = 3 if row["metryka"].startswith("byte_perplexity") else 1
-            expected = f"{row['wartosc'] * scale:.{digits}f} ± {row['se'] * scale:.{digits}f}"
-            assert text == expected, (benchmark, model)
+            assert re.sub(r"</?(b|ins)>", "", text) == f"{row['wartosc'] * scale:.{digits}f}", (benchmark, model)
             checked += 1
     assert checked >= 60
 
 
+def test_headline_marks_the_best_and_second_of_the_ranked_models() -> None:
+    """Bold is the best shown value of the ranked models, underlined the next one; the cells' values are checked
+    against the sources above."""
+    n = len(leaderboard.RANKED)
+    for name, cells in headline_rows():
+        values = [float(re.sub(r"</?(b|ins)>", "", t)) for t in cells[:n]]
+        order = sorted(set(values), reverse=not name.endswith(" ↓"))
+        for value, text in zip(values, cells[:n], strict=True):
+            assert text.startswith("<b>") == (value == order[0]), (name, text)
+            assert text.startswith("<ins>") == (value == order[1]), (name, text)
+        assert not any(t.startswith(("<b>", "<ins>")) for t in cells[n:]), name  # the larger model is not ranked
+
+
 def test_the_headline_has_no_flagged_result() -> None:
-    # README.md says so in "Read with care"; this keeps the sentence true.
+    # README.md says so in its notes; this keeps the sentence true.
     flagged = [r for r in leaderboard.collect() if r.model in leaderboard.HEADLINE and r.review_flag != "ok"]
     assert flagged == []
 

@@ -19,7 +19,7 @@ import sys
 from collections.abc import Iterable, Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Final
+from typing import Any, Final
 
 from codesota import catalog
 
@@ -303,51 +303,107 @@ def cell(r: Result | None) -> str:
     return shown(r) + (" †" if r.review_flag != "ok" else "")
 
 
+# The headline table: the latest Slayer and the models of its size class, ranked per row, then a larger reference
+# shown next to them but not ranked. Column headers: name and a second line.
+RANKED: Final = (LATEST_SLAYER, "lfm3-1.7b-base", "bielik-1.5b-v3", "qwen3.5-0.8b-base")
+LARGER: Final = ("bielik-11b-v3-instruct",)
+HEADER: Final[dict[str, tuple[str, str]]] = {
+    LATEST_SLAYER: ("Slayer 1B", "1.09 checkpoint"),
+    "lfm3-1.7b-base": ("LFM3", "1.7B Base"),
+    "bielik-1.5b-v3": ("Bielik", "1.5B v3"),
+    "qwen3.5-0.8b-base": ("Qwen3.5", "0.8B Base"),
+    "bielik-11b-v3-instruct": ("Bielik 11B", "v3.0 Instruct"),
+}
+# Row groups of the headline table: Polish first, then English by category.
+SECTIONS: Final[tuple[tuple[str, tuple[str, ...]], ...]] = (
+    ("Polish", CATEGORIES["Polish"]),
+    ("English · reasoning and science", CATEGORIES["Reasoning and science"]),
+    ("English · commonsense", CATEGORIES["Commonsense"]),
+    ("English · medical knowledge", CATEGORIES["Knowledge (medical)"]),
+    ("English · language modeling and grammar", CATEGORIES["Language modeling and linguistics"]),
+)
+
+
+def value_text(r: Result) -> str:
+    """The value alone, as the headline shows it: accuracy in percent with one decimal, perplexity with three."""
+    if r.unit == "byte_ppl":
+        return f"{r.value:.3f}"
+    return f"{r.value * (1.0 if r.unit == 'percent' else 100.0):.1f}"
+
+
+def ranks(cells: Sequence[Result | None]) -> list[int | None]:
+    """Rank of each cell among the others (1 = best), by the shown value, so equal shown values share a rank."""
+    present = [c for c in cells if c is not None]
+    values = sorted({float(value_text(c)) for c in present}, reverse=present[0].higher_is_better)
+    return [None if c is None else values.index(float(value_text(c))) + 1 for c in cells]
+
+
+def _marked(text: str, rank: int | None) -> str:
+    return f"<b>{text}</b>" if rank == 1 else f"<ins>{text}</ins>" if rank == 2 else text
+
+
+def headline_table(rows: Sequence[Result]) -> list[str]:
+    """The headline as an HTML table (GitHub renders it; Markdown tables cannot have group rows)."""
+    by = {(r.benchmark, r.model): r for r in rows if r.protocol == "full-run-2026-11"}
+    models = (*RANKED, *LARGER)
+    head = "".join(f"<th>{HEADER[m][0]}<br><sub>{HEADER[m][1]}</sub></th>" for m in models)
+    lines = ["<table>", f'<tr><th align="left">Benchmark</th>{head}</tr>']
+    for section, benchmarks in SECTIONS:
+        lines.append(f'<tr><td colspan="{1 + len(models)}"><b>{section}</b></td></tr>')
+        for b in benchmarks:
+            cells = [by.get((b, m)) for m in models]
+            if all(c is None for c in cells):
+                continue
+            ranked = ranks(cells[: len(RANKED)]) + [None] * len(LARGER)
+            first = next(c for c in cells if c is not None)
+            name = benchmark_name(b) + ("" if first.higher_is_better else " ↓")
+            tds = "".join(
+                f'<td align="right">{"n/a" if c is None else _marked(value_text(c), k)}</td>'
+                for c, k in zip(cells, ranked, strict=True)
+            )
+            lines.append(f"<tr><td>{name}</td>{tds}</tr>")
+    lines.append("</table>")
+    return lines
+
+
 def readme(rows: Sequence[Result]) -> str:
-    log_lik = [r for r in rows if r.protocol == "full-run-2026-11"]
+    ifeval_rows = {r.model: r for r in rows if r.benchmark == "ifeval"}
+    slayer_if, bielik_if = ifeval_rows["slayer1b-1.08"], ifeval_rows["bielik-11b-v3.1"]
     lines = [
         "# Results",
         "",
-        "Every published result of this repository in one place, generated from the research pipeline's result files",
-        "by `python -m codesota.leaderboard` (do not edit by hand). Slayer 1B first, next to reference models.",
+        "Slayer 1B next to models of its size, on the same benchmarks with the same settings.",
+        "",
+        *headline_table(rows),
+        "",
+        "Accuracy in %, 0-shot. ↓ lower is better (WikiText-2: perplexity per byte). **Bold**: best of the four "
+        "small models, <ins>underlined</ins>: second. Bielik 11B is about ten times larger and is shown for "
+        "reference, without a rank.",
+        "",
+        f"**Instruction following (IFEval):** Bielik 11B v3.1 Instruct {value_text(bielik_if)}, "
+        f"Slayer 1B 1.08 {value_text(slayer_if)}. Slayer is a base model without a chat template, so its score "
+        "mostly reflects broken output, not instruction following. [Details](instruction-following.md).",
+        "",
+        '<p align="center"><img src="charts/headline.png" alt="Accuracy per benchmark: Slayer 1B 1.09 and the '
+        'reference models" width="100%"></p>',
         "",
         "[All models](all-models.md) · [Instruction following](instruction-following.md) · "
         "[All results as JSONL](results.jsonl) · [Benchmark status](../BENCHMARKS.md)",
         "",
-        '<p align="center"><img src="charts/headline.png" alt="Slayer 1B 1.09 and reference models, accuracy '
-        'per benchmark" width="100%"></p>',
+        "## Notes",
         "",
-        "## Headline",
-        "",
-        f"Value ± standard error; accuracies in percent. Protocol: {PROTOCOLS['full-run-2026-11']} {SE_NOTE}",
-        "",
-    ]
-    for category, benchmarks in CATEGORIES.items():
-        if category == "Instruction following":
-            continue
-        lines += [f"### {category}", "", *table(log_lik, HEADLINE, benchmarks), ""]
-    lines += [
-        "### Instruction following",
-        "",
-        "Bielik 11B is v3.1 here; the log-likelihood tables above have v3.0, the version the full run measured. "
-        f"{PROTOCOLS['ifeval-api']} {SLAYER_IFEVAL_NOTE} Every IFEval result, with the other setups: "
-        "[instruction-following.md](instruction-following.md).",
-        "",
-        *_ifeval_table(rows, ("slayer1b-1.08", "bielik-11b-v3.1")),
-        "",
-        "## Read with care",
-        "",
-        "- **Not one class.** Bielik 11B has ten times the parameters of the others, and it and LFM3-1.7B "
-        "(in the full tables) are instruction-tuned models scored here on raw text.",
-        "- **Slayer 1B 1.09 at step 40 000 is a training checkpoint**, not a release; its result is preliminary. The "
-        "research report of the run keeps it out of its comparison table for that reason; it leads this page as the "
-        "latest Slayer measured.",
-        "- **Flags.** Results the research review flagged for checking are marked † in the "
-        "[full tables](all-models.md); none is in the headline.",
-        "- **A difference between two models needs a paired test**, not two overlapping intervals; the research "
-        "report has them ([full run](../../research/results/full-run-2026-11/README.md)).",
-        "- **Status.** Only benchmarks marked `verified` in [BENCHMARKS.md](../BENCHMARKS.md) have a reproduced "
-        "reference result; the others are measurements without that check.",
+        "- **Slayer 1B 1.09 is a training checkpoint** (step 40 000), not a release.",
+        "- **How it was measured:** the full test set of each benchmark, 0-shot, each answer scored by the "
+        "model's probability of it (lm-eval; BLiMP and EWoK: their own code), float32 (Bielik 11B: bfloat16), "
+        "no chat template. Slayer's "
+        "inputs start with one BOS token, the other models' with none.",
+        "- **Small differences are noise.** Values with their standard errors are in [all models](all-models.md) "
+        f"and [`results.jsonl`](results.jsonl); a difference of one or two points is often within them. {SE_NOTE}",
+        "- **Bielik 11B and LFM3-1.7B (in the full tables) are instruction-tuned**, scored here on raw text like "
+        "the base models.",
+        "- Results flagged for checking by the research review are marked † in the [full tables](all-models.md); "
+        "none is on this page.",
+        "- Generated by `python -m codesota.leaderboard` from the result files below; do not edit by hand.",
         "",
         "## Sources",
         "",
@@ -480,12 +536,21 @@ def charts(rows: Sequence[Result], out: Path) -> None:
     import matplotlib.pyplot as plt
 
     log_lik = [r for r in rows if r.protocol == "full-run-2026-11" and r.unit != "byte_ppl"]
-    benchmarks = [b for bs in CATEGORIES.values() for b in bs if any(r.benchmark == b for r in log_lik)]
+    benchmarks = [b for _, bs in SECTIONS for b in bs if any(r.benchmark == b for r in log_lik)]
     by = {(r.benchmark, r.model): r for r in log_lik}
-    width = 0.8 / len(HEADLINE)
-    fig, ax = plt.subplots(figsize=(14, 5.5), dpi=120)
-    colors = ("#c0392b", "#2c3e50", "#7f8c8d", "#95a5a6", "#bdc3c7")
-    for i, (m, color) in enumerate(zip(HEADLINE, colors, strict=True)):
+    models = (*RANKED, *LARGER)
+    width = 0.8 / len(models)
+    plt.rcParams.update({"font.family": "DejaVu Sans", "axes.edgecolor": "#cccccc", "axes.labelcolor": "#444444"})
+    fig, ax = plt.subplots(figsize=(14, 5), dpi=120)
+    # Slayer in red, the other small models in greys, the larger reference as an outline.
+    styles: tuple[dict[str, Any], ...] = (
+        {"color": "#b3202e"},
+        {"color": "#55595f"},
+        {"color": "#8b9097"},
+        {"color": "#bfc3c8"},
+        {"color": "white", "edgecolor": "#55595f", "linewidth": 0.8},
+    )
+    for i, (m, style) in enumerate(zip(models, styles, strict=True)):
         xs, ys, es = [], [], []
         for j, b in enumerate(benchmarks):
             r = by.get((b, m))
@@ -495,14 +560,15 @@ def charts(rows: Sequence[Result], out: Path) -> None:
             xs.append(j - 0.4 + width * (i + 0.5))
             ys.append(r.value * scale)
             es.append((r.se or 0.0) * scale)
-        ax.bar(xs, ys, width, yerr=es, color=color, label=MODELS[m].name, capsize=2, linewidth=0)
+        label = " ".join(HEADER[m]) + (" (larger reference)" if m in LARGER else "")
+        ax.bar(xs, ys, width, yerr=es, label=label, error_kw={"elinewidth": 0.6, "ecolor": "#777777"}, **style)
     ax.set_xticks(range(len(benchmarks)), [benchmark_name(b) for b in benchmarks], rotation=30, ha="right")
     ax.set_ylabel("accuracy (%)")
     ax.set_ylim(0, 100)
-    ax.grid(axis="y", alpha=0.3)
+    ax.grid(axis="y", color="#eeeeee")
     ax.set_axisbelow(True)
-    ax.legend(ncol=3, fontsize=8, frameon=False, loc="upper center", bbox_to_anchor=(0.5, 1.15))
-    ax.set_title("Full run 2026-11, 0-shot log-likelihood, ± 1 SE", fontsize=10, pad=40)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.legend(ncol=5, fontsize=9, frameon=False, loc="upper center", bbox_to_anchor=(0.5, 1.1))
     fig.tight_layout()
     out.mkdir(parents=True, exist_ok=True)
     fig.savefig(out / "headline.png", metadata={"Software": None})
