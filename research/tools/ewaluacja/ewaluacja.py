@@ -58,6 +58,8 @@ MODELE_DODATKOWE = [
     "slayer1b-1.08|SlayerLab/Slayer1B-1.08|5f854a0cc7160594d54d1788d37a44e8ebabe16c|slayer|lock",
     # 1.09 w trakcie treningu: wagi_40000.pt (sha256 f83f7017…) skonwertowane konwertuj.py ze wzorcem 1.08 @ 5f854a0c
     "slayer1b-1.09-k40000|SlayerLab/Slayer1B-1.09-checkpoints|cff81fdcc05f0d91e9ba45b09fe78f769d7e0903|slayer-ckpt|lock",
+    # wagi_70000.pt (sha256 9ed73494…) of the same repo at a later revision, the same conversion
+    "slayer1b-1.09-k70000|SlayerLab/Slayer1B-1.09-checkpoints|adfaf3fd5402bc7f3adbfe077798f20262979433|slayer-ckpt|lock",
     "lfm3-1.7b|LiquidAI/LFM3-1.7B|1da06bec6a819da10b54c67e5c90972b46d81871|hf-trust|new",
     # Bielik 11B (gated): fp32 to ~44 GB wag, więcej niż 32 GB karty -> bfloat16, oznaczone w wynikach (dtype).
     # T53 (ewok.py) liczy tylko float32, więc dla tych modeli jest pomijany.
@@ -74,7 +76,8 @@ CENTRAL = ["T01", "T02", "T03", "T04", "T44", "T45", "T46"]
 # (konwersja poza tym runnerem) i model.safetensors repo SlayerLab/Slayer1B-1.07@a090b54e (sha256 LFS na hubie).
 SUMA_107 = "d826b4a11bf4eaccee10fe43ec19a4f6d515dfc5f3e5c859adb631f1a0b76ad5"
 SUMY_WAG_CKPT = {"slayer1b-1.07": SUMA_107, "slayer1b-1.07-hf": SUMA_107,
-                 "slayer1b-1.09-k40000": "5d60d691f1ea87db4a900788ff253f2de55e75f9210c93e7e95f3b9f6c434591"}
+                 "slayer1b-1.09-k40000": "5d60d691f1ea87db4a900788ff253f2de55e75f9210c93e7e95f3b9f6c434591",
+                 "slayer1b-1.09-k70000": "b9e31fc953af44638fd64ca163dd8d5658cfe02928445fa9a412f11a618bb24e"}
 # Różnica sum loglik dopuszczona w ZGODNE ~num; smoke EuroLLM: do 5e-4, a inny prompt: od 3,5 wzwyż.
 TOL_ZGODNE = 0.1
 
@@ -195,9 +198,15 @@ def wagi_ckpt_zgodne(m: Model, wagi: Path) -> bool:
     return h.hexdigest() == suma
 
 
+def gpu_i() -> list[str]:
+    """nvidia-smi lists every GPU; with one runner per GPU (CUDA_VISIBLE_DEVICES=N) it asks about that GPU only."""
+    v = os.environ.get("CUDA_VISIBLE_DEVICES", "")
+    return ["-i", v] if v.isdigit() else []
+
+
 def nazwa_gpu() -> str:
     try:
-        n = subprocess.run(["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"],
+        n = subprocess.run(["nvidia-smi", *gpu_i(), "--query-gpu=name", "--format=csv,noheader"],
                            capture_output=True, text=True, timeout=20).stdout.strip().splitlines()[0]
     except Exception:
         n = "cpu"
@@ -214,7 +223,7 @@ class SzczytVram:
     def _petla(self):
         while not self._stop.is_set():
             try:
-                v = int(subprocess.run(["nvidia-smi", "--query-gpu=memory.used", "--format=csv,noheader,nounits"],
+                v = int(subprocess.run(["nvidia-smi", *gpu_i(), "--query-gpu=memory.used", "--format=csv,noheader,nounits"],
                                        capture_output=True, text=True, timeout=10).stdout.split()[0])
                 self.szczyt_mib = max(self.szczyt_mib or 0, v)
             except Exception:
@@ -343,7 +352,7 @@ ROLLING = {"T03"}                   # WikiText: okno 4096 w fp32, szczyt VRAM ~2
 
 def vram_total_mib() -> int | None:
     try:
-        return int(subprocess.run(["nvidia-smi", "--query-gpu=memory.total", "--format=csv,noheader,nounits"],
+        return int(subprocess.run(["nvidia-smi", *gpu_i(), "--query-gpu=memory.total", "--format=csv,noheader,nounits"],
                                   capture_output=True, text=True, timeout=20).stdout.split()[0])
     except Exception:
         return None
@@ -351,7 +360,7 @@ def vram_total_mib() -> int | None:
 
 def vram_used_mib() -> int:
     try:
-        return int(subprocess.run(["nvidia-smi", "--query-gpu=memory.used", "--format=csv,noheader,nounits"],
+        return int(subprocess.run(["nvidia-smi", *gpu_i(), "--query-gpu=memory.used", "--format=csv,noheader,nounits"],
                                   capture_output=True, text=True, timeout=20).stdout.split()[0])
     except Exception:
         return 0
@@ -914,7 +923,7 @@ def zbierz_srodowisko(a) -> dict:
     import platform
     gpu = ""
     try:
-        gpu = subprocess.run(["nvidia-smi", "--query-gpu=name,memory.total,driver_version", "--format=csv,noheader"],
+        gpu = subprocess.run(["nvidia-smi", *gpu_i(), "--query-gpu=name,memory.total,driver_version", "--format=csv,noheader"],
                              capture_output=True, text=True, timeout=20).stdout.strip()
     except Exception:
         pass
