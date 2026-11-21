@@ -36,6 +36,20 @@ def test_statuses() -> None:
     assert "hellaswag" in by_status["needs-reference-check"]  # reference reproduced 10-shot, protocol is 0-shot
 
 
+def test_every_implemented_benchmark_has_a_size_and_the_size_packs_partition_them() -> None:
+    implemented = {b.id for b in catalog.CATALOG.values() if b.status != "not-implemented"}
+    assert set(catalog.COST) == implemented
+    groups = catalog.packs()
+    sizes = [set(groups.get(s, ())) for s in catalog.SIZES]
+    assert set().union(*sizes) == implemented
+    assert sum(len(s) for s in sizes) == len(implemented)
+    assert "wsc273" in groups["small"] and "arc-easy" in groups["medium"] and groups["big"] == ("hellaswag",)
+    assert catalog.Cost(10, catalog.SMALL_BELOW - 1).size == "small"
+    assert catalog.Cost(10, catalog.SMALL_BELOW).size == "medium"
+    assert catalog.Cost(10, catalog.BIG_FROM).size == "big"
+    assert [b.id for b in catalog.select("@small,@big")][-1] == "hellaswag"
+
+
 def test_legacy_ids_are_unique() -> None:
     legacy = [b.legacy_id for b in catalog.CATALOG.values() if b.legacy_id]
     assert len(legacy) == len(set(legacy))

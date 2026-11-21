@@ -83,6 +83,56 @@ class Benchmark:
     def definition(self) -> str:
         return f"research/benchmarks/{self.id}/"
 
+    @property
+    def cost(self) -> "Cost | None":
+        return COST.get(self.id)
+
+
+@dataclass(frozen=True)
+class Cost:
+    """What one run of a benchmark costs, measured on the reference setup (REFERENCE_SETUP).
+
+    `requests` (log-likelihood requests to the model) does not depend on the hardware or the model, but it is not a
+    measure of work on its own: a WikiText-2 request is a whole document. `seconds` is the measured wall-clock time;
+    another model or GPU scales it but keeps the order, so the size is the benchmark's relative amount of work, for
+    building packs, not a time estimate.
+    """
+
+    requests: int
+    seconds: int
+
+    @property
+    def size(self) -> "Size":
+        return "small" if self.seconds < SMALL_BELOW else "medium" if self.seconds < BIG_FROM else "big"
+
+
+Size = Literal["small", "medium", "big"]
+SIZES: Final[tuple[Size, ...]] = ("small", "medium", "big")
+SMALL_BELOW, BIG_FROM = 100, 600  # seconds on the reference setup
+REFERENCE_SETUP: Final = (
+    "EleutherAI/pythia-1b-v0 (1B parameters), float32, batch 1, one BOS, NVIDIA GeForce RTX 5060 Ti, "
+    "codesota.runner verification run of November 2026 (docs/running.md)"
+)
+# (requests, seconds) of the one-BOS verification run on the reference setup.
+COST: Final[dict[str, Cost]] = {
+    benchmark: Cost(requests, seconds)
+    for benchmark, requests, seconds in (
+        ("arc-challenge", 4687, 110),
+        ("arc-easy", 9501, 189),
+        ("hellaswag", 40168, 1060),
+        ("lambada", 5153, 156),
+        ("mathqa", 14925, 201),
+        ("medmcqa", 16732, 115),
+        ("multiblimp-pl", 6544, 123),
+        ("piqa", 3676, 88),
+        ("pubmedqa", 1500, 46),
+        ("social-iqa", 5862, 125),
+        ("wikitext-2", 62, 76),
+        ("winogrande", 2534, 60),
+        ("wsc273", 546, 21),
+    )
+}
+
 
 FULL_RUN = "full-run-2026-11"
 ARC_REPO, ARC_REVISION = "allenai/ai2_arc", "210d026faf9955653af8916fad021475a3f00453"
@@ -425,7 +475,8 @@ CATALOG: Final[dict[str, Benchmark]] = {
 
 
 def packs() -> dict[str, tuple[str, ...]]:
-    """Named groups of benchmarks, selected as `@name`: declared packs, one per language, and one per status."""
+    """Named groups of benchmarks, selected as `@name`: declared packs, one per language, one per status, and one
+    per size (`@small`, `@medium`, `@big`: the implemented benchmarks by their amount of work)."""
     out: dict[str, list[str]] = {"all": list(CATALOG)}
     for b in CATALOG.values():
         for p in b.packs:
@@ -434,6 +485,8 @@ def packs() -> dict[str, tuple[str, ...]]:
         out.setdefault(b.status, []).append(b.id)
         if b.status != "not-implemented":
             out.setdefault("implemented", []).append(b.id)
+        if b.cost is not None:
+            out.setdefault(b.cost.size, []).append(b.id)
     return {k: tuple(v) for k, v in sorted(out.items())}
 
 
@@ -517,18 +570,26 @@ def markdown() -> str:
         "",
         "## Implemented",
         "",
-        "| benchmark | ID | legacy ID | aliases | packs | decision metric | status | evidence |",
-        "|---|---|---|---|---|---|---|---|",
+        "| benchmark | ID | legacy ID | aliases | packs | decision metric | size | status | evidence |",
+        "|---|---|---|---|---|---|---|---|---|",
     ]
     for status in STATUSES[:2]:
         for b in sorted((b for b in CATALOG.values() if b.status == status), key=lambda b: b.id):
-            assert b.scoring is not None
+            assert b.scoring is not None and b.cost is not None
             evidence = " ".join((b.evidence, *b.limitations))
+            cost = f"`{b.cost.size}`: {b.cost.requests} requests, {b.cost.seconds} s"
             lines.append(
                 f"| {b.name} | `{b.id}` | {b.legacy_id or ''} | {', '.join(f'`{a}`' for a in b.aliases)} | "
-                f"{', '.join(f'`@{p}`' for p in b.packs)} | `{b.scoring.decision_metric}` | `{b.status}` | "
+                f"{', '.join(f'`@{p}`' for p in b.packs)} | `{b.scoring.decision_metric}` | {cost} | `{b.status}` | "
                 f"{evidence} |"
             )
+    lines += [
+        "",
+        f"**Size** is the benchmark's amount of work, measured on the reference setup: {REFERENCE_SETUP}. "
+        f"`small` takes under {SMALL_BELOW} s there, `medium` under {BIG_FROM} s, `big` {BIG_FROM} s or more. A "
+        "larger model or another GPU changes the seconds, not the order; every run records its own time and request "
+        "count (`execution.timing`).",
+    ]
     lines += ["", "## Not implemented", "", "| benchmark | ID | legacy ID | language |", "|---|---|---|---|"]
     for b in sorted((b for b in CATALOG.values() if b.status == "not-implemented"), key=lambda b: b.id):
         lines.append(f"| {b.name} | `{b.id}` | {b.legacy_id or ''} | {b.language} |")
@@ -536,7 +597,7 @@ def markdown() -> str:
         "",
         "## Packs",
         "",
-        "Select a pack with `@name`, for example `--benchmarks @verified,arc-challenge`.",
+        "Select a pack with `@name`, for example `--benchmarks @verified,arc-challenge` or `--benchmarks @small`.",
         "",
         "| pack | benchmarks |",
         "|---|---|",

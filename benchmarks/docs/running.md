@@ -102,4 +102,48 @@ The runner's results were compared with the research pipeline's on the same mode
 RTX 5060 Ti. Identical results on different hardware are not guaranteed in general; the tolerance, fixed before the
 runs, was one question.
 
-The table of results is filled in by the verification runs of this change.
+Commands (from a clean checkout at the commit of the runs, CUDA build of torch 2.8.0, `HF_HOME` on a local disk):
+
+```bash
+python -m codesota.runner --benchmarks @implemented --model EleutherAI/pythia-1b-v0   --revision f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0 --bos none --out runs/pythia-none
+python -m codesota.runner --benchmarks @implemented --model EleutherAI/pythia-1b-v0   --revision f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0 --bos one --out runs/pythia-one
+```
+
+Decision metric of each benchmark. "Same selection" compares `source_id_digest` (for HellaSwag, the research-style
+digest in `assessment.research_source_id_digest`); the interval and baselines are compared as recorded.
+
+| benchmark | without BOS: runner | full run | with one BOS: runner | BOS check |
+|---|---|---|---|---|
+| ARC-Easy | 0.558502 | 0.558502 | 0.569024 | 0.569024 |
+| PIQA | 0.709467 | 0.709467 | 0.709467 | 0.709467 |
+| WinoGrande | 0.544594 | 0.544594 | 0.543804 | 0.543804 |
+| LAMBADA | 0.565690 | 0.565690 | 0.560450 | 0.560450 |
+| HellaSwag | 0.467935 | 0.467935 | 0.469528 | 0.469528 |
+| WSC273 | 0.673993 | 0.673993 | 0.681319 | 0.681319 |
+| ARC-Challenge | 0.274744 | 0.274744 | 0.285836 | not measured |
+| MathQA | 0.235176 | 0.235176 | 0.236181 | not measured |
+| MedMCQA | 0.280899 | 0.281138 | 0.275400 | not measured |
+| PubMedQA | 0.566 | 0.566 | 0.582 | not measured |
+| Social IQa | 0.402252 | 0.402252 | 0.405322 | not measured |
+| MultiBLiMP PL | 80.1345 | 80.1345 | 80.1345 | not measured |
+| WikiText-2 (byte perplexity) | 1.6877010 | 1.6877010 | 1.6877010 | not measured |
+
+- Every comparison has the same selection of questions.
+- Without BOS, 11 of 13 match the full run exactly, with the same value, interval, and baselines.
+- **MedMCQA** differs by one question of 4183 (1175 correct instead of 1176; one prediction changed, so the share of the
+  most common prediction moves by 1/4183). This is within the tolerance. The likely cause is a near tie of
+  log-likelihoods that the other GPU rounds the other way. It is not verified: the research pipeline does not keep its
+  per-question results in the repository, so the question cannot be identified.
+- **WikiText-2** differs by 6e-9 in byte perplexity (3e-9 relative), floating-point rounding over 62 long documents.
+- With one BOS, all 6 benchmarks the BOS check measured match it exactly, with the same selection, interval, and
+  baselines. For the other 7 there is no research measurement with one BOS: those numbers are the runner's own.
+  WikiText-2 is the same with and without BOS: rolling windows start with the model's prefix token either way.
+- The runs were made at commit `b717ded`; later commits of this change add timing and sizes and change no score.
+
+## Size
+
+Every implemented benchmark has a size, its amount of work relative to the others: `small`, `medium`, or `big`,
+selectable as `@small`, `@medium`, and `@big`. The size comes from the wall-clock time of the verification run with
+one BOS (`src/codesota/catalog.py` `COST`), shown with the request count in `--list` and in
+[`BENCHMARKS.md`](../BENCHMARKS.md). A larger model or another GPU changes the seconds, not the order. Every run
+records its own time and request count in `execution.timing` of its manifest, and in `index.json`.

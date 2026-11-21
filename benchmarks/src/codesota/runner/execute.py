@@ -10,6 +10,7 @@ log-likelihoods with `scoring`. A failure is recorded as a state with its reason
 """
 
 import json
+import time
 import traceback
 from dataclasses import dataclass
 from pathlib import Path
@@ -43,6 +44,7 @@ class Outcome:
     run_dir: Path | None
     value: float | None
     reason: str | None
+    seconds: float
 
 
 def protocol_id(benchmark: Benchmark, bos: models.Bos) -> str:
@@ -208,7 +210,7 @@ def run_benchmark(
     """Evaluate `benchmark` and write its run directory under `out`. Never raises for a failure of the evaluation
     itself: it is recorded in the run as a state with its reason, and returned."""
     assert benchmark.dataset is not None and benchmark.scoring is not None
-    started = artifact.now()
+    started, clock = artifact.now(), time.monotonic()
     protocol = protocol_id(benchmark, spec.bos)
     run_id = f"{benchmark.id}.{spec.id.replace('/', '--')}.{spec.bos}-bos.{started.replace('-', '').replace(':', '')}"
     try:
@@ -224,8 +226,15 @@ def run_benchmark(
         reason = f"{type(e).__name__}: {e}"[:500]
         log = traceback.format_exc().encode("utf-8")
         samples, ids, scored, config = [], [], None, None
-    finished = artifact.now()
+    finished, seconds = artifact.now(), time.monotonic() - clock
+    timing = {
+        "seconds": round(seconds, 1),
+        "requests": sum(len(s["arguments"]) for s in samples),
+        "requests_per_second": round(sum(len(s["arguments"]) for s in samples) / seconds, 2) if seconds else None,
+        "note": "wall-clock time of loading the data, evaluating, and scoring; model loading not included",
+    }
     manifest = _manifest(benchmark, spec, model_record, protocol, run_id, started, finished, scored)
+    manifest["execution"]["timing"] = timing
     observations = _observations(benchmark, spec, protocol, ids, scored, state, reason)
     extra: dict[str, tuple[str, bytes]] = {}
     if config is not None:
@@ -235,7 +244,7 @@ def run_benchmark(
     records = scored["records"] if scored else []
     run_dir = artifact.write_run(out / run_id, manifest, records, observations, extra)
     value = next((o["value"] for o in observations if o["metric"] == benchmark.scoring.decision_metric), None)
-    return Outcome(benchmark.id, state, run_dir, value, reason)
+    return Outcome(benchmark.id, state, run_dir, value, reason, round(seconds, 1))
 
 
 def _metric_definitions(benchmark: Benchmark) -> list[dict[str, Any]]:

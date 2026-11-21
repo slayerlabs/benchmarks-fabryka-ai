@@ -422,6 +422,8 @@ def test_end_to_end_run_is_valid_and_scored_as_expected(tmp_path: Path) -> None:
     assert manifest["assessment"]["status"] == "verified"
     assert manifest["protocol"]["id"] == "codesota.arc-easy.0shot.none-bos.v1"
     assert manifest["benchmark"]["legacy_id"] == "T51"
+    timing = manifest["execution"]["timing"]
+    assert timing["requests"] == 4 + 3 + 4 and timing["seconds"] >= 0 and outcome.seconds >= 0
     assert outcome.run_dir is not None
     lines = (outcome.run_dir / "samples.jsonl").read_text(encoding="utf-8").splitlines()
     samples = [json.loads(line) for line in lines]

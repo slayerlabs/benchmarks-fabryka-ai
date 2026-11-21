@@ -41,7 +41,8 @@ def print_catalog() -> None:
     rows = sorted(catalog.CATALOG.values(), key=lambda b: (catalog.STATUSES.index(b.status), b.id))
     for b in rows:
         names = ", ".join((*b.aliases, *((b.legacy_id,) if b.legacy_id else ())))
-        print(f"{b.status:<22} {b.id:<18} {b.name:<26} {b.language}  {names}")
+        size = f"{b.cost.size:<6} {b.cost.seconds:>5} s" if b.cost else " " * 14
+        print(f"{b.status:<22} {b.id:<18} {b.name:<26} {b.language}  {size}  {names}")
     print()
     for name, ids in catalog.packs().items():
         print(f"@{name:<22} {len(ids):>3} benchmarks")
@@ -107,10 +108,12 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "state": o.state,
                     "value": o.value,
                     "reason": o.reason,
+                    "seconds": o.seconds,
                     "run_dir": str(o.run_dir),
                 }
             )
-            print(f"{b.id:<18} {b.status:<22} {o.state:<14} {o.value if o.value is not None else '-'}", flush=True)
+            value = o.value if o.value is not None else "-"
+            print(f"{b.id:<18} {b.status:<22} {o.state:<14} {value}  ({o.seconds:.0f} s)", flush=True)
             write_index(args.out, index)
     for row in index:
         if row["state"] == "not_run":
