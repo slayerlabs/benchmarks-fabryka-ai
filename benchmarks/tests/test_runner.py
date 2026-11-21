@@ -14,6 +14,7 @@ import dataclasses
 import importlib
 import importlib.util
 import json
+import math
 import random
 import sys
 from pathlib import Path
@@ -244,11 +245,12 @@ def test_requests_match_research(benchmark: catalog.Benchmark, research: dict[st
     assert variant == "space"
     config.update(local(path))
     theirs = research["ewaluuj"].zbuduj_zadania([config])[0]
-    mine = requests(ours)
     # The research configuration adds acc_mutual_info, whose unconditional requests follow the k conditional ones
-    # of each document (idx >= k); the runner leaves them out (runner/tasks.py).
-    per_doc = {d: max(i for dd, i, _ in mine if dd == d) for d, _, _ in mine}
-    assert mine == [r for r in requests(theirs) if r[1] <= per_doc[r[0]]]
+    # of each document (idx >= k); the runner leaves them out (runner/tasks.py). k comes from the research task, so
+    # an option missing from the runner's configuration fails the comparison.
+    docs = list(theirs.eval_docs)
+    k = [len(theirs.doc_to_choice(d)) if theirs.OUTPUT_TYPE == "multiple_choice" else 1 for d in docs]
+    assert requests(ours) == [r for r in requests(theirs) if r[1] < k[r[0]]]
     assert ours.OUTPUT_TYPE == theirs.OUTPUT_TYPE
     assert ours.config.num_fewshot == theirs.config.num_fewshot == 0
     for doc in ours.eval_docs:
@@ -386,7 +388,8 @@ class FakeLM(LM):  # type: ignore[misc]  # lm-eval's LM is untyped
     def loglikelihood(self, reqs: list[Any], disable_tqdm: bool = False) -> list[tuple[float, bool]]:
         if self.fail:
             raise RuntimeError("CUDA error: device lost")
-        return [(-float(len(r.args[1])), False) for r in reqs]
+        # Greedy (the target is the most likely continuation) when the continuation mentions a cat: LAMBADA's acc.
+        return [(-float(len(r.args[1])), "cat" in r.args[1]) for r in reqs]
 
     def loglikelihood_rolling(self, reqs: list[Any], disable_tqdm: bool = False) -> list[float]:
         return [-float(len(r.args[0])) for r in reqs]
@@ -399,15 +402,17 @@ SPEC = models.ModelSpec(id="test/fake-lm", repo="test/fake-lm", revision="0" * 4
 RECORD = {"bos": {"bos_token_id": None}, "weights_files": {}, "weights_sha256": None, "max_length": 2048}
 
 
-def run(tmp_path: Path, lm: Any, n: int | None = None) -> tuple[execute.Outcome, dict[str, Any]]:
+def run(
+    tmp_path: Path, lm: Any, n: int | None = None, benchmark_id: str = "arc-easy"
+) -> tuple[execute.Outcome, dict[str, Any]]:
     tmp_path.mkdir(parents=True, exist_ok=True)
-    benchmark = catalog.CATALOG["arc-easy"]
+    benchmark = catalog.CATALOG[benchmark_id]
     assert benchmark.dataset is not None
     benchmark = dataclasses.replace(
-        benchmark, dataset=dataclasses.replace(benchmark.dataset, n_population=n or len(ARC))
+        benchmark, dataset=dataclasses.replace(benchmark.dataset, n_population=n or len(DOCS[benchmark_id]))
     )
     outcome = execute.run_benchmark(
-        benchmark, lm, SPEC, RECORD, tmp_path / "runs", local(write_docs(tmp_path, "arc-easy"))
+        benchmark, lm, SPEC, RECORD, tmp_path / "runs", local(write_docs(tmp_path, benchmark_id))
     )
     assert outcome.run_dir is not None
     report = validate_run(outcome.run_dir)
@@ -610,3 +615,50 @@ def test_a_hub_model_on_a_clean_checkout_claims_complete_provenance(
     assert outcome.state == "ok" and manifest["provenance_claim"] == "complete"
     monkeypatch.setattr(artifact, "source_state", lambda: ("1" * 40, True))
     assert run(tmp_path / "dirty", FakeLM())[1]["provenance_claim"] == "partial"
+
+
+# --- the scoring branches other than plain multiple choice, end to end ---
+
+
+def values(manifest: dict[str, Any]) -> dict[str, float]:
+    return {o["metric"]: o["value"] for o in manifest["observations"]}
+
+
+def test_winogrande_takes_gold_from_the_document_and_clusters_twin_sentences(tmp_path: Path) -> None:
+    # Every option has the same continuation, so the log-likelihoods tie and the first option wins. The gold options
+    # are 0, 1, 1 (answers "1", "2", "2"): acc 1/3. Gold forced to 0 would give 1.
+    _, manifest = run(tmp_path, FakeLM(), benchmark_id="winogrande")
+    assert values(manifest)["acc"] == pytest.approx(1 / 3)
+    uncertainty = manifest["assessment"]["uncertainty"]
+    assert uncertainty["se_method"] == "clustered" and uncertainty["k"] == 2  # rows 1-2 are twins, row 3 alone
+
+
+def test_lambada_scores_the_greedy_flag(tmp_path: Path) -> None:
+    # Targets " cat" and " tea"; FakeLM calls a continuation greedy when it mentions a cat: acc 1/2.
+    _, manifest = run(tmp_path, FakeLM(), benchmark_id="lambada")
+    assert values(manifest)["acc"] == pytest.approx(0.5)
+    assert manifest["observations"][0]["reference"]["majority_value"] == pytest.approx(0.5)
+
+
+def test_wikitext_perplexity_is_per_byte_of_the_page(tmp_path: Path) -> None:
+    # FakeLM's rolling log-likelihood is minus the length of the detokenized text; lm-eval divides by the bytes of
+    # the raw page. Words instead of bytes would give another number.
+    _, manifest = run(tmp_path, FakeLM(), benchmark_id="wikitext-2")
+    detokenize = tasks.lm_eval_module("wikitext/preprocess_wikitext.py").wikitext_detokenizer
+    pages = DOCS["wikitext-2"]
+    ll = -sum(len(detokenize(d)) for d in pages)
+    nbytes = sum(len(d["page"].encode("utf-8")) for d in pages)
+    assert values(manifest)["byte_perplexity"] == pytest.approx(math.exp(-ll / nbytes))
+
+
+def test_verdict_thresholds() -> None:
+    assert [scoring.verdict(z) for z in (1.99, 2.0, 2.99, 3.0, -3.0, -2.5)] == [
+        "noise",
+        "probable",
+        "probable",
+        "strong",
+        "strong",
+        "probable",
+    ]
+    assert scoring.verdict_p(None) == "inconclusive"
+    assert scoring.verdict_p(scoring.P_PROBABLE) == "probable" and scoring.verdict_p(scoring.P_STRONG) == "strong"

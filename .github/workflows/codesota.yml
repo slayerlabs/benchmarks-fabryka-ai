@@ -2,8 +2,9 @@ name: CodeSOTA CI
 # Checks for benchmarks/ (the codesota package), independent of the research/ test environment.
 #
 # It runs on every PR GitHub runs workflows for, so that the final `CodeSOTA CI` job reports and can later be required
-# without leaving unrelated PRs pending. The test job runs only when the PR touches benchmarks/, this file, or the
-# change detector (.github/scripts/codesota_changes.py, which fails closed); otherwise it is skipped and
+# without leaving unrelated PRs pending. The test jobs run only when the PR touches benchmarks/, the research code the
+# runner is compared with (research/common/, research/benchmarks/, research/tools/statystyka.py), this file, or the
+# change detector (.github/scripts/codesota_changes.py, which fails closed); otherwise they are skipped and
 # `CodeSOTA CI` reports success.
 #
 # Trust: this is CI of contributor code, so it runs the PR's own version of this workflow and its scripts. A PR can
@@ -17,6 +18,9 @@ on:
     branches: [main]
     paths:
       - "benchmarks/**"
+      - "research/common/**"
+      - "research/benchmarks/**"
+      - "research/tools/statystyka.py"
       - ".github/workflows/codesota.yml"
       - ".github/scripts/codesota_changes.py"
 
@@ -106,8 +110,8 @@ jobs:
     env:
       HF_HUB_OFFLINE: "1"
       HF_DATASETS_OFFLINE: "1"
-      # torch 2.8.0, pinned to the research central run's version, has wheels for Python 3.11-3.13 only; the
-      # runner's default Python can be newer. 3.12 is the Python of the verification runs (docs/running.md).
+      # The eval extra is pinned to the research central run's lock, whose numpy 2.0.2 has wheels for Python 3.11 and
+      # 3.12 only; the runner's default Python can be newer. 3.12 is the Python of the verification runs.
       UV_PYTHON: "3.12"
     steps:
       # Full checkout: the tests compare the runner with research/common/ and research/benchmarks/.
@@ -121,6 +125,7 @@ jobs:
       - run: uv sync --locked --extra eval
       # Fails if the extra is missing, so the runner tests cannot be skipped silently.
       - run: uv run python -c "import lm_eval, torch; print(lm_eval.__version__, torch.__version__)"
+      - run: uv run mypy
       - run: uv run pytest tests/test_runner.py
 
   result:

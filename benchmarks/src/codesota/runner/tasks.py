@@ -6,7 +6,7 @@ options, target, and pinned data source, so the same requests reach the model. T
 it is left out here, which halves the requests of a multiple-choice benchmark and changes no reported score.
 Diagnostic variants (ARC-Challenge in letter format, MedMCQA as cloze) are not ported for the same reason.
 
-`tests/test_runner_parity.py` checks these configurations against research/common/zadania.py.
+`tests/test_runner.py` checks these configurations against research/common/zadania.py.
 """
 
 import functools

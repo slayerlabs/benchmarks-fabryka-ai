@@ -17,8 +17,9 @@ From `benchmarks/`:
 uv sync --extra eval --python 3.12
 ```
 
-The extra needs Python 3.11, 3.12, or 3.13: torch 2.8.0, the version of the research central run, has no wheels for
-newer versions. The verification runs used Python 3.12.
+The extra needs Python 3.11 or 3.12. Every package of the evaluation stack is pinned to the research central run's
+lock (`research/common/requirements.lock.txt`), the environment the runner was verified in, and its numpy 2.0.2 has
+no wheels for newer versions. The verification runs used Python 3.12.
 
 The lock installs the CPU build of torch. To run on an NVIDIA GPU, replace it with the CUDA build of the same version
 in the same environment, for example `uv pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cu128`.
@@ -55,7 +56,9 @@ request with a context, the rule of the research methodology (`research/METODOLO
 keeps lm-eval 0.4.9.1's default, which adds none, as the published Pythia v0 references were computed. The BOS policy
 is part of the protocol ID (`codesota.<benchmark>.0shot.<bos>-bos.v1`), so the two are never mixed in one protocol.
 
-The exit code is 0 when every selected benchmark was scored, 1 when any was not, and 2 on a usage error.
+The exit code is 0 when every selected benchmark was scored, 1 when any was not, and 2 on a usage error. A selection
+that includes benchmarks the runner does not implement exits 1 even when the others are scored; for example
+`@full-run-2026-11`, which includes BLiMP and EWoK.
 
 ## Output
 
@@ -107,8 +110,9 @@ custom architectures need their own evidence before their numbers are compared w
 None of these changes a reported score; each is checked by `tests/test_runner.py` or the verification runs.
 
 - The unconditional log-likelihoods of `acc_mutual_info` (PMI, a diagnostic) are not requested, which halves the
-  requests of a multiple-choice benchmark. Diagnostic variants (ARC-Challenge in letter format, MedMCQA as cloze)
-  and per-question traces are not ported.
+  requests of a multiple-choice benchmark. Diagnostic variants (ARC-Challenge in letter format, MedMCQA as cloze),
+  per-question traces, and WikiText-2's token perplexity (which depends on the model's tokenizer, so it compares
+  only within one family) are not ported.
 - The interval method is named for what it is (`percentile_bootstrap`, or `cluster_bootstrap` for WinoGrande and
   WSC273), where the research results label it `paired_bootstrap`. The numbers are the same.
 - Verdicts are named in English: `strong` (pewne), `probable` (prawdopodobne), `noise` (szum), and `inconclusive`

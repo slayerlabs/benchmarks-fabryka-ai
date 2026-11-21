@@ -3,7 +3,7 @@
 Ported from research/common/metryki.py and research/tools/statystyka.py with the same arithmetic, seeds, and
 thresholds, so the same per-question results give the same numbers. Verdicts use English names for the research
 pipeline's terms: `strong` (pewne, |z| >= 3), `probable` (prawdopodobne, 2 <= |z| < 3), `noise` (szum), and
-`inconclusive` (nierozstrzygalne). `tests/test_runner_parity.py` compares every function with the research code.
+`inconclusive` (nierozstrzygalne). `tests/test_runner.py` compares every function with the research code.
 """
 
 import math

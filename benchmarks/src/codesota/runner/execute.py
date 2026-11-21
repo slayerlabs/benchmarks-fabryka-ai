@@ -60,6 +60,7 @@ class Outcome:
     value: float | None
     reason: str | None
     seconds: float
+    requests: int
 
 
 def protocol_id(benchmark: Benchmark, bos: models.Bos) -> str:
@@ -251,10 +252,11 @@ def run_benchmark(
         log = traceback.format_exc().encode("utf-8")
         samples, ids, scored, config = [], [], None, None
     finished, seconds = artifact.now(), time.monotonic() - clock
+    requests = sum(len(s["arguments"]) for s in samples)
     timing = {
         "seconds": round(seconds, 1),
-        "requests": sum(len(s["arguments"]) for s in samples),
-        "requests_per_second": round(sum(len(s["arguments"]) for s in samples) / seconds, 2) if seconds else None,
+        "requests": requests,
+        "requests_per_second": round(requests / seconds, 2) if seconds else None,
         "note": "wall-clock time of loading the data, evaluating, and scoring; model loading not included",
     }
     manifest = _manifest(benchmark, spec, model_record, protocol, run_id, started, finished, scored)
@@ -268,7 +270,7 @@ def run_benchmark(
     records = scored["records"] if scored else []
     run_dir = artifact.write_run(out / run_id, manifest, records, observations, extra)
     value = next((o["value"] for o in observations if o["metric"] == benchmark.scoring.decision_metric), None)
-    return Outcome(benchmark.id, state, run_dir, value, reason, round(seconds, 1))
+    return Outcome(benchmark.id, state, run_dir, value, reason, round(seconds, 1), requests)
 
 
 def _metric_definitions(benchmark: Benchmark) -> list[dict[str, Any]]:

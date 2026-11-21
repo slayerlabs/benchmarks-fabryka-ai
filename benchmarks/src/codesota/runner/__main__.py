@@ -114,6 +114,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "value": o.value,
                     "reason": o.reason,
                     "seconds": o.seconds,
+                    "requests": o.requests,
                     "run_dir": str(o.run_dir),
                 }
             )
