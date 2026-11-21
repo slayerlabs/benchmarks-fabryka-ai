@@ -77,6 +77,10 @@ but even there it is borderline. At 16384, 36 of 198 (18%) still reach the cap, 
   pass on those items is being computed. Bielik barely moves with budget (+1.52 ± 2.91 points, z = 0.52, noise).
 - **Harness version.** We used lm-eval 0.4.13 (from `pip freeze` on the pod; it was not saved in `results.json`),
   transformers 5.22.1, torch 2.8.0+cu128. The repo pin elsewhere is 0.4.9.1. Not reconciled.
+- **Backend.** All runs use the lm-eval HuggingFace backend (`model: hf`, the `HFLM` class) on transformers in bf16
+  with greedy decoding, confirmed in each run's `config.model`. No llama.cpp or GGUF, and no vLLM, was used for these
+  GPQA numbers (the IFEval card's vLLM path is separate). So truncation is the HF generator reaching `max_gen_toks`,
+  not a quantised-runtime artifact.
 - **Hardware and batch differ between cells**: LFM3 8192 on RTX A4000 (batch 22), Bielik 8192 on RTX 5090
   (batch 1), LFM3 16384 on RTX 3090 (batch 16), both 2048 runs on RTX 5090 (batch 1). Greedy decoding is
   deterministic in theory, but bf16 with padding flips single tokens (a smoke test showed this). That does not
