@@ -28,13 +28,14 @@ come from a local exploratory run on rented GPUs and do not close issue #302. Se
 | Bielik 11B v3.1 (`bielik-11b-v3.1`) | local RTX 5090, lm-eval CoT greedy, 8192 tokens, batch 1 | 37.88 | 3.45 | 198 | 2026-11-20 |
 | LFM3-1.7B (`lfm3-1.7b-2048`) | local RTX 5090, lm-eval CoT greedy, 2048 tokens, batch 1 | 29.29 | 3.24 | 198 | 2026-11-19 |
 | Bielik 11B v3.1 (`bielik-11b-v3.1-2048`) | local RTX 5090, lm-eval CoT greedy, 2048 tokens, batch 1 | 36.36 | 3.43 | 198 | 2026-11-19 |
-| LFM3-1.7B, combined (projection) | 124 items at 8192 + 74 truncated items re-run at 16384 (RTX 3090, batch 16) | 59.09 | 3.50 | 198 | 2026-11-20 |
+| LFM3-1.7B (`lfm3-1.7b-16k`) | rented RTX 3090, lm-eval CoT greedy, 16384 tokens, batch 16 | 58.59 | 3.51 | 198 | 2026-11-21 |
 | Slayer 1B | not run | null | null | 198 | - |
 
 Rows with a different setup are not interchangeable: compare models only through the paired tests below, never
-across rows of different budget or hardware. The "combined" row mixes two token budgets; it is a projection, not
-a clean run, and it is not stored in `results/`. The main row (Fabryka API, card settings) is not computed here.
-The 8192 and 2048 runs each have files in `results/`; the combined projection row does not.
+across rows of different budget or hardware. The main row (Fabryka API, card settings) is not computed here.
+The 2048, 8192 and 16384 runs each have files in `results/`. The 16384 run is a clean full-198 run (it replaces an
+earlier two-budget projection of 59.09 that was never stored). A 32768 pass on the items still truncated at 16384 is
+running and will land as a follow-up commit.
 
 Paired tests (same 198 questions, paired difference per item, z = Δ / SE; the SE is the paired SE over the items,
 and the reading follows the repo convention |z| < 2 noise, 2-3 borderline, >= 3 clear):
@@ -45,11 +46,13 @@ and the reading follows the repo convention |z| < 2 noise, 2-3 borderline, >= 3 
 | LFM3 vs Bielik, 8192, strict variant (correct only if "answer is" is present) | +27 for LFM3 | +13.64 ± 4.73 | z = 2.88 | LFM3 ahead, just under the clear line |
 | LFM3, 2048 vs 8192 | +48 for 8192 | +24.24 ± 3.93 | z = 6.16 | large budget effect for LFM3 |
 | Bielik, 2048 vs 8192 | +3 for 8192 | +1.52 ± 2.91 | z = 0.52 | noise |
-| LFM3, the 74 truncated items, 8192 vs 16384 | +11 for 16384 | +14.86 ± 7.12 | z = 2.09 | borderline; selected 74-item subset, see below |
+| LFM3, 8192 vs 16384 (full 198) | +10 for 16384 | +5.05 ± 3.26 | z = 1.55 | noise on the full set |
+| LFM3, 8192 vs 16384 (the 74 items truncated at 8192) | +11 for 16384 | +14.86 ± 7.12 | z = 2.09 | borderline; selected subset |
 
-The strict variant and the 74-item row are the weaker signals: both sit just above or below z = 2, so neither is
-decided here. The full 198 @16384 run (plus a 32768 pass on items still truncated at 16384) will replace the 74-item
-row with a clean number; it is being computed and will land as a follow-up commit.
+Reading the budget bump: on the full 198 the 8192 -> 16384 move is within noise (z = 1.55), and the headline rises
+53.54 -> 58.59. The gain is concentrated in the items that were truncated at 8192 (the 74-item subset, z = 2.09),
+but even there it is borderline. At 16384, 36 of 198 (18%) still reach the cap, so 16384 is not the ceiling; the
+32768 pass on those items is being computed and will land as a follow-up commit.
 
 ## Deviations
 
@@ -59,11 +62,12 @@ row with a clean number; it is being computed and will land as a follow-up commi
   #302.
 - **Token budget and truncation.** At 8192 tokens LFM3-1.7B is cut off: 74 of 198 outputs reach the limit
   (measured with the tokenizer on the pod), and 65.2% reach an "answer is" phrase. The card has an effectively
-  unlimited budget, which probably explains most of the distance from the card: our 53.54 sits 2.8 SE below the
-  card's 63.37 (z = -2.8, using our run's SE 3.54). Budget sweep for LFM3: 2048 to 8192 adds 24.24 ± 3.93 points
-  (z = 6.16). Re-running only the 74 truncated items at 16384 adds 11 net items (+14.86 ± 7.12 points, z = 2.09,
-  n = 74): borderline, not decided on this subset. The combined 59.09 mixes two budgets and is a projection.
-  Bielik barely moves with budget (+1.52 ± 2.91 points, z = 0.52, noise).
+  unlimited budget, which probably explains most of the distance from the card: at 8192 our 53.54 sits 2.8 SE below
+  the card's 63.37 (z = -2.8, using our run's SE 3.54); at 16384 the full run reaches 58.59, 1.4 SE below the card
+  (z = -1.36). Budget sweep for LFM3: 2048 to 8192 adds 24.24 ± 3.93 points (z = 6.16); 8192 to 16384 adds
+  5.05 ± 3.26 (z = 1.55, within noise on the full 198), with the gain concentrated in the items truncated at 8192.
+  At 16384, 36 of 198 (18%) still reach the cap, so the budget is still biting and 16384 is not the ceiling; a 32768
+  pass on those items is being computed. Bielik barely moves with budget (+1.52 ± 2.91 points, z = 0.52, noise).
 - **Harness version.** We used lm-eval 0.4.13 (from `pip freeze` on the pod; it was not saved in `results.json`),
   transformers 5.22.1, torch 2.8.0+cu128. The repo pin elsewhere is 0.4.9.1. Not reconciled.
 - **Hardware and batch differ between cells**: LFM3 8192 on RTX A4000 (batch 22), Bielik 8192 on RTX 5090
@@ -84,11 +88,12 @@ row with a clean number; it is being computed and will land as a follow-up commi
   is present" flag below lets a reader check that (157 of 198 for Bielik, 129 of 198 for LFM3 contain the phrase).
 - **Slayer 1B is not run on GPQA.** Issue #302 asks for it. The score is `null` ("not run"); this is still open.
   No `results/slayer1b-*.json` exists; this item is still open.
-- **Per-item files carry flags only.** GPQA is gated behind Hugging Face consent, and the owner's rule is to
+- **Per-item files carry flags only.** GPQA is gated by Hugging Face consent, and the owner's rule is to
   publish per-item flags with no question text and no model output. `results/<model-id>.jsonl.gz` therefore holds
   only `doc_id`, `exact_match` (flexible-extract) and `answer_is_present` (the response contains "answer is").
-  This differs from the IFEval card, which stores the model output. A `truncated_8192` flag was not computed,
-  because it needs a tokenizer pass over the outputs, which we only did on the pod. This deviation from
+  This differs from the IFEval card, which stores the model output. The 16384 file
+  (`results/lfm3-1.7b-16k.jsonl.gz`) additionally carries a `truncated_16384` flag (the tokenizer pass was run on
+  the pod); the 8192 and 2048 files do not, so a `truncated_8192` flag is not present. This deviation from
   METHODOLOGY.md needs agreement in #bench-team.
 - **Not run through `run.sh` from a clean checkout.** `run.sh` is built from the real lm-eval command but has only
   been syntax-checked (`bash -n`), not run on a GPU.
