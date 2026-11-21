@@ -59,7 +59,8 @@ directory, checked by the validator before it is reported:
 cd "$(git rev-parse --show-toplevel)/benchmarks"
 uv sync --extra eval --python 3.12
 uv run python -m codesota.runner --list
-uv run python -m codesota.runner --benchmarks @verified --model EleutherAI/pythia-1b-v0   --revision f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0 --out runs/
+uv run python -m codesota.runner --benchmarks @verified --model EleutherAI/pythia-1b-v0 \
+  --revision f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0 --out runs/
 ```
 
 Select benchmarks by name (`arc-easy`), alias, pack (`@verified`, `@small`, `@pl`), or `all`. The list of
