@@ -62,6 +62,28 @@ The 15 tests of `../slayer-1.09-k40000/PROTOKOL.md`, with the same metrics.
   with rows in `manifest.jsonl`. The published values of the run do not change.
 - This directory: protocol, code, logs, and a sha256 manifest of the raw samples.
 
+## Annex after the result (21.11.2026): record and deviations, not a change
+
+Written AFTER the result. It changes nothing above.
+
+- **Run:** one instance, 8 × RTX 4090, code at commit `6b8fb52`. All 15 tests `ok`. The converted weights had
+  the sum fixed in `SUMY_WAG_CKPT` before the run (`b9e31fc9…`), and the instance's architecture check passed.
+  Export `eksport_k70.tgz`, sha256 `45977aa9032e4d1af5f9addb5ca7842809e04174ce15f949c38c6fe880e8ee5b`. Its
+  files are in the repo, and `code/dolacz_wyniki.py odtworz` checks them against `probki_sha256.json`.
+- **Start:** the queue was started twice by mistake. Both copies were stopped before any test ran, and the queue
+  was started once more from a clean state (no result file existed).
+- **Deviation, `runner_sha256`:** "`research/common/` unchanged (same `runner_sha256` as the full run)" was
+  wrong. The runs have `7a40b11e…`, not `c906036b…`. Since the full run, `research/common/` has changed:
+  - the one-BOS rule for HF models (`jeden_bos.py`);
+  - cluster rules for tests outside these 15 (PAWS, PPC, Belebele, CBD, KLEJ NER, ANLI, PoQuAD);
+  - LLMzSzŁ.
+
+  None of these touches the Slayer loader or the configuration of these 15 tests, so the numbers are not
+  affected. A paired re-run on the same hardware would make this certain.
+- **SE in the run's files:** `code/przeglad_k70.py` writes the rows' SE with the report's statistic (`raport.py`,
+  `wczytaj_wyniki`). That covers EWoK over templates and MultiBLiMP-PL over items; the export has no SE for the
+  latter. The script first reproduces the step 40 000 SE exactly. `code/dolacz_wyniki.py` adds the rows.
+
 ## Budget
 
 One 8 × RTX 4090 instance (about 3 USD/h), rented and destroyed by the maintainer. About 1.5 h of computation is
