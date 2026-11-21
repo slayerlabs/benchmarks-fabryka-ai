@@ -4,13 +4,28 @@ version = "0.1.0.dev0"
 description = "CodeSOTA: reproducible evaluation for language models and AI agents (pre-alpha package)."
 readme = "README.md"
 requires-python = ">=3.11"
-# No runtime dependencies yet: the package holds no evaluation code. Add a dependency only together with the code
-# that needs it (benchmarks/AGENTS.md, "No unjustified dependencies").
+# The catalog and the result validator need no dependencies. Running benchmarks needs the `eval` extra.
 dependencies = []
 classifiers = [
   "Development Status :: 2 - Pre-Alpha",
   "Programming Language :: Python :: 3",
   "Private :: Do Not Upload",
+]
+
+[project.optional-dependencies]
+# `codesota.runner`: the research central run's evaluation stack (research/common/requirements.lock.txt), pinned to
+# the versions its results were produced with, because each of these can change a number: lm-eval builds the
+# requests and parses the datasets, transformers runs the model, tokenizers encodes, datasets reads the pinned
+# data, torch computes.
+# The lock resolves torch to its CPU build (no GPU stack in CI); install a CUDA build of the same version to run on
+# a GPU (docs/running.md). torch 2.8.0 has wheels for Python 3.11-3.13 only, so the extra needs one of those.
+eval = [
+  "lm-eval==0.4.9.1",
+  "transformers==4.57.6",
+  "datasets==3.6.0",
+  "tokenizers==0.22.2",
+  "torch==2.8.0",
+  "numpy>=2.0",
 ]
 
 [dependency-groups]
@@ -43,3 +58,16 @@ select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
 strict = true
 files = ["src", "tests"]
 mypy_path = "src"
+
+# The evaluation stack ships no type information (or is not installed without the `eval` extra).
+[[tool.mypy.overrides]]
+module = ["lm_eval.*", "torch.*", "transformers.*", "datasets.*", "huggingface_hub.*", "numpy.*", "tokenizers.*"]
+ignore_missing_imports = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true

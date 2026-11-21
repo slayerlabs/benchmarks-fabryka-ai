@@ -161,5 +161,5 @@ value is recorded but not checked against the samples, and the report lists it u
 
 The validator does not rescore outputs with an official scorer, decide whether two protocols are comparable,
 compute confidence intervals, check licenses, or verify that recorded revisions are the true ones. It does not run
-benchmarks. A comparator that flags protocol differences between runs, and an execution path that writes these
-files, are separate pieces of work.
+benchmarks: `codesota.runner` does, and writes these files ([`running.md`](running.md)). A comparator that flags
+protocol differences between runs is a separate piece of work.

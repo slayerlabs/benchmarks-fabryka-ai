@@ -90,9 +90,42 @@ jobs:
       - run: uv run pytest
       - run: uv build
 
+  eval:
+    name: Runner tests (eval extra)
+    # The runner's tests need lm-eval and the CPU build of torch: a separate job, so the default environment above
+    # stays free of them. Offline after the install: the tests use synthetic documents and a fake model.
+    needs: changes
+    if: needs.changes.outputs.v2 == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    defaults:
+      run:
+        working-directory: benchmarks
+    env:
+      HF_HUB_OFFLINE: "1"
+      HF_DATASETS_OFFLINE: "1"
+      # torch 2.8.0, pinned to the research central run's version, has wheels for Python 3.11-3.13 only; the
+      # runner's default Python can be newer. 3.12 is the Python of the verification runs (docs/running.md).
+      UV_PYTHON: "3.12"
+    steps:
+      # Full checkout: the tests compare the runner with research/common/ and research/benchmarks/.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          version: "0.11.19"
+          enable-cache: false
+      - run: uv sync --locked --extra eval
+      # Fails if the extra is missing, so the runner tests cannot be skipped silently.
+      - run: uv run python -c "import lm_eval, torch; print(lm_eval.__version__, torch.__version__)"
+      - run: uv run pytest tests/test_runner.py
+
   result:
     name: CodeSOTA CI
-    needs: [changes, test]
+    needs: [changes, test, eval]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -109,5 +142,6 @@ jobs:
       - env:
           CHANGES: ${{ needs.changes.result }}
           V2: ${{ needs.changes.outputs.v2 }}
-          TEST: ${{ needs.test.result }}
+          # Both test jobs run or skip together; the verdict reads the eval job once the default one passed.
+          TEST: ${{ needs.test.result == 'success' && needs.eval.result || needs.test.result }}
         run: python3 .github/scripts/codesota_changes.py --verdict
