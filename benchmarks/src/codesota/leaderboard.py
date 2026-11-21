@@ -19,7 +19,7 @@ import sys
 from collections.abc import Iterable, Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Any, Final
+from typing import Final
 
 from codesota import catalog
 
@@ -303,24 +303,25 @@ def cell(r: Result | None) -> str:
     return shown(r) + (" †" if r.review_flag != "ok" else "")
 
 
-# The headline table: the latest Slayer and the models of its size class, ranked per row, then a larger reference
-# shown next to them but not ranked. Column headers: name and a second line.
-RANKED: Final = (LATEST_SLAYER, "lfm3-1.7b-base", "bielik-1.5b-v3", "qwen3.5-0.8b-base")
-LARGER: Final = ("bielik-11b-v3-instruct",)
+# The headline table: column headers (name and a second line) of the HEADLINE models, and its row groups, Polish
+# first, then English by category.
 HEADER: Final[dict[str, tuple[str, str]]] = {
     LATEST_SLAYER: ("Slayer 1B", "1.09 checkpoint"),
+    "bielik-11b-v3-instruct": ("Bielik 11B", "v3.0 Instruct"),
     "lfm3-1.7b-base": ("LFM3", "1.7B Base"),
     "bielik-1.5b-v3": ("Bielik", "1.5B v3"),
     "qwen3.5-0.8b-base": ("Qwen3.5", "0.8B Base"),
-    "bielik-11b-v3-instruct": ("Bielik 11B", "v3.0 Instruct"),
 }
-# Row groups of the headline table: Polish first, then English by category.
 SECTIONS: Final[tuple[tuple[str, tuple[str, ...]], ...]] = (
     ("Polish", CATEGORIES["Polish"]),
     ("English · reasoning and science", CATEGORIES["Reasoning and science"]),
     ("English · commonsense", CATEGORIES["Commonsense"]),
     ("English · medical knowledge", CATEGORIES["Knowledge (medical)"]),
     ("English · language modeling and grammar", CATEGORIES["Language modeling and linguistics"]),
+)
+LEGEND: Final = (
+    "Accuracy in %, 0-shot · ↓ lower is better (WikiText-2: perplexity per byte) · best of the five highlighted, "
+    "second underlined"
 )
 
 
@@ -338,32 +339,119 @@ def ranks(cells: Sequence[Result | None]) -> list[int | None]:
     return [None if c is None else values.index(float(value_text(c))) + 1 for c in cells]
 
 
-def _marked(text: str, rank: int | None) -> str:
-    return f"<b>{text}</b>" if rank == 1 else f"<ins>{text}</ins>" if rank == 2 else text
+Cell = tuple[str, Result | None, int | None]  # benchmark, result, rank
 
 
-def headline_table(rows: Sequence[Result]) -> list[str]:
-    """The headline as an HTML table (GitHub renders it; Markdown tables cannot have group rows)."""
+def headline_rows(rows: Sequence[Result]) -> list[tuple[str, list[tuple[str, list[Cell]]]]]:
+    """The headline's row groups: per section, per benchmark its shown name and one cell per HEADLINE model."""
     by = {(r.benchmark, r.model): r for r in rows if r.protocol == "full-run-2026-11"}
-    models = (*RANKED, *LARGER)
-    head = "".join(f"<th>{HEADER[m][0]}<br><sub>{HEADER[m][1]}</sub></th>" for m in models)
-    lines = ["<table>", f'<tr><th align="left">Benchmark</th>{head}</tr>']
+    out = []
     for section, benchmarks in SECTIONS:
-        lines.append(f'<tr><td colspan="{1 + len(models)}"><b>{section}</b></td></tr>')
+        lines = []
         for b in benchmarks:
-            cells = [by.get((b, m)) for m in models]
+            cells = [by.get((b, m)) for m in HEADLINE]
             if all(c is None for c in cells):
                 continue
-            ranked = ranks(cells[: len(RANKED)]) + [None] * len(LARGER)
             first = next(c for c in cells if c is not None)
             name = benchmark_name(b) + ("" if first.higher_is_better else " ↓")
-            tds = "".join(
-                f'<td align="right">{"n/a" if c is None else _marked(value_text(c), k)}</td>'
-                for c, k in zip(cells, ranked, strict=True)
-            )
-            lines.append(f"<tr><td>{name}</td>{tds}</tr>")
-    lines.append("</table>")
-    return lines
+            lines.append((name, [(b, c, k) for c, k in zip(cells, ranks(cells), strict=True)]))
+        out.append((section, lines))
+    return out
+
+
+@dataclass(frozen=True)
+class Theme:
+    background: str
+    text: str
+    muted: str
+    rule: str
+    row_rule: str
+    best_fill: str
+    accent: str
+
+
+LIGHT: Final = Theme("#ffffff", "#1f2328", "#59636e", "#d1d9e0", "#eef1f4", "#fbe3e4", "#b3202e")
+DARK: Final = Theme("#0d1117", "#e6edf3", "#9198a1", "#3d444d", "#21262d", "#4a1d22", "#ff8a80")
+FONT: Final = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+
+
+def _esc(text: str) -> str:
+    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def headline_svg(rows: Sequence[Result], t: Theme) -> str:
+    """The headline table as an SVG image, styled as GitHub cannot style a Markdown table: no grid, the best value
+    of each row highlighted in red, the second underlined. Each value carries its benchmark, model, and rank."""
+    name_width, col, pad, row_h = 300, 112, 24, 32
+    width = pad * 2 + name_width + col * len(HEADLINE)
+
+    def center(i: int) -> float:
+        return pad + name_width + col * i + col / 2
+
+    body: list[str] = []
+    for i, m in enumerate(HEADLINE):
+        body.append(f'<text x="{center(i)}" y="38" text-anchor="middle" font-weight="600">{_esc(HEADER[m][0])}</text>')
+        body.append(
+            f'<text x="{center(i)}" y="56" text-anchor="middle" font-size="12" fill="{t.muted}">'
+            f"{_esc(HEADER[m][1])}</text>"
+        )
+    body.append(f'<text x="{pad}" y="56" font-size="12" fill="{t.muted}">Benchmark</text>')
+    y = 70
+    body.append(f'<line x1="{pad}" x2="{width - pad}" y1="{y}" y2="{y}" stroke="{t.rule}"/>')
+    for section, lines in headline_rows(rows):
+        y += row_h
+        body.append(
+            f'<text x="{pad}" y="{y - 10}" font-size="13" font-weight="600" fill="{t.muted}">{_esc(section)}</text>'
+        )
+        for name, cells in lines:
+            body.append(f'<line x1="{pad}" x2="{width - pad}" y1="{y}" y2="{y}" stroke="{t.row_rule}"/>')
+            y += row_h
+            base = y - 11
+            body.append(f'<text x="{pad}" y="{base}">{_esc(name)}</text>')
+            for i, (b, c, k) in enumerate(cells):
+                if k == 1:
+                    body.append(
+                        f'<rect x="{center(i) - 34}" y="{base - 16}" width="68" height="22" rx="5" '
+                        f'fill="{t.best_fill}"/>'
+                    )
+                elif k == 2:
+                    body.append(
+                        f'<line x1="{center(i) - 18}" x2="{center(i) + 18}" y1="{base + 3}" y2="{base + 3}" '
+                        f'stroke="{t.text}"/>'
+                    )
+                style = f' font-weight="700" fill="{t.accent}"' if k == 1 else f' fill="{t.muted}"' if c is None else ""
+                body.append(
+                    f'<text x="{center(i)}" y="{base}" text-anchor="middle"{style} data-benchmark="{b}" '
+                    f'data-model="{HEADLINE[i]}" data-rank="{k or 0}">{"n/a" if c is None else value_text(c)}</text>'
+                )
+    y += 8
+    body.append(f'<line x1="{pad}" x2="{width - pad}" y1="{y}" y2="{y}" stroke="{t.rule}"/>')
+    y += 24
+    body.append(f'<text x="{pad}" y="{y}" font-size="12" fill="{t.muted}">{_esc(LEGEND)}</text>')
+    height = y + 16
+    return "\n".join(
+        [
+            f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+            f'viewBox="0 0 {width} {height}" font-family="{FONT}" font-size="14" fill="{t.text}">',
+            f'<rect width="{width}" height="{height}" rx="8" fill="{t.background}"/>',
+            *body,
+            "</svg>",
+            "",
+        ]
+    )
+
+
+def values_table(rows: Sequence[Result]) -> list[str]:
+    """The headline's values with their standard errors, as an HTML table (Markdown tables have no group rows)."""
+    head = "".join(f"<th>{HEADER[m][0]}<br><sub>{HEADER[m][1]}</sub></th>" for m in HEADLINE)
+    out = ["<table>", f'<tr><th align="left">Benchmark</th>{head}</tr>']
+    for section, lines in headline_rows(rows):
+        out.append(f'<tr><td colspan="{1 + len(HEADLINE)}"><b>{section}</b></td></tr>')
+        for name, cells in lines:
+            tds = "".join(f'<td align="right">{"n/a" if c is None else shown(c)}</td>' for _, c, _ in cells)
+            out.append(f"<tr><td>{name}</td>{tds}</tr>")
+    out.append("</table>")
+    return out
 
 
 def readme(rows: Sequence[Result]) -> str:
@@ -372,20 +460,24 @@ def readme(rows: Sequence[Result]) -> str:
     lines = [
         "# Results",
         "",
-        "Slayer 1B next to models of its size, on the same benchmarks with the same settings.",
+        "Slayer 1B next to its reference models, on the same benchmarks with the same settings.",
         "",
-        *headline_table(rows),
-        "",
-        "Accuracy in %, 0-shot. ↓ lower is better (WikiText-2: perplexity per byte). **Bold**: best of the four "
-        "small models, <ins>underlined</ins>: second. Bielik 11B is about ten times larger and is shown for "
-        "reference, without a rank.",
+        "<picture>",
+        '  <source media="(prefers-color-scheme: dark)" srcset="charts/headline-table-dark.svg">',
+        '  <img src="charts/headline-table.svg" alt="Results table: Slayer 1B 1.09, Bielik 11B, LFM3-1.7B-Base, '
+        'Bielik 1.5B v3 and Qwen3.5-0.8B-Base on 14 benchmarks; the same values are in the Values table below" '
+        'width="100%">',
+        "</picture>",
         "",
         f"**Instruction following (IFEval):** Bielik 11B v3.1 Instruct {value_text(bielik_if)}, "
         f"Slayer 1B 1.08 {value_text(slayer_if)}. Slayer is a base model without a chat template, so its score "
         "mostly reflects broken output, not instruction following. [Details](instruction-following.md).",
         "",
-        '<p align="center"><img src="charts/headline.png" alt="Accuracy per benchmark: Slayer 1B 1.09 and the '
-        'reference models" width="100%"></p>',
+        "<picture>",
+        '  <source media="(prefers-color-scheme: dark)" srcset="charts/headline-dark.png">',
+        '  <img src="charts/headline.png" alt="Accuracy per benchmark: Slayer 1B 1.09 and the reference models" '
+        'width="100%">',
+        "</picture>",
         "",
         "[All models](all-models.md) · [Instruction following](instruction-following.md) · "
         "[All results as JSONL](results.jsonl) · [Benchmark status](../BENCHMARKS.md)",
@@ -393,17 +485,22 @@ def readme(rows: Sequence[Result]) -> str:
         "## Notes",
         "",
         "- **Slayer 1B 1.09 is a training checkpoint** (step 40 000), not a release.",
+        "- **Bielik 11B is about ten times larger** than the others and instruction-tuned; it is the closest Polish "
+        "reference. LFM3-1.7B (in the full tables) is instruction-tuned too. All are scored on raw text.",
         "- **How it was measured:** the full test set of each benchmark, 0-shot, each answer scored by the "
         "model's probability of it (lm-eval; BLiMP and EWoK: their own code), float32 (Bielik 11B: bfloat16), "
-        "no chat template. Slayer's "
-        "inputs start with one BOS token, the other models' with none.",
-        "- **Small differences are noise.** Values with their standard errors are in [all models](all-models.md) "
-        f"and [`results.jsonl`](results.jsonl); a difference of one or two points is often within them. {SE_NOTE}",
-        "- **Bielik 11B and LFM3-1.7B (in the full tables) are instruction-tuned**, scored here on raw text like "
-        "the base models.",
+        "no chat template. Slayer's inputs start with one BOS token, the other models' with none.",
+        "- **Small differences are noise:** a difference of one or two points is often within the standard errors "
+        "below.",
         "- Results flagged for checking by the research review are marked † in the [full tables](all-models.md); "
         "none is on this page.",
         "- Generated by `python -m codesota.leaderboard` from the result files below; do not edit by hand.",
+        "",
+        "## Values",
+        "",
+        f"Value ± standard error, accuracy in %. {SE_NOTE}",
+        "",
+        *values_table(rows),
         "",
         "## Sources",
         "",
@@ -522,6 +619,8 @@ def text_files(repo: Path = REPO) -> dict[str, str]:
         "all-models.md": all_models(rows),
         "instruction-following.md": instruction_following(rows),
         "results.jsonl": jsonl(rows),
+        "charts/headline-table.svg": headline_svg(rows, LIGHT),
+        "charts/headline-table-dark.svg": headline_svg(rows, DARK),
     }
 
 
@@ -529,7 +628,7 @@ def text_files(repo: Path = REPO) -> dict[str, str]:
 
 
 def charts(rows: Sequence[Result], out: Path) -> None:
-    """The headline chart: accuracy per benchmark for the headline models, with ± 1 SE."""
+    """The headline chart, light and dark: accuracy per benchmark for the headline models, with ± 1 SE."""
     import matplotlib
 
     matplotlib.use("Agg")
@@ -538,41 +637,54 @@ def charts(rows: Sequence[Result], out: Path) -> None:
     log_lik = [r for r in rows if r.protocol == "full-run-2026-11" and r.unit != "byte_ppl"]
     benchmarks = [b for _, bs in SECTIONS for b in bs if any(r.benchmark == b for r in log_lik)]
     by = {(r.benchmark, r.model): r for r in log_lik}
-    models = (*RANKED, *LARGER)
-    width = 0.8 / len(models)
-    plt.rcParams.update({"font.family": "DejaVu Sans", "axes.edgecolor": "#cccccc", "axes.labelcolor": "#444444"})
-    fig, ax = plt.subplots(figsize=(14, 5), dpi=120)
-    # Slayer in red, the other small models in greys, the larger reference as an outline.
-    styles: tuple[dict[str, Any], ...] = (
-        {"color": "#b3202e"},
-        {"color": "#55595f"},
-        {"color": "#8b9097"},
-        {"color": "#bfc3c8"},
-        {"color": "white", "edgecolor": "#55595f", "linewidth": 0.8},
-    )
-    for i, (m, style) in enumerate(zip(models, styles, strict=True)):
-        xs, ys, es = [], [], []
-        for j, b in enumerate(benchmarks):
-            r = by.get((b, m))
-            if r is None:
-                continue
-            scale = 1.0 if r.unit == "percent" else 100.0
-            xs.append(j - 0.4 + width * (i + 0.5))
-            ys.append(r.value * scale)
-            es.append((r.se or 0.0) * scale)
-        label = " ".join(HEADER[m]) + (" (larger reference)" if m in LARGER else "")
-        ax.bar(xs, ys, width, yerr=es, label=label, error_kw={"elinewidth": 0.6, "ecolor": "#777777"}, **style)
-    ax.set_xticks(range(len(benchmarks)), [benchmark_name(b) for b in benchmarks], rotation=30, ha="right")
-    ax.set_ylabel("accuracy (%)")
-    ax.set_ylim(0, 100)
-    ax.grid(axis="y", color="#eeeeee")
-    ax.set_axisbelow(True)
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.legend(ncol=5, fontsize=9, frameon=False, loc="upper center", bbox_to_anchor=(0.5, 1.1))
-    fig.tight_layout()
+    width = 0.8 / len(HEADLINE)
+    # Slayer in red, Bielik 11B darkest, the other references in lighter greys.
+    greys = {LIGHT: ("#3d4148", "#6e737b", "#9da2a9", "#c9ccd1"), DARK: ("#c9d1d9", "#8b949e", "#6e7681", "#484f58")}
     out.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out / "headline.png", metadata={"Software": None})
-    plt.close(fig)
+    for theme, name in ((LIGHT, "headline.png"), (DARK, "headline-dark.png")):
+        colors = (theme.accent, *greys[theme])
+        plt.rcParams.update(
+            {
+                "font.family": "DejaVu Sans",
+                "text.color": theme.text,
+                "axes.edgecolor": theme.rule,
+                "axes.labelcolor": theme.muted,
+                "xtick.color": theme.muted,
+                "ytick.color": theme.muted,
+            }
+        )
+        fig, ax = plt.subplots(figsize=(14, 5), dpi=120)
+        fig.patch.set_facecolor(theme.background)
+        ax.set_facecolor(theme.background)
+        for i, (m, color) in enumerate(zip(HEADLINE, colors, strict=True)):
+            xs, ys, es = [], [], []
+            for j, b in enumerate(benchmarks):
+                r = by.get((b, m))
+                if r is None:
+                    continue
+                scale = 1.0 if r.unit == "percent" else 100.0
+                xs.append(j - 0.4 + width * (i + 0.5))
+                ys.append(r.value * scale)
+                es.append((r.se or 0.0) * scale)
+            ax.bar(
+                xs,
+                ys,
+                width,
+                yerr=es,
+                color=color,
+                label=" ".join(HEADER[m]),
+                error_kw={"elinewidth": 0.6, "ecolor": theme.muted},
+            )
+        ax.set_xticks(range(len(benchmarks)), [benchmark_name(b) for b in benchmarks], rotation=30, ha="right")
+        ax.set_ylabel("accuracy (%)")
+        ax.set_ylim(0, 100)
+        ax.grid(axis="y", color=theme.row_rule)
+        ax.set_axisbelow(True)
+        ax.spines[["top", "right"]].set_visible(False)
+        ax.legend(ncol=5, fontsize=9, frameon=False, loc="upper center", bbox_to_anchor=(0.5, 1.1))
+        fig.tight_layout()
+        fig.savefig(out / name, metadata={"Software": None}, facecolor=theme.background)
+        plt.close(fig)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -588,6 +700,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 1 if stale else 0
     OUT.mkdir(parents=True, exist_ok=True)
     for n, t in files.items():
+        (OUT / n).parent.mkdir(parents=True, exist_ok=True)
         (OUT / n).write_text(t, encoding="utf-8", newline="\n")
     if not args.no_charts:
         charts(collect(), OUT / "charts")
