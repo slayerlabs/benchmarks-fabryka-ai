@@ -25,6 +25,11 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--benchmarks", help="IDs, aliases, legacy task IDs, @pack, or all; comma-separated")
     p.add_argument("--model", help="a Hub repository or a local directory")
     p.add_argument("--revision", help="commit SHA of the Hub repository (required for the Hub)")
+    p.add_argument(
+        "--model-id",
+        help="the model's name in results (default: the Hub repository; for a local directory, "
+        "local/<directory>@<digest of its weights>)",
+    )
     p.add_argument("--out", type=Path, help="directory under which each run directory is created")
     p.add_argument("--dtype", default="float32", help="default: float32, as the research central run")
     p.add_argument("--device", default="cuda")
@@ -77,6 +82,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             max_length=args.max_length,
             trust_remote_code=args.trust_remote_code,
             bos=args.bos,
+            model_id=args.model_id,
         )
     except ValueError as e:
         parser().error(str(e))
@@ -89,18 +95,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     if runnable:
         from codesota.runner import execute  # needs the `eval` extra
 
-        lm = models.load(spec)
-        digests = models.weights_digests(spec)
-        record = {
-            "bos": models.bos_probe(lm),
-            "weights_files": digests,
-            "weights_sha256": next(iter(digests.values()))
-            if len(digests) == 1
-            else {"unknown": f"{len(digests)} weight files; per-file SHA-256 in execution.environment.weights_files"},
-            "max_length": getattr(lm, "max_length", None),
-        }
+        lm, record, load_error = None, models.NOT_LOADED, None
+        # Loading and identifying the model are part of every selected benchmark's run: a model that does not load
+        # (no access, missing or broken weights, an unsupported architecture) is recorded in each run as its state,
+        # with the traceback, and the command exits 1. It is never a score.
+        try:
+            spec, lm, record = models.prepare(spec)
+        except Exception as e:
+            load_error = e
+            print(f"the model did not load: {type(e).__name__}: {e}", file=sys.stderr)
         for b in runnable:
-            o = execute.run_benchmark(b, lm, spec, record, args.out)
+            o = execute.run_benchmark(b, lm, spec, record, args.out, load_error=load_error)
             index.append(
                 {
                     "benchmark": b.id,
@@ -118,8 +123,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     for row in index:
         if row["state"] == "not_run":
             print(f"{row['benchmark']:<18} {row['status']:<22} not_run        {row['reason']}")
-    args.out.mkdir(parents=True, exist_ok=True)
-    (args.out / "index.json").write_text(json.dumps(index, indent=2) + "\n", encoding="utf-8")
+    write_index(args.out, index)
     return 0 if all(r["state"] == "ok" for r in index) else 1
 
 

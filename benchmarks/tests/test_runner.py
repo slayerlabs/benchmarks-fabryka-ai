@@ -32,7 +32,7 @@ from codesota.runner import execute, models, scoring, tasks
 REPO = Path(__file__).resolve().parents[2]
 RESEARCH = REPO / "research"
 
-ARC = [
+ARC: list[dict[str, Any]] = [
     {
         "id": "syn-arc-1",
         "question": "Which gas do plants take in?",
@@ -371,13 +371,17 @@ class FakeLM(LM):  # type: ignore[misc]  # lm-eval's LM is untyped
     """Log-likelihood of a continuation = minus its length in characters: the shortest option wins acc, and every
     option ties on acc_norm (-1 per character), where the first wins."""
 
-    def __init__(self, max_length: int = 2048, fail: bool = False) -> None:
+    def __init__(self, max_length: int = 2048, fail: bool = False, pair_extra: int = 0) -> None:
         super().__init__()
         self.max_length, self.fail, self.prefix_token_id = max_length, fail, 0
+        self.pair_extra = pair_extra  # extra tokens of the pair encoding: a tokenizer that splits a pair differently
         self.tokenizer = None
 
     def tok_encode(self, text: str) -> list[int]:
         return list(text.encode("utf-8"))
+
+    def _encode_pair(self, context: str, continuation: str) -> tuple[list[int], list[int]]:
+        return [1] * self.pair_extra + self.tok_encode(context), self.tok_encode(continuation)
 
     def loglikelihood(self, reqs: list[Any], disable_tqdm: bool = False) -> list[tuple[float, bool]]:
         if self.fail:
@@ -396,6 +400,7 @@ RECORD = {"bos": {"bos_token_id": None}, "weights_files": {}, "weights_sha256": 
 
 
 def run(tmp_path: Path, lm: Any, n: int | None = None) -> tuple[execute.Outcome, dict[str, Any]]:
+    tmp_path.mkdir(parents=True, exist_ok=True)
     benchmark = catalog.CATALOG["arc-easy"]
     assert benchmark.dataset is not None
     benchmark = dataclasses.replace(
@@ -472,3 +477,123 @@ def test_research_digest_uses_the_research_id_field() -> None:
 
     assert execute.research_digest(benchmark, samples) == source_id_digest([5, 5, 9])
     assert execute.research_digest(catalog.CATALOG["arc-easy"], samples) is None
+
+
+# --- the context limit counts the tokens the model gets ---
+
+
+def longest_request(lm: Any, tmp_path: Path) -> int:
+    """Tokens of the longest request of the ARC test documents, as `lm` encodes them."""
+    task = execute.build_task(tasks.task_config(catalog.CATALOG["arc-easy"], local(write_docs(tmp_path, "arc-easy"))))
+    pairs = [p for doc in task.eval_docs for p in execute.request_pairs(task, doc, task.fewshot_context(doc, 0))]
+    return max(execute.request_tokens(lm, c, x) for c, x in pairs)
+
+
+def test_a_request_that_fits_exactly_is_scored_and_one_token_more_is_unsupported(tmp_path: Path) -> None:
+    longest = longest_request(FakeLM(), tmp_path)
+    # HFLM feeds (context + continuation)[:-1], so max_length + 1 tokens still fit without truncation.
+    assert run(tmp_path / "fits", FakeLM(max_length=longest - 1))[0].state == "ok"
+    assert run(tmp_path / "over", FakeLM(max_length=longest - 2))[0].state == "unsupported"
+
+
+def test_the_limit_uses_the_pair_encoding_not_the_concatenated_text(tmp_path: Path) -> None:
+    longest = longest_request(FakeLM(), tmp_path)
+    # The concatenated text fits; the model's pair encoding is 2 tokens longer and does not.
+    assert run(tmp_path / "pair", FakeLM(max_length=longest - 1, pair_extra=2))[0].state == "unsupported"
+
+
+# --- a model that does not load ---
+
+
+def test_a_model_that_does_not_load_is_recorded_in_every_selected_benchmark(tmp_path: Path) -> None:
+    from codesota.runner.__main__ import main
+
+    empty = tmp_path / "empty-model"
+    empty.mkdir()
+    out = tmp_path / "runs"
+    code = main(["--benchmarks", "wsc273,piqa,blimp", "--model", str(empty), "--out", str(out), "--device", "cpu"])
+    assert code == 1
+    index = json.loads((out / "index.json").read_text(encoding="utf-8"))
+    assert [(r["benchmark"], r["state"]) for r in index] == [
+        ("blimp", "not_run"),
+        ("wsc273", "failed"),
+        ("piqa", "failed"),
+    ]
+    for row in index[1:]:
+        run_dir = Path(row["run_dir"])
+        assert validate_run(run_dir).ok
+        manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+        assert manifest["model"]["id"] == "local/empty-model"
+        assert all(o["value"] is None and o["state"] == "failed" for o in manifest["observations"])
+        assert (run_dir / "error.log").is_file()
+
+
+def test_hub_access_errors_are_blocked_access() -> None:
+    class RepositoryNotFoundError(Exception):
+        pass
+
+    try:
+        try:
+            raise RepositoryNotFoundError("401 Client Error")
+        except RepositoryNotFoundError as inner:
+            raise OSError("not a valid model identifier, or a private repository without a token") from inner
+    except OSError as e:
+        assert execute.state_of(e) == "blocked_access"
+    assert execute.state_of(RuntimeError("x")) == "failed"
+
+
+# --- a real (tiny, random) model from a local directory, through HFLM ---
+
+
+def tiny_model(path: Path) -> Path:
+    """A 2-layer GPT-NeoX with random weights and a word-level tokenizer, saved as a Hub model directory."""
+    import torch
+    from tokenizers import Tokenizer
+    from tokenizers.models import WordLevel
+    from tokenizers.pre_tokenizers import Whitespace
+    from transformers import GPTNeoXConfig, GPTNeoXForCausalLM, PreTrainedTokenizerFast
+
+    words = sorted({w for d in ARC for w in (d["question"] + " " + " ".join(d["choices"]["text"])).split()})
+    vocab = {t: i for i, t in enumerate(["<s>", "</s>", "<unk>", "<pad>", "Question", "Answer", ":", "?", *words])}
+    tok = Tokenizer(WordLevel(vocab, unk_token="<unk>"))
+    tok.pre_tokenizer = Whitespace()
+    fast = PreTrainedTokenizerFast(
+        tokenizer_object=tok, bos_token="<s>", eos_token="</s>", unk_token="<unk>", pad_token="<pad>"
+    )
+    torch.manual_seed(0)
+    config = GPTNeoXConfig(
+        vocab_size=len(vocab),
+        hidden_size=16,
+        num_hidden_layers=2,
+        num_attention_heads=2,
+        intermediate_size=32,
+        max_position_embeddings=64,
+        bos_token_id=0,
+        eos_token_id=1,
+    )
+    GPTNeoXForCausalLM(config).save_pretrained(path, safe_serialization=True)
+    fast.save_pretrained(path)
+    return path
+
+
+@pytest.mark.parametrize("bos", ["one", "none"])
+def test_a_local_model_runs_end_to_end(tmp_path: Path, bos: models.Bos) -> None:
+    path = tiny_model(tmp_path / "tiny")
+    spec = models.ModelSpec.from_args(str(path), None, device="cpu", bos=bos)
+    spec, lm, record = models.prepare(spec)
+    assert spec.id is not None and spec.id.startswith("local/tiny@")
+    assert record["weights_sha256"] == models.sha256_file(path / "model.safetensors")
+    assert record["bos"]["leading_bos_in_probe_request"] == (1 if bos == "one" else 0)
+    benchmark = catalog.CATALOG["arc-easy"]
+    assert benchmark.dataset is not None
+    benchmark = dataclasses.replace(benchmark, dataset=dataclasses.replace(benchmark.dataset, n_population=len(ARC)))
+    data = local(write_docs(tmp_path, "arc-easy"))
+    first = execute.run_benchmark(benchmark, lm, spec, record, tmp_path / "runs", data)
+    second = execute.run_benchmark(benchmark, lm, spec, record, tmp_path / "runs", data)
+    assert first.state == second.state == "ok"
+    assert first.value == second.value  # deterministic on CPU
+    assert first.run_dir != second.run_dir
+    assert first.run_dir is not None and validate_run(first.run_dir).ok
+    manifest = json.loads((first.run_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["model"]["id"] == spec.id and manifest["protocol"]["bos"] == bos
+    assert manifest["execution"]["environment"]["weights_files"] == {"model.safetensors": record["weights_sha256"]}

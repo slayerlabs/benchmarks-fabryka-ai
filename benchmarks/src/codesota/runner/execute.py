@@ -12,6 +12,7 @@ log-likelihoods with `scoring`. A failure is recorded as a state with its reason
 import json
 import time
 import traceback
+import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -27,6 +28,19 @@ STATE_OF = {
     "GatedRepoError": "blocked_access",
     "RepositoryNotFoundError": "blocked_access",
 }
+
+
+def state_of(error: BaseException) -> str:
+    """The state of a benchmark that raised `error`, from the exception or one it was raised from (transformers wraps
+    a Hub access error in an OSError)."""
+    seen: BaseException | None = error
+    visited: set[int] = set()
+    while seen is not None and id(seen) not in visited:
+        visited.add(id(seen))
+        if type(seen).__name__ in STATE_OF:
+            return STATE_OF[type(seen).__name__]
+        seen = seen.__cause__ or seen.__context__
+    return "failed"
 
 
 class ContextTooLong(ValueError):
@@ -79,21 +93,25 @@ def request_pairs(task: Any, doc: dict[str, Any], context: Any) -> list[tuple[st
     return [(c, delimiter + str(o)) for c in contexts for o in task.doc_to_choice(doc)]
 
 
+def request_tokens(lm: Any, context: str, continuation: str) -> int:
+    """How many tokens the model gets for one log-likelihood request, encoded as lm-eval 0.4.9.1 `HFLM.loglikelihood`
+    encodes it, with the model class's BOS policy: an empty context is `[prefix_token_id]`, any other pair goes
+    through the model's `_encode_pair`. `HFLM` truncates when context + continuation exceeds `max_length` + 1 tokens
+    (it feeds `(context + continuation)[:-1]`)."""
+    if context == "":
+        return 1 + len(lm.tok_encode(continuation))
+    context_enc, continuation_enc = lm._encode_pair(context, continuation)
+    return len(context_enc) + len(continuation_enc)
+
+
 def enforce_context_limit(task: Any, lm: Any, limit: int) -> None:
-    """Fail a request that would be truncated, measured as `HFLM` measures it: the tokens of context + continuation,
-    with one leading BOS, at most `limit` + 1 (HFLM feeds `(context + continuation)[:-1]`). 0-shot prompts have no
-    demonstrations to drop, so a prompt that does not fit ends the benchmark as unsupported."""
-    bos = getattr(lm, "prefix_token_id", None)
-
-    def tokens(text: str) -> int:
-        ids = list(lm.tok_encode(text))
-        return len(ids) + (0 if bos is not None and ids[:1] == [bos] else 1)
-
+    """Fail a request that would be truncated, counting exactly the tokens the model gets (`request_tokens`). 0-shot
+    prompts have no demonstrations to drop, so a prompt that does not fit ends the benchmark as unsupported."""
     original = task.fewshot_context
 
     def fewshot_context(doc: dict[str, Any], num_fewshot: int, **kwargs: Any) -> Any:
         context = original(doc, num_fewshot=num_fewshot, **kwargs)
-        if max(tokens(c + x) for c, x in request_pairs(task, doc, context)) > limit + 1:
+        if max(request_tokens(lm, c, x) for c, x in request_pairs(task, doc, context)) > limit + 1:
             raise ContextTooLong(f"{task.config.task}: a prompt exceeds the context limit of {limit} tokens")
         return context
 
@@ -206,14 +224,19 @@ def run_benchmark(
     model_record: dict[str, Any],
     out: Path,
     data: dict[str, Any] | None = None,
+    load_error: BaseException | None = None,
 ) -> Outcome:
     """Evaluate `benchmark` and write its run directory under `out`. Never raises for a failure of the evaluation
     itself: it is recorded in the run as a state with its reason, and returned."""
     assert benchmark.dataset is not None and benchmark.scoring is not None
     started, clock = artifact.now(), time.monotonic()
     protocol = protocol_id(benchmark, spec.bos)
-    run_id = f"{benchmark.id}.{spec.id.replace('/', '--')}.{spec.bos}-bos.{started.replace('-', '').replace(':', '')}"
+    stamp = started.replace("-", "").replace(":", "")
+    model = spec.label.replace("/", "--").replace("@", "-")
+    run_id = f"{benchmark.id}.{model}.{spec.bos}-bos.{stamp}.{uuid.uuid4().hex[:8]}"
     try:
+        if load_error is not None:  # the model did not load: every selected benchmark records why
+            raise load_error
         task, samples, ids = evaluate(benchmark, lm, data)
         scored = score(benchmark, task, samples, ids)
         scored["research_digest"] = research_digest(benchmark, samples)
@@ -222,7 +245,7 @@ def run_benchmark(
     # The boundary of one benchmark in a run of several: every exception becomes the benchmark's recorded state,
     # with its traceback in the run, and the command exits non-zero. Nothing is turned into a score.
     except Exception as e:
-        state = STATE_OF.get(type(e).__name__, "failed")
+        state = state_of(e)
         reason = f"{type(e).__name__}: {e}"[:500]
         log = traceback.format_exc().encode("utf-8")
         samples, ids, scored, config = [], [], None, None
@@ -287,7 +310,7 @@ def _observations(
         scale = 100.0 if m["unit"] == "percent" else 1.0
         obs: dict[str, Any] = {
             "task_id": benchmark.id,
-            "model_id": spec.id,
+            "model_id": spec.label,
             "protocol_id": protocol,
             "metric": m["id"],
             "unit": m["unit"],
@@ -384,7 +407,7 @@ def _manifest(
             "num_fewshot": 0,
         },
         "model": {
-            "id": spec.id,
+            "id": spec.label,
             "repo": spec.repo if spec.repo else {"unknown": f"local directory {spec.path}"},
             "revision": spec.revision if spec.revision else {"unknown": "local directory without a recorded revision"},
             "weights_sha256": model_record["weights_sha256"],

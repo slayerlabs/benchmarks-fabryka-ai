@@ -41,7 +41,10 @@ before anything runs; an unknown one is a usage error. A selected benchmark that
 `not_run`, with its reason, and is not silently dropped.
 
 **Model** (`--model`): a Hugging Face Hub repository with `--revision` set to a full commit SHA (a branch or tag can
-move), or a local directory (`--revision` then optionally names the commit it came from). A private repository reads
+move), or a local directory (`--revision` then optionally names the commit it came from). The model's ID in results
+is `--model-id`, else the repository; a local directory without `--model-id` gets `local/<directory>@<12 hex>` from
+the SHA-256 of its weight files, so two models in directories of the same name get different IDs. The weights must be
+complete: a directory without weight files, or a sharded checkpoint missing a file its index lists, does not run. A private repository reads
 its token from the `HF_TOKEN` environment variable; the token is never recorded. The model is loaded with lm-eval's
 `HFLM`. Code shipped with a model runs only with `--trust-remote-code`, and the run records it.
 
@@ -59,7 +62,7 @@ The exit code is 0 when every selected benchmark was scored, 1 when any was not,
 ```
 runs/
 ├── index.json                                        one row per selected benchmark: state, value, run directory
-└── arc-easy.EleutherAI--pythia-1b-v0.one-bos.<time>/
+└── arc-easy.EleutherAI--pythia-1b-v0.one-bos.<time>.<8 random hex>/
     ├── manifest.json                                 identity, settings, provenance, observations, assessment
     ├── samples.jsonl                                 one record per question: scores, gold, prediction, log-likelihoods
     └── task-config.json                              the effective lm-eval task configuration
@@ -77,10 +80,27 @@ the manifest records:
 A run whose checkout had uncommitted changes, whose model has no recorded revision, or whose data come from an
 unpinned branch is marked `provenance_claim: partial`.
 
-**Failures are states, not scores.** A prompt longer than the model's context window makes the benchmark
-`unsupported` (the evaluation is not shortened to fit). Missing access to a dataset or model is `blocked_access`.
+**Failures are states, not scores.** A model that does not load (no access, missing or broken weights, an
+architecture `HFLM` cannot load) is recorded in the run of every selected benchmark, with the traceback. A prompt
+longer than the model's context window makes the benchmark `unsupported` (the evaluation is not shortened to fit);
+the length is counted in the tokens the model gets, encoded as `HFLM` encodes the request, with the BOS policy. Missing access to a dataset or model is `blocked_access`.
 Anything else, including a split whose size differs from the pinned one, is `failed`, with the error in the run's
 `error.log`. Such a run has no value, and no sample carries a score.
+
+## What a status means
+
+Each run reports three separate things, never folded into one:
+
+| level | established by | for |
+|---|---|---|
+| structure | `codesota.results`, for every run | this run's files |
+| provenance completeness | `codesota.results` (`provenance_claim`), for every run | this run's identities and settings |
+| scientific verification | review of the evidence in `BENCHMARKS.md` (`assessment.status`) | the benchmark's integration under its protocol |
+
+`verified` means: under this protocol (0-shot, log-likelihood scoring through lm-eval HFLM), a published reference
+result was reproduced, and the runner reproduces the research pipeline. It does not mean the benchmark is valid for
+any model or inference setup. Chat or instruction-tuned models scored without their template, API backends, and
+custom architectures need their own evidence before their numbers are compared with these.
 
 ## What differs from the research pipeline
 

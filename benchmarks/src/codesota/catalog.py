@@ -9,6 +9,11 @@ A benchmark is in one of three states:
   reference.
 - `not-implemented`: the benchmark has a directory in `research/benchmarks/`, but the runner cannot run it yet.
 
+A status is a claim about the integration under its protocol (0-shot log-likelihood scoring through lm-eval HFLM, as
+in the research central run), established by review of that evidence. It does not say the benchmark is valid for
+every model or inference setup: a chat model, an API backend, or a custom architecture needs its own evidence. It is
+also separate from what `codesota.results` checks for each run (structure and provenance completeness).
+
 The state of each implemented benchmark is justified in its `evidence`, with the report it rests on. The IDs are the
 benchmark directory names in `research/benchmarks/`; the research pipeline's task IDs (`T01`-`T53`) are kept as
 `legacy_id` and accepted as aliases. Which benchmarks a run selects is resolved by `select`.
@@ -558,7 +563,8 @@ def markdown() -> str:
         "| status | meaning |",
         "|---|---|",
         "| `verified` | the runner implements it; a published reference result was reproduced with this protocol, "
-        "and the runner reproduces the research pipeline for it |",
+        "and the runner reproduces the research pipeline for it. This is a claim about the protocol (0-shot "
+        "log-likelihood scoring through lm-eval HFLM), not about every model or inference setup |",
         "| `needs-reference-check` | the runner implements it and reproduces the research pipeline, but no "
         "published reference result has been reproduced for this protocol; its scores are measurements, not yet "
         "validated |",
@@ -567,6 +573,10 @@ def markdown() -> str:
         f"{counts['verified']} verified, {counts['needs-reference-check']} need a reference check, "
         f"{counts['not-implemented']} not implemented. Run them with `python -m codesota.runner` "
         "([`docs/running.md`](docs/running.md)).",
+        "",
+        "A status is the scientific-verification level of the integration, established by review of its evidence. "
+        "The validator of every run (`codesota.results`) checks the other two levels, structure and provenance "
+        "completeness, and says nothing about this one ([`docs/result-artifacts.md`](docs/result-artifacts.md)).",
         "",
         "## Implemented",
         "",

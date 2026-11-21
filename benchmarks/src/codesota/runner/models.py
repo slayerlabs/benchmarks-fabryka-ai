@@ -10,7 +10,9 @@ every request with a context (research/METODOLOGIA.md, section on the model inpu
 research/common/jeden_bos.py), and `none` keeps lm-eval 0.4.9.1's default, which encodes text without special tokens.
 """
 
+import dataclasses
 import hashlib
+import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -22,8 +24,10 @@ COMMIT = re.compile(r"^[0-9a-f]{40}$")
 
 @dataclass(frozen=True)
 class ModelSpec:
-    id: str
-    """The model's name in results: the Hub repository, or the directory name of a local model."""
+    id: str | None
+    """The model's name in results: `--model-id`, else the Hub repository. A local directory without `--model-id`
+    gets `local/<directory name>@<12 hex>` from the digest of its weights (see `prepare`), because two different
+    models can share a directory name."""
     repo: str | None
     revision: str | None
     path: Path | None
@@ -45,6 +49,7 @@ class ModelSpec:
         max_length: int | None = None,
         trust_remote_code: bool = False,
         bos: Bos = "one",
+        model_id: str | None = None,
     ) -> "ModelSpec":
         """A local directory when `model` is an existing directory, else a Hub repository, which needs a revision
         that is a full commit SHA: a branch or tag can move, and the run would not say what it measured."""
@@ -60,13 +65,21 @@ class ModelSpec:
         if path.is_dir():
             if revision is not None and not COMMIT.match(revision):
                 raise ValueError(f"--revision {revision!r}: a 40-character commit SHA of the model's source, or none")
-            return ModelSpec(id=path.resolve().name, repo=None, revision=revision, path=path.resolve(), **settings)
+            return ModelSpec(id=model_id, repo=None, revision=revision, path=path.resolve(), **settings)
         if revision is None or not COMMIT.match(revision):
             raise ValueError(
                 f"{model}: not a local directory, so a Hub repository; --revision must be a 40-character commit SHA "
                 f"(got {revision!r})"
             )
-        return ModelSpec(id=model, repo=model, revision=revision, path=None, **settings)
+        return ModelSpec(id=model_id or model, repo=model, revision=revision, path=None, **settings)
+
+    @property
+    def label(self) -> str:
+        """The ID, or for a local model whose weights were not read yet, its directory name."""
+        if self.id:
+            return self.id
+        assert self.path is not None
+        return f"local/{self.path.name}"
 
 
 def load(spec: ModelSpec) -> Any:
@@ -180,19 +193,74 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def weights_files(spec: ModelSpec) -> list[Path]:
-    """The weight files of the model: from its directory, or from the local Hub cache after loading."""
-    if spec.path is not None:
-        root = spec.path
-    else:
-        from huggingface_hub import snapshot_download
+class IncompleteWeights(FileNotFoundError):
+    """The model directory has no weights, or lacks files its weight index lists."""
 
-        assert spec.repo is not None
-        root = Path(snapshot_download(spec.repo, revision=spec.revision, local_files_only=True))
-    files = sorted(root.glob("*.safetensors")) or sorted(root.glob("pytorch_model*.bin"))
-    return files
+
+def weights_files(root: Path) -> list[Path]:
+    """The weight files of a model directory, in the order `transformers` prefers them (safetensors, then
+    PyTorch). A sharded checkpoint is read from its index (`*.index.json`), and every shard it lists must exist."""
+    for suffix, pattern in (("safetensors", "*.safetensors"), ("bin", "pytorch_model*.bin")):
+        indexes = sorted(root.glob(f"*.{suffix}.index.json"))
+        if indexes:
+            shards = sorted(
+                {str(v) for i in indexes for v in json.loads(i.read_text(encoding="utf-8"))["weight_map"].values()}
+            )
+            missing = [s for s in shards if not (root / s).is_file()]
+            if missing:
+                raise IncompleteWeights(f"{root}: weight index lists missing files: {', '.join(missing)}")
+            return [root / s for s in shards]
+        files = sorted(root.glob(pattern))
+        if files:
+            return files
+    raise IncompleteWeights(f"{root}: no weight files (*.safetensors or pytorch_model*.bin)")
+
+
+def model_root(spec: ModelSpec) -> Path:
+    """The model's directory: the local one, or its snapshot in the local Hub cache (after loading)."""
+    if spec.path is not None:
+        return spec.path
+    from huggingface_hub import snapshot_download
+
+    assert spec.repo is not None
+    return Path(snapshot_download(spec.repo, revision=spec.revision, local_files_only=True))
 
 
 def weights_digests(spec: ModelSpec) -> dict[str, str]:
     """SHA-256 of every weight file, by file name."""
-    return {f.name: sha256_file(f) for f in weights_files(spec)}
+    return {f.name: sha256_file(f) for f in weights_files(model_root(spec))}
+
+
+def identified(spec: ModelSpec, digests: dict[str, str]) -> ModelSpec:
+    """`spec` with its ID: unchanged when it has one, else `local/<directory>@<first 12 hex of the digest of its
+    weight files>`, so different weights under the same directory name get different IDs."""
+    if spec.id is not None:
+        return spec
+    lines = "".join(f"{name}:{digest}\n" for name, digest in sorted(digests.items()))
+    return dataclasses.replace(spec, id=f"{spec.label}@{hashlib.sha256(lines.encode()).hexdigest()[:12]}")
+
+
+def prepare(spec: ModelSpec) -> tuple[ModelSpec, Any, dict[str, Any]]:
+    """Load the model and identify it: (spec with its final ID, lm-eval model, record for the manifests). Raises
+    when the model does not load or its weights are incomplete."""
+    lm = load(spec)
+    digests = weights_digests(spec)
+    spec = identified(spec, digests)
+    record = {
+        "bos": bos_probe(lm),
+        "weights_files": digests,
+        "weights_sha256": next(iter(digests.values()))
+        if len(digests) == 1
+        else {"unknown": f"{len(digests)} weight files; per-file SHA-256 in execution.environment.weights_files"},
+        "max_length": getattr(lm, "max_length", None),
+    }
+    return spec, lm, record
+
+
+# What a manifest records about a model that did not load.
+NOT_LOADED: dict[str, Any] = {
+    "bos": None,
+    "weights_files": {},
+    "weights_sha256": {"unknown": "the model did not load"},
+    "max_length": None,
+}

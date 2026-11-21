@@ -6,11 +6,13 @@ Every benchmark the repository has a directory for, and where it stands in CodeS
 
 | status | meaning |
 |---|---|
-| `verified` | the runner implements it; a published reference result was reproduced with this protocol, and the runner reproduces the research pipeline for it |
+| `verified` | the runner implements it; a published reference result was reproduced with this protocol, and the runner reproduces the research pipeline for it. This is a claim about the protocol (0-shot log-likelihood scoring through lm-eval HFLM), not about every model or inference setup |
 | `needs-reference-check` | the runner implements it and reproduces the research pipeline, but no published reference result has been reproduced for this protocol; its scores are measurements, not yet validated |
 | `not-implemented` | the benchmark has a directory in `research/benchmarks/`; the runner cannot run it yet |
 
 4 verified, 9 need a reference check, 42 not implemented. Run them with `python -m codesota.runner` ([`docs/running.md`](docs/running.md)).
+
+A status is the scientific-verification level of the integration, established by review of its evidence. The validator of every run (`codesota.results`) checks the other two levels, structure and provenance completeness, and says nothing about this one ([`docs/result-artifacts.md`](docs/result-artifacts.md)).
 
 ## Implemented
 
