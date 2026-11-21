@@ -11,7 +11,7 @@ The values of the 1.09 checkpoint at step 70 000 on the 15 tests of the full run
 settings as the full run (`research/results/full-run-2026-11/`).
 
 This measurement computes **only step 70 000**. Step 40 000 and 1.08 are not recomputed on the same hardware, so it
-makes no paired comparison and gives no verdict "better" or "worse" (see "Reading").
+makes no paired comparison and gives no verdict on any difference (see "Reading").
 
 ## Model
 
