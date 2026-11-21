@@ -7,7 +7,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 REPO = ROOT.parent
-DOCS = sorted([*ROOT.glob("*.md"), *ROOT.glob("docs/*.md")])
+DOCS = sorted([*ROOT.glob("*.md"), *ROOT.glob("docs/*.md"), *ROOT.glob("results/*.md")])
 LINK = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
 # Polish diacritics: documents in benchmarks/ are English-only (benchmarks/AGENTS.md). Proper nouns with diacritics
 # need an explicit allowance here, in a reviewed change: a person's name is written as the person writes it.

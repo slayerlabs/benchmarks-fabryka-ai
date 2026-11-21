@@ -27,6 +27,10 @@ eval = [
   "torch==2.8.0",
   "numpy>=2.0",
 ]
+# `python -m codesota.leaderboard`: the charts of benchmarks/results/ (the text files need nothing).
+report = [
+  "matplotlib>=3.9",
+]
 
 [dependency-groups]
 dev = [
@@ -61,7 +65,7 @@ mypy_path = "src"
 
 # The evaluation stack ships no type information (or is not installed without the `eval` extra).
 [[tool.mypy.overrides]]
-module = ["lm_eval.*", "torch.*", "transformers.*", "datasets.*", "huggingface_hub.*", "numpy.*", "tokenizers.*"]
+module = ["lm_eval.*", "torch.*", "transformers.*", "datasets.*", "huggingface_hub.*", "numpy.*", "tokenizers.*", "matplotlib.*"]
 ignore_missing_imports = true
 
 # transformers ships partial type information; read it as untyped (Any), as without the `eval` extra, so mypy gives
