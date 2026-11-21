@@ -27,7 +27,7 @@ from lm_eval.api.model import LM
 
 from codesota import catalog
 from codesota.results import validate_run
-from codesota.runner import execute, models, scoring, tasks
+from codesota.runner import artifact, execute, models, scoring, tasks
 
 REPO = Path(__file__).resolve().parents[2]
 RESEARCH = REPO / "research"
@@ -577,7 +577,9 @@ def tiny_model(path: Path) -> Path:
 
 
 @pytest.mark.parametrize("bos", ["one", "none"])
-def test_a_local_model_runs_end_to_end(tmp_path: Path, bos: models.Bos) -> None:
+def test_a_local_model_runs_end_to_end(tmp_path: Path, bos: models.Bos, monkeypatch: pytest.MonkeyPatch) -> None:
+    # A clean checkout, so the provenance claim depends on the model alone (a dirty one is always partial).
+    monkeypatch.setattr(artifact, "source_state", lambda: ("1" * 40, False))
     path = tiny_model(tmp_path / "tiny")
     spec = models.ModelSpec.from_args(str(path), None, device="cpu", bos=bos)
     spec, lm, record = models.prepare(spec)
@@ -596,4 +598,15 @@ def test_a_local_model_runs_end_to_end(tmp_path: Path, bos: models.Bos) -> None:
     assert first.run_dir is not None and validate_run(first.run_dir).ok
     manifest = json.loads((first.run_dir / "manifest.json").read_text(encoding="utf-8"))
     assert manifest["model"]["id"] == spec.id and manifest["protocol"]["bos"] == bos
+    assert manifest["provenance_claim"] == "partial"  # the weights came from a directory, not a known repository
     assert manifest["execution"]["environment"]["weights_files"] == {"model.safetensors": record["weights_sha256"]}
+
+
+def test_a_hub_model_on_a_clean_checkout_claims_complete_provenance(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(artifact, "source_state", lambda: ("1" * 40, False))
+    outcome, manifest = run(tmp_path, FakeLM())
+    assert outcome.state == "ok" and manifest["provenance_claim"] == "complete"
+    monkeypatch.setattr(artifact, "source_state", lambda: ("1" * 40, True))
+    assert run(tmp_path / "dirty", FakeLM())[1]["provenance_claim"] == "partial"
