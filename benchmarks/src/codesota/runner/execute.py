@@ -18,7 +18,8 @@ from pathlib import Path
 from typing import Any
 
 from codesota.catalog import Benchmark
-from codesota.results import source_id_digest
+from codesota.results import schema, source_id_digest
+from codesota.results.validate import get, known
 from codesota.runner import artifact, models, scoring, tasks
 
 CONTEXT_LIMIT = 4096  # research/METODOLOGIA.md: longer inputs are rejected, never truncated
@@ -377,11 +378,10 @@ def _manifest(
     env = artifact.environment(spec.device)
     env.update(source_dirty=dirty, bos=model_record["bos"], weights_files=model_record["weights_files"])
     na = {"unknown": "not applicable: log-likelihood scoring, nothing is generated"}
-    complete = not dirty and isinstance(commit, str) and spec.revision is not None and d.source != "unpinned-parquet"
-    return {
+    manifest: dict[str, Any] = {
         "format": "urn:codesota:run-manifest:1",
         "run_id": run_id,
-        "provenance_claim": "complete" if complete else "partial",
+        "provenance_claim": "partial",
         "analysis": {"kind": "primary"},
         "benchmark": {
             "id": benchmark.id,
@@ -446,3 +446,9 @@ def _manifest(
             "against_b": None if scored is None else scored["b"],
         },
     }
+    # The claim follows the validator's rule (every field of PROVENANCE_REQUIRED known), and is never `complete`
+    # for a checkout with uncommitted changes or data read from an unpinned branch.
+    recorded = all(known(get(manifest, path), manifest, path) for path in schema.PROVENANCE_REQUIRED)
+    if recorded and not dirty and d.source != "unpinned-parquet":
+        manifest["provenance_claim"] = "complete"
+    return manifest
