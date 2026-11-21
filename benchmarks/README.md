@@ -104,6 +104,30 @@ benchmark-specific code, and, where done, a reproduction report.
 
 ## Results
 
+**[All results](results/README.md)**: every published result in one place, Slayer 1B first, by category and
+language, with charts and a [JSONL of all results](results/results.jsonl). A short view, value ± standard error:
+
+<!-- results-snapshot:start -->
+| benchmark | metric | Slayer 1B 1.09 (step 40 000, training in progress) | Bielik 11B v3.0 Instruct |
+|---|---|---:|---:|
+| ARC-Easy | `acc` ↑ | 66.6 ± 1.0 | 81.9 ± 0.8 |
+| PIQA | `acc_norm` ↑ | 71.2 ± 1.1 | 78.9 ± 1.0 |
+| WinoGrande | `acc` ↑ | 57.7 ± 1.3 | 73.0 ± 1.2 |
+| LAMBADA (OpenAI) | `acc` ↑ | 45.4 ± 0.7 | 71.4 ± 0.6 |
+| HellaSwag | `acc_norm` ↑ | 52.8 ± 0.5 | 79.4 ± 0.4 |
+| MultiBLiMP (Polish) | `accuracy` ↑ | 98.6 ± 0.2 | 99.6 ± 0.1 |
+
+| model | how it ran | prompt-level strict accuracy | n |
+|---|---|---:|---:|
+| Slayer 1B 1.08 | local GPU, raw prompt, greedy | 18.1 ± 1.7 | 541 |
+| Bielik 11B v3.1 Instruct | Fabryka API, chat template, sampled | 55.3 ± 2.1 | 541 |
+<!-- results-snapshot:end -->
+
+Bielik 11B is v3.0 in the log-likelihood rows (the version the full run measured) and v3.1 in IFEval; the two
+IFEval rows use different setups. Caveats and the protocol are on the [results page](results/README.md).
+
+Sources:
+
 - [Full run, November 2026](../research/results/full-run-2026-11/README.md): 15 benchmarks on full test sets for
   8 open reference models and 9 development checkpoints of one 1B model under development, with standard errors,
   statistical verdicts, and the settings of every run. Report written in Polish; an interactive view of the same
