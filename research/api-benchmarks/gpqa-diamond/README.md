@@ -26,25 +26,30 @@ come from a local exploratory run on rented GPUs and do not close issue #302. Se
 | LFM3-1.7B card | Liquid AI model card, GPQA Diamond (settings above; not reproduced by us) | 63.37 | - | - | - |
 | LFM3-1.7B (`lfm3-1.7b`) | local RTX A4000, lm-eval CoT greedy, 8192 tokens, batch 22 | 53.54 | 3.54 | 198 | 2026-11-19 |
 | Bielik 11B v3.1 (`bielik-11b-v3.1`) | local RTX 5090, lm-eval CoT greedy, 8192 tokens, batch 1 | 37.88 | 3.45 | 198 | 2026-11-20 |
-| LFM3-1.7B | local RTX 5090, lm-eval CoT greedy, 2048 tokens | 29.29 | 3.24 | 198 | 2026-11-19 |
-| Bielik 11B v3.1 | local RTX 5090, lm-eval CoT greedy, 2048 tokens | 36.36 | 3.42 | 198 | 2026-11-19 |
+| LFM3-1.7B (`lfm3-1.7b-2048`) | local RTX 5090, lm-eval CoT greedy, 2048 tokens, batch 1 | 29.29 | 3.24 | 198 | 2026-11-19 |
+| Bielik 11B v3.1 (`bielik-11b-v3.1-2048`) | local RTX 5090, lm-eval CoT greedy, 2048 tokens, batch 1 | 36.36 | 3.43 | 198 | 2026-11-19 |
 | LFM3-1.7B, combined (projection) | 124 items at 8192 + 74 truncated items re-run at 16384 (RTX 3090, batch 16) | 59.09 | 3.50 | 198 | 2026-11-20 |
 | Slayer 1B | not run | null | null | 198 | - |
 
 Rows with a different setup are not interchangeable: compare models only through the paired tests below, never
 across rows of different budget or hardware. The "combined" row mixes two token budgets; it is a projection, not
 a clean run, and it is not stored in `results/`. The main row (Fabryka API, card settings) is not computed here.
-Only the 8192-token runs have files in `results/`.
+The 8192 and 2048 runs each have files in `results/`; the combined projection row does not.
 
-Paired tests (McNemar, continuity corrected, same 198 questions):
+Paired tests (same 198 questions, paired difference per item, z = Δ / SE; the SE is the paired SE over the items,
+and the reading follows the repo convention |z| < 2 noise, 2-3 borderline, >= 3 clear):
 
-| comparison | net difference (items) | chi2 | p | reading |
+| comparison | net (items) | Δ ± SE (points) | z | reading |
 |---|---|---|---|---|
-| LFM3 vs Bielik, 8192 | +31 for LFM3 | 10.3 | ~0.001 | significant |
-| LFM3 vs Bielik, 8192, strict variant (correct only if "answer is" is present) | +27 for LFM3 | - | ~0.006 | significant |
-| LFM3 2048 vs 8192 | +48 for 8192 | 30.7 | < 0.001 | strong budget effect |
-| Bielik 2048 vs 8192 | +3 for 8192 | 0.12 | ~0.7 | no change |
-| LFM3, the 74 truncated items, 8192 vs 16384 | +11 for 16384 | 3.45 | ~0.06 | NOT significant |
+| LFM3 vs Bielik, 8192 | +31 for LFM3 | +15.66 ± 4.59 | z = 3.41 | clear lead for LFM3 |
+| LFM3 vs Bielik, 8192, strict variant (correct only if "answer is" is present) | +27 for LFM3 | +13.64 ± 4.73 | z = 2.88 | LFM3 ahead, just under the clear line |
+| LFM3, 2048 vs 8192 | +48 for 8192 | +24.24 ± 3.93 | z = 6.16 | large budget effect for LFM3 |
+| Bielik, 2048 vs 8192 | +3 for 8192 | +1.52 ± 2.91 | z = 0.52 | noise |
+| LFM3, the 74 truncated items, 8192 vs 16384 | +11 for 16384 | +14.86 ± 7.12 | z = 2.09 | borderline; selected 74-item subset, see below |
+
+The strict variant and the 74-item row are the weaker signals: both sit just above or below z = 2, so neither is
+decided here. The full 198 @16384 run (plus a 32768 pass on items still truncated at 16384) will replace the 74-item
+row with a clean number; it is being computed and will land as a follow-up commit.
 
 ## Deviations
 
@@ -54,16 +59,17 @@ Paired tests (McNemar, continuity corrected, same 198 questions):
   #302.
 - **Token budget and truncation.** At 8192 tokens LFM3-1.7B is cut off: 74 of 198 outputs reach the limit
   (measured with the tokenizer on the pod), and 65.2% reach an "answer is" phrase. The card has an effectively
-  unlimited budget, which probably explains most of the gap 53.54 vs 63.37. Budget sweep: 2048 to 8192 adds
-  24 points (significant). Re-running only the 74 truncated items at 16384 adds 11 net items, but this is NOT
-  significant (p ~0.06). The combined 59.09 mixes two budgets and is a projection. Bielik does not change with
-  budget (+3 items, no effect).
+  unlimited budget, which probably explains most of the distance from the card: our 53.54 sits 2.8 SE below the
+  card's 63.37 (z = -2.8, using our run's SE 3.54). Budget sweep for LFM3: 2048 to 8192 adds 24.24 ± 3.93 points
+  (z = 6.16). Re-running only the 74 truncated items at 16384 adds 11 net items (+14.86 ± 7.12 points, z = 2.09,
+  n = 74): borderline, not decided on this subset. The combined 59.09 mixes two budgets and is a projection.
+  Bielik barely moves with budget (+1.52 ± 2.91 points, z = 0.52, noise).
 - **Harness version.** We used lm-eval 0.4.13 (from `pip freeze` on the pod; it was not saved in `results.json`),
   transformers 5.22.1, torch 2.8.0+cu128. The repo pin elsewhere is 0.4.9.1. Not reconciled.
 - **Hardware and batch differ between cells**: LFM3 8192 on RTX A4000 (batch 22), Bielik 8192 on RTX 5090
   (batch 1), LFM3 16384 on RTX 3090 (batch 16), both 2048 runs on RTX 5090 (batch 1). Greedy decoding is
   deterministic in theory, but bf16 with padding flips single tokens (a smoke test showed this). That does not
-  explain the 15.7-point gap between the models at 8192.
+  explain the 15.66 ± 4.59 point difference between the models at 8192 (z = 3.41).
 - **`strict-match` is 0 for LFM3 and about 1% for Bielik, which we treat as a setup finding, not noise.** (On the
   saved 8192 samples we count 0 of 198 for LFM3 and 2 of 198 for Bielik.) We opened the samples. The `strict-match`
   filter only accepts the sentence "The answer is X" and returns `[invalid]` otherwise. LFM3 ends with
@@ -76,8 +82,8 @@ Paired tests (McNemar, continuity corrected, same 198 questions):
   sentence in zero-shot CoT, not from a broken pipeline: `flexible-extract` is therefore the reported metric.
   The risk is that flexible-extract may also credit a letter that is not the model's final choice; the "answer
   is present" flag below lets a reader check that (157 of 198 for Bielik, 129 of 198 for LFM3 contain the phrase).
-- **Slayer 1B is not run on GPQA.** Issue #302 asks for it. The score is `null` ("not run"); this is an open gap.
-  No `results/slayer1b-*.json` exists.
+- **Slayer 1B is not run on GPQA.** Issue #302 asks for it. The score is `null` ("not run"); this is still open.
+  No `results/slayer1b-*.json` exists; this item is still open.
 - **Per-item files carry flags only.** GPQA is gated behind Hugging Face consent, and the owner's rule is to
   publish per-item flags with no question text and no model output. `results/<model-id>.jsonl.gz` therefore holds
   only `doc_id`, `exact_match` (flexible-extract) and `answer_is_present` (the response contains "answer is").
