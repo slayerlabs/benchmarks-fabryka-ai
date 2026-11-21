@@ -128,8 +128,8 @@ runs, was one question.
 Commands (from a clean checkout at the commit of the runs, CUDA build of torch 2.8.0, `HF_HOME` on a local disk):
 
 ```bash
-python -m codesota.runner --benchmarks @implemented --model EleutherAI/pythia-1b-v0   --revision f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0 --bos none --out runs/pythia-none
-python -m codesota.runner --benchmarks @implemented --model EleutherAI/pythia-1b-v0   --revision f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0 --bos one --out runs/pythia-one
+python -m codesota.runner --benchmarks @implemented --model EleutherAI/pythia-1b-v0 \n  --revision f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0 --bos none --out runs/pythia-none
+python -m codesota.runner --benchmarks @implemented --model EleutherAI/pythia-1b-v0 \n  --revision f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0 --bos one --out runs/pythia-one
 ```
 
 Decision metric of each benchmark. "Same selection" compares `source_id_digest` (for HellaSwag, the research-style
