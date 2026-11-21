@@ -16,7 +16,7 @@ what the sources give (`tests/test_leaderboard.py` runs it).
 import argparse
 import json
 import sys
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Final
@@ -51,12 +51,13 @@ class Model:
 
 
 # The latest Slayer first, then the headline references (the maintainers' choice), then everything else.
-LATEST_SLAYER: Final = "slayer1b-1.09-k40000"
+LATEST_SLAYER: Final = "slayer1b-1.09-k70000"
 HEADLINE: Final = (LATEST_SLAYER, "bielik-11b-v3-instruct", "lfm3-1.7b-base", "bielik-1.5b-v3", "qwen3.5-0.8b-base")
 MODELS: Final[dict[str, Model]] = {
     m.label: m
     for m in (
-        Model(LATEST_SLAYER, "Slayer 1B 1.09 (step 40 000, training in progress)", "base", "Slayer"),
+        Model(LATEST_SLAYER, "Slayer 1B 1.09 (step 70 000, training in progress)", "base", "Slayer"),
+        Model("slayer1b-1.09-k40000", "Slayer 1B 1.09 (step 40 000)", "base", "Slayer"),
         Model("bielik-11b-v3-instruct", "Bielik 11B v3.0 Instruct", "instruct", "Bielik"),
         Model("lfm3-1.7b-base", "LFM3-1.7B-Base", "base", "Liquid"),
         Model("bielik-1.5b-v3", "Bielik 1.5B v3", "base", "Bielik"),
@@ -306,7 +307,7 @@ def cell(r: Result | None) -> str:
 # The headline table: column headers (name and a second line) of the HEADLINE models, and its row groups, Polish
 # first, then English by category.
 HEADER: Final[dict[str, tuple[str, str]]] = {
-    LATEST_SLAYER: ("Slayer 1B", "1.09 checkpoint"),
+    LATEST_SLAYER: ("Slayer 1B", "1.09 step 70k"),
     "bielik-11b-v3-instruct": ("Bielik 11B", "v3.0 Instruct"),
     "lfm3-1.7b-base": ("LFM3", "1.7B Base"),
     "bielik-1.5b-v3": ("Bielik", "1.5B v3"),
@@ -321,8 +322,53 @@ SECTIONS: Final[tuple[tuple[str, tuple[str, ...]], ...]] = (
 )
 LEGEND: Final = (
     "Accuracy in %, 0-shot · ↓ lower is better (WikiText-2: perplexity per byte) · best of the five highlighted, "
-    "second underlined"
+    "second underlined · Random: chance level"
 )
+# The Slayer versions page: every Slayer of the full run, oldest first, with the same table.
+SLAYER_VERSIONS: Final = (
+    "slayer1b-1.00",
+    "slayer1b-1.01",
+    "slayer1b-1.02",
+    "slayer1b-1.03",
+    "slayer1b-1.04",
+    "slayer1b-1.05",
+    "slayer1b-1.06",
+    "slayer1b-1.07-hf",
+    "slayer1b-1.08",
+    "slayer1b-1.09-k40000",
+    LATEST_SLAYER,
+)
+SLAYER_HEADER: Final[dict[str, tuple[str, str]]] = {
+    **{m: (m.removeprefix("slayer1b-"), "") for m in SLAYER_VERSIONS[:7]},
+    "slayer1b-1.07-hf": ("1.07", "HF weights"),
+    "slayer1b-1.08": ("1.08", ""),
+    "slayer1b-1.09-k40000": ("1.09", "step 40k"),
+    LATEST_SLAYER: ("1.09", "step 70k"),
+}
+SLAYER_LEGEND: Final = (
+    "Accuracy in %, 0-shot · ↓ lower is better · best version highlighted, second underlined · Random: chance level"
+)
+
+
+def majority_level(benchmark: str, repo: Path = REPO) -> float:
+    """Score of always giving the most common answer of a test, in percent (`bazy.majority_value`)."""
+    path = repo / FULL_RUN / benchmark / LATEST_SLAYER / "results_rozszerzone.json"
+    o = json.loads(path.read_text(encoding="utf-8"))["observations"][0]
+    return 100 * float(o["dodatkowe"]["space"]["bazy"]["majority_value"])
+
+
+def chance_levels(repo: Path = REPO) -> dict[str, float | None]:
+    """Chance level of each benchmark of the tables, in percent, from its result file (`bazy.chance_value`: the mean
+    of 1 / number of options, a property of the test). None where there is none (WikiText-2)."""
+    out: dict[str, float | None] = {}
+    for _, benchmarks in SECTIONS:
+        for b in benchmarks:
+            path = repo / FULL_RUN / b / LATEST_SLAYER / "results_rozszerzone.json"
+            o = json.loads(path.read_text(encoding="utf-8"))["observations"][0]
+            space = (o.get("dodatkowe") or {}).get("space") or {}
+            c = (space.get("bazy") or {}).get("chance_value")
+            out[b] = None if c is None else 100 * c
+    return out
 
 
 def value_text(r: Result) -> str:
@@ -342,14 +388,16 @@ def ranks(cells: Sequence[Result | None]) -> list[int | None]:
 Cell = tuple[str, Result | None, int | None]  # benchmark, result, rank
 
 
-def headline_rows(rows: Sequence[Result]) -> list[tuple[str, list[tuple[str, list[Cell]]]]]:
-    """The headline's row groups: per section, per benchmark its shown name and one cell per HEADLINE model."""
+def headline_rows(
+    rows: Sequence[Result], models: Sequence[str] = HEADLINE
+) -> list[tuple[str, list[tuple[str, list[Cell]]]]]:
+    """Row groups of a results table: per section, per benchmark its shown name and one cell per model."""
     by = {(r.benchmark, r.model): r for r in rows if r.protocol == "full-run-2026-11"}
     out = []
     for section, benchmarks in SECTIONS:
         lines = []
         for b in benchmarks:
-            cells = [by.get((b, m)) for m in HEADLINE]
+            cells = [by.get((b, m)) for m in models]
             if all(c is None for c in cells):
                 continue
             first = next(c for c in cells if c is not None)
@@ -379,26 +427,35 @@ def _esc(text: str) -> str:
     return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-def headline_svg(rows: Sequence[Result], t: Theme) -> str:
-    """The headline table as an SVG image, styled as GitHub cannot style a Markdown table: no grid, the best value
-    of each row highlighted in red, the second underlined. Each value carries its benchmark, model, and rank."""
-    name_width, col, pad, row_h = 220, 100, 20, 34
-    width = pad * 2 + name_width + col * len(HEADLINE)
+def headline_svg(
+    rows: Sequence[Result],
+    t: Theme,
+    chance: Mapping[str, float | None],
+    models: Sequence[str] = HEADLINE,
+    header: Mapping[str, tuple[str, str]] = HEADER,
+    legend: str = LEGEND,
+    col: int = 100,
+) -> str:
+    """A results table as an SVG image, styled as GitHub cannot style a Markdown table: no grid, the best value of
+    each row highlighted in red, the second underlined, the chance level last. Each value carries its benchmark,
+    model, and rank; each chance level its benchmark."""
+    name_width, pad, row_h = 220, 20, 34
+    width = pad * 2 + name_width + col * (len(models) + 1)
 
     def center(i: int) -> float:
         return pad + name_width + col * i + col / 2
 
     body: list[str] = []
-    for i, m in enumerate(HEADLINE):
-        body.append(f'<text x="{center(i)}" y="38" text-anchor="middle" font-weight="600">{_esc(HEADER[m][0])}</text>')
+    for i, (top, sub) in enumerate([*(header[m] for m in models), ("Random", "chance")]):
+        weight = "600" if i < len(models) else "400"
+        body.append(f'<text x="{center(i)}" y="38" text-anchor="middle" font-weight="{weight}">{_esc(top)}</text>')
         body.append(
-            f'<text x="{center(i)}" y="56" text-anchor="middle" font-size="12" fill="{t.muted}">'
-            f"{_esc(HEADER[m][1])}</text>"
+            f'<text x="{center(i)}" y="56" text-anchor="middle" font-size="12" fill="{t.muted}">{_esc(sub)}</text>'
         )
     body.append(f'<text x="{pad}" y="56" font-size="12" fill="{t.muted}">Benchmark</text>')
     y = 70
     body.append(f'<line x1="{pad}" x2="{width - pad}" y1="{y}" y2="{y}" stroke="{t.rule}"/>')
-    for section, lines in headline_rows(rows):
+    for section, lines in headline_rows(rows, models):
         y += row_h
         body.append(
             f'<text x="{pad}" y="{y - 10}" font-size="13" font-weight="600" fill="{t.muted}">{_esc(section)}</text>'
@@ -422,12 +479,17 @@ def headline_svg(rows: Sequence[Result], t: Theme) -> str:
                 style = f' font-weight="700" fill="{t.accent}"' if k == 1 else f' fill="{t.muted}"' if c is None else ""
                 body.append(
                     f'<text x="{center(i)}" y="{base}" text-anchor="middle"{style} data-benchmark="{b}" '
-                    f'data-model="{HEADLINE[i]}" data-rank="{k or 0}">{"n/a" if c is None else value_text(c)}</text>'
+                    f'data-model="{models[i]}" data-rank="{k or 0}">{"n/a" if c is None else value_text(c)}</text>'
                 )
+            level = chance[cells[0][0]]
+            body.append(
+                f'<text x="{center(len(models))}" y="{base}" text-anchor="middle" fill="{t.muted}" '
+                f'data-chance="{cells[0][0]}">{"n/a" if level is None else f"{level:.1f}"}</text>'
+            )
     y += 8
     body.append(f'<line x1="{pad}" x2="{width - pad}" y1="{y}" y2="{y}" stroke="{t.rule}"/>')
     y += 24
-    body.append(f'<text x="{pad}" y="{y}" font-size="12" fill="{t.muted}">{_esc(LEGEND)}</text>')
+    body.append(f'<text x="{pad}" y="{y}" font-size="12" fill="{t.muted}">{_esc(legend)}</text>')
     height = y + 16
     return "\n".join(
         [
@@ -441,20 +503,35 @@ def headline_svg(rows: Sequence[Result], t: Theme) -> str:
     )
 
 
-def values_table(rows: Sequence[Result]) -> list[str]:
-    """The headline's values with their standard errors, as an HTML table (Markdown tables have no group rows)."""
-    head = "".join(f"<th>{HEADER[m][0]}<br><sub>{HEADER[m][1]}</sub></th>" for m in HEADLINE)
-    out = ["<table>", f'<tr><th align="left">Benchmark</th>{head}</tr>']
-    for section, lines in headline_rows(rows):
-        out.append(f'<tr><td colspan="{1 + len(HEADLINE)}"><b>{section}</b></td></tr>')
+def values_table(
+    rows: Sequence[Result],
+    chance: Mapping[str, float | None],
+    models: Sequence[str] = HEADLINE,
+    header: Mapping[str, tuple[str, str]] = HEADER,
+) -> list[str]:
+    """A table's values with their standard errors and the chance level, as an HTML table (Markdown tables have no
+    group rows)."""
+    head = "".join(f"<th>{header[m][0]}<br><sub>{header[m][1]}</sub></th>" for m in models)
+    out = ["<table>", f'<tr><th align="left">Benchmark</th>{head}<th>Random<br><sub>chance</sub></th></tr>']
+    for section, lines in headline_rows(rows, models):
+        out.append(f'<tr><td colspan="{2 + len(models)}"><b>{section}</b></td></tr>')
         for name, cells in lines:
             tds = "".join(f'<td align="right">{"n/a" if c is None else shown(c)}</td>' for _, c, _ in cells)
+            level = chance[cells[0][0]]
+            tds += f'<td align="right">{"n/a" if level is None else f"{level:.1f}"}</td>'
             out.append(f"<tr><td>{name}</td>{tds}</tr>")
     out.append("</table>")
     return out
 
 
-def readme(rows: Sequence[Result]) -> str:
+K70_PROTOCOL: Final = f"../../{FULL_RUN}/slayer-1.09-k70000/PROTOKOL.md"
+K70_NOTE: Final = (
+    "Step 70 000 was measured in its own run, on 8 x RTX 4090 with the same code and settings "
+    f"([protocol]({K70_PROTOCOL})); every other result of the full run on an RTX 5090."
+)
+
+
+def readme(rows: Sequence[Result], chance: Mapping[str, float | None]) -> str:
     ifeval_rows = {r.model: r for r in rows if r.benchmark == "ifeval"}
     slayer_if, bielik_if = ifeval_rows["slayer1b-1.08"], ifeval_rows["bielik-11b-v3.1"]
     lines = [
@@ -473,12 +550,16 @@ def readme(rows: Sequence[Result]) -> str:
         f"Slayer 1B 1.08 {value_text(slayer_if)}. Slayer is a base model without a chat template, so its score "
         "mostly reflects broken output, not instruction following. [Details](instruction-following.md).",
         "",
-        "[All models](all-models.md) · [Instruction following](instruction-following.md) · "
-        "[All results as JSONL](results.jsonl) · [Benchmark status](../BENCHMARKS.md)",
+        "[Slayer versions](slayer-versions.md) · [All models](all-models.md) · "
+        "[Instruction following](instruction-following.md) · [All results as JSONL](results.jsonl) · "
+        "[Benchmark status](../BENCHMARKS.md)",
         "",
         "## Notes",
         "",
-        "- **Slayer 1B 1.09 is a training checkpoint** (step 40 000), not a release.",
+        f"- **Slayer 1B 1.09 is a training checkpoint** (step 70 000), not a release. {K70_NOTE} Earlier versions "
+        "and step 40 000: [Slayer versions](slayer-versions.md).",
+        "- **Random** is the chance level: the score of picking an answer at random (the mean of 1 / number of "
+        f"options). On PubMedQA, always giving its most common answer scores {majority_level('pubmedqa'):.1f}.",
         "- **Bielik 11B is about ten times larger** than the others and instruction-tuned; it is the closest Polish "
         "reference. LFM3-1.7B (in the full tables) is instruction-tuned too. All are scored on raw text.",
         "- **How it was measured:** the full test set of each benchmark, 0-shot, each answer scored by the "
@@ -494,7 +575,7 @@ def readme(rows: Sequence[Result]) -> str:
         "",
         f"Value ± standard error, accuracy in %. {SE_NOTE}",
         "",
-        *values_table(rows),
+        *values_table(rows, chance),
         "",
         "## Sources",
         "",
@@ -505,6 +586,42 @@ def readme(rows: Sequence[Result]) -> str:
         "",
     ]
     return "\n".join(lines)
+
+
+def slayer_versions(rows: Sequence[Result], chance: Mapping[str, float | None]) -> str:
+    """Every Slayer 1B of the full run, oldest first, as the headline: table image, notes, values with SE."""
+    return "\n".join(
+        [
+            "# Slayer 1B versions",
+            "",
+            "Every Slayer 1B release and the 1.09 training checkpoints, on the same benchmarks with the same settings. "
+            "[Back to the results](README.md).",
+            "",
+            "<picture>",
+            '  <source media="(prefers-color-scheme: dark)" srcset="charts/slayer-versions-dark.svg">',
+            '  <img src="charts/slayer-versions.svg" alt="Results table: Slayer 1B 1.00 to 1.09 step 70 000 on 14 '
+            'benchmarks; the same values are in the Values table below" width="100%">',
+            "</picture>",
+            "",
+            "## Notes",
+            "",
+            "- **1.09 is still training:** steps 40 000 and 70 000 are checkpoints, not releases. 1.09 starts from the "
+            "weights of 1.08.",
+            f"- {K70_NOTE}",
+            "- **1.07** is scored from its weights on the Hugging Face Hub (`SlayerLab/Slayer1B-1.07`).",
+            "- **A version is not better on a test because its value is higher:** differences of one or two points "
+            "are often within the standard errors below. The paired comparisons of 1.09 step 40 000 with 1.08 are in "
+            f"[its report](../../{FULL_RUN}/slayer-1.09-k40000/RAPORT.md).",
+            "- Generated by `python -m codesota.leaderboard` from the result files; do not edit by hand.",
+            "",
+            "## Values",
+            "",
+            f"Value ± standard error, accuracy in %. {SE_NOTE}",
+            "",
+            *values_table(rows, chance, SLAYER_VERSIONS, SLAYER_HEADER),
+            "",
+        ]
+    )
 
 
 def _ifeval_table(rows: Sequence[Result], models: Sequence[str]) -> list[str]:
@@ -606,15 +723,23 @@ def with_snapshot(readme_text: str, rows: Sequence[Result]) -> str:
 
 def text_files(repo: Path = REPO) -> dict[str, str]:
     rows = collect(repo)
+    chance = chance_levels(repo)
     package_readme = (BENCHMARKS / "README.md").read_text(encoding="utf-8")
     return {
         "../README.md": with_snapshot(package_readme, rows),
-        "README.md": readme(rows),
+        "README.md": readme(rows, chance),
+        "slayer-versions.md": slayer_versions(rows, chance),
         "all-models.md": all_models(rows),
         "instruction-following.md": instruction_following(rows),
         "results.jsonl": jsonl(rows),
-        "charts/headline-table.svg": headline_svg(rows, LIGHT),
-        "charts/headline-table-dark.svg": headline_svg(rows, DARK),
+        "charts/headline-table.svg": headline_svg(rows, LIGHT, chance),
+        "charts/headline-table-dark.svg": headline_svg(rows, DARK, chance),
+        "charts/slayer-versions.svg": headline_svg(
+            rows, LIGHT, chance, SLAYER_VERSIONS, SLAYER_HEADER, SLAYER_LEGEND, 72
+        ),
+        "charts/slayer-versions-dark.svg": headline_svg(
+            rows, DARK, chance, SLAYER_VERSIONS, SLAYER_HEADER, SLAYER_LEGEND, 72
+        ),
     }
 
 

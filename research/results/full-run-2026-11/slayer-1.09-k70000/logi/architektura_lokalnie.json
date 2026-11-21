@@ -1,0 +1,74 @@
+{
+ "zgodne": true,
+ "tensory_ckpt": 202,
+ "tensory_wzorca": 201,
+ "brak_w_ckpt": [],
+ "nadmiar_w_ckpt": [],
+ "rozne_ksztalty": {},
+ "config_architektura_rozne": {},
+ "config_oczekiwane_rozne": {},
+ "config_bez_architektury_rozne": {
+  "ckpt_sha256": [
+   "<brak>",
+   "cb889baf7c94df67e46eebef0891c404e97ea2e844bfe3a8dd49eeb6c764959d"
+  ],
+  "data_seed": [
+   20261110,
+   20261109
+  ],
+  "n_params": [
+   "<brak>",
+   1073912851
+  ],
+  "step": [
+   "<brak>",
+   1709
+  ],
+  "tokenizer_sha256": [
+   "<brak>",
+   "0640d3bd3674d7a6e59c540d945a2ad275a12e1bcaeb6007c37a90751f9815dd"
+  ],
+  "trainer": [
+   "<brak>",
+   "train_gpt_ref_r23.py"
+  ],
+  "trainer_sha256": [
+   "<brak>",
+   "db36c150e95c184e82b5f84c3ee783fd5fd2c62e960a438177f543dc3eba1d0b"
+  ]
+ },
+ "config_w_ckpt": true,
+ "tokenizer_sha256": "0640d3bd3674d7a6e59c540d945a2ad275a12e1bcaeb6007c37a90751f9815dd",
+ "tokenizer_zgodny": true,
+ "ckpt": "wagi_70000.pt",
+ "ckpt_sha256": "9ed73494fc139422f5314f72b4f970242454a7ab9d8caceee6b52fe5bdfc40c0",
+ "krok": 70000,
+ "klucze_ckpt_najwyzszego_poziomu": [
+  "config",
+  "model",
+  "step"
+ ],
+ "parametry_ckpt_bez_head": 1073912851,
+ "dtype_ckpt": [
+  "torch.float32"
+ ],
+ "config_ckpt": {
+  "vocab": 32768,
+  "n_layer": 20,
+  "n_embd": 2048,
+  "n_head": 16,
+  "block": 4096,
+  "norm": "rmsnorm",
+  "norm_eps": 1e-06,
+  "pos": "rope",
+  "rope_theta": 500000.0,
+  "ffn": "swiglu",
+  "ffn_mult": 2.667,
+  "value_residual": true,
+  "qk_norm": true,
+  "logit_cap": 0.0,
+  "z_loss": 0.0,
+  "data_seed": 20261110,
+  "attn_bias": 0
+ }
+}

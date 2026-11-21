@@ -80,50 +80,80 @@ def source_cell(row: dict[str, Any]) -> tuple[str, str]:
     return f"{row['wartosc'] * scale:.{digits}f}", f"{row['se'] * scale:.{digits}f}"
 
 
-def test_values_table_shows_each_model_s_own_source_value() -> None:
-    """Every cell of the Values table, recomputed from manifest.jsonl for its column's model."""
+def source_chance(benchmark: str) -> str:
+    """The chance level of a test as the tables show it, read from a result file of each model that has one: it must
+    be the same for all of them."""
+    levels = set()
+    for path in (FULL_RUN / benchmark).glob("*/results_rozszerzone.json"):
+        o = json.loads(path.read_text(encoding="utf-8"))["observations"][0]
+        c = (((o.get("dodatkowe") or {}).get("space") or {}).get("bazy") or {}).get("chance_value")
+        levels.add("n/a" if c is None else f"{100 * c:.1f}")
+    assert len(levels) == 1, (benchmark, levels)
+    return levels.pop()
+
+
+TABLES = (
+    ("README.md", ("headline-table.svg", "headline-table-dark.svg"), leaderboard.HEADLINE),
+    ("slayer-versions.md", ("slayer-versions.svg", "slayer-versions-dark.svg"), leaderboard.SLAYER_VERSIONS),
+)
+
+
+def test_values_tables_show_each_model_s_own_source_value_and_the_chance_level() -> None:
+    """Every cell of each Values table, recomputed from manifest.jsonl for its column's model; the last column is the
+    test's chance level from its result files."""
     src = {(r["benchmark"], r["model"]): r for r in published()}
     names = {leaderboard.benchmark_name(b): b for b in leaderboard.CATEGORY_OF}
-    readme = (leaderboard.OUT / "README.md").read_text(encoding="utf-8")
-    checked = 0
-    for name, html in re.findall(r"<tr><td>(.*?)</td>(.*?)</tr>", readme):
-        benchmark = names[name.removesuffix(" ↓")]
-        cells = re.findall(r'<td align="right">(.*?)</td>', html)
-        assert len(cells) == len(leaderboard.HEADLINE)
-        for model, text in zip(leaderboard.HEADLINE, cells, strict=True):
-            row = src.get((benchmark, model))
-            if row is None:
-                assert text == "n/a"
-                continue
-            assert text == " ± ".join(source_cell(row)), (benchmark, model)
-            checked += 1
-    assert checked >= 60
+    for page, _, models in TABLES:
+        text = (leaderboard.OUT / page).read_text(encoding="utf-8")
+        checked = 0
+        for name, html in re.findall(r"<tr><td>(.*?)</td>(.*?)</tr>", text):
+            benchmark = names[name.removesuffix(" ↓")]
+            cells = re.findall(r'<td align="right">(.*?)</td>', html)
+            assert len(cells) == len(models) + 1, (page, benchmark)
+            assert cells[-1] == source_chance(benchmark), (page, benchmark)
+            for model, cell in zip(models, cells, strict=False):
+                row = src.get((benchmark, model))
+                if row is None:
+                    assert cell == "n/a"
+                    continue
+                assert cell == " ± ".join(source_cell(row)), (page, benchmark, model)
+                checked += 1
+        assert checked >= 60, page
 
 
-def test_table_image_shows_source_values_and_marks_the_best_and_second() -> None:
-    """Both table images: each value is its model's source value, rank 1 (highlighted) is the best shown value of
-    the row, and rank 2 (underlined) the next one."""
+def test_table_images_show_source_values_and_mark_the_best_and_second() -> None:
+    """All table images: each value is its model's source value, rank 1 (highlighted) is the best shown value of
+    the row, rank 2 (underlined) the next one, and each row ends with the test's chance level."""
     src = {(r["benchmark"], r["model"]): r for r in published()}
-    for name in ("headline-table.svg", "headline-table-dark.svg"):
-        svg = (leaderboard.OUT / "charts" / name).read_text(encoding="utf-8")
-        cells = re.findall(r'data-benchmark="(.*?)" data-model="(.*?)" data-rank="(\d)">(.*?)</text>', svg)
-        rows: dict[str, list[tuple[str, int, str]]] = {}
-        for benchmark, model, rank, text in cells:
-            rows.setdefault(benchmark, []).append((model, int(rank), text))
-        assert len(rows) >= 14, name
-        for benchmark, row in rows.items():
-            assert [m for m, _, _ in row] == list(leaderboard.HEADLINE)
-            shown = {}
-            for model, _, text in row:
-                source = src.get((benchmark, model))
-                assert text == ("n/a" if source is None else source_cell(source)[0]), (name, benchmark, model)
-                if source is not None:
-                    shown[model] = float(text)
-            lower = benchmark == "wikitext-2"
-            order = sorted(set(shown.values()), reverse=not lower)
-            for model, rank, _ in row:
-                expected = 0 if model not in shown else order.index(shown[model]) + 1
-                assert rank == expected, (name, benchmark, model, rank)
+    for _, images, models in TABLES:
+        for name in images:
+            svg = (leaderboard.OUT / "charts" / name).read_text(encoding="utf-8")
+            cells = re.findall(r'data-benchmark="(.*?)" data-model="(.*?)" data-rank="(\d+)">(.*?)</text>', svg)
+            rows: dict[str, list[tuple[str, int, str]]] = {}
+            for benchmark, model, rank, text in cells:
+                rows.setdefault(benchmark, []).append((model, int(rank), text))
+            assert len(rows) >= 14, name
+            chance = dict(re.findall(r'data-chance="(.*?)">(.*?)</text>', svg))
+            for benchmark, row in rows.items():
+                assert [m for m, _, _ in row] == list(models)
+                assert chance[benchmark] == source_chance(benchmark), (name, benchmark)
+                shown = {}
+                for model, _, text in row:
+                    source = src.get((benchmark, model))
+                    assert text == ("n/a" if source is None else source_cell(source)[0]), (name, benchmark, model)
+                    if source is not None:
+                        shown[model] = float(text)
+                lower = benchmark == "wikitext-2"
+                order = sorted(set(shown.values()), reverse=not lower)
+                for model, rank, _ in row:
+                    expected = 0 if model not in shown else order.index(shown[model]) + 1
+                    assert rank == expected, (name, benchmark, model, rank)
+
+
+def test_the_latest_slayer_is_step_70000_and_every_slayer_version_is_on_its_page() -> None:
+    assert leaderboard.LATEST_SLAYER == "slayer1b-1.09-k70000"
+    slayers = {r["model"] for r in published() if r["model"].startswith("slayer1b-") and r["stan"] == "ok"}
+    assert slayers == set(leaderboard.SLAYER_VERSIONS)
 
 
 def test_the_headline_has_no_flagged_result() -> None:

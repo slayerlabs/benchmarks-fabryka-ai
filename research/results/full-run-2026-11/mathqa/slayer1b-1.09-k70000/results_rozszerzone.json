@@ -1,0 +1,152 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-SlayerLab_Slayer1B-1.09-checkpoints-adfaf3fd-20261121T193725Z",
+ "models": [
+  {
+   "model_id": "SlayerLab/Slayer1B-1.09-checkpoints",
+   "repo": "SlayerLab/Slayer1B-1.09-checkpoints",
+   "revision": "adfaf3fd5402bc7f3adbfe077798f20262979433",
+   "weights_sha256": "b9e31fc953af44638fd64ca163dd8d5658cfe02928445fa9a412f11a618bb24e"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T19",
+   "task": "mathqa",
+   "family": "mathqa",
+   "language": "EN",
+   "split": "test"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T19",
+   "model_id": "SlayerLab/Slayer1B-1.09-checkpoints",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc_norm,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 2985,
+   "n_selected": 2985,
+   "n_scored": 2985,
+   "state": "ok",
+   "value": 0.2204355108877722,
+   "ci95": {
+    "lower": 0.20569514237855946,
+    "upper": 0.23518425460636502,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "c52a9d6dffc6acdbc03a59a3717fc843232c910f30445df54edfa8ce95f27bdf",
+   "results_sha256": "57fdc65080d5a1e6fa6bbb6ef397269e5f18cd3e61bac568ad3c2fcf66bbb231",
+   "runner_sha256": "7a40b11ec940e3cd44002a40806c6e30c4e3febb57baf5017079ef7a2cb11375",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.2,
+    "majority_value": 0.22646566164154103,
+    "majority_prediction_share": 0.23618090452261306,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.22479061976549414,
+      "n": 2985,
+      "se": 0.007641862031290183,
+      "ci95": [
+       0.2100502512562814,
+       0.23986599664991626
+      ]
+     },
+     "acc_norm": {
+      "value": 0.2204355108877722,
+      "n": 2985,
+      "se": 0.007588700159871077,
+      "ci95": [
+       0.20569514237855946,
+       0.23518425460636502
+      ]
+     },
+     "acc_pmi": {
+      "value": 0.2539363484087102,
+      "n": 2985,
+      "se": 0.007968030108429176,
+      "ci95": [
+       0.23819095477386934,
+       0.2696817420435511
+      ]
+     },
+     "bpb_poprawnej": {
+      "value": 2.9254822952204718,
+      "n": 2985,
+      "se": 0.01671590202834624,
+      "ci95": [
+       2.8924801104452373,
+       2.9585422848419083
+      ]
+     },
+     "bazy": {
+      "chance_value": 0.2,
+      "majority_value": 0.22646566164154103,
+      "majority_prediction_share": 0.23618090452261306,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.23618090452261306,
+     "wobec_b": {
+      "b": 0.22646566164154103,
+      "baza": "stala odpowiedz",
+      "roznica": -0.006030150753768844,
+      "se": 0.010794546252777792,
+      "z": -0.5586293867810412,
+      "t": null,
+      "df": null,
+      "werdykt": "szum",
+      "metoda": "A parowane"
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "allenai/math_qa",
+    "rewizja": "c4f1cc784c04c4957b50c97858f23893b633eea6",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "6b8fb528fccf7dd0e0fdd3b06465b4af95507ec8",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-SlayerLab_Slayer1B-1.09-checkpoints-adfaf3fd-20261121T193725Z",
+    "results_sha256": "57fdc65080d5a1e6fa6bbb6ef397269e5f18cd3e61bac568ad3c2fcf66bbb231"
+   }
+  ],
+  "qualification_sha256": "325279683f06153fe541f435f0638c1a4fc5785f85ee2b9da8f62bfa6a3ddce6",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "18b6ff0ea26bfd0ec2b51e4c788c8cad9ae8c06a6b28a3ac355c492c4b3f062f"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_4090",
+ "sprzet": "NVIDIA GeForce RTX 4090",
+ "max_length": 4096,
+ "dtype": "float32",
+ "bos": {
+  "bos_token": "<|endoftext|>",
+  "bos_token_id": 0,
+  "prefix_token_id": 0,
+  "wiodace_bos": {
+   "loglik": 1,
+   "generacja": 1,
+   "pusty_kontekst": 1
+  },
+  "regula": "jeden BOS"
+ }
+}

@@ -109,14 +109,14 @@ language, with charts and a [JSONL of all results](results/results.jsonl). A sho
 four benchmarks with a reproduced reference, the largest English test, and the Polish one:
 
 <!-- results-snapshot:start -->
-| benchmark | metric | Slayer 1B 1.09 (step 40 000, training in progress) | Bielik 11B v3.0 Instruct |
+| benchmark | metric | Slayer 1B 1.09 (step 70 000, training in progress) | Bielik 11B v3.0 Instruct |
 |---|---|---:|---:|
-| ARC-Easy | `acc` ↑ | 66.6 ± 1.0 | 81.9 ± 0.8 |
-| PIQA | `acc_norm` ↑ | 71.2 ± 1.1 | 78.9 ± 1.0 |
-| WinoGrande | `acc` ↑ | 57.7 ± 1.3 | 73.0 ± 1.2 |
-| LAMBADA (OpenAI) | `acc` ↑ | 45.4 ± 0.7 | 71.4 ± 0.6 |
-| HellaSwag | `acc_norm` ↑ | 52.8 ± 0.5 | 79.4 ± 0.4 |
-| MultiBLiMP (Polish) | `accuracy` ↑ | 98.6 ± 0.2 | 99.6 ± 0.1 |
+| ARC-Easy | `acc` ↑ | 66.2 ± 1.0 | 81.9 ± 0.8 |
+| PIQA | `acc_norm` ↑ | 72.7 ± 1.0 | 78.9 ± 1.0 |
+| WinoGrande | `acc` ↑ | 57.4 ± 1.3 | 73.0 ± 1.2 |
+| LAMBADA (OpenAI) | `acc` ↑ | 45.8 ± 0.7 | 71.4 ± 0.6 |
+| HellaSwag | `acc_norm` ↑ | 55.3 ± 0.5 | 79.4 ± 0.4 |
+| MultiBLiMP (Polish) | `accuracy` ↑ | 98.2 ± 0.2 | 99.6 ± 0.1 |
 
 | model | how it ran | prompt-level strict accuracy | n |
 |---|---|---:|---:|
