@@ -14,8 +14,11 @@ construction, scoring arithmetic, bootstrap seeds, and verdict thresholds. Tests
 From `benchmarks/`:
 
 ```bash
-uv sync --extra eval
+uv sync --extra eval --python 3.12
 ```
+
+The extra needs Python 3.11, 3.12, or 3.13: torch 2.8.0, the version of the research central run, has no wheels for
+newer versions. The verification runs used Python 3.12.
 
 The lock installs the CPU build of torch. To run on an NVIDIA GPU, replace it with the CUDA build of the same version
 in the same environment, for example `uv pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cu128`.

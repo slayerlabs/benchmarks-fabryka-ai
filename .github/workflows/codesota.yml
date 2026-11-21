@@ -106,6 +106,9 @@ jobs:
     env:
       HF_HUB_OFFLINE: "1"
       HF_DATASETS_OFFLINE: "1"
+      # torch 2.8.0, pinned to the research central run's version, has wheels for Python 3.11-3.13 only; the
+      # runner's default Python can be newer. 3.12 is the Python of the verification runs (docs/running.md).
+      UV_PYTHON: "3.12"
     steps:
       # Full checkout: the tests compare the runner with research/common/ and research/benchmarks/.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

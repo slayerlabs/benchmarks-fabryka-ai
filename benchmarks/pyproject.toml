@@ -18,7 +18,7 @@ classifiers = [
 # requests and parses the datasets, transformers runs the model, tokenizers encodes, datasets reads the pinned
 # data, torch computes.
 # The lock resolves torch to its CPU build (no GPU stack in CI); install a CUDA build of the same version to run on
-# a GPU (docs/running.md).
+# a GPU (docs/running.md). torch 2.8.0 has wheels for Python 3.11-3.13 only, so the extra needs one of those.
 eval = [
   "lm-eval==0.4.9.1",
   "transformers==4.57.6",
