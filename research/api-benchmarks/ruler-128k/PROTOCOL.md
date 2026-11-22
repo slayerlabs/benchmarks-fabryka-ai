@@ -131,3 +131,29 @@ none of its outputs had been scored or read.
 - The effect of `repetition_penalty` 1.1 and `top_k` 50 on the RULER score is not estimated. An ablation (the same
   requests with `repetition_penalty` 1.0 and `top_k` 0 sent explicitly) is a separate decision; until it is made,
   the control and the hypotheses are read with these settings as part of the LFM3-1.7B setup.
+
+## Amendment 4 (2026-11-22, 11:20 UTC)
+
+**Written after the result.** The LFM3-1.7B run was scored and the control had failed before this amendment was
+decided. Nothing below changes a number that was computed; it changes how the control is read and adds a second
+scoring next to the pre-registered one.
+
+- **The control as measured stays reported.** LFM3-1.7B at 131072: 71.69 +- 0.93 against the card's 65.56,
+  z = 6.62, FAIL under the rule above (within 2 SE).
+- **Why the card value is not a comparable target.** The card's evaluation details (LFM3-1.7B card @ `1da06bec`,
+  line 536) say only: "All models were served with vLLM in BF16 at their full context length [...] Unless listed
+  below, every eval uses temperature 0.6 and top_p 0.95, with no output limit other than the context length."
+  RULER is not among the listed exceptions. The card does not state the harness (RULER's own scripts or another
+  implementation), the thinking mode, the number of samples, how an output that never closes its reasoning is
+  scored, or any output cap or timeout. The review of the run found no scoring bug; the gap can come from any of
+  these unstated choices, so 65.56 cannot serve as a pass/fail target for this setup. Liquid was not asked.
+- **The control is marked `not comparable (Amendment 4)` instead of passed,** and the hypotheses R1-R3 are read
+  with that mark. compare.py still prints the measured z and FAIL against 65.56.
+- **Every score is reported twice.** Pre-registered, as above: the text after the last `</think>` is scored, and
+  the whole text when there is none. Strict: an output without `</think>` scores 0 (errors stay out of the score,
+  as before). This holds for the headline and for every per-length and per-task score of the runs whose chat
+  template opens a reasoning block (LFM3-1.7B, Bielik); Slayer's raw prompt has none, so it has only the
+  pre-registered score. Reason: at 131072, 10 LFM3-1.7B outputs loop to the length limit without `</think>`,
+  they are scored on their whole text, and 8 of them score above 0; strict scoring gives 70.51 at 131072.
+- **Verdicts.** R1-R3 verdicts are computed on the pre-registered scoring. The verdict under strict scoring (its own
+  Holm family, m = 3) is shown next to each; it does not replace it.

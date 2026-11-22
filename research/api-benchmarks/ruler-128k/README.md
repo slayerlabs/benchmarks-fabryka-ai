@@ -41,9 +41,10 @@ headline is `null` with the reason, and their shorter lengths are in `other_metr
 `python3 compare.py` (from this directory, after the runs) reads `results/<model-id>.json` and `.jsonl.gz` and
 evaluates PROTOCOL.md as amended: the control first (LFM3-1.7B at 131072 against its card value 65.56), then R1
 and R3 for LFM3-1.7B and R2 for LFM3-1.7B against Bielik 11B v3.1 over the lengths both models measured (Slayer per
-length, descriptive only). It prints the control (PASS or FAIL; after a FAIL the hypotheses are not read until the
-gap is explained), every `deviation:` from the protocol's wording, the lengths and error rows left out, a table per
-hypothesis (value with bootstrap SE, z, Holm-adjusted p over all three hypotheses, verdict, outcome, n) and writes
+length, descriptive only). It prints the control as measured (z and PASS or FAIL against 65.56) with its status
+`not comparable (Amendment 4)`, every `deviation:` from the protocol's wording, the lengths and error rows left
+out, a table per hypothesis (value with bootstrap SE, z, Holm-adjusted p over all three hypotheses, verdict,
+outcome, n, and the same under strict scoring next to it) and the per-length means under both scorings, and writes
 the same to `results/hypotheses.json`. A hypothesis whose model has not run is `not run` and still counts in the
 Holm family (m = 3). The bootstraps are independent per model (Amendment 1).
 
@@ -97,6 +98,17 @@ Holm family (m = 3). The bootstraps are independent per model (Amendment 1).
   d45c3509) and the Slayer run (920787d4) predate this: their results have `provenance.generation: null` with the
   reason, the sampling read from the pinned `generation_config.json` at summary time, and the input sha256 taken at
   their first summary, not when the files were written; each gap is a line in the result's `warnings`.
+- **The control is `not comparable`, and every score is also given under strict scoring** (PROTOCOL.md, Amendment
+  4, decided after the result and after the control failed). Measured, LFM3-1.7B at 131072 is 71.69 +- 0.93
+  against the card's 65.56 (z = 6.62, FAIL); that stays reported. The card states no RULER setup (harness, thinking
+  mode, samples, scoring of unfinished reasoning, output cap; card @ `1da06bec` line 536 gives only serving and
+  sampling defaults), so its value is no pass/fail target, and R1-R3 are read with the control marked
+  `not comparable`. Liquid was not asked. Strict scoring: an output without `</think>` scores 0 (at 131072, 10 outputs
+  loop to the length limit without it and 8 of them score above 0 on their whole text); LFM3-1.7B strict at 131072
+  is 70.51. Results carry it in `strict` (headline) and `other_metrics.strict` (per length, task and category, with
+  the count of outputs without `</think>`), the `.jsonl.gz` rows in `closed_think`. Verdicts stay on the
+  pre-registered scoring, the strict verdict is shown next to each. Slayer (raw prompt, no reasoning block) has
+  only the pre-registered score.
 - **Tokenizer library.** RULER pins transformers 4.44.2; LFM3-1.7B's tokenizer (`TokenizersBackend`) needs
   transformers 5.x, so data generation, prompt counting and serving use transformers 5.22.2 for every model
   (`requirements.lock.txt`). The token counts come from the same tokenizer files.
