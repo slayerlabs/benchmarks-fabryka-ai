@@ -16,6 +16,14 @@
           "2113C",
           "2113E"
         ]
+      },
+      "reasoning": {
+        "answers": 167,
+        "closing_think": 167,
+        "median_share_before_last_think_end": 0.9354,
+        "accepted": 54,
+        "accepted_closing_think": 54,
+        "think_end_then_fence": 8
       }
     },
     "lfm3-1.7b-nothink": {
@@ -35,13 +43,29 @@
         "length_stop": [
           "2118D1"
         ]
+      },
+      "reasoning": {
+        "answers": 167,
+        "closing_think": 153,
+        "median_share_before_last_think_end": 0.9313,
+        "accepted": 48,
+        "accepted_closing_think": 46,
+        "think_end_then_fence": 28
       }
     },
     "bielik-11b-v3.1": {
       "file": "out/bielik-11b-v3.1/generations.jsonl on the generating Mac",
       "sha256": "1ae76fa50536149930e4a90263c64b1a1639936cbb3cc1d57168af226be71d34",
       "matches_result": true,
-      "no_code": {}
+      "no_code": {},
+      "reasoning": {
+        "answers": 167,
+        "closing_think": 34,
+        "median_share_before_last_think_end": 0.7561,
+        "accepted": 3,
+        "accepted_closing_think": 2,
+        "think_end_then_fence": 0
+      }
     }
   }
 }

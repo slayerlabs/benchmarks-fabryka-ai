@@ -121,5 +121,54 @@
   },
   "notes": [
     "the other benchmark's two tests count in Holm's m = 4 with p = 1"
-  ]
+  ],
+  "k3_robustness": {
+    "descriptive": true,
+    "clustered_by_contest": {
+      "contests": 26,
+      "se": 2.6287519130033603,
+      "z": 4.441897559380644
+    },
+    "sign_test_contests": {
+      "positive": 17,
+      "negative": 2,
+      "zero": 7,
+      "p_one_sided": 0.0003643035888671875
+    },
+    "per_difficulty": {
+      "easy": {
+        "value": 21.1340206185567,
+        "se": 3.724501767516386,
+        "z": 5.674321543589849,
+        "n": 97,
+        "accepted": {
+          "on": 52,
+          "off": 48,
+          "bielik": 3
+        }
+      },
+      "medium": {
+        "value": -1.7543859649122806,
+        "se": 1.2294120846083072,
+        "z": -1.4270121360253514,
+        "n": 57,
+        "accepted": {
+          "on": 2,
+          "off": 0,
+          "bielik": 0
+        }
+      },
+      "hard": {
+        "value": 0.0,
+        "se": 0.0,
+        "z": null,
+        "n": 13,
+        "accepted": {
+          "on": 0,
+          "off": 0,
+          "bielik": 0
+        }
+      }
+    }
+  }
 }
