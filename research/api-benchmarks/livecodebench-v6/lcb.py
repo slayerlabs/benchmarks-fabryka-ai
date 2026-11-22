@@ -3,7 +3,8 @@
 Runs in the LiveCodeBench venv that run.sh builds, with the pinned clone in `.cache/LiveCodeBench`:
 
     python lcb.py generate <out-dir> --base-url http://localhost:8000 --model <served-name>
-                           --model-repo REPO@REVISION [--limit N] [--chat-template-kwargs JSON]
+                           --model-repo REPO@REVISION [--context N] [--card-sampling] [--limit N]
+                           [--chat-template-kwargs JSON]
     python lcb.py generate <out-dir> --chat-url https://.../v1/chat/completions --model <name> --api-key-env VAR
                            --tokenizer REPO@REVISION --context N --margin M [--retries R] [--limit N]
     python lcb.py score <out-dir> [--limit N]
@@ -72,6 +73,9 @@ EVAL_PROCESSES = 12
 VLLM_GENERATION_CONFIG_PARAMS = ("repetition_penalty", "presence_penalty", "frequency_penalty", "temperature", "top_k",
                                  "top_p", "min_p", "max_new_tokens", "skip_special_tokens")
 API_SERVER_DEFAULTS = "unknown (Fabryka API)"
+# PROTOCOL.md, Amendment 4 (`lfm3-1.7b-cardsampling`): the card's sampling sent explicitly, so vLLM does not fill
+# repetition_penalty 1.1 and top_k 50 from generation_config.json. top_k 0 disables the limit in vLLM 0.34.0.
+CARD_SAMPLING = {"repetition_penalty": 1.0, "top_k": 0}
 
 THINK_END = "</think>"
 # After any failed attempt every request waits: 10 s, doubling up to 5 min while failures continue, back to 10 s
@@ -184,6 +188,7 @@ class Server:
     context: int = 0
     margin: int = 0
     model_repo: str | None = None  # vLLM: REPO@REVISION it serves, whose generation_config.json sets its defaults
+    sampling_extra: dict[str, Any] = field(default_factory=dict)  # vLLM: fields added to the request (--card-sampling)
     gate: Gate = field(default_factory=Gate)
 
 
@@ -257,7 +262,8 @@ def request_body(server: Server, messages: list[dict[str, str]], max_tokens: int
     if server.tokenize_url:
         # Sampling as oai_runner.py sends it (no stop for chat models), with the PROTOCOL.md temperature, top_p, seed.
         body = {"model": server.model, "messages": messages, "n": 1, "temperature": TEMPERATURE, "top_p": TOP_P,
-                "max_tokens": max_tokens, "seed": SEED, "frequency_penalty": 0, "presence_penalty": 0, **extra}
+                "max_tokens": max_tokens, "seed": SEED, "frequency_penalty": 0, "presence_penalty": 0,
+                **server.sampling_extra, **extra}
     else:
         # Only the fields the Fabryka API accepted in the IFEval run (no `n`, penalties, `stop` or template switches).
         body = {"model": server.model, "messages": messages, "temperature": TEMPERATURE, "top_p": TOP_P,
@@ -283,15 +289,30 @@ def generation_config(model_repo: str) -> dict[str, Any]:
 
 
 def sampling(server: Server) -> dict[str, Any]:
-    """The sampling settings in effect: what the request sends, and what the server fills in for the rest."""
+    """The sampling settings in effect: what the request sends, what the server fills in for the rest, and on vLLM
+    the two merged (a value in the request overrides the server default)."""
     body = request_body(server, [], 0)
     sent = {k: v for k, v in body.items() if k not in ("model", "messages", "max_tokens", "chat_template_kwargs")}
     if not server.tokenize_url:
         return {"request_sampling": sent, "server_defaults": API_SERVER_DEFAULTS}
     if not server.model_repo:
         raise SetupError("vLLM generation needs --model-repo REPO@REVISION to record the sampling defaults")
-    return {"request_sampling": sent, "server_defaults": vllm_defaults(generation_config(server.model_repo), body),
-            "server_defaults_source": f"vLLM generation_config=auto: {server.model_repo} generation_config.json"}
+    defaults = vllm_defaults(generation_config(server.model_repo), body)
+    return {"request_sampling": sent, "server_defaults": defaults,
+            "server_defaults_source": f"vLLM generation_config=auto: {server.model_repo} generation_config.json",
+            "effective": {**defaults, **sent}}
+
+
+def server_info(base_url: str) -> dict[str, Any]:
+    """vLLM's `/version` and `/v1/models` (what a reused server reports it serves); an error is recorded, not fatal."""
+    info: dict[str, Any] = {"base_url": base_url}
+    for key, path in (("version", "/version"), ("models", "/v1/models")):
+        try:
+            with urllib.request.urlopen(f"{base_url}{path}", timeout=30) as response:
+                info[key] = json.loads(response.read().decode("utf-8"))
+        except (urllib.error.URLError, TimeoutError, ConnectionError, ValueError) as e:
+            info[key] = {"error": repr(e)}
+    return info
 
 
 def answer(server: Server, messages: list[dict[str, str]]) -> dict[str, Any]:
@@ -301,7 +322,11 @@ def answer(server: Server, messages: list[dict[str, str]]) -> dict[str, Any]:
     if server.tokenize_url:
         tokens = post_with_retries(server, server.tokenize_url,
                                    {"model": server.model, "messages": messages, "add_generation_prompt": True, **extra})
-        prompt_tokens, context = int(tokens["count"]), int(tokens["max_model_len"])
+        served = int(tokens["max_model_len"])
+        if server.context and served < server.context:
+            raise SetupError(f"the server's max_model_len is {served}, below the protocol's context {server.context}")
+        # the protocol's context when given (a reused server may allow more), else the server's
+        prompt_tokens, context = int(tokens["count"]), server.context or served
     else:
         assert server.count is not None
         prompt_tokens, context = server.count(messages), server.context
@@ -333,7 +358,10 @@ def server_from(args: argparse.Namespace) -> Server:
         kwargs = json.loads(args.chat_template_kwargs) if args.chat_template_kwargs else None
         return Server(model=args.model, chat_url=f"{args.base_url}/v1/chat/completions", retries=args.retries,
                       timeout=args.request_timeout, tokenize_url=f"{args.base_url}/tokenize", template_kwargs=kwargs,
-                      model_repo=args.model_repo or None)
+                      model_repo=args.model_repo or None, context=args.context,
+                      sampling_extra=dict(CARD_SAMPLING) if args.card_sampling else {})
+    if args.card_sampling:
+        sys.exit("lcb.py generate: --card-sampling is for our vLLM server (--base-url)")
     if args.chat_template_kwargs:
         sys.exit("lcb.py generate: a hosted API takes no --chat-template-kwargs")
     if not (args.api_key_env and args.tokenizer and args.context):
@@ -366,7 +394,8 @@ def generate(args: argparse.Namespace) -> None:
         provenance.verify(out, ["generations.jsonl"], "lcb.py generate")
     server = server_from(args)
     update_run(out, "generation", {**provenance.step("lcb.py generate"), "model": args.model, "limit": args.limit,
-                                   "sampling": sampling(server)})
+                                   "sampling": sampling(server),
+                                   **({"server": server_info(args.base_url)} if args.base_url else {})})
     lcb = lcb_modules()
     rows = load_rows(args.limit)
     done = {r["question_id"] for r in read_jsonl(gen_path) if r["status"] != "error"}
@@ -450,8 +479,12 @@ def main() -> None:
     g.add_argument("--chat-template-kwargs", default="")
     g.add_argument("--api-key-env", default="", help="hosted API: environment variable with the key")
     g.add_argument("--tokenizer", default="", help="hosted API: REPO@REVISION of the model's tokenizer and template")
-    g.add_argument("--context", type=int, default=0, help="hosted API: context window in tokens")
+    g.add_argument("--context", type=int, default=0,
+                   help="context window in tokens: hosted API (required), or vLLM (the protocol's, at most the "
+                        "server's max_model_len; default the server's)")
     g.add_argument("--margin", type=int, default=0, help="hosted API: tokens kept free beyond the local prompt count")
+    g.add_argument("--card-sampling", action="store_true",
+                   help="vLLM: also send repetition_penalty 1.0 and top_k 0 (PROTOCOL.md, Amendment 4)")
     g.add_argument("--retries", type=int, default=3, help="attempts per request")
     g.add_argument("--concurrency", type=int, default=int(os.environ.get("CONCURRENCY", "64")))
     g.add_argument("--request-timeout", type=float, default=float(os.environ.get("REQUEST_TIMEOUT", "21600")))

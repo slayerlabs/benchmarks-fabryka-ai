@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any
 
 HERE = Path(__file__).resolve().parent
-RUNNER_FILES = ("run.sh", "lcb.py", "summarize.py", "compare.py", "provenance.py")
+RUNNER_FILES = ("run.sh", "lcb.py", "summarize.py", "compare.py", "ablation.py", "provenance.py")
 MANIFEST = "manifest.json"
 
 

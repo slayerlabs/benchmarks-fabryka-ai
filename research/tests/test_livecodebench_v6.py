@@ -31,6 +31,7 @@ from pathlib import Path
 
 BENCH = Path(__file__).resolve().parents[1] / "api-benchmarks" / "livecodebench-v6"
 sys.path.insert(0, str(BENCH))
+import ablation  # noqa: E402
 import lcb  # noqa: E402
 import provenance  # noqa: E402
 import summarize  # noqa: E402
@@ -331,6 +332,11 @@ class FakeAPI:
                 self.reply(200, {"choices": [{"message": message, "finish_reason": "stop"}],
                                  "usage": {"prompt_tokens": 1071, "completion_tokens": 9}})
 
+            def do_GET(self):  # vLLM's /version and /v1/models, recorded for a reused server
+                if self.path == "/version":
+                    return self.reply(200, {"version": "0.34.0"})
+                self.reply(200, {"object": "list", "data": [{"id": "lfm3-1.7b", "root": "LiquidAI/LFM3-1.7B"}]})
+
             def reply(self, code, payload):
                 data = json.dumps(payload).encode()
                 self.send_response(code)
@@ -518,7 +524,7 @@ def vllm_args(api, out):
     return argparse.Namespace(
         out_dir=str(out), base_url=api.url.removesuffix("/v1/chat/completions"), chat_url="", model="lfm3-1.7b",
         model_repo=LFM3_REPO, limit=None, chat_template_kwargs="", api_key_env="", tokenizer="", context=0, margin=0,
-        retries=3, concurrency=2, request_timeout=10)
+        card_sampling=False, retries=3, concurrency=2, request_timeout=10)
 
 
 def test_vllm_pipeline_body_alignment_provenance_and_input_checks():
@@ -551,7 +557,9 @@ def test_vllm_pipeline_body_alignment_provenance_and_input_checks():
         assert "gpu" in g and g["platform"] and g["cpu"]
         assert g["sampling"] == {
             "request_sampling": VLLM_SAMPLING, "server_defaults": {"repetition_penalty": 1.1, "top_k": 50},
-            "server_defaults_source": f"vLLM generation_config=auto: {LFM3_REPO} generation_config.json"}
+            "server_defaults_source": f"vLLM generation_config=auto: {LFM3_REPO} generation_config.json",
+            "effective": {"repetition_penalty": 1.1, "top_k": 50, **VLLM_SAMPLING}}
+        assert g["server"]["version"] == {"version": "0.34.0"} and g["server"]["models"]["data"][0]["id"] == "lfm3-1.7b"
         assert provenance.read_manifest(out)["files"]["generations.jsonl"]["sha256"] == \
             sha256(out / "generations.jsonl")
 
@@ -670,6 +678,131 @@ def test_sampling_record():
         raise AssertionError("expected SetupError without --model-repo")
     except lcb.SetupError:
         pass
+
+
+# PROTOCOL.md, Amendment 4: lfm3-1.7b-cardsampling request, context rule, and the A1 equivalence analysis
+CARD = {"repetition_penalty": 1.0, "top_k": 0}
+
+
+def vllm_server(api, context=0, card=False):
+    base = api.url.removesuffix("/v1/chat/completions")
+    return lcb.Server(model="lfm3-1.7b", chat_url=api.url, retries=3, timeout=10, tokenize_url=f"{base}/tokenize",
+                      model_repo=LFM3_REPO, context=context, sampling_extra=dict(CARD) if card else {})
+
+
+def test_card_sampling_request_and_protocol_context():
+    api = FakeAPI()  # its /tokenize: 1000 prompt tokens, max_model_len 262144
+    try:
+        record = lcb.answer(vllm_server(api, context=262144, card=True), MESSAGES)
+        body = {k: v for k, v in api.requests[-1].items() if k != "messages"}
+        assert body == {"model": "lfm3-1.7b", **VLLM_SAMPLING, **CARD, "max_tokens": 262144 - 1000}
+        assert (record["context"], record["max_tokens"]) == (262144, 261144)
+        # a server allowing more than the protocol's context: max_tokens still from the protocol's 262144 ...
+        smaller = lcb.answer(vllm_server(api, context=200000, card=True), MESSAGES)
+        assert (smaller["context"], smaller["max_tokens"], api.requests[-1]["max_tokens"]) == (200000, 199000, 199000)
+        # ... and one allowing less stops the run instead of sending a shorter limit
+        try:
+            lcb.answer(vllm_server(api, context=300000, card=True), MESSAGES)
+            raise AssertionError("expected SetupError")
+        except lcb.SetupError as e:
+            assert "262144" in str(e)
+        lcb.answer(vllm_server(api), MESSAGES)  # lfm3-1.7b: unchanged body, the server's context
+        assert {k: v for k, v in api.requests[-1].items() if k != "messages"} == \
+            {"model": "lfm3-1.7b", **VLLM_SAMPLING, "max_tokens": 261144}
+    finally:
+        api.close()
+    assert lcb.CARD_SAMPLING == CARD
+    with patched(lcb, generation_config=lambda repo: LFM3_GENERATION_CONFIG):
+        s = lcb.sampling(vllm_server(api, card=True))
+    # the request's values override generation_config.json: nothing left for the server to fill
+    assert s["request_sampling"] == {**VLLM_SAMPLING, **CARD} and s["server_defaults"] == {}
+    assert s["effective"]["repetition_penalty"] == 1.0 and s["effective"]["top_k"] == 0
+
+
+def test_paired_equivalence_hand_example():
+    # n = 120, one problem passed only by the original, one only by the ablation: d = +1, -1, 118 x 0
+    # mean 0; sd = sqrt(2 / 119) = 0.129641; SE = 0.129641 / sqrt(120) = 0.0118346 -> 1.18346 pp
+    # 90% CI = 0 ± 1.644854 x 1.18346 = ± 1.94664 pp, inside ±2: equivalent; p_upper = Phi(-2 / 1.18346) = 0.0455
+    e = ablation.paired_equivalence([1, -1] + [0] * 118)
+    assert e["n"] == 120 and e["delta"] == 0.0
+    assert math.isclose(e["se"], 1.18346, abs_tol=1e-4)
+    assert math.isclose(e["ci90"][0], -1.94664, abs_tol=1e-3) and math.isclose(e["ci90"][1], 1.94664, abs_tol=1e-3)
+    assert math.isclose(e["p_upper"], 0.0455, abs_tol=5e-4) and math.isclose(e["p_tost"], e["p_upper"])
+    assert e["verdict"] == "equivalent"  # a 95% CI (± 2.3196) would not be
+    # n = 400, d = +1, +1, -1: Δ = 0.25 pp; var = (3 - 400 x 0.0025^2) / 399 = 0.00751253; SE = 0.433375 pp;
+    # CI = 0.25 ± 0.71284 = [-0.46284, 0.96284]
+    e = ablation.paired_equivalence([1, 1, -1] + [0] * 397)
+    assert math.isclose(e["delta"], 0.25) and math.isclose(e["se"], 0.433375, abs_tol=1e-5)
+    assert math.isclose(e["ci90"][0], -0.46284, abs_tol=1e-4) and math.isclose(e["ci90"][1], 0.96284, abs_tol=1e-4)
+    # n = 10, d = +1, -1: SE = sqrt(2 / 9) / sqrt(10) = 14.907 pp; CI ± 24.52: not shown equivalent
+    e = ablation.paired_equivalence([1, -1] + [0] * 8)
+    assert math.isclose(e["se"], 14.9071, abs_tol=1e-3) and e["verdict"] == "not shown equivalent"
+    # a shift: Δ = 3 pp outside the margin however small the SE
+    e = ablation.paired_equivalence([1] * 3 + [0] * 97)
+    assert math.isclose(e["delta"], 3.0) and e["verdict"] == "not shown equivalent"
+    assert ablation.paired_equivalence([1])["verdict"] == "undecidable"
+
+
+def test_mcnemar_exact():
+    assert ablation.mcnemar(0, 0) == 1.0
+    assert ablation.mcnemar(2, 1) == 1.0  # 2 x P(X <= 1 | 3) = 2 x 4/8, capped
+    assert ablation.mcnemar(6, 0) == 2 / 64
+    assert ablation.mcnemar(5, 1) == ablation.mcnemar(1, 5) == 14 / 64  # 2 x (1 + 6) / 64
+
+
+SETTINGS = {"prompt_style": "OpenAIChat", "temperature": 0.6, "top_p": 0.95, "seed": 20261122,
+            "max_tokens": "context minus prompt tokens", "context": 262144, "trials": 1,
+            "scored_text": "after the last </think>", "eval_timeout_s": 6, "eval_processes": 12}
+ORIGINAL_SETTINGS = {**SETTINGS, "request_sampling": VLLM_SAMPLING,
+                     "server_defaults": {"repetition_penalty": 1.1, "top_k": 50}}
+CARD_SETTINGS = {**SETTINGS, "request_sampling": {**VLLM_SAMPLING, **CARD}, "server_defaults": {}}
+
+
+def write_ablation_run(results, model, passes, settings, extra_rows=()):
+    rows = [{"task_id": f"t{i:03d}", "status": "ok", "pass": p, "score": int(p)} for i, p in enumerate(passes)]
+    rows += list(extra_rows)
+    results.mkdir(parents=True, exist_ok=True)
+    with gzip.open(results / f"{model}.jsonl.gz", "wt", encoding="utf-8") as f:
+        f.write("".join(json.dumps(r) + "\n" for r in rows))
+    score = round(100 * sum(passes) / len(passes), 2)
+    (results / f"{model}.json").write_text(json.dumps({"model": model, "score": score, "settings": settings}),
+                                           encoding="utf-8")
+    provenance.record(results, [f"{model}.json", f"{model}.jsonl.gz"], "test")
+
+
+def test_ablation_analysis_files_and_checks():
+    original = [False if i == 1 else True for i in range(120)]  # t001 passes only with the card's sampling
+    card = [False if i == 0 else True for i in range(120)]  # t000 passes only with the defaults
+    with tempfile.TemporaryDirectory() as tmp:
+        res = Path(tmp)
+        write_ablation_run(res, ablation.ORIGINAL, original + [True], ORIGINAL_SETTINGS)
+        write_ablation_run(res, ablation.ABLATION, card, CARD_SETTINGS,
+                           [{"task_id": "t120", "status": "error", "pass": None, "score": None}])
+        ablation.main(res)
+        a = json.loads((res / "ablation-a1.json").read_text(encoding="utf-8"))
+        table = (res / "ablation-a1.md").read_text(encoding="utf-8")
+        assert (a["n"], a["delta"], a["verdict"]) == (120, 0.0, "equivalent")
+        assert a["excluded"] == {"not_scored_original": 0, "not_scored_ablation": 1, "missing_original": 0,
+                                 "missing_ablation": 0, "total": 1}
+        assert a["mcnemar"] == {"only_original": 1, "only_ablation": 1, "p_exact": 1.0, "descriptive": True}
+        assert a["consequence"].startswith("A1 holds") and "| equivalent (margin ±2 pt) | 120 | 1 |" in table
+        assert set(a["inputs_sha256"]) == {"lfm3-1.7b.json", "lfm3-1.7b.jsonl.gz", "lfm3-1.7b-cardsampling.json",
+                                           "lfm3-1.7b-cardsampling.jsonl.gz"}
+        # 5 problems passed only with the defaults: Δ = 5/120 = +4.17 pp, not shown equivalent; card score is headline
+        write_ablation_run(res, ablation.ABLATION, [i >= 6 for i in range(120)], CARD_SETTINGS)
+        a = ablation.analyse(res)
+        assert a["verdict"] == "not shown equivalent" and "headline" in a["consequence"]
+        assert a["mcnemar"]["only_original"] == 5 and a["mcnemar"]["only_ablation"] == 0
+        # runs that differ in anything but the two settings, or ran with other values, are refused
+        write_ablation_run(res, ablation.ABLATION, card, {**CARD_SETTINGS, "temperature": 0.7})
+        assert "temperature" in exit_message(ablation.analyse, res)
+        write_ablation_run(res, ablation.ABLATION, card, {**CARD_SETTINGS, "request_sampling": VLLM_SAMPLING,
+                                                          "server_defaults": {"repetition_penalty": 1.1, "top_k": 50}})
+        assert "Amendment 4 says" in exit_message(ablation.analyse, res)
+        write_ablation_run(res, ablation.ABLATION, card, CARD_SETTINGS)
+        with gzip.open(res / f"{ablation.ABLATION}.jsonl.gz", "wt", encoding="utf-8") as f:
+            f.write(json.dumps({"task_id": "t000", "status": "ok", "pass": True, "score": 1}) + "\n")
+        assert "sha256" in exit_message(ablation.analyse, res)
 
 
 if __name__ == "__main__":

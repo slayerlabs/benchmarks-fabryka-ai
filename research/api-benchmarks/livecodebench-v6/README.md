@@ -2,7 +2,7 @@
 
 Whether a model writes a Python program that passes the hidden tests of a competitive-programming problem
 (LeetCode, AtCoder, Codeforces). The pre-registered question, hypotheses and verdict rules are in
-[PROTOCOL.md](PROTOCOL.md) (with Amendments 1 to 3); this file says how the run is done. Refs #295.
+[PROTOCOL.md](PROTOCOL.md) (with Amendments 1 to 4); this file says how the run is done. Refs #295.
 
 - Paper: [Jain et al. 2024, LiveCodeBench: Holistic and Contamination Free Evaluation of Large Language Models for
   Code](https://arxiv.org/abs/2403.07974)
@@ -34,6 +34,7 @@ Whether a model writes a Python program that passes the hidden tests of a compet
 | model | how it runs | score | stderr | n | date |
 |---|---|---|---|---|---|
 | LFM3-1.7B (`lfm3-1.7b`) | vLLM 0.34.0, bf16, context 262144 | | | | |
+| LFM3-1.7B with the card's sampling (`lfm3-1.7b-cardsampling`, ablation, PROTOCOL.md Amendment 4) | vLLM 0.34.0, bf16, context 262144, `repetition_penalty` 1.0 and `top_k` 0 in the request | | | | |
 | Bielik 11B v3.1 (`bielik-11b-v3.1`) | Fabryka AI API, context 32768, with the API's provider system prompt | | | | |
 | Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`) | not run, see Deviations | | | | |
 
@@ -129,6 +130,18 @@ LFM3-1.7B, on a Linux machine with an NVIDIA GPU:
 bash run.sh lfm3-1.7b
 ```
 
+The ablation of PROTOCOL.md Amendment 4 (`repetition_penalty` 1.0 and `top_k` 0, which disables the limit in vLLM
+0.34.0, sent in every request; everything else as `lfm3-1.7b`), on a vLLM server that is already running with the
+pinned revision as `lfm3-1.7b` (`BASE_URL` skips starting one; without it run.sh starts its own):
+
+```bash
+BASE_URL=http://localhost:8000 bash run.sh lfm3-1.7b-cardsampling
+```
+
+`max_tokens` is 262144 minus the prompt counted by the server's `/tokenize`, whatever the server's own
+`max_model_len` (lcb.py stops if it is below 262144). `run.json` records the server's `/version` and `/v1/models`
+and the sampling in effect (`effective`: the request's values over the defaults from `generation_config.json`).
+
 Bielik 11B v3.1, on a Mac or a Linux machine without a GPU, after `hf auth login` with an account that accepted the
 licence of `speakleash/Bielik-11B-v3.1-Instruct`:
 
@@ -173,3 +186,12 @@ both sides and counted. A hypothesis whose model has not been run is `not run`. 
 `results/hypotheses.json`; the `deviation:` lines it prints say where the protocol's wording needed a reading (L2's
 single p, what counts as parameters in the cost per answer). The parameter counts are pinned in compare.py with
 their source.
+
+## Ablation of the sampling defaults (Amendment 4)
+
+`python3 ablation.py` (from this directory) reads `results/lfm3-1.7b.*` and `results/lfm3-1.7b-cardsampling.*`
+and tests thesis A1: Δ = pass@1 of `lfm3-1.7b` minus `lfm3-1.7b-cardsampling`, paired by problem, with the paired SE
+sd(d)/sqrt(n); equivalent when the 90% CI lies inside ±2 pt (two one-sided tests at α = 0.05). It reports McNemar's
+exact test on the discordant problems as descriptive, stops if the two runs differ in anything but
+`repetition_penalty` and `top_k` or ran with other values than Amendment 4's, and writes `results/ablation-a1.json`
+and `results/ablation-a1.md` with the consequence fixed in the amendment.
