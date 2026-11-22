@@ -2,7 +2,7 @@
 
 Usage: python3 compare.py [results-dir]   (default: results/ next to this file)
 Reads <results-dir>/<model-id>.jsonl.gz (and <model-id>.json for the control), prints a Markdown table and writes
-<results-dir>/hypotheses.json.
+<results-dir>/hypotheses.json, recording its sha256 in <results-dir>/manifest.json.
 
 Every difference is LFM3-1.7B minus the other model, in percentage points, over the problems both models answered
 (`status: ok`): an error or a prompt over the context on either side leaves the problem out of both sides, and the
@@ -334,6 +334,7 @@ def main(results: Path) -> None:
     print(report(a))
     results.mkdir(parents=True, exist_ok=True)
     (results / "hypotheses.json").write_text(json.dumps(a, indent=2) + "\n", encoding="utf-8")
+    provenance.record(results, ["hypotheses.json"], "compare.py")
 
 
 if __name__ == "__main__":

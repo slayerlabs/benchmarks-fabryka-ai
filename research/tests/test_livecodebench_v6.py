@@ -290,6 +290,9 @@ def test_compare_not_run_when_a_model_file_is_absent():
         res = Path(tmp)
         write_run(res, compare.BIELIK, CLEAR_BIELIK)
         compare.main(res)
+        files = provenance.read_manifest(res)["files"]
+        assert (files["hypotheses.json"]["sha256"], files["hypotheses.json"]["written_by"]) == \
+            (sha256(res / "hypotheses.json"), "compare.py")
         a = json.loads((res / "hypotheses.json").read_text(encoding="utf-8"))
         text = compare.report(a)
     assert [h["outcome"] for h in a["hypotheses"]] == ["not run"] * 3
@@ -803,6 +806,9 @@ def test_ablation_analysis_files_and_checks():
         assert a["consequence"].startswith("A1 holds") and "| equivalent (margin ±2 pt) | 120 | 1 |" in table
         assert set(a["inputs_sha256"]) == {"lfm3-1.7b.json", "lfm3-1.7b.jsonl.gz", "lfm3-1.7b-cardsampling.json",
                                            "lfm3-1.7b-cardsampling.jsonl.gz"}
+        files = provenance.read_manifest(res)["files"]  # each output's sha256, recorded by the step that wrote it
+        assert {n: (files[n]["sha256"], files[n]["written_by"]) for n in ("ablation-a1.json", "ablation-a1.md")} == \
+            {n: (sha256(res / n), "ablation.py") for n in ("ablation-a1.json", "ablation-a1.md")}
         # 5 problems passed only with the defaults: Δ = 5/120 = +4.17 pp, not shown equivalent; card score is headline
         write_ablation_run(res, ablation.ABLATION, [i >= 6 for i in range(120)], CARD_SETTINGS)
         a = ablation.analyse(res)

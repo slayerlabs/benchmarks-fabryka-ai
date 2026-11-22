@@ -4,7 +4,8 @@ generation_config.json (`lfm3-1.7b`: repetition_penalty 1.1, top_k 50) equivalen
 
 Usage: python3 ablation.py [results-dir]   (default: results/ next to this file)
 Reads <results-dir>/<model-id>.json and .jsonl.gz of both runs (each must have the sha256 summarize.py recorded in
-<results-dir>/manifest.json), prints a Markdown table and writes <results-dir>/ablation-a1.json and ablation-a1.md.
+<results-dir>/manifest.json), prints a Markdown table and writes <results-dir>/ablation-a1.json and ablation-a1.md,
+recording their sha256 in <results-dir>/manifest.json.
 
 Δ = original minus ablation in percentage points, paired by problem over the problems both runs answered
 (`status: ok`; the rest are counted). Per problem d = pass(original) - pass(ablation); Δ = mean(d), paired SE =
@@ -175,6 +176,7 @@ def main(results: Path) -> None:
     print(text)
     (results / "ablation-a1.json").write_text(json.dumps(a, indent=2) + "\n", encoding="utf-8")
     (results / "ablation-a1.md").write_text(text + "\n", encoding="utf-8")
+    provenance.record(results, ["ablation-a1.json", "ablation-a1.md"], "ablation.py")
 
 
 if __name__ == "__main__":
