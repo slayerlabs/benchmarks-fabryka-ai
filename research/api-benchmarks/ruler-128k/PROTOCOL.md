@@ -80,3 +80,21 @@ Verdicts: |z| ≥ 3 clear, 2–3 likely, < 2 noise. Holm correction over the thr
 ## Not in scope
 
 The API row for Bielik, other sample counts, other templates. Any of these, if run later, is exploratory.
+
+## Amendment 1 (2026-11-22, 04:25 UTC)
+
+Written before any Qwen3.5 or Bielik output. Seen so far: one smoke run of LFM3-1.7B at 4096 (2 samples per task,
+`--limit 2`), which checked the pipeline and is not part of any result.
+
+- **Scope.** The issue asks for Slayer 1B and Bielik 11B v3.1, with LFM3-1.7B as the reference. Qwen3.5-4B and
+  Qwen3.5-9B are dropped to keep the rented-GPU cost to what the issue needs. Models: `lfm3-1.7b`, `bielik-11b-v3.1`,
+  `slayer1b-1.08`.
+- **Bielik through the Fabryka API** (`bielik-11b-v3.1`), as the issue asks, replacing the vLLM row. The API adds a
+  hidden provider system prompt (#277); this is stated in the README next to the row. Context 32 768 tokens; the
+  output limit is 32 768 minus the templated input. The "Not in scope" line above no longer applies to this row.
+- **Control** moves from Qwen3.5-9B to LFM3-1.7B: its mean at 131072 must land within 2 SE of its card value
+  (65.56) before any hypothesis is read.
+- **R1 and R3** are unchanged.
+- **R2** compares LFM3-1.7B with Bielik 11B v3.1 instead of the Qwen3.5 models: slope of the mean against
+  log2(length) over the lengths both models hold (4096–32768); refuted when the difference is under 2 SE.
+  Bootstraps are independent per model, because RULER generates each model's data with its own tokenizer.
