@@ -26,12 +26,64 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "api-benchmarks" / "ruler-128k"))
 import compare as C  # noqa: E402
+import diagnostics as G  # noqa: E402
 import summarize as S  # noqa: E402
 import predict as P  # noqa: E402
 import provenance as V  # noqa: E402
 from ruler import answer_text, latest_records  # noqa: E402
 
 BENCH = Path(__file__).resolve().parents[1] / "api-benchmarks" / "ruler-128k"
+
+
+def diagnostics_out_dir(root):
+    """niah_single_1 and vt at 4096 and 131072, 2 samples each. 4096: niah #0 has two records (first wrong, 5
+    tokens; last right, 9 tokens); vt #1 stops without `</think>` and has the needle. 131072: niah #0 is right with
+    9000 output tokens, niah #1 wrong; vt #0 has the needle after 25 words, vt #1 right away."""
+    out = root / "lfm3-1.7b"
+    think = "<think>x</think>"
+    raw = {4096: {"niah_single_1": [(0, think + "wrong", 5), (1, think + "1234567", 4), (0, think + "1234567", 9)],
+                  "vt": [(0, think + "1234567", 4), (1, "no reasoning end 1234567", 6)]},
+           131072: {"niah_single_1": [(0, think + "1234567 and more", 9000), (1, think + "nothing", 4)],
+                    "vt": [(0, think + "w " * 25 + "1234567", 40), (1, think + "1234567", 4)]}}
+    for length, tasks in raw.items():
+        for task, recs in tasks.items():
+            (out / str(length) / "data" / task).mkdir(parents=True)
+            (out / str(length) / "data" / task / "validation.jsonl").write_text("".join(
+                json.dumps({"index": i, "input": "y" * (100 + i), "outputs": ["1234567"]}) + "\n" for i in range(2)))
+            (out / str(length) / "raw").mkdir(exist_ok=True)
+            (out / str(length) / "raw" / f"{task}.jsonl").write_text("".join(json.dumps(
+                {"index": i, "output": o, "finish_reason": "stop", "output_tokens": n}) + "\n" for i, o, n in recs))
+    return out
+
+
+def test_diagnostics_variants_duplicates_and_think_end():
+    metrics, budgets = dict.fromkeys(S.TASKS, match_all), {"niah_single_1": 128, "vt": 30}
+    with tempfile.TemporaryDirectory() as d:
+        out = diagnostics_out_dir(Path(d))
+        variants = G.control_variants(out, keep, metrics, budgets)
+        dups = G.duplicates(out, keep, metrics)
+        ends = G.think_end(out, keep, metrics)
+        text = G.input_text({"lfm3-1.7b": out, "bielik-11b-v3.1": out})
+    v = variants["variants"]
+    assert variants["variants_tried"] == 7 and len(v) == 8
+    assert v["pre-registered"]["mean"] == 75 and v["strict"]["mean"] == 75
+    # vt #0's needle is word 26, past int(30 * 0.75) = 22 words: 0; niah keeps its first word
+    assert v["answer cut to RULER's answer budget (about 0.75 words per token)"]["mean"] == 50
+    assert v["output limit 8192 tokens (a longer output scores 0)"]["mean"] == 50  # niah #0 had 9000 tokens
+    assert v["output limit 16384 tokens (a longer output scores 0)"]["mean"] == 75
+    assert v["strict"]["z_vs_card"] == (75 - 65.56) / v["strict"]["se"]
+    at = dups["per_length"]["4096"]
+    assert at["samples_with_more_than_one_record"] == {"niah_single_1": 1} and "131072" not in dups["per_length"]
+    assert at["finish_reason_of_replaced"] == {"stop": 1} and at["last_longer_than_first"] == 1
+    assert at["mean"] == {"last (scored)": 100, "first": 75} and at["strict_mean"] == {"last (scored)": 75, "first": 50}
+    # retrieval drops 50 with the last record (100 -> 50), 0 with the first (50 -> 50); tracing 0 either way
+    assert dups["r3_comparisons_at_4096"] == {"last (scored)": {"drop tracing - drop retrieval": -50},
+                                              "first": {"drop tracing - drop retrieval": 0}}
+    assert ends["without_think_end_by_finish_reason"] == {"4096": {"stop": 1}, "131072": {}}
+    assert ends["stopped_without_think_end"] == [{"length": 4096, "task": "vt", "index": 1, "output_tokens": 6,
+                                                  "pre_registered_score": 100.0, "strict_score": 0.0}]
+    assert text["median_chars"]["lfm3-1.7b"] == {"4096": 100.5, "131072": 100.5}
+    assert text["bielik_over_lfm3"] == {"4096": 1.0, "131072": 1.0}
 
 
 def match_all(preds, refs):
