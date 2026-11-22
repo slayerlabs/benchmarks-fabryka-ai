@@ -28,7 +28,8 @@ RUNS = {
     "lfm3-1.7b": ("LFM3-1.7B (`lfm3-1.7b`)", "on (template default)", "vLLM 0.34.0, bf16, H100"),
     "lfm3-1.7b-nothink": ("LFM3-1.7B (`lfm3-1.7b-nothink`)", "off requested (`enable_thinking: false`)",
                           "the same vLLM server"),
-    "bielik-11b-v3.1": ("Bielik 11B v3.1 (`bielik-11b-v3.1`)", "none (the API has no switch)",
+    "bielik-11b-v3.1": ("Bielik 11B v3.1 (`bielik-11b-v3.1`)", "no reasoning switch through the API; "
+                        "{closing_think}/{answers} answers close a short `</think>` draft",
                         "Fabryka AI API, with the API's provider system prompt"),
 }
 NOT_RUN = ("Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`)", "slayer1b-1.09-k70000")
@@ -73,7 +74,8 @@ def results_block(results: Path) -> str:
     for m, (name, thinking, serving) in RUNS.items():
         r = files[m]
         limit = f"{r['settings']['max_tokens']} (context {r['settings']['context']})"
-        out.append(f"| {name} | {thinking} | {serving} | {limit} | {r['score']:.2f} | {r['stderr']:.2f} | {r['n']} | "
+        out.append(f"| {name} | {thinking.format(**raw['runs'][m]['reasoning'])} | {serving} | {limit} | "
+                   f"{r['score']:.2f} | {r['stderr']:.2f} | {r['n']} | "
                    f"{r['other_metrics']['output_tokens']['mean']:.1f} | {r['date']} |")
     out.append(f"| {NOT_RUN[0]} | | | | null ({slayer['reason']}) | | | | |")
     out += ["", "Accepted (%) ± stderr (accepted/n): all problems (headline), without the problems whose test zip is "
