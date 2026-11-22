@@ -741,6 +741,28 @@ def package_versions() -> dict[str, Any]:
     return versions
 
 
+def check_answers(answers: dict[tuple[str, str, int], dict[str, Any]], expected: list[tuple[str, int]],
+                  code_dir: Path) -> list[str]:
+    """The settings to score. Every expected step must have an answer (`ok` or `unsupported`; a step whose request
+    failed is asked again by `generate`, never scored as a fail), and the code files in each setting's directory must
+    be exactly the expected steps, as the scorer tests every file there."""
+    settings = sorted({k[0] for k in answers}, key=SETTINGS.index)
+    if not settings:
+        sys.exit("scicode_runner.py score: no answers; run generate")
+    for setting in settings:
+        missing = [f"{p}.{s}" for p, s in expected if answers.get((setting, p, s), {}).get("status") in (None, "error")]
+        if missing:
+            sys.exit(f"scicode_runner.py score: {setting}: {len(missing)} steps have no answer (first: {missing[0]}); "
+                     "run generate again (it resumes)")
+        directory = code_dir / setting
+        on_disk = sorted(p.name for p in directory.iterdir()) if directory.is_dir() else []
+        wanted = sorted(f"{p}.{s}.py" for p, s in expected)
+        if on_disk != wanted:
+            sys.exit(f"scicode_runner.py score: {setting}: the code files differ from the expected steps "
+                     f"({len(on_disk)} files, {len(wanted)} steps); the scorer would test every file there")
+    return settings
+
+
 def score(args: argparse.Namespace) -> None:
     out = Path(args.out_dir).resolve()
     hashes = provenance.verify(out, ["generations.jsonl"], "scicode_runner.py score")
@@ -756,18 +778,8 @@ def score(args: argparse.Namespace) -> None:
     os.environ["HF_HUB_OFFLINE"] = os.environ["HF_DATASETS_OFFLINE"] = "1"
     rows = load_split(args.split, args.limit)
     answers = latest(read_jsonl(out / "generations.jsonl"))
-    settings = sorted({k[0] for k in answers}, key=SETTINGS.index)
     expected = expected_steps(rows)
-    for setting in settings:
-        missing = [f"{p}.{s}" for p, s in expected if answers.get((setting, p, s), {}).get("status") in (None, "error")]
-        if missing:
-            sys.exit(f"scicode_runner.py score: {setting}: {len(missing)} steps have no answer (first: {missing[0]}); "
-                     "run generate again (it resumes)")
-        on_disk = sorted(p.name for p in (out / "generated_code" / args.model_id / setting).iterdir())
-        wanted = sorted(f"{p}.{s}.py" for p, s in expected)
-        if on_disk != wanted:
-            sys.exit(f"scicode_runner.py score: {setting}: the code files differ from the expected steps "
-                     f"({len(on_disk)} files, {len(wanted)} steps); the scorer would test every file there")
+    settings = check_answers(answers, expected, out / "generated_code" / args.model_id)
     score_dir = out / "score"
     stamp = score_dir / "stamp.json"
     if stamp.is_file() and json.loads(stamp.read_text())["generations_sha256"] != hashes["generations.jsonl"]:
