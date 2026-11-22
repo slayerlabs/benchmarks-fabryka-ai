@@ -83,3 +83,20 @@ hypotheses.
 LiveCodeBench stopped adding problems in 2025, so `release_v6` is older than the training data of LFM3-1.7B and
 Qwen3.5. Contamination cannot be ruled out by the release-date split this benchmark was designed for; the report
 says so and does not claim a contamination-free result.
+
+## Amendment 1 (2026-11-22, 04:25 UTC)
+
+Written before any Qwen3.5 or Bielik output. Seen so far: a smoke run of LFM3-1.7B on 5 problems (`--limit 5`),
+and the running full LFM3-1.7B generation, whose scores have not been computed or read.
+
+- **Scope.** The issue asks for Slayer 1B and Bielik 11B v3.1, with LFM3-1.7B as the reference. Qwen3.5-4B and
+  Qwen3.5-9B are dropped to keep the rented-GPU cost to what the issue needs. Models: `lfm3-1.7b`, `bielik-11b-v3.1`;
+  `slayer1b-1.08` stays `null` (README, Deviations).
+- **Bielik through the Fabryka API** (`bielik-11b-v3.1`), as the issue asks, replacing the vLLM row. The API adds a
+  hidden provider system prompt (#277); this is stated in the README next to the row. Context 32 768 tokens; the
+  output limit is 32 768 minus the prompt as counted with Bielik's tokenizer and template.
+- **Control** moves from Qwen3.5-9B to LFM3-1.7B: its pass@1 must land within 2 SE of its card value (73.46)
+  before any hypothesis is read.
+- **L1–L3** compare LFM3-1.7B with Bielik 11B v3.1 instead of Qwen3.5-9B, with the same measures and thresholds:
+  L1 refuted when LFM3-1.7B is ahead with z ≥ 3 (the original prediction, that a 1.7B model's lead over a larger
+  model is within noise, is kept as stated); L2 and L3 unchanged apart from the comparator.
