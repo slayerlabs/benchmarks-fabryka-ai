@@ -174,14 +174,24 @@ def r1_block(h):
             f"{fp(g['p'])}); without the 2 lowest tasks at 131072 ({', '.join(w['tasks_dropped'])}) the mean is "
             f"{f2(w['mean'])} ± {f2(w['se'])}, z = {f2(w['z'])} against 85.6 ({w['verdict']}). Protocol rule met; "
             f"whether the context loss holds across tasks rather than in two of them is undetermined.", "",
-            f"Effective length (longest length with a mean of at least 85.6): {e['above_2_se']} or {point}. {point} has "
-            f"{f2(e['per_length'][point]['mean'])}, only z = {f2(e['z'])} above 85.6 (strict "
-            f"{f2(st['per_length'][point]['mean'])}, z = {f2(st['z'])}); {e['above_2_se']} is the longest length at "
-            f"least 2 SE above it. SEs below come from compare.py's bootstrap (seeded per model), the per-length table "
-            f"in Results from summarize.py's; they differ in the second decimal.", "",
-            "| length | mean ± SE | z against 85.6 | strict mean ± SE | strict z |", "|---|---|---|---|---|"] + [
-            f"| {x} | {f2(v['mean'])} ± {f2(v['se'])} | {f2(v['z'])} | {f2(st['per_length'][x]['mean'])} ± "
-            f"{f2(st['per_length'][x]['se'])} | {f2(st['per_length'][x]['z'])} |" for x, v in e["per_length"].items()]
+            f"Effective length (longest length with a mean of at least 85.6), with the 13 tasks as fixed: "
+            f"{e['above_2_se']} or {point}. {point} has {f2(e['per_length'][point]['mean'])}, only z = {f2(e['z'])} "
+            f"above 85.6 (strict {f2(st['per_length'][point]['mean'])}, z = {f2(st['z'])}); {e['above_2_se']} is the "
+            f"longest length at least 2 SE above it. Across tasks (t of the task means against 85.6, df 12; Amendment 8) "
+            + (f"no length beyond {e['above_across_tasks']} can be named"
+               if e["above_across_tasks"] else "no length can be named")
+            + f" ({e['above_across_tasks'] or 'none'} is the longest above 85.6 at p ≤ 0.0455, the p of |z| = 2; strict: "
+            f"{st['above_across_tasks'] or 'none'}); {len(e['tasks_below_at_shortest'])} tasks "
+            f"({', '.join(e['tasks_below_at_shortest'])}) are below 85.6 already at {min(map(int, e['per_length']))}. "
+            f"SEs below come from compare.py's bootstrap (seeded per model), the per-length table in Results from "
+            f"summarize.py's; they differ in the second decimal.", "",
+            "| length | mean ± SE | z against 85.6 | across tasks t (df), p | strict mean ± SE | strict z | strict "
+            "across tasks t, p |", "|---|---|---|---|---|---|---|"] + [
+            f"| {x} | {f2(v['mean'])} ± {f2(v['se'])} | {f2(v['z'])} | {f2(v['across_tasks']['t'])} "
+            f"({v['across_tasks']['df']}), p {fp(v['across_tasks']['p'])} | {f2(st['per_length'][x]['mean'])} ± "
+            f"{f2(st['per_length'][x]['se'])} | {f2(st['per_length'][x]['z'])} | "
+            f"{f2(st['per_length'][x]['across_tasks']['t'])}, p {fp(st['per_length'][x]['across_tasks']['p'])} |"
+            for x, v in e["per_length"].items()]
 
 
 def r2_block(h, diag):

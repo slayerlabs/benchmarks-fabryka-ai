@@ -291,16 +291,24 @@ def r1_sensitivity(run, drop=2):
 
 
 def effective_length(run):
-    """The paper's effective length (longest length whose mean is >= 85.6) with the z of every length against 85.6,
-    and the longest length that is above 85.6 by at least 2 SE: the effective length is one of the two."""
+    """The paper's effective length (longest length whose mean is >= 85.6) with the z of every length against 85.6
+    (sample-level SE, tasks fixed) and the longest length that is above 85.6 by at least 2 SE; next to it the same
+    across tasks: t of the task means against 85.6 (df = tasks - 1) and the longest length above 85.6 at p <= p(|z| = 2)
+    (Amendment 8), and the tasks already below 85.6 at the shortest length."""
     per = {}
     for length in sorted(run["point"]):
         mean, se = stat(lambda p: length_mean(p[length]), run)
-        per[str(length)] = {"mean": mean, "se": se, "z": z_of(mean - THRESHOLD, se)}
+        k = statystyka.klastrowe_wazone([(1, v - THRESHOLD) for v in run["point"][length].values()])
+        per[str(length)] = {"mean": mean, "se": se, "z": z_of(mean - THRESHOLD, se),
+                            "across_tasks": {"se": k["se"], "t": k["t"], "df": k["df"], "p": k["p_t"]}}
     point = max((int(x) for x, v in per.items() if v["mean"] >= THRESHOLD), default=None)
     above = max((int(x) for x, v in per.items() if v["z"] is not None and v["z"] >= 2), default=None)
+    across = max((int(x) for x, v in per.items() if (a := v["across_tasks"])["t"] is not None and a["t"] > 0
+                  and a["p"] <= statystyka.P_PRAWDOPODOBNE), default=None)
+    first = run["point"][min(run["point"])] if run["point"] else {}
     return {"point": point, "z": per[str(point)]["z"] if point else None, "se": per[str(point)]["se"] if point else None,
-            "above_2_se": above, "per_length": per}
+            "above_2_se": above, "above_across_tasks": across, "per_length": per,
+            "tasks_below_at_shortest": sorted(t for t, v in first.items() if v < THRESHOLD)}
 
 
 def length_means(run):

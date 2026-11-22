@@ -285,6 +285,13 @@ def test_compare_clear_case():
     assert (e["point"], e["above_2_se"]) == (16384, 8192) and 0 < e["z"] < 2 and e["z"] == e["per_length"]["16384"]["z"]
     # 75 per aggregation task is 38 of 50 samples (round half to even): 76, so 16384 is (768 + 80 + 152 + 132) / 13
     assert abs(e["per_length"]["16384"]["mean"] - 1132 / 13) < 1e-9 and e["per_length"]["8192"]["z"] >= 2
+    # across tasks (Amendment 8): t of the 13 task means against 85.6, df 12; qa (70) is below 85.6 already at 4096
+    at4096 = by_category(98, 100, 90, 70).values()
+    k = C.statystyka.klastrowe_wazone([(1, v - 85.6) for v in at4096])
+    assert e["per_length"]["4096"]["across_tasks"] == {"se": k["se"], "t": k["t"], "df": 12, "p": k["p_t"]}
+    assert e["tasks_below_at_shortest"] == ["qa_1", "qa_2"]
+    assert e["above_across_tasks"] == max((int(x) for x, v in e["per_length"].items()
+                                           if v["across_tasks"]["t"] > 0 and v["across_tasks"]["p"] <= 0.0455), default=None)
     # next to the rule: SE clustered by task, sign test, without the 2 lowest tasks (vt 30, cwe 40 before fwe 40)
     import math
     import statistics
