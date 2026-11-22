@@ -11,7 +11,7 @@
     },
     "rerun": {
       "code": {
-        "commit": "2d6ba0c7427d524e25c028610c57cb361a82e380",
+        "commit": "ef19f7d7dc921b89b677f2691dcaceba533dde3e",
         "dirty": true,
         "uncommitted_runner_files": []
       },
@@ -57,7 +57,7 @@
     },
     "rerun": {
       "code": {
-        "commit": "2d6ba0c7427d524e25c028610c57cb361a82e380",
+        "commit": "ef19f7d7dc921b89b677f2691dcaceba533dde3e",
         "dirty": true,
         "uncommitted_runner_files": []
       },
@@ -89,6 +89,51 @@
     "jsonl_rows": {
       "published": 600,
       "rerun": 600,
+      "identical": true
+    }
+  },
+  "bielik-11b-v3.1": {
+    "published": {
+      "commit": "b1749896",
+      "summarize.py sha256": "d80f85f171e5153a3fecfd0366520191c411986e02a8f0333066324852e42f9b",
+      "code": {
+        "commit": "128f7735d99073fd6d94f5a1df5fe26c18437897",
+        "dirty": true
+      }
+    },
+    "rerun": {
+      "code": {
+        "commit": "ef19f7d7dc921b89b677f2691dcaceba533dde3e",
+        "dirty": true,
+        "uncommitted_runner_files": []
+      },
+      "summarize.py sha256": "69189db3dc4494e4f2445deb61f8a9f730546c56bbaf9e8b8fc7482a693f2493"
+    },
+    "fields_compared": "all except provenance, warnings",
+    "fields_differing": [],
+    "provenance_fields_differing": [
+      "provenance.summarize.code.commit",
+      "provenance.summarize.code.uncommitted_runner_files",
+      "provenance.summarize.hardware.cpu_count",
+      "provenance.summarize.hardware.gpu",
+      "provenance.summarize.hardware.machine",
+      "provenance.summarize.hardware.platform",
+      "provenance.summarize.hardware.processor",
+      "provenance.summarize.hardware.python",
+      "provenance.summarize.runner_sha256.../../tools/statystyka.py",
+      "provenance.summarize.runner_sha256.compare.py",
+      "provenance.summarize.runner_sha256.declared_provenance.json",
+      "provenance.summarize.runner_sha256.diagnostics.py",
+      "provenance.summarize.runner_sha256.predict.py",
+      "provenance.summarize.runner_sha256.provenance.py",
+      "provenance.summarize.runner_sha256.report.py",
+      "provenance.summarize.runner_sha256.reproduction.py",
+      "provenance.summarize.runner_sha256.summarize.py",
+      "provenance.summarize.time"
+    ],
+    "jsonl_rows": {
+      "published": 1900,
+      "rerun": 1900,
       "identical": true
     }
   }

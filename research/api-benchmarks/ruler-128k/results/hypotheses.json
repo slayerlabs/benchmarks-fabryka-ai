@@ -477,17 +477,17 @@
     "lfm3-1.7b vs bielik-11b-v3.1: RULER source files differ: PaulGrahamEssays.json lfm3-1.7b 8d31e1b6, bielik-11b-v3.1 58e35253 (the haystack text is not the same)"
   ],
   "inputs_sha256": {
-    "lfm3-1.7b.json": "74d5bea230b6f914cccdab23e91eb8e65d523bb4296a3a099e164ff87f1f2990",
-    "lfm3-1.7b.jsonl.gz": "769c228f520a5b8f775bcf08ccd3f6762993853c325e77bbe74ac98b8bc5dcf6",
-    "bielik-11b-v3.1.json": "3bda3fdb8aecd85feae1262584252d2778d426e376470d3334bf9dfc4b54e828",
-    "bielik-11b-v3.1.jsonl.gz": "95fdeedbf0fc3a34413f0d0fcd04e2d174bcc28f1e030466e25ffeda07646d1d",
-    "slayer1b-1.09-k70000.json": "dd63e952bb7e874b0161a074253b7d1b54c2895cf6993b0a2a06dd92783d35ce",
-    "slayer1b-1.09-k70000.jsonl.gz": "4decdcb78f0be09ea5209e18fc118667efd816c7d522eefed820c51cf1750d15"
+    "lfm3-1.7b.json": "47d9d64f4c7649b0b7003bab4013963f84918add4c36e235a20352160f489c09",
+    "lfm3-1.7b.jsonl.gz": "fa4e32ff270f75b63c0b3be91ebe977a368f05ffd8481132cb573a681262a489",
+    "bielik-11b-v3.1.json": "cc3f4bdfa29a2e5a3ddc4cd6c981b04ff9d4ae0d589d612bf305c3126ad085bd",
+    "bielik-11b-v3.1.jsonl.gz": "e1c0d71a036f0de49a5ae4bce3eeb125a03df0037619b20ac738c22aefb69daf",
+    "slayer1b-1.09-k70000.json": "9e9ab7d35aeb93d737af29621c31099d994be57ad4d060d79616d5e1499e1812",
+    "slayer1b-1.09-k70000.jsonl.gz": "5ba8a1dece8afdf25d30c4357910462407854b6b367b64050809d9c6fcb0ab2f"
   },
   "provenance": {
-    "time": "2026-11-22T17:32:20+00:00",
+    "time": "2026-11-22T17:42:37+00:00",
     "code": {
-      "commit": "2d6ba0c7427d524e25c028610c57cb361a82e380",
+      "commit": "ef19f7d7dc921b89b677f2691dcaceba533dde3e",
       "dirty": true,
       "uncommitted_runner_files": []
     },
@@ -501,7 +501,7 @@
       "compare.py": "a9ac5d283e82a16cba519f1f80a2fcea903af7d8316b6fa2df33cac0bbbfb2d0",
       "provenance.py": "76f9366be7dec5d43da7e11fb321c872beb1d5d533e837a20b59f5263be10b50",
       "diagnostics.py": "ac3d74bc73fc776d5fa78b9824461ec3e4057e892c37033e5f89d9ac1110ac31",
-      "report.py": null,
+      "report.py": "e11f80e0c94a99aa7967a85d0a25de9ce3c9a64674b1a46341d3f51d445df091",
       "reproduction.py": "afac1456f07b1b6d5b6edbcb8dcd98e267fa7d1d0b93df62ed6239d6badffe62",
       "declared_provenance.json": "5f96798de2098bc48554f5ff96c8f8b11759ac8c13d8ca4972d679684a22d893",
       "requirements.lock.txt": "734278c83bf2e15d209f8b38eb07b71df447f1478f82651de2ebc422423c60af",

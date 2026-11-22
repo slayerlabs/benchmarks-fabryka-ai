@@ -118,25 +118,26 @@ Effective length (longest length with a mean of at least 85.6): 8192 or 16384. 1
 
 **Provenance.**
 
-- LFM3-1.7B: generation declared, not recorded: commit `d45c3509` (README.md Deviations at 6a1afea0: 'The LFM3-1.7B run (started from d45c3509)'); archives `out/box/ruler-lfm3-1.7b-outputs.tgz` sha256 `704d8c6659a7…`, `out/box/ruler-lfm3-1.7b-data.tar.zst` sha256 `7df06b025aa8…`. Summary: commit `2d6ba0c7`, runner files differing from it: none.
-  The first summary was written by a summarize.py in no commit (sha256 `d80f85f1…`, tree at `128f7735`, dirty True); summarize.py at `2d6ba0c7` reproduces it: 0 fields differ outside provenance and warnings, rows identical: True (3900).
-- Bielik 11B v3.1: generation recorded by run.sh (`generation.jsonl`): commit `128f7735`, dirty True. Summary: commit `128f7735`, dirty True (runner files not listed).
-- Slayer 1B 1.09, update 70 000: generation declared, not recorded: commit `920787d4` (README.md Deviations at 6a1afea0: 'the Slayer run (920787d4)'); archives `out/box/ruler-slayer-outputs.tgz` sha256 `13d1386c8495…`. Summary: commit `2d6ba0c7`, runner files differing from it: none.
-  The first summary was written by a summarize.py in no commit (sha256 `d80f85f1…`, tree at `128f7735`, dirty True); summarize.py at `2d6ba0c7` reproduces it: 0 fields differ outside provenance and warnings, rows identical: True (600).
+- LFM3-1.7B: generation declared, not recorded: commit `d45c3509` (README.md Deviations at 6a1afea0: 'The LFM3-1.7B run (started from d45c3509)'); archives `out/box/ruler-lfm3-1.7b-outputs.tgz` sha256 `704d8c6659a7…`, `out/box/ruler-lfm3-1.7b-data.tar.zst` sha256 `7df06b025aa8…`. Summary: commit `ef19f7d7`, runner files differing from it: none.
+  The first summary was written by a summarize.py in no commit (sha256 `d80f85f1…`, tree at `128f7735`, dirty True); summarize.py at `ef19f7d7` reproduces it: 0 fields differ outside provenance and warnings, rows identical: True (3900).
+- Bielik 11B v3.1: generation recorded by run.sh (`generation.jsonl`): commit `128f7735`, dirty True. Summary: commit `ef19f7d7`, runner files differing from it: none.
+  The first summary was written by a summarize.py in no commit (sha256 `d80f85f1…`, tree at `128f7735`, dirty True); summarize.py at `ef19f7d7` reproduces it: 0 fields differ outside provenance and warnings, rows identical: True (1900).
+- Slayer 1B 1.09, update 70 000: generation declared, not recorded: commit `920787d4` (README.md Deviations at 6a1afea0: 'the Slayer run (920787d4)'); archives `out/box/ruler-slayer-outputs.tgz` sha256 `13d1386c8495…`. Summary: commit `ef19f7d7`, runner files differing from it: none.
+  The first summary was written by a summarize.py in no commit (sha256 `d80f85f1…`, tree at `128f7735`, dirty True); summarize.py at `ef19f7d7` reproduces it: 0 fields differ outside provenance and warnings, rows identical: True (600).
 
 Results files and their sha256 (`results/results.sha256.json`):
 
 | file | sha256 |
 |---|---|
-| `results/bielik-11b-v3.1.json` | `3bda3fdb8aecd85feae1262584252d2778d426e376470d3334bf9dfc4b54e828` |
-| `results/bielik-11b-v3.1.jsonl.gz` | `95fdeedbf0fc3a34413f0d0fcd04e2d174bcc28f1e030466e25ffeda07646d1d` |
-| `results/diagnostics.json` | `bb3b3c550df771be864ebeba03c1799959b1a6299ef4ff6bcef9b0a16a9d42f6` |
-| `results/hypotheses.json` | `5027f2e7d6d8b0843c720882fa930c557a7db8724f0ffcc165530477c46f2243` |
-| `results/lfm3-1.7b.json` | `74d5bea230b6f914cccdab23e91eb8e65d523bb4296a3a099e164ff87f1f2990` |
-| `results/lfm3-1.7b.jsonl.gz` | `769c228f520a5b8f775bcf08ccd3f6762993853c325e77bbe74ac98b8bc5dcf6` |
-| `results/reproduction.json` | `5b15d9ffb7740481d180178d420f0109f0532cadf892fc66159c6bab0598b4e8` |
-| `results/slayer1b-1.09-k70000.json` | `dd63e952bb7e874b0161a074253b7d1b54c2895cf6993b0a2a06dd92783d35ce` |
-| `results/slayer1b-1.09-k70000.jsonl.gz` | `4decdcb78f0be09ea5209e18fc118667efd816c7d522eefed820c51cf1750d15` |
+| `results/bielik-11b-v3.1.json` | `cc3f4bdfa29a2e5a3ddc4cd6c981b04ff9d4ae0d589d612bf305c3126ad085bd` |
+| `results/bielik-11b-v3.1.jsonl.gz` | `e1c0d71a036f0de49a5ae4bce3eeb125a03df0037619b20ac738c22aefb69daf` |
+| `results/diagnostics.json` | `ed2486c2d957106343e1390636f67cd9d901f92c7df842216841abc307ad3dde` |
+| `results/hypotheses.json` | `14ec1a76684cda82fc8db07b0b7881dbb450feda40395ee80bb706efdd4fa264` |
+| `results/lfm3-1.7b.json` | `47d9d64f4c7649b0b7003bab4013963f84918add4c36e235a20352160f489c09` |
+| `results/lfm3-1.7b.jsonl.gz` | `fa4e32ff270f75b63c0b3be91ebe977a368f05ffd8481132cb573a681262a489` |
+| `results/reproduction.json` | `236be2b1e6cc5771dc19456bcdc2986e24a703c7c7c6295990efcc467ab0ddbf` |
+| `results/slayer1b-1.09-k70000.json` | `9e9ab7d35aeb93d737af29621c31099d994be57ad4d060d79616d5e1499e1812` |
+| `results/slayer1b-1.09-k70000.jsonl.gz` | `5ba8a1dece8afdf25d30c4357910462407854b6b367b64050809d9c6fcb0ab2f` |
 <!-- /report.py -->
 
 ## Deviations
@@ -193,7 +194,7 @@ Results files and their sha256 (`results/results.sha256.json`):
   `provenance.generation_declared`, marked `declared, not recorded` (`declared_provenance.json`, Amendment 7).
 - **Published results only from committed code** (Amendment 7). The first LFM3-1.7B, Slayer and Bielik summaries
   were written by a `summarize.py` that is in no commit, from a dirty tree; `reproduction.py` shows that
-  `summarize.py` at a commit reproduces the LFM3-1.7B and Slayer files (Hypotheses, Provenance). `summarize.py`,
+  `summarize.py` at a commit reproduces all three result files (Hypotheses, Provenance). `summarize.py`,
   `compare.py` and `diagnostics.py` now stop before writing into `results/` while a runner file differs from the
   commit, and the code provenance lists the runner files that differ.
 - **The control failed; every score is also given under strict scoring** (PROTOCOL.md, Amendments 4 and 7, both
