@@ -1,0 +1,11 @@
+transformers==5.22.2
+numpy
+nltk
+wonderwords
+pyyaml
+tqdm
+tenacity
+html2text
+beautifulsoup4
+huggingface_hub
+pandas
