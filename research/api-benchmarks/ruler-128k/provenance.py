@@ -66,12 +66,15 @@ def _run(*command):
 
 
 def code_version(root=HERE):
-    """{"commit", "dirty"} of the repo holding this script; both None with a reason outside a git checkout."""
+    """{"commit", "dirty", "uncommitted_runner_files"} of the repo holding this script: `dirty` is any change in the
+    worktree (results written a moment ago count too), the list names the runner files that differ from the commit.
+    None with a reason outside a git checkout."""
     commit = _run("git", "-C", str(root), "rev-parse", "HEAD")
     if commit is None:
         return {"commit": None, "dirty": None, "reason": "not a git checkout or no git"}
     status = _run("git", "-C", str(root), "status", "--porcelain")
-    return {"commit": commit, "dirty": None if status is None else bool(status)}
+    return {"commit": commit, "dirty": None if status is None else bool(status),
+            "uncommitted_runner_files": uncommitted_runner_files(root)}
 
 
 def uncommitted_runner_files(root=HERE):
