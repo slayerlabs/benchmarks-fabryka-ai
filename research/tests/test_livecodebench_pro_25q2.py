@@ -600,6 +600,8 @@ def test_k1_control_window():
     z = (p - 0.3174) / math.sqrt(p * (1 - p) / n)
     c = compare.control({str(i): int(i < 30) for i in range(n)})
     assert math.isclose(c["z"], z) and c["status"] == ("passed" if abs(z) <= 2 else "failed")
+    between = compare.control({str(i): int(i < 40) for i in range(n)})  # 23.95: about -2.4 SE, outside 2 SE
+    assert -3 < between["z"] < -2 and between["status"] == "failed"
     low = compare.control({str(i): int(i < 35) for i in range(n)})  # 20.96: about -3.6 SE
     assert low["status"] == "failed" and low["z"] < -2
 

@@ -123,10 +123,10 @@ case "$MODEL" in
     # difference from our local count (livecodebench-v6 @ 7d931ba2, README "Deviations").
     MARGIN=64 ;;
   slayer1b-1.09-k70000)
-    python3 "$HERE/summarize.py" --not-run "${RESULTS_DIR:-$HERE/results}/$MODEL" \
-      "not run (PROTOCOL.md, Models): Slayer 1B is a base model with a 4096-token context that does not follow chat
-instructions; on 30 Python tasks in research/slayer-1b/rozmowy-1.08 it wrote no function that passed its tests, so
-olympiad problems in C++ are below its floor."
+    REASON="not run (PROTOCOL.md, Models): Slayer 1B is a base model with a 4096-token context that does not follow"
+    REASON+=" chat instructions; on 30 Python tasks in research/slayer-1b/rozmowy-1.08 it wrote no function that"
+    REASON+=" passed its tests, so olympiad problems in C++ are below its floor."
+    python3 "$HERE/summarize.py" --not-run "${RESULTS_DIR:-$HERE/results}/$MODEL" "$REASON"
     exit 0 ;;
   *) echo "unknown model-id: $MODEL (lfm3-1.7b | lfm3-1.7b-nothink | bielik-11b-v3.1 | slayer1b-1.09-k70000)" >&2
      exit 2 ;;
