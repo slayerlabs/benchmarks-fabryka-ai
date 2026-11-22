@@ -157,3 +157,14 @@ scoring next to the pre-registered one.
   they are scored on their whole text, and 8 of them score above 0; strict scoring gives 70.51 at 131072.
 - **Verdicts.** R1-R3 verdicts are computed on the pre-registered scoring. The verdict under strict scoring (its own
   Holm family, m = 3) is shown next to each; it does not replace it.
+
+## Amendment 5 (2026-11-22, 16:00 UTC)
+
+**Written after the Bielik result**, which got strict 0.00 at every length. Correction of Amendment 4: its rule
+(strict scoring for the runs whose chat template opens a reasoning block) stands, but its example "(LFM3-1.7B,
+Bielik)" was wrong. Bielik's template at `d6e755d3`, with its defaults, ends the generation prompt `<think></think>`:
+the reasoning block is closed before the model's first token, so its outputs never contain `</think>`. Only
+LFM3-1.7B's prompt (`...<|im_start|>assistant\n<think>`) opens one. Whether a prompt opens it is decided from the
+rendered prompt (it ends with an open `<think>`), recorded at generation or rendered from the pinned template; where
+it does not, strict scoring is null with the reason, as for Slayer. Bielik is reported with its pre-registered
+score only. No pre-registered number changes.

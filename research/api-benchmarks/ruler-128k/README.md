@@ -109,6 +109,21 @@ Holm family (m = 3). The bootstraps are independent per model (Amendment 1).
   the count of outputs without `</think>`), the `.jsonl.gz` rows in `closed_think`. Verdicts stay on the
   pre-registered scoring, the strict verdict is shown next to each. Slayer (raw prompt, no reasoning block) has
   only the pre-registered score.
+- **Strict scoring applies only where the generation prompt opens a reasoning block** (PROTOCOL.md, Amendment 5,
+  correcting Amendment 4's parenthesis). LFM3-1.7B's template ends the generation prompt with an open `<think>`, so
+  an output without `</think>` never left its reasoning. Bielik's template ends it `<think></think>` (reasoning
+  closed by the template), so its outputs never carry `</think>` and strict scoring would make every sample 0; it
+  is null with the reason, as for Slayer's raw prompt. `run.sh` records the rendered prompt end in
+  `generation.jsonl` (`reasoning`); for an out dir without it, `summarize.py` renders one prompt with the pinned
+  chat template, its defaults and the generation prompt. Results carry it in `other_metrics.strict.reasoning`.
+- **API failures logged per attempt, not for the first Bielik run.** `predict.py` writes every failed attempt,
+  pause and recovery to `out/<model-id>/<length>/api-events.jsonl` (UTC time, task, sample, endpoint, attempt, HTTP
+  status, the first 300 characters of the error, action, pause in seconds), as `../livecodebench-v6` does; the
+  counts go into the `generation.jsonl` line of each `run.sh` call and into `provenance.api_events` of the result,
+  and the files' sha256 are checked with the other inputs. A body cut short of its Content-Length
+  (`IncompleteRead`) and a reset connection are retried like a 5xx. The Bielik run of 2026-11-22 predates the log:
+  its result has `api_events: null`, with the reason given to `summarize.py --no-event-log-reason`: its console log
+  shows 7 x HTTP 503 "bielik-11b-v3.1 is temporarily unavailable", all recovered on attempt 2, with no timestamps.
 - **Tokenizer library.** RULER pins transformers 4.44.2; LFM3-1.7B's tokenizer (`TokenizersBackend`) needs
   transformers 5.x, so data generation, prompt counting and serving use transformers 5.22.2 for every model
   (`requirements.lock.txt`). The token counts come from the same tokenizer files.
@@ -129,10 +144,11 @@ Holm family (m = 3). The bootstraps are independent per model (Amendment 1).
 
 ## Errors
 
-A request that fails after the retries (`predict.py`: transport errors and HTTP 408/429/5xx; 8 retries on vLLM, 30
-on the API) is recorded as an error and left out of the score; it is never a zero. Other HTTP errors (e.g. 400) are
-recorded at once. Errors per task and length are in `other_metrics.errors`; rerunning `run.sh` sends only those
-samples again. A published result has no errors.
+A request that fails after the retries (`predict.py`: transport errors, including a reset connection or a body cut
+short, and HTTP 408/429/5xx; 8 retries on vLLM, 30 on the API) is recorded as an error and left out of the score;
+it is never a zero. Other HTTP errors (e.g. 400) are recorded at once. Errors per task and length are in
+`other_metrics.errors`; every failed attempt, pause and recovery is in `<length>/api-events.jsonl`, counted in
+`provenance.api_events`; rerunning `run.sh` sends only the failed samples again. A published result has no errors.
 
 ## Reproduce
 
