@@ -111,3 +111,23 @@ Written before any Slayer output (a 1.08 data-generation step was stopped before
   (`research/tools/przebieg_centralny.sh`). The converted `model.safetensors` must have the sha256 the full run
   recorded (`b9e31fc953af44638fd64ca163dd8d5658cfe02928445fa9a412f11a618bb24e`, `research/tools/ewaluacja/ewaluacja.py`).
   Everything else about the Slayer row is unchanged (4096 only, raw prompt, greedy).
+
+## Amendment 3 (2026-11-22, 05:35 UTC)
+
+Written before any LFM3-1.7B RULER result was summarized: the LFM3-1.7B run was generating on the rented GPU and
+none of its outputs had been scored or read.
+
+- **Sampling settings the protocol did not name.** The settings above name temperature 0.6, top_p 0.95 and the
+  seed, and the requests send only these (plus the output limit). vLLM 0.34.0, started with its default
+  `--generation-config auto`, fills every sampling field a request does not set from the model's
+  `generation_config.json` (priority: request, then the model's generation config, then vLLM's defaults). For
+  `LiquidAI/LFM3-1.7B` @ `1da06bec6a819da10b54c67e5c90972b46d81871` that adds **`repetition_penalty` 1.1 and `top_k`
+  50** to every LFM3-1.7B request; its `temperature` 0.1 there is overridden by the request's 0.6. This was not
+  stated here when the protocol was written. It was found by the independent verification of the LiveCodeBench v6
+  LFM3-1.7B result (same serving setup), after the LFM3-1.7B run of this benchmark had started.
+- The requests are not changed: the run in progress and any later LFM3-1.7B run use the same settings, and every
+  result records the sampling in effect in `settings.sampling`. Bielik through the Fabryka API: only what is sent is
+  known, the API's own defaults are recorded as unknown. Slayer decodes greedily and is not affected.
+- The effect of `repetition_penalty` 1.1 and `top_k` 50 on the RULER score is not estimated. An ablation (the same
+  requests with `repetition_penalty` 1.0 and `top_k` 0 sent explicitly) is a separate decision; until it is made,
+  the control and the hypotheses are read with these settings as part of the LFM3-1.7B setup.

@@ -17,8 +17,12 @@ The measurement plan, fixed before the first output, is [PROTOCOL.md](PROTOCOL.m
   (retrieval: the 8 `niah_*`; tracing: `vt`; aggregation: `cwe`, `fwe`; QA: `qa_1`, `qa_2`) in `other_metrics`.
 - Settings: RULER's input and answer prefix as one user message through the model's chat template with its
   defaults, temperature 0.6, top_p 0.95, seed 20261122 per request, output up to the context window minus the
-  input; the text after the last `</think>` is scored. LFM3-1.7B on vLLM 0.34.0, bf16; Bielik 11B v3.1 through the
-  Fabryka AI API. Slayer: RULER's raw prompt, greedy, RULER's per-task answer budget (30 to 128 tokens), 4096 only.
+  input; the text after the last `</think>` is scored. LFM3-1.7B on vLLM 0.34.0, bf16, which also applies `top_k` 50
+  and `repetition_penalty` 1.1 from the model's `generation_config.json` (PROTOCOL.md, Amendment 3); Bielik 11B v3.1
+  through the Fabryka AI API. Slayer: RULER's raw prompt, greedy, RULER's per-task answer budget (30 to 128 tokens),
+  4096 only. Every result has the sampling in effect in `settings.sampling` (sent fields, what the server filled in;
+  for the API its defaults are unknown) and in `provenance` the commit of this repo with a dirty flag, the sha256 of
+  the runner files and the GPU and platform of each generating `run.sh` call and of the summary.
 - Extra services: the Fabryka AI API (`https://fabryka.ai/v1/chat/completions`) for Bielik
 
 ## Results
@@ -80,9 +84,19 @@ Holm family (m = 3). The bootstraps are independent per model (Amendment 1).
   is `null` at that length; the length mean is over the remaining tasks and flagged `partial: true` with the skipped
   tasks. A partial length is not comparable: the headline, the control and R1 need all 13 tasks at 131072 and are
   `null` / `not run` there, and R2 and R3 use only lengths complete for the compared models.
-- **Sampling defaults from LFM3-1.7B's `generation_config.json`.** vLLM applies the parameters the request does
-  not set from the model's generation config: `top_k` 50 and `repetition_penalty` 1.1, as in the
-  [ifeval](../ifeval/README.md) LFM3 run.
+- **Sampling settings the protocol did not name, from LFM3-1.7B's `generation_config.json`** (PROTOCOL.md,
+  Amendment 3). vLLM 0.34.0 fills what the request does not set from the model's generation config: `top_k` 50 and
+  `repetition_penalty` 1.1, as in the [ifeval](../ifeval/README.md) LFM3 run. The protocol names only temperature,
+  top_p and the seed; this was found by the LiveCodeBench verification after the LFM3 run had started and before
+  any LFM3-1.7B RULER result was summarized. The values are recorded in `settings.sampling`; their effect on the
+  score is not estimated (an ablation is a separate decision).
+- **Provenance and input checks added while the first runs were going.** `run.sh` now writes
+  `out/<model-id>/generation.jsonl` (commit and dirty flag, runner sha256, GPU and platform, effective sampling) before
+  generating and `inputs.sha256.json` after scoring; `summarize.py` stops when an input differs from it, and
+  `compare.py` when a result file differs from `results/results.sha256.json`. The LFM3-1.7B run (started from
+  d45c3509) and the Slayer run (920787d4) predate this: their results have `provenance.generation: null` with the
+  reason, the sampling read from the pinned `generation_config.json` at summary time, and the input sha256 taken at
+  their first summary, not when the files were written; each gap is a line in the result's `warnings`.
 - **Tokenizer library.** RULER pins transformers 4.44.2; LFM3-1.7B's tokenizer (`TokenizersBackend`) needs
   transformers 5.x, so data generation, prompt counting and serving use transformers 5.22.2 for every model
   (`requirements.lock.txt`). The token counts come from the same tokenizer files.
@@ -130,8 +144,9 @@ bash run.sh bielik-11b-v3.1
 
 `CONCURRENCY` sets the parallel requests (default 32 on vLLM, 2 on the API), `PORT` vLLM's port. Everything
 generated stays in `out/<model-id>/<length>/`: `data/` (RULER samples), `raw/` (every attempt, with reasoning),
-`pred/` (RULER's prediction files and `summary.csv`), `skip.json` for a length that is not measured. The run resumes
-where it stopped. The `date` in a result is the day the run first started.
+`pred/` (RULER's prediction files and `summary.csv`), `skip.json` for a length that is not measured; and in
+`out/<model-id>/`: `run.json`, `generation.jsonl` (one line per generating `run.sh` call) and `inputs.sha256.json`.
+The run resumes where it stopped. The `date` in a result is the day the run first started.
 
 Prompt tokens per model (50 samples x 13 tasks, about the length each): 2.7M at 4096, 5.3M at 8192, 10.6M at
 16384, 21.3M at 32768, 42.6M at 65536, 85.2M at 131072; about 168M for LFM3-1.7B, about 19M for Bielik over
