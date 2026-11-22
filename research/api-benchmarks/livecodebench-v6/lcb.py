@@ -23,12 +23,14 @@ Provenance (provenance.py): each `generate` appends to `<out-dir>/run.json` our 
 the machine (GPU, CPU, platform) and the sampling settings in effect (sent in the request, and on vLLM the defaults
 it fills from the model's `generation_config.json`); `score` writes the same for the scoring machine. Each step
 records the sha256 of the file it wrote in `<out-dir>/manifest.json`, and `score` stops unless generations.jsonl
-still has the sha256 `generate` recorded.
+still has the sha256 `generate` recorded. Every failed request attempt and each recovery is a line in
+`<out-dir>/api-events.jsonl` (EventLog), with the session's counts in run.json.
 """
 
 import argparse
 import datetime
 import functools
+import http.client
 import json
 import os
 import ssl
@@ -36,6 +38,7 @@ import sys
 import threading
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
@@ -163,14 +166,53 @@ class Gate:
                 return
             time.sleep(delay)
 
-    def failed(self) -> None:
+    def failed(self) -> float:
+        """Pauses all requests for the current pause and doubles it; returns the pause applied, in seconds."""
         with self.lock:
-            self.resume_at = max(self.resume_at, time.monotonic() + self.pause)
+            pause = self.pause
+            self.resume_at = max(self.resume_at, time.monotonic() + pause)
             self.pause = min(2 * self.pause, self.pause_max)
+            return pause
 
     def succeeded(self) -> None:
         with self.lock:
             self.pause = self.pause_min
+
+
+def event_counts(events: list[dict[str, Any]]) -> dict[str, Any]:
+    """Totals of api-events.jsonl lines: by action, by HTTP status (`none` for a broken connection), problems hit."""
+    def tally(key: str) -> dict[str, int]:
+        out: dict[str, int] = {}
+        for e in events:
+            k = "none" if e.get(key) is None else str(e[key])
+            out[k] = out.get(k, 0) + 1
+        return dict(sorted(out.items()))
+
+    return {"events": len(events), "by_action": tally("action"), "by_status": tally("status"),
+            "problems": len({e.get("problem") for e in events if e.get("problem") is not None})}
+
+
+class EventLog:
+    """Every failed request attempt, and each success after a failure, one json line in `path`: UTC time, problem,
+    endpoint, attempt, HTTP status (null for a broken connection), the short error text, what happened
+    (`retry` after `pause_s`, `gave_up`, `rejected`, `stop`, `recovered`). Kept as evidence for the API's operators."""
+
+    def __init__(self, path: Path | None = None) -> None:
+        self.path, self.lock, self.events = path, threading.Lock(), []
+        if path is not None:
+            path.touch()
+
+    def write(self, **event: Any) -> None:
+        event = {"time": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="milliseconds"), **event}
+        with self.lock:
+            self.events.append(event)
+            if self.path is not None:
+                with self.path.open("a", encoding="utf-8") as f:
+                    f.write(json.dumps(event, ensure_ascii=False) + "\n")
+
+    def counts(self) -> dict[str, Any]:
+        with self.lock:
+            return event_counts(self.events)
 
 
 @dataclass
@@ -189,6 +231,7 @@ class Server:
     margin: int = 0
     model_repo: str | None = None  # vLLM: REPO@REVISION it serves, whose generation_config.json sets its defaults
     sampling_extra: dict[str, Any] = field(default_factory=dict)  # vLLM: fields added to the request (--card-sampling)
+    events: EventLog = field(default_factory=EventLog)
     gate: Gate = field(default_factory=Gate)
 
 
@@ -207,29 +250,44 @@ def post(url: str, body: dict[str, Any], timeout: float, headers: dict[str, str]
         return json.loads(response.read().decode("utf-8"))
 
 
-def post_with_retries(server: Server, url: str, body: dict[str, Any]) -> dict[str, Any]:
-    """Up to `server.retries` attempts for server errors, 429 and broken connections, each failure pausing all
-    requests; 401/403 stop the run (SetupError), any other 4xx raises Rejected at once."""
+def post_with_retries(server: Server, url: str, body: dict[str, Any], problem: str | None = None) -> dict[str, Any]:
+    """Up to `server.retries` attempts for server errors, 429 and broken connections (a reset or a body cut short),
+    each failure pausing all requests; 401/403 stop the run (SetupError), any other 4xx raises Rejected at once.
+    Every failure goes to `server.events`."""
+    endpoint = urllib.parse.urlsplit(url).path
+
+    def log(attempt: int, status: int | None, error: str, action: str, pause: float | None = None) -> None:
+        server.events.write(problem=problem, endpoint=endpoint, attempt=attempt, status=status,
+                            error=error[:300], action=action, pause_s=pause)
+
     for attempt in range(1, server.retries + 1):
         server.gate.wait()
         try:
             response = post(url, body, server.timeout, server.headers)
         except urllib.error.HTTPError as e:
+            text = e.read().decode("utf-8", "replace")
             if e.code in (401, 403):  # a wrong or missing key fails every request the same way
+                log(attempt, e.code, text, "stop")
                 raise SetupError(f"HTTP {e.code} from {url}: check the API key") from e
             if e.code != 429 and e.code < 500:
-                raise Rejected(f"HTTP {e.code}: {e.read().decode('utf-8', 'replace')[:500]}") from e
-            server.gate.failed()
+                log(attempt, e.code, text, "rejected")
+                raise Rejected(f"HTTP {e.code}: {text[:500]}") from e
+            pause = server.gate.failed()
+            log(attempt, e.code, text, "gave_up" if attempt == server.retries else "retry", pause)
             if attempt == server.retries:
                 raise
-        except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
+        except (urllib.error.URLError, http.client.IncompleteRead, TimeoutError, ConnectionError) as e:
             if isinstance(getattr(e, "reason", None), ssl.SSLCertVerificationError):
+                log(attempt, None, repr(e), "stop")
                 raise SetupError(f"TLS certificate check failed for {url}: {e}") from e
-            server.gate.failed()
+            pause = server.gate.failed()
+            log(attempt, None, repr(e), "gave_up" if attempt == server.retries else "retry", pause)
             if attempt == server.retries:
                 raise
         else:
             server.gate.succeeded()
+            if attempt > 1:
+                log(attempt, None, "", "recovered")
             return response
     raise AssertionError("unreachable")
 
@@ -315,13 +373,14 @@ def server_info(base_url: str) -> dict[str, Any]:
     return info
 
 
-def answer(server: Server, messages: list[dict[str, str]]) -> dict[str, Any]:
+def answer(server: Server, messages: list[dict[str, str]], problem: str | None = None) -> dict[str, Any]:
     """One sample for one prompt; output limited only by the context (max_tokens = context - prompt tokens, minus
     the margin for a hosted API)."""
     extra = {"chat_template_kwargs": server.template_kwargs} if server.template_kwargs else {}
     if server.tokenize_url:
         tokens = post_with_retries(server, server.tokenize_url,
-                                   {"model": server.model, "messages": messages, "add_generation_prompt": True, **extra})
+                                   {"model": server.model, "messages": messages, "add_generation_prompt": True, **extra},
+                                   problem)
         served = int(tokens["max_model_len"])
         if server.context and served < server.context:
             raise SetupError(f"the server's max_model_len is {served}, below the protocol's context {server.context}")
@@ -336,7 +395,7 @@ def answer(server: Server, messages: list[dict[str, str]]) -> dict[str, Any]:
         return {**record, "status": "unsupported",
                 "error": f"prompt has {prompt_tokens} tokens (margin {server.margin}), the context is {context}"}
     body = request_body(server, messages, max_tokens)
-    response = post_with_retries(server, server.chat_url, body)
+    response = post_with_retries(server, server.chat_url, body, problem)
     choice = response["choices"][0]
     message = choice["message"]
     if message.get("reasoning_content") or message.get("reasoning"):
@@ -375,12 +434,14 @@ def server_from(args: argparse.Namespace) -> Server:
 
 
 def update_run(out: Path, key: str, value: dict[str, Any]) -> None:
-    """`<out>/run.json`: `generation` is a list (one entry per `generate`, as a run may resume elsewhere), `scoring`
-    the last `score`."""
+    """`<out>/run.json`: `generation` is a list (one entry per `generate`, as a run may resume elsewhere; key
+    `generation_end` adds `value` to the last entry), `scoring` the last `score`."""
     path = out / "run.json"
     run = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {"generation": []}
     if key == "generation":
         run["generation"].append(value)
+    elif key == "generation_end":
+        run["generation"][-1].update(value)
     else:
         run[key] = value
     path.write_text(json.dumps(run, indent=2) + "\n", encoding="utf-8")
@@ -390,9 +451,12 @@ def generate(args: argparse.Namespace) -> None:
     out = Path(args.out_dir).resolve()
     out.mkdir(parents=True, exist_ok=True)
     gen_path = out / "generations.jsonl"
-    if gen_path.is_file():  # resuming: the answers kept must be the ones the earlier run wrote
-        provenance.verify(out, ["generations.jsonl"], "lcb.py generate")
+    events_path = out / "api-events.jsonl"
+    if gen_path.is_file():  # resuming: the answers (and the event log) kept must be the ones the earlier run wrote
+        logged = ["api-events.jsonl"] if "api-events.jsonl" in provenance.read_manifest(out)["files"] else []
+        provenance.verify(out, ["generations.jsonl", *logged], "lcb.py generate")
     server = server_from(args)
+    server.events = EventLog(events_path)
     update_run(out, "generation", {**provenance.step("lcb.py generate"), "model": args.model, "limit": args.limit,
                                    "sampling": sampling(server),
                                    **({"server": server_info(args.base_url)} if args.base_url else {})})
@@ -410,8 +474,9 @@ def generate(args: argparse.Namespace) -> None:
         question_id, messages = item
         started = datetime.datetime.now(datetime.timezone.utc)
         try:
-            record = answer(server, messages)
-        except (Rejected, urllib.error.URLError, TimeoutError, ConnectionError, KeyError, ValueError) as e:
+            record = answer(server, messages, question_id)
+        except (Rejected, urllib.error.URLError, http.client.IncompleteRead, TimeoutError, ConnectionError, KeyError,
+                ValueError) as e:
             record = {"status": "error", "error": repr(e)}
         record = {"question_id": question_id, "model": args.model, "started": started.isoformat(),
                   "seconds": round(time.time() - started.timestamp(), 1), **record}
@@ -425,6 +490,8 @@ def generate(args: argparse.Namespace) -> None:
             for future in [pool.submit(run, item) for item in todo]:
                 future.result()
     finally:  # also after an interrupted run, so that a resumed one can check what it keeps
+        update_run(out, "generation_end", {"api_events": server.events.counts()})
+        provenance.record(out, ["api-events.jsonl"], "lcb.py generate")
         if gen_path.is_file():
             provenance.record(out, ["generations.jsonl"], "lcb.py generate")
 

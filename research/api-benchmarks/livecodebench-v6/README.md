@@ -101,14 +101,19 @@ Amendment 1).
 - **An answer without `</think>` is scored whole.** An answer cut at the context limit inside its thinking has no
   `</think>`, so the last code block of the thinking is extracted. Such answers have `finished: false`, so they never
   count at a budget, and their number is `unfinished` in the result file.
-- **Errors are not wrong answers.** A failed request (server error, 429, broken connection, timeout) pauses all
-  requests, 10 s doubling up to 5 min while failures continue (as `ifeval/lm_eval_fabryka.py`), and is tried again:
-  up to 30 attempts on the API, 3 on our vLLM. A request that still fails, or that the server rejects (another 4xx),
-  is `status: error`; a prompt longer than the context is `status: unsupported` and never sent. Both are left out
-  of n and counted. A rerun of run.sh tries the errors again. A rejected key (401, 403), a failed TLS certificate
-  check or an answer with reasoning in a separate field stops the whole run instead, since every request would fail
-  the same way. LiveCodeBench's own grades are kept as they are, including its runner errors (`error_code` -5, which
-  it grades as a fail and which include its global timeout); their number is `evaluator_runner_errors`.
+- **Errors are not wrong answers.** A failed request (server error, 429, broken connection, a reset or an answer cut
+  short of its length, timeout) pauses all requests, 10 s doubling up to 5 min while failures continue (as
+  `ifeval/lm_eval_fabryka.py`), and is tried again: up to 30 attempts on the API, 3 on our vLLM. A request that
+  still fails, or that the server rejects (another 4xx), is `status: error`; a prompt longer than the context is
+  `status: unsupported` and never sent. Both are left out of n and counted. A rerun of run.sh tries the errors
+  again. A rejected key (401, 403), a failed TLS certificate check or an answer with reasoning in a separate field
+  stops the whole run instead, since every request would fail the same way. LiveCodeBench's own grades are kept as
+  they are, including its runner errors (`error_code` -5, which it grades as a fail and which include its global
+  timeout); their number is `evaluator_runner_errors`.
+- **The Bielik run of 2026-11-22 has no retry log.** It was generated before lcb.py wrote `api-events.jsonl`, so
+  whether any request was retried, paused or got an HTTP error is not known, and "0 retries" cannot be shown for it;
+  only its outcome is known (1055 answers with `status: ok`, 0 errors). Its `run.json` and result file say
+  `api_events: null` with this reason. Runs from now on log every failed attempt.
 - **Slayer 1B 1.09 at update 70 000 is not run** (`slayer1b-1.09-k70000`, PROTOCOL.md, Amendment 2). PROTOCOL.md
   sets LiveCodeBench's base-model prompt (`GenericBase`: one solved example, then the problem), greedy, output up to
   4096 minus the prompt. With the Slayer 1B 1.08 tokenizer these prompts are 1373 tokens on average (median 1484,
@@ -166,6 +171,13 @@ writes in `manifest.json` next to it (`out/<model-id>/` for generations and grad
 files), and lcb.py score, summarize.py and compare.py stop when an input is missing from the manifest or no longer
 matches it.
 
+API events: every failed request attempt (HTTP error, broken connection, an answer cut short), and each success
+after a failure, is one line in `out/<model-id>/api-events.jsonl`: UTC time, problem id, endpoint, attempt, HTTP
+status, the first 300 characters of the error, and what happened (`retry` with the pause in seconds, `gave_up`,
+`rejected`, `stop`, `recovered`). The request sent does not change. Each `generate` session puts its counts into
+`run.json` (`api_events`), the file's sha256 goes into `manifest.json`, and summarize.py puts the counts over the
+whole file into the result's `provenance.api_events` (`null` with `api_events_reason` for a run without the log).
+
 `--limit 5` runs the first 5 problems (by `question_id`) and writes its summary to
 `out/<model-id>/<model-id>-limit5.*`, not to `results/`. The `date` in a result file is the UTC day of the first
 request.
@@ -179,7 +191,9 @@ provenance, and that each step refuses a changed input.
 
 `python3 compare.py` (from this directory) reads `results/<model-id>.jsonl.gz` and tests L1-L3 of PROTOCOL.md
 (Amendment 1) on LFM3-1.7B against Bielik 11B v3.1, paired by problem: the control first (LFM3-1.7B's pass@1 within
-2 SE of its card's 73.46), then a Markdown table with each difference (LFM3-1.7B minus Bielik 11B v3.1, percentage
+2 SE of its card's 73.46; the card-sampling run `lfm3-1.7b-cardsampling` when it exists, as Amendment 4 makes it the
+one compared with the card, with the original `lfm3-1.7b` printed next to it, not tested; L1-L3 use `lfm3-1.7b`),
+then a Markdown table with each difference (LFM3-1.7B minus Bielik 11B v3.1, percentage
 points), its paired SE, z, Holm-adjusted p (m = 3), the verdict and n, and the same paired numbers on the v6-only
 problems as descriptive rows. A problem that errored or did not fit the context for either model is left out of
 both sides and counted. A hypothesis whose model has not been run is `not run`. The full output goes to

@@ -9,8 +9,10 @@ Every difference is LFM3-1.7B minus the other model, in percentage points, over 
 count is reported. SE of a paired difference = sd(d) / sqrt(n); z = mean / SE; p two-sided normal. Verdict from the
 raw z: |z| >= 3 clear, 2-3 likely, < 2 noise; SE = 0 gives no z and the verdict `undecidable`. Holm over the three
 hypotheses with m = 3 always; a hypothesis whose models have not been run is `not run`, and still counts in m.
-The control (Amendment 1) is LFM3-1.7B's own pass@1 against its card value. The v6-only problems and every budget
-pair of L3 are printed as descriptive rows, not tested.
+The control (Amendment 1) is LFM3-1.7B's own pass@1 against its card value, from the card-sampling run
+(`lfm3-1.7b-cardsampling`, Amendment 4) when it exists, with the original `lfm3-1.7b` run shown next to it as
+descriptive; L1-L3 use the original `lfm3-1.7b` run. The v6-only problems and every budget pair of L3 are printed
+as descriptive rows, not tested.
 Every result file read must have the sha256 summarize.py recorded in <results-dir>/manifest.json; otherwise
 nothing is computed.
 """
@@ -31,6 +33,8 @@ BIELIK = "bielik-11b-v3.1"  # the Fabryka API run (PROTOCOL.md, Amendment 1)
 DIFFICULTIES = ("easy", "medium", "hard")
 BUDGETS = (4096, 16384, None)  # PROTOCOL.md, "Metrics"; None = no limit
 CONTROL_CARD = 73.46  # PROTOCOL.md, Amendment 1, "Control": LFM3-1.7B on its own card
+# PROTOCOL.md, Amendment 4: A1 was not shown equivalent, so the card-sampling run is the one compared with the card
+CONTROL_RUN = "lfm3-1.7b-cardsampling"
 
 # Parameters used per generated token: the language model's weights (embeddings and LM head included, a tied matrix
 # once). Bielik: config arithmetic from config.json at the PROTOCOL.md revision (Llama, 50 layers, untied head),
@@ -204,18 +208,31 @@ def holm(ps: list[float | None], m: int) -> list[float | None]:
     return [None if p is None else adjusted[i] for i, p in enumerate(ps)]
 
 
-def control(results: Path) -> dict[str, Any]:
-    """LFM3-1.7B must land within 2 SE of its card value before any hypothesis is read (PROTOCOL.md, Amendment 1)."""
-    path = results / f"{LFM}.json"
+def against_card(results: Path, model: str) -> dict[str, Any] | None:
+    """One LFM3-1.7B run's pass@1 against the card: z = (score - card) / stderr; None when the run is absent."""
+    path = results / f"{model}.json"
     if not path.is_file():
-        return {"status": "not run", "card": CONTROL_CARD}
+        return None
     provenance.verify(results, [path.name], "compare.py")
     r = json.loads(path.read_text(encoding="utf-8"))
     if r["score"] is None or not r["stderr"]:
-        return {"status": "undecidable", "card": CONTROL_CARD, "score": r["score"], "stderr": r["stderr"]}
+        return {"run": model, "status": "undecidable", "card": CONTROL_CARD, "score": r["score"], "stderr": r["stderr"]}
     z = (r["score"] - CONTROL_CARD) / r["stderr"]
-    return {"status": "passed" if abs(z) <= 2 else "failed", "card": CONTROL_CARD, "score": r["score"],
+    return {"run": model, "status": "passed" if abs(z) <= 2 else "failed", "card": CONTROL_CARD, "score": r["score"],
             "stderr": r["stderr"], "z": z}
+
+
+def control(results: Path) -> dict[str, Any]:
+    """LFM3-1.7B must land within 2 SE of its card value before any hypothesis is read (PROTOCOL.md, Amendment 1).
+    The run tested is the card-sampling one when it exists (Amendment 4), else `lfm3-1.7b`; when both exist the
+    original is shown next to it, not tested."""
+    card_run, original = against_card(results, CONTROL_RUN), against_card(results, LFM)
+    tested = card_run or original
+    if tested is None:
+        return {"status": "not run", "run": None, "card": CONTROL_CARD}
+    if card_run is not None and original is not None:
+        return {**card_run, "descriptive": {k: v for k, v in original.items() if k != "status"}}
+    return tested
 
 
 def analyse(results: Path) -> dict[str, Any]:
@@ -260,12 +277,16 @@ def report(a: dict) -> str:
     out = []
     c = a["control"]
     if c["status"] in ("passed", "failed"):
-        out.append(f"control: LFM3-1.7B {c['score']:.2f} ± {c['stderr']:.2f} vs card {c['card']}, "
+        out.append(f"control: LFM3-1.7B ({c['run']}) {c['score']:.2f} ± {c['stderr']:.2f} vs card {c['card']}, "
                    f"z = {c['z']:+.2f}: {c['status']}")
         if c["status"] == "failed":
             out.append("control failed: the setup is the suspect; no hypothesis is read until the gap is explained")
     else:
         out.append(f"control: {c['status']}")
+    d = c.get("descriptive")
+    if d and d.get("z") is not None:
+        out.append(f"descriptive, not tested: LFM3-1.7B ({d['run']}, the run L1-L3 use) {d['score']:.2f} ± "
+                   f"{d['stderr']:.2f} vs card {d['card']}, z = {d['z']:+.2f}")
     out += ["", "| hypothesis | measure | value ± SE (pp) | z | Holm p | verdict | after Holm | outcome | n |",
             "|---|---|---|---|---|---|---|---|---|"]
     for r in a["hypotheses"]:

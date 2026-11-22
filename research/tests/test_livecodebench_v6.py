@@ -304,9 +304,12 @@ def test_compare_not_run_when_a_model_file_is_absent():
 
 # lcb.py request layer against a local fake OpenAI-compatible server (127.0.0.1, no outside network)
 class FakeAPI:
-    """Answers chat completions; the first `fail` requests get 503, and a request with max_tokens 1 gets 400."""
+    """Answers chat completions; the first `fail` requests get `fail_code` (503 by default), the next `truncate` a body
+    cut short of its Content-Length (IncompleteRead), and a request with max_tokens 1 gets 400. The answer is
+    `content` with `finish_reason`."""
 
-    def __init__(self, fail=0, reasoning=False):
+    def __init__(self, fail=0, reasoning=False, fail_code=503, truncate=0, content="```python\nprint(1)\n```",
+                 finish_reason="stop"):
         import http.server
         import threading
         self.fail, self.requests, self.headers, self.tokenize_requests = fail, [], [], []
@@ -325,23 +328,24 @@ class FakeAPI:
                 if body["max_tokens"] == 2:
                     return self.reply(401, {"error": {"code": "invalid_api_key"}})
                 if len(api.requests) <= api.fail:
-                    return self.reply(503, {"error": "busy"})
-                message = {"role": "assistant", "content": "```python\nprint(1)\n```"}
+                    return self.reply(fail_code, {"error": "busy"})
+                message = {"role": "assistant", "content": content}
                 if reasoning:
                     message["reasoning_content"] = "hmm"
-                self.reply(200, {"choices": [{"message": message, "finish_reason": "stop"}],
-                                 "usage": {"prompt_tokens": 1071, "completion_tokens": 9}})
+                self.reply(200, {"choices": [{"message": message, "finish_reason": finish_reason}],
+                                 "usage": {"prompt_tokens": 1071, "completion_tokens": 9}},
+                           cut=len(api.requests) <= api.fail + truncate)
 
             def do_GET(self):  # vLLM's /version and /v1/models, recorded for a reused server
                 if self.path == "/version":
                     return self.reply(200, {"version": "0.34.0"})
                 self.reply(200, {"object": "list", "data": [{"id": "lfm3-1.7b", "root": "LiquidAI/LFM3-1.7B"}]})
 
-            def reply(self, code, payload):
+            def reply(self, code, payload, cut=False):
                 data = json.dumps(payload).encode()
                 self.send_response(code)
                 self.send_header("Content-Type", "application/json")
-                self.send_header("Content-Length", str(len(data)))
+                self.send_header("Content-Length", str(len(data) + (100 if cut else 0)))
                 self.end_headers()
                 self.wfile.write(data)
 
@@ -444,6 +448,8 @@ LFM3_GENERATION_CONFIG = {"_from_model_config": True, "bos_token_id": 124894, "d
                           "temperature": 0.1, "top_k": 50, "transformers_version": "5.12.1", "use_cache": True}
 VLLM_SAMPLING = {"n": 1, "temperature": 0.6, "top_p": 0.95, "seed": 20261122, "frequency_penalty": 0,
                  "presence_penalty": 0}
+# a draft inside the thinking, the answer after </think>: only the answer may reach the evaluator
+THINKING_OUTPUT = "Plan.\n```python\nprint(0)\n```\n</think>\n```python\nprint(1)\n```"
 
 
 @contextlib.contextmanager
@@ -528,7 +534,7 @@ def vllm_args(api, out):
 
 
 def test_vllm_pipeline_body_alignment_provenance_and_input_checks():
-    api = FakeAPI()
+    api = FakeAPI(content=THINKING_OUTPUT)
     calls = []
     with tempfile.TemporaryDirectory() as tmp, \
             patched(lcb, lcb_modules=lambda: fake_lcb(calls), load_rows=lambda limit: [dict(r) for r in ROWS],
@@ -562,9 +568,15 @@ def test_vllm_pipeline_body_alignment_provenance_and_input_checks():
         assert g["server"]["version"] == {"version": "0.34.0"} and g["server"]["models"]["data"][0]["id"] == "lfm3-1.7b"
         assert provenance.read_manifest(out)["files"]["generations.jsonl"]["sha256"] == \
             sha256(out / "generations.jsonl")
+        # no failed request: an empty event log, recorded, and zero counts in run.json
+        assert (out / "api-events.jsonl").read_text(encoding="utf-8") == ""
+        assert provenance.read_manifest(out)["files"]["api-events.jsonl"]["sha256"] == sha256(out / "api-events.jsonl")
+        assert g["api_events"] == {"events": 0, "by_action": {}, "by_status": {}, "problems": 0}
 
         lcb.score(argparse.Namespace(out_dir=str(out), limit=None))
         assert [(c["timeout"], c["num_process_evaluate"]) for c in calls] == [(6, 12)]
+        # the evaluator gets the code from the text after the last </think>, not the draft inside the thinking
+        assert calls[0]["generations"] == [["```python\nprint(1)\n```"]] * 3
         graded = [json.loads(line) for line in (out / "graded.jsonl").read_text(encoding="utf-8").splitlines()]
         # each grade on its own problem: q1 passes, q2 and q3 fail, the evaluator's metadata names the same problem
         assert [(r["question_id"], r["pass"], r["eval_metadata"]["question_id"], r["in_v6_only"]) for r in graded] == \
@@ -582,6 +594,9 @@ def test_vllm_pipeline_body_alignment_provenance_and_input_checks():
         assert p["scoring"]["step"] == "lcb.py score" and p["summary"]["step"] == "summarize.py"
         assert p["inputs_sha256"] == {"graded.jsonl": sha256(out / "graded.jsonl")}
         assert result["raw_outputs"]["sha256"] == sha256(out / "generations.jsonl")
+        assert p["api_events"] == {"file": "out/lfm3-1.7b/api-events.jsonl (not committed)",
+                                   "sha256": sha256(out / "api-events.jsonl"), "events": 0, "by_action": {},
+                                   "by_status": {}, "problems": 0}
         files = provenance.read_manifest(results)["files"]
         assert {n: f["sha256"] for n, f in files.items()} == \
             {n: sha256(results / n) for n in ("lfm3-1.7b.json", "lfm3-1.7b.jsonl.gz")}
@@ -803,6 +818,155 @@ def test_ablation_analysis_files_and_checks():
         with gzip.open(res / f"{ablation.ABLATION}.jsonl.gz", "wt", encoding="utf-8") as f:
             f.write(json.dumps({"task_id": "t000", "status": "ok", "pass": True, "score": 1}) + "\n")
         assert "sha256" in exit_message(ablation.analyse, res)
+
+
+# API robustness and the event log (out/<model>/api-events.jsonl), finished flag, compare pins
+def logged_server(url, path, retries=30, **kwargs):
+    server = api_server(url, retries=retries, **kwargs)
+    server.events = lcb.EventLog(path)
+    return server
+
+
+def read_events(path):
+    return [json.loads(line) for line in Path(path).read_text(encoding="utf-8").splitlines()]
+
+
+def test_api_429_is_retried_and_logged():
+    api = FakeAPI(fail=2, fail_code=429)
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "api-events.jsonl"
+        try:
+            record = lcb.answer(logged_server(api.url, path), MESSAGES, "q7")
+        finally:
+            api.close()
+        events = read_events(path)
+    assert record["status"] == "ok" and len(api.requests) == 3  # 2 x 429, then the answer
+    assert [(e["problem"], e["endpoint"], e["attempt"], e["status"], e["action"], e["pause_s"]) for e in events] == [
+        ("q7", "/v1/chat/completions", 1, 429, "retry", 0.01), ("q7", "/v1/chat/completions", 2, 429, "retry", 0.02),
+        ("q7", "/v1/chat/completions", 3, None, "recovered", None)]
+    assert events[0]["error"] == '{"error": "busy"}' and events[0]["time"].endswith("+00:00")
+
+
+def test_api_incomplete_read_is_retried_like_a_5xx():
+    api = FakeAPI(truncate=2)  # the first two answers end before their Content-Length
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "api-events.jsonl"
+        try:
+            record = lcb.answer(logged_server(api.url, path), MESSAGES, "q1")
+        finally:
+            api.close()
+        events = read_events(path)
+    assert record["status"] == "ok" and len(api.requests) == 3
+    assert [e["action"] for e in events] == ["retry", "retry", "recovered"]
+    assert all("IncompleteRead" in e["error"] and e["status"] is None for e in events[:2])
+
+
+def test_api_failures_logged_with_counts():
+    api = FakeAPI(fail=100)
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "api-events.jsonl"
+        try:
+            server = logged_server(api.url, path, retries=3)
+            try:
+                lcb.answer(server, MESSAGES, "a")
+                raise AssertionError("expected an HTTPError after 3 attempts")
+            except lcb.urllib.error.HTTPError:
+                pass
+            try:
+                lcb.answer(logged_server(api.url, path, count=32768 - 64 - 1), MESSAGES, "b")  # 400
+                raise AssertionError("expected Rejected")
+            except lcb.Rejected:
+                pass
+            try:
+                lcb.answer(logged_server(api.url, path, count=32768 - 64 - 2), MESSAGES, "c")  # 401
+                raise AssertionError("expected SetupError")
+            except lcb.SetupError:
+                pass
+        finally:
+            api.close()
+        events = read_events(path)
+    assert [(e["problem"], e["status"], e["action"]) for e in events] == [
+        ("a", 503, "retry"), ("a", 503, "retry"), ("a", 503, "gave_up"), ("b", 400, "rejected"), ("c", 401, "stop")]
+    assert [e["pause_s"] for e in events[:3]] == [0.01, 0.02, 0.04]
+    assert "not supported" in events[3]["error"]
+    assert lcb.event_counts(events) == {"events": 5, "by_action": {"gave_up": 1, "rejected": 1, "retry": 2, "stop": 1},
+                                        "by_status": {"400": 1, "401": 1, "503": 3}, "problems": 3}
+    assert server.events.counts()["by_action"] == {"gave_up": 1, "retry": 2}  # this server's own events
+
+
+def test_finished_follows_finish_reason():
+    for reason, finished in (("stop", True), ("length", False)):
+        api = FakeAPI(finish_reason=reason)
+        try:
+            record = lcb.answer(api_server(api.url), MESSAGES)
+        finally:
+            api.close()
+        assert (record["finish_reason"], record["finished"]) == (reason, finished)
+
+
+def test_summary_carries_api_events_or_null_with_reason():
+    events = [{"problem": "a", "status": 503, "action": "retry"},
+              {"problem": "a", "status": None, "action": "recovered"}]
+    with tempfile.TemporaryDirectory() as tmp:
+        out, res = Path(tmp) / "out", Path(tmp) / "results"
+        write_out(out, RECORDS)
+        summarize.main(str(out), str(res / "m"), None)
+        p = json.loads((res / "m.json").read_text(encoding="utf-8"))["provenance"]
+        assert p["api_events"] is None and p["api_events_reason"] == summarize.NO_EVENT_LOG
+        run = json.loads((out / "run.json").read_text(encoding="utf-8"))
+        run["generation"][0].update(api_events=None, api_events_reason="no retry log in this run")
+        (out / "run.json").write_text(json.dumps(run), encoding="utf-8")
+        summarize.main(str(out), str(res / "m"), None)
+        p = json.loads((res / "m.json").read_text(encoding="utf-8"))["provenance"]
+        assert p["api_events"] is None and p["api_events_reason"] == "no retry log in this run"
+        (out / "api-events.jsonl").write_text("".join(json.dumps(e) + "\n" for e in events), encoding="utf-8")
+        provenance.record(out, ["api-events.jsonl"], "test")
+        summarize.main(str(out), str(res / "m"), None)
+        p = json.loads((res / "m.json").read_text(encoding="utf-8"))["provenance"]
+        assert p["api_events"] == {"file": "out/m/api-events.jsonl (not committed)",
+                                   "sha256": sha256(out / "api-events.jsonl"), "events": 2,
+                                   "by_action": {"recovered": 1, "retry": 1}, "by_status": {"503": 1, "none": 1},
+                                   "problems": 1}
+        with (out / "api-events.jsonl").open("a", encoding="utf-8") as f:
+            f.write("{}\n")
+        assert "sha256" in exit_message(summarize.main, str(out), str(res / "m"), None)
+
+
+def test_compare_parameter_counts_pinned():
+    # exact weight counts (compare.py, PARAMETERS): sums of the safetensors tensor shapes at the pinned revisions;
+    # Bielik's equals its config arithmetic and the safetensors index `total_parameters`, not the card's "11B"
+    assert compare.PARAMETERS == {"lfm3-1.7b": 1_728_801_536, "bielik-11b-v3.1": 11_168_796_672}
+    assert compare.cost("bielik-11b-v3.1", row("y", True, "easy", tokens=2000), None) == 44_675_186_688_000
+
+
+def test_l1_refuted_only_at_z_3():
+    def outcome(z):
+        return compare.l1({"overall": {"value": 1.0, "se": 1.0, "z": z, "p": None, "verdict": "", "n": 10}})["outcome"]
+    assert [outcome(z) for z in (2.0, 2.99, 3.0, 36.3, -5.0, None)] == \
+        ["confirmed", "confirmed", "refuted", "refuted", "confirmed", "undecidable"]
+
+
+def test_control_uses_card_sampling_run_with_original_descriptive():
+    with tempfile.TemporaryDirectory() as tmp:
+        res = Path(tmp)
+        write_run(res, compare.LFM, CLEAR_LFM, score=72.23, stderr=1.38)
+        assert compare.control(res)["run"] == "lfm3-1.7b"  # before the ablation: the original run
+        write_run(res, compare.CONTROL_RUN, CLEAR_LFM, score=72.89, stderr=1.37)
+        a = compare.analyse(res)
+        text = compare.report(a)
+        # a card-sampling run far from the card fails the control even when the original passes
+        write_run(res, compare.CONTROL_RUN, CLEAR_LFM, score=60.0, stderr=1.37)
+        failed = compare.control(res)
+    c = a["control"]
+    assert (c["run"], c["status"]) == ("lfm3-1.7b-cardsampling", "passed")
+    assert math.isclose(c["z"], (72.89 - 73.46) / 1.37)
+    assert c["descriptive"]["run"] == "lfm3-1.7b" and math.isclose(c["descriptive"]["z"], (72.23 - 73.46) / 1.38)
+    assert "status" not in c["descriptive"]
+    assert "control: LFM3-1.7B (lfm3-1.7b-cardsampling) 72.89 ± 1.37 vs card 73.46, z = -0.42: passed" in text
+    assert "descriptive, not tested: LFM3-1.7B (lfm3-1.7b, the run L1-L3 use) 72.23 ± 1.38 vs card 73.46, z = -0.89" \
+        in text
+    assert (failed["run"], failed["status"]) == ("lfm3-1.7b-cardsampling", "failed")
+    assert compare.CONTROL_RUN == "lfm3-1.7b-cardsampling"
 
 
 if __name__ == "__main__":

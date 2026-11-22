@@ -10,8 +10,10 @@ answer (PROTOCOL.md, "Settings").
 
 graded.jsonl must still have the sha256 `lcb.py score` recorded in `<out-dir>/manifest.json`, and
 `<out-dir>/run.json` must hold the generation and scoring records (code commit, runner checksums, machine,
-sampling in effect); both go into the result file. The sha256 of the two files written here goes into
-`manifest.json` next to them, which compare.py checks.
+sampling in effect); both go into the result file. The retries, pauses and HTTP errors of the requests come from
+`<out-dir>/api-events.jsonl` (sha256 checked; counts in `provenance.api_events`), or are `null` with the reason for
+a run that has no such log. The sha256 of the two files written here goes into `manifest.json` next to them, which
+compare.py checks.
 """
 
 import gzip
@@ -23,11 +25,14 @@ from pathlib import Path
 from typing import Any
 
 import provenance
-from lcb import DATA_REPO, DATA_REVISION, EVAL_PROCESSES, EVAL_TIMEOUT, LCB_COMMIT, PROMPT_STYLE, SEED, TEMPERATURE, TOP_P
+from lcb import (DATA_REPO, DATA_REVISION, EVAL_PROCESSES, EVAL_TIMEOUT, LCB_COMMIT, PROMPT_STYLE, SEED, TEMPERATURE,
+                 TOP_P, event_counts)
 
 BUDGETS = (4096, 16384)  # PROTOCOL.md, "Metrics"; "no limit" is the main score
 DIFFICULTIES = ("easy", "medium", "hard")
 RUNNER_ERROR = -5  # LiveCodeBench's evaluator: an exception in its test runner, which it grades as a fail
+NO_EVENT_LOG = ("no api-events.jsonl was recorded for this run (generated before lcb.py logged retries), so its "
+                "retries, pauses and HTTP errors are unknown")
 
 
 def pass_rate(passed: list[bool]) -> dict[str, Any]:
@@ -98,6 +103,17 @@ def run_record(out_dir: Path) -> dict[str, Any]:
     return run
 
 
+def api_events(out_dir: Path, run: dict[str, Any], model: str) -> dict[str, Any]:
+    """Counts of the run's api-events.jsonl (checked against the manifest), or null with the reason."""
+    if "api-events.jsonl" not in provenance.read_manifest(out_dir)["files"]:
+        reasons = sorted({g["api_events_reason"] for g in run["generation"] if g.get("api_events_reason")})
+        return {"api_events": None, "api_events_reason": "; ".join(reasons) or NO_EVENT_LOG}
+    sha = provenance.verify(out_dir, ["api-events.jsonl"], "summarize.py")["api-events.jsonl"]
+    lines = (out_dir / "api-events.jsonl").read_text(encoding="utf-8").splitlines()
+    counts = event_counts([json.loads(line) for line in lines if line.strip()])
+    return {"api_events": {"file": f"out/{model}/api-events.jsonl (not committed)", "sha256": sha, **counts}}
+
+
 def main(out_dir: str, target: str, limit: int | None) -> None:
     path = Path(out_dir) / "graded.jsonl"
     hashes = provenance.verify(Path(out_dir), ["graded.jsonl"], "summarize.py")
@@ -148,6 +164,7 @@ def main(out_dir: str, target: str, limit: int | None) -> None:
             "scoring": run["scoring"],
             "summary": provenance.step("summarize.py"),
             "inputs_sha256": hashes,
+            **api_events(Path(out_dir), run, model),
         },
         "raw_outputs": {"file": f"out/{model}/generations.jsonl (with thinking; not committed)", "sha256": raw_sha,
                         "jsonl_gz_output": "the code LiveCodeBench extracted from the text after the last </think>"},
