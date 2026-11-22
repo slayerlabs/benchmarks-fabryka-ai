@@ -5,9 +5,10 @@ No network, RULER checkout, torch or lm-eval: the RULER metric is replaced by a 
 after the last `</think>` is what gets scored; an error is left out of the score, never counted as 0; the
 13-task mean, the category means and the nulls for lengths that did not run or have a task without any score.
 compare.py (hypotheses R1-R3 and the control) on fake per-sample results: a clear and a noise case, Holm with m = 3,
-errors left out, null lengths listed, `not run` for a missing model and a control FAIL above the table, and the
-control's 2-SE bound itself. Generation path: the request body (protocol sampling, seed, output limit), run.sh's
-protocol constants, the last attempt of a sample wins. Provenance: effective sampling (vLLM fills from
+errors left out, null lengths listed, `not run` for a missing model, the control's 2-SE bound as measured and its
+status `not comparable (Amendment 4)` with the hypotheses read; strict scoring (Amendment 4: no `</think>` -> 0) next
+to the unchanged pre-registered scores. Generation path: the request body (protocol sampling, seed, output limit),
+run.sh's protocol constants, the last attempt of a sample wins. Provenance: effective sampling (vLLM fills from
 generation_config.json, PROTOCOL.md Amendment 3), commit/runner/hardware in the result, and the sha256 manifests that
 summarize.py and compare.py check (an out dir from before them is summarized with warnings, never a crash).
 Run: python3 tests/test_ruler_128k.py (or pytest).
@@ -126,7 +127,7 @@ def test_result_headline_is_131072_or_null_with_reason():
 
 def test_jsonl_rows_keep_errors_and_cap_answers():
     rows = [{"task": "qa_1", "length": 4096, "index": 0, "score": 100.0, "answer": "x" * (S.ANSWER_CHARS + 5),
-             "output_tokens": 3, "finished": True},
+             "output_tokens": 3, "finished": True, "closed_think": True},
             {"task": "qa_1", "length": 4096, "index": 1, "score": None, "error": "timeout"}]
     first, second = S.jsonl_rows(rows)
     assert len(first["answer"]) == S.ANSWER_CHARS and first["answer_truncated"] is True
@@ -139,10 +140,11 @@ def by_category(retrieval, tracing, aggregation, qa):
     return {t: pct[c] for c, ts in S.CATEGORIES.items() for t in ts}
 
 
-def write_model(results_dir, model, means, skipped=None, errors=None, task_skips=None):
+def write_model(results_dir, model, means, skipped=None, errors=None, task_skips=None, unclosed=None):
     """Fake results/<model>.json and .jsonl.gz: means is length -> percent or length -> task -> percent; each task
     gets 50 samples of 100 or 0 with that mean; errors is (length, task) -> error rows on top; task_skips is
-    length -> task -> reason for tasks RULER could not generate (no rows)."""
+    length -> task -> reason for tasks RULER could not generate (no rows). With `unclosed` ((length, task) -> k: the
+    first k passing samples have no `</think>`) the result also has summarize.py's strict variant (Amendment 4)."""
     task_skips = task_skips or {}
     rows = []
     for length, pct in means.items():
@@ -150,13 +152,16 @@ def write_model(results_dir, model, means, skipped=None, errors=None, task_skips
         for t in S.TASKS:
             if t in task_skips.get(length, {}):
                 continue
-            k = round(pct[t] / 2)
-            rows += [{"task": t, "length": length, "index": i, "score": 100.0 if i < k else 0.0, "finished": True}
-                     for i in range(50)]
+            k, open_ = round(pct[t] / 2), (unclosed or {}).get((length, t), 0)
+            rows += [{"task": t, "length": length, "index": i, "score": 100.0 if i < k else 0.0, "finished": True,
+                      "closed_think": i >= open_} for i in range(50)]
     for (length, task), n in (errors or {}).items():
         rows += [{"task": task, "length": length, "index": 100 + j, "score": None, "error": "timeout"}
                  for j in range(n)]
     metrics = S.aggregate(rows, skipped or {}, S.LENGTHS, resamples=2, task_skips=task_skips)
+    if unclosed is not None:
+        run = {"settings": {"scored": S.CHAT_SCORED}, "lengths": S.LENGTHS, "tasks": S.TASKS}
+        metrics["strict"] = S.strict_metrics(run, rows, skipped or {}, task_skips, resamples=2)
     (results_dir / f"{model}.json").write_text(json.dumps({"model": model, "other_metrics": metrics}))
     with gzip.open(results_dir / f"{model}.jsonl.gz", "wt", encoding="utf-8") as f:
         for r in rows:
@@ -192,7 +197,8 @@ def test_compare_clear_case():
         clear_case(Path(d))
         result, text = run_compare(Path(d))
         assert json.loads((Path(d) / "hypotheses.json").read_text()) == json.loads(json.dumps(result))
-    assert result["control"]["status"] == "PASS" and result["control"]["mean"] == 882 / 13
+    assert result["control"]["measured"] == "PASS" and result["control"]["mean"] == 882 / 13
+    assert result["control"]["status"] == C.CONTROL_STATUS
     assert result["control"]["card"] == 65.56
     h = result["hypotheses"]
     assert h["R1"]["value"] == 882 / 13 and h["R1"]["n"] == 650
@@ -212,7 +218,7 @@ def test_compare_clear_case():
     assert result["models"][C.BIELIK]["per_length"]["131072"] is None
     assert result["models"][C.SLAYER]["per_length"]["4096"] == 20
     assert f"excluded: {C.BIELIK} @ 32768: {FIT}" in text
-    assert sum(line.startswith("deviation: ") for line in text.splitlines()) == len(C.DEVIATIONS) == 3
+    assert sum(line.startswith("deviation: ") for line in text.splitlines()) == len(C.DEVIATIONS) == 4
 
 
 def test_compare_noise_case_holm_and_control_fail():
@@ -220,8 +226,8 @@ def test_compare_noise_case_holm_and_control_fail():
         write_model(Path(d), C.LFM3, {**dict.fromkeys(S.LENGTHS[:-1], 86), 131072: 84})
         write_model(Path(d), C.BIELIK, dict.fromkeys(S.LENGTHS[:4], 86), skipped={65536: WINDOW, 131072: WINDOW})
         result, text = run_compare(Path(d))
-    assert result["control"]["status"] == "FAIL"
-    assert text.index("hypotheses not read until explained") < text.index("| hypothesis |")
+    assert result["control"]["measured"] == "FAIL" and result["control"]["status"] == C.CONTROL_STATUS
+    assert text.index(": FAIL (as measured)") < text.index("| hypothesis |")
     h = result["hypotheses"]
     assert (h["R1"]["verdict"], h["R1"]["outcome"]) == ("noise", "open") and h["R1"]["value"] == 84
     # LFM3 and Bielik are both flat over 4096-32768: equal slopes, z = 0, under 2 SE, so R2 is refuted.
@@ -261,7 +267,7 @@ def test_compare_missing_model_is_not_run_and_holm_keeps_m_3():
             (Path(d) / f"{C.LFM3}{suffix}").unlink()
         no_lfm3, _ = run_compare(Path(d))
     h = result["hypotheses"]
-    assert result["control"]["status"] == "PASS"  # the control needs LFM3 only
+    assert result["control"]["measured"] == "PASS"  # the control needs LFM3 only
     assert (h["R2"]["verdict"], h["R2"]["outcome"], h["R2"]["missing"]) == ("not run", "not run", [C.BIELIK])
     assert f"| R2 | missing: {C.BIELIK} |" in text
     assert result["models"][C.BIELIK] is None and result["holm_m"] == 3
@@ -325,7 +331,7 @@ def test_control_passes_within_2_se_only():
                       (-2.9, "FAIL")):
         c = C.control({C.LFM3: control_run(C.CONTROL_CARD + z * 1.5, 1.5)})
         assert abs(c["z"] - z) < 1e-9 and abs(c["se"] - 1.5) < 1e-9, (z, c)
-        assert c["status"] == status, (z, c)
+        assert c["measured"] == status and c["status"] == C.CONTROL_STATUS, (z, c)
     assert C.CONTROL_CARD == 65.56
 
 
@@ -514,6 +520,76 @@ def test_compare_checks_result_sha256():
         summary.write_text(summary.read_text() + "\n")
         stops(lambda: run_compare(Path(d)), "sha256 differs")
     assert len(unrecorded["warnings"]) == 3 and f"warning: {C.LFM3}: result files not in" in text
+
+
+def strict_out_dir(root, settings):
+    """One task at 131072, five samples: closed + right (stop), UNclosed + needle in the reasoning (stop), closed +
+    wrong, an error, closed + right but cut at the limit (length). Pre-registered 100, 100, 0, -, 100 = 75;
+    strict (no `</think>` -> 0): 100, 0, 0, -, 100 = 50. The flag is `</think>`, not finish_reason."""
+    out = root / "out" / "lfm3-1.7b"
+    (out / "131072" / "data" / "niah_single_1").mkdir(parents=True)
+    (out / "run.json").write_text(json.dumps({
+        "model": "lfm3-1.7b", "date": "2026-11-22", "ruler_commit": "db43f92", "seed": 20261122, "num_samples": 5,
+        "limit": None, "tasks": ["niah_single_1"], "lengths": [131072], "data_sources": {}, "settings": settings}))
+    (out / "131072" / "data" / "niah_single_1" / "validation.jsonl").write_text("".join(
+        json.dumps({"index": i, "input": "...", "answer_prefix": "", "outputs": ["1234567"], "length": 131000}) + "\n"
+        for i in range(5)))
+    (out / "131072" / "raw").mkdir()
+    (out / "131072" / "raw" / "niah_single_1.jsonl").write_text("".join(json.dumps(r) + "\n" for r in [
+        {"index": 0, "output": "<think>x</think>It is 1234567.", "finish_reason": "stop", "output_tokens": 6},
+        {"index": 1, "output": "<think>maybe 1234567 ... 1234567", "finish_reason": "stop", "output_tokens": 9},
+        {"index": 2, "output": "<think>x</think>I do not know.", "finish_reason": "stop", "output_tokens": 6},
+        {"index": 3, "error": "HTTP 500: overloaded"},
+        {"index": 4, "output": "<think>x</think>1234567 1234567", "finish_reason": "length", "output_tokens": 9}]))
+    return out
+
+
+def test_strict_scoring_zeroes_outputs_without_think_end_and_keeps_pre_registered():
+    with tempfile.TemporaryDirectory() as d:
+        result = summarize_fake(strict_out_dir(Path(d), LFM3_SETTINGS), Path(d))
+        with gzip.open(Path(d) / "results" / "lfm3-1.7b.jsonl.gz", "rt") as f:
+            lines = [json.loads(x) for x in f]
+    with tempfile.TemporaryDirectory() as d:
+        slayer = summarize_fake(strict_out_dir(Path(d), {"serving": "research/common/slayer_lm.py, bfloat16",
+                                                         "max_tokens": "RULER per-task answer budget"}), Path(d))
+    m = result["other_metrics"]
+    assert (result["score"], result["n"]) == (75.0, 4) and m["per_task"]["131072"]["niah_single_1"] == 75.0
+    assert m["errors"]["131072"] == {"niah_single_1": 1}
+    strict = m["strict"]
+    assert strict["applies"] is True and strict["per_task"]["131072"]["niah_single_1"] == 50.0
+    assert strict["per_length"]["131072"]["score"] == 50.0 and strict["per_length"]["131072"]["n"] == 4
+    assert strict["no_think_end"] == {"131072": {"niah_single_1": 1}}
+    assert (result["strict"]["score"], result["strict"]["n"], result["strict"]["rule"]) == (50.0, 4, S.STRICT_RULE)
+    assert [(r["index"], r["score"], r.get("closed_think")) for r in lines] == [
+        (0, 100.0, True), (1, 100.0, False), (2, 0.0, True), (3, None, None), (4, 100.0, True)]
+    # Slayer: raw prompt, no reasoning block, so the strict variant does not apply (null with the reason)
+    assert slayer["score"] == 75.0 and slayer["other_metrics"]["strict"]["applies"] is False
+    assert slayer["strict"]["score"] is None and "raw prompt" in slayer["strict"]["reason"]
+
+
+def test_compare_control_not_comparable_and_strict_next_to_pre_registered():
+    with tempfile.TemporaryDirectory() as d:
+        # LFM3 at 131072: 5 passing fwe samples never closed their reasoning -> strict 10 points lower on fwe
+        write_model(Path(d), C.LFM3, {**LFM3_STEEP, 131072: {**LFM3_STEEP[131072], "fwe": 90}},
+                    unclosed={(131072, "fwe"): 5})
+        write_model(Path(d), C.BIELIK, {4096: 70, 8192: 80, 16384: 90},
+                    skipped={32768: FIT, 65536: WINDOW, 131072: WINDOW})
+        result, text = run_compare(Path(d))
+    pre, strict = (882 + 50) / 13, (882 + 50 - 10) / 13
+    c = result["control"]
+    assert c["status"] == C.CONTROL_STATUS and c["measured"] == "FAIL" and c["mean"] == pre and c["z"] > 2
+    assert abs(c["strict"]["mean"] - strict) < 1e-9
+    assert f"z = {c['z']:.2f}: FAIL (as measured)" in text and f"control status: {C.CONTROL_STATUS}" in text
+    h = result["hypotheses"]
+    assert h["R1"]["verdict"] != "not run" and h["R3"]["verdict"] != "not run"  # read despite the FAIL
+    assert h["R1"]["value"] == pre and abs(h["R1"]["strict"]["value"] - strict) < 1e-9
+    assert h["R1"]["strict"]["verdict"] == "clear" and h["R2"]["strict"]["verdict"] == "not run"  # Bielik: no strict
+    assert abs(h["R3"]["strict"]["value"] - h["R3"]["value"]) > 1  # aggregation drops more under strict
+    m = result["models"][C.LFM3]
+    assert m["per_length"]["131072"] == round(pre, 2) and m["strict_per_length"]["131072"] == round(strict, 2)
+    assert m["strict_per_length"]["4096"] == m["per_length"]["4096"]  # every output there closed its reasoning
+    assert result["models"][C.BIELIK]["strict_per_length"] is None
+    assert f"| {C.LFM3} | strict | " in text and f"| {C.LFM3} | pre-registered | " in text
 
 
 if __name__ == "__main__":
