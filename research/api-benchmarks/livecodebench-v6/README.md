@@ -102,4 +102,15 @@ token counts, the `finished` flag and the extracted code, not the thinking.
 `out/<model-id>/<model-id>-limit5.*`, not to `results/`. The `date` in a result file is the UTC day of the first
 request.
 
-`python3 ../../tests/test_livecodebench_v6.py` checks the summary and the scored text offline.
+`python3 ../../tests/test_livecodebench_v6.py` checks the summary, the scored text and compare.py offline.
+
+## Hypotheses
+
+`python3 compare.py` (from this directory) reads `results/<model-id>.jsonl.gz` and tests L1-L3 of PROTOCOL.md on
+LFM3-1.7B against Qwen3.5-9B, paired by problem: the Qwen3.5-9B control first, then a Markdown table with each
+difference (LFM3-1.7B minus Qwen3.5-9B, percentage points), its paired SE, z, Holm-adjusted p (m = 3), the verdict
+and n, and the same paired numbers for Qwen3.5-4B and Bielik 11B v3.1 and on the v6-only problems as descriptive
+rows. A problem that errored or did not fit the context for either model is left out of both sides and counted. A
+hypothesis whose model has not been run is `not run`. The full output goes to `results/hypotheses.json`; the
+`deviation:` lines it prints say where the protocol's wording needed a reading (L2's single p, what counts as
+parameters in the cost per answer). The parameter counts are pinned in compare.py with their source.
