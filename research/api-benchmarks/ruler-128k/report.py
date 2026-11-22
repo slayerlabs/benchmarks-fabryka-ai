@@ -267,10 +267,12 @@ def notes_block(diag):
         r3 = dup["r3_comparisons_at_4096"]
         out.append(
             f"**Samples with two raw records (LFM3-1.7B, {length}).** {sum(x['samples_with_more_than_one_record'].values())} "
-            f"samples have {', '.join(map(str, x['records_per_sample']))} records (a rerun appended: "
+            f"samples have {', '.join(map(str, x['records_per_sample']))} records ("
             + ", ".join(f"{t} {n}" for t, n in x["samples_with_more_than_one_record"].items())
             + f"); every replaced record ended `{', '.join(x['finish_reason_of_replaced'])}`, "
-            f"{x['identical_outputs']} are identical to the last. The last record is scored (`ruler.latest_records`). With "
+            f"{x['identical_outputs']} are identical to the last. Why they got a second record is not known: predict.py "
+            f"sends again only samples whose last record has no output, and each of these had one (Amendment 8). The "
+            f"last record is scored (`ruler.latest_records`). With "
             f"the first record instead the mean at {length} is {f2(x['mean']['first'])} (scored: "
             f"{f2(x['mean']['last (scored)'])}), strict {f2(x['strict_mean']['first'])} "
             f"({f2(x['strict_mean']['last (scored)'])}); R3's tracing - retrieval "

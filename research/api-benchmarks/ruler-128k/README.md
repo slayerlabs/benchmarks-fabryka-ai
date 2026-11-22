@@ -234,9 +234,10 @@ Results files and their sha256 (`results/results.sha256.json`):
   `refuted = not all(value > 0)`, the same point logic as R1's: by it R3 is refuted. With 1 tracing task and
   2 aggregation tasks there is no clustered verdict (a rule added after the results, Amendment 7), so its strength
   across tasks is undetermined; the sample-level reading is shown next to it as descriptive.
-- **Some LFM3-1.7B samples have two raw records.** A rerun appended second records for samples at 4096; the last
-  record of a sample is scored (`ruler.latest_records`). Counts and the means with the first record instead are in
-  Hypotheses.
+- **Some LFM3-1.7B samples have two raw records.** 173 samples at 4096 have a second record. Why is not known:
+  `predict.py` sends again only samples whose last record has no output, and each of these had one (Amendment 8).
+  The last record of a sample is scored (`ruler.latest_records`). Counts and the means with the first record
+  instead are in Hypotheses.
 - **API failures logged per attempt, not for the first Bielik run.** `predict.py` writes every failed attempt,
   pause and recovery to `out/<model-id>/<length>/api-events.jsonl` (UTC time, task, sample, endpoint, attempt, HTTP
   status, the first 300 characters of the error, action, pause in seconds), as `../livecodebench-v6` does; the
