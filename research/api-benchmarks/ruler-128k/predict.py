@@ -171,17 +171,27 @@ def request_body(args, sample, counted, window, extra):
             "temperature": args.temperature, "top_p": args.top_p, "seed": args.seed, **extra}
 
 
+def count_prompt(tokenizer, sample):
+    """Tokens of one templated prompt as the API sees it: the model's chat template with its defaults (provider
+    system prompt, BOS where the template puts it) and the generation prompt."""
+    ids = tokenizer.apply_chat_template(messages(sample), add_generation_prompt=True, tokenize=True)
+    ids = ids["input_ids"] if hasattr(ids, "keys") else ids
+    return len(ids)
+
+
 def local_counter(tokenizer_dir, context):
     """Prompt counter with the model's own chat template (template defaults), for an API without /tokenize."""
     from transformers import AutoTokenizer
 
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_dir)
+    return lambda sample: (count_prompt(tokenizer, sample), context)
 
-    def count(sample):
-        ids = tokenizer.apply_chat_template(messages(sample), add_generation_prompt=True, tokenize=True)
-        ids = ids["input_ids"] if hasattr(ids, "keys") else ids
-        return len(ids), context
-    return count
+
+def too_long_prompts(jobs, counts, margin, budgets):
+    """(task, index, counted prompt, window) of every job whose counted prompt + margin + RULER's answer budget
+    exceeds the window: one is enough to skip the whole length (PROTOCOL.md: `score: null`, not cut down)."""
+    return [(task, s["index"], n, ctx) for (task, s), (n, ctx) in zip(jobs, counts)
+            if n + margin + budgets[task] > ctx]
 
 
 def main():
@@ -248,8 +258,7 @@ def main():
             counts = list(pool.map(count, jobs))
 
     # Samples with an output already passed this check on an earlier run.
-    too_long = [(task, s["index"], n, ctx) for (task, s), (n, ctx) in zip(jobs, counts)
-                if n + args.margin + budgets[task] > ctx]
+    too_long = too_long_prompts(jobs, counts, args.margin, budgets)
     if too_long:
         task, index, n, ctx = max(too_long, key=lambda t: t[2])
         reason = (f"{len(too_long)} of {len(jobs)} prompts do not fit: with the chat template the longest "

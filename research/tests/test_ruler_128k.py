@@ -68,6 +68,24 @@ def test_needle_only_in_thinking_scores_zero_and_error_is_not_scored():
         "task": "vt", "length": 4096, "index": 0, "score": None, "error": "not run"}
 
 
+def test_metric_scores_rulers_postprocessed_answer():
+    """summarize.py scores RULER's postprocess_pred(answer) (evaluate.py: control characters to newlines, strip),
+    not the raw answer: the metric sees what the postprocess returns."""
+    seen = []
+
+    def postprocess(pred, task_config):
+        return "post:" + pred.strip()
+
+    def metric(preds, refs):
+        seen.append(preds[0])
+        return 100.0 if preds[0] == "post:" + refs[0][0] else 0.0
+
+    samples = [{"index": 0, "outputs": ["7"], "length": 10}]
+    records = {0: {"index": 0, "output": "<think>x</think>  7 ", "finish_reason": "stop", "output_tokens": 3}}
+    rows = S.sample_rows("vt", 4096, samples, records, postprocess, metric)
+    assert seen == ["post:7"] and rows[0]["score"] == 100.0 and rows[0]["answer"] == "  7 "
+
+
 def rows_for(length, scores_by_task, errors_by_task=None):
     errors_by_task = errors_by_task or {}
     rows = []
@@ -800,19 +818,29 @@ def test_strict_does_not_apply_when_the_template_closes_reasoning():
 # API robustness and the event log (<out>/<model>/<length>/api-events.jsonl), as ../livecodebench-v6 tests it
 class FakeAPI:
     """A local chat endpoint: the first `reset` requests drop the connection, the next `truncate` answer with a
-    body shorter than its Content-Length, the next `fail` answer `fail_code`; then a normal answer."""
+    body shorter than its Content-Length, the next `fail` answer `fail_code`; then a normal answer. With `window`,
+    /tokenize answers like vLLM's, counting one token per character of the user message, and the requests' bodies
+    are kept in `bodies`."""
 
-    def __init__(self, fail=0, fail_code=503, truncate=0, reset=0, body='{"error": "busy"}'):
+    def __init__(self, fail=0, fail_code=503, truncate=0, reset=0, body='{"error": "busy"}', window=None):
         import http.server
         import threading
-        api, self.requests = self, []
+        api, self.requests, self.bodies = self, [], []
 
         class Handler(http.server.BaseHTTPRequestHandler):
             def log_message(self, *args):
                 pass
 
             def do_POST(self):
-                self.rfile.read(int(self.headers["Content-Length"]))
+                sent = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+                api.bodies.append((self.path, sent))
+                if window is not None and self.path == "/tokenize":
+                    data = json.dumps({"count": len(sent["messages"][0]["content"]), "max_model_len": window})
+                    self.send_response(200)
+                    self.send_header("Content-Length", str(len(data)))
+                    self.end_headers()
+                    self.wfile.write(data.encode("utf-8"))
+                    return
                 api.requests.append(self.path)
                 n = len(api.requests)
                 if n <= reset:
@@ -842,6 +870,141 @@ class FakeAPI:
     def close(self):
         self.server.shutdown()
         self.server.server_close()
+
+
+def fake_ruler(root):
+    """The two files of a RULER checkout that ruler.answer_budgets reads: niah 128 tokens, vt 30."""
+    (root / "scripts" / "data" / "synthetic").mkdir(parents=True)
+    (root / "scripts" / "synthetic.yaml").write_text("niah_single_1:\n  task: niah\nvt:\n  task: variable_tracking\n")
+    (root / "scripts" / "data" / "synthetic" / "constants.py").write_text(
+        'TASKS = {"niah": {"tokens_to_generate": 128}, "variable_tracking": {"tokens_to_generate": 30}}\n')
+    return root
+
+
+def run_predict(root, inputs, window):
+    """predict.main on one length against FakeAPI's /tokenize (one token per character): inputs is task -> list of
+    input lengths in characters. Returns (api, length dir)."""
+    length_dir = root / "out" / "m" / "4096"
+    for task, sizes in inputs.items():
+        (length_dir / "data" / task).mkdir(parents=True)
+        (length_dir / "data" / task / "validation.jsonl").write_text("".join(
+            json.dumps({"index": i, "input": "x" * size, "answer_prefix": "", "outputs": ["1234567"]}) + "\n"
+            for i, size in enumerate(sizes)))
+    api = FakeAPI(window=window)
+    argv = sys.argv
+    sys.argv = ["predict.py", "--base-url", api.url, "--model", "m", "--length-dir", str(length_dir), "--tasks",
+                *inputs, "--seed", "1", "--temperature", "0.6", "--top-p", "0.95", "--margin", "256",
+                "--ruler-dir", str(fake_ruler(root / "ruler")), "--concurrency", "2", "--max-retries", "0"]
+    try:
+        with contextlib.redirect_stdout(io.StringIO()):
+            P.main()
+    finally:
+        sys.argv = argv
+        api.close()
+    return api, length_dir
+
+
+def test_fit_check_counts_margin_and_answer_budget():
+    """A prompt fits when counted prompt + margin (256) + RULER's answer budget <= window. Each prompt below fits
+    only without one of the two terms."""
+    budgets = {"niah_single_1": 128, "vt": 30}
+    jobs = [("niah_single_1", {"index": 0}), ("niah_single_1", {"index": 1}), ("niah_single_1", {"index": 2}),
+            ("vt", {"index": 0})]
+    counts = [(32768 - 256 - 128, 32768),  # exactly at the window: fits
+              (32768 - 256 - 127, 32768),  # one over with both terms
+              (32768 - 200, 32768),  # under the window with the margin alone (56 left), over with the budget
+              (32768 - 100, 32768)]  # under the window with the budget alone (70 left), over with the margin
+    assert P.too_long_prompts(jobs, counts, 256, budgets) == [
+        ("niah_single_1", 1, 32385, 32768), ("niah_single_1", 2, 32568, 32768), ("vt", 0, 32668, 32768)]
+
+
+def test_one_prompt_over_the_window_skips_the_whole_length():
+    """PROTOCOL.md: a length that does not fit is `score: null` with the reason, not cut down to the samples that
+    fit; nothing is sent. When every prompt fits, max_tokens = window - counted prompt - margin."""
+    with tempfile.TemporaryDirectory() as d:
+        api, length_dir = run_predict(Path(d), {"niah_single_1": [100, 200], "vt": [800]}, window=1000)
+        skip = json.loads((length_dir / "skip.json").read_text())
+        sent = [b for path, b in api.bodies if path == "/v1/chat/completions"]
+        raw = sorted(p.name for p in (length_dir / "raw").glob("*.jsonl") if p.read_text())
+    assert skip["reason"] == ("1 of 3 prompts do not fit: with the chat template the longest (vt #0) has 800 tokens, "
+                              "which with a 256-token margin and RULER's answer budget of 30 exceeds the 1000-token "
+                              "context window")
+    assert sent == [] and raw == []
+    with tempfile.TemporaryDirectory() as d:
+        api, length_dir = run_predict(Path(d), {"niah_single_1": [100, 200], "vt": [700]}, window=1000)
+        sent = sorted((b["messages"][0]["content"].count("x"), b["max_tokens"]) for path, b in api.bodies
+                      if path == "/v1/chat/completions")
+        records = {t: latest_records(length_dir / "raw" / f"{t}.jsonl") for t in ("niah_single_1", "vt")}
+        assert not (length_dir / "skip.json").exists()
+    assert sent == [(100, 1000 - 100 - 256), (200, 1000 - 200 - 256), (700, 1000 - 700 - 256)]
+    assert records["vt"][0]["counted_prompt_tokens"] == 700 and len(records["niah_single_1"]) == 2
+
+
+class TemplateTokenizer:
+    """Whitespace tokens and a chat template shaped like Bielik's: BOS, a provider system prompt, the user message,
+    and a generation prompt that closes the reasoning block. transformers 5 returns a BatchEncoding when it
+    tokenizes; this returns the same keys."""
+    bos_token = "<s>"
+    SYSTEM = "<|im_start|>system Jesteś asystentem . Dzisiaj jest 22 listopada . <|im_end|>"
+
+    def apply_chat_template(self, messages, add_generation_prompt=False, tokenize=True):
+        text = f"{self.bos_token} {self.SYSTEM} " + " ".join(
+            f"<|im_start|>{m['role']} {m['content']} <|im_end|>" for m in messages)
+        text += " <|im_start|>assistant <think></think>" if add_generation_prompt else ""
+        return {"input_ids": text.split()} if tokenize else text
+
+    def __call__(self, text, add_special_tokens=True):
+        return {"input_ids": [self.bos_token] * add_special_tokens + text.split()}
+
+
+def test_api_prompt_count_is_the_templated_prompt_with_generation_prompt():
+    """predict.py counts Bielik's prompts locally (the API has no /tokenize): the template with its defaults, BOS
+    and provider system prompt included, plus the generation prompt; not the bare user text."""
+    tok = TemplateTokenizer()
+    sample = {"input": "Find the number . " * 10, "answer_prefix": " Answer:"}
+    rendered = tok.apply_chat_template(P.messages(sample), add_generation_prompt=True, tokenize=False)
+    assert rendered.startswith(tok.bos_token) and rendered.endswith("<think></think>")
+    # 10 provider-prompt tokens, <|im_start|>user, <|im_end|>, then <|im_start|>assistant and <think></think>
+    count = P.count_prompt(tok, sample)
+    assert count == len(rendered.split()) == len(tok(sample["input"] + " Answer:")["input_ids"]) + 14
+
+
+def bielik_tokenizer_dir():
+    """Bielik 11B v3.1's tokenizer files at the pinned revision: $RULER_BIELIK_TOKENIZER, else the local HF cache."""
+    import os
+    if os.environ.get("RULER_BIELIK_TOKENIZER"):
+        return os.environ["RULER_BIELIK_TOKENIZER"]
+    try:
+        from huggingface_hub import snapshot_download
+        return snapshot_download("speakleash/Bielik-11B-v3.1-Instruct",
+                                 revision="d6e755d356ad418d0f0e30b8c428db267415ddb9",
+                                 allow_patterns=V.TOKENIZER_FILES, local_files_only=True)
+    except Exception:  # noqa: BLE001  not cached here (gated repo, no network in tests)
+        return None
+
+
+def test_bielik_prompt_count_with_its_own_bos_and_template():
+    """The same with Bielik's own tokenizer, when transformers and the tokenizer are here (the bench .venv and the
+    HF cache of a machine that ran Bielik): BOS and template come from the tokenizer, the count is the rendered
+    prompt's token count and holds the provider system prompt."""
+    try:
+        from transformers import AutoTokenizer
+    except ImportError:
+        print("test_bielik_prompt_count_with_its_own_bos_and_template: no transformers here, not run")
+        return
+    path = bielik_tokenizer_dir()
+    if path is None:
+        print("test_bielik_prompt_count_with_its_own_bos_and_template: no Bielik tokenizer here, not run")
+        return
+    tok = AutoTokenizer.from_pretrained(path)
+    sample = {"input": "Find the special magic number hidden in the text. " * 20, "answer_prefix": " Answer:"}
+    count, window = P.local_counter(path, 32768)(sample)
+    rendered = tok.apply_chat_template(P.messages(sample), add_generation_prompt=True, tokenize=False)
+    ids = tok(rendered, add_special_tokens=False)["input_ids"]
+    assert rendered.startswith(tok.bos_token) and ids[0] == tok.bos_token_id
+    assert "<|im_start|>system" in rendered and rendered.rstrip().endswith("<think></think>")
+    assert (count, window) == (len(ids), 32768)
+    assert count - len(tok(P.messages(sample)[0]["content"])["input_ids"]) > 500  # the provider prompt is counted
 
 
 def logged_client(url, path, retries=30):
