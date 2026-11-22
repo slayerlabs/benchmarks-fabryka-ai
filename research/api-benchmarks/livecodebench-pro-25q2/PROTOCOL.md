@@ -57,7 +57,7 @@ its floor, so its row is `null` with that reason, not a run.
 - Bielik: temperature 0.6, top_p 0.95, seed 20261122 (whatever the API honours is recorded). `max_tokens` = 32768
   minus the prompt counted locally with Bielik's tokenizer and chat template (with the provider prompt) minus a
   margin of 64, as in livecodebench-v6 at `7d931ba2`. At most 2 requests at once, retries behind a shared pause,
-  every retry and error logged to `api-events.jsonl`.
+  every retry and error logged to `api-events.jsonl`. <!-- ocena-bez-se: pre-registered rule, not a result -->
 - Code: `extract_longest_cpp_code` on the text after the last `</think>`. With thinking on, an answer without
   `</think>` or stopped by the length limit is unfinished: it counts as a fail and the count is reported.
 - Judge: LightCPVerifier at the pinned commit, its image built once and its digest recorded (the Dockerfile pulls
@@ -80,7 +80,7 @@ its floor, so its row is `null` with that reason, not a run.
 ## Control (before any claim)
 
 **K1.** `lfm3-1.7b` lands within 2 SE of its card value 31.74 (SE from our run). If it does not, the setup is the
-suspect: no hypothesis below is read until the gap is explained in an amendment.
+suspect: no hypothesis below is read until the gap is explained in an amendment. <!-- ocena-bez-se: pre-registered rule, not a result -->
 
 ## Hypotheses
 
