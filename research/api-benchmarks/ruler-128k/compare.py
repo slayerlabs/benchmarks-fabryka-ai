@@ -41,6 +41,9 @@ MIN_CLUSTERS = statystyka.MIN_KLASTROW
 VERDICT = {"pewne": "clear", "prawdopodobne": "likely", "szum": "noise", statystyka.NIEROZSTRZYGALNE: "undetermined",
            None: "undetermined"}
 DEVIATIONS = [
+    "control, R1-R3: a length where RULER's generator could not produce some task (partial length, the task is null) "
+    "is not comparable: the control and R1 at 131072 are `not run` there, and R2 and R3 use only lengths complete "
+    "for the compared models.",
     "R3: the protocol asks for an SE clustered by task, but tracing has 1 task and aggregation 2, under the 3 "
     "clusters a clustered verdict needs; the verdict uses the sample-level bootstrap SE (tasks fixed), and the "
     "clustered SE is reported next to it, undetermined for every category with fewer than 3 tasks.",
@@ -50,16 +53,23 @@ DEVIATIONS = [
 
 
 def load(results_dir, model):
-    """Scored samples per usable length and task, the excluded lengths with reasons and the error rows left out;
-    None when the model has no result files."""
+    """Scored samples per usable length and task, the excluded lengths with reasons, the partial lengths and the
+    error rows left out; None when the model has no result files.
+
+    A partial length (RULER could not generate some task there, summarize.py `partial`) is excluded: the protocol's
+    measures are means over all 13 tasks, so its mean over fewer tasks is kept only as a descriptive number."""
     summary, samples = results_dir / f"{model}.json", results_dir / f"{model}.jsonl.gz"
     if not (summary.is_file() and samples.is_file()):
         return None
     per_length = json.loads(summary.read_text(encoding="utf-8"))["other_metrics"]["per_length"]
-    excluded = {}
+    excluded, partial = {}, {}
     for length in LENGTHS:
         entry = per_length.get(str(length))
-        if entry is None or entry["score"] is None:
+        if entry is not None and entry.get("partial"):
+            skipped = ", ".join(entry["skipped_tasks"])
+            excluded[length] = f"partial: RULER could not generate {skipped}; not comparable (13-task mean undefined)"
+            partial[length] = {"score": entry["score"], "skipped_tasks": sorted(entry["skipped_tasks"])}
+        elif entry is None or entry["score"] is None:
             excluded[length] = entry["reason"] if entry else "length not in the result"
     usable = [length for length in LENGTHS if length not in excluded]
     scores = {length: {t: [] for t in TASKS} for length in usable}
@@ -82,7 +92,7 @@ def load(results_dir, model):
         if abs(mean - per_length[str(length)]["score"]) > 0.01:
             raise SystemExit(f"compare.py: {model} @ {length}: samples average {mean:.4f}, "
                              f"{summary.name} says {per_length[str(length)]['score']}")
-    return {"scores": scores, "excluded": excluded, "errors": errors}
+    return {"scores": scores, "excluded": excluded, "errors": errors, "partial": partial}
 
 
 def length_mean(task_means):
@@ -252,6 +262,7 @@ def analyse(results_dir, resamples):
         "per_length": {str(length): round(length_mean(run["point"][length]), 2) if length in run["point"] else None
                        for length in LENGTHS},
         "excluded_lengths": {str(k): v for k, v in sorted(run["excluded"].items())},
+        "partial_lengths": {str(k): v for k, v in sorted(run["partial"].items())},
         "errors_excluded": {str(k): v for k, v in run["errors"].items() if v}} for m, run in runs.items()}
     return {"control": control(runs), "hypotheses": hyps, "holm_m": M, "models": descriptive,
             "deviations": DEVIATIONS, "bootstrap": {"resamples": resamples, "seed": f"{BOOTSTRAP_SEED}:<model-id>"}}

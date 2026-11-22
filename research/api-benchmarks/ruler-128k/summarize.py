@@ -93,34 +93,44 @@ def bootstrap_se(scores_by_task, resamples=BOOTSTRAP_RESAMPLES, seed=BOOTSTRAP_S
     return statistics.stdev(means)
 
 
-def aggregate(rows, skipped, lengths, tasks=TASKS, resamples=BOOTSTRAP_RESAMPLES):
+def aggregate(rows, skipped, lengths, tasks=TASKS, resamples=BOOTSTRAP_RESAMPLES, task_skips=None):
     """Per length: mean over tasks with bootstrap SE; per task and length; per category; error and unfinished counts.
 
-    A length in `skipped` (length -> reason) is null with its reason. A length that ran but has a task without any
-    scored sample is null too: the 13-task mean would silently become a mean over fewer tasks.
+    A length in `skipped` (length -> reason) is null with its reason. A task in `task_skips` (length -> task ->
+    reason: RULER could not generate it) is null for that length, never 0: the length mean is over the remaining
+    tasks and flagged `partial` with the skipped tasks. A task that was generated but has no scored sample (only
+    errors) makes the length null: that is a failed run, not a property of the data.
     """
+    task_skips = task_skips or {}
     per_length, per_task, per_category, errors, unfinished = {}, {}, {}, {}, {}
     for length in lengths:
         key = str(length)
         if length in skipped:
             per_length[key] = {"score": None, "reason": skipped[length]}
             continue
+        gone = task_skips.get(length, {})
         here = [r for r in rows if r["length"] == length]
-        scores = {t: [r["score"] for r in here if r["task"] == t and r["score"] is not None] for t in tasks}
+        scores = {t: [r["score"] for r in here if r["task"] == t and r["score"] is not None]
+                  for t in tasks if t not in gone}
         errors[key] = {t: n for t in tasks if (n := sum(r["task"] == t and r["score"] is None for r in here))}
         unfinished[key] = sum(r.get("finished") is False for r in here)
-        per_task[key] = {t: round(statistics.fmean(s), 2) if s else None for t, s in scores.items()}
+        per_task[key] = {t: round(statistics.fmean(scores[t]), 2) if scores.get(t) else None for t in tasks}
         missing = [t for t, s in scores.items() if not s]
         if missing:
             per_length[key] = {"score": None, "reason": f"no scored sample in {', '.join(missing)}"}
+            continue
+        if not scores:
+            per_length[key] = {"score": None, "reason": "every task skipped", "partial": True, "skipped_tasks": gone}
             continue
         per_length[key] = {
             "score": round(statistics.fmean(statistics.fmean(s) for s in scores.values()), 2),
             "stderr": round(bootstrap_se(list(scores.values()), resamples), 2),
             "n": sum(len(s) for s in scores.values()),
         }
-        per_category[key] = {c: round(statistics.fmean(statistics.fmean(scores[t]) for t in ts), 2)
-                             for c, ts in CATEGORIES.items() if all(t in scores for t in ts)}
+        if gone:
+            per_length[key].update(partial=True, skipped_tasks=dict(gone))
+        per_category[key] = {c: round(statistics.fmean(statistics.fmean(scores[t]) for t in ts if t in scores), 2)
+                             for c, ts in CATEGORIES.items() if any(t in scores for t in ts)}
     return {"per_length": per_length, "per_task": per_task, "per_category": per_category, "errors": errors,
             "unfinished": unfinished}
 
@@ -144,6 +154,9 @@ def check_against_ruler(rows, ruler_scores, length):
 
 def result_json(run, metrics):
     headline = metrics["per_length"].get(str(HEADLINE_LENGTH), {"score": None, "reason": "length not run"})
+    if headline.get("partial"):  # the headline is the 13-task mean; a partial mean is only in other_metrics
+        headline = {"score": None, "reason": f"partial at {HEADLINE_LENGTH}: RULER could not generate "
+                                             + ", ".join(headline["skipped_tasks"])}
     result = {
         "benchmark": "RULER",
         "model": run["model"],
@@ -186,7 +199,7 @@ def results(out_dir, target, ruler_dir):
         target = out_dir / out_dir.name
         print(f"summarize.py: --limit {run['limit']}, writing to {target}.* (not results/)")
     postprocess, metric_fns = scorer(ruler_dir)
-    rows, skipped = [], {}
+    rows, skipped, task_skips = [], {}, {}
     for length in run["lengths"]:
         length_dir = out_dir / str(length)
         if (length_dir / "skip.json").exists():
@@ -194,12 +207,17 @@ def results(out_dir, target, ruler_dir):
             continue
         here = []
         for task in run["tasks"]:
+            task_skip = length_dir / "data" / task / "skip.json"
+            if task_skip.exists():  # run.sh: RULER's generator could not produce this task at this length
+                task_skips.setdefault(length, {})[task] = json.loads(task_skip.read_text(encoding="utf-8"))["reason"]
+                continue
             samples = read_jsonl(length_dir / "data" / task / "validation.jsonl")
             records = latest_records(length_dir / "raw" / f"{task}.jsonl")
             here += sample_rows(task, length, samples, records, postprocess, metric_fns[task])
-        check_against_ruler(here, ruler_summary(length_dir / "pred"), length)
+        if any((length_dir / "pred").glob("*.jsonl")):  # evaluate.py ran only where some task has an output
+            check_against_ruler(here, ruler_summary(length_dir / "pred"), length)
         rows += here
-    metrics = aggregate(rows, skipped, run["lengths"], run["tasks"])
+    metrics = aggregate(rows, skipped, run["lengths"], run["tasks"], task_skips=task_skips)
     result = result_json(run, metrics)
     target = Path(target)
     target.parent.mkdir(parents=True, exist_ok=True)

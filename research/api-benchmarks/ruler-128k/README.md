@@ -73,6 +73,13 @@ Holm family (m = 3). The bootstraps are independent per model (Amendment 1).
   template. Before generating, `predict.py` counts each prompt with the chat template (vLLM's `/tokenize`, or
   locally for the API); if one of them plus RULER's answer budget exceeds the window, the whole length is `null`
   with the reason, not cut down.
+- **A task RULER cannot generate at a length is skipped there, not scored 0.** RULER's QA generator
+  (`scripts/data/synthetic/qa.py` L196-206 @ db43f92) loops forever when even its smallest set of documents (10)
+  exceeds the length with the model's tokenizer. `run.sh` runs each `prepare.py` call under a wall-clock limit
+  (`PREPARE_TIMEOUT`, default 1200 s) and, when it is hit, writes `data/<task>/skip.json` with the reason. That task
+  is `null` at that length; the length mean is over the remaining tasks and flagged `partial: true` with the skipped
+  tasks. A partial length is not comparable: the headline, the control and R1 need all 13 tasks at 131072 and are
+  `null` / `not run` there, and R2 and R3 use only lengths complete for the compared models.
 - **Sampling defaults from LFM3-1.7B's `generation_config.json`.** vLLM applies the parameters the request does
   not set from the model's generation config: `top_k` 50 and `repetition_penalty` 1.1, as in the
   [ifeval](../ifeval/README.md) LFM3 run.

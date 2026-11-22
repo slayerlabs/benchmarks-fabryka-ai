@@ -48,6 +48,9 @@ def main():
     raw_dir.mkdir(parents=True, exist_ok=True)
 
     for task in args.tasks:
+        if (args.length_dir / "data" / task / "skip.json").exists():  # RULER could not generate it (run.sh)
+            print(f"slayer_predict.py: {task}: skipped, no RULER data")
+            continue
         samples = read_jsonl(args.length_dir / "data" / task / "validation.jsonl")
         if not samples:
             sys.exit(f"slayer_predict.py: no data for {task}")

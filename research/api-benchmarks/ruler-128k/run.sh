@@ -198,6 +198,10 @@ print(s('$REPO', revision='$REVISION', allow_patterns=['*.json', '*.jinja', '*.t
 fi
 
 # --- data: RULER prepare.py per length and task --------------------------------------------------------------
+# A generator that cannot fit a sample loops forever (RULER db43f92 scripts/data/synthetic/qa.py L196-206: when even
+# its smallest document set exceeds the length, `while True` never exits). Each prepare.py call gets a wall-clock
+# limit; a task that hits it is skipped at that length (data/<task>/skip.json, null in the result, never 0).
+PREPARE_TIMEOUT="${PREPARE_TIMEOUT:-1200}"   # seconds
 RUN_LENGTHS=""
 for L in "${LENGTHS[@]}"; do
   if (( L > CONTEXT )) || [[ "$MODE" == slayer && "$L" != 4096 ]]; then
@@ -209,12 +213,26 @@ for L in "${LENGTHS[@]}"; do
   [[ -f "$OUT/$L/skip.json" ]] && continue   # an earlier run found that the templated prompts do not fit
   RUN_LENGTHS="$RUN_LENGTHS $L"
   for T in "${TASKS[@]}"; do
-    # prepare.py swallows a failing generator script (it only prints the error), so the line count is checked.
-    (cd "$RULER_DIR/scripts/data" && PATH="$VENV/bin:$PATH" python prepare.py \
-      --save_dir "$OUT/$L/data" --benchmark synthetic --task "$T" \
+    TDIR="$OUT/$L/data/$T"
+    [[ -f "$TDIR/skip.json" ]] && continue   # an earlier run hit the limit for this task and length
+    status=0
+    (cd "$RULER_DIR/scripts/data" && PATH="$VENV/bin:$PATH" "$PY" "$HERE/prepare_limited.py" "$PREPARE_TIMEOUT" \
+      python prepare.py --save_dir "$OUT/$L/data" --benchmark synthetic --task "$T" \
       --tokenizer_path "$TOKENIZER" --tokenizer_type hf --max_seq_length "$L" \
-      --model_template_type base --num_samples "$NUM" --random_seed "$SEED")
-    n="$(wc -l < "$OUT/$L/data/$T/validation.jsonl" 2>/dev/null || echo 0)"
+      --model_template_type base --num_samples "$NUM" --random_seed "$SEED") || status=$?
+    if (( status == 124 )); then
+      WHY=""
+      [[ "$T" == qa_* ]] && WHY=" (qa.py never exits; RULER db43f92 qa.py L196-206)"
+      mkdir -p "$TDIR"
+      rm -f "$TDIR/validation.jsonl"
+      printf '{"reason": "RULER%ss %s generator cannot fit a sample into %s tokens with this tokenizer: no result within %s s%s"}\n' \
+        "'" "$T" "$L" "$PREPARE_TIMEOUT" "$WHY" > "$TDIR/skip.json"
+      echo "skipped $T @ $L: $(cat "$TDIR/skip.json")" >&2
+      continue
+    fi
+    (( status == 0 )) || { echo "RULER prepare.py for $T @ $L failed (exit $status)" >&2; exit 1; }
+    # prepare.py swallows a failing generator script (it only prints the error), so the line count is checked.
+    n="$(wc -l < "$TDIR/validation.jsonl" 2>/dev/null || echo 0)"
     (( n == NUM )) || { echo "RULER data for $T @ $L has $n of $NUM samples" >&2; exit 1; }
   done
 done
@@ -261,6 +279,8 @@ fi
 for L in $RUN_LENGTHS; do
   [[ -f "$OUT/$L/skip.json" ]] && continue
   "$PY" "$HERE/summarize.py" preds "$OUT/$L"
+  # evaluate.py fails on an empty directory (every task skipped or without an output at this length)
+  compgen -G "$OUT/$L/pred/*.jsonl" > /dev/null || continue
   (cd "$RULER_DIR/scripts/eval" && PYTHONPATH="$HERE/nemo_shim" "$PY" evaluate.py \
     --data_dir "$OUT/$L/pred" --benchmark synthetic)
 done

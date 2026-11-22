@@ -131,20 +131,24 @@ def by_category(retrieval, tracing, aggregation, qa):
     return {t: pct[c] for c, ts in S.CATEGORIES.items() for t in ts}
 
 
-def write_model(results_dir, model, means, skipped=None, errors=None):
+def write_model(results_dir, model, means, skipped=None, errors=None, task_skips=None):
     """Fake results/<model>.json and .jsonl.gz: means is length -> percent or length -> task -> percent; each task
-    gets 50 samples of 100 or 0 with that mean; errors is (length, task) -> error rows on top."""
+    gets 50 samples of 100 or 0 with that mean; errors is (length, task) -> error rows on top; task_skips is
+    length -> task -> reason for tasks RULER could not generate (no rows)."""
+    task_skips = task_skips or {}
     rows = []
     for length, pct in means.items():
         pct = pct if isinstance(pct, dict) else dict.fromkeys(S.TASKS, pct)
         for t in S.TASKS:
+            if t in task_skips.get(length, {}):
+                continue
             k = round(pct[t] / 2)
             rows += [{"task": t, "length": length, "index": i, "score": 100.0 if i < k else 0.0, "finished": True}
                      for i in range(50)]
     for (length, task), n in (errors or {}).items():
         rows += [{"task": task, "length": length, "index": 100 + j, "score": None, "error": "timeout"}
                  for j in range(n)]
-    metrics = S.aggregate(rows, skipped or {}, S.LENGTHS, resamples=2)
+    metrics = S.aggregate(rows, skipped or {}, S.LENGTHS, resamples=2, task_skips=task_skips)
     (results_dir / f"{model}.json").write_text(json.dumps({"model": model, "other_metrics": metrics}))
     with gzip.open(results_dir / f"{model}.jsonl.gz", "wt", encoding="utf-8") as f:
         for r in rows:
@@ -199,7 +203,7 @@ def test_compare_clear_case():
     assert result["models"][C.BIELIK]["per_length"]["131072"] is None
     assert result["models"][C.SLAYER]["per_length"]["4096"] == 20
     assert f"excluded: {C.BIELIK} @ 32768: {FIT}" in text
-    assert sum(line.startswith("deviation: ") for line in text.splitlines()) == len(C.DEVIATIONS) == 2
+    assert sum(line.startswith("deviation: ") for line in text.splitlines()) == len(C.DEVIATIONS) == 3
 
 
 def test_compare_noise_case_holm_and_control_fail():
@@ -257,6 +261,46 @@ def test_compare_missing_model_is_not_run_and_holm_keeps_m_3():
     assert high["p_holm"] == max(low["p_holm"], min(1.0, 2 * high["p"]))
     assert no_lfm3["control"] == {"status": "not run", "missing": [C.LFM3]}
     assert all(x["verdict"] == "not run" for x in no_lfm3["hypotheses"].values())
+
+
+QA2_SKIP = "RULER's qa_2 generator cannot fit a sample into 4096 tokens with this tokenizer"
+
+
+def test_task_skip_is_null_not_zero_and_length_is_partial():
+    tasks = S.TASKS
+    rows = rows_for(4096, {t: [100.0, 100.0] for t in tasks if t != "qa_2"})
+    rows += rows_for(8192, {t: [100.0] for t in tasks})
+    m = S.aggregate(rows, {}, [4096, 8192], tasks, resamples=50, task_skips={4096: {"qa_2": QA2_SKIP}})
+    l4 = m["per_length"]["4096"]
+    assert l4["score"] == 100.0 and l4["n"] == 24  # mean over the 12 generated tasks, not 12 x 100 / 13 = 92.31
+    assert l4["partial"] is True and l4["skipped_tasks"] == {"qa_2": QA2_SKIP}
+    assert m["per_task"]["4096"]["qa_2"] is None and m["errors"]["4096"] == {}
+    assert m["per_category"]["4096"]["qa"] == 100.0  # qa_1 only
+    assert "partial" not in m["per_length"]["8192"]
+    # a partial headline length is not the 13-task headline: null with the reason
+    run = {"model": "slayer1b-1.09-k70000", "date": "2026-11-22", "ruler_commit": "db43f92", "seed": 20261122,
+           "num_samples": 50, "data_sources": {}, "settings": {}}
+    metrics = {"per_length": {"131072": {**l4}}}
+    result = S.result_json(run, metrics)
+    assert result["score"] is None and result["reason"] == "partial at 131072: RULER could not generate qa_2"
+    assert result["other_metrics"]["per_length"]["131072"]["score"] == 100.0  # kept as a descriptive number
+
+
+def test_compare_partial_length_is_not_comparable():
+    with tempfile.TemporaryDirectory() as d:
+        write_model(Path(d), C.LFM3, LFM3_STEEP, task_skips={131072: {"qa_2": QA2_SKIP}, 8192: {"qa_2": QA2_SKIP}})
+        write_model(Path(d), C.BIELIK, {4096: 70, 8192: 80, 16384: 90, 32768: 95},
+                    skipped={65536: WINDOW, 131072: WINDOW})
+        result, text = run_compare(Path(d))
+    reason = "partial: RULER could not generate qa_2; not comparable (13-task mean undefined)"
+    assert result["control"] == {"status": "not run", "missing": [f"{C.LFM3} @ 131072: {reason}"]}
+    h = result["hypotheses"]
+    assert h["R1"]["verdict"] == "not run" and h["R1"]["missing"] == [f"{C.LFM3} @ 131072: {reason}"]
+    assert h["R3"]["verdict"] == "not run"  # needs 4096 and 131072 complete
+    assert h["R2"]["lengths"] == [4096, 16384, 32768]  # 8192 is partial for LFM3
+    assert result["models"][C.LFM3]["partial_lengths"]["131072"]["skipped_tasks"] == ["qa_2"]
+    assert result["models"][C.LFM3]["per_length"]["131072"] is None
+    assert f"excluded: {C.LFM3} @ 131072: {reason}" in text and "control: not run" in text
 
 
 if __name__ == "__main__":
