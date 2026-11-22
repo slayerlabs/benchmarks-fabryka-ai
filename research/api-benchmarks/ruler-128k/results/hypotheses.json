@@ -8,7 +8,7 @@
     "z": 6.619307249123462,
     "n": 650,
     "reading": "R1-R3 are read under Amendment 4, against the protocol's rule that no hypothesis is read until the gap is explained (PROTOCOL.md, Control)",
-    "amendment_4": "Amendment 4 labels the card value `not comparable` because the card states no RULER setup (harness, thinking mode, samples, output cap; card @ 1da06bec line 536 gives only serving and sampling defaults); the label was added after the control had failed",
+    "amendment_4": "Amendment 4 labels the card value `not comparable` because the card states no RULER setup (harness, samples, scoring of unfinished reasoning, output cap; card @ 1da06bec line 536 gives only serving and sampling defaults); the label was added after the control had failed. Amendment 4 also listed the thinking mode as unstated, which is wrong: the card says at line 201 that reasoning is enabled by default, as in this run (Amendment 8)",
     "strict": {
       "mean": 70.51289230769231,
       "se": 0.9984519567197978,
@@ -66,38 +66,81 @@
         "z": 1.8050490621886277,
         "se": 0.9404389593046221,
         "above_2_se": 8192,
+        "above_across_tasks": 4096,
         "per_length": {
           "4096": {
             "mean": 93.35393846153846,
             "se": 0.7969157406900167,
-            "z": 9.729935130688535
+            "z": 9.729935130688535,
+            "across_tasks": {
+              "se": 2.5952494319512707,
+              "t": 2.9877430531633222,
+              "df": 12,
+              "p": 0.011321665598475123
+            }
           },
           "8192": {
             "mean": 92.41036923076923,
             "se": 0.7770175944009616,
-            "z": 8.764755495684321
+            "z": 8.764755495684321,
+            "across_tasks": {
+              "se": 3.1210177223961493,
+              "t": 2.182098865347231,
+              "df": 12,
+              "p": 0.049706628536212265
+            }
           },
           "16384": {
             "mean": 87.29753846153845,
             "se": 0.9404389593046221,
-            "z": 1.8050490621886277
+            "z": 1.8050490621886277,
+            "across_tasks": {
+              "se": 5.44195910308819,
+              "t": 0.31193517433366075,
+              "df": 12,
+              "p": 0.7604431641233186
+            }
           },
           "32768": {
             "mean": 81.3411076923077,
             "se": 0.9207231472445349,
-            "z": -4.625594914647207
+            "z": -4.625594914647207,
+            "across_tasks": {
+              "se": 8.509195484361891,
+              "t": -0.5005046970091648,
+              "df": 12,
+              "p": 0.6257725956526538
+            }
           },
           "65536": {
             "mean": 76.88212307692308,
             "se": 0.9106046147694797,
-            "z": -9.573723635569156
+            "z": -9.573723635569156,
+            "across_tasks": {
+              "se": 9.873975719407841,
+              "t": -0.8829145595265594,
+              "df": 12,
+              "p": 0.39462602050955353
+            }
           },
           "131072": {
             "mean": 71.69238461538461,
             "se": 0.9264390342655068,
-            "z": -15.01190566267701
+            "z": -15.01190566267701,
+            "across_tasks": {
+              "se": 10.78700602668432,
+              "t": -1.2892933729907503,
+              "df": 12,
+              "p": 0.2215938360337083
+            }
           }
-        }
+        },
+        "tasks_below_at_shortest": [
+          "cwe",
+          "fwe",
+          "qa_1",
+          "qa_2"
+        ]
       },
       "p_holm": 1.8407755178523834e-50,
       "verdict": "clear",
@@ -141,38 +184,81 @@
           "z": 0.47166949459464674,
           "se": 0.9896108103628211,
           "above_2_se": 8192,
+          "above_across_tasks": null,
           "per_length": {
             "4096": {
               "mean": 92.2770153846154,
               "se": 0.8507480891541804,
-              "z": 7.848404797774787
+              "z": 7.848404797774787,
+              "across_tasks": {
+                "se": 3.094152480825026,
+                "t": 2.157946457388237,
+                "df": 12,
+                "p": 0.05190140341632978
+              }
             },
             "8192": {
               "mean": 89.94883076923078,
               "se": 0.8452340249535157,
-              "z": 5.14512033453688
+              "z": 5.14512033453688,
+              "across_tasks": {
+                "se": 4.510404249654981,
+                "t": 0.9641776054914443,
+                "df": 12,
+                "p": 0.3539856443791032
+              }
             },
             "16384": {
               "mean": 86.06676923076922,
               "se": 0.9896108103628211,
-              "z": 0.47166949459464674
+              "z": 0.47166949459464674,
+              "across_tasks": {
+                "se": 5.627530922529317,
+                "t": 0.08294387666544278,
+                "df": 12,
+                "p": 0.9352637004118732
+              }
             },
             "32768": {
               "mean": 79.80264615384615,
               "se": 0.99864799804734,
-              "z": -5.805202491257607
+              "z": -5.805202491257607,
+              "across_tasks": {
+                "se": 8.527819742831854,
+                "t": -0.6798166496221809,
+                "df": 12,
+                "p": 0.5095227646397811
+              }
             },
             "65536": {
               "mean": 75.18981538461539,
               "se": 0.981844666988751,
-              "z": -10.602679797927626
+              "z": -10.602679797927626,
+              "across_tasks": {
+                "se": 9.879235573730508,
+                "t": -1.053743939770596,
+                "df": 12,
+                "p": 0.31275572965815157
+              }
             },
             "131072": {
               "mean": 70.51289230769231,
               "se": 0.9984519567197978,
-              "z": -15.110499399363366
+              "z": -15.110499399363366,
+              "across_tasks": {
+                "se": 10.644905947064728,
+                "t": -1.4173077495783668,
+                "df": 12,
+                "p": 0.18183080577576038
+              }
             }
-          }
+          },
+          "tasks_below_at_shortest": [
+            "cwe",
+            "fwe",
+            "qa_1",
+            "qa_2"
+          ]
         }
       }
     },
@@ -199,6 +285,25 @@
             "skipped_tasks": [
               "qa_2"
             ]
+          },
+          "bielik_minus_lfm3": {
+            "value": 2.808366666666666,
+            "se": 0.8001381038195242,
+            "z": 3.509852428300439,
+            "tasks": 12,
+            "across_tasks": {
+              "t": 1.3014529902264298,
+              "df": 11,
+              "p": 0.21970092756494308
+            },
+            "without_largest_gap": {
+              "task": "qa_1",
+              "gap": 20.0,
+              "value": 1.2454909090909079,
+              "se": 0.6299456369964399,
+              "z": 1.9771403053593126,
+              "tasks": 11
+            }
           }
         },
         "8192": {
@@ -209,6 +314,25 @@
           "bielik-11b-v3.1": {
             "mean": 93.89,
             "tasks": 13
+          },
+          "bielik_minus_lfm3": {
+            "value": 1.4769230769230772,
+            "se": 1.0179347619915613,
+            "z": 1.4509015037795918,
+            "tasks": 13,
+            "across_tasks": {
+              "t": 0.5829931145296632,
+              "df": 12,
+              "p": 0.570691704104004
+            },
+            "without_largest_gap": {
+              "task": "cwe",
+              "gap": 25.200000000000003,
+              "value": -0.5,
+              "se": 1.0470645081667531,
+              "z": -0.47752549733103083,
+              "tasks": 12
+            }
           }
         },
         "16384": {
@@ -219,6 +343,25 @@
           "bielik-11b-v3.1": {
             "mean": 91.7,
             "tasks": 13
+          },
+          "bielik_minus_lfm3": {
+            "value": 4.402476923076924,
+            "se": 1.2044243681860536,
+            "z": 3.655253944842846,
+            "tasks": 13,
+            "across_tasks": {
+              "t": 0.9629366087204382,
+              "df": 12,
+              "p": 0.3545830937246942
+            },
+            "without_largest_gap": {
+              "task": "cwe",
+              "gap": 45.0,
+              "value": 1.0193500000000018,
+              "se": 1.2302287119123294,
+              "z": 0.8285857663128938,
+              "tasks": 12
+            }
           }
         }
       },
@@ -300,6 +443,7 @@
       "undetermined_reason": "fewer than 3 tasks in tracing, aggregation: no clustered verdict (PROTOCOL.md R3: SE clustered by task; 3 clusters needed)",
       "refuted": true,
       "confirmed_direction": false,
+      "outcome_rule": "PROTOCOL.md R3, 'refuted: the retrieval drop is not smaller than the tracing and aggregation drops', as compare.py coded it before the results (e7858d51): refuted = not all(value > 0)",
       "drops": {
         "retrieval": {
           "drop": 23.0,
@@ -342,6 +486,20 @@
           "verdict_clustered": "undetermined"
         }
       },
+      "without_largest_retrieval_drops": {
+        "tasks_dropped": [
+          "niah_multikey_3",
+          "niah_multikey_2"
+        ],
+        "of": 8,
+        "retrieval_drop": 1.0,
+        "share_of_retrieval_drop": 0.967391304347826,
+        "tracing_minus_retrieval": {
+          "value": -0.20000000000000284,
+          "se_sample": 1.094046636048312,
+          "z_sample": -0.18280756359930073
+        }
+      },
       "descriptive_sample": {
         "note": "sample-level bootstrap SE (tasks fixed), not the protocol's SE; descriptive, not Holm-adjusted",
         "value": -22.200000000000003,
@@ -353,7 +511,7 @@
       },
       "p_holm": null,
       "verdict": "undetermined",
-      "outcome": "undetermined",
+      "outcome": "refuted",
       "strict": {
         "value": -22.950000000000003,
         "se": 14.36979719510931,
@@ -362,7 +520,7 @@
         "df": 7,
         "p_holm": null,
         "verdict": "undetermined",
-        "outcome": "undetermined",
+        "outcome": "refuted",
         "n": 1300
       }
     }
@@ -465,7 +623,7 @@
   },
   "deviations": [
     "control, R1-R3: a length where RULER's generator could not produce some task (partial length, the task is null) is not comparable: the control and R1 at 131072 are `not run` there, and R2 and R3 use only lengths complete for the compared models.",
-    "R3: the verdict uses the SE clustered by task, as the protocol says. Tracing has 1 task and aggregation 2, under the 3 clusters a clustered verdict needs, so R3 is `undetermined` and enters Holm without a p (m stays 3). Its t (the between-task SE of the categories that have one, df = tasks - 1) is reported next to it; the sample-level bootstrap comparison (tasks fixed) is descriptive only. Until the verification of 2026-11-22 the verdict used the sample-level SE (Amendment 7).",
+    "R3: outcome by the pre-registered point rule as coded before the results (e7858d51); its strength uses the SE clustered by task, as the protocol says. Tracing has 1 task and aggregation 2, under the 3 clusters a clustered verdict needs (a rule added after the results, Amendment 7), so the verdict is `undetermined` and R3 enters Holm without a p (m stays 3). Its t (the between-task SE of the categories that have one, df = tasks - 1) is reported next to it; the sample-level bootstrap comparison (tasks fixed) is descriptive only (Amendment 8).",
     "R3: the hypothesis compares two categories against retrieval; its t is the weaker of the two comparisons (it holds only if both hold), so it enters Holm once and m stays 3.",
     "control (Amendment 4, decided after the result and after the control failed): the control failed and the gap is unexplained; Amendment 4 labels the card value `not comparable` and R1-R3 are read under it, against the protocol's rule that no hypothesis is read until the gap is explained. Every score is also given under strict scoring (an output without `</think>` scores 0); verdicts stay on the pre-registered scoring with the strict verdict next to each."
   ],
@@ -477,17 +635,17 @@
     "lfm3-1.7b vs bielik-11b-v3.1: RULER source files differ: PaulGrahamEssays.json lfm3-1.7b 8d31e1b6, bielik-11b-v3.1 58e35253 (the haystack text is not the same)"
   ],
   "inputs_sha256": {
-    "lfm3-1.7b.json": "47d9d64f4c7649b0b7003bab4013963f84918add4c36e235a20352160f489c09",
-    "lfm3-1.7b.jsonl.gz": "fa4e32ff270f75b63c0b3be91ebe977a368f05ffd8481132cb573a681262a489",
-    "bielik-11b-v3.1.json": "cc3f4bdfa29a2e5a3ddc4cd6c981b04ff9d4ae0d589d612bf305c3126ad085bd",
-    "bielik-11b-v3.1.jsonl.gz": "e1c0d71a036f0de49a5ae4bce3eeb125a03df0037619b20ac738c22aefb69daf",
-    "slayer1b-1.09-k70000.json": "9e9ab7d35aeb93d737af29621c31099d994be57ad4d060d79616d5e1499e1812",
-    "slayer1b-1.09-k70000.jsonl.gz": "5ba8a1dece8afdf25d30c4357910462407854b6b367b64050809d9c6fcb0ab2f"
+    "lfm3-1.7b.json": "316fb5963465cc7a0de0ec521f72dd1c83fb162980b54ccb70882e3c991bdca3",
+    "lfm3-1.7b.jsonl.gz": "6fbcaaaa2efb9ab1befe1b173e597717211d2002f860f2014f3df4ef9b9097c0",
+    "bielik-11b-v3.1.json": "0f85c4fe93d56c823fb7712b5dfdc2bac99fa66d804228a88b4af2f3318038a3",
+    "bielik-11b-v3.1.jsonl.gz": "95feae39c605fe686f804f9b46ce1fd883a787330b453b06a94a52d56f42613e",
+    "slayer1b-1.09-k70000.json": "e7cefa0a5aca6e95e902b2b3d5bcfe3c0d336c729a9e8c31b61fc7c48d8e0ea2",
+    "slayer1b-1.09-k70000.jsonl.gz": "0907c04059e20157a43543e88c4934be5b38683d260f57c77cda4580483ec738"
   },
   "provenance": {
-    "time": "2026-11-22T17:42:37+00:00",
+    "time": "2026-11-22T19:02:39+00:00",
     "code": {
-      "commit": "ef19f7d7dc921b89b677f2691dcaceba533dde3e",
+      "commit": "5ea36e09dd54d2c75b438818d9f2bbdb31dea6bb",
       "dirty": true,
       "uncommitted_runner_files": []
     },
@@ -497,13 +655,13 @@
       "slayer_predict.py": "e75b03ea22b22c3827069e55e7b7f06b34c8e28dadf595939677db4d0da42422",
       "prepare_limited.py": "8ca6e7451dce1851cf3beadd13ebf0c7f66dc62bd721bca750ad50c5a7f26974",
       "ruler.py": "7491f1fbc3337240e151f564319cf591f3442ce6adc945dfff44f066bcbd5fc7",
-      "summarize.py": "69189db3dc4494e4f2445deb61f8a9f730546c56bbaf9e8b8fc7482a693f2493",
-      "compare.py": "a9ac5d283e82a16cba519f1f80a2fcea903af7d8316b6fa2df33cac0bbbfb2d0",
+      "summarize.py": "158158316d102d0df5b20a59723663f4551aca2abdfbc706ee7a6e1b7ab09167",
+      "compare.py": "f6e297d9a2b527308ce7ac3cbc5d48347564881578a94d46c3b55944bf613d2b",
       "provenance.py": "76f9366be7dec5d43da7e11fb321c872beb1d5d533e837a20b59f5263be10b50",
-      "diagnostics.py": "ac3d74bc73fc776d5fa78b9824461ec3e4057e892c37033e5f89d9ac1110ac31",
-      "report.py": "e11f80e0c94a99aa7967a85d0a25de9ce3c9a64674b1a46341d3f51d445df091",
+      "diagnostics.py": "fa6e7b68bf564e2bf2f73b4c02a5323eb2ee670865043d3bb8480eb7d346a40e",
+      "report.py": "069a443e4ced2123fbd7ccf0d10856de1572e54c880aacbf8306d5dae30bd013",
       "reproduction.py": "afac1456f07b1b6d5b6edbcb8dcd98e267fa7d1d0b93df62ed6239d6badffe62",
-      "declared_provenance.json": "5f96798de2098bc48554f5ff96c8f8b11759ac8c13d8ca4972d679684a22d893",
+      "declared_provenance.json": "efc9ee65f90e26b16537486c76a49d111e40e7f17b75cb5949c2e7fdbd0d9b6a",
       "requirements.lock.txt": "734278c83bf2e15d209f8b38eb07b71df447f1478f82651de2ebc422423c60af",
       "nemo_shim/nemo/collections/asr/parts/utils/manifest_utils.py": "1eee490503e415bc1d289baeb5b027593683287cc9d191003da9a415ab1a06ce",
       "../../common/slayer_lm.py": "5ae131e1e46b36ff2091d313485a234a9bfc1609b2ba726ab1a73008e5a3a2fa",

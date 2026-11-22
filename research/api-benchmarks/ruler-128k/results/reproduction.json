@@ -11,11 +11,11 @@
     },
     "rerun": {
       "code": {
-        "commit": "ef19f7d7dc921b89b677f2691dcaceba533dde3e",
+        "commit": "5ea36e09dd54d2c75b438818d9f2bbdb31dea6bb",
         "dirty": true,
         "uncommitted_runner_files": []
       },
-      "summarize.py sha256": "69189db3dc4494e4f2445deb61f8a9f730546c56bbaf9e8b8fc7482a693f2493"
+      "summarize.py sha256": "158158316d102d0df5b20a59723663f4551aca2abdfbc706ee7a6e1b7ab09167"
     },
     "fields_compared": "all except provenance, warnings",
     "fields_differing": [],
@@ -57,11 +57,11 @@
     },
     "rerun": {
       "code": {
-        "commit": "ef19f7d7dc921b89b677f2691dcaceba533dde3e",
+        "commit": "5ea36e09dd54d2c75b438818d9f2bbdb31dea6bb",
         "dirty": true,
         "uncommitted_runner_files": []
       },
-      "summarize.py sha256": "69189db3dc4494e4f2445deb61f8a9f730546c56bbaf9e8b8fc7482a693f2493"
+      "summarize.py sha256": "158158316d102d0df5b20a59723663f4551aca2abdfbc706ee7a6e1b7ab09167"
     },
     "fields_compared": "all except provenance, warnings",
     "fields_differing": [],
@@ -103,16 +103,17 @@
     },
     "rerun": {
       "code": {
-        "commit": "ef19f7d7dc921b89b677f2691dcaceba533dde3e",
-        "dirty": true,
+        "commit": "5ea36e09dd54d2c75b438818d9f2bbdb31dea6bb",
+        "dirty": false,
         "uncommitted_runner_files": []
       },
-      "summarize.py sha256": "69189db3dc4494e4f2445deb61f8a9f730546c56bbaf9e8b8fc7482a693f2493"
+      "summarize.py sha256": "158158316d102d0df5b20a59723663f4551aca2abdfbc706ee7a6e1b7ab09167"
     },
     "fields_compared": "all except provenance, warnings",
     "fields_differing": [],
     "provenance_fields_differing": [
       "provenance.summarize.code.commit",
+      "provenance.summarize.code.dirty",
       "provenance.summarize.code.uncommitted_runner_files",
       "provenance.summarize.hardware.cpu_count",
       "provenance.summarize.hardware.gpu",

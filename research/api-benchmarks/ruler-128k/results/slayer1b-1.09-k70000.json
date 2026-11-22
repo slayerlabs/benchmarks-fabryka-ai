@@ -105,9 +105,9 @@
   "provenance": {
     "generation": null,
     "summarize": {
-      "time": "2026-11-22T17:41:07+00:00",
+      "time": "2026-11-22T19:01:51+00:00",
       "code": {
-        "commit": "ef19f7d7dc921b89b677f2691dcaceba533dde3e",
+        "commit": "5ea36e09dd54d2c75b438818d9f2bbdb31dea6bb",
         "dirty": true,
         "uncommitted_runner_files": []
       },
@@ -117,13 +117,13 @@
         "slayer_predict.py": "e75b03ea22b22c3827069e55e7b7f06b34c8e28dadf595939677db4d0da42422",
         "prepare_limited.py": "8ca6e7451dce1851cf3beadd13ebf0c7f66dc62bd721bca750ad50c5a7f26974",
         "ruler.py": "7491f1fbc3337240e151f564319cf591f3442ce6adc945dfff44f066bcbd5fc7",
-        "summarize.py": "69189db3dc4494e4f2445deb61f8a9f730546c56bbaf9e8b8fc7482a693f2493",
-        "compare.py": "a9ac5d283e82a16cba519f1f80a2fcea903af7d8316b6fa2df33cac0bbbfb2d0",
+        "summarize.py": "158158316d102d0df5b20a59723663f4551aca2abdfbc706ee7a6e1b7ab09167",
+        "compare.py": "f6e297d9a2b527308ce7ac3cbc5d48347564881578a94d46c3b55944bf613d2b",
         "provenance.py": "76f9366be7dec5d43da7e11fb321c872beb1d5d533e837a20b59f5263be10b50",
-        "diagnostics.py": "ac3d74bc73fc776d5fa78b9824461ec3e4057e892c37033e5f89d9ac1110ac31",
-        "report.py": "e11f80e0c94a99aa7967a85d0a25de9ce3c9a64674b1a46341d3f51d445df091",
+        "diagnostics.py": "fa6e7b68bf564e2bf2f73b4c02a5323eb2ee670865043d3bb8480eb7d346a40e",
+        "report.py": "069a443e4ced2123fbd7ccf0d10856de1572e54c880aacbf8306d5dae30bd013",
         "reproduction.py": "afac1456f07b1b6d5b6edbcb8dcd98e267fa7d1d0b93df62ed6239d6badffe62",
-        "declared_provenance.json": "5f96798de2098bc48554f5ff96c8f8b11759ac8c13d8ca4972d679684a22d893",
+        "declared_provenance.json": "efc9ee65f90e26b16537486c76a49d111e40e7f17b75cb5949c2e7fdbd0d9b6a",
         "requirements.lock.txt": "734278c83bf2e15d209f8b38eb07b71df447f1478f82651de2ebc422423c60af",
         "nemo_shim/nemo/collections/asr/parts/utils/manifest_utils.py": "1eee490503e415bc1d289baeb5b027593683287cc9d191003da9a415ab1a06ce",
         "../../common/slayer_lm.py": "5ae131e1e46b36ff2091d313485a234a9bfc1609b2ba726ab1a73008e5a3a2fa",

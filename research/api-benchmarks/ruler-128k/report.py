@@ -193,9 +193,9 @@ def r1_block(h):
             "| length | mean ± SE | z against 85.6 | across tasks t (df), p | strict mean ± SE | strict z | strict "
             "across tasks t, p |", "|---|---|---|---|---|---|---|"] + [
             f"| {x} | {f2(v['mean'])} ± {f2(v['se'])} | {f2(v['z'])} | {f2(v['across_tasks']['t'])} "
-            f"({v['across_tasks']['df']}), p {fp(v['across_tasks']['p'])} | {f2(st['per_length'][x]['mean'])} ± "
+            f"({v['across_tasks']['df']}), p {v['across_tasks']['p']:.3f} | {f2(st['per_length'][x]['mean'])} ± "
             f"{f2(st['per_length'][x]['se'])} | {f2(st['per_length'][x]['z'])} | "
-            f"{f2(st['per_length'][x]['across_tasks']['t'])}, p {fp(st['per_length'][x]['across_tasks']['p'])} |"
+            f"{f2(st['per_length'][x]['across_tasks']['t'])}, p {st['per_length'][x]['across_tasks']['p']:.3f} |"
             for x, v in e["per_length"].items()]
 
 
