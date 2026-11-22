@@ -30,7 +30,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 RUNNER_FILES = ["run.sh", "predict.py", "slayer_predict.py", "prepare_limited.py", "ruler.py", "summarize.py",
-                "compare.py", "provenance.py", "diagnostics.py", "report.py", "declared_provenance.json",
+                "compare.py", "provenance.py", "diagnostics.py", "report.py", "reproduction.py",
+                "declared_provenance.json",
                 "requirements.lock.txt", "nemo_shim/nemo/collections/asr/parts/utils/manifest_utils.py",
                 "../../common/slayer_lm.py", "../../tools/statystyka.py"]
 # vLLM 0.34.0 vllm/config/model.py get_diff_sampling_param: the generation_config.json fields it uses
