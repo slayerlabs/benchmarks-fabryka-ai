@@ -1,0 +1,470 @@
+{
+  "benchmark": "RULER",
+  "model": "lfm3-1.7b",
+  "metric": "mean of the 13 RULER task scores at 131072 tokens (percent)",
+  "score": 71.69,
+  "stderr": 0.93,
+  "n": 650,
+  "date": "2026-11-22",
+  "harness": "https://github.com/NVIDIA/RULER @ db43f92ff634bbce1c33d1fb15858aec4bba509a (data: scripts/data/prepare.py, scoring: scripts/eval/evaluate.py)",
+  "data": "RULER synthetic tasks generated with the model's tokenizer, seed 20261122, 50 samples per task and length; source files sha256: PaulGrahamEssays.json 8d31e1b660e0f2180bcca6d238e18f77921df9d158611582b860da1762b6d3dd, english_words.json affcd6d45fdf3cc843d585c99c97ad615094e760e6c4756b654bab6c73bc2eca, hotpotqa.json e3da074df24e8369009918aa5cdbdd254dadcde4c63f7569d36afd6f2268caa8, squad.json 80a5225e94905956a6446d296ca1093975c4d3b3260f1d6c8f68bc2ab77182d8",
+  "settings": {
+    "weights": "LiquidAI/LFM3-1.7B @ 1da06bec6a819da10b54c67e5c90972b46d81871",
+    "context_window": 262144,
+    "seed": 20261122,
+    "serving": "vLLM 0.34.0, bfloat16",
+    "prompt": "RULER input + answer prefix as one user message, model chat template with its defaults",
+    "chat_template_kwargs": null,
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "max_tokens": "context window minus templated input",
+    "scored": "text after the last </think>",
+    "sampling": {
+      "sent": {
+        "temperature": 0.6,
+        "top_p": 0.95,
+        "seed": 20261122,
+        "max_tokens": "per request: context window minus templated input"
+      },
+      "from_generation_config": {
+        "repetition_penalty": 1.1,
+        "top_k": 50
+      },
+      "effective": {
+        "repetition_penalty": 1.1,
+        "presence_penalty": 0.0,
+        "frequency_penalty": 0.0,
+        "temperature": 0.6,
+        "top_p": 0.95,
+        "top_k": 50,
+        "min_p": 0.0,
+        "seed": 20261122,
+        "max_tokens": "per request: context window minus templated input"
+      },
+      "source": "vLLM 0.34.0 --generation-config auto: request, then generation_config.json (LiquidAI/LFM3-1.7B @ 1da06bec6a819da10b54c67e5c90972b46d81871), then vLLM's OpenAI defaults",
+      "recorded": "by summarize.py from the pinned revision, not at generation (no generation.jsonl)"
+    }
+  },
+  "other_metrics": {
+    "per_length": {
+      "4096": {
+        "score": 93.35,
+        "stderr": 0.79,
+        "n": 650
+      },
+      "8192": {
+        "score": 92.41,
+        "stderr": 0.79,
+        "n": 650
+      },
+      "16384": {
+        "score": 87.3,
+        "stderr": 0.93,
+        "n": 650
+      },
+      "32768": {
+        "score": 81.34,
+        "stderr": 0.93,
+        "n": 650
+      },
+      "65536": {
+        "score": 76.88,
+        "stderr": 0.9,
+        "n": 650
+      },
+      "131072": {
+        "score": 71.69,
+        "stderr": 0.93,
+        "n": 650
+      }
+    },
+    "per_task": {
+      "4096": {
+        "niah_single_1": 100.0,
+        "niah_single_2": 100.0,
+        "niah_single_3": 94.0,
+        "niah_multikey_1": 100.0,
+        "niah_multikey_2": 100.0,
+        "niah_multikey_3": 98.0,
+        "niah_multivalue": 100.0,
+        "niah_multiquery": 100.0,
+        "vt": 100.0,
+        "cwe": 83.6,
+        "fwe": 84.0,
+        "qa_1": 76.0,
+        "qa_2": 78.0
+      },
+      "8192": {
+        "niah_single_1": 100.0,
+        "niah_single_2": 100.0,
+        "niah_single_3": 96.0,
+        "niah_multikey_1": 100.0,
+        "niah_multikey_2": 100.0,
+        "niah_multikey_3": 98.0,
+        "niah_multivalue": 100.0,
+        "niah_multiquery": 100.0,
+        "vt": 100.0,
+        "cwe": 70.0,
+        "fwe": 81.33,
+        "qa_1": 82.0,
+        "qa_2": 74.0
+      },
+      "16384": {
+        "niah_single_1": 100.0,
+        "niah_single_2": 100.0,
+        "niah_single_3": 98.0,
+        "niah_multikey_1": 100.0,
+        "niah_multikey_2": 100.0,
+        "niah_multikey_3": 76.0,
+        "niah_multivalue": 100.0,
+        "niah_multiquery": 100.0,
+        "vt": 100.0,
+        "cwe": 36.2,
+        "fwe": 84.67,
+        "qa_1": 74.0,
+        "qa_2": 66.0
+      },
+      "32768": {
+        "niah_single_1": 100.0,
+        "niah_single_2": 100.0,
+        "niah_single_3": 98.0,
+        "niah_multikey_1": 100.0,
+        "niah_multikey_2": 90.0,
+        "niah_multikey_3": 24.0,
+        "niah_multivalue": 99.5,
+        "niah_multiquery": 100.0,
+        "vt": 99.2,
+        "cwe": 7.4,
+        "fwe": 89.33,
+        "qa_1": 76.0,
+        "qa_2": 74.0
+      },
+      "65536": {
+        "niah_single_1": 100.0,
+        "niah_single_2": 100.0,
+        "niah_single_3": 96.0,
+        "niah_multikey_1": 98.0,
+        "niah_multikey_2": 76.0,
+        "niah_multikey_3": 0.0,
+        "niah_multivalue": 100.0,
+        "niah_multiquery": 100.0,
+        "vt": 99.2,
+        "cwe": 1.6,
+        "fwe": 86.67,
+        "qa_1": 74.0,
+        "qa_2": 68.0
+      },
+      "131072": {
+        "niah_single_1": 100.0,
+        "niah_single_2": 100.0,
+        "niah_single_3": 90.0,
+        "niah_multikey_1": 98.0,
+        "niah_multikey_2": 20.0,
+        "niah_multikey_3": 0.0,
+        "niah_multivalue": 100.0,
+        "niah_multiquery": 100.0,
+        "vt": 99.2,
+        "cwe": 0.8,
+        "fwe": 88.0,
+        "qa_1": 72.0,
+        "qa_2": 64.0
+      }
+    },
+    "per_category": {
+      "4096": {
+        "retrieval": 99.0,
+        "tracing": 100.0,
+        "aggregation": 83.8,
+        "qa": 77.0
+      },
+      "8192": {
+        "retrieval": 99.25,
+        "tracing": 100.0,
+        "aggregation": 75.67,
+        "qa": 78.0
+      },
+      "16384": {
+        "retrieval": 96.75,
+        "tracing": 100.0,
+        "aggregation": 60.43,
+        "qa": 70.0
+      },
+      "32768": {
+        "retrieval": 88.94,
+        "tracing": 99.2,
+        "aggregation": 48.37,
+        "qa": 75.0
+      },
+      "65536": {
+        "retrieval": 83.75,
+        "tracing": 99.2,
+        "aggregation": 44.13,
+        "qa": 71.0
+      },
+      "131072": {
+        "retrieval": 76.0,
+        "tracing": 99.2,
+        "aggregation": 44.4,
+        "qa": 68.0
+      }
+    },
+    "errors": {
+      "4096": {},
+      "8192": {},
+      "16384": {},
+      "32768": {},
+      "65536": {},
+      "131072": {}
+    },
+    "unfinished": {
+      "4096": 7,
+      "8192": 16,
+      "16384": 8,
+      "32768": 13,
+      "65536": 13,
+      "131072": 10
+    },
+    "strict": {
+      "rule": "strict (Amendment 4): an output without `</think>` scores 0; errors stay out of the score",
+      "applies": true,
+      "reasoning": {
+        "opens": true,
+        "prompt_end": "<|im_end|>\n<|im_start|>assistant\n<think>",
+        "source": "chat template of LiquidAI/LFM3-1.7B @ 1da06bec6a819da10b54c67e5c90972b46d81871, defaults, add_generation_prompt",
+        "recorded": "by summarize.py, not at generation (generation.jsonl has no reasoning field)"
+      },
+      "per_length": {
+        "4096": {
+          "score": 92.28,
+          "stderr": 0.85,
+          "n": 650
+        },
+        "8192": {
+          "score": 89.95,
+          "stderr": 0.85,
+          "n": 650
+        },
+        "16384": {
+          "score": 86.07,
+          "stderr": 0.99,
+          "n": 650
+        },
+        "32768": {
+          "score": 79.8,
+          "stderr": 1.0,
+          "n": 650
+        },
+        "65536": {
+          "score": 75.19,
+          "stderr": 0.98,
+          "n": 650
+        },
+        "131072": {
+          "score": 70.51,
+          "stderr": 1.01,
+          "n": 650
+        }
+      },
+      "per_task": {
+        "4096": {
+          "niah_single_1": 100.0,
+          "niah_single_2": 100.0,
+          "niah_single_3": 94.0,
+          "niah_multikey_1": 100.0,
+          "niah_multikey_2": 100.0,
+          "niah_multikey_3": 98.0,
+          "niah_multivalue": 100.0,
+          "niah_multiquery": 100.0,
+          "vt": 100.0,
+          "cwe": 83.6,
+          "fwe": 70.0,
+          "qa_1": 76.0,
+          "qa_2": 78.0
+        },
+        "8192": {
+          "niah_single_1": 100.0,
+          "niah_single_2": 100.0,
+          "niah_single_3": 96.0,
+          "niah_multikey_1": 100.0,
+          "niah_multikey_2": 100.0,
+          "niah_multikey_3": 98.0,
+          "niah_multivalue": 100.0,
+          "niah_multiquery": 100.0,
+          "vt": 100.0,
+          "cwe": 70.0,
+          "fwe": 49.33,
+          "qa_1": 82.0,
+          "qa_2": 74.0
+        },
+        "16384": {
+          "niah_single_1": 100.0,
+          "niah_single_2": 100.0,
+          "niah_single_3": 98.0,
+          "niah_multikey_1": 100.0,
+          "niah_multikey_2": 100.0,
+          "niah_multikey_3": 76.0,
+          "niah_multivalue": 100.0,
+          "niah_multiquery": 100.0,
+          "vt": 100.0,
+          "cwe": 36.2,
+          "fwe": 68.67,
+          "qa_1": 74.0,
+          "qa_2": 66.0
+        },
+        "32768": {
+          "niah_single_1": 100.0,
+          "niah_single_2": 100.0,
+          "niah_single_3": 98.0,
+          "niah_multikey_1": 100.0,
+          "niah_multikey_2": 90.0,
+          "niah_multikey_3": 24.0,
+          "niah_multivalue": 99.5,
+          "niah_multiquery": 100.0,
+          "vt": 99.2,
+          "cwe": 7.4,
+          "fwe": 69.33,
+          "qa_1": 76.0,
+          "qa_2": 74.0
+        },
+        "65536": {
+          "niah_single_1": 100.0,
+          "niah_single_2": 100.0,
+          "niah_single_3": 96.0,
+          "niah_multikey_1": 98.0,
+          "niah_multikey_2": 76.0,
+          "niah_multikey_3": 0.0,
+          "niah_multivalue": 100.0,
+          "niah_multiquery": 100.0,
+          "vt": 99.2,
+          "cwe": 1.6,
+          "fwe": 64.67,
+          "qa_1": 74.0,
+          "qa_2": 68.0
+        },
+        "131072": {
+          "niah_single_1": 100.0,
+          "niah_single_2": 100.0,
+          "niah_single_3": 86.0,
+          "niah_multikey_1": 98.0,
+          "niah_multikey_2": 20.0,
+          "niah_multikey_3": 0.0,
+          "niah_multivalue": 98.0,
+          "niah_multiquery": 100.0,
+          "vt": 99.2,
+          "cwe": 0.8,
+          "fwe": 78.67,
+          "qa_1": 72.0,
+          "qa_2": 64.0
+        }
+      },
+      "per_category": {
+        "4096": {
+          "retrieval": 99.0,
+          "tracing": 100.0,
+          "aggregation": 76.8,
+          "qa": 77.0
+        },
+        "8192": {
+          "retrieval": 99.25,
+          "tracing": 100.0,
+          "aggregation": 59.67,
+          "qa": 78.0
+        },
+        "16384": {
+          "retrieval": 96.75,
+          "tracing": 100.0,
+          "aggregation": 52.43,
+          "qa": 70.0
+        },
+        "32768": {
+          "retrieval": 88.94,
+          "tracing": 99.2,
+          "aggregation": 38.37,
+          "qa": 75.0
+        },
+        "65536": {
+          "retrieval": 83.75,
+          "tracing": 99.2,
+          "aggregation": 33.13,
+          "qa": 71.0
+        },
+        "131072": {
+          "retrieval": 75.25,
+          "tracing": 99.2,
+          "aggregation": 39.73,
+          "qa": 68.0
+        }
+      },
+      "no_think_end": {
+        "4096": {
+          "fwe": 7
+        },
+        "8192": {
+          "fwe": 16
+        },
+        "16384": {
+          "fwe": 8
+        },
+        "32768": {
+          "niah_multikey_3": 4,
+          "fwe": 10
+        },
+        "65536": {
+          "niah_single_3": 1,
+          "niah_multikey_3": 1,
+          "fwe": 11
+        },
+        "131072": {
+          "niah_single_3": 4,
+          "niah_multivalue": 1,
+          "fwe": 5
+        }
+      }
+    }
+  },
+  "deviations": "see README.md, Deviations",
+  "provenance": {
+    "generation": null,
+    "summarize": {
+      "time": "2026-11-22T16:01:49+00:00",
+      "code": {
+        "commit": "128f7735d99073fd6d94f5a1df5fe26c18437897",
+        "dirty": true
+      },
+      "runner_sha256": {
+        "run.sh": "61b6baa8360b4f3d4aade1cd3f9d45d9d4c07a605b519f8929dab809c48941b8",
+        "predict.py": "f1b16183e976b55defaa2c163bd860e11207e8e1dcb27d759791d33f263f4530",
+        "slayer_predict.py": "e75b03ea22b22c3827069e55e7b7f06b34c8e28dadf595939677db4d0da42422",
+        "prepare_limited.py": "8ca6e7451dce1851cf3beadd13ebf0c7f66dc62bd721bca750ad50c5a7f26974",
+        "ruler.py": "7491f1fbc3337240e151f564319cf591f3442ce6adc945dfff44f066bcbd5fc7",
+        "summarize.py": "d80f85f171e5153a3fecfd0366520191c411986e02a8f0333066324852e42f9b",
+        "compare.py": "22e038bff14a76ea1240c29168a0597c2932adabab93e34282a45128aa57c1cb",
+        "provenance.py": "8d5a9c9d582d32b7555030cc5ade0412603632c8c3756d7a440e414904b024f5",
+        "requirements.lock.txt": "734278c83bf2e15d209f8b38eb07b71df447f1478f82651de2ebc422423c60af",
+        "nemo_shim/nemo/collections/asr/parts/utils/manifest_utils.py": "1eee490503e415bc1d289baeb5b027593683287cc9d191003da9a415ab1a06ce",
+        "../../common/slayer_lm.py": "5ae131e1e46b36ff2091d313485a234a9bfc1609b2ba726ab1a73008e5a3a2fa"
+      },
+      "hardware": {
+        "gpu": null,
+        "platform": "macOS-26.6-arm64-arm-64bit",
+        "machine": "arm64",
+        "processor": "arm",
+        "cpu_count": 18,
+        "python": "3.12.2"
+      }
+    },
+    "generation_reason": "no generation.jsonl: generated by a run.sh before it was recorded, so the code commit, runner sha256 and hardware of generation are unknown",
+    "api_events": null,
+    "api_events_reason": "no api-events.jsonl was recorded for this run (generated before predict.py logged retries), so its retries, pauses and HTTP errors are unknown"
+  },
+  "warnings": [
+    "no generation.jsonl: generated by a run.sh before it was recorded, so the code commit, runner sha256 and hardware of generation are unknown",
+    "no inputs.sha256.json from run.sh in this out dir (generated by a run.sh before this check): the sha256 of its 241 input files were recorded by summarize.py at its first run, not when they were written"
+  ],
+  "strict": {
+    "rule": "strict (Amendment 4): an output without `</think>` scores 0; errors stay out of the score",
+    "score": 70.51,
+    "stderr": 1.01,
+    "n": 650
+  }
+}

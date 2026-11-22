@@ -1,0 +1,315 @@
+{
+  "control": {
+    "status": "not comparable (Amendment 4)",
+    "measured": "FAIL",
+    "reason": "the card states no setup for its RULER value (harness, thinking mode, samples, output cap; card @ 1da06bec line 536 gives only serving and sampling defaults), so it is no pass/fail target; the measured z is reported, the hypotheses are read",
+    "mean": 71.69238461538461,
+    "se": 0.9264390342655068,
+    "card": 65.56,
+    "z": 6.619307249123462,
+    "n": 650,
+    "strict": {
+      "mean": 70.51289230769231,
+      "se": 0.9984519567197978,
+      "z": 4.960571487048798
+    }
+  },
+  "hypotheses": {
+    "R1": {
+      "measure": "LFM3 mean @ 131072 vs 85.6",
+      "value": 71.69238461538461,
+      "se": 0.9264390342655068,
+      "z": -15.01190566267701,
+      "p": 6.135918392841278e-51,
+      "n": 650,
+      "comparisons": [
+        {
+          "comparison": "LFM3 mean @ 131072 - 85.6",
+          "value": -13.907615384615383,
+          "se": 0.9264390342655068,
+          "z": -15.01190566267701,
+          "p": 6.135918392841278e-51,
+          "n": 650
+        }
+      ],
+      "refuted": false,
+      "confirmed_direction": true,
+      "effective_length": 16384,
+      "p_holm": 1.2271836785682557e-50,
+      "verdict": "clear",
+      "outcome": "confirmed",
+      "strict": {
+        "value": 70.51289230769231,
+        "se": 0.9984519567197978,
+        "z": -15.110499399363366,
+        "p_holm": 2.7617843214655317e-51,
+        "verdict": "clear",
+        "outcome": "confirmed",
+        "n": 650
+      }
+    },
+    "R2": {
+      "missing": [
+        "lfm3-1.7b vs bielik-11b-v3.1: complete lengths shared: [8192, 16384]"
+      ],
+      "status": "not decided (Amendment 6): fewer than 3 complete lengths shared",
+      "lengths": [
+        8192,
+        16384
+      ],
+      "descriptive": {
+        "4096": {
+          "lfm3-1.7b": {
+            "mean": 93.35,
+            "tasks": 13
+          },
+          "bielik-11b-v3.1": {
+            "mean": 97.44,
+            "tasks": 12,
+            "skipped_tasks": [
+              "qa_2"
+            ]
+          }
+        },
+        "8192": {
+          "lfm3-1.7b": {
+            "mean": 92.41,
+            "tasks": 13
+          },
+          "bielik-11b-v3.1": {
+            "mean": 93.89,
+            "tasks": 13
+          }
+        },
+        "16384": {
+          "lfm3-1.7b": {
+            "mean": 87.3,
+            "tasks": 13
+          },
+          "bielik-11b-v3.1": {
+            "mean": 91.7,
+            "tasks": 13
+          }
+        }
+      },
+      "verdict": "not decided",
+      "outcome": "not decided",
+      "strict": {
+        "verdict": "not run",
+        "outcome": "not run",
+        "missing": [
+          "bielik-11b-v3.1"
+        ]
+      }
+    },
+    "R3": {
+      "measure": "LFM3 drop 4096->131072: tracing, aggregation - retrieval (weaker)",
+      "value": -22.200000000000003,
+      "se": 1.1511993559308953,
+      "z": -19.284235945431362,
+      "p": 7.285850719083417e-83,
+      "n": 1300,
+      "comparisons": [
+        {
+          "comparison": "drop tracing - drop retrieval",
+          "value": -22.200000000000003,
+          "se": 1.1511993559308953,
+          "z": -19.284235945431362,
+          "p": 7.285850719083417e-83,
+          "n": 1300,
+          "verdict_clustered": "undetermined"
+        },
+        {
+          "comparison": "drop aggregation - drop retrieval",
+          "value": 16.400100000000002,
+          "se": 2.800912967666046,
+          "z": 5.855269402985389,
+          "p": 4.7623738880265995e-09,
+          "n": 1300,
+          "verdict_clustered": "undetermined"
+        }
+      ],
+      "refuted": true,
+      "confirmed_direction": false,
+      "drops": {
+        "retrieval": {
+          "drop": 23.0,
+          "se_sample": 1.0247250380664874,
+          "z_sample": 22.445045398127267,
+          "tasks": 8,
+          "se_clustered": 14.511079510891964,
+          "t_clustered": 1.5849957946089595,
+          "df": 7,
+          "verdict_clustered": "noise"
+        },
+        "tracing": {
+          "drop": 0.7999999999999972,
+          "se_sample": 0.5552698605739418,
+          "z_sample": 1.4407409024021145,
+          "tasks": 1,
+          "se_clustered": null,
+          "t_clustered": null,
+          "df": 0,
+          "verdict_clustered": "undetermined"
+        },
+        "aggregation": {
+          "drop": 39.4001,
+          "se_sample": 2.611778790087401,
+          "z_sample": 15.085542523561696,
+          "tasks": 2,
+          "se_clustered": 43.399899999999995,
+          "t_clustered": 0.9078384973237267,
+          "df": 1,
+          "verdict_clustered": "undetermined"
+        },
+        "qa": {
+          "drop": 9.0,
+          "se_sample": 6.2588738396115655,
+          "z_sample": 1.437958366094587,
+          "tasks": 2,
+          "se_clustered": 5.0,
+          "t_clustered": 1.8,
+          "df": 1,
+          "verdict_clustered": "undetermined"
+        }
+      },
+      "p_holm": 2.185755215725025e-82,
+      "verdict": "clear",
+      "outcome": "refuted",
+      "strict": {
+        "value": -22.950000000000003,
+        "se": 1.2175817424324944,
+        "z": -18.848837166488973,
+        "p_holm": 9.011176493951527e-79,
+        "verdict": "clear",
+        "outcome": "refuted",
+        "n": 1300
+      }
+    }
+  },
+  "holm_m": 3,
+  "models": {
+    "lfm3-1.7b": {
+      "per_length": {
+        "4096": 93.35,
+        "8192": 92.41,
+        "16384": 87.3,
+        "32768": 81.34,
+        "65536": 76.88,
+        "131072": 71.69
+      },
+      "strict_per_length": {
+        "4096": 92.28,
+        "8192": 89.95,
+        "16384": 86.07,
+        "32768": 79.8,
+        "65536": 75.19,
+        "131072": 70.51
+      },
+      "excluded_lengths": {},
+      "partial_lengths": {},
+      "errors_excluded": {}
+    },
+    "bielik-11b-v3.1": {
+      "per_length": {
+        "4096": null,
+        "8192": 93.89,
+        "16384": 91.7,
+        "32768": null,
+        "65536": null,
+        "131072": null
+      },
+      "strict_per_length": null,
+      "excluded_lengths": {
+        "4096": "partial: RULER could not generate qa_2; not comparable (13-task mean undefined)",
+        "32768": "562 of 650 prompts do not fit: with the chat template the longest (vt #41) has 33790 tokens, which with a 256-token margin and RULER's answer budget of 30 exceeds the 32768-token context window",
+        "65536": "the 32768-token context window does not hold a 65536-token RULER sample",
+        "131072": "the 32768-token context window does not hold a 131072-token RULER sample"
+      },
+      "partial_lengths": {
+        "4096": {
+          "score": 97.44,
+          "skipped_tasks": [
+            "qa_2"
+          ]
+        }
+      },
+      "errors_excluded": {}
+    },
+    "slayer1b-1.09-k70000": {
+      "per_length": {
+        "4096": null,
+        "8192": null,
+        "16384": null,
+        "32768": null,
+        "65536": null,
+        "131072": null
+      },
+      "strict_per_length": null,
+      "excluded_lengths": {
+        "4096": "partial: RULER could not generate qa_2; not comparable (13-task mean undefined)",
+        "8192": "the 4096-token context window does not hold a 8192-token RULER sample",
+        "16384": "the 4096-token context window does not hold a 16384-token RULER sample",
+        "32768": "the 4096-token context window does not hold a 32768-token RULER sample",
+        "65536": "the 4096-token context window does not hold a 65536-token RULER sample",
+        "131072": "the 4096-token context window does not hold a 131072-token RULER sample"
+      },
+      "partial_lengths": {
+        "4096": {
+          "score": 45.34,
+          "skipped_tasks": [
+            "qa_2"
+          ]
+        }
+      },
+      "errors_excluded": {}
+    }
+  },
+  "deviations": [
+    "control, R1-R3: a length where RULER's generator could not produce some task (partial length, the task is null) is not comparable: the control and R1 at 131072 are `not run` there, and R2 and R3 use only lengths complete for the compared models.",
+    "R3: the protocol asks for an SE clustered by task, but tracing has 1 task and aggregation 2, under the 3 clusters a clustered verdict needs; the verdict uses the sample-level bootstrap SE (tasks fixed), and the clustered SE is reported next to it, undetermined for every category with fewer than 3 tasks.",
+    "R3: the hypothesis compares two categories against retrieval; its z is the weaker of the two comparisons (it holds only if both hold), so it enters Holm once and m stays 3.",
+    "control (Amendment 4, decided after the result and after the control failed): the card value is not comparable, so the control is reported as measured and marked `not comparable`, and R1-R3 are read; every score is also given under strict scoring (an output without `</think>` scores 0), verdicts stay on the pre-registered scoring with the strict verdict next to each."
+  ],
+  "bootstrap": {
+    "resamples": 10000,
+    "seed": "20261122:<model-id>"
+  },
+  "warnings": [],
+  "inputs_sha256": {
+    "lfm3-1.7b.json": "1a5182c298b6f9fb5b699a79b70a453a9ac70a7e01d67ad643ae1127275301ef",
+    "lfm3-1.7b.jsonl.gz": "3062b64a3f978b7f7b3eb6c9a244f7ab07218cc68d6ec9d1586959a1f2a316b8",
+    "bielik-11b-v3.1.json": "3bda3fdb8aecd85feae1262584252d2778d426e376470d3334bf9dfc4b54e828",
+    "bielik-11b-v3.1.jsonl.gz": "95fdeedbf0fc3a34413f0d0fcd04e2d174bcc28f1e030466e25ffeda07646d1d",
+    "slayer1b-1.09-k70000.json": "a453574c23f57215c7457343bf353bde48104d80c12d273a42482689bd029b0d",
+    "slayer1b-1.09-k70000.jsonl.gz": "01dee135f3653728ff6ab93f2e43015bf43ca25e06a17d01ae1957e8ab8df136"
+  },
+  "provenance": {
+    "time": "2026-11-22T16:09:16+00:00",
+    "code": {
+      "commit": "503f2225827aedbed886255bec083fc78934a184",
+      "dirty": true
+    },
+    "runner_sha256": {
+      "run.sh": "61b6baa8360b4f3d4aade1cd3f9d45d9d4c07a605b519f8929dab809c48941b8",
+      "predict.py": "f1b16183e976b55defaa2c163bd860e11207e8e1dcb27d759791d33f263f4530",
+      "slayer_predict.py": "e75b03ea22b22c3827069e55e7b7f06b34c8e28dadf595939677db4d0da42422",
+      "prepare_limited.py": "8ca6e7451dce1851cf3beadd13ebf0c7f66dc62bd721bca750ad50c5a7f26974",
+      "ruler.py": "7491f1fbc3337240e151f564319cf591f3442ce6adc945dfff44f066bcbd5fc7",
+      "summarize.py": "4fb13c0434e84dd9e742ad186be2f3c08abfcf29546ade8794db252fbd0df8de",
+      "compare.py": "e4b30a53451ee80591b385ffaa64d76a72cfe7540f2d09235d861e35c15da5ca",
+      "provenance.py": "8d5a9c9d582d32b7555030cc5ade0412603632c8c3756d7a440e414904b024f5",
+      "requirements.lock.txt": "734278c83bf2e15d209f8b38eb07b71df447f1478f82651de2ebc422423c60af",
+      "nemo_shim/nemo/collections/asr/parts/utils/manifest_utils.py": "1eee490503e415bc1d289baeb5b027593683287cc9d191003da9a415ab1a06ce",
+      "../../common/slayer_lm.py": "5ae131e1e46b36ff2091d313485a234a9bfc1609b2ba726ab1a73008e5a3a2fa"
+    },
+    "hardware": {
+      "gpu": null,
+      "platform": "macOS-26.6-arm64-arm-64bit",
+      "machine": "arm64",
+      "processor": "arm",
+      "cpu_count": 18,
+      "python": "3.12.2"
+    }
+  }
+}

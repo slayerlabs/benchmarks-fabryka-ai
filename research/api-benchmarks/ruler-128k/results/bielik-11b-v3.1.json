@@ -1,0 +1,227 @@
+{
+  "benchmark": "RULER",
+  "model": "bielik-11b-v3.1",
+  "metric": "mean of the 13 RULER task scores at 131072 tokens (percent)",
+  "score": null,
+  "stderr": null,
+  "n": null,
+  "date": "2026-11-22",
+  "harness": "https://github.com/NVIDIA/RULER @ db43f92ff634bbce1c33d1fb15858aec4bba509a (data: scripts/data/prepare.py, scoring: scripts/eval/evaluate.py)",
+  "data": "RULER synthetic tasks generated with the model's tokenizer, seed 20261122, 50 samples per task and length; source files sha256: PaulGrahamEssays.json 58e352531a80cef2d22c205dbebfbfd64a8afe55a32434de845f200718756c65, english_words.json affcd6d45fdf3cc843d585c99c97ad615094e760e6c4756b654bab6c73bc2eca, hotpotqa.json e3da074df24e8369009918aa5cdbdd254dadcde4c63f7569d36afd6f2268caa8, squad.json 80a5225e94905956a6446d296ca1093975c4d3b3260f1d6c8f68bc2ab77182d8",
+  "settings": {
+    "weights": "speakleash/Bielik-11B-v3.1-Instruct @ d6e755d356ad418d0f0e30b8c428db267415ddb9",
+    "context_window": 32768,
+    "seed": 20261122,
+    "serving": "Fabryka AI API, https://fabryka.ai/v1/chat/completions, model bielik-11b-v3.1, concurrency 2",
+    "max_tokens": "context window minus the templated input counted locally minus a 256-token margin",
+    "prompt_count": "the model's tokenizer and chat template at the pinned revision, template defaults (provider system prompt on, live date)",
+    "margin": 256,
+    "prompt": "RULER input + answer prefix as one user message, model chat template with its defaults",
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "scored": "text after the last </think>",
+    "sampling": {
+      "sent": {
+        "temperature": 0.6,
+        "top_p": 0.95,
+        "seed": 20261122,
+        "max_tokens": "per request: context window minus the templated input counted locally minus a 256-token margin"
+      },
+      "server_defaults": "unknown (Fabryka API)"
+    }
+  },
+  "other_metrics": {
+    "per_length": {
+      "4096": {
+        "score": 97.44,
+        "stderr": 0.38,
+        "n": 600,
+        "partial": true,
+        "skipped_tasks": {
+          "qa_2": "RULER's qa_2 generator cannot fit a sample into 4096 tokens with this tokenizer: no result within 1200 s (qa.py never exits; RULER db43f92 qa.py L196-206)"
+        }
+      },
+      "8192": {
+        "score": 93.89,
+        "stderr": 0.66,
+        "n": 650
+      },
+      "16384": {
+        "score": 91.7,
+        "stderr": 0.76,
+        "n": 650
+      },
+      "32768": {
+        "score": null,
+        "reason": "562 of 650 prompts do not fit: with the chat template the longest (vt #41) has 33790 tokens, which with a 256-token margin and RULER's answer budget of 30 exceeds the 32768-token context window"
+      },
+      "65536": {
+        "score": null,
+        "reason": "the 32768-token context window does not hold a 65536-token RULER sample"
+      },
+      "131072": {
+        "score": null,
+        "reason": "the 32768-token context window does not hold a 131072-token RULER sample"
+      }
+    },
+    "per_task": {
+      "4096": {
+        "niah_single_1": 98.0,
+        "niah_single_2": 100.0,
+        "niah_single_3": 100.0,
+        "niah_multikey_1": 100.0,
+        "niah_multikey_2": 100.0,
+        "niah_multikey_3": 100.0,
+        "niah_multivalue": 94.5,
+        "niah_multiquery": 100.0,
+        "vt": 100.0,
+        "cwe": 98.8,
+        "fwe": 82.0,
+        "qa_1": 96.0,
+        "qa_2": null
+      },
+      "8192": {
+        "niah_single_1": 100.0,
+        "niah_single_2": 100.0,
+        "niah_single_3": 100.0,
+        "niah_multikey_1": 100.0,
+        "niah_multikey_2": 100.0,
+        "niah_multikey_3": 100.0,
+        "niah_multivalue": 82.5,
+        "niah_multiquery": 99.5,
+        "vt": 96.0,
+        "cwe": 95.2,
+        "fwe": 85.33,
+        "qa_1": 88.0,
+        "qa_2": 74.0
+      },
+      "16384": {
+        "niah_single_1": 98.0,
+        "niah_single_2": 100.0,
+        "niah_single_3": 100.0,
+        "niah_multikey_1": 100.0,
+        "niah_multikey_2": 100.0,
+        "niah_multikey_3": 100.0,
+        "niah_multivalue": 76.5,
+        "niah_multiquery": 100.0,
+        "vt": 92.4,
+        "cwe": 81.2,
+        "fwe": 98.0,
+        "qa_1": 84.0,
+        "qa_2": 62.0
+      }
+    },
+    "per_category": {
+      "4096": {
+        "retrieval": 99.06,
+        "tracing": 100.0,
+        "aggregation": 90.4,
+        "qa": 96.0
+      },
+      "8192": {
+        "retrieval": 97.75,
+        "tracing": 96.0,
+        "aggregation": 90.27,
+        "qa": 81.0
+      },
+      "16384": {
+        "retrieval": 96.81,
+        "tracing": 92.4,
+        "aggregation": 89.6,
+        "qa": 73.0
+      }
+    },
+    "errors": {
+      "4096": {},
+      "8192": {},
+      "16384": {}
+    },
+    "unfinished": {
+      "4096": 0,
+      "8192": 0,
+      "16384": 0
+    },
+    "strict": {
+      "rule": "strict (Amendment 4): an output without `</think>` scores 0; errors stay out of the score",
+      "applies": false,
+      "reason": "the generation prompt closes the reasoning block (ends `<think></think>`): outputs carry no `</think>`",
+      "reasoning": {
+        "opens": false,
+        "prompt_end": "|>\n<|im_start|>assistant\n<think></think>",
+        "source": "chat template of speakleash/Bielik-11B-v3.1-Instruct @ d6e755d356ad418d0f0e30b8c428db267415ddb9, defaults, add_generation_prompt",
+        "reason": "the generation prompt closes the reasoning block (ends `<think></think>`): outputs carry no `</think>`",
+        "recorded": "by summarize.py, not at generation (generation.jsonl has no reasoning field)"
+      }
+    }
+  },
+  "deviations": "see README.md, Deviations",
+  "provenance": {
+    "generation": [
+      {
+        "time": "2026-11-22T14:03:27+00:00",
+        "code": {
+          "commit": "128f7735d99073fd6d94f5a1df5fe26c18437897",
+          "dirty": true
+        },
+        "runner_sha256": {
+          "run.sh": "bce92cd54deb433f3c5763a78641b22ea45c6996526cfa7d5f8c0f5e1965f345",
+          "predict.py": "3822fc269208ed7a682d04f2894a004084ce73dbbc11601253c5eb00a4fb490c",
+          "slayer_predict.py": "e75b03ea22b22c3827069e55e7b7f06b34c8e28dadf595939677db4d0da42422",
+          "prepare_limited.py": "8ca6e7451dce1851cf3beadd13ebf0c7f66dc62bd721bca750ad50c5a7f26974",
+          "ruler.py": "7491f1fbc3337240e151f564319cf591f3442ce6adc945dfff44f066bcbd5fc7",
+          "summarize.py": "f91bbb6b83f831383acb96e49ee409e14b713776bcdebd671962f5b463a023d9",
+          "compare.py": "22e038bff14a76ea1240c29168a0597c2932adabab93e34282a45128aa57c1cb",
+          "provenance.py": "08d3b80a4199b7b08f852e6f766dc2d7336a5a74e90b853ef09c996cb1b8679c",
+          "requirements.lock.txt": "734278c83bf2e15d209f8b38eb07b71df447f1478f82651de2ebc422423c60af",
+          "nemo_shim/nemo/collections/asr/parts/utils/manifest_utils.py": "1eee490503e415bc1d289baeb5b027593683287cc9d191003da9a415ab1a06ce",
+          "../../common/slayer_lm.py": "5ae131e1e46b36ff2091d313485a234a9bfc1609b2ba726ab1a73008e5a3a2fa"
+        },
+        "hardware": {
+          "gpu": null,
+          "platform": "macOS-26.6-arm64-arm-64bit",
+          "machine": "arm64",
+          "processor": "arm",
+          "cpu_count": 18,
+          "python": "3.12.2"
+        }
+      }
+    ],
+    "summarize": {
+      "time": "2026-11-22T16:01:39+00:00",
+      "code": {
+        "commit": "128f7735d99073fd6d94f5a1df5fe26c18437897",
+        "dirty": true
+      },
+      "runner_sha256": {
+        "run.sh": "61b6baa8360b4f3d4aade1cd3f9d45d9d4c07a605b519f8929dab809c48941b8",
+        "predict.py": "f1b16183e976b55defaa2c163bd860e11207e8e1dcb27d759791d33f263f4530",
+        "slayer_predict.py": "e75b03ea22b22c3827069e55e7b7f06b34c8e28dadf595939677db4d0da42422",
+        "prepare_limited.py": "8ca6e7451dce1851cf3beadd13ebf0c7f66dc62bd721bca750ad50c5a7f26974",
+        "ruler.py": "7491f1fbc3337240e151f564319cf591f3442ce6adc945dfff44f066bcbd5fc7",
+        "summarize.py": "d80f85f171e5153a3fecfd0366520191c411986e02a8f0333066324852e42f9b",
+        "compare.py": "22e038bff14a76ea1240c29168a0597c2932adabab93e34282a45128aa57c1cb",
+        "provenance.py": "8d5a9c9d582d32b7555030cc5ade0412603632c8c3756d7a440e414904b024f5",
+        "requirements.lock.txt": "734278c83bf2e15d209f8b38eb07b71df447f1478f82651de2ebc422423c60af",
+        "nemo_shim/nemo/collections/asr/parts/utils/manifest_utils.py": "1eee490503e415bc1d289baeb5b027593683287cc9d191003da9a415ab1a06ce",
+        "../../common/slayer_lm.py": "5ae131e1e46b36ff2091d313485a234a9bfc1609b2ba726ab1a73008e5a3a2fa"
+      },
+      "hardware": {
+        "gpu": null,
+        "platform": "macOS-26.6-arm64-arm-64bit",
+        "machine": "arm64",
+        "processor": "arm",
+        "cpu_count": 18,
+        "python": "3.12.2"
+      }
+    },
+    "api_events": null,
+    "api_events_reason": "no api-events.jsonl was recorded for this run (generated before predict.py logged retries); its console log ~/Documents/GitHub/labaj-agency/out/bench-queue/bielik-ruler.log shows 7 x HTTP 503 \"bielik-11b-v3.1 is temporarily unavailable\", all recovered on attempt 2, with no timestamps (generation calls without the log: 2026-11-22T14:03:27+00:00)"
+  },
+  "warnings": [],
+  "reason": "the 32768-token context window does not hold a 131072-token RULER sample",
+  "strict": {
+    "rule": "strict (Amendment 4): an output without `</think>` scores 0; errors stay out of the score",
+    "score": null,
+    "reason": "the generation prompt closes the reasoning block (ends `<think></think>`): outputs carry no `</think>`"
+  }
+}
