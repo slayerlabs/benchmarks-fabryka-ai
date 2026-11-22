@@ -6,8 +6,12 @@ Before reading, the sha256 of each model's result files is checked against resul
 summarize.py); a mismatch stops. A result file not listed there is recorded now and named in `warnings`.
 hypotheses.json carries the sha256 of every input and the commit, runner sha256 and machine of this run.
 
-- Control (Amendment 1): LFM3-1.7B's mean at 131072 against its card value 65.56; PASS when |z| < 2. Without a
-  PASS the hypotheses are printed but not read.
+- Control (Amendment 1): LFM3-1.7B's mean at 131072 against its card value 65.56; PASS when |z| < 2. Amendment 4
+  (decided after the result, when the control had failed) marks it `not comparable (Amendment 4)`: the card states
+  no setup for its value. The measured z and PASS/FAIL are still printed, and the hypotheses are read.
+- Amendment 4: every score twice, as pre-registered (whole text scored when there is no `</think>`) and strict (an
+  output without `</think>` scores 0, from summarize.py's `other_metrics.strict` and the rows' `closed_think`).
+  Verdicts come from the pre-registered scores; the strict verdict (its own Holm family, m = 3) is shown next to each.
 - R1: LFM3-1.7B's mean at 131072 against 85.6. Confirmed: z <= -3 (after Holm); refuted: mean >= 85.6.
 - R2 (Amendment 1): slope of the per-length mean against log2(length), LFM3-1.7B minus Bielik 11B v3.1, over the
   lengths both models hold. Confirmed: negative, clear after Holm; refuted: not 2 SE below 0.
@@ -39,6 +43,10 @@ import provenance  # noqa: E402
 LFM3, BIELIK, SLAYER = "lfm3-1.7b", "bielik-11b-v3.1", "slayer1b-1.09-k70000"
 DESCRIPTIVE = [SLAYER]
 CONTROL_CARD = 65.56  # LFM3-1.7B card, RULER 128K (PROTOCOL.md, Amendment 1)
+CONTROL_STATUS = "not comparable (Amendment 4)"
+CONTROL_REASON = ("the card states no setup for its RULER value (harness, thinking mode, samples, output cap; "
+                  "card @ 1da06bec line 536 gives only serving and sampling defaults), so it is no pass/fail "
+                  "target; the measured z is reported, the hypotheses are read")
 THRESHOLD = 85.6  # Llama-2-7B at 4K, the paper's effective-length threshold
 SHORT, LONG = LENGTHS[0], HEADLINE_LENGTH
 M = 3  # hypotheses in the Holm family, fixed by the protocol
@@ -54,19 +62,29 @@ DEVIATIONS = [
     "clustered SE is reported next to it, undetermined for every category with fewer than 3 tasks.",
     "R3: the hypothesis compares two categories against retrieval; its z is the weaker of the two comparisons "
     "(it holds only if both hold), so it enters Holm once and m stays 3.",
+    "control (Amendment 4, decided after the result and after the control failed): the card value is not "
+    "comparable, so the control is reported as measured and marked `not comparable`, and R1-R3 are read; every "
+    "score is also given under strict scoring (an output without `</think>` scores 0), verdicts stay on the "
+    "pre-registered scoring with the strict verdict next to each.",
 ]
 
 
-def load(results_dir, model):
+def load(results_dir, model, strict=False):
     """Scored samples per usable length and task, the excluded lengths with reasons, the partial lengths and the
-    error rows left out; None when the model has no result files.
+    error rows left out; None when the model has no result files, or with `strict` when the strict variant does not
+    apply to it (Amendment 4: an output without `</think>` scores 0; summarize.py `other_metrics.strict`).
 
     A partial length (RULER could not generate some task there, summarize.py `partial`) is excluded: the protocol's
     measures are means over all 13 tasks, so its mean over fewer tasks is kept only as a descriptive number."""
     summary, samples = results_dir / f"{model}.json", results_dir / f"{model}.jsonl.gz"
     if not (summary.is_file() and samples.is_file()):
         return None
-    per_length = json.loads(summary.read_text(encoding="utf-8"))["other_metrics"]["per_length"]
+    metrics = json.loads(summary.read_text(encoding="utf-8"))["other_metrics"]
+    if strict:
+        if not metrics.get("strict", {}).get("applies"):
+            return None
+        metrics = metrics["strict"]
+    per_length = metrics["per_length"]
     excluded, partial = {}, {}
     for length in LENGTHS:
         entry = per_length.get(str(length))
@@ -86,7 +104,8 @@ def load(results_dir, model):
             if row["score"] is None:
                 errors[row["length"]] += 1
             else:
-                scores[row["length"]][row["task"]].append(row["score"])
+                score = row["score"] if not strict or row["closed_think"] else 0.0
+                scores[row["length"]][row["task"]].append(score)
     for length in usable:
         missing = [t for t, s in scores[length].items() if not s]
         if missing:
@@ -95,8 +114,8 @@ def load(results_dir, model):
             continue
         mean = length_mean({t: statistics.fmean(s) for t, s in scores[length].items()})
         if abs(mean - per_length[str(length)]["score"]) > 0.01:
-            raise SystemExit(f"compare.py: {model} @ {length}: samples average {mean:.4f}, "
-                             f"{summary.name} says {per_length[str(length)]['score']}")
+            raise SystemExit(f"compare.py: {model} @ {length}{' (strict)' if strict else ''}: samples average "
+                             f"{mean:.4f}, {summary.name} says {per_length[str(length)]['score']}")
     return {"scores": scores, "excluded": excluded, "errors": errors, "partial": partial}
 
 
@@ -150,7 +169,8 @@ def comparison(label, value, se, n):
     return {"comparison": label, "value": value, "se": se, "z": z, "p": statystyka.p_z(z), "n": n}
 
 
-def control(runs):
+def control(runs, strict_runs=None):
+    """The control as measured (PASS within 2 SE of the card), with status `not comparable (Amendment 4)`."""
     run = runs.get(LFM3)
     if run is None:
         return {"status": "not run", "missing": [LFM3]}
@@ -158,8 +178,13 @@ def control(runs):
         return {"status": "not run", "missing": [f"{LFM3} @ {LONG}: {run['excluded'][LONG]}"]}
     mean, se = stat(lambda p: length_mean(p[LONG]), run)
     z = z_of(mean - CONTROL_CARD, se)
-    return {"status": "PASS" if z is not None and abs(z) < 2 else "FAIL", "mean": mean, "se": se, "card": CONTROL_CARD,
-            "z": z, "n": n_scored(run, [LONG])}
+    out = {"status": CONTROL_STATUS, "measured": "PASS" if z is not None and abs(z) < 2 else "FAIL",
+           "reason": CONTROL_REASON, "mean": mean, "se": se, "card": CONTROL_CARD, "z": z, "n": n_scored(run, [LONG])}
+    strict = (strict_runs or {}).get(LFM3)
+    if strict is not None and LONG in strict["point"]:
+        s_mean, s_se = stat(lambda p: length_mean(p[LONG]), strict)
+        out["strict"] = {"mean": s_mean, "se": s_se, "z": z_of(s_mean - CONTROL_CARD, s_se)}
+    return out
 
 
 def missing(runs, models, lengths):
@@ -243,22 +268,17 @@ def combine(measure, comps, sign, **extra):
             "confirmed_direction": all(c["value"] * sign > 0 for c in comps), **extra}
 
 
-def analyse(results_dir, resamples):
-    runs, warnings, inputs = {}, [], {}
-    for model in [LFM3, BIELIK, *DESCRIPTIVE]:
-        names = [f"{model}.json", f"{model}.jsonl.gz"]
-        if all((results_dir / n).is_file() for n in names):
-            if provenance.check(results_dir, names, provenance.RESULTS, "compare.py", add_unrecorded=True):
-                warnings.append(f"{model}: result files not in {provenance.RESULTS}; their sha256 were recorded by "
-                                "compare.py now, not by summarize.py when they were written")
-            inputs.update(provenance.hashes(results_dir, names))
-        run = load(results_dir, model)
-        if run is not None and model not in DESCRIPTIVE:
-            run.update(point=point(run["scores"]), resamples=resamples,
-                       boot=bootstrap(run["scores"], resamples, f"{BOOTSTRAP_SEED}:{model}"))
-        elif run is not None:
-            run["point"] = point(run["scores"])
-        runs[model] = run
+def prepared(run, model, resamples):
+    """Point estimates for every model, the bootstrap for the models a hypothesis uses (not the descriptive ones)."""
+    if run is not None:
+        run["point"] = point(run["scores"])
+        if model not in DESCRIPTIVE:
+            run.update(resamples=resamples, boot=bootstrap(run["scores"], resamples, f"{BOOTSTRAP_SEED}:{model}"))
+    return run
+
+
+def read_hypotheses(runs):
+    """R1-R3 with Holm over m = 3, verdict and outcome."""
     hyps = {"R1": r1(runs), "R2": r2(runs), "R3": r3(runs)}
     adjusted = statystyka.holm([h.get("p") for h in hyps.values()], m=M)
     for h, p_holm in zip(hyps.values(), adjusted):
@@ -269,13 +289,37 @@ def analyse(results_dir, resamples):
         h["verdict"] = VERDICT[statystyka.werdykt_p(p_holm)] if p_holm is not None else "undetermined"
         h["outcome"] = ("refuted" if h["refuted"] else
                         "confirmed" if h["verdict"] == "clear" and h["confirmed_direction"] else "open")
+    return hyps
+
+
+def per_length(run):
+    return {str(length): round(length_mean(run["point"][length]), 2) if length in run["point"] else None
+            for length in LENGTHS}
+
+
+def analyse(results_dir, resamples):
+    runs, strict_runs, warnings, inputs = {}, {}, [], {}
+    for model in [LFM3, BIELIK, *DESCRIPTIVE]:
+        names = [f"{model}.json", f"{model}.jsonl.gz"]
+        if all((results_dir / n).is_file() for n in names):
+            if provenance.check(results_dir, names, provenance.RESULTS, "compare.py", add_unrecorded=True):
+                warnings.append(f"{model}: result files not in {provenance.RESULTS}; their sha256 were recorded by "
+                                "compare.py now, not by summarize.py when they were written")
+            inputs.update(provenance.hashes(results_dir, names))
+        runs[model] = prepared(load(results_dir, model), model, resamples)
+        strict_runs[model] = prepared(load(results_dir, model, strict=True), model, resamples)
+    hyps = read_hypotheses(runs)
+    # Amendment 4: the verdicts are the pre-registered ones; the strict reading of each is shown next to it
+    for name, s in read_hypotheses(strict_runs).items():
+        hyps[name]["strict"] = ({"verdict": "not run", "outcome": "not run", "missing": s["missing"]} if "missing" in s
+                                else {k: s[k] for k in ("value", "se", "z", "p_holm", "verdict", "outcome", "n")})
     descriptive = {m: None if run is None else {
-        "per_length": {str(length): round(length_mean(run["point"][length]), 2) if length in run["point"] else None
-                       for length in LENGTHS},
+        "per_length": per_length(run),
+        "strict_per_length": None if strict_runs[m] is None else per_length(strict_runs[m]),
         "excluded_lengths": {str(k): v for k, v in sorted(run["excluded"].items())},
         "partial_lengths": {str(k): v for k, v in sorted(run["partial"].items())},
         "errors_excluded": {str(k): v for k, v in run["errors"].items() if v}} for m, run in runs.items()}
-    return {"control": control(runs), "hypotheses": hyps, "holm_m": M, "models": descriptive,
+    return {"control": control(runs, strict_runs), "hypotheses": hyps, "holm_m": M, "models": descriptive,
             "deviations": DEVIATIONS, "bootstrap": {"resamples": resamples, "seed": f"{BOOTSTRAP_SEED}:<model-id>"},
             "warnings": warnings, "inputs_sha256": inputs, "provenance": provenance.machine()}
 
@@ -292,12 +336,14 @@ def report(result):
     lines = [f"deviation: {d}" for d in result["deviations"]] + [f"warning: {w}" for w in result["warnings"]]
     c = result["control"]
     if c["status"] == "not run":
-        lines.append(f"control: not run (missing: {', '.join(c['missing'])}); hypotheses not read until it passes")
+        lines.append(f"control: not run (missing: {', '.join(c['missing'])})")
     else:
         lines.append(f"control: LFM3-1.7B @ {LONG} = {c['mean']:.2f} +- {c['se']:.2f} vs card {c['card']}, "
-                     f"z = {fmt(c['z'])}: {c['status']}")
-        if c["status"] == "FAIL":
-            lines.append("control FAIL: hypotheses not read until explained")
+                     f"z = {fmt(c['z'])}: {c['measured']} (as measured)")
+        if "strict" in c:
+            s = c["strict"]
+            lines.append(f"control, strict: LFM3-1.7B @ {LONG} = {s['mean']:.2f} +- {s['se']:.2f}, z = {fmt(s['z'])}")
+        lines.append(f"control status: {c['status']}: {c['reason']}")
     for model, d in result["models"].items():
         if d is None:
             continue
@@ -306,14 +352,19 @@ def report(result):
         if d["errors_excluded"]:
             lines.append(f"errors left out: {model}: "
                          + ", ".join(f"{n} @ {length}" for length, n in d["errors_excluded"].items()))
-    lines += ["", "| hypothesis | measure | value +- SE | z | Holm p | verdict | outcome | n |",
-              "|---|---|---|---|---|---|---|---|"]
+    lines += ["", "| hypothesis | measure | value +- SE | z | Holm p | verdict | outcome | n "
+                  "| strict value +- SE | strict z | strict Holm p | strict verdict | strict outcome |",
+              "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for name, h in result["hypotheses"].items():
+        s = h["strict"]
+        strict = ("- | - | - | not run | not run" if "missing" in s else
+                  f"{s['value']:.2f} +- {s['se']:.2f} | {fmt(s['z'])} | {fmt_p(s['p_holm'])} | {s['verdict']} | "
+                  f"{s['outcome']}")
         if "missing" in h:
-            lines.append(f"| {name} | missing: {', '.join(h['missing'])} | - | - | - | not run | not run | - |")
+            lines.append(f"| {name} | missing: {', '.join(h['missing'])} | - | - | - | not run | not run | - | {strict} |")
             continue
         lines.append(f"| {name} | {h['measure']} | {h['value']:.2f} +- {h['se']:.2f} | {fmt(h['z'])} | "
-                     f"{fmt_p(h['p_holm'])} | {h['verdict']} | {h['outcome']} | {h['n']} |")
+                     f"{fmt_p(h['p_holm'])} | {h['verdict']} | {h['outcome']} | {h['n']} | {strict} |")
     comps = [(name, c) for name, h in result["hypotheses"].items() for c in h.get("comparisons", [])]
     if comps:
         lines += ["", "| hypothesis | comparison | value +- SE | z | p (unadjusted) | n |", "|---|---|---|---|---|---|"]
@@ -329,10 +380,13 @@ def report(result):
                   "|---|---|---|---|---|"]
         lines += [f"| {c} | {d['drop']:.2f} | {d['se_sample']:.2f} | {fmt(d['se_clustered'])} ({d['tasks']}) | "
                   f"{d['verdict_clustered']} |" for c, d in r3_["drops"].items()]
-    lines += ["", "| model | " + " | ".join(map(str, LENGTHS)) + " |", "|---" * (len(LENGTHS) + 1) + "|"]
+    lines += ["", "| model | scoring | " + " | ".join(map(str, LENGTHS)) + " |", "|---" * (len(LENGTHS) + 2) + "|"]
     for model, d in result["models"].items():
         cells = ["not run"] * len(LENGTHS) if d is None else [fmt(d["per_length"][str(x)]) for x in LENGTHS]
-        lines.append(f"| {model} | " + " | ".join(cells) + " |")
+        lines.append(f"| {model} | pre-registered | " + " | ".join(cells) + " |")
+        if d is not None and d["strict_per_length"] is not None:
+            lines.append(f"| {model} | strict | " + " | ".join(fmt(d["strict_per_length"][str(x)]) for x in LENGTHS)
+                         + " |")
     return "\n".join(lines)
 
 

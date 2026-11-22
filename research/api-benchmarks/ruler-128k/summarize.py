@@ -9,6 +9,8 @@
       equal RULER's summary.csv, and writes the result files (format: research/METHODOLOGY.md) with the effective
       sampling in `settings.sampling` and the code commit, runner sha256 and hardware of generation (generation.jsonl)
       and of this summary in `provenance`; their sha256 go to results.sha256.json next to them, which compare.py checks.
+      PROTOCOL.md, Amendment 4: every score also strict (an output without `</think>` scores 0) in `strict` and
+      `other_metrics.strict` for chat-template runs; each .jsonl.gz row has `closed_think`.
 
 A run with --limit (run.json "limit") is written to <out>/<model-id>/<model-id>.* instead of results/, so a
 smoke test never replaces a published result. An out dir from a run.sh before generation.jsonl and
@@ -26,7 +28,7 @@ import statistics
 from pathlib import Path
 
 import provenance
-from ruler import answer_text, latest_records, read_jsonl
+from ruler import THINK_END, answer_text, latest_records, read_jsonl
 
 TASKS = ["niah_single_1", "niah_single_2", "niah_single_3", "niah_multikey_1", "niah_multikey_2", "niah_multikey_3",
          "niah_multivalue", "niah_multiquery", "vt", "cwe", "fwe", "qa_1", "qa_2"]
@@ -41,6 +43,9 @@ CATEGORIES = {  # PROTOCOL.md, Metrics (R3)
 BOOTSTRAP_RESAMPLES = 10_000
 BOOTSTRAP_SEED = 20261122
 ANSWER_CHARS = 2000  # stored answer text per sample in the .jsonl.gz; scoring always uses the full text
+# PROTOCOL.md, Amendment 4: every score is also reported with an output that never closed its reasoning scoring 0
+STRICT_RULE = "strict (Amendment 4): an output without `</think>` scores 0; errors stay out of the score"
+CHAT_SCORED = "text after the last </think>"  # run.json settings.scored of the chat-template runs (run.sh)
 
 
 def pred_records(samples, records):
@@ -84,7 +89,8 @@ def sample_rows(task, length, samples, records, postprocess, metric_fn):
         else:
             answer = answer_text(r["output"])
             row.update(score=metric_fn([postprocess(answer, None)], [s["outputs"]]), answer=answer,
-                       output_tokens=r["output_tokens"], finished=r["finish_reason"] == "stop")
+                       output_tokens=r["output_tokens"], finished=r["finish_reason"] == "stop",
+                       closed_think=THINK_END in r["output"])
         rows.append(row)
     return rows
 
@@ -158,11 +164,39 @@ def check_against_ruler(rows, ruler_scores, length):
                              f"!= RULER evaluate.py {official}")
 
 
-def result_json(run, metrics, sampling=None, prov=None, warnings=()):
+def headline_of(metrics):
+    """The 13-task mean at 131072 ({score, stderr, n}), or score None with the reason; a partial mean is not it."""
     headline = metrics["per_length"].get(str(HEADLINE_LENGTH), {"score": None, "reason": "length not run"})
     if headline.get("partial"):  # the headline is the 13-task mean; a partial mean is only in other_metrics
         headline = {"score": None, "reason": f"partial at {HEADLINE_LENGTH}: RULER could not generate "
                                              + ", ".join(headline["skipped_tasks"])}
+    return headline
+
+
+def strict_rows(rows):
+    """The rows rescored strictly (Amendment 4): a scored output without `</think>` gets 0; errors stay None."""
+    return [{**r, "score": r["score"] if r["closed_think"] else 0.0} if r["score"] is not None else r for r in rows]
+
+
+def strict_metrics(run, rows, skipped, task_skips, resamples=BOOTSTRAP_RESAMPLES):
+    """other_metrics.strict: the same aggregation on strict scores, with the count of outputs without `</think>` per
+    length and task. Only for chat-template runs, whose prompt opens a reasoning block (LFM3-1.7B and Bielik
+    templates end the generation prompt with `<think>`); Slayer's raw prompt has none, so it does not apply."""
+    if run["settings"].get("scored") != CHAT_SCORED:
+        return {"rule": STRICT_RULE, "applies": False,
+                "reason": "raw prompt without a chat template: no reasoning block to close"}
+    metrics = aggregate(strict_rows(rows), skipped, run["lengths"], run["tasks"], resamples, task_skips)
+    no_end = {}
+    for r in rows:
+        if r["score"] is not None and not r["closed_think"]:
+            by_task = no_end.setdefault(str(r["length"]), {})
+            by_task[r["task"]] = by_task.get(r["task"], 0) + 1
+    return {"rule": STRICT_RULE, "applies": True,
+            **{k: metrics[k] for k in ("per_length", "per_task", "per_category")}, "no_think_end": no_end}
+
+
+def result_json(run, metrics, sampling=None, prov=None, warnings=()):
+    headline = headline_of(metrics)
     result = {
         "benchmark": "RULER",
         "model": run["model"],
@@ -184,6 +218,13 @@ def result_json(run, metrics, sampling=None, prov=None, warnings=()):
     }
     if headline["score"] is None:
         result["reason"] = headline["reason"]
+    strict = metrics.get("strict")
+    if strict is not None:  # Amendment 4: the headline once more under strict scoring, next to the pre-registered
+        if strict["applies"]:
+            h = headline_of(strict)
+            result["strict"] = {"rule": STRICT_RULE, **{k: h[k] for k in ("score", "stderr", "n", "reason") if k in h}}
+        else:
+            result["strict"] = {"rule": STRICT_RULE, "score": None, "reason": strict["reason"]}
     return result
 
 
@@ -221,7 +262,7 @@ def jsonl_rows(rows):
             line["error"] = r["error"]
         else:
             line.update(answer=r["answer"][:ANSWER_CHARS], answer_truncated=len(r["answer"]) > ANSWER_CHARS,
-                        output_tokens=r["output_tokens"], finished=r["finished"])
+                        output_tokens=r["output_tokens"], finished=r["finished"], closed_think=r["closed_think"])
         yield line
 
 
@@ -258,6 +299,7 @@ def summarize_run(out_dir, target, postprocess, metric_fns, read_config=None):
             check_against_ruler(here, ruler_summary(length_dir / "pred"), length)
         rows += here
     metrics = aggregate(rows, skipped, run["lengths"], run["tasks"], task_skips=task_skips)
+    metrics["strict"] = strict_metrics(run, rows, skipped, task_skips)
     sampling, prov, warnings = run_provenance(out_dir, run, read_config)
     if input_warning:
         warnings.append(input_warning)
