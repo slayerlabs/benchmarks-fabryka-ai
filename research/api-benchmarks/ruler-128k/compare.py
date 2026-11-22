@@ -55,6 +55,14 @@ DESCRIPTIVE = [SLAYER]
 CONTROL_CARD = 65.56  # LFM3-1.7B card, RULER 128K (PROTOCOL.md, Amendment 1)
 CONTROL_FAIL = "FAIL, gap unexplained"
 R2_NOT_DECIDED = "not decided (Amendment 6): fewer than 3 complete lengths shared"
+R2_NOT_COMPARABLE = "not comparable: the RULER source files differ between the models"
+R2_CAVEATS = [
+    "a comparison of modes, not of models: LFM3-1.7B reasons before it answers (its generation prompt opens "
+    "`<think>`, output up to the rest of its window, vLLM), Bielik 11B v3.1 answers without reasoning (its template "
+    "closes `<think></think>`) through the Fabryka AI API with a hidden provider system prompt",
+    "RULER counts each length with the model's own tokenizer, so one nominal length holds a different amount of text "
+    "per model (diagnostics.json, input_text)",
+]
 CONTROL_READING = ("R1-R3 are read under Amendment 4, against the protocol's rule that no hypothesis is read until the "
                    "gap is explained (PROTOCOL.md, Control)")
 CONTROL_LABEL = ("Amendment 4 labels the card value `not comparable` because the card states no RULER setup (harness, "
@@ -95,7 +103,8 @@ def load(results_dir, model, strict=False):
     summary, samples = results_dir / f"{model}.json", results_dir / f"{model}.jsonl.gz"
     if not (summary.is_file() and samples.is_file()):
         return None
-    metrics = json.loads(summary.read_text(encoding="utf-8"))["other_metrics"]
+    result = json.loads(summary.read_text(encoding="utf-8"))
+    metrics = result["other_metrics"]
     if strict:
         if not metrics.get("strict", {}).get("applies"):
             return None
@@ -132,7 +141,34 @@ def load(results_dir, model, strict=False):
         if abs(mean - per_length[str(length)]["score"]) > 0.01:
             raise SystemExit(f"compare.py: {model} @ {length}{' (strict)' if strict else ''}: samples average "
                              f"{mean:.4f}, {summary.name} says {per_length[str(length)]['score']}")
-    return {"scores": scores, "excluded": excluded, "errors": errors, "partial": partial}
+    return {"scores": scores, "excluded": excluded, "errors": errors, "partial": partial,
+            "data_sources": data_sources(result)}
+
+
+def data_sources(result):
+    """{file: sha256} of RULER's source files (essays, SQuAD, HotpotQA, word list), from the result's `data` field
+    as summarize.py writes it ("...; source files sha256: name sha, name sha"); None when it has none."""
+    head, sep, listed = result.get("data", "").partition("source files sha256: ")
+    return dict(item.split(" ", 1) for item in listed.split(", ")) if sep and listed else None
+
+
+def data_parity(runs, models):
+    """Whether the compared models' RULER data came from the same source files (RULER fetches the essays live, so
+    two runs can differ); `differs`: file -> model -> sha256 for every file that is not the same for all."""
+    sources = {m: runs[m]["data_sources"] for m in models}
+    if any(s is None for s in sources.values()):
+        return {"same": None, "reason": "a result does not list the sha256 of its RULER source files"}
+    files = sorted(set().union(*sources.values()))
+    differs = {f: {m: sources[m].get(f) for m in models} for f in files if len({sources[m].get(f) for m in models}) > 1}
+    return {"same": not differs, "differs": differs}
+
+
+def parity_note(parity):
+    if parity["same"] is None:
+        return parity["reason"]
+    return ("same RULER source files" if parity["same"] else "RULER source files differ: " + "; ".join(
+        f"{f} " + ", ".join(f"{m} {sha[:8]}" for m, sha in by_model.items()) for f, by_model in parity["differs"].items())
+        + " (the haystack text is not the same)")
 
 
 def length_mean(task_means):
@@ -271,29 +307,47 @@ def length_means(run):
 
 def r2_descriptive(runs):
     """Amendment 6: per-length means of LFM3-1.7B and Bielik over every length both measured, partial ones marked
-    with their task count; descriptive only, no test statistic."""
-    lfm3, bielik = length_means(runs[LFM3]), length_means(runs[BIELIK])
-    return {str(length): {m: {"mean": round(means[length][0], 2), "tasks": len(TASKS) - len(means[length][1] or []),
-                              **({"skipped_tasks": means[length][1]} if means[length][1] else {})}
-                          for m, means in ((LFM3, lfm3), (BIELIK, bielik))}
-            for length in LENGTHS if length in lfm3 and length in bielik}
+    with their task count; where one model has fewer tasks, the other's mean on the same tasks next to it.
+    Descriptive only, no test statistic."""
+    means = {m: length_means(runs[m]) for m in (LFM3, BIELIK)}
+    out = {}
+    for length in LENGTHS:
+        if not all(length in means[m] for m in means):
+            continue
+        row = {}
+        shared = [t for t in TASKS if not any(t in (means[m][length][1] or []) for m in means)]
+        for m in means:
+            mean, skipped = means[m][length]
+            row[m] = {"mean": round(mean, 2), "tasks": len(TASKS) - len(skipped or []),
+                      **({"skipped_tasks": skipped} if skipped else {})}
+            if len(shared) < row[m]["tasks"] and length in runs[m]["point"]:
+                row[m]["mean_on_shared_tasks"] = round(statistics.fmean(runs[m]["point"][length][t] for t in shared), 2)
+                row[m]["shared_tasks"] = len(shared)
+        out[str(length)] = row
+    return out
 
 
 def r2(runs):
     if gone := missing(runs, [LFM3, BIELIK], []):
         return {"missing": gone}
+    parity = data_parity(runs, [LFM3, BIELIK])
     # The lengths both models hold (Amendment 1: 4096-32768); a length null for either model is left out.
     lengths = [length for length in LENGTHS if length in runs[LFM3]["point"] and length in runs[BIELIK]["point"]]
+    context = {"lengths": lengths, "descriptive": r2_descriptive(runs), "data_parity": parity,
+               "caveats": [*R2_CAVEATS, parity_note(parity)]}
     if len(lengths) < 3:  # Amendment 6: not tested on 2 lengths nor on a task subset; the means are descriptive
         return {"missing": [f"{LFM3} vs {BIELIK}: complete lengths shared: {lengths}"], "status": R2_NOT_DECIDED,
-                "lengths": lengths, "descriptive": r2_descriptive(runs)}
+                **context}
+    if parity["same"] is False:  # different haystack text: the slopes are not measured on the same data
+        return {"missing": [f"{LFM3} vs {BIELIK}: {parity_note(parity)}"], "status": R2_NOT_COMPARABLE, **context}
     s_l, se_l = stat(lambda p: slope(p, lengths), runs[LFM3])
     s_b, se_b = stat(lambda p: slope(p, lengths), runs[BIELIK])
     comp = comparison(f"slope {LFM3} - {BIELIK}", s_l - s_b, math.hypot(se_l, se_b),
                       n_scored(runs[LFM3], lengths) + n_scored(runs[BIELIK], lengths))
     return combine("slope per doubling, LFM3 - Bielik", [comp], sign=-1,
                    slopes={LFM3: {"slope": s_l, "se": se_l}, BIELIK: {"slope": s_b, "se": se_b}},
-                   lengths=lengths, lengths_excluded=[length for length in LENGTHS if length not in lengths])
+                   lengths=lengths, lengths_excluded=[length for length in LENGTHS if length not in lengths],
+                   data_parity=parity, caveats=context["caveats"])
 
 
 def r3(runs):
@@ -408,6 +462,8 @@ def analyse(results_dir, resamples):
         runs[model] = prepared(load(results_dir, model), model, resamples)
         strict_runs[model] = prepared(load(results_dir, model, strict=True), model, resamples)
     hyps = read_hypotheses(runs)
+    if hyps["R2"].get("data_parity", {}).get("same") is False:
+        warnings.append(f"{LFM3} vs {BIELIK}: {parity_note(hyps['R2']['data_parity'])}")
     # Amendment 4: the verdicts are the pre-registered ones; the strict reading of each is shown next to it
     for name, s in read_hypotheses(strict_runs).items():
         hyps[name]["strict"] = ({k: s[k] for k in ("verdict", "outcome", "missing")} if "missing" in s
@@ -418,7 +474,8 @@ def analyse(results_dir, resamples):
         "strict_per_length": None if strict_runs[m] is None else per_length(strict_runs[m]),
         "excluded_lengths": {str(k): v for k, v in sorted(run["excluded"].items())},
         "partial_lengths": {str(k): v for k, v in sorted(run["partial"].items())},
-        "errors_excluded": {str(k): v for k, v in run["errors"].items() if v}} for m, run in runs.items()}
+        "errors_excluded": {str(k): v for k, v in run["errors"].items() if v},
+        "data_sources": run["data_sources"]} for m, run in runs.items()}
     return {"control": control(runs, strict_runs), "hypotheses": hyps, "holm_m": M, "models": descriptive,
             "deviations": DEVIATIONS, "bootstrap": {"resamples": resamples, "seed": f"{BOOTSTRAP_SEED}:<model-id>"},
             "warnings": warnings, "inputs_sha256": inputs, "provenance": provenance.machine()}
@@ -484,8 +541,11 @@ def report(result):
                   f"| length | {LFM3} | {BIELIK} |", "|---|---|---|"]
         for length, d in r2_["descriptive"].items():
             cells = [f"{d[m]['mean']:.2f}" + (f" ({d[m]['tasks']} tasks, no {', '.join(d[m]['skipped_tasks'])})"
-                                              if "skipped_tasks" in d[m] else "") for m in (LFM3, BIELIK)]
+                                              if "skipped_tasks" in d[m] else "")
+                     + (f"; {d[m]['mean_on_shared_tasks']:.2f} on the same {d[m]['shared_tasks']} tasks"
+                        if "mean_on_shared_tasks" in d[m] else "") for m in (LFM3, BIELIK)]
             lines.append(f"| {length} | " + " | ".join(cells) + " |")
+        lines += [f"R2 caveat: {c}" for c in r2_["caveats"]]
     comps = [(name, c) for name, h in result["hypotheses"].items() for c in h.get("comparisons", [])]
     if comps:
         lines += ["", "| hypothesis | comparison | value +- SE | z or t (df) | p (unadjusted) | n |",

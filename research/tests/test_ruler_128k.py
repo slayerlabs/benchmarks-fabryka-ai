@@ -143,7 +143,11 @@ def by_category(retrieval, tracing, aggregation, qa):
     return {t: pct[c] for c, ts in S.CATEGORIES.items() for t in ts}
 
 
-def write_model(results_dir, model, means, skipped=None, errors=None, task_skips=None, unclosed=None):
+SOURCES = {"PaulGrahamEssays.json": "8d31e1b6" + "0" * 56, "squad.json": "80a5225e" + "0" * 56}
+
+
+def write_model(results_dir, model, means, skipped=None, errors=None, task_skips=None, unclosed=None,
+                sources=SOURCES):
     """Fake results/<model>.json and .jsonl.gz: means is length -> percent or length -> task -> percent; each task
     gets 50 samples of 100 or 0 with that mean; errors is (length, task) -> error rows on top; task_skips is
     length -> task -> reason for tasks RULER could not generate (no rows). With `unclosed` ((length, task) -> k: the
@@ -165,7 +169,8 @@ def write_model(results_dir, model, means, skipped=None, errors=None, task_skips
     if unclosed is not None:
         run = {"lengths": S.LENGTHS, "tasks": S.TASKS}
         metrics["strict"] = S.strict_metrics(run, rows, skipped or {}, task_skips, {"opens": True}, resamples=2)
-    (results_dir / f"{model}.json").write_text(json.dumps({"model": model, "other_metrics": metrics}))
+    data = "RULER synthetic tasks; source files sha256: " + ", ".join(f"{k} {v}" for k, v in sorted(sources.items()))
+    (results_dir / f"{model}.json").write_text(json.dumps({"model": model, "data": data, "other_metrics": metrics}))
     with gzip.open(results_dir / f"{model}.jsonl.gz", "wt", encoding="utf-8") as f:
         for r in rows:
             f.write(json.dumps({k: v for k, v in r.items() if k != "finished"}) + "\n")
@@ -393,9 +398,40 @@ def test_compare_partial_length_is_not_comparable():
                                          C.BIELIK: {"mean": 80.0, "tasks": 13}}
     lfm3_4096 = result["models"][C.LFM3]["per_length"]["4096"]
     assert f"| R2 | {C.R2_NOT_DECIDED} | - | - | -" in text
-    assert f"| 4096 | {lfm3_4096:.2f} | 70.00 (12 tasks, no qa_2) |" in text
+    # LFM3 on the 12 tasks Bielik has at 4096: 784 + 100 + 180 + 70 over 12, next to its 13-task mean
+    assert r2["descriptive"]["4096"][C.LFM3] == {"mean": lfm3_4096, "tasks": 13, "mean_on_shared_tasks": 94.5,
+                                                 "shared_tasks": 12}
+    assert f"| 4096 | {lfm3_4096:.2f}; 94.50 on the same 12 tasks | 70.00 (12 tasks, no qa_2) |" in text
+    assert r2["data_parity"] == {"same": True, "differs": {}} and r2["caveats"][-1] == "same RULER source files"
+    assert any(c.startswith("a comparison of modes, not of models") for c in r2["caveats"])
     r1 = result["hypotheses"]["R1"]
     assert r1["p_holm"] == min(1.0, 3 * r1["p"])  # m stays 3 with R2 not decided and R3 undetermined
+
+
+def test_compare_flags_ruler_source_files_that_differ():
+    """RULER downloads the essays live: two models' data can come from different essay files. compare.py names the
+    difference, and refuses the R2 test (different haystack text) when there are lengths to test it on."""
+    other = {**SOURCES, "PaulGrahamEssays.json": "58e35253" + "0" * 56}
+    with tempfile.TemporaryDirectory() as d:
+        write_model(Path(d), C.LFM3, LFM3_STEEP)
+        write_model(Path(d), C.BIELIK, {4096: 70, 8192: 80, 16384: 90}, sources=other,
+                    skipped={32768: FIT, 65536: WINDOW, 131072: WINDOW})
+        tested, text = run_compare(Path(d))
+    with tempfile.TemporaryDirectory() as d:
+        write_model(Path(d), C.LFM3, LFM3_STEEP)
+        write_model(Path(d), C.BIELIK, {8192: 80, 16384: 90}, sources=other,
+                    skipped={4096: FIT, 32768: FIT, 65536: WINDOW, 131072: WINDOW})
+        descriptive, _ = run_compare(Path(d))
+    r2 = tested["hypotheses"]["R2"]
+    note = "RULER source files differ: PaulGrahamEssays.json lfm3-1.7b 8d31e1b6, bielik-11b-v3.1 58e35253"
+    assert (r2["status"], r2["verdict"], r2["outcome"]) == (C.R2_NOT_COMPARABLE, "not decided", "not decided")
+    assert "p" not in r2 and r2["missing"][0].startswith(f"{C.LFM3} vs {C.BIELIK}: {note}")
+    assert r2["data_parity"]["differs"] == {"PaulGrahamEssays.json": {C.LFM3: SOURCES["PaulGrahamEssays.json"],
+                                                                     C.BIELIK: other["PaulGrahamEssays.json"]}}
+    assert any(note in w for w in tested["warnings"]) and f"warning: {C.LFM3} vs {C.BIELIK}: {note}" in text
+    assert tested["models"][C.BIELIK]["data_sources"] == other
+    d2 = descriptive["hypotheses"]["R2"]
+    assert d2["status"] == C.R2_NOT_DECIDED and d2["caveats"][-1].startswith(note)
 
 
 def control_run(mean, se):
