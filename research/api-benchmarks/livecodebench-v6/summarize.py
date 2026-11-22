@@ -56,7 +56,25 @@ def metrics(records: list[dict[str, Any]]) -> dict[str, Any]:
         "errors": sum(1 for r in records if r["status"] == "error"),
         "unsupported": sum(1 for r in records if r["status"] == "unsupported"),
         "evaluator_runner_errors": sum(1 for r in scored if (r["eval_metadata"] or {}).get("error_code") == RUNNER_ERROR),
+        **api_prompt_check(scored),
     }
+
+
+def api_prompt_check(scored: list[dict[str, Any]]) -> dict[str, Any]:
+    """Hosted API only: the API's prompt count minus ours, and the largest prompt + output it billed, to check that
+    the margin covered what the API's own rendering adds (README, Deviations)."""
+    pairs = [(r["api_prompt_tokens"], r) for r in scored if r.get("api_prompt_tokens") is not None]
+    if not pairs:
+        return {}
+    diffs = [api - r["prompt_tokens"] for api, r in pairs]
+    return {"api_prompt_minus_local": {"min": min(diffs), "max": max(diffs)},
+            "api_prompt_plus_output_max": max(api + r["output_tokens"] for api, r in pairs)}
+
+
+def margin_of(records: list[dict[str, Any]]) -> list[int]:
+    """Tokens kept free beyond the counted prompt: 0 on our vLLM, the --margin on a hosted API."""
+    return sorted({r["context"] - r["prompt_tokens"] - r["max_tokens"]
+                   for r in records if r["status"] == "ok" and r.get("max_tokens") is not None})
 
 
 def main(out_dir: str, target: str, limit: int | None) -> None:
@@ -71,6 +89,7 @@ def main(out_dir: str, target: str, limit: int | None) -> None:
     m = metrics(records)
     started = sorted(r["started"] for r in records if r["started"])
     contexts = sorted({r["context"] for r in records if r["context"]})
+    margins = margin_of(records)
     reason = None
     if m["score"] is None:
         reason = "no problem was answered: " + "; ".join(sorted({r["error"] for r in records if r["error"]}))
@@ -89,7 +108,8 @@ def main(out_dir: str, target: str, limit: int | None) -> None:
             "temperature": TEMPERATURE,
             "top_p": TOP_P,
             "seed": SEED,
-            "max_tokens": "context minus prompt tokens",
+            "max_tokens": ("context minus prompt tokens" if margins in ([], [0])
+                           else f"context minus prompt tokens minus a margin of {', '.join(map(str, margins))}"),
             "context": contexts[0] if len(contexts) == 1 else contexts,
             "trials": 1,
             "scored_text": "after the last </think>",
@@ -111,6 +131,7 @@ def main(out_dir: str, target: str, limit: int | None) -> None:
                 **{k: r[k] for k in ("difficulty", "contest_date", "platform", "in_v6_only", "status", "pass",
                                      "prompt_tokens", "output_tokens", "finished", "finish_reason", "error",
                                      "eval_metadata")},
+                "api_prompt_tokens": r.get("api_prompt_tokens"),
                 "output": r["code"],  # the code LiveCodeBench extracted and ran; no thinking
             }, ensure_ascii=False) + "\n")
     size = Path(f"{target}.jsonl.gz").stat().st_size

@@ -1,4 +1,4 @@
-"""PROTOCOL.md hypotheses L1-L3: LFM3-1.7B against Qwen3.5-9B, paired by problem.
+"""PROTOCOL.md hypotheses L1-L3 (Amendment 1): LFM3-1.7B against Bielik 11B v3.1, paired by problem.
 
 Usage: python3 compare.py [results-dir]   (default: results/ next to this file)
 Reads <results-dir>/<model-id>.jsonl.gz (and <model-id>.json for the control), prints a Markdown table and writes
@@ -9,7 +9,8 @@ Every difference is LFM3-1.7B minus the other model, in percentage points, over 
 count is reported. SE of a paired difference = sd(d) / sqrt(n); z = mean / SE; p two-sided normal. Verdict from the
 raw z: |z| >= 3 clear, 2-3 likely, < 2 noise; SE = 0 gives no z and the verdict `undecidable`. Holm over the three
 hypotheses with m = 3 always; a hypothesis whose models have not been run is `not run`, and still counts in m.
-Qwen3.5-4B and Bielik 11B v3.1 against LFM3-1.7B are printed with the same numbers as descriptive rows, not tested.
+The control (Amendment 1) is LFM3-1.7B's own pass@1 against its card value. The v6-only problems and every budget
+pair of L3 are printed as descriptive rows, not tested.
 """
 
 import gzip
@@ -22,40 +23,36 @@ from typing import Any
 
 HERE = Path(__file__).parent
 LFM = "lfm3-1.7b"
-QWEN9 = "qwen3.5-9b"
-DESCRIPTIVE = ("qwen3.5-4b", "bielik-11b-v3.1-vllm")
+BIELIK = "bielik-11b-v3.1"  # the Fabryka API run (PROTOCOL.md, Amendment 1)
 DIFFICULTIES = ("easy", "medium", "hard")
 BUDGETS = (4096, 16384, None)  # PROTOCOL.md, "Metrics"; None = no limit
-CONTROL_CARD = 69.86  # PROTOCOL.md, "Control": Qwen3.5-9B on the LFM3-1.7B card
+CONTROL_CARD = 73.46  # PROTOCOL.md, Amendment 1, "Control": LFM3-1.7B on its own card
 
 # Parameters used per generated token: the language model's weights (embeddings and LM head included, a tied matrix
-# once), without Qwen3.5's vision encoder and multi-token-prediction head, which text generation does not run.
-# Qwen3.5 and Bielik: config arithmetic from config.json at the PROTOCOL.md revisions (Qwen3.5: 24 Gated DeltaNet +
-# 8 gated-attention layers, the text_config shapes; Bielik: Llama, 50 layers, untied head); each total equals the sum
-# of the matching tensor shapes in the model's safetensors headers at that revision. LFM3-1.7B: the model card
-# ("Parameters: 1.73B"), exact value the sum of tensor shapes in its safetensors header at the pinned revision.
+# once). Bielik: config arithmetic from config.json at the PROTOCOL.md revision (Llama, 50 layers, untied head),
+# equal to the sum of the tensor shapes in its safetensors headers there; the API serves the same model name, its
+# weights are not visible. LFM3-1.7B: the model card ("Parameters: 1.73B"), exact value the sum of tensor shapes in
+# its safetensors header at the pinned revision.
 PARAMETERS = {
     "lfm3-1.7b": 1_728_801_536,
-    "qwen3.5-4b": 4_205_751_296,  # card: "4B" with the vision encoder (333.5M) and MTP head (120.6M)
-    "qwen3.5-9b": 8_953_803_264,  # card: "9B" with the vision encoder (456.0M) and MTP head (243.3M)
-    "bielik-11b-v3.1-vllm": 11_168_796_672,  # card: "11 billion parameters"
+    "bielik-11b-v3.1": 11_168_796_672,  # card: "11 billion parameters"
 }
 
 P_CLEAR = math.erfc(3 / math.sqrt(2))  # two-sided p at |z| = 3
 P_LIKELY = math.erfc(2 / math.sqrt(2))  # two-sided p at |z| = 2
 
 HYPOTHESES = {
-    "L1": "LFM3-1.7B's lead over Qwen3.5-9B is not larger than 3 SE of the paired difference",
-    "L2": "LFM3-1.7B - Qwen3.5-9B is positive on easy and medium, negative on hard",
-    "L3": "at an equal cost per answer, LFM3-1.7B's lead over Qwen3.5-9B disappears",
+    "L1": "LFM3-1.7B's lead over Bielik 11B v3.1 is not larger than 3 SE of the paired difference",
+    "L2": "LFM3-1.7B - Bielik 11B v3.1 is positive on easy and medium, negative on hard",
+    "L3": "at an equal cost per answer, LFM3-1.7B's lead over Bielik 11B v3.1 disappears",
 }
 DEVIATIONS = [
     "L2 has no single test statistic in PROTOCOL.md; its p for Holm is the largest of the three per-level two-sided "
     "p values (intersection-union: the pattern holds only if every level's sign does), its z the level's with that p.",
     "PROTOCOL.md gives only L2's refutation; L2 is `confirmed` only with signs (+, +, -) and |z| >= 2 on every level, "
     "`refuted` with the same sign on all three levels, otherwise `not established`.",
-    "'parameters' in the cost per answer is read as the language model's weights (Qwen3.5: without the vision "
-    "encoder and the MTP head), not the rounded card figures.",
+    "'parameters' in the cost per answer is read as the language model's exact weight count from the safetensors "
+    "headers, not the rounded card figures.",
 ]
 
 
@@ -203,8 +200,8 @@ def holm(ps: list[float | None], m: int) -> list[float | None]:
 
 
 def control(results: Path) -> dict[str, Any]:
-    """Qwen3.5-9B must land within 2 SE of its card value before any hypothesis is read (PROTOCOL.md)."""
-    path = results / f"{QWEN9}.json"
+    """LFM3-1.7B must land within 2 SE of its card value before any hypothesis is read (PROTOCOL.md, Amendment 1)."""
+    path = results / f"{LFM}.json"
     if not path.is_file():
         return {"status": "not run", "card": CONTROL_CARD}
     r = json.loads(path.read_text(encoding="utf-8"))
@@ -216,10 +213,10 @@ def control(results: Path) -> dict[str, Any]:
 
 
 def analyse(results: Path) -> dict[str, Any]:
-    runs = {m: load(results, m) for m in (LFM, QWEN9, *DESCRIPTIVE)}
+    runs = {m: load(results, m) for m in (LFM, BIELIK)}
     deviations = list(DEVIATIONS)
-    main = compare(LFM, QWEN9, runs[LFM], runs[QWEN9]) if runs[LFM] is not None and runs[QWEN9] is not None else None
-    missing = [m for m in (LFM, QWEN9) if runs[m] is None]
+    main = compare(LFM, BIELIK, runs[LFM], runs[BIELIK]) if runs[LFM] is not None and runs[BIELIK] is not None else None
+    missing = [m for m in (LFM, BIELIK) if runs[m] is None]
     rows = []
     for hid, fn in (("L1", l1), ("L2", l2), ("L3", l3)):
         if main is None:
@@ -232,13 +229,10 @@ def analyse(results: Path) -> dict[str, Any]:
         row["verdict_holm"] = "not run" if row["outcome"] == "not run" else verdict_p(p)
     if missing:
         deviations.append("a hypothesis that is not run counts in Holm's m = 3 with p = 1 (ranked last).")
-    descriptive = []
-    for other in (QWEN9, *DESCRIPTIVE):
-        if runs[LFM] is None or runs[other] is None:
-            descriptive.append({"a": LFM, "b": other, "status": "not run",
-                                "missing": [m for m in (LFM, other) if runs[m] is None]})
-        else:
-            descriptive.append({"status": "ok", **(main if other == QWEN9 else compare(LFM, other, runs[LFM], runs[other]))})
+    if main is None:
+        descriptive = [{"a": LFM, "b": BIELIK, "status": "not run", "missing": missing}]
+    else:
+        descriptive = [{"status": "ok", **main}]
     return {"benchmark": "LiveCodeBench v6", "protocol": "PROTOCOL.md", "difference": "LFM3-1.7B minus other, pp",
             "control": control(results), "hypotheses": rows, "descriptive": descriptive,
             "parameters": PARAMETERS, "holm_m": 3, "deviations": deviations}
@@ -260,7 +254,7 @@ def report(a: dict) -> str:
     out = []
     c = a["control"]
     if c["status"] in ("passed", "failed"):
-        out.append(f"control: Qwen3.5-9B {c['score']:.2f} ± {c['stderr']:.2f} vs card {c['card']}, "
+        out.append(f"control: LFM3-1.7B {c['score']:.2f} ± {c['stderr']:.2f} vs card {c['card']}, "
                    f"z = {c['z']:+.2f}: {c['status']}")
         if c["status"] == "failed":
             out.append("control failed: the setup is the suspect; no hypothesis is read until the gap is explained")
@@ -277,7 +271,7 @@ def report(a: dict) -> str:
             weak = r["sign_not_established"]
             measure += f": {r['signs']}" + (f" (sign not established: {', '.join(weak)})" if weak else "")
         if r["id"] == "L3" and "mean_cost_a" in r:
-            measure += (f" (LFM3 B = {budget(r['budget_a'])}, Qwen3.5-9B B = {budget(r['budget_b'])}; "
+            measure += (f" (LFM3 B = {budget(r['budget_a'])}, Bielik B = {budget(r['budget_b'])}; "
                         f"mean cost {r['mean_cost_a']:.3g} vs {r['mean_cost_b']:.3g} FLOPs)")
         n = f"{r['n']} (excluded {r['excluded']['total']})"
         out.append(f"| {r['id']} | {measure} | {value_se(r)} | {fmt(r['z'], '+.2f')} | {fmt(r['p_holm'], '.3g')} | "
