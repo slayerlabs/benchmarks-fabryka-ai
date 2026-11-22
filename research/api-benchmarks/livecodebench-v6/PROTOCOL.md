@@ -124,3 +124,34 @@ Written after the LFM3-1.7B result existed (generated and scored). Nothing above
 - **From now on** the result file records the sampling settings in effect: `settings.request_sampling` (what the
   request sends) and `settings.server_defaults` (what the server fills in; on vLLM read from
   `generation_config.json` at the pinned revision, on the Fabryka API `unknown`).
+
+## Amendment 4 (2026-11-22, 05:55 UTC)
+
+Written before any request of the run below is sent. Seen so far: the LFM3-1.7B result (pass@1 72.23) and its
+method verification (Amendment 3). Nothing above is changed.
+
+- **Question.** Do `repetition_penalty` 1.1 and `top_k` 50, which vLLM filled in from LFM3-1.7B's
+  `generation_config.json` (Amendment 3), change LFM3-1.7B's pass@1 compared with the card's own sampling
+  (temperature 0.6, top_p 0.95, `repetition_penalty` 1.0, no top-k limit)?
+- **Thesis A1 (equivalence).** |Δ pass@1| < 2 percentage points, with Δ = original run (`lfm3-1.7b`) minus the
+  ablation run (`lfm3-1.7b-cardsampling`), paired over the same 1055 problems. Per problem d = pass(original) −
+  pass(ablation) ∈ {−1, 0, 1}; Δ = mean(d); paired SE = sd(d) / sqrt(n) (sample sd, n − 1). Only problems answered
+  (`status: ok`) in both runs are paired; the rest are counted and reported. Equivalence holds when the 90% CI
+  Δ ± 1.645 × SE lies inside (−2, +2) pt (two one-sided tests, α = 0.05 each, normal approximation). Otherwise the
+  result is "not shown equivalent", reported with the CI. McNemar's exact two-sided test on the discordant
+  problems (passed in one run only) is reported next to it as a descriptive number, not a decision.
+- **Procedure.** Model id `lfm3-1.7b-cardsampling`: the same weights and revision (`LiquidAI/LFM3-1.7B` @
+  `1da06bec6a819da10b54c67e5c90972b46d81871`, vLLM 0.34.0, bf16), the same prompts, seed 20261122, temperature 0.6,
+  top_p 0.95, frequency and presence penalty 0, context 262144 with `max_tokens` = 262144 − prompt tokens (counted
+  by the server's `/tokenize`, as in the original run), the same code extraction and evaluator settings, scored on
+  the CPU of the GPU machine as the original. The only change: the request also sends `repetition_penalty: 1.0` and
+  `top_k: 0`. In vLLM 0.34.0 `SamplingParams`, `top_k` 0 disables the limit (−1 is accepted as well, 0 is the
+  preferred value); a value set in the request overrides the server default from `generation_config.json`.
+- **Known source of nondeterminism.** The ablation may run on a vLLM server shared with another job (RULER), so
+  requests are batched with other traffic and differently from the original run. A fixed seed does not make
+  batched GPU arithmetic identical across batch compositions, so some answers can differ for this reason alone,
+  and this is not separated from the effect of the two settings. The run records the server's vLLM version and
+  served model.
+- **Consequence, fixed before computing.** If A1 holds (equivalent), the original 72.23 stands and the gap named in
+  Amendment 3 is closed. If not, both numbers are reported, and the card-sampling one is the headline for
+  comparisons with the card's 73.46.
