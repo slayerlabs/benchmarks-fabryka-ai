@@ -1,15 +1,23 @@
-"""RULER 128K (api-benchmarks/ruler-128k): golden checks of summarize.py on fixed fake predictions.
+"""RULER 128K (api-benchmarks/ruler-128k): golden checks of summarize.py and compare.py on fixed fake data.
 
 No network, RULER checkout, torch or lm-eval: the RULER metric is replaced by a stand-in with the same call shape
 (`metric([pred], [refs])` -> percent), so these tests pin the aggregation, not RULER's scorer. Checked: the text
 after the last `</think>` is what gets scored; an error is left out of the score, never counted as 0; the
 13-task mean, the category means and the nulls for lengths that did not run or have a task without any score.
+compare.py (hypotheses R1-R3 and the control) on fake per-sample results: a clear and a noise case, Holm with m = 3,
+errors left out, null lengths listed, `not run` for a missing model and a control FAIL above the table.
 Run: python3 tests/test_ruler_128k.py (or pytest).
 """
+import contextlib
+import gzip
+import io
+import json
 import sys
+import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "api-benchmarks" / "ruler-128k"))
+import compare as C  # noqa: E402
 import summarize as S  # noqa: E402
 from ruler import answer_text  # noqa: E402
 
@@ -115,6 +123,129 @@ def test_jsonl_rows_keep_errors_and_cap_answers():
     first, second = S.jsonl_rows(rows)
     assert len(first["answer"]) == S.ANSWER_CHARS and first["answer_truncated"] is True
     assert second == {"task": "qa_1", "length": 4096, "index": 1, "score": None, "error": "timeout"}
+
+
+def by_category(retrieval, tracing, aggregation, qa):
+    """task -> percent, one value per R3 category."""
+    pct = {"retrieval": retrieval, "tracing": tracing, "aggregation": aggregation, "qa": qa}
+    return {t: pct[c] for c, ts in S.CATEGORIES.items() for t in ts}
+
+
+def write_model(results_dir, model, means, skipped=None, errors=None):
+    """Fake results/<model>.json and .jsonl.gz: means is length -> percent or length -> task -> percent; each task
+    gets 50 samples of 100 or 0 with that mean; errors is (length, task) -> error rows on top."""
+    rows = []
+    for length, pct in means.items():
+        pct = pct if isinstance(pct, dict) else dict.fromkeys(S.TASKS, pct)
+        for t in S.TASKS:
+            k = round(pct[t] / 2)
+            rows += [{"task": t, "length": length, "index": i, "score": 100.0 if i < k else 0.0, "finished": True}
+                     for i in range(50)]
+    for (length, task), n in (errors or {}).items():
+        rows += [{"task": task, "length": length, "index": 100 + j, "score": None, "error": "timeout"}
+                 for j in range(n)]
+    metrics = S.aggregate(rows, skipped or {}, S.LENGTHS, resamples=2)
+    (results_dir / f"{model}.json").write_text(json.dumps({"model": model, "other_metrics": metrics}))
+    with gzip.open(results_dir / f"{model}.jsonl.gz", "wt", encoding="utf-8") as f:
+        for r in rows:
+            f.write(json.dumps({k: v for k, v in r.items() if k != "finished"}) + "\n")
+
+
+WINDOW = "the context window does not hold this length"
+LFM3_STEEP = {4096: by_category(98, 100, 90, 70), 8192: by_category(98, 90, 85, 68),
+              16384: by_category(96, 80, 75, 66), 32768: by_category(94, 60, 65, 60),
+              65536: by_category(92, 45, 50, 55), 131072: by_category(90, 30, 40, 50)}
+
+
+def clear_case(results_dir, lfm3_errors=None):
+    write_model(results_dir, C.LFM3, LFM3_STEEP, errors=lfm3_errors)
+    write_model(results_dir, C.QWEN_4B, {**dict.fromkeys(S.LENGTHS[:-1], 92), 131072: 86})
+    write_model(results_dir, C.QWEN_9B, {**dict.fromkeys(S.LENGTHS[:-1], 92), 131072: 88})
+    write_model(results_dir, "bielik-11b-v3.1-vllm", dict.fromkeys(S.LENGTHS[:4], 80),
+                skipped={65536: WINDOW, 131072: WINDOW})
+    write_model(results_dir, "slayer1b-1.08", {4096: 20}, skipped=dict.fromkeys(S.LENGTHS[1:], WINDOW))
+
+
+def run_compare(results_dir):
+    out = io.StringIO()
+    with contextlib.redirect_stdout(out):
+        result = C.main(results_dir, resamples=200)
+    return result, out.getvalue()
+
+
+def test_compare_clear_case():
+    with tempfile.TemporaryDirectory() as d:
+        clear_case(Path(d))
+        result, text = run_compare(Path(d))
+        assert json.loads((Path(d) / "hypotheses.json").read_text()) == json.loads(json.dumps(result))
+    assert result["control"]["status"] == "PASS" and result["control"]["mean"] == 88.0
+    h = result["hypotheses"]
+    assert h["R1"]["value"] == 930 / 13 and h["R1"]["n"] == 650
+    assert h["R1"]["effective_length"] == 16384  # 92.6, 90.8, 87.1, then 81.5 at 32768
+    for name in ("R1", "R2", "R3"):
+        assert (h[name]["verdict"], h[name]["outcome"]) == ("clear", "confirmed"), (name, h[name])
+    assert [c["value"] < 0 for c in h["R2"]["comparisons"]] == [True, True]
+    drops = h["R3"]["drops"]
+    assert {c: d["drop"] for c, d in drops.items()} == {"retrieval": 8, "tracing": 70, "aggregation": 50, "qa": 20}
+    assert drops["retrieval"]["se_clustered"] == 0  # every niah task drops by 8
+    assert [drops[c]["verdict_clustered"] for c in ("tracing", "aggregation", "qa")] == ["undetermined"] * 3
+    assert [c["verdict_clustered"] for c in h["R3"]["comparisons"]] == ["undetermined", "undetermined"]
+    assert result["models"]["bielik-11b-v3.1-vllm"]["excluded_lengths"] == {"65536": WINDOW, "131072": WINDOW}
+    assert result["models"]["bielik-11b-v3.1-vllm"]["per_length"]["131072"] is None
+    assert f"excluded: bielik-11b-v3.1-vllm @ 131072: {WINDOW}" in text
+    assert sum(line.startswith("deviation: ") for line in text.splitlines()) == len(C.DEVIATIONS) == 3
+
+
+def test_compare_noise_case_holm_and_control_fail():
+    with tempfile.TemporaryDirectory() as d:
+        write_model(Path(d), C.LFM3, {**dict.fromkeys(S.LENGTHS[:-1], 86), 131072: 84})
+        write_model(Path(d), C.QWEN_4B, {**dict.fromkeys(S.LENGTHS[:-1], 88), 131072: 86})
+        write_model(Path(d), C.QWEN_9B, {**dict.fromkeys(S.LENGTHS[:-1], 88), 131072: 96})
+        result, text = run_compare(Path(d))
+    assert result["control"]["status"] == "FAIL"
+    assert text.index("hypotheses not read until explained") < text.index("| hypothesis |")
+    h = result["hypotheses"]
+    assert (h["R1"]["verdict"], h["R1"]["outcome"]) == ("noise", "open") and h["R1"]["value"] == 84
+    # vs 4B the slopes are equal (z = 0), vs 9B LFM3 is clearly steeper: the weaker comparison decides.
+    assert (h["R2"]["verdict"], h["R2"]["outcome"]) == ("noise", "open") and abs(h["R2"]["z"]) < 1e-9
+    assert h["R3"]["outcome"] == "refuted" and h["R3"]["value"] == 0  # every category drops by 2
+    # Holm, m = 3: in raw-p order the adjusted p are 3p, then max(previous, 2p), then max(previous, p), capped at 1.
+    rows = sorted(h.values(), key=lambda x: x["p"])
+    expected, previous = [], 0.0
+    for rank, row in enumerate(rows):
+        previous = max(previous, min(1.0, (3 - rank) * row["p"]))
+        expected.append(previous)
+    assert [row["p_holm"] for row in rows] == expected
+    assert rows[0]["p_holm"] == min(1.0, 3 * rows[0]["p"]) > rows[0]["p"]
+
+
+def test_compare_errors_are_left_out_not_zero():
+    with tempfile.TemporaryDirectory() as clean, tempfile.TemporaryDirectory() as noisy:
+        clear_case(Path(clean))
+        clear_case(Path(noisy), lfm3_errors={(131072, "niah_single_1"): 3, (4096, "vt"): 2})
+        base, _ = run_compare(Path(clean))
+        result, text = run_compare(Path(noisy))
+    assert result["models"][C.LFM3]["errors_excluded"] == {"4096": 2, "131072": 3}
+    assert "errors left out: lfm3-1.7b: 2 @ 4096, 3 @ 131072" in text
+    for name in ("R1", "R3"):
+        assert result["hypotheses"][name]["value"] == base["hypotheses"][name]["value"]
+        assert result["hypotheses"][name]["n"] == base["hypotheses"][name]["n"]
+
+
+def test_compare_missing_model_is_not_run_and_holm_keeps_m_3():
+    with tempfile.TemporaryDirectory() as d:
+        clear_case(Path(d))
+        for suffix in (".json", ".jsonl.gz"):
+            (Path(d) / f"{C.QWEN_9B}{suffix}").unlink()
+        result, text = run_compare(Path(d))
+    h = result["hypotheses"]
+    assert result["control"] == {"status": "not run", "missing": [C.QWEN_9B]}
+    assert (h["R2"]["verdict"], h["R2"]["outcome"], h["R2"]["missing"]) == ("not run", "not run", [C.QWEN_9B])
+    assert "| R2 | missing: qwen3.5-9b |" in text and "control: not run" in text
+    assert result["models"][C.QWEN_9B] is None and result["holm_m"] == 3
+    low, high = sorted((h["R1"], h["R3"]), key=lambda x: x["p"])
+    assert low["p_holm"] == min(1.0, 3 * low["p"])  # m stays 3 with R2 not run
+    assert high["p_holm"] == max(low["p_holm"], min(1.0, 2 * high["p"]))
 
 
 if __name__ == "__main__":

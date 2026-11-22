@@ -34,6 +34,16 @@ The measurement plan, fixed before the first output, is [PROTOCOL.md](PROTOCOL.m
 No model has been run yet. Bielik (32 768-token window) and Slayer (4096) cannot hold 131072 tokens: their
 headline is `null` with the reason, and their shorter lengths are in `other_metrics`.
 
+## Hypotheses
+
+`python3 compare.py` (from this directory, after the runs) reads `results/<model-id>.json` and `.jsonl.gz` and
+evaluates PROTOCOL.md: the Qwen3.5-9B control first, then R1-R3 for LFM3-1.7B against Qwen3.5-4B and Qwen3.5-9B
+(Bielik and Slayer per length, descriptive only). It prints the control (PASS or FAIL; after a FAIL the hypotheses
+are not read until the gap is explained), every `deviation:` from the protocol's wording, the lengths and error rows
+left out, a table per hypothesis (value with bootstrap SE, z, Holm-adjusted p over all three hypotheses, verdict,
+outcome, n) and writes the same to `results/hypotheses.json`. A hypothesis whose model has not run is `not run` and
+still counts in the Holm family. The bootstrap settings are those of the Metrics section of PROTOCOL.md.
+
 ## Deviations
 
 - **50 samples per task and length, not RULER's 500.** A cost decision taken before the run (PROTOCOL.md): 650
