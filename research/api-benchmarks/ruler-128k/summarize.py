@@ -18,8 +18,9 @@ A run with --limit (run.json "limit") is written to <out>/<model-id>/<model-id>.
 smoke test never replaces a published result. An out dir from a run.sh before generation.jsonl and
 inputs.sha256.json existed is still summarized: what was not recorded is null with the reason, the sampling is read
 from the pinned generation_config.json now, the input manifest is written now, and each is a line in `warnings`;
-what the person who ran it declared (declared_provenance.json: commit, archive sha256) goes to
-`provenance.generation_declared`, marked `declared, not recorded`. Writing into results/ stops while a runner file
+what the person who ran it declared, or what the out dir shows (declared_provenance.json: commit, archive sha256),
+goes to `provenance.generation_declared` with its status (`declared` or `inferred`, `not recorded`). Writing into
+results/ stops while a runner file
 (provenance.RUNNER_FILES) differs from the commit: a published result names a commit that holds its code.
 """
 
@@ -291,10 +292,12 @@ def run_provenance(out_dir, run, read_config=None):
                                  "commit, runner sha256 and hardware of generation are unknown")
     warnings.append(prov["generation_reason"])
     declared = json.loads(DECLARED.read_text(encoding="utf-8")).get(run["model"])
-    if declared is not None:  # what the person who ran it declared, kept apart from what run.sh records
+    if declared is not None:  # what is known beyond run.sh's record, kept apart from it
         prov["generation_declared"] = declared
-        warnings.append(f"generation provenance declared, not recorded: commit {declared['code']['commit'][:8]} "
-                        f"({declared['source']}), archives {', '.join(declared['archives_sha256'])}")
+        code = declared["code"]
+        warnings.append(f"generation provenance {declared['status']}: commit {code['commit'][:8]}"
+                        + (f", {code['relation']}" if code.get("relation") else "")
+                        + f" ({declared['source']}), archives {', '.join(declared['archives_sha256'])}")
     try:
         sampling = provenance.sampling(run["settings"], read_config)
         sampling["recorded"] = "by summarize.py from the pinned revision, not at generation (no generation.jsonl)"

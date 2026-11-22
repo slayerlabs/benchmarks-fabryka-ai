@@ -186,12 +186,14 @@ Results files and their sha256 (`results/results.sha256.json`):
 - **Provenance and input checks added while the first runs were going.** `run.sh` now writes
   `out/<model-id>/generation.jsonl` (commit and dirty flag, runner sha256, GPU and platform, effective sampling) before
   generating and `inputs.sha256.json` after scoring; `summarize.py` stops when an input differs from it, and
-  `compare.py` when a result file differs from `results/results.sha256.json`. The LFM3-1.7B run (started from
-  d45c3509) and the Slayer run (920787d4) predate this: their results have `provenance.generation: null` with the
-  reason, the sampling read from the pinned `generation_config.json` at summary time, and the input sha256 taken at
-  their first summary, not when the files were written; each missing record is a line in the result's `warnings`.
-  What is known of their generation (those commits, the sha256 of the out-dir archives) is in
-  `provenance.generation_declared`, marked `declared, not recorded` (`declared_provenance.json`, Amendment 7).
+  `compare.py` when a result file differs from `results/results.sha256.json`. The LFM3-1.7B run and the Slayer run
+  (920787d4, as declared) predate this: their results have `provenance.generation: null` with the reason, the
+  sampling read from the pinned `generation_config.json` at summary time, and the input sha256 taken at their first
+  summary, not when the files were written; each missing record is a line in the result's `warnings`. What is known
+  of their generation is in `provenance.generation_declared` (`declared_provenance.json`, Amendments 7 and 8). The
+  LFM3-1.7B run was declared as started from d45c3509, which its out dir contradicts: it comes from e7858d51 or
+  earlier (run.sh 99ceb343, predict.py b9d407cb), inferred from the record schema (no `counted_prompt_tokens`) and
+  the time of run.json (8 minutes before d45c3509). Its requests were the same, so no number moves.
 - **Published results only from committed code** (Amendment 7). The first LFM3-1.7B, Slayer and Bielik summaries
   were written by a `summarize.py` that is in no commit, from a dirty tree; `reproduction.py` shows that
   `summarize.py` at a commit reproduces all three result files (Hypotheses, Provenance). `summarize.py`,

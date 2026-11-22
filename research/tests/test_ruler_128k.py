@@ -675,11 +675,13 @@ def test_summarize_old_out_dir_records_gaps_and_writes_manifests():
     sampling = result["settings"]["sampling"]
     assert sampling["from_generation_config"] == {"repetition_penalty": 1.1, "top_k": 50} and "recorded" in sampling
     assert len(result["warnings"]) == 3 and "no generation.jsonl" in result["warnings"][0]
-    # lfm3-1.7b is in declared_provenance.json: the commit its run started from, marked declared, not recorded
+    # lfm3-1.7b is in declared_provenance.json: the latest commit its run can be from, inferred from the record schema
     declared = prov["generation_declared"]
-    assert declared["status"] == "declared, not recorded" and declared["code"]["commit"].startswith("d45c3509")
+    assert declared["status"] == "inferred, not recorded" and declared["code"]["commit"].startswith("e7858d51")
+    assert declared["code"]["runner_sha256"]["predict.py"].startswith("b9d407cb")
     assert "out/box/ruler-lfm3-1.7b-outputs.tgz" in declared["archives_sha256"]
-    assert result["warnings"][1].startswith("generation provenance declared, not recorded: commit d45c3509")
+    assert result["warnings"][1].startswith("generation provenance inferred, not recorded: commit e7858d51, this "
+                                            "commit or an earlier one")
     assert V.INPUTS in result["warnings"][2]
     assert again["warnings"] == result["warnings"]  # the manifest written by summarize.py keeps saying so
     assert manifest == files

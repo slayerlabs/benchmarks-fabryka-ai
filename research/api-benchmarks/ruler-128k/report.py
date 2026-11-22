@@ -267,8 +267,13 @@ def provenance_block(data):
             gen = f"recorded by run.sh (`generation.jsonl`): commit `{g['commit'][:8]}`, dirty {g['dirty']}"
         elif p.get("generation_declared"):
             g = p["generation_declared"]
-            gen = (f"{g['status']}: commit `{g['code']['commit'][:8]}` ({g['source']}); archives "
-                   + ", ".join(f"`{k}` sha256 `{v[:12]}…`" for k, v in g["archives_sha256"].items()))
+            c = g["code"]
+            gen = (f"{g['status']}: commit `{c['commit'][:8]}`"
+                   + (f", {c['relation']}" if c.get("relation") else "")
+                   + ("; runner sha256 " + ", ".join(f"{k} `{v[:8]}`" for k, v in c["runner_sha256"].items())
+                      if c.get("runner_sha256") else "")
+                   + f" ({g['source']})" + (f"; requests: {g['requests']}" if g.get("requests") else "")
+                   + "; archives " + ", ".join(f"`{k}` sha256 `{v[:12]}…`" for k, v in g["archives_sha256"].items()))
         else:
             gen = p["generation_reason"]
         out.append(f"- {MODELS[m]}: generation {gen}. Summary: commit `{code['commit'][:8]}`"
