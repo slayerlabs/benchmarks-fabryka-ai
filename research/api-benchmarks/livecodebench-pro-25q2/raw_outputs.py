@@ -60,7 +60,9 @@ def reasoning(last: dict[str, dict[str, Any]], accepted: dict[str, bool]) -> dic
     return {"answers": len(answered), "closing_think": len(closed),
             "median_share_before_last_think_end": round(statistics.median(shares), 4) if shares else None,
             "accepted": sum(accepted.values()),
-            "accepted_closing_think": sum(1 for r in closed if accepted.get(r["problem_id"]))}
+            "accepted_closing_think": sum(1 for r in closed if accepted.get(r["problem_id"])),
+            # `</think>` directly followed by a code fence: the harness's fence pattern needs ``` at a line start
+            "think_end_then_fence": sum(1 for r in closed if "</think>```" in r["output"])}
 
 
 def entry(results: Path, run: str, data: bytes, where: str) -> dict[str, Any]:

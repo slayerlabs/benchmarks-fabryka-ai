@@ -19,12 +19,16 @@ import argparse
 import ast
 import contextlib
 import gzip
+import hashlib
 import http.server
+import io
 import json
 import math
 import os
+import re
 import statistics
 import sys
+import tarfile
 import tempfile
 import threading
 import types
@@ -46,6 +50,24 @@ import provenance  # noqa: E402
 import summarize  # noqa: E402
 
 sys.path.remove(str(BENCH))
+
+
+def protocol_pins():
+    """The pinned revisions as PROTOCOL.md states them (parsed here, independent of lcbpro.py and run.sh)."""
+    text = (BENCH / "PROTOCOL.md").read_text(encoding="utf-8")
+
+    def pin(name):
+        found = re.findall(r"\[" + re.escape(name) + r"\]\([^)]*\)\s*@\s*`([0-9a-f]{40})`", text)
+        assert len(found) == 1, name
+        return found[0]
+
+    return {"harness": pin("GavinZhengOI/LiveCodeBench-Pro"), "verifier": pin("LightCPVerifier"),
+            "data": pin("QAQAQAQAQ/LiveCodeBench-Pro"), "tests": pin("QAQAQAQAQ/LiveCodeBench-Pro-Testcase"),
+            "split": re.search(r"split `(quater_[0-9_]+)`", text).group(1),
+            "n": int(re.search(r"\(= 25Q2, (\d+) problems", text).group(1))}
+
+
+PINNED = protocol_pins()
 
 
 def need_harness():
@@ -145,6 +167,120 @@ def test_extraction_reads_the_text_after_the_last_think():
     assert lcbpro.prejudge(answer_record(fallback), "on", extract) == \
         (None, "#include <b>\nint main(){ return 0; }")
     assert lcbpro.prejudge(answer_record("</think>Sorry, no code."), "on", extract) == ("no_code", None)
+
+
+def bench_module(name):
+    sys.path.insert(0, str(BENCH))
+    try:
+        return __import__(name)
+    finally:
+        sys.path.remove(str(BENCH))
+
+
+def test_pins_are_the_protocol_s():
+    assert (lcbpro.HARNESS_COMMIT, lcbpro.VERIFIER_COMMIT, lcbpro.DATA_REVISION, lcbpro.TESTS_REVISION,
+            lcbpro.SPLIT, lcbpro.N_PROBLEMS) == \
+        (PINNED["harness"], PINNED["verifier"], PINNED["data"], PINNED["tests"], PINNED["split"], PINNED["n"])
+    run_sh = (BENCH / "run.sh").read_text(encoding="utf-8")
+    assert f'HARNESS_COMMIT="{PINNED["harness"]}"' in run_sh and f'VERIFIER_COMMIT="{PINNED["verifier"]}"' in run_sh
+
+
+def fake_datasets(rows, calls):
+    def load_dataset(repo, split, revision):
+        calls.append((repo, split, revision))
+        return [dict(r) for r in rows]
+
+    return types.SimpleNamespace(load_dataset=load_dataset)
+
+
+def test_load_rows_pinned_sorted_and_counted():
+    ids = [f"{2084 + i // 7}{'ABCDEFG'[i % 7]}" for i in range(PINNED["n"])]
+    rows = [{"problem_id": p} for p in reversed(ids)]
+    calls = []
+    with injected_modules(datasets=fake_datasets(rows, calls)):
+        got = lcbpro.load_rows()
+    assert calls == [("QAQAQAQAQ/LiveCodeBench-Pro", PINNED["split"], PINNED["data"])]
+    assert [r["problem_id"] for r in got] == sorted(ids)  # sorted by problem_id, as PROTOCOL.md fixes
+    for bad in (rows[:-1], rows + [rows[0]]):  # 166 rows; 168 rows with a duplicate
+        with injected_modules(datasets=fake_datasets(bad, [])):
+            assert "rows" in exit_message(lcbpro.load_rows)
+
+
+def test_local_count_uses_the_template_with_the_generation_prompt():
+    import huggingface_hub
+    seen, loaded = [], []
+
+    class Tokenizer:
+        def apply_chat_template(self, messages, add_generation_prompt, tokenize):
+            seen.append((messages, add_generation_prompt, tokenize))
+            return [0] * (10 + (5 if add_generation_prompt else 0))
+
+    class Auto:
+        @staticmethod
+        def from_pretrained(repo, revision):
+            loaded.append((repo, revision))
+            return Tokenizer()
+
+    with injected_modules(transformers=types.SimpleNamespace(AutoTokenizer=Auto)), \
+            patched(huggingface_hub, get_token=lambda: "token"):
+        count = lcbpro.local_counter("speakleash/Bielik-11B-v3.1-Instruct@d6e7")
+        assert count(MESSAGES) == 15  # the prompt as the API renders it, assistant header included
+    assert loaded == [("speakleash/Bielik-11B-v3.1-Instruct", "d6e7")] and seen == [(MESSAGES, True, True)]
+
+
+def test_a_problems_dir_from_another_revision_is_emptied():
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "problems"
+        (d / "X").mkdir(parents=True)
+        (d / "X" / "config.yaml").write_text("old")
+        lcbpro.fresh_problems_dir(d)  # no marker: emptied
+        assert not (d / "X").exists() and (d / ".tests_revision").read_text() == PINNED["tests"]
+        (d / "Y").mkdir()
+        lcbpro.fresh_problems_dir(d)  # the pinned revision: kept
+        assert (d / "Y").exists()
+        (d / ".tests_revision").write_text("0" * 40)
+        lcbpro.fresh_problems_dir(d)  # another revision: emptied
+        assert not (d / "Y").exists()
+
+
+def test_raw_outputs_checks_every_run_and_stops_on_a_mismatch():
+    raw_outputs = bench_module("raw_outputs")
+    output = "r</think>```python\nx\n```"
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        res = tmp / "results"
+        res.mkdir()
+        gens = {}
+        for run in ("lfm3-1.7b", "lfm3-1.7b-nothink", "bielik-11b-v3.1"):
+            data = (json.dumps({"problem_id": "A", "status": "ok", "output": output, "finish_reason": "stop"}) +
+                    "\n").encode()
+            gens[run] = data
+            (res / f"{run}.json").write_text(json.dumps({"raw_outputs": {"sha256": hashlib.sha256(data).hexdigest()}}))
+            with gzip.open(res / f"{run}.jsonl.gz", "wt") as f:
+                f.write(json.dumps({"task_id": "A", "category": "no_code", "accepted": False}) + "\n")
+            provenance.record(res, [f"{run}.json", f"{run}.jsonl.gz"], "test")
+        archive = tmp / "export.tgz"
+        with tarfile.open(archive, "w:gz") as t:
+            for run in raw_outputs.ARCHIVED:
+                info = tarfile.TarInfo(f"{raw_outputs.ARCHIVE_PREFIX}/{run}/generations.jsonl")
+                info.size = len(gens[run])
+                t.addfile(info, io.BytesIO(gens[run]))
+        local = tmp / "out" / "bielik-11b-v3.1" / "generations.jsonl"
+        local.parent.mkdir(parents=True)
+        local.write_bytes(gens["bielik-11b-v3.1"])
+        with patched(raw_outputs, HERE=tmp):
+            raw_outputs.main(archive, res)
+            rec = json.loads((res / "raw-outputs.json").read_text())
+            assert [e["matches_result"] for e in rec["runs"].values()] == [True, True, True]
+            assert rec["archive"]["sha256"] == provenance.sha256_file(archive)
+            assert rec["runs"]["lfm3-1.7b"]["no_code"] == {"python_fence": ["A"]}
+            assert rec["runs"]["lfm3-1.7b"]["reasoning"] == {
+                "answers": 1, "closing_think": 1, "median_share_before_last_think_end": round(1 / len(output), 4),
+                "accepted": 0, "accepted_closing_think": 0, "think_end_then_fence": 1}
+            changed = gens["bielik-11b-v3.1"].replace(b'"r<', b'"s<')
+            assert raw_outputs.entry(res, "bielik-11b-v3.1", changed, "x")["matches_result"] is False
+            local.write_bytes(changed)
+            assert "bielik-11b-v3.1" in exit_message(raw_outputs.main, archive, res)
 
 
 def test_unfinished_and_unscored_answers_never_reach_the_judge():
@@ -270,9 +406,12 @@ def test_tests_step_downloads_at_the_pin_and_points_main_there():
                 patched(huggingface_hub.constants, HF_HUB_CACHE=tmp):
             lcbpro.tests(argparse.Namespace(out_dir=str(out), limit=None))
             ref = lcbpro.tests_cache_dir() / "refs" / "main"
-        assert ref.read_text() == lcbpro.TESTS_REVISION
-        rev = lcbpro.TESTS_REVISION
+        rev = PINNED["tests"]  # from PROTOCOL.md, not from lcbpro.py
+        assert ref.read_text() == rev
         assert calls == [("list", lcbpro.TESTS_REPO, "dataset", rev), ("get", lcbpro.TESTS_REPO, "A.zip", "dataset", rev)]
+        run = json.loads((out / "run.json").read_text())
+        assert run["tests"]["revision"] == rev and run["tests"]["missing"] == ["B"]
+        assert run["tests"]["tests_json_sha256"] == provenance.sha256_file(out / "tests.json")
         record = json.loads((out / "tests.json").read_text())
         assert record["missing"] == ["B"] and record["files"]["B"] is None
         assert record["files"]["A"]["sha256"] == provenance.sha256_file(zip_path)
@@ -499,14 +638,21 @@ def test_score_and_summary_end_to_end():
     with tempfile.TemporaryDirectory() as tmp, \
             patched(lcbpro, harness_extract=lambda: (lambda t: t.split("```cpp\n")[1].split("\n```")[0]
                                                       if "```cpp" in t else None),
-                    check_pinned_tests=lambda r: None, fresh_problems_dir=lambda p: None,
+                    check_pinned_tests=lambda r: None,
                     judge_environment=lambda j: {"image_id": "sha256:abc", "workers": 8}), \
             injected_modules(judge=fake_judge, requests=fake_requests):
         out = Path(tmp) / "out"
+        # a problems/ directory left from an earlier (unpinned) judging must not be reused
+        Judge.PROBLEMS_DIR = str(Path(tmp) / "problems")
+        stale = Path(Judge.PROBLEMS_DIR) / "A" / "config.yaml"
+        stale.parent.mkdir(parents=True)
+        stale.write_text("stale")
         write_generation(out, {"A": {"status": "ok", "output": ok, "finish_reason": "stop"},
                                "B": {"status": "ok", "output": "<think>x" + ok, "finish_reason": "stop"},
                                "C": {"status": "ok", "output": ok, "finish_reason": "stop"}})
         lcbpro.score(argparse.Namespace(out_dir=str(out), limit=None))
+        assert not stale.exists()  # emptied before judging
+        assert (Path(Judge.PROBLEMS_DIR) / ".tests_revision").read_text() == PINNED["tests"]
         graded = lcbpro.read_jsonl(out / "graded.jsonl")
         assert [(g["problem_id"], g["category"], g["accepted"], g["has_tests"], g["think_in_output"])
                 for g in graded] == [("A", "accepted", True, True, False), ("B", "compile_error", False, True, True),
@@ -520,6 +666,9 @@ def test_score_and_summary_end_to_end():
         assert (result["score"], result["n"]) == (round(100 / 3, 2), 3)
         assert result["other_metrics"]["secondary"]["score"] == 50.0
         assert result["settings"]["judge"]["image_id"] == "sha256:abc" and result["settings"]["judge_workers"] == 8
+        tz = result["provenance"]["tests"]
+        assert (tz["revision"], tz["zip_sha256"], tz["missing"]) == (PINNED["tests"], {"A": "aa", "B": "bb"}, ["C"])
+        assert tz["sha256"] == provenance.sha256_file(out / "tests.json")
         with gzip.open(Path(tmp) / "results" / "lfm3-1.7b.jsonl.gz", "rt") as f:
             rows = [json.loads(x) for x in f]
         assert [(r["task_id"], r["score"]) for r in rows] == [("A", 1), ("B", 0), ("C", 0)]

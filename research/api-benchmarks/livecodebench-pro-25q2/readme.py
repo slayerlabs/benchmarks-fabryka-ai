@@ -53,7 +53,14 @@ def read_json(results: Path, name: str) -> dict[str, Any]:
     return json.loads((results / name).read_text(encoding="utf-8"))
 
 
+def zero_upper(n: int) -> float:
+    """Upper end (percent) of the exact (Clopper-Pearson) two-sided 95% interval for 0 successes in n."""
+    return 100 * (1 - 0.025 ** (1 / n))
+
+
 def cell(x: dict[str, Any]) -> str:
+    if x["accepted"] == 0:
+        return f"0.00 (0/{x['n']}; exact 95% CI 0 to {zero_upper(x['n']):.2f})"
     return f"{x['score']:.2f} ± {x['stderr']:.2f} ({x['accepted']}/{x['n']})"
 
 
@@ -70,7 +77,8 @@ def results_block(results: Path) -> str:
                    f"{r['other_metrics']['output_tokens']['mean']:.1f} | {r['date']} |")
     out.append(f"| {NOT_RUN[0]} | | | | null ({slayer['reason']}) | | | | |")
     out += ["", "Accepted (%) ± stderr (accepted/n): all problems (headline), without the problems whose test zip is "
-            "missing or whose judging or request failed (secondary), and per difficulty:", "",
+            "missing or whose judging or request failed (secondary), and per difficulty; where none was accepted, "
+            "the exact (Clopper-Pearson) 95% interval instead of the stderr, which is 0 there:", "",
             "| run | all | secondary | left out of secondary | easy | medium | hard |", "|---|---|---|---|---|---|---|"]
     for m, r in files.items():
         o = r["other_metrics"]
@@ -84,12 +92,19 @@ def results_block(results: Path) -> str:
         c = r["other_metrics"]["categories"]
         out.append(f"| {m} | " + " | ".join(str(c[k]) for k in CATEGORY_LABELS) + " |")
     out += ["", "| run | output tokens mean / median / max | unfinished (thinking on) | stopped by the length limit | "
-            "answers containing `<think>` |", "|---|---|---|---|---|"]
+            "answers containing `<think>` | answers closing a reasoning block with `</think>` | median share of the "
+            "answer before its last `</think>` | accepted answers closing `</think>` |", "|---|---|---|---|---|---|---|---|"]
     for m, r in files.items():
         o = r["other_metrics"]
-        t, th = o["output_tokens"], o["think_in_output"]
+        t, th, rs = o["output_tokens"], o["think_in_output"], raw["runs"][m]["reasoning"]
+        share = rs["median_share_before_last_think_end"]
         out.append(f"| {m} | {t['mean']:.1f} / {t['median']} / {t['max']} | {o['unfinished']} | {o['length_stops']} | "
-                   f"{th['answers']} of {th['of']} ({100 * th['share']:.1f}%) |")
+                   f"{th['answers']} of {th['of']} ({100 * th['share']:.1f}%) | {rs['closing_think']} of "
+                   f"{rs['answers']} | {'' if share is None else f'{100 * share:.1f}%'} | "
+                   f"{rs['accepted_closing_think']} of {rs['accepted']} |")
+    api = files["bielik-11b-v3.1"]["other_metrics"]["api_prompt_minus_local"]
+    out += ["", f"Bielik's prompt: the API's `usage.prompt_tokens` minus our local count with Bielik's own template: "
+                f"min {api['min']}, max {api['max']} over its {files['bielik-11b-v3.1']['n']} answers."]
     judges = {json.dumps(r["settings"]["judge"], sort_keys=True) for r in files.values()}
     machines = {json.dumps(r["settings"]["judge_machine"], sort_keys=True) for r in files.values()}
     if len(judges) != 1 or len(machines) != 1:
@@ -98,7 +113,8 @@ def results_block(results: Path) -> str:
     out += ["", "Baselines: 0 for random and majority answers (no fixed output passes a problem's hidden tests). "
             f"The LFM3-1.7B card reports {100 * compare.CARD_LFM3:.2f}; the control is in Hypotheses.",
             "", f"Judge: all three runs on one machine, one after another: {mach['cpu']}, {mach['cpu_count']} vCPUs, "
-            f"{j['workers']} judge workers, image `{j['image_id']}`, go-judge {j['go_judge_version']}.",
+            f"{j['workers']} judge workers, image `{j['image_id']}`, go-judge {j['go_judge_version']}; "
+            f"test zips {tests_line(files)}.",
             "", f"Raw outputs (with thinking, not committed): the LFM3-1.7B runs in `{raw['archive']['file']}`, "
             f"sha256 `{raw['archive']['sha256']}`; Bielik's in `{raw['runs']['bielik-11b-v3.1']['file']}`. Each "
             "run's generations.jsonl sha256 equals its result file's `raw_outputs.sha256` (results/raw-outputs.json)."]
@@ -110,21 +126,35 @@ def results_block(results: Path) -> str:
     return "\n".join(out)
 
 
+def tests_line(files: dict[str, dict[str, Any]]) -> str:
+    """The test-zip manifest the three runs were judged on; it must be the same file for all."""
+    t = {json.dumps({k: r["provenance"]["tests"][k] for k in ("sha256", "revision", "missing")}, sort_keys=True)
+         for r in files.values()}
+    if len(t) != 1:
+        sys.exit("readme.py: the runs were judged on different test-zip manifests")
+    x = files["lfm3-1.7b"]["provenance"]["tests"]
+    return (f"at `{x['revision']}` (tests.json sha256 `{x['sha256']}`, the same for all three runs; "
+            f"{len(x['zip_sha256'])} zips, missing: {', '.join(x['missing']) or 'none'})")
+
+
 def hypotheses_block(results: Path) -> str:
     h = read_json(results, "hypotheses.json")
-    on = read_json(results, "lfm3-1.7b-nothink.json")["other_metrics"]
-    th, tok = on["think_in_output"], on["output_tokens"]
+    rs = read_json(results, "raw-outputs.json")["runs"]["lfm3-1.7b-nothink"]["reasoning"]
+    tok = read_json(results, "lfm3-1.7b-nothink.json")["other_metrics"]["output_tokens"]
     k3 = next(x for x in h["hypotheses"] if x["id"] == "K3")
+    k2 = next(x for x in h["hypotheses"] if x["id"] == "K2")
     return "\n".join([
         compare.report(h), "",
-        "What K2 and K3 compare:", "",
-        "- **K2 compares Bielik through the API with a number on the card**, not with a model run here: LFM2.5-2.6B's "
-        f"{100 * compare.CARD_WEAKEST:.2f}, with the SE floor of PROTOCOL.md.",
-        "- **K3 compares thinking modes of one model, not models.** \"Off\" is `enable_thinking: false`; "
-        f"`lfm3-1.7b-nothink` still wrote {tok['mean']:.0f} output tokens per answer on average (median "
-        f"{tok['median']}), and {th['answers']} of its {th['of']} answers contain `<think>`, so \"off\" is not "
-        f"\"no reasoning\". K3's D is {k3['value']:+.2f} ± {k3['se']:.2f} pp, from accepted shares of "
-        f"{k3['on']:.2f}% (on), {k3['off']:.2f}% (off) and {k3['bielik']:.2f}% (Bielik).",
+        "Reading:", "",
+        f"- **K2** ({k2['verdict_holm']}) compares Bielik through the API with a number on the card, not with a model "
+        f"run here: LFM2.5-2.6B's {100 * compare.CARD_WEAKEST:.2f}, with the SE floor of PROTOCOL.md.",
+        f"- **K3** {k3['verdict_holm'].split(' ')[0]} under the pre-registered switch (`enable_thinking: false`): "
+        f"with the switch off LFM3 keeps most of its lead (D = {k3['value']:+.2f} ± {k3['se']:.2f}, "
+        f"z = {k3['z']:+.2f}); the switch does not remove reasoning ({rs['closing_think']}/{rs['answers']} answers "
+        "reason and close `</think>`), so how much of the lead thinking itself buys is undetermined. With the switch "
+        f"off the median answer has {100 * rs['median_share_before_last_think_end']:.0f}% of its characters before "
+        f"its last `</think>`, {rs['accepted_closing_think']} of its {rs['accepted']} accepted answers close one, and "
+        f"it writes {tok['mean']:.0f} output tokens per answer on average (PROTOCOL.md, Amendment 1).",
         "- **Holm over the Coding group** needs SciCode's K2 and K3 (`python3 compare.py results --group "
         "<SciCode hypotheses.json>`); until then they count with p = 1, which can only make the adjusted p larger.",
     ])
@@ -132,8 +162,9 @@ def hypotheses_block(results: Path) -> str:
 
 def exploratory_block(results: Path) -> str:
     e = read_json(results, "exploratory.json")
+    rj = read_json(results, "rejudge.json")
     b = e["budgets"]
-    out = ["**EXPLORATORY: added after the results were seen; not in PROTOCOL.md, no verdict reads it.**", "",
+    out = ["**EXPLORATORY: added after the results were seen (PROTOCOL.md, Amendment 1); no verdict reads it.**", "",
            "Accepted within an output budget (a problem counts only if it was accepted and its answer used at most B "
            "output tokens, thinking included):", "",
            "| run | " + " | ".join(f"B = {t}" for t in b["tokens"]) + " | no limit | n |",
@@ -149,12 +180,37 @@ def exploratory_block(results: Path) -> str:
             "|---|---|" + "---|" * len(CAUSE_LABELS)]
     for m, c in e["compile_errors"].items():
         out.append(f"| {m} | {c['total']} | " + " | ".join(str(c["by_cause"][k]["count"]) for k in CAUSE_LABELS) + " |")
+    bp = rj["variants"]["bits_prefix"]["bielik-11b-v3.1"]
+    cats = ", ".join(f"{CATEGORY_LABELS[c]} {n}" for c, n in sorted(bp["categories"].items(), key=lambda x: -x[1]))
+    out += ["", f"Bielik's {bp['problems']} compile errors re-judged with `#include <bits/stdc++.h>` and "
+            f"`using namespace std;` put before the code (rejudge.py): {cats}. {rejudge_note(results, rj)}"]
     return "\n".join(out)
+
+
+def rejudge_note(results: Path, rj: dict[str, Any]) -> str:
+    official = read_json(results, "lfm3-1.7b.json")["settings"]["judge_workers"]
+    return (f"Re-judged on {rj['machine']['cpu']} with {rj['judge']['workers']} workers while another job shared the "
+            f"machine (official judging: {official} workers, idle machine), same image "
+            f"(`{rj['judge']['image_id'][:19]}…`) and test zips.")
+
+
+def extraction_block(results: Path) -> str:
+    """Deviations: the effect of extracting after the last `</think>` instead of from the whole answer."""
+    rj = read_json(results, "rejudge.json")
+    raw = read_json(results, "raw-outputs.json")["runs"]
+    lines = ["| run | accepted, after the last `</think>` (official) | accepted, whole answer (the harness) | "
+             "problems whose code changes | lost | gained | answers with `</think>` and a fence on the same line |",
+             "|---|---|---|---|---|---|---|"]
+    for m, w in rj["variants"]["whole_answer"].items():
+        lines.append(f"| {m} | {w['accepted_official']} | {w['accepted_variant']} | {w['changed_code']} | "
+                     f"{', '.join(w['lost']) or 'none'} | {', '.join(w['gained']) or 'none'} | "
+                     f"{raw[m]['reasoning']['think_end_then_fence']} |")
+    return "\n".join(lines + ["", rejudge_note(results, rj)])
 
 
 def blocks(results: Path) -> dict[str, str]:
     return {"results": results_block(results), "hypotheses": hypotheses_block(results),
-            "exploratory": exploratory_block(results)}
+            "exploratory": exploratory_block(results), "extraction": extraction_block(results)}
 
 
 def render(readme: str, bodies: dict[str, str]) -> str:
