@@ -69,6 +69,7 @@ def main(out: Path, results: Path) -> None:
     from huggingface_hub import constants
     if not constants.HF_HUB_OFFLINE:
         sys.exit("rejudge.py: set HF_HUB_OFFLINE=1 (the judge must read the pinned test zips; lcbpro.py score)")
+    out, results = out.resolve(), results.resolve()  # the harness import changes the working directory
     extract = lcbpro.harness_extract()
     from judge import LightCPVerifierJudge, ProblemNotFoundError, SupportedLanguage
     import requests
