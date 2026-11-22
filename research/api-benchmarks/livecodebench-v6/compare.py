@@ -13,6 +13,11 @@ The control (Amendment 1) is LFM3-1.7B's own pass@1 against its card value, from
 (`lfm3-1.7b-cardsampling`, Amendment 4) when it exists, with the original `lfm3-1.7b` run shown next to it as
 descriptive; L1-L3 use the original `lfm3-1.7b` run. The v6-only problems and every budget pair of L3 are printed
 as descriptive rows, not tested.
+L1 and L3 also get a clustered SE, descriptive (the rules note: an SE over problems treats problems of one contest
+as independent): the same mean difference with the SE from the spread between clusters, by contest (platform and
+contest date; the data has no contest id) and by platform (k = 3), t = mean / SE read at df = k - 1 with the verdict
+from its two-sided p at the p of |z| = 3 and 2 (research/tools/statystyka.py, `se_k`; fewer than 3 clusters is
+`undecidable`).
 Every result file read must have the sha256 summarize.py recorded in <results-dir>/manifest.json; otherwise
 nothing is computed.
 """
@@ -27,6 +32,9 @@ from typing import Any
 
 import provenance
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "tools"))
+import statystyka  # noqa: E402  (research/tools: SE clustered with unequal cluster sizes, t at df = k - 1)
+
 HERE = Path(__file__).parent
 LFM = "lfm3-1.7b"
 BIELIK = "bielik-11b-v3.1"  # the Fabryka API run (PROTOCOL.md, Amendment 1)
@@ -35,6 +43,13 @@ BUDGETS = (4096, 16384, None)  # PROTOCOL.md, "Metrics"; None = no limit
 CONTROL_CARD = 73.46  # PROTOCOL.md, Amendment 1, "Control": LFM3-1.7B on its own card
 # PROTOCOL.md, Amendment 4: A1 was not shown equivalent, so the card-sampling run is the one compared with the card
 CONTROL_RUN = "lfm3-1.7b-cardsampling"
+# Clusters for the clustered SE of L1 and L3: problems of one contest share setters, date and topics
+CLUSTERS = {
+    "contest": lambda r: f"{r['platform']} {r['contest_date'][:10]}",
+    "platform": lambda r: r["platform"],
+}
+VERDICT_EN = {"pewne": "clear", "prawdopodobne": "likely", "szum": "noise", statystyka.NIEROZSTRZYGALNE: "undecidable",
+              None: "undecidable"}
 
 # Parameters used per generated token: the language model's weights (embeddings and LM head included, a tied matrix
 # once). Bielik: config arithmetic from config.json at the PROTOCOL.md revision (Llama, 50 layers, untied head),
@@ -139,7 +154,21 @@ def equal_cost(a: str, b: str, a_runs: dict, b_runs: dict, ids: list[str]) -> di
     best = min(pairs, key=lambda x: x["log_ratio"])  # first in BUDGETS order on a tie
     d = [int(passes_within(a_runs[t], best["budget_a"])) - int(passes_within(b_runs[t], best["budget_b"])) for t in ids]
     return {**paired(d), **{k: best[k] for k in ("budget_a", "budget_b", "mean_cost_a", "mean_cost_b")},
+            "clustered": clustered(d, [a_runs[t] for t in ids]),
             "pairs": [{k: v for k, v in x.items() if k != "log_ratio"} for x in pairs]}
+
+
+def clustered(d: list[int], rows: list[dict]) -> dict[str, Any] | None:
+    """The mean of d (pp) with its SE clustered by each of CLUSTERS: t = mean / SE at df = k - 1, the verdict from
+    the t's p (statystyka.se_k; k < 3 `undecidable`). Descriptive; None without problems."""
+    if not d:
+        return None
+    out = {}
+    for name, key in CLUSTERS.items():
+        r = statystyka.se_k([float(x) for x in d], [key(row) for row in rows])
+        out[name] = {"k": r["k"], "value": 100 * r["roznica"], "se": None if r["se"] is None else 100 * r["se"],
+                     "t": r["t"], "df": r["df"], "p": r["p_t"], "verdict": VERDICT_EN[r["werdykt"]]}
+    return out
 
 
 def compare(a: str, b: str, a_runs: dict, b_runs: dict) -> dict[str, Any]:
@@ -150,7 +179,8 @@ def compare(a: str, b: str, a_runs: dict, b_runs: dict) -> dict[str, Any]:
 
     return {
         "a": a, "b": b, "excluded": excluded,
-        "overall": diff(ids),
+        "overall": {**diff(ids), "clustered": clustered(
+            [int(bool(a_runs[t]["pass"])) - int(bool(b_runs[t]["pass"])) for t in ids], [a_runs[t] for t in ids])},
         "per_difficulty": {lvl: diff([t for t in ids if a_runs[t]["difficulty"] == lvl]) for lvl in DIFFICULTIES},
         "equal_cost": equal_cost(a, b, a_runs, b_runs, ids) if ids else None,
         "v6_only": diff([t for t in ids if a_runs[t]["in_v6_only"]]),
@@ -273,6 +303,25 @@ def budget(b: int | None) -> str:
     return "none" if b is None else str(b)
 
 
+def clustered_table(rows: list[dict]) -> list[str]:
+    """L1 and L3 with the SE over problems next to the clustered ones (descriptive)."""
+    lines = []
+    for r in rows:
+        if r["id"] not in ("L1", "L3") or not r.get("clustered"):
+            continue
+        if not lines:
+            lines = ["", "Clustered SE (descriptive): the same difference, SE from the spread between clusters, t read "
+                     "at df = k − 1:", "",
+                     "| hypothesis | SE from | k (clusters) or n | value ± SE (pp) | z or t | df | p | verdict |",
+                     "|---|---|---|---|---|---|---|---|"]
+        lines.append(f"| {r['id']} | problems (paired) | {r['n']} | {value_se(r)} | z = {fmt(r['z'], '+.2f')} | | "
+                     f"{fmt(r['p'], '.3g')} | {r['verdict']} |")
+        for name, c in r["clustered"].items():
+            lines.append(f"| {r['id']} | {name} | {c['k']} | {value_se(c)} | t = {fmt(c['t'], '+.2f')} | {c['df']} | "
+                         f"{fmt(c['p'], '.3g')} | {c['verdict']} |")
+    return lines
+
+
 def report(a: dict) -> str:
     out = []
     c = a["control"]
@@ -308,6 +357,7 @@ def report(a: dict) -> str:
                 note = " (sign not established)" if lvl in r["sign_not_established"] else ""
                 out.append(f"| L2 {lvl} | pass@1 difference, {lvl}{note} | {value_se(x)} | {fmt(x['z'], '+.2f')} | "
                            f"| {x['verdict']} | | | {x['n']} |")
+    out += clustered_table(a["hypotheses"])
     out += ["", "Descriptive (not tested), LFM3-1.7B minus each model:", "",
             "| model | measure | value ± SE (pp) | z | verdict | n | excluded |", "|---|---|---|---|---|---|---|"]
     for d in a["descriptive"]:

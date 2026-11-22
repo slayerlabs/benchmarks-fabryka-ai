@@ -165,11 +165,12 @@ _spec.loader.exec_module(compare)
 LEVELS = ("easy", "medium", "hard")
 
 
-def row(tid, passed, difficulty, tokens=2000, finished=True, v6_only=False, status="ok"):
+def row(tid, passed, difficulty, tokens=2000, finished=True, v6_only=False, status="ok", platform="atcoder",
+        contest_date="2025-03-01T00:00:00"):
     ok = status == "ok"
     return {"task_id": tid, "score": int(passed) if ok else None, "difficulty": difficulty, "in_v6_only": v6_only,
             "status": status, "pass": passed if ok else None, "output_tokens": tokens if ok else None,
-            "finished": finished if ok else None}
+            "finished": finished if ok else None, "platform": platform, "contest_date": contest_date}
 
 
 def write_run(results, model, rows, score=None, stderr=None):
@@ -193,6 +194,46 @@ def by_id(rows):
 
 CLEAR_LFM = run_of({"easy": 30, "medium": 30, "hard": 30}, tokens=10000)
 CLEAR_BIELIK = run_of({"easy": 10, "medium": 10, "hard": 10}, tokens=2000)
+
+
+def test_compare_clustered_se_by_contest_and_platform():
+    # 4 contests of 10 problems: LFM3 passes all; Bielik passes none of contest 1 and 4, 5 of contest 2, all of 3,
+    # so d per contest sums to 10, 5, 0, 10. Platforms: contests 1 and 4 atcoder, 2 leetcode, 3 codeforces.
+    contests = [("atcoder", "2025-01-04", 10), ("leetcode", "2025-01-05", 5), ("codeforces", "2025-01-06", 0),
+                ("atcoder", "2025-01-11", 10)]
+    lfm, bielik = [], []
+    for c, (platform, date, lead) in enumerate(contests):
+        for i in range(10):
+            kw = {"platform": platform, "contest_date": f"{date}T00:00:00"}
+            lfm.append(row(f"c{c}p{i}", True, "easy", **kw))
+            bielik.append(row(f"c{c}p{i}", i >= lead, "easy", **kw))
+    with tempfile.TemporaryDirectory() as tmp:
+        res = Path(tmp)
+        write_run(res, compare.LFM, lfm)
+        write_run(res, compare.BIELIK, bielik)
+        a = compare.analyse(res)
+    l1 = by_id(a["hypotheses"])["L1"]
+    n, mean = 40, 25 / 40
+
+    def cluster_se(sums_sizes):  # sqrt(G/(G-1) * sum_g (sum_{i in g} (d_i - mean))^2) / n, by hand
+        g = len(sums_sizes)
+        return math.sqrt(g / (g - 1) * sum((s - k * mean) ** 2 for s, k in sums_sizes)) / n
+
+    by_contest, by_platform = l1["clustered"]["contest"], l1["clustered"]["platform"]
+    se_c = cluster_se([(10, 10), (5, 10), (0, 10), (10, 10)])
+    se_p = cluster_se([(20, 20), (5, 10), (0, 10)])
+    assert (by_contest["k"], by_contest["df"], by_platform["k"], by_platform["df"]) == (4, 3, 3, 2)
+    assert math.isclose(by_contest["value"], 100 * mean) and math.isclose(by_contest["se"], 100 * se_c)
+    assert math.isclose(by_platform["se"], 100 * se_p) and math.isclose(by_platform["t"], mean / se_p)
+    # two-sided p of Student's t in closed form: df = 3 and df = 2
+    x = (mean / se_c) / math.sqrt(3)
+    assert math.isclose(by_contest["p"], 1 - 2 / math.pi * (x / (1 + x * x) + math.atan(x)), rel_tol=1e-9)
+    t = mean / se_p
+    assert math.isclose(by_platform["p"], 1 - t / math.sqrt(2 + t * t), rel_tol=1e-9)
+    assert by_contest["verdict"] == by_platform["verdict"] == "noise"  # t 2.61 (df 3), 2.07 (df 2)
+    assert l1["verdict"] == "clear"  # over problems z = 0.625 / 0.0775 = 8.06: clustering changes the verdict
+    assert set(by_id(a["hypotheses"])["L3"]["clustered"]) == {"contest", "platform"}
+    assert "| L1 | platform | 3 | +62.50 ± 30.14 | t = +2.07 | 2 | 0.174 | noise |" in compare.report(a)
 
 
 def test_compare_clear_lead_refutes_l1_l2_l3():
