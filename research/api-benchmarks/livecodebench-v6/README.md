@@ -2,7 +2,7 @@
 
 Whether a model writes a Python program that passes the hidden tests of a competitive-programming problem
 (LeetCode, AtCoder, Codeforces). The pre-registered question, hypotheses and verdict rules are in
-[PROTOCOL.md](PROTOCOL.md) (with Amendments 1 and 2); this file says how the run is done. Refs #295.
+[PROTOCOL.md](PROTOCOL.md) (with Amendments 1 to 3); this file says how the run is done. Refs #295.
 
 - Paper: [Jain et al. 2024, LiveCodeBench: Holistic and Contamination Free Evaluation of Large Language Models for
   Code](https://arxiv.org/abs/2403.07974)
@@ -80,7 +80,23 @@ Amendment 1).
   fixes one sample with a fixed seed. The stderr is the binomial one over problems.
 - **vLLM applies LFM3-1.7B's `generation_config.json` as default sampling.** Parameters the request does not set
   come from it: `repetition_penalty` 1.1 and `top_k` 50. This is vLLM's default, as in the IFEval LFM3-1.7B run;
-  run.sh prints the line in which vLLM reports it.
+  run.sh prints the line in which vLLM reports it. PROTOCOL.md did not name these two settings and the LFM3-1.7B
+  result file did not record them; the method verification found this after the result existed (PROTOCOL.md,
+  Amendment 3). Their effect on the score is not estimated. Each result file now records the sampling in effect:
+  `settings.request_sampling` (sent) and `settings.server_defaults` (filled by the server: on vLLM read by lcb.py
+  from `generation_config.json` at the pinned revision, on the Fabryka API `unknown (Fabryka API)`).
+- **The LFM3-1.7B result's provenance was recorded by hand, after the run.** It was produced before lcb.py
+  recorded provenance, so `results/lfm3-1.7b.json` got its `provenance`, `raw_outputs` and sampling fields added
+  by hand and nothing was regenerated: the code commit is fc13b0bd, inferred (its `graded.jsonl` lacks the fields
+  later code adds; the request and scoring path did not change after it), with the sha256 of the runner files at
+  that commit; the hardware is a vast.ai H100 80 GB instance, written by hand (no `nvidia-smi` output was kept),
+  which also scored the answers on its CPU; platform, CPU model and `dirty` were not captured. The
+  `manifest.json` files in `out/lfm3-1.7b/` and `results/` hold the hashes those files had when they were written
+  after the fact, not hashes recorded by the steps that wrote them.
+- **The `output` of a `.jsonl.gz` line is the extracted code, not the whole model output.** METHODOLOGY.md asks
+  for the model output per task; the raw output with its thinking is about 16 MB for LFM3-1.7B, over the repo's
+  10 MB limit, so it stays in `out/<model-id>/` (not committed). Its sha256 is in the result file
+  (`raw_outputs.sha256`), so a copy kept elsewhere can be matched to the result.
 - **An answer without `</think>` is scored whole.** An answer cut at the context limit inside its thinking has no
   `</think>`, so the last code block of the thinking is extracted. Such answers have `finished: false`, so they never
   count at a budget, and their number is `unfinished` in the result file.
@@ -129,12 +145,22 @@ raw outputs stay in `out/<model-id>/` (not committed); an interrupted run picks 
 `.jsonl.gz` keeps per problem the grade, the token counts, the `finished` flag and the extracted code, not the
 thinking.
 
+Provenance: `lcb.py generate` writes to `out/<model-id>/run.json` our code commit (`git rev-parse HEAD`, and
+`dirty` when a tracked file of this directory differs from it), the sha256 of the runner files, the machine (GPU
+from `nvidia-smi`, CPU, platform) and the sampling in effect; `lcb.py score` adds the same for the scoring machine,
+and summarize.py copies both into the result file under `provenance`. Each step records the sha256 of the file it
+writes in `manifest.json` next to it (`out/<model-id>/` for generations and grades, `results/` for the result
+files), and lcb.py score, summarize.py and compare.py stop when an input is missing from the manifest or no longer
+matches it.
+
 `--limit 5` runs the first 5 problems (by `question_id`) and writes its summary to
 `out/<model-id>/<model-id>-limit5.*`, not to `results/`. The `date` in a result file is the UTC day of the first
 request.
 
-`python3 ../../tests/test_livecodebench_v6.py` checks the summary, the scored text, compare.py and the API request
-layer (against a fake server on 127.0.0.1) offline.
+`python3 ../../tests/test_livecodebench_v6.py` checks offline the summary, the scored text, compare.py (with the
+control threshold), the API and vLLM request bodies (against a fake server on 127.0.0.1), the evaluator settings,
+the alignment of grades with problems, the problem set's order and v6-only flag, the recorded sampling and
+provenance, and that each step refuses a changed input.
 
 ## Hypotheses
 

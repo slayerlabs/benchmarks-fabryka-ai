@@ -106,3 +106,21 @@ and the running full LFM3-1.7B generation, whose scores have not been computed o
 - **Slayer checkpoint:** the latest published one, Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`,
   `wagi_70000.pt` from `SlayerLab/Slayer1B-1.09-checkpoints` @ `adfaf3fd5402bc7f3adbfe077798f20262979433`),
   replaces 1.08. Its row stays `null` for the reason in the README (decoding speed), now under this id.
+
+## Amendment 3 (2026-11-22, 05:35 UTC)
+
+Written after the LFM3-1.7B result existed (generated and scored). Nothing above is changed.
+
+- **Two sampling settings this protocol does not name were in effect for LFM3-1.7B.** "Settings" fixes
+  temperature 0.6 and top_p 0.95; the request sends those, the seed, and frequency and presence penalty 0. vLLM
+  0.34.0 (`generation_config="auto"`) fills the sampling parameters a request leaves unset from the model's
+  `generation_config.json` (`LiquidAI/LFM3-1.7B` @ `1da06bec6a819da10b54c67e5c90972b46d81871`). That gave
+  `repetition_penalty` 1.1 and `top_k` 50 on every LFM3-1.7B request, instead of vLLM's neutral 1.0 and no top-k
+  limit. The README named this as a deviation before the first request, but this protocol did not, and the result
+  file did not record it. The method verification of the result found the gap, after the result existed.
+- **Effect not estimated.** How much `repetition_penalty` 1.1 and `top_k` 50 move LFM3-1.7B's pass@1 is not
+  known. A rerun with them set to neutral values (an ablation) is a separate decision and is not part of this
+  amendment. This amendment does not rerun or change the LFM3-1.7B result; the two settings are named next to it.
+- **From now on** the result file records the sampling settings in effect: `settings.request_sampling` (what the
+  request sends) and `settings.server_defaults` (what the server fills in; on vLLM read from
+  `generation_config.json` at the pinned revision, on the Fabryka API `unknown`).
