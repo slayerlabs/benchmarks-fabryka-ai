@@ -100,3 +100,9 @@ and the running full LFM3-1.7B generation, whose scores have not been computed o
 - **L1–L3** compare LFM3-1.7B with Bielik 11B v3.1 instead of Qwen3.5-9B, with the same measures and thresholds:
   L1 refuted when LFM3-1.7B is ahead with z ≥ 3 (the original prediction, that a 1.7B model's lead over a larger
   model is within noise, is kept as stated); L2 and L3 unchanged apart from the comparator.
+
+## Amendment 2 (2026-11-22, 04:40 UTC)
+
+- **Slayer checkpoint:** the latest published one, Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`,
+  `wagi_70000.pt` from `SlayerLab/Slayer1B-1.09-checkpoints` @ `adfaf3fd5402bc7f3adbfe077798f20262979433`),
+  replaces 1.08. Its row stays `null` for the reason in the README (decoding speed), now under this id.
