@@ -147,7 +147,8 @@ def zt(h):
 def hypotheses_table(h):
     rules = {"R1": "mean at 131072 below 85.6 with z <= -3 (sample-level SE)",
              "R2": "slope difference, LFM3-1.7B minus Bielik (Amendment 1)",
-             "R3": "drop 4096 to 131072, tracing and aggregation minus retrieval (SE clustered by task)"}
+             "R3": "drops 4096 to 131072: refuted when retrieval's is not smaller than tracing's and aggregation's; "
+                   "strength with the SE clustered by task"}
     out = ["| hypothesis | pre-registered measure | value ± SE | z or t | Holm p (m = 3) | verdict | outcome | n | strict "
            "verdict |", "|---|---|---|---|---|---|---|---|---|"]
     for name, x in h["hypotheses"].items():
@@ -210,13 +211,20 @@ def r3_block(h):
     r3 = h["hypotheses"]["R3"]
     tr, ag = r3["comparisons"]
     d = r3["descriptive_sample"]
-    out = [f"**R3: {r3['verdict']}.** The protocol measures the drop per category with the SE clustered by task; "
-           f"{r3['undetermined_reason']}. Tracing - retrieval {f2(tr['value'])} ± {f2(tr['se_clustered'])} "
-           f"(t = {f2(tr['t'])}, df {tr['df']}, p {fp(tr['p_t'])}; tracing's one task has no between-task SE, taken "
-           f"as 0), aggregation - retrieval {f2(ag['value'])} ± {f2(ag['se_clustered'])} (t = {f2(ag['t'])}, df "
-           f"{ag['df']}). Descriptive, with the sample-level SE (tasks fixed, not the protocol's SE): tracing - "
-           f"retrieval {f2(d['value'])} ± {f2(d['se'])}, z = {f2(d['z'])}; read that way, the retrieval drop is not "
-           f"smaller than tracing's. Until the verification this was published as the verdict (refuted, clear).", "",
+    w = r3["without_largest_retrieval_drops"]
+    wt = w["tracing_minus_retrieval"]
+    drops = r3["drops"]
+    out = [f"**R3: {r3['outcome']} by the pre-registered point rule as coded before the results** (tracing drop "
+           f"{f2(drops['tracing']['drop'])} against retrieval {f2(drops['retrieval']['drop'])}; aggregation "
+           f"{f2(drops['aggregation']['drop'])}). **Across tasks the strength is {r3['verdict']}**: "
+           f"{r3['undetermined_reason']} (Amendments 7 and 8). Tracing - retrieval {f2(tr['value'])} ± "
+           f"{f2(tr['se_clustered'])} (t = {f2(tr['t'])}, df {tr['df']}, p {fp(tr['p_t'])}; tracing's one task has no "
+           f"between-task SE, taken as 0), aggregation - retrieval {f2(ag['value'])} ± {f2(ag['se_clustered'])} "
+           f"(t = {f2(ag['t'])}, df {ag['df']}). The retrieval drop rests on {len(w['tasks_dropped'])} of {w['of']} "
+           f"retrieval tasks ({', '.join(w['tasks_dropped'])}: {w['share_of_retrieval_drop'] * 100:.0f}% of it); "
+           f"without them retrieval drops {f2(w['retrieval_drop'])} and tracing - retrieval is {f2(wt['value'])} ± "
+           f"{f2(wt['se_sample'])} (sample-level SE). Descriptive, with the sample-level SE (tasks fixed, not the "
+           f"protocol's SE): tracing - retrieval {f2(d['value'])} ± {f2(d['se'])}, z = {f2(d['z'])}.", "",
            "| LFM3-1.7B category | tasks | drop 4096 to 131072 | SE clustered by task | SE sample-level |",
            "|---|---|---|---|---|"]
     out += [f"| {c} | {x['tasks']} | {f2(x['drop'])} | {f2(x['se_clustered']) if x['se_clustered'] is not None else '-'}"

@@ -298,8 +298,9 @@ def test_compare_clear_case():
     assert C.sign_test(5, 13) == 2 * sum(math.comb(13, i) for i in range(6)) / 2 ** 13
     for name in ("R1", "R2"):
         assert (h[name]["verdict"], h[name]["outcome"]) == ("clear", "confirmed"), (name, h[name])
-    # R3: the protocol's SE is clustered by task; tracing (1 task) and aggregation (2) cannot carry it
-    assert (h["R3"]["verdict"], h["R3"]["outcome"], h["R3"]["p"]) == ("undetermined", "undetermined", None)
+    # R3: both drops exceed retrieval's, so the point rule does not refute it; its strength has no clustered verdict
+    # (tracing 1 task, aggregation 2), so it stays open, undetermined, without a p
+    assert (h["R3"]["verdict"], h["R3"]["outcome"], h["R3"]["p"]) == ("undetermined", "open", None)
     # R2 over the lengths both models hold: Bielik's 32768 is null, so 4096-16384.
     assert h["R2"]["lengths"] == [4096, 8192, 16384] and h["R2"]["lengths_excluded"] == [32768, 65536, 131072]
     assert len(h["R2"]["comparisons"]) == 1 and h["R2"]["value"] < 0
@@ -345,12 +346,19 @@ def test_r3_verdict_uses_the_se_clustered_by_task():
     assert abs(tracing["t"] - (-21 / se)) < 1e-9 and abs(tracing["p_t"] - C.statystyka.p_t(-21 / se, 7)) < 1e-12
     assert tracing["verdict_clustered"] == aggregation["verdict_clustered"] == "undetermined"
     assert aggregation["df"] == 1 and aggregation["tasks"] == [2, 8]
-    assert (r3["verdict"], r3["outcome"], r3["p"], r3["p_holm"]) == ("undetermined", "undetermined", None, None)
+    # the point rule as coded before the results: tracing's drop (2) is not larger than retrieval's (23): refuted;
+    # its strength across tasks has no clustered verdict
+    assert (r3["verdict"], r3["outcome"], r3["p"], r3["p_holm"]) == ("undetermined", "refuted", None, None)
+    assert r3["refuted"] is True and "refuted = not all(value > 0)" in r3["outcome_rule"]
+    w = r3["without_largest_retrieval_drops"]
+    assert w["tasks_dropped"] == ["niah_multikey_3", "niah_multikey_2"] and w["of"] == 8
+    assert w["retrieval_drop"] == 1.0 and w["tracing_minus_retrieval"]["value"] == 1.0  # 6 tasks drop 0,0,4,2,0,0
+    assert abs(w["share_of_retrieval_drop"] - 178 / 184) < 1e-12
     assert r3["t"] == tracing["t"] and r3["z"] is None and "tracing, aggregation" in r3["undetermined_reason"]
     # the sample-level reading is kept, as descriptive: there it is far beyond 3 SE
     assert r3["descriptive_sample"]["z"] < -3 and r3["descriptive_sample"]["verdict"] == "clear"
     assert tracing["sample"]["z"] == r3["descriptive_sample"]["z"]
-    assert "R3 undetermined: fewer than 3 tasks in tracing, aggregation" in text
+    assert "R3 refuted by the point rule" in text and "strength undetermined: fewer than 3 tasks in tracing" in text
     assert f"t {tracing['t']:.2f} (df 7)" in text
 
 
@@ -368,8 +376,9 @@ def test_compare_noise_case_holm_and_control_fail():
     # LFM3 and Bielik are both flat over 4096-32768: equal slopes, z = 0, under 2 SE, so R2 is refuted.
     assert (h["R2"]["verdict"], h["R2"]["outcome"]) == ("noise", "refuted") and abs(h["R2"]["z"]) < 1e-9
     assert h["R2"]["lengths"] == [4096, 8192, 16384, 32768]
-    # every category drops by 2: retrieval's drop is not smaller, but R3 has no clustered verdict, so no p
-    assert h["R3"]["outcome"] == "undetermined" and h["R3"]["value"] == 0 and h["R3"]["p"] is None
+    # every category drops by 2: retrieval's drop is not smaller, refuted by the point rule; no clustered p
+    assert (h["R3"]["outcome"], h["R3"]["verdict"]) == ("refuted", "undetermined")
+    assert h["R3"]["value"] == 0 and h["R3"]["p"] is None
     assert h["R3"]["descriptive_sample"]["retrieval_drop_not_smaller"] is True
     # Holm, m = 3 with R3 counted but without a p: the smaller p gets 3p, the other max(previous, 2p), capped at 1.
     rows = sorted((h["R1"], h["R2"]), key=lambda x: x["p"])

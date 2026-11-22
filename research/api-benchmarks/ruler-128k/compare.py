@@ -21,13 +21,15 @@ sha256 goes to results.sha256.json. Writing results/hypotheses.json stops while 
   lengths both models hold. Confirmed: negative, clear after Holm; refuted: not 2 SE below 0. Amendment 6: with
   fewer than 3 complete lengths shared it is `not decided` (still in Holm's m = 3) and the per-length means of both
   models over the lengths both measured (partial ones with their task count) are printed, descriptive only.
-- R3: LFM3-1.7B's drop from 4096 to 131072 per category; tracing minus retrieval and aggregation minus retrieval,
-  with the SE clustered by task that the protocol names (PROTOCOL.md, R3). A comparison whose categories have fewer
-  than 3 tasks (tracing 1, aggregation 2) has no clustered verdict: R3 is then `undetermined` and enters Holm without
-  a p (m stays 3). Its t uses the between-task SE of the categories that have one (one task: no spread, taken as 0)
-  with df = tasks - 1 of the smallest of them, reported next to the verdict. The sample-level bootstrap comparison
-  (tasks fixed) is reported as `descriptive_sample`, not as the verdict. Confirmed: both positive, clear after Holm;
-  refuted: the retrieval drop is not smaller than both, read with the same clustered verdict.
+- R3: LFM3-1.7B's drop from 4096 to 131072 per category; tracing minus retrieval and aggregation minus retrieval.
+  Outcome by the pre-registered point rule as compare.py coded it before the results (e7858d51): refuted when the
+  retrieval drop is not smaller than both other drops (`refuted = not all(value > 0)`), the same point logic as R1's
+  "refuted: mean >= 85.6". Strength with the SE clustered by task that the protocol names: a comparison whose
+  categories have fewer than 3 tasks (tracing 1, aggregation 2) has no clustered verdict (Amendment 7), so the
+  verdict is `undetermined` and R3 enters Holm without a p (m stays 3). Its t uses the between-task SE of the
+  categories that have one (one task: no spread, taken as 0) with df = tasks - 1 of the smallest of them. Next to it:
+  the comparison without the 2 retrieval tasks that drop most, and the sample-level bootstrap comparison (tasks
+  fixed) as `descriptive_sample` (Amendment 8).
 - Slayer 1B 1.09 at update 70 000 (Amendment 2): per length, descriptive only.
 
 z = value / SE, two-sided normal p, Holm over the three hypotheses with m = 3 whether or not they ran. Verdict from
@@ -57,6 +59,8 @@ CONTROL_CARD = 65.56  # LFM3-1.7B card, RULER 128K (PROTOCOL.md, Amendment 1)
 CONTROL_FAIL = "FAIL, gap unexplained"
 R2_NOT_DECIDED = "not decided (Amendment 6): fewer than 3 complete lengths shared"
 R2_NOT_COMPARABLE = "not comparable: the RULER source files differ between the models"
+R3_POINT_RULE = ("PROTOCOL.md R3, 'refuted: the retrieval drop is not smaller than the tracing and aggregation "
+                 "drops', as compare.py coded it before the results (e7858d51): refuted = not all(value > 0)")
 R2_CAVEATS = [
     "a comparison of modes, not of models: LFM3-1.7B reasons before it answers (its generation prompt opens "
     "`<think>`, output up to the rest of its window, vLLM), Bielik 11B v3.1 answers without reasoning (its template "
@@ -79,11 +83,11 @@ DEVIATIONS = [
     "control, R1-R3: a length where RULER's generator could not produce some task (partial length, the task is null) "
     "is not comparable: the control and R1 at 131072 are `not run` there, and R2 and R3 use only lengths complete "
     "for the compared models.",
-    "R3: the verdict uses the SE clustered by task, as the protocol says. Tracing has 1 task and aggregation 2, under "
-    "the 3 clusters a clustered verdict needs, so R3 is `undetermined` and enters Holm without a p (m stays 3). Its "
-    "t (the between-task SE of the categories that have one, df = tasks - 1) is reported next to it; the sample-level "
-    "bootstrap comparison (tasks fixed) is descriptive only. Until the verification of 2026-11-22 the verdict used the "
-    "sample-level SE (Amendment 7).",
+    "R3: outcome by the pre-registered point rule as coded before the results (e7858d51); its strength uses the SE "
+    "clustered by task, as the protocol says. Tracing has 1 task and aggregation 2, under the 3 clusters a clustered "
+    "verdict needs (a rule added after the results, Amendment 7), so the verdict is `undetermined` and R3 enters Holm "
+    "without a p (m stays 3). Its t (the between-task SE of the categories that have one, df = tasks - 1) is reported "
+    "next to it; the sample-level bootstrap comparison (tasks fixed) is descriptive only (Amendment 8).",
     "R3: the hypothesis compares two categories against retrieval; its t is the weaker of the two comparisons "
     "(it holds only if both hold), so it enters Holm once and m stays 3.",
     "control (Amendment 4, decided after the result and after the control failed): the control failed and the gap is "
@@ -377,6 +381,7 @@ def r3(runs):
     weakest = min(comps, key=lambda c: math.inf if c["t"] is None else c["t"])
     determined = all(c["verdict_clustered"] != "undetermined" for c in comps)
     weakest_sample = min(comps, key=lambda c: math.inf if c["sample"]["z"] is None else c["sample"]["z"])
+    refuted = not all(c["value"] > 0 for c in comps)
     return {"measure": "LFM3 drop 4096->131072: tracing, aggregation - retrieval (weaker), SE clustered by task",
             "value": weakest["value"], "se": weakest["se_clustered"], "z": None, "t": weakest["t"],
             "df": weakest["df"], "p_t": weakest["p_t"], "p": weakest["p_t"] if determined else None, "n": n,
@@ -385,14 +390,32 @@ def r3(runs):
                 "fewer than 3 tasks in " + ", ".join(c for c in ("tracing", "aggregation")
                                                      if drops[c]["tasks"] < MIN_CLUSTERS)
                 + f": no clustered verdict (PROTOCOL.md R3: SE clustered by task; {MIN_CLUSTERS} clusters needed)"),
-            "refuted": not all(c["value"] > 0 for c in comps), "confirmed_direction": all(c["value"] > 0 for c in comps),
-            "drops": drops,
+            "refuted": refuted, "confirmed_direction": not refuted, "outcome_rule": R3_POINT_RULE,
+            "drops": drops, "without_largest_retrieval_drops": without_largest(run, drop),
             "descriptive_sample": {
                 "note": "sample-level bootstrap SE (tasks fixed), not the protocol's SE; descriptive, not Holm-adjusted",
                 "value": weakest_sample["value"], "se": weakest_sample["sample"]["se"],
                 "z": weakest_sample["sample"]["z"], "p": weakest_sample["sample"]["p"],
                 "verdict": VERDICT[statystyka.werdykt_p(weakest_sample["sample"]["p"])],
-                "retrieval_drop_not_smaller": not all(c["value"] > 0 for c in comps)}}
+                "retrieval_drop_not_smaller": refuted}}
+
+
+def without_largest(run, drop, k=2):
+    """Tracing minus retrieval with the `k` retrieval tasks that drop most left out (sample-level SE): how much of the
+    retrieval drop rests on a few tasks."""
+    task_drops = {t: run["point"][SHORT][t] - run["point"][LONG][t] for t in CATEGORIES["retrieval"]}
+    largest = sorted(task_drops, key=lambda t: (-task_drops[t], t))[:k]
+    rest = [t for t in CATEGORIES["retrieval"] if t not in largest]
+
+    def retrieval(p):
+        return statistics.fmean(p[SHORT][t] - p[LONG][t] for t in rest)
+
+    r, _ = stat(retrieval, run)
+    value, se = stat(lambda p: drop(p, "tracing") - retrieval(p), run)
+    return {"tasks_dropped": largest, "of": len(task_drops), "retrieval_drop": r,
+            "share_of_retrieval_drop": sum(task_drops[t] for t in largest) / sum(task_drops.values())
+            if sum(task_drops.values()) else None,
+            "tracing_minus_retrieval": {"value": value, "se_sample": se, "z_sample": z_of(value, se)}}
 
 
 def clustered_difference(a, b):
@@ -437,8 +460,8 @@ def read_hypotheses(runs):
             h.update(verdict=label, outcome=label)
             continue
         h["p_holm"] = p_holm
-        if h.get("undetermined"):  # R3: no clustered verdict; the protocol's measure cannot decide it either way
-            h.update(verdict="undetermined", outcome="undetermined")
+        if h.get("undetermined"):  # R3: point-rule outcome, no clustered strength (Amendment 8)
+            h.update(verdict="undetermined", outcome="refuted" if h["refuted"] else "open")
             continue
         h["verdict"] = VERDICT[statystyka.werdykt_p(p_holm)] if p_holm is not None else "undetermined"
         h["outcome"] = ("refuted" if h["refuted"] else
@@ -578,7 +601,12 @@ def report(result):
     r3_ = result["hypotheses"]["R3"]
     if "drops" in r3_:
         if r3_.get("undetermined"):
-            lines.append(f"\nR3 undetermined: {r3_['undetermined_reason']}")
+            lines.append(f"\nR3 {r3_['outcome']} by the point rule ({r3_['outcome_rule']}); strength undetermined: "
+                         f"{r3_['undetermined_reason']}")
+            w = r3_["without_largest_retrieval_drops"]
+            lines.append(f"R3 without {', '.join(w['tasks_dropped'])}: retrieval drop {w['retrieval_drop']:.2f}, "
+                         f"tracing - retrieval {w['tracing_minus_retrieval']['value']:.2f} +- "
+                         f"{w['tracing_minus_retrieval']['se_sample']:.2f}")
         lines += ["", "| LFM3 category | drop 4096->131072 | SE sample | SE clustered (tasks) | clustered verdict |",
                   "|---|---|---|---|---|"]
         lines += [f"| {c} | {d['drop']:.2f} | {d['se_sample']:.2f} | {fmt(d['se_clustered'])} ({d['tasks']}) | "

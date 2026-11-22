@@ -142,7 +142,11 @@ def test_r3_drops_and_clustered_t():
     assert close(float(m.group(1)), value) and close(float(m.group(2)), se)
     assert close(float(m.group(3)), value / se) and int(m.group(4)) == 7
     assert close(float(m.group(5)), t_two_sided_p(value / se, 7))
-    assert "**R3: undetermined.**" in text
+    # the point rule as coded before the results: refuted when retrieval's drop is not smaller than both others
+    point = "refuted" if not (drops["tracing"] > drops["retrieval"] and drops["aggregation"] > drops["retrieval"]) \
+        else "open"
+    assert f"**R3: {point} by the pre-registered point rule" in text
+    assert "**Across tasks the strength is undetermined**" in text
 
 
 def test_r2_descriptive_table_on_the_same_tasks():

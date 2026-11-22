@@ -226,10 +226,12 @@ Results files and their sha256 (`results/results.sha256.json`):
   4096 marked 12 tasks, with LFM3-1.7B's mean on the same 12 tasks next to it), with no test statistic. The
   comparison is one of modes, not of models (reasoning on vLLM against no reasoning through the API with a provider
   prompt), on different essay text and different amounts of text per nominal length (Hypotheses, R2).
-- **R3 decided with the SE the protocol names** (Amendment 7). The protocol measures R3 with the SE clustered by
-  task; `compare.py` used the sample-level SE (tasks fixed), and the published verdict was "refuted, clear". With
-  1 tracing task and 2 aggregation tasks there is no clustered verdict, so R3 is undetermined; the sample-level
-  reading is shown next to it as descriptive.
+- **R3: outcome by the point rule, strength with the SE the protocol names** (Amendments 7 and 8). The protocol
+  measures R3 with the SE clustered by task; `compare.py` used the sample-level SE (tasks fixed), and the published
+  verdict was "refuted, clear". The refutation clause is a point rule, coded before the results as
+  `refuted = not all(value > 0)`, the same point logic as R1's: by it R3 is refuted. With 1 tracing task and
+  2 aggregation tasks there is no clustered verdict (a rule added after the results, Amendment 7), so its strength
+  across tasks is undetermined; the sample-level reading is shown next to it as descriptive.
 - **Some LFM3-1.7B samples have two raw records.** A rerun appended second records for samples at 4096; the last
   record of a sample is scored (`ruler.latest_records`). Counts and the means with the first record instead are in
   Hypotheses.
