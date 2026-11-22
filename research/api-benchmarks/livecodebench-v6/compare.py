@@ -410,7 +410,9 @@ def exploratory_extraction(f1: tuple | None, runs: dict) -> dict[str, Any] | Non
                      "L3": {**{k: e[k] for k in keep}, "budget_a": e["budget_a"], "budget_b": e["budget_b"]}})
     counts = ("answered", "fence_lines", "empty_code", "changed", "passing_after_f1", "official_passes_lost")
     return {"file": EXTRACTION, "sha256": sha, "rule": x["rule"], "status": x["exploratory"],
-            "runs": {m: {k: v[k] for k in counts} for m, v in x["runs"].items()}, "hypotheses": rows}
+            "runs": {m: {k: v[k] for k in counts} for m, v in x["runs"].items()}, "hypotheses": rows,
+            "machine": {"cpu": x["provenance"]["cpu"], "platform": x["provenance"]["platform"],
+                        "processes": x["evaluator"]["processes"]}}
 
 
 def mean_cost(run: str, rows: list[dict], budget: int | None, prompt: bool = False) -> float:
@@ -535,10 +537,13 @@ def extraction_section(a: dict) -> list[str]:
     x = a["exploratory_extraction"]
     if not x:
         return out
+    m = x["machine"]
     out += ["", f"Exploratory ({x['status']}): every answer re-extracted with rule "
             f"{x['rule']}; "
-            "the answers whose code changes are graded again with LiveCodeBench's evaluator (extraction.py, "
-            f"results/{x['file']}).", "",
+            "the answers whose code changes are graded again with LiveCodeBench's evaluator on the machine that ran "
+            f"extraction.py ({m['cpu']}, {m['platform']}, {m['processes']} processes, from the file's provenance), "
+            "not on the machines that scored the official runs (results/<model-id>.json, provenance.scoring); "
+            f"results/{x['file']}.", "",
             "| run | answered | empty code | changed by F1 | of these passing | official passes lost |",
             "|---|---|---|---|---|---|"]
     out += [f"| {m} | {r['answered']} | {r['empty_code']} | {r['changed']} | {r['passing_after_f1']} | "

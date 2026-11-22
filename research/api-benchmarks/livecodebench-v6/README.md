@@ -207,8 +207,8 @@ the problem set's order and v6-only flag, the recorded sampling and provenance, 
 input, that README.md's generated blocks are what readme.py writes, and, without importing this directory's code,
 pass@1, the L1 and L3 differences and the README's numbers against a count from `results/*.jsonl.gz`.
 
-After any result changes, regenerate in this order: `python3 extraction.py` (on the scoring machine, in
-`.venv-lcb`), `python3 compare.py`, `python3 ablation.py`, `python3 readme.py`.
+After any result changes, regenerate in this order: `python3 extraction.py` (in `.venv-lcb`; it records its machine
+in the file's `provenance`), `python3 compare.py`, `python3 ablation.py`, `python3 readme.py`.
 
 ## Hypotheses
 
@@ -233,8 +233,9 @@ parameters in the cost per answer). The parameter counts are pinned in compare.p
 fence lines of the answer; with fewer than two the code is empty and graded as a fail. compare.py counts these per
 run. `extraction.py` re-extracts every answered problem of every run with rule F1, fixed by the method refutation
 before it regraded anything (one fence line: the lines before it, or after it when only whitespace precedes it; no
-fence line: the whole text), grades the answers whose code changes with LiveCodeBench's evaluator on the scoring
-machine and writes `results/extraction-f1.json`; compare.py then prints L1 and L3 after F1 next to the official
+fence line: the whole text), grades the answers whose code changes with LiveCodeBench's evaluator on the machine
+that runs it (named below from the file's `provenance`, not one of the machines that scored the official runs) and
+writes `results/extraction-f1.json`; compare.py then prints L1 and L3 after F1 next to the official
 numbers. This was not fixed in PROTOCOL.md and does not replace any official number; it shows how much of L1 and L3
 rests on answers that LiveCodeBench's extraction leaves without code.
 

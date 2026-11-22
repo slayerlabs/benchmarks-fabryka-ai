@@ -1156,6 +1156,8 @@ def test_extraction_regrade_file_and_compare_exploratory_rows():
     assert a["exploratory_extraction"]["sha256"] == files["extraction-f1.json"]["sha256"]
     assert "| bielik-11b-v3.1 | 3 | 2 | 2 | 1 | 0 |" in text and "| bielik-11b-v3.1 | 3 | 2 |" in text
     assert "Exploratory (added after the results; not a protocol test, the official results stand)" in text
+    machine = f"({x['provenance']['cpu']}, {x['provenance']['platform']}, 3 processes, from the file's provenance)"
+    assert a["exploratory_extraction"]["machine"]["cpu"] == x["provenance"]["cpu"] and machine in text
 
 
 # The committed results, checked without this benchmark's code: an independent count from results/*.jsonl.gz
