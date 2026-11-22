@@ -1,0 +1,333 @@
+{
+  "benchmark": "LiveCodeBench Pro 25Q2 (quater_2025_4_6)",
+  "model": "lfm3-1.7b-nothink",
+  "metric": "pass@1 (accepted / all problems, percent)",
+  "harness": "https://github.com/GavinZhengOI/LiveCodeBench-Pro @ d614eef4f95b3654bf0758c64e1194b2575850b8 (LightCPVerifier @ 021d121c882e70856b66113142495e31b9fe1d80)",
+  "data": "https://huggingface.co/datasets/QAQAQAQAQ/LiveCodeBench-Pro @ adebffce047dddb7768a86bace6aea4f7425e3bc, split quater_2025_4_6; tests https://huggingface.co/datasets/QAQAQAQAQ/LiveCodeBench-Pro-Testcase @ 5257736c0a4e30ba0949d41c56a257c323d9c600",
+  "score": 28.74,
+  "stderr": 3.5,
+  "n": 167,
+  "date": "2026-11-22",
+  "settings": {
+    "prompt": "api_interface.LLMInterface().prompt + problem_statement, the only user message",
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "seed": 20261122,
+    "max_tokens": "context minus prompt tokens",
+    "context": 262144,
+    "trials": 1,
+    "scored_text": "after the last </think>, code by util.extract_longest_cpp_code",
+    "unfinished": "thinking on: no </think> or finish_reason other than stop; counted as not accepted",
+    "judge": {
+      "image": "lightcpverifier",
+      "image_id": "sha256:a04214fc3f8a0274d252c161a2b58cf59606aa6f37a019da19d7b94c2c9acad0",
+      "image_repo_digests": [],
+      "image_created": "2026-11-22T16:25:45.84428277Z",
+      "go_judge_version": "v1.9.6",
+      "workers": 8
+    },
+    "judge_workers": 8,
+    "judge_machine": {
+      "cpu": "AMD EPYC 7302P 16-Core Processor",
+      "cpu_count": 30,
+      "platform": "Linux-5.15.0-1067-kvm-x86_64-with-glibc2.35"
+    },
+    "request_sampling": {
+      "n": 1,
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "seed": 20261122,
+      "top_k": 0,
+      "repetition_penalty": 1.0,
+      "frequency_penalty": 0,
+      "presence_penalty": 0
+    },
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    },
+    "thinking": "off",
+    "server_defaults": {},
+    "server_defaults_source": "vLLM generation_config=auto: LiquidAI/LFM3-1.7B@1da06bec6a819da10b54c67e5c90972b46d81871 generation_config.json",
+    "effective": {
+      "n": 1,
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "seed": 20261122,
+      "top_k": 0,
+      "repetition_penalty": 1.0,
+      "frequency_penalty": 0,
+      "presence_penalty": 0
+    }
+  },
+  "other_metrics": {
+    "accepted": 48,
+    "secondary": {
+      "score": 29.27,
+      "stderr": 3.55,
+      "n": 164,
+      "accepted": 48,
+      "left_out": {
+        "no_tests": 3,
+        "judge_error": 0,
+        "request_error": 0,
+        "unsupported": 0
+      }
+    },
+    "per_difficulty": {
+      "easy": {
+        "score": 49.48,
+        "stderr": 5.08,
+        "n": 97,
+        "accepted": 48
+      },
+      "hard": {
+        "score": 0.0,
+        "stderr": 0.0,
+        "n": 13,
+        "accepted": 0
+      },
+      "medium": {
+        "score": 0.0,
+        "stderr": 0.0,
+        "n": 57,
+        "accepted": 0
+      }
+    },
+    "categories": {
+      "accepted": 48,
+      "wrong_answer": 82,
+      "time_limit": 14,
+      "memory_limit": 0,
+      "runtime_error": 4,
+      "output_limit": 0,
+      "compile_error": 10,
+      "no_code": 6,
+      "unfinished": 0,
+      "no_tests": 3,
+      "judge_error": 0,
+      "request_error": 0,
+      "unsupported": 0
+    },
+    "output_tokens": {
+      "mean": 24544.8,
+      "median": 21101,
+      "max": 261165
+    },
+    "problems": 167,
+    "unfinished": 0,
+    "length_stops": 1,
+    "think_in_output": {
+      "answers": 63,
+      "of": 167,
+      "share": 0.3772
+    },
+    "no_tests": [
+      "2086F",
+      "2101F",
+      "2109B"
+    ]
+  },
+  "deviations": "see README.md, Deviations",
+  "provenance": {
+    "generation": [
+      {
+        "step": "lcbpro.py generate",
+        "at": "2026-11-22T16:42:25+00:00",
+        "code_commit": "8a48eb9010e754cd5a7e2288f5e53da6ce2f1c99",
+        "dirty": false,
+        "runner_sha256": {
+          "run.sh": "d604ab7c96e136f174ae72c3907946c45b28bc7b3e06c45a76b50c39342d3b45",
+          "setup_scoring_vm.sh": "3f914bdfe739e69625105d16624eafc51af5ac4a9286b9bb8004138bd1958b3c",
+          "lcbpro.py": "2fde927ec0366e0808345686fe43751ebb3b6e33e70c383223054bfa2fade244",
+          "summarize.py": "a99cb18433fcd6b77d9249018eb5f9cc8e2df6c31cca11aa115af8dc2a8f529e",
+          "compare.py": "e6a221e2c6af933daa740db0d616443c485c64a3f6ec55b15610adf1f275b642",
+          "provenance.py": "5d76ec88a84be122c09eacb268ea5da128eb218ec2bd27e66e140f0b92b5eb19"
+        },
+        "gpu": "NVIDIA H100 80GB HBM3",
+        "platform": "Linux-6.8.0-147-generic-x86_64-with-glibc2.35",
+        "cpu": "AMD EPYC 9684X 96-Core Processor",
+        "cpu_count": 384,
+        "python": "3.12.16",
+        "model": "lfm3-1.7b",
+        "limit": 20,
+        "harness": "https://github.com/GavinZhengOI/LiveCodeBench-Pro @ d614eef4f95b3654bf0758c64e1194b2575850b8",
+        "data": "QAQAQAQAQ/LiveCodeBench-Pro @ adebffce047dddb7768a86bace6aea4f7425e3bc, quater_2025_4_6",
+        "server": {
+          "base_url": "http://localhost:8000",
+          "version": {
+            "version": "0.34.0"
+          },
+          "models": {
+            "object": "list",
+            "data": [
+              {
+                "id": "lfm3-1.7b",
+                "object": "model",
+                "created": 1795365745,
+                "owned_by": "vllm",
+                "root": "LiquidAI/LFM3-1.7B",
+                "parent": null,
+                "max_model_len": 262144,
+                "permission": [
+                  {
+                    "id": "modelperm-99d1813af212adcc",
+                    "object": "model_permission",
+                    "created": 1795365745,
+                    "allow_create_engine": false,
+                    "allow_sampling": true,
+                    "allow_logprobs": true,
+                    "allow_search_indices": false,
+                    "allow_view": true,
+                    "allow_fine_tuning": false,
+                    "organization": "*",
+                    "group": null,
+                    "is_blocking": false
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "api_events": {
+          "events": 0,
+          "by_action": {},
+          "by_status": {},
+          "problems": 0
+        }
+      },
+      {
+        "step": "lcbpro.py generate",
+        "at": "2026-11-22T16:51:54+00:00",
+        "code_commit": "8a48eb9010e754cd5a7e2288f5e53da6ce2f1c99",
+        "dirty": false,
+        "runner_sha256": {
+          "run.sh": "d604ab7c96e136f174ae72c3907946c45b28bc7b3e06c45a76b50c39342d3b45",
+          "setup_scoring_vm.sh": "3f914bdfe739e69625105d16624eafc51af5ac4a9286b9bb8004138bd1958b3c",
+          "lcbpro.py": "2fde927ec0366e0808345686fe43751ebb3b6e33e70c383223054bfa2fade244",
+          "summarize.py": "a99cb18433fcd6b77d9249018eb5f9cc8e2df6c31cca11aa115af8dc2a8f529e",
+          "compare.py": "e6a221e2c6af933daa740db0d616443c485c64a3f6ec55b15610adf1f275b642",
+          "provenance.py": "5d76ec88a84be122c09eacb268ea5da128eb218ec2bd27e66e140f0b92b5eb19"
+        },
+        "gpu": "NVIDIA H100 80GB HBM3",
+        "platform": "Linux-6.8.0-147-generic-x86_64-with-glibc2.35",
+        "cpu": "AMD EPYC 9684X 96-Core Processor",
+        "cpu_count": 384,
+        "python": "3.12.16",
+        "model": "lfm3-1.7b",
+        "limit": null,
+        "harness": "https://github.com/GavinZhengOI/LiveCodeBench-Pro @ d614eef4f95b3654bf0758c64e1194b2575850b8",
+        "data": "QAQAQAQAQ/LiveCodeBench-Pro @ adebffce047dddb7768a86bace6aea4f7425e3bc, quater_2025_4_6",
+        "server": {
+          "base_url": "http://localhost:8000",
+          "version": {
+            "version": "0.34.0"
+          },
+          "models": {
+            "object": "list",
+            "data": [
+              {
+                "id": "lfm3-1.7b",
+                "object": "model",
+                "created": 1795366314,
+                "owned_by": "vllm",
+                "root": "LiquidAI/LFM3-1.7B",
+                "parent": null,
+                "max_model_len": 262144,
+                "permission": [
+                  {
+                    "id": "modelperm-b20b033553d23150",
+                    "object": "model_permission",
+                    "created": 1795366314,
+                    "allow_create_engine": false,
+                    "allow_sampling": true,
+                    "allow_logprobs": true,
+                    "allow_search_indices": false,
+                    "allow_view": true,
+                    "allow_fine_tuning": false,
+                    "organization": "*",
+                    "group": null,
+                    "is_blocking": false
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "api_events": {
+          "events": 0,
+          "by_action": {},
+          "by_status": {},
+          "problems": 0
+        }
+      }
+    ],
+    "tests": null,
+    "scoring": {
+      "step": "lcbpro.py score",
+      "at": "2026-11-22T17:30:57+00:00",
+      "code_commit": "8a48eb9010e754cd5a7e2288f5e53da6ce2f1c99",
+      "dirty": true,
+      "runner_sha256": {
+        "run.sh": "d604ab7c96e136f174ae72c3907946c45b28bc7b3e06c45a76b50c39342d3b45",
+        "setup_scoring_vm.sh": "3f914bdfe739e69625105d16624eafc51af5ac4a9286b9bb8004138bd1958b3c",
+        "lcbpro.py": "2fde927ec0366e0808345686fe43751ebb3b6e33e70c383223054bfa2fade244",
+        "summarize.py": "a99cb18433fcd6b77d9249018eb5f9cc8e2df6c31cca11aa115af8dc2a8f529e",
+        "compare.py": "e6a221e2c6af933daa740db0d616443c485c64a3f6ec55b15610adf1f275b642",
+        "provenance.py": "5d76ec88a84be122c09eacb268ea5da128eb218ec2bd27e66e140f0b92b5eb19"
+      },
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "platform": "Linux-5.15.0-1067-kvm-x86_64-with-glibc2.35",
+      "cpu": "AMD EPYC 7302P 16-Core Processor",
+      "cpu_count": 30,
+      "python": "3.12.16",
+      "limit": null,
+      "thinking": "off",
+      "judge": {
+        "image": "lightcpverifier",
+        "image_id": "sha256:a04214fc3f8a0274d252c161a2b58cf59606aa6f37a019da19d7b94c2c9acad0",
+        "image_repo_digests": [],
+        "image_created": "2026-11-22T16:25:45.84428277Z",
+        "go_judge_version": "v1.9.6",
+        "workers": 8
+      },
+      "judge_seconds": 162.8,
+      "tests": "QAQAQAQAQ/LiveCodeBench-Pro-Testcase @ 5257736c0a4e30ba0949d41c56a257c323d9c600",
+      "harness": "https://github.com/GavinZhengOI/LiveCodeBench-Pro @ d614eef4f95b3654bf0758c64e1194b2575850b8, LightCPVerifier @ 021d121c882e70856b66113142495e31b9fe1d80"
+    },
+    "summary": {
+      "step": "summarize.py",
+      "at": "2026-11-22T17:30:58+00:00",
+      "code_commit": "8a48eb9010e754cd5a7e2288f5e53da6ce2f1c99",
+      "dirty": true,
+      "runner_sha256": {
+        "run.sh": "d604ab7c96e136f174ae72c3907946c45b28bc7b3e06c45a76b50c39342d3b45",
+        "setup_scoring_vm.sh": "3f914bdfe739e69625105d16624eafc51af5ac4a9286b9bb8004138bd1958b3c",
+        "lcbpro.py": "2fde927ec0366e0808345686fe43751ebb3b6e33e70c383223054bfa2fade244",
+        "summarize.py": "a99cb18433fcd6b77d9249018eb5f9cc8e2df6c31cca11aa115af8dc2a8f529e",
+        "compare.py": "e6a221e2c6af933daa740db0d616443c485c64a3f6ec55b15610adf1f275b642",
+        "provenance.py": "5d76ec88a84be122c09eacb268ea5da128eb218ec2bd27e66e140f0b92b5eb19"
+      },
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "platform": "Linux-5.15.0-1067-kvm-x86_64-with-glibc2.35",
+      "cpu": "AMD EPYC 7302P 16-Core Processor",
+      "cpu_count": 30,
+      "python": "3.12.16"
+    },
+    "inputs_sha256": {
+      "graded.jsonl": "f3bad8d674199095785cd0c33a38f178bb4c0ce48ee771664fbcf894905927e9"
+    },
+    "api_events": {
+      "file": "out/lfm3-1.7b-nothink/api-events.jsonl (not committed)",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "events": 0,
+      "by_action": {},
+      "by_status": {},
+      "problems": 0
+    }
+  },
+  "raw_outputs": {
+    "file": "out/lfm3-1.7b-nothink/generations.jsonl (with thinking; not committed)",
+    "sha256": "aa3c179864c926c2825465f37cd5918f8b042f28ba6bb6ea408f75130f06ecc2",
+    "jsonl_gz_output": "the code extracted from the text after the last </think>"
+  }
+}

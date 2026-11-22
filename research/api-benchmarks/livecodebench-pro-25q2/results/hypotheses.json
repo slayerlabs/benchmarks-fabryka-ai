@@ -1,0 +1,125 @@
+{
+  "benchmark": "livecodebench-pro-25q2",
+  "protocol": "PROTOCOL.md",
+  "control": {
+    "status": "passed",
+    "card": 31.740000000000002,
+    "score": 32.33532934131736,
+    "stderr": 3.619606795828636,
+    "z": 0.16447348424791391,
+    "n": 167
+  },
+  "hypotheses": [
+    {
+      "id": "K2",
+      "status": "ok",
+      "value": 1.7964071856287425,
+      "reference": 19.16,
+      "se": 3.0454583836373574,
+      "z": -5.701471051997423,
+      "n": 167,
+      "outcome_raw": "supported",
+      "strength_raw": "clear",
+      "p_support": 5.938895427580987e-09,
+      "p_refute": 0.9999999940611046,
+      "p_support_holm": 2.3755581710323947e-08,
+      "p_refute_holm": 1.0,
+      "verdict_holm": "supported (clear)",
+      "read": true
+    },
+    {
+      "id": "K3",
+      "value": 11.676646706586826,
+      "se": 2.362521336917176,
+      "n": 167,
+      "lead": {
+        "value": 30.538922155688624,
+        "se": 3.5747326542025495,
+        "z": 8.542994710327852
+      },
+      "on": 32.33532934131736,
+      "off": 28.74251497005988,
+      "bielik": 1.7964071856287425,
+      "status": "ok",
+      "z": 4.942451322714204,
+      "outcome_raw": "refuted",
+      "strength_raw": "clear",
+      "p_support": 0.9999996142681458,
+      "p_refute": 3.857318542355159e-07,
+      "p_support_holm": 1.0,
+      "p_refute_holm": 1.5429274169420637e-06,
+      "verdict_holm": "refuted (clear)",
+      "read": true
+    }
+  ],
+  "group_tests": [
+    {
+      "benchmark": "livecodebench-pro-25q2",
+      "id": "K2",
+      "z": -5.701471051997423,
+      "p_support": 5.938895427580987e-09,
+      "p_refute": 0.9999999940611046,
+      "outcome_raw": "supported"
+    },
+    {
+      "benchmark": "livecodebench-pro-25q2",
+      "id": "K3",
+      "z": 4.942451322714204,
+      "p_support": 0.9999996142681458,
+      "p_refute": 3.857318542355159e-07,
+      "outcome_raw": "refuted"
+    }
+  ],
+  "holm": {
+    "m": 4,
+    "family": [
+      {
+        "benchmark": "livecodebench-pro-25q2",
+        "id": "K2",
+        "z": -5.701471051997423,
+        "p_support": 5.938895427580987e-09,
+        "p_refute": 0.9999999940611046,
+        "outcome_raw": "supported",
+        "p_support_holm": 2.3755581710323947e-08,
+        "p_refute_holm": 1.0,
+        "verdict_holm": "supported (clear)"
+      },
+      {
+        "benchmark": "livecodebench-pro-25q2",
+        "id": "K3",
+        "z": 4.942451322714204,
+        "p_support": 0.9999996142681458,
+        "p_refute": 3.857318542355159e-07,
+        "outcome_raw": "refuted",
+        "p_support_holm": 1.0,
+        "p_refute_holm": 1.5429274169420637e-06,
+        "verdict_holm": "refuted (clear)"
+      },
+      {
+        "benchmark": "scicode",
+        "id": "K2",
+        "z": null,
+        "p_support": null,
+        "p_refute": null,
+        "outcome_raw": "not available",
+        "p_support_holm": null,
+        "p_refute_holm": null,
+        "verdict_holm": "undetermined"
+      },
+      {
+        "benchmark": "scicode",
+        "id": "K3",
+        "z": null,
+        "p_support": null,
+        "p_refute": null,
+        "outcome_raw": "not available",
+        "p_support_holm": null,
+        "p_refute_holm": null,
+        "verdict_holm": "undetermined"
+      }
+    ]
+  },
+  "notes": [
+    "the other benchmark's two tests count in Holm's m = 4 with p = 1"
+  ]
+}

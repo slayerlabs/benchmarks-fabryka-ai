@@ -1,5 +1,50 @@
 {
   "files": {
+    "bielik-11b-v3.1.json": {
+      "at": "2026-11-22T17:32:30+00:00",
+      "sha256": "c28108fea44f29d4830c2278f8ee92e90eebb998b6c75853401d5e86e8b931c0",
+      "written_by": "summarize.py"
+    },
+    "bielik-11b-v3.1.jsonl.gz": {
+      "at": "2026-11-22T17:32:30+00:00",
+      "sha256": "9fa03708f72b9a3fa60160b4b1de1fd13cbfe7fe4a08bc27228004c8a09462e5",
+      "written_by": "summarize.py"
+    },
+    "exploratory.json": {
+      "at": "2026-11-22T19:46:21+00:00",
+      "sha256": "dab63b07f527f5535b5bf0dba709580ee0bd9e37fb4d9c2798aeb51657d6d946",
+      "written_by": "explore.py"
+    },
+    "hypotheses.json": {
+      "at": "2026-11-22T19:49:13+00:00",
+      "sha256": "82befaf6ccb42f7a876c841e37307802693b0d71d59515b85066eec8bcab0492",
+      "written_by": "compare.py"
+    },
+    "lfm3-1.7b-nothink.json": {
+      "at": "2026-11-22T17:30:59+00:00",
+      "sha256": "47d66715f68934e19c973b359b463751c0e4c05b67e61302d95ac72587831062",
+      "written_by": "summarize.py"
+    },
+    "lfm3-1.7b-nothink.jsonl.gz": {
+      "at": "2026-11-22T17:30:59+00:00",
+      "sha256": "bd56c57c51c0337391fa87399e7b339918fb5759015da0e2a71f9e050a60a50b",
+      "written_by": "summarize.py"
+    },
+    "lfm3-1.7b.json": {
+      "at": "2026-11-22T17:28:13+00:00",
+      "sha256": "81006dc7ea353100352b18f61094c7113a66a2777e612579d6f2279ced068356",
+      "written_by": "summarize.py"
+    },
+    "lfm3-1.7b.jsonl.gz": {
+      "at": "2026-11-22T17:28:13+00:00",
+      "sha256": "8f3e5f65f7e8e9c40c698d62d2b6fb0458ec1c3fd377b984ef0d069f9d40cf07",
+      "written_by": "summarize.py"
+    },
+    "raw-outputs.json": {
+      "at": "2026-11-22T19:49:12+00:00",
+      "sha256": "092bc980be3a8c22f8ae869868b150851a207cf4695fffad236f2ab9cd41f614",
+      "written_by": "raw_outputs.py"
+    },
     "slayer1b-1.09-k70000.json": {
       "at": "2026-11-22T16:32:08+00:00",
       "sha256": "0a64b23c1551070fdf46795d5a8a0f7eaed5f54169c39b8d944dd5045204b668",
