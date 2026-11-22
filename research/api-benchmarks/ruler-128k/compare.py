@@ -6,9 +6,10 @@ Before reading, the sha256 of each model's result files is checked against resul
 summarize.py); a mismatch stops. A result file not listed there is recorded now and named in `warnings`.
 hypotheses.json carries the sha256 of every input and the commit, runner sha256 and machine of this run.
 
-- Control (Amendment 1): LFM3-1.7B's mean at 131072 against its card value 65.56; PASS when |z| < 2. Amendment 4
-  (decided after the result, when the control had failed) marks it `not comparable (Amendment 4)`: the card states
-  no setup for its value. The measured z and PASS/FAIL are still printed, and the hypotheses are read.
+- Control (Amendment 1): LFM3-1.7B's mean at 131072 against its card value 65.56; PASS when |z| < 2, else FAIL with
+  the gap unexplained (PROTOCOL.md, Control: no hypothesis is read until it is explained). Amendment 4 (decided after
+  the result, when the control had failed) labels the card value `not comparable` and reads R1-R3 anyway; the
+  status says that, it does not turn the FAIL into a pass.
 - Amendment 4: every score twice, as pre-registered (whole text scored when there is no `</think>`) and strict (an
   output without `</think>` scores 0, from summarize.py's `other_metrics.strict` and the rows' `closed_think`).
   Verdicts come from the pre-registered scores; the strict verdict (its own Holm family, m = 3) is shown next to each.
@@ -52,11 +53,13 @@ import provenance  # noqa: E402
 LFM3, BIELIK, SLAYER = "lfm3-1.7b", "bielik-11b-v3.1", "slayer1b-1.09-k70000"
 DESCRIPTIVE = [SLAYER]
 CONTROL_CARD = 65.56  # LFM3-1.7B card, RULER 128K (PROTOCOL.md, Amendment 1)
-CONTROL_STATUS = "not comparable (Amendment 4)"
+CONTROL_FAIL = "FAIL, gap unexplained"
 R2_NOT_DECIDED = "not decided (Amendment 6): fewer than 3 complete lengths shared"
-CONTROL_REASON = ("the card states no setup for its RULER value (harness, thinking mode, samples, output cap; "
-                  "card @ 1da06bec line 536 gives only serving and sampling defaults), so it is no pass/fail "
-                  "target; the measured z is reported, the hypotheses are read")
+CONTROL_READING = ("R1-R3 are read under Amendment 4, against the protocol's rule that no hypothesis is read until the "
+                   "gap is explained (PROTOCOL.md, Control)")
+CONTROL_LABEL = ("Amendment 4 labels the card value `not comparable` because the card states no RULER setup (harness, "
+                 "thinking mode, samples, output cap; card @ 1da06bec line 536 gives only serving and sampling "
+                 "defaults); the label was added after the control had failed")
 THRESHOLD = 85.6  # Llama-2-7B at 4K, the paper's effective-length threshold
 SHORT, LONG = LENGTHS[0], HEADLINE_LENGTH
 M = 3  # hypotheses in the Holm family, fixed by the protocol
@@ -74,10 +77,11 @@ DEVIATIONS = [
     "sample-level SE (Amendment 7).",
     "R3: the hypothesis compares two categories against retrieval; its t is the weaker of the two comparisons "
     "(it holds only if both hold), so it enters Holm once and m stays 3.",
-    "control (Amendment 4, decided after the result and after the control failed): the card value is not "
-    "comparable, so the control is reported as measured and marked `not comparable`, and R1-R3 are read; every "
-    "score is also given under strict scoring (an output without `</think>` scores 0), verdicts stay on the "
-    "pre-registered scoring with the strict verdict next to each.",
+    "control (Amendment 4, decided after the result and after the control failed): the control failed and the gap is "
+    "unexplained; Amendment 4 labels the card value `not comparable` and R1-R3 are read under it, against the "
+    "protocol's rule that no hypothesis is read until the gap is explained. Every score is also given under strict "
+    "scoring (an output without `</think>` scores 0); verdicts stay on the pre-registered scoring with the strict "
+    "verdict next to each.",
 ]
 
 
@@ -182,7 +186,8 @@ def comparison(label, value, se, n):
 
 
 def control(runs, strict_runs=None):
-    """The control as measured (PASS within 2 SE of the card), with status `not comparable (Amendment 4)`."""
+    """The control as measured: PASS within 2 SE of the card, else FAIL with the gap unexplained and the hypotheses
+    read only under Amendment 4."""
     run = runs.get(LFM3)
     if run is None:
         return {"status": "not run", "missing": [LFM3]}
@@ -190,8 +195,11 @@ def control(runs, strict_runs=None):
         return {"status": "not run", "missing": [f"{LFM3} @ {LONG}: {run['excluded'][LONG]}"]}
     mean, se = stat(lambda p: length_mean(p[LONG]), run)
     z = z_of(mean - CONTROL_CARD, se)
-    out = {"status": CONTROL_STATUS, "measured": "PASS" if z is not None and abs(z) < 2 else "FAIL",
-           "reason": CONTROL_REASON, "mean": mean, "se": se, "card": CONTROL_CARD, "z": z, "n": n_scored(run, [LONG])}
+    passed = z is not None and abs(z) < 2
+    out = {"status": "PASS" if passed else CONTROL_FAIL, "measured": "PASS" if passed else "FAIL",
+           "mean": mean, "se": se, "card": CONTROL_CARD, "z": z, "n": n_scored(run, [LONG])}
+    if not passed:
+        out.update(reading=CONTROL_READING, amendment_4=CONTROL_LABEL)
     strict = (strict_runs or {}).get(LFM3)
     if strict is not None and LONG in strict["point"]:
         s_mean, s_se = stat(lambda p: length_mean(p[LONG]), strict)
@@ -442,7 +450,9 @@ def report(result):
         if "strict" in c:
             s = c["strict"]
             lines.append(f"control, strict: LFM3-1.7B @ {LONG} = {s['mean']:.2f} +- {s['se']:.2f}, z = {fmt(s['z'])}")
-        lines.append(f"control status: {c['status']}: {c['reason']}")
+        lines.append(f"control status: {c['status']}")
+        if "reading" in c:
+            lines += [f"control: {c['reading']}", f"control: {c['amendment_4']}"]
     for model, d in result["models"].items():
         if d is None:
             continue

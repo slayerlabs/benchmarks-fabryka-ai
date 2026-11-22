@@ -5,11 +5,12 @@ No network, RULER checkout, torch or lm-eval: the RULER metric is replaced by a 
 after the last `</think>` is what gets scored; an error is left out of the score, never counted as 0; the
 13-task mean, the category means and the nulls for lengths that did not run or have a task without any score.
 compare.py (hypotheses R1-R3 and the control) on fake per-sample results: a clear and a noise case, Holm with m = 3,
-errors left out, null lengths listed, `not run` for a missing model, the control's 2-SE bound as measured and its
-status `not comparable (Amendment 4)` with the hypotheses read; strict scoring (Amendment 4: no `</think>` -> 0) next
-to the unchanged pre-registered scores. Generation path: the request body (protocol sampling, seed, output limit),
-run.sh's protocol constants, the last attempt of a sample wins. Provenance: effective sampling (vLLM fills from
-generation_config.json, PROTOCOL.md Amendment 3), commit/runner/hardware in the result, and the sha256 manifests that
+errors left out, null lengths listed, `not run` for a missing model, the control's 2-SE bound and, when it fails,
+the status `FAIL, gap unexplained` with the hypotheses read under Amendment 4; strict scoring (Amendment 4: no
+`</think>` -> 0) next to the unchanged pre-registered scores. Generation path: the request body (protocol sampling,
+seed, output limit), run.sh's protocol constants, the last attempt of a sample wins. Provenance: effective sampling
+(vLLM fills from generation_config.json, PROTOCOL.md Amendment 3), commit/runner/hardware in the result, and the
+sha256 manifests that
 summarize.py and compare.py check (an out dir from before them is summarized with warnings, never a crash). Strict
 scoring only where the rendered generation prompt opens a reasoning block (Amendment 5). API robustness and the
 event log (api-events.jsonl) against a local fake endpoint, as ../livecodebench-v6's tests do.
@@ -200,7 +201,7 @@ def test_compare_clear_case():
         result, text = run_compare(Path(d))
         assert json.loads((Path(d) / "hypotheses.json").read_text()) == json.loads(json.dumps(result))
     assert result["control"]["measured"] == "PASS" and result["control"]["mean"] == 882 / 13
-    assert result["control"]["status"] == C.CONTROL_STATUS
+    assert result["control"]["status"] == "PASS" and "reading" not in result["control"]
     assert result["control"]["card"] == 65.56
     h = result["hypotheses"]
     assert h["R1"]["value"] == 882 / 13 and h["R1"]["n"] == 650
@@ -283,7 +284,9 @@ def test_compare_noise_case_holm_and_control_fail():
         write_model(Path(d), C.LFM3, {**dict.fromkeys(S.LENGTHS[:-1], 86), 131072: 84})
         write_model(Path(d), C.BIELIK, dict.fromkeys(S.LENGTHS[:4], 86), skipped={65536: WINDOW, 131072: WINDOW})
         result, text = run_compare(Path(d))
-    assert result["control"]["measured"] == "FAIL" and result["control"]["status"] == C.CONTROL_STATUS
+    assert result["control"]["measured"] == "FAIL" and result["control"]["status"] == C.CONTROL_FAIL
+    assert result["control"]["reading"] == C.CONTROL_READING and "after the control had failed" in result["control"][
+        "amendment_4"]
     assert text.index(": FAIL (as measured)") < text.index("| hypothesis |")
     h = result["hypotheses"]
     assert (h["R1"]["verdict"], h["R1"]["outcome"]) == ("noise", "open") and h["R1"]["value"] == 84
@@ -408,7 +411,8 @@ def test_control_passes_within_2_se_only():
                       (-2.9, "FAIL")):
         c = C.control({C.LFM3: control_run(C.CONTROL_CARD + z * 1.5, 1.5)})
         assert abs(c["z"] - z) < 1e-9 and abs(c["se"] - 1.5) < 1e-9, (z, c)
-        assert c["measured"] == status and c["status"] == C.CONTROL_STATUS, (z, c)
+        assert c["measured"] == status and c["status"] == (C.CONTROL_FAIL if status == "FAIL" else "PASS"), (z, c)
+        assert ("reading" in c) == (status == "FAIL") and "not comparable" not in c["status"]
     assert C.CONTROL_CARD == 65.56
 
 
@@ -665,9 +669,10 @@ def test_compare_control_not_comparable_and_strict_next_to_pre_registered():
         result, text = run_compare(Path(d))
     pre, strict = (882 + 50) / 13, (882 + 50 - 10) / 13
     c = result["control"]
-    assert c["status"] == C.CONTROL_STATUS and c["measured"] == "FAIL" and c["mean"] == pre and c["z"] > 2
+    assert c["status"] == C.CONTROL_FAIL and c["measured"] == "FAIL" and c["mean"] == pre and c["z"] > 2
     assert abs(c["strict"]["mean"] - strict) < 1e-9
-    assert f"z = {c['z']:.2f}: FAIL (as measured)" in text and f"control status: {C.CONTROL_STATUS}" in text
+    assert f"z = {c['z']:.2f}: FAIL (as measured)" in text and f"control status: {C.CONTROL_FAIL}" in text
+    assert f"control: {C.CONTROL_READING}" in text
     h = result["hypotheses"]
     assert h["R1"]["verdict"] != "not run" and h["R3"]["verdict"] != "not run"  # read despite the FAIL
     assert h["R1"]["value"] == pre and abs(h["R1"]["strict"]["value"] - strict) < 1e-9
