@@ -3,7 +3,11 @@
   python provenance.py generation <out>/<model-id>
       run.sh, before generation: appends one line to <out>/<model-id>/generation.jsonl with the commit of this repo
       (and whether the worktree was dirty), the sha256 of every runner file, the GPU (nvidia-smi) and platform of
-      the generating machine, and the sampling settings in effect (PROTOCOL.md, Amendment 3).
+      the generating machine, the sampling settings in effect (PROTOCOL.md, Amendment 3) and whether the generation
+      prompt leaves a reasoning block open (`reasoning`, which decides strict scoring, Amendment 4).
+  python provenance.py generation-end <out>/<model-id>
+      run.sh, after generation: adds to that line `api_events`, the counts of the api-events.jsonl lines (predict.py)
+      written during this call (null with the reason for Slayer, which sends no HTTP request).
   python provenance.py manifest <out>/<model-id>
       run.sh, after generation and RULER scoring: writes <out>/<model-id>/inputs.sha256.json, the sha256 of every
       file summarize.py reads. summarize.py stops when a file differs from it. summarize.py records the sha256 of the
@@ -37,7 +41,11 @@ VLLM_OPENAI_DEFAULTS = {"repetition_penalty": 1.0, "presence_penalty": 0.0, "fre
 INPUTS = "inputs.sha256.json"
 RESULTS = "results.sha256.json"
 INPUT_GLOBS = ["run.json", "generation.jsonl", "*/skip.json", "*/data/*/validation.jsonl", "*/data/*/skip.json",
-               "*/raw/*.jsonl", "*/pred/*.jsonl", "*/pred/summary*.csv"]
+               "*/raw/*.jsonl", "*/pred/*.jsonl", "*/pred/summary*.csv", "*/api-events.jsonl"]
+THINK_OPEN, THINK_CLOSE = "<think>", "</think>"
+PROBE = [{"role": "user", "content": "Probe."}]
+TOKENIZER_FILES = ["*.json", "*.jinja", "*.txt", "*.model", "*.tiktoken"]  # as run.sh downloads them
+NO_HTTP = "no HTTP requests: Slayer runs locally through research/common/slayer_lm.py"
 
 
 def sha256(path):
@@ -99,11 +107,16 @@ def effective_sampling(mode, sent, generation_config=None, source=None):
                                         **sent}}
 
 
+def serving_mode(settings):
+    """vllm, api or slayer, from run.json settings.serving as run.sh writes it."""
+    serving = settings["serving"]
+    return "vllm" if serving.startswith("vLLM") else "api" if serving.startswith("Fabryka") else "slayer"
+
+
 def sampling(settings, read_config=None):
     """Effective sampling of a run from its run.json `settings` (serving, weights "repo @ revision ...", temperature,
     top_p, seed, max_tokens as run.sh writes them); vLLM reads generation_config.json at the pinned revision."""
-    serving = settings["serving"]
-    mode = "vllm" if serving.startswith("vLLM") else "api" if serving.startswith("Fabryka") else "slayer"
+    mode = serving_mode(settings)
     if mode == "slayer":  # slayer_predict.py: no sampling, RULER's answer budget
         return effective_sampling(mode, {"max_tokens": settings["max_tokens"]})
     sent = {k: settings[k] for k in ("temperature", "top_p", "seed")}
@@ -113,6 +126,39 @@ def sampling(settings, read_config=None):
     repo, _, revision = settings["weights"].split()[:3]
     config = (read_config or generation_config)(repo, revision)
     return effective_sampling(mode, sent, config, f"{repo} @ {revision}")
+
+
+def render_generation_prompt(repo, revision):
+    """One user message through the model's chat template at the pinned revision, template defaults, with the
+    generation prompt: what vLLM and the Fabryka API append before the model's first token (local cache first)."""
+    from huggingface_hub import snapshot_download
+    from huggingface_hub.errors import LocalEntryNotFoundError
+    from transformers import AutoTokenizer
+
+    try:
+        path = snapshot_download(repo, revision=revision, allow_patterns=TOKENIZER_FILES, local_files_only=True)
+    except LocalEntryNotFoundError:
+        path = snapshot_download(repo, revision=revision, allow_patterns=TOKENIZER_FILES)
+    tokenizer = AutoTokenizer.from_pretrained(path, trust_remote_code=False)
+    return tokenizer.apply_chat_template(PROBE, add_generation_prompt=True, tokenize=False)
+
+
+def reasoning(settings, render=None):
+    """Whether the generation prompt opens a reasoning block, i.e. ends with an open `<think>` (LFM3-1.7B); a
+    prompt that closes it (`<think></think>`, Bielik's default) or has none, and Slayer's raw prompt, do not. Strict
+    scoring (an output without `</think>` scores 0, Amendment 4) applies only when it opens."""
+    if serving_mode(settings) == "slayer":
+        return {"opens": False, "reason": "raw prompt without a chat template: no reasoning block"}
+    repo, _, revision = settings["weights"].split()[:3]
+    rendered = (render or render_generation_prompt)(repo, revision)
+    opens = rendered.rstrip().endswith(THINK_OPEN)
+    out = {"opens": opens, "prompt_end": rendered[-40:],
+           "source": f"chat template of {repo} @ {revision}, defaults, add_generation_prompt"}
+    if not opens:
+        out["reason"] = ("the generation prompt closes the reasoning block (ends `<think></think>`): outputs carry no "
+                         "`</think>`" if rendered.rstrip().endswith(THINK_OPEN + THINK_CLOSE) else
+                         "the generation prompt opens no reasoning block")
+    return out
 
 
 def generation_config(repo, revision):
@@ -197,26 +243,57 @@ def record_inputs(out_dir):
     return names
 
 
-def record_generation(out_dir, read_config=None):
+def record_generation(out_dir, read_config=None, render=None):
     """run.sh before generation: one line in generation.jsonl."""
     run = json.loads((Path(out_dir) / "run.json").read_text(encoding="utf-8"))
-    entry = {**machine(), "sampling": sampling(run["settings"], read_config)}
+    entry = {**machine(), "sampling": sampling(run["settings"], read_config),
+             "reasoning": reasoning(run["settings"], render)}
     with open(Path(out_dir) / "generation.jsonl", "a", encoding="utf-8") as f:
         f.write(json.dumps(entry) + "\n")
     return entry
 
 
+def read_events(out_dir):
+    """Every line of <out>/<length>/api-events.jsonl, all lengths."""
+    events = []
+    for path in sorted(Path(out_dir).glob("*/api-events.jsonl")):
+        events += [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    return events
+
+
+def record_generation_end(out_dir):
+    """run.sh after generation: `api_events` on the last generation.jsonl line, counted over the api-events.jsonl
+    lines written since that line's time (this run.sh call)."""
+    from predict import event_counts
+
+    path = Path(out_dir) / "generation.jsonl"
+    entries = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    run = json.loads((Path(out_dir) / "run.json").read_text(encoding="utf-8"))
+    if serving_mode(run["settings"]) == "slayer":
+        entries[-1].update(api_events=None, api_events_reason=NO_HTTP)
+    else:
+        start = datetime.datetime.fromisoformat(entries[-1]["time"])
+        entries[-1]["api_events"] = event_counts([e for e in read_events(out_dir)
+                                                  if datetime.datetime.fromisoformat(e["time"]) >= start])
+    path.write_text("".join(json.dumps(e) + "\n" for e in entries), encoding="utf-8")
+    return entries[-1]
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("command", choices=["generation", "manifest"])
+    ap.add_argument("command", choices=["generation", "generation-end", "manifest"])
     ap.add_argument("out_dir", type=Path)
     args = ap.parse_args()
     if args.command == "manifest":
         names = record_inputs(args.out_dir)
         print(f"provenance.py: {len(names)} input files recorded in {args.out_dir / INPUTS}")
+    elif args.command == "generation-end":
+        entry = record_generation_end(args.out_dir)
+        print(f"provenance.py: api events {entry.get('api_events')}")
     else:
         entry = record_generation(args.out_dir)
-        print(f"provenance.py: code {entry['code']}, GPU {entry['hardware']['gpu']}, sampling {entry['sampling']}")
+        print(f"provenance.py: code {entry['code']}, GPU {entry['hardware']['gpu']}, sampling {entry['sampling']}, "
+              f"reasoning {entry['reasoning']}")
 
 
 if __name__ == "__main__":

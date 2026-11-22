@@ -278,6 +278,8 @@ else
   done
   kill $VLLM_PID 2>/dev/null || true
 fi
+# api_events on this call's generation.jsonl line: counts of <length>/api-events.jsonl written since it started
+"$PY" "$HERE/provenance.py" generation-end "$OUT"
 
 # --- scoring: RULER's evaluate.py on the text after the last </think> -------------------------------------
 for L in $RUN_LENGTHS; do

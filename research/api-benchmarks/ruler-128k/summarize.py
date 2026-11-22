@@ -9,8 +9,10 @@
       equal RULER's summary.csv, and writes the result files (format: research/METHODOLOGY.md) with the effective
       sampling in `settings.sampling` and the code commit, runner sha256 and hardware of generation (generation.jsonl)
       and of this summary in `provenance`; their sha256 go to results.sha256.json next to them, which compare.py checks.
-      PROTOCOL.md, Amendment 4: every score also strict (an output without `</think>` scores 0) in `strict` and
-      `other_metrics.strict` for chat-template runs; each .jsonl.gz row has `closed_think`.
+      PROTOCOL.md, Amendments 4-5: every score also strict (an output without `</think>` scores 0) in `strict` and
+      `other_metrics.strict` where the generation prompt opens a reasoning block; each .jsonl.gz row has
+      `closed_think`. API failures: counts of <length>/api-events.jsonl in `provenance.api_events`, or null with the
+      reason (--no-event-log-reason for a run whose failures are known only from elsewhere).
 
 A run with --limit (run.json "limit") is written to <out>/<model-id>/<model-id>.* instead of results/, so a
 smoke test never replaces a published result. An out dir from a run.sh before generation.jsonl and
@@ -45,7 +47,8 @@ BOOTSTRAP_SEED = 20261122
 ANSWER_CHARS = 2000  # stored answer text per sample in the .jsonl.gz; scoring always uses the full text
 # PROTOCOL.md, Amendment 4: every score is also reported with an output that never closed its reasoning scoring 0
 STRICT_RULE = "strict (Amendment 4): an output without `</think>` scores 0; errors stay out of the score"
-CHAT_SCORED = "text after the last </think>"  # run.json settings.scored of the chat-template runs (run.sh)
+NO_EVENT_LOG = ("no api-events.jsonl was recorded for this run (generated before predict.py logged retries), so its "
+                "retries, pauses and HTTP errors are unknown")
 
 
 def pred_records(samples, records):
@@ -178,21 +181,57 @@ def strict_rows(rows):
     return [{**r, "score": r["score"] if r["closed_think"] else 0.0} if r["score"] is not None else r for r in rows]
 
 
-def strict_metrics(run, rows, skipped, task_skips, resamples=BOOTSTRAP_RESAMPLES):
+def strict_metrics(run, rows, skipped, task_skips, reasoning, resamples=BOOTSTRAP_RESAMPLES):
     """other_metrics.strict: the same aggregation on strict scores, with the count of outputs without `</think>` per
-    length and task. Only for chat-template runs, whose prompt opens a reasoning block (LFM3-1.7B and Bielik
-    templates end the generation prompt with `<think>`); Slayer's raw prompt has none, so it does not apply."""
-    if run["settings"].get("scored") != CHAT_SCORED:
-        return {"rule": STRICT_RULE, "applies": False,
-                "reason": "raw prompt without a chat template: no reasoning block to close"}
+    length and task. Only when the generation prompt opens a reasoning block (`reasoning["opens"]`, provenance.py:
+    the prompt ends with an open `<think>`, as LFM3-1.7B's); a prompt that closes it (Bielik's `<think></think>`) or
+    has none (Slayer's raw prompt) gives outputs without `</think>` by design, so strict does not apply there."""
+    if reasoning.get("opens") is not True:
+        return {"rule": STRICT_RULE, "applies": False, "reason": reasoning["reason"], "reasoning": reasoning}
     metrics = aggregate(strict_rows(rows), skipped, run["lengths"], run["tasks"], resamples, task_skips)
     no_end = {}
     for r in rows:
         if r["score"] is not None and not r["closed_think"]:
             by_task = no_end.setdefault(str(r["length"]), {})
             by_task[r["task"]] = by_task.get(r["task"], 0) + 1
-    return {"rule": STRICT_RULE, "applies": True,
+    return {"rule": STRICT_RULE, "applies": True, "reasoning": reasoning,
             **{k: metrics[k] for k in ("per_length", "per_task", "per_category")}, "no_think_end": no_end}
+
+
+def run_reasoning(generation, run, render=None):
+    """(reasoning, warning): whether the generation prompt opens a reasoning block, from generation.jsonl (recorded
+    at generation), else by rendering one prompt with the pinned chat template now."""
+    recorded = [e["reasoning"] for e in generation if "reasoning" in e]
+    if recorded:
+        if len({json.dumps(r, sort_keys=True) for r in recorded}) > 1:
+            raise SystemExit(f"summarize.py: STOP: generation.jsonl records different reasoning settings: {recorded}")
+        return recorded[-1], None
+    try:
+        found = provenance.reasoning(run["settings"], render)
+    except Exception as e:  # noqa: BLE001  an old out dir is still summarized; the gap is stated
+        reason = f"could not render the pinned chat template: {type(e).__name__}: {e}"
+        return {"opens": None, "reason": reason}, f"strict scoring not applied: {reason}"
+    found["recorded"] = "by summarize.py, not at generation (generation.jsonl has no reasoning field)"
+    return found, None
+
+
+def api_events(out_dir, run, generation, no_log_reason=None):
+    """provenance.api_events: counts over every <length>/api-events.jsonl (their sha256 checked as inputs), when every
+    generation call logged them (a generation.jsonl line with `reasoning` is from a predict.py that does); else null
+    with the reason (`no_log_reason` when given, for a run whose failures are only known from elsewhere)."""
+    from predict import event_counts
+
+    if provenance.serving_mode(run["settings"]) == "slayer":
+        return {"api_events": None, "api_events_reason": provenance.NO_HTTP}
+    unlogged = [e["time"] for e in generation if "reasoning" not in e]
+    if not generation or unlogged:
+        reason = no_log_reason or NO_EVENT_LOG
+        if unlogged:
+            reason += f" (generation calls without the log: {', '.join(unlogged)})"
+        return {"api_events": None, "api_events_reason": reason}
+    files = sorted(Path(out_dir).glob("*/api-events.jsonl"))
+    return {"api_events": {"files": {p.relative_to(out_dir).as_posix(): provenance.sha256(p) for p in files},
+                           **event_counts(provenance.read_events(out_dir))}}
 
 
 def result_json(run, metrics, sampling=None, prov=None, warnings=()):
@@ -240,7 +279,8 @@ def run_provenance(out_dir, run, read_config=None):
         if len(variants) > 1:
             raise SystemExit("summarize.py: STOP: generation.jsonl records different sampling across run.sh calls: "
                              + " | ".join(variants))
-        prov["generation"] = [{k: e[k] for k in ("time", "code", "runner_sha256", "hardware")} for e in generation]
+        prov["generation"] = [{k: e[k] for k in ("time", "code", "runner_sha256", "hardware", "reasoning", "api_events")
+                               if k in e} for e in generation]
         return generation[-1]["sampling"], prov, warnings
     prov["generation_reason"] = ("no generation.jsonl: generated by a run.sh before it was recorded, so the code "
                                  "commit, runner sha256 and hardware of generation are unknown")
@@ -266,14 +306,14 @@ def jsonl_rows(rows):
         yield line
 
 
-def results(out_dir, target, ruler_dir):
+def results(out_dir, target, ruler_dir, no_log_reason=None):
     from ruler import scorer  # needs the RULER checkout and its dependencies (pyyaml, nltk, pandas)
 
     postprocess, metric_fns = scorer(ruler_dir)
-    print(json.dumps(summarize_run(out_dir, target, postprocess, metric_fns), indent=2))
+    print(json.dumps(summarize_run(out_dir, target, postprocess, metric_fns, no_log_reason=no_log_reason), indent=2))
 
 
-def summarize_run(out_dir, target, postprocess, metric_fns, read_config=None):
+def summarize_run(out_dir, target, postprocess, metric_fns, read_config=None, render=None, no_log_reason=None):
     out_dir = Path(out_dir)
     input_warning = provenance.verify_inputs(out_dir)  # before anything is read
     run = json.loads((out_dir / "run.json").read_text(encoding="utf-8"))
@@ -299,10 +339,12 @@ def summarize_run(out_dir, target, postprocess, metric_fns, read_config=None):
             check_against_ruler(here, ruler_summary(length_dir / "pred"), length)
         rows += here
     metrics = aggregate(rows, skipped, run["lengths"], run["tasks"], task_skips=task_skips)
-    metrics["strict"] = strict_metrics(run, rows, skipped, task_skips)
+    generation = read_jsonl(out_dir / "generation.jsonl")
+    reasoning, reasoning_warning = run_reasoning(generation, run, render)
+    metrics["strict"] = strict_metrics(run, rows, skipped, task_skips, reasoning)
     sampling, prov, warnings = run_provenance(out_dir, run, read_config)
-    if input_warning:
-        warnings.append(input_warning)
+    prov.update(api_events(out_dir, run, generation, no_log_reason))
+    warnings += [w for w in (reasoning_warning, input_warning) if w]
     result = result_json(run, metrics, sampling, prov, warnings)
     target = Path(target)
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -323,11 +365,13 @@ def main():
     r.add_argument("out_dir")
     r.add_argument("target")
     r.add_argument("--ruler-dir", required=True)
+    r.add_argument("--no-event-log-reason", default=None,
+                   help="for a run without api-events.jsonl: what is known about its API failures instead")
     args = ap.parse_args()
     if args.command == "preds":
         write_preds(args.length_dir)
     else:
-        results(args.out_dir, args.target, args.ruler_dir)
+        results(args.out_dir, args.target, args.ruler_dir, args.no_event_log_reason)
 
 
 if __name__ == "__main__":
