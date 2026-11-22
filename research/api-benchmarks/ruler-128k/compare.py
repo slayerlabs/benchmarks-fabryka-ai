@@ -17,13 +17,18 @@ hypotheses.json carries the sha256 of every input and the commit, runner sha256 
   lengths both models hold. Confirmed: negative, clear after Holm; refuted: not 2 SE below 0. Amendment 6: with
   fewer than 3 complete lengths shared it is `not decided` (still in Holm's m = 3) and the per-length means of both
   models over the lengths both measured (partial ones with their task count) are printed, descriptive only.
-- R3: LFM3-1.7B's drop from 4096 to 131072 per category; tracing minus retrieval and aggregation minus retrieval.
-  Confirmed: both positive, clear after Holm; refuted: the retrieval drop is not smaller than both.
+- R3: LFM3-1.7B's drop from 4096 to 131072 per category; tracing minus retrieval and aggregation minus retrieval,
+  with the SE clustered by task that the protocol names (PROTOCOL.md, R3). A comparison whose categories have fewer
+  than 3 tasks (tracing 1, aggregation 2) has no clustered verdict: R3 is then `undetermined` and enters Holm without
+  a p (m stays 3). Its t uses the between-task SE of the categories that have one (one task: no spread, taken as 0)
+  with df = tasks - 1 of the smallest of them, reported next to the verdict. The sample-level bootstrap comparison
+  (tasks fixed) is reported as `descriptive_sample`, not as the verdict. Confirmed: both positive, clear after Holm;
+  refuted: the retrieval drop is not smaller than both, read with the same clustered verdict.
 - Slayer 1B 1.09 at update 70 000 (Amendment 2): per length, descriptive only.
 
 z = value / SE, two-sided normal p, Holm over the three hypotheses with m = 3 whether or not they ran. Verdict from
 the Holm-adjusted p at the p of |z| = 3 (clear) and |z| = 2 (likely), else noise. R3 combines two comparisons; the
-weaker one (in the predicted direction) is the hypothesis's z. SEs come from one bootstrap per model (independent
+weaker one (in the predicted direction) is the hypothesis's t. SEs come from one bootstrap per model (independent
 per model, Amendment 1): samples resampled within each task and length, 10 000 resamples, seed fixed per model.
 Errors (score null) are left out and counted, never scored as 0; a length that is null for a model is left out and
 listed.
@@ -60,10 +65,12 @@ DEVIATIONS = [
     "control, R1-R3: a length where RULER's generator could not produce some task (partial length, the task is null) "
     "is not comparable: the control and R1 at 131072 are `not run` there, and R2 and R3 use only lengths complete "
     "for the compared models.",
-    "R3: the protocol asks for an SE clustered by task, but tracing has 1 task and aggregation 2, under the 3 "
-    "clusters a clustered verdict needs; the verdict uses the sample-level bootstrap SE (tasks fixed), and the "
-    "clustered SE is reported next to it, undetermined for every category with fewer than 3 tasks.",
-    "R3: the hypothesis compares two categories against retrieval; its z is the weaker of the two comparisons "
+    "R3: the verdict uses the SE clustered by task, as the protocol says. Tracing has 1 task and aggregation 2, under "
+    "the 3 clusters a clustered verdict needs, so R3 is `undetermined` and enters Holm without a p (m stays 3). Its "
+    "t (the between-task SE of the categories that have one, df = tasks - 1) is reported next to it; the sample-level "
+    "bootstrap comparison (tasks fixed) is descriptive only. Until the verification of 2026-11-22 the verdict used the "
+    "sample-level SE (Amendment 7).",
+    "R3: the hypothesis compares two categories against retrieval; its t is the weaker of the two comparisons "
     "(it holds only if both hold), so it enters Holm once and m stays 3.",
     "control (Amendment 4, decided after the result and after the control failed): the card value is not "
     "comparable, so the control is reported as measured and marked `not comparable`, and R1-R3 are read; every "
@@ -260,30 +267,52 @@ def r3(runs):
         drops[c] = {"drop": value, "se_sample": se, "z_sample": z_of(value, se), "tasks": len(tasks),
                     "se_clustered": k["se"], "t_clustered": k["t"], "df": k["df"],
                     "verdict_clustered": VERDICT[k["werdykt"]] if len(tasks) >= MIN_CLUSTERS else "undetermined"}
-    comps = []
+    comps, n = [], n_scored(run, [SHORT, LONG])
     for other in ("tracing", "aggregation"):
         value, se = stat(lambda p: drop(p, other) - drop(p, "retrieval"), run)
-        comp = comparison(f"drop {other} - drop retrieval", value, se, n_scored(run, [SHORT, LONG]))
-        comp["verdict_clustered"] = clustered_difference(drops[other], drops["retrieval"])
-        comps.append(comp)
-    return combine("LFM3 drop 4096->131072: tracing, aggregation - retrieval (weaker)", comps, sign=1, drops=drops)
+        comps.append({"comparison": f"drop {other} - drop retrieval", "value": value, "n": n,
+                      **clustered_difference(drops[other], drops["retrieval"]),
+                      "sample": {"se": se, "z": z_of(value, se), "p": statystyka.p_z(z_of(value, se))}})
+    # The weaker comparison in the predicted direction (both drops larger than retrieval's) is the hypothesis's t.
+    weakest = min(comps, key=lambda c: math.inf if c["t"] is None else c["t"])
+    determined = all(c["verdict_clustered"] != "undetermined" for c in comps)
+    weakest_sample = min(comps, key=lambda c: math.inf if c["sample"]["z"] is None else c["sample"]["z"])
+    return {"measure": "LFM3 drop 4096->131072: tracing, aggregation - retrieval (weaker), SE clustered by task",
+            "value": weakest["value"], "se": weakest["se_clustered"], "z": None, "t": weakest["t"],
+            "df": weakest["df"], "p_t": weakest["p_t"], "p": weakest["p_t"] if determined else None, "n": n,
+            "comparisons": comps, "undetermined": not determined,
+            "undetermined_reason": None if determined else (
+                "fewer than 3 tasks in " + ", ".join(c for c in ("tracing", "aggregation")
+                                                     if drops[c]["tasks"] < MIN_CLUSTERS)
+                + f": no clustered verdict (PROTOCOL.md R3: SE clustered by task; {MIN_CLUSTERS} clusters needed)"),
+            "refuted": not all(c["value"] > 0 for c in comps), "confirmed_direction": all(c["value"] > 0 for c in comps),
+            "drops": drops,
+            "descriptive_sample": {
+                "note": "sample-level bootstrap SE (tasks fixed), not the protocol's SE; descriptive, not Holm-adjusted",
+                "value": weakest_sample["value"], "se": weakest_sample["sample"]["se"],
+                "z": weakest_sample["sample"]["z"], "p": weakest_sample["sample"]["p"],
+                "verdict": VERDICT[statystyka.werdykt_p(weakest_sample["sample"]["p"])],
+                "retrieval_drop_not_smaller": not all(c["value"] > 0 for c in comps)}}
 
 
 def clustered_difference(a, b):
-    """Clustered verdict of a difference of two category drops; undetermined when one has fewer than 3 tasks."""
-    if min(a["tasks"], b["tasks"]) < MIN_CLUSTERS or not (a["se_clustered"] or b["se_clustered"]):
-        return "undetermined"
-    t = (a["drop"] - b["drop"]) / math.hypot(a["se_clustered"], b["se_clustered"])
-    return VERDICT[statystyka.werdykt_t(t, min(a["tasks"], b["tasks"]) - 1)]
+    """t of a difference of two category drops with the SE clustered by task: the between-task SEs of the categories
+    that have one (a category of one task has no spread; its SE is taken as 0), df = tasks - 1 of the smallest of
+    them. The verdict is undetermined when either category has fewer than 3 tasks (statystyka.MIN_KLASTROW)."""
+    have = [c for c in (a, b) if c["se_clustered"] is not None]
+    se = math.hypot(*(c["se_clustered"] for c in have)) if have else None
+    df = min(c["tasks"] for c in have) - 1 if have else 0
+    t = (a["drop"] - b["drop"]) / se if se and df > 0 else None
+    p = statystyka.p_t(t, df) if t is not None else None
+    small = min(a["tasks"], b["tasks"]) < MIN_CLUSTERS
+    return {"se_clustered": se, "t": t, "df": df, "p_t": p, "tasks": [a["tasks"], b["tasks"]],
+            "verdict_clustered": "undetermined" if small or p is None else VERDICT[statystyka.werdykt_p(p)]}
 
 
 def combine(measure, comps, sign, **extra):
-    """Both comparisons must go in the predicted direction (sign): the hypothesis's z is the weaker one."""
+    """R2: the hypothesis's z is the weaker comparison in the predicted direction (sign)."""
     weakest = min(comps, key=lambda c: math.inf if c["z"] is None else sign * c["z"])
-    if sign < 0:  # R2: refuted when neither difference is 2 SE below 0
-        refuted = all(c["z"] is None or c["z"] > -2 for c in comps)
-    else:  # R3: refuted when the retrieval drop is not smaller than both other drops
-        refuted = not all(c["value"] > 0 for c in comps)
+    refuted = all(c["z"] is None or c["z"] > -2 for c in comps)  # R2: refuted when no difference is 2 SE below 0
     return {"measure": measure, "value": weakest["value"], "se": weakest["se"], "z": weakest["z"],
             "p": weakest["p"], "n": weakest["n"], "comparisons": comps, "refuted": refuted,
             "confirmed_direction": all(c["value"] * sign > 0 for c in comps), **extra}
@@ -308,6 +337,9 @@ def read_hypotheses(runs):
             h.update(verdict=label, outcome=label)
             continue
         h["p_holm"] = p_holm
+        if h.get("undetermined"):  # R3: no clustered verdict; the protocol's measure cannot decide it either way
+            h.update(verdict="undetermined", outcome="undetermined")
+            continue
         h["verdict"] = VERDICT[statystyka.werdykt_p(p_holm)] if p_holm is not None else "undetermined"
         h["outcome"] = ("refuted" if h["refuted"] else
                         "confirmed" if h["verdict"] == "clear" and h["confirmed_direction"] else "open")
@@ -334,7 +366,8 @@ def analyse(results_dir, resamples):
     # Amendment 4: the verdicts are the pre-registered ones; the strict reading of each is shown next to it
     for name, s in read_hypotheses(strict_runs).items():
         hyps[name]["strict"] = ({k: s[k] for k in ("verdict", "outcome", "missing")} if "missing" in s
-                                else {k: s[k] for k in ("value", "se", "z", "p_holm", "verdict", "outcome", "n")})
+                                else {k: s.get(k) for k in ("value", "se", "z", "t", "df", "p_holm", "verdict",
+                                                            "outcome", "n")})
     descriptive = {m: None if run is None else {
         "per_length": per_length(run),
         "strict_per_length": None if strict_runs[m] is None else per_length(strict_runs[m]),
@@ -352,6 +385,13 @@ def fmt(x, digits=2):
 
 def fmt_p(p):
     return "-" if p is None else f"{p:.2g}" if p < 1e-3 else f"{p:.4f}"
+
+
+def z_or_t(h):
+    """`z` of a sample-level comparison, or `t (df)` of a clustered one (R3)."""
+    if h.get("z") is not None:
+        return fmt(h["z"])
+    return "-" if h.get("t") is None else f"t {h['t']:.2f} (df {h['df']})"
 
 
 def report(result):
@@ -374,13 +414,13 @@ def report(result):
         if d["errors_excluded"]:
             lines.append(f"errors left out: {model}: "
                          + ", ".join(f"{n} @ {length}" for length, n in d["errors_excluded"].items()))
-    lines += ["", "| hypothesis | measure | value +- SE | z | Holm p | verdict | outcome | n "
-                  "| strict value +- SE | strict z | strict Holm p | strict verdict | strict outcome |",
+    lines += ["", "| hypothesis | measure | value +- SE | z or t (df) | Holm p | verdict | outcome | n "
+                  "| strict value +- SE | strict z or t | strict Holm p | strict verdict | strict outcome |",
               "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for name, h in result["hypotheses"].items():
         s = h["strict"]
         strict = (f"- | - | - | {s['verdict']} | {s['outcome']}" if "missing" in s else
-                  f"{s['value']:.2f} +- {s['se']:.2f} | {fmt(s['z'])} | {fmt_p(s['p_holm'])} | {s['verdict']} | "
+                  f"{s['value']:.2f} +- {fmt(s['se'])} | {z_or_t(s)} | {fmt_p(s['p_holm'])} | {s['verdict']} | "
                   f"{s['outcome']}")
         if "status" in h:
             lines.append(f"| {name} | {h['status']} | - | - | - | {h['verdict']} | {h['outcome']} | - | {strict} |")
@@ -388,7 +428,7 @@ def report(result):
         if "missing" in h:
             lines.append(f"| {name} | missing: {', '.join(h['missing'])} | - | - | - | not run | not run | - | {strict} |")
             continue
-        lines.append(f"| {name} | {h['measure']} | {h['value']:.2f} +- {h['se']:.2f} | {fmt(h['z'])} | "
+        lines.append(f"| {name} | {h['measure']} | {h['value']:.2f} +- {fmt(h['se'])} | {z_or_t(h)} | "
                      f"{fmt_p(h['p_holm'])} | {h['verdict']} | {h['outcome']} | {h['n']} | {strict} |")
     r2_ = result["hypotheses"]["R2"]
     if "descriptive" in r2_:
@@ -401,15 +441,27 @@ def report(result):
             lines.append(f"| {length} | " + " | ".join(cells) + " |")
     comps = [(name, c) for name, h in result["hypotheses"].items() for c in h.get("comparisons", [])]
     if comps:
-        lines += ["", "| hypothesis | comparison | value +- SE | z | p (unadjusted) | n |", "|---|---|---|---|---|---|"]
-        lines += [f"| {name} | {c['comparison']} | {c['value']:.2f} +- {c['se']:.2f} | {fmt(c['z'])} | "
-                  f"{fmt_p(c['p'])} | {c['n']} |" for name, c in comps]
+        lines += ["", "| hypothesis | comparison | value +- SE | z or t (df) | p (unadjusted) | n |",
+                  "|---|---|---|---|---|---|"]
+        for name, c in comps:
+            if "se_clustered" in c:  # R3: SE clustered by task, the sample-level SE descriptive next to it
+                lines.append(f"| {name} | {c['comparison']} (SE clustered by task, tasks {c['tasks']}) | "
+                             f"{c['value']:.2f} +- {fmt(c['se_clustered'])} | {z_or_t(c)} | {fmt_p(c['p_t'])} | "
+                             f"{c['n']} |")
+                s = c["sample"]
+                lines.append(f"| {name} | {c['comparison']} (sample-level SE, descriptive) | {c['value']:.2f} +- "
+                             f"{fmt(s['se'])} | {fmt(s['z'])} | {fmt_p(s['p'])} | {c['n']} |")
+            else:
+                lines.append(f"| {name} | {c['comparison']} | {c['value']:.2f} +- {c['se']:.2f} | {fmt(c['z'])} | "
+                             f"{fmt_p(c['p'])} | {c['n']} |")
     r1_ = result["hypotheses"]["R1"]
     if "effective_length" in r1_:
         lines.append(f"\nLFM3-1.7B effective length (longest length with mean >= {THRESHOLD}): "
                      f"{r1_['effective_length'] or 'none'}")
     r3_ = result["hypotheses"]["R3"]
     if "drops" in r3_:
+        if r3_.get("undetermined"):
+            lines.append(f"\nR3 undetermined: {r3_['undetermined_reason']}")
         lines += ["", "| LFM3 category | drop 4096->131072 | SE sample | SE clustered (tasks) | clustered verdict |",
                   "|---|---|---|---|---|"]
         lines += [f"| {c} | {d['drop']:.2f} | {d['se_sample']:.2f} | {fmt(d['se_clustered'])} ({d['tasks']}) | "

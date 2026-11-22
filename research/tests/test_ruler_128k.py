@@ -205,8 +205,10 @@ def test_compare_clear_case():
     h = result["hypotheses"]
     assert h["R1"]["value"] == 882 / 13 and h["R1"]["n"] == 650
     assert h["R1"]["effective_length"] == 16384  # 92.6, 90.8, 86.9, then 81.7 at 32768
-    for name in ("R1", "R2", "R3"):
+    for name in ("R1", "R2"):
         assert (h[name]["verdict"], h[name]["outcome"]) == ("clear", "confirmed"), (name, h[name])
+    # R3: the protocol's SE is clustered by task; tracing (1 task) and aggregation (2) cannot carry it
+    assert (h["R3"]["verdict"], h["R3"]["outcome"], h["R3"]["p"]) == ("undetermined", "undetermined", None)
     # R2 over the lengths both models hold: Bielik's 32768 is null, so 4096-16384.
     assert h["R2"]["lengths"] == [4096, 8192, 16384] and h["R2"]["lengths_excluded"] == [32768, 65536, 131072]
     assert len(h["R2"]["comparisons"]) == 1 and h["R2"]["value"] < 0
@@ -216,11 +218,49 @@ def test_compare_clear_case():
     assert drops["retrieval"]["se_clustered"] == 0  # every niah task drops by 14
     assert [drops[c]["verdict_clustered"] for c in ("tracing", "aggregation", "qa")] == ["undetermined"] * 3
     assert [c["verdict_clustered"] for c in h["R3"]["comparisons"]] == ["undetermined", "undetermined"]
+    # each category against retrieval (drop 14), not against qa (drop 20)
+    assert [c["value"] for c in h["R3"]["comparisons"]] == [70 - 14, 50 - 14]
     assert result["models"][C.BIELIK]["excluded_lengths"] == {"32768": FIT, "65536": WINDOW, "131072": WINDOW}
     assert result["models"][C.BIELIK]["per_length"]["131072"] is None
     assert result["models"][C.SLAYER]["per_length"]["4096"] == 20
     assert f"excluded: {C.BIELIK} @ 32768: {FIT}" in text
     assert sum(line.startswith("deviation: ") for line in text.splitlines()) == len(C.DEVIATIONS) == 4
+
+
+# The shape of the real LFM3-1.7B run: retrieval drops a lot on two niah tasks only, tracing barely moves.
+R3_SHAPE_4096 = {**dict.fromkeys(S.TASKS, 100), "cwe": 84, "fwe": 84, "qa_1": 76, "qa_2": 78}
+R3_SHAPE_131072 = {**dict(zip(S.CATEGORIES["retrieval"], [100, 100, 96, 98, 20, 2, 100, 100])),
+                   "vt": 98, "cwe": 0, "fwe": 88, "qa_1": 72, "qa_2": 64}
+
+
+def test_r3_verdict_uses_the_se_clustered_by_task():
+    """PROTOCOL.md R3: 'drop per category; SE clustered by task'. The sample-level SE (tasks fixed) makes tracing -
+    retrieval look clear; clustered by task it is t = -21 / (sd of the 8 retrieval drops / sqrt 8) with df 7, and with
+    1 tracing task there is no clustered verdict: undetermined, no p in Holm."""
+    import math
+    import statistics
+    with tempfile.TemporaryDirectory() as d:
+        write_model(Path(d), C.LFM3, {4096: R3_SHAPE_4096, 131072: R3_SHAPE_131072})
+        result, text = run_compare(Path(d))
+    h = result["hypotheses"]
+    r3 = h["R3"]
+    retrieval = [0, 0, 4, 2, 80, 98, 0, 0]
+    assert {c: d["drop"] for c, d in r3["drops"].items()} == {"retrieval": 23, "tracing": 2, "aggregation": 40, "qa": 9}
+    tracing, aggregation = r3["comparisons"]
+    # against retrieval (23), not qa (9): -21 and 17, not -7 and 31
+    assert (tracing["value"], aggregation["value"]) == (2 - 23, 40 - 23)
+    se = statistics.stdev(retrieval) / math.sqrt(8)
+    assert abs(tracing["se_clustered"] - se) < 1e-9 and tracing["df"] == 7
+    assert abs(tracing["t"] - (-21 / se)) < 1e-9 and abs(tracing["p_t"] - C.statystyka.p_t(-21 / se, 7)) < 1e-12
+    assert tracing["verdict_clustered"] == aggregation["verdict_clustered"] == "undetermined"
+    assert aggregation["df"] == 1 and aggregation["tasks"] == [2, 8]
+    assert (r3["verdict"], r3["outcome"], r3["p"], r3["p_holm"]) == ("undetermined", "undetermined", None, None)
+    assert r3["t"] == tracing["t"] and r3["z"] is None and "tracing, aggregation" in r3["undetermined_reason"]
+    # the sample-level reading is kept, as descriptive: there it is far beyond 3 SE
+    assert r3["descriptive_sample"]["z"] < -3 and r3["descriptive_sample"]["verdict"] == "clear"
+    assert tracing["sample"]["z"] == r3["descriptive_sample"]["z"]
+    assert "R3 undetermined: fewer than 3 tasks in tracing, aggregation" in text
+    assert f"t {tracing['t']:.2f} (df 7)" in text
 
 
 def test_compare_noise_case_holm_and_control_fail():
@@ -235,14 +275,16 @@ def test_compare_noise_case_holm_and_control_fail():
     # LFM3 and Bielik are both flat over 4096-32768: equal slopes, z = 0, under 2 SE, so R2 is refuted.
     assert (h["R2"]["verdict"], h["R2"]["outcome"]) == ("noise", "refuted") and abs(h["R2"]["z"]) < 1e-9
     assert h["R2"]["lengths"] == [4096, 8192, 16384, 32768]
-    assert h["R3"]["outcome"] == "refuted" and h["R3"]["value"] == 0  # every category drops by 2
-    # Holm, m = 3: in raw-p order the adjusted p are 3p, then max(previous, 2p), then max(previous, p), capped at 1.
-    rows = sorted(h.values(), key=lambda x: x["p"])
+    # every category drops by 2: retrieval's drop is not smaller, but R3 has no clustered verdict, so no p
+    assert h["R3"]["outcome"] == "undetermined" and h["R3"]["value"] == 0 and h["R3"]["p"] is None
+    assert h["R3"]["descriptive_sample"]["retrieval_drop_not_smaller"] is True
+    # Holm, m = 3 with R3 counted but without a p: the smaller p gets 3p, the other max(previous, 2p), capped at 1.
+    rows = sorted((h["R1"], h["R2"]), key=lambda x: x["p"])
     expected, previous = [], 0.0
     for rank, row in enumerate(rows):
         previous = max(previous, min(1.0, (3 - rank) * row["p"]))
         expected.append(previous)
-    assert [row["p_holm"] for row in rows] == expected
+    assert [row["p_holm"] for row in rows] == expected and h["R3"]["p_holm"] is None
     assert rows[0]["p_holm"] == min(1.0, 3 * rows[0]["p"]) > rows[0]["p"]
 
 
@@ -273,9 +315,8 @@ def test_compare_missing_model_is_not_run_and_holm_keeps_m_3():
     assert (h["R2"]["verdict"], h["R2"]["outcome"], h["R2"]["missing"]) == ("not run", "not run", [C.BIELIK])
     assert f"| R2 | missing: {C.BIELIK} |" in text
     assert result["models"][C.BIELIK] is None and result["holm_m"] == 3
-    low, high = sorted((h["R1"], h["R3"]), key=lambda x: x["p"])
-    assert low["p_holm"] == min(1.0, 3 * low["p"])  # m stays 3 with R2 not run
-    assert high["p_holm"] == max(low["p_holm"], min(1.0, 2 * high["p"]))
+    # m stays 3 with R2 not run and R3 without a p (undetermined): R1's p is multiplied by 3, not 1
+    assert h["R1"]["p_holm"] == min(1.0, 3 * h["R1"]["p"]) and h["R3"]["p_holm"] is None
     assert no_lfm3["control"] == {"status": "not run", "missing": [C.LFM3]}
     assert all(x["verdict"] == "not run" for x in no_lfm3["hypotheses"].values())
 
@@ -335,8 +376,8 @@ def test_compare_partial_length_is_not_comparable():
     lfm3_4096 = result["models"][C.LFM3]["per_length"]["4096"]
     assert f"| R2 | {C.R2_NOT_DECIDED} | - | - | -" in text
     assert f"| 4096 | {lfm3_4096:.2f} | 70.00 (12 tasks, no qa_2) |" in text
-    low, high = sorted((result["hypotheses"]["R1"], result["hypotheses"]["R3"]), key=lambda x: x["p"])
-    assert low["p_holm"] == min(1.0, 3 * low["p"])  # m stays 3 with R2 not decided
+    r1 = result["hypotheses"]["R1"]
+    assert r1["p_holm"] == min(1.0, 3 * r1["p"])  # m stays 3 with R2 not decided and R3 undetermined
 
 
 def control_run(mean, se):
@@ -616,7 +657,7 @@ def test_compare_control_not_comparable_and_strict_next_to_pre_registered():
     assert h["R1"]["verdict"] != "not run" and h["R3"]["verdict"] != "not run"  # read despite the FAIL
     assert h["R1"]["value"] == pre and abs(h["R1"]["strict"]["value"] - strict) < 1e-9
     assert h["R1"]["strict"]["verdict"] == "clear" and h["R2"]["strict"]["verdict"] == "not run"  # Bielik: no strict
-    assert abs(h["R3"]["strict"]["value"] - h["R3"]["value"]) > 1  # aggregation drops more under strict
+    assert h["R3"]["strict"]["verdict"] == "undetermined" and h["R3"]["strict"]["t"] is not None  # fwe now spreads
     m = result["models"][C.LFM3]
     assert m["per_length"]["131072"] == round(pre, 2) and m["strict_per_length"]["131072"] == round(strict, 2)
     assert m["strict_per_length"]["4096"] == m["per_length"]["4096"]  # every output there closed its reasoning
