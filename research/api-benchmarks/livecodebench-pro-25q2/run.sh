@@ -62,19 +62,21 @@ if [[ "${1:-}" == "--prepare-scoring" ]]; then
   prepare
   # The image the harness's judge builds (LightCPVerifierJudge._build_image: a build of ./LightCPVerifier tagged
   # lightcpverifier; the judge uses an existing image of that name and never rebuilds it), built once here with the
-  # same docker client call. One line of the pinned Dockerfile no longer builds: `npm install -g npm@latest` now
-  # fetches an npm that refuses the image's Node 20 (EBADENGINE, 2026-11-22). The build uses a copy of the
-  # Dockerfile with npm@11.6.0, the npm "latest" on the day of the pinned LightCPVerifier commit (2025-09-07);
-  # everything else, the checkout and the judge code are unchanged (README, Deviations). go-judge is still
-  # "latest", so the image id is recorded and the image is not rebuilt between models.
-  NPM_LINE='RUN npm install -g npm@latest'
-  [[ "$(grep -cxF "$NPM_LINE" "$HARNESS_DIR/LightCPVerifier/Dockerfile")" == 1 ]] \
-    || { echo "the pinned Dockerfile does not have the line: $NPM_LINE" >&2; exit 1; }
+  # same docker client call. Two steps of the pinned Dockerfile take "latest" and no longer build (2026-11-22):
+  # `npm install -g npm@latest` fetches an npm that refuses the image's Node 20 (EBADENGINE), and go-judge's latest
+  # release lists an init-binary tarball first, which has no `go-judge` in it. The build uses a copy of the
+  # Dockerfile with both at their "latest" on the day of the pinned LightCPVerifier commit (2025-09-07): npm 11.6.0
+  # and go-judge v1.9.6 (same asset selection). Everything else, the checkout and the judge code are unchanged
+  # (README, Deviations). The image id is recorded and the image is not rebuilt between models.
   python3 - "$HARNESS_DIR/LightCPVerifier/Dockerfile" "$HERE/.cache/Dockerfile.judge" <<'EOF'
 import sys
 text = open(sys.argv[1], encoding="utf-8").read()
-open(sys.argv[2], "w", encoding="utf-8").write(
-    text.replace("RUN npm install -g npm@latest\n", "RUN npm install -g npm@11.6.0\n"))
+for old, new in (("RUN npm install -g npm@latest\n", "RUN npm install -g npm@11.6.0\n"),
+                 ("/repos/criyle/go-judge/releases/latest", "/repos/criyle/go-judge/releases/tags/v1.9.6")):
+    if text.count(old) != 1:
+        sys.exit(f"the pinned Dockerfile does not have exactly one {old!r}")
+    text = text.replace(old, new)
+open(sys.argv[2], "w", encoding="utf-8").write(text)
 EOF
   (cd "$HARNESS_DIR" && "$VENV/bin/python" - "$HERE/.cache/Dockerfile.judge" <<'EOF'
 import json, sys
@@ -90,7 +92,8 @@ print(json.dumps({"image": judge.LightCPVerifierJudge.IMAGE_NAME, "id": image.id
                   "created": image.attrs.get("Created")}))
 EOF
 ) | tee "$HERE/.cache/judge-image.json"
-  docker run --rm --entrypoint /usr/local/bin/go-judge lightcpverifier -version | tee "$HERE/.cache/go-judge-version.txt"
+  { docker run --rm --entrypoint /usr/local/bin/go-judge lightcpverifier -version 2>&1 || true; } \
+    | tee "$HERE/.cache/go-judge-version.txt"
   exit 0
 fi
 
