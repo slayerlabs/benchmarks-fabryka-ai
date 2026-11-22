@@ -204,7 +204,22 @@ def test_compare_clear_case():
     assert result["control"]["card"] == 65.56
     h = result["hypotheses"]
     assert h["R1"]["value"] == 882 / 13 and h["R1"]["n"] == 650
-    assert h["R1"]["effective_length"] == 16384  # 92.6, 90.8, 86.9, then 81.7 at 32768
+    # 92.6, 90.8, 86.9, then 81.7 at 32768; 16384 is above 85.6 by about 1 SE only, 8192 by more than 2
+    e = h["R1"]["effective_length"]
+    assert (e["point"], e["above_2_se"]) == (16384, 8192) and 0 < e["z"] < 2 and e["z"] == e["per_length"]["16384"]["z"]
+    # 75 per aggregation task is 38 of 50 samples (round half to even): 76, so 16384 is (768 + 80 + 152 + 132) / 13
+    assert abs(e["per_length"]["16384"]["mean"] - 1132 / 13) < 1e-9 and e["per_length"]["8192"]["z"] >= 2
+    # next to the rule: SE clustered by task, sign test, without the 2 lowest tasks (vt 30, cwe 40 before fwe 40)
+    import math
+    import statistics
+    s = h["R1"]["sensitivity"]
+    diffs = [v - 85.6 for v in by_category(84, 30, 40, 50).values()]
+    t = statistics.fmean(diffs) / (statistics.stdev(diffs) / math.sqrt(13))
+    assert abs(s["clustered"]["t"] - t) < 1e-9 and s["clustered"]["df"] == 12
+    assert s["sign_test"] == {"below": 13, "tasks": 13, "p": 2 / 2 ** 13, "verdict": "clear"}
+    assert s["without_lowest"]["tasks_dropped"] == ["vt", "cwe"]
+    assert abs(s["without_lowest"]["mean"] - (84 * 8 + 40 + 50 + 50) / 11) < 1e-9
+    assert C.sign_test(5, 13) == 2 * sum(math.comb(13, i) for i in range(6)) / 2 ** 13
     for name in ("R1", "R2"):
         assert (h[name]["verdict"], h[name]["outcome"]) == ("clear", "confirmed"), (name, h[name])
     # R3: the protocol's SE is clustered by task; tracing (1 task) and aggregation (2) cannot carry it
@@ -657,6 +672,8 @@ def test_compare_control_not_comparable_and_strict_next_to_pre_registered():
     assert h["R1"]["verdict"] != "not run" and h["R3"]["verdict"] != "not run"  # read despite the FAIL
     assert h["R1"]["value"] == pre and abs(h["R1"]["strict"]["value"] - strict) < 1e-9
     assert h["R1"]["strict"]["verdict"] == "clear" and h["R2"]["strict"]["verdict"] == "not run"  # Bielik: no strict
+    assert h["R1"]["strict"]["effective_length"]["per_length"]["131072"]["mean"] == h["R1"]["strict"]["value"]
+    assert h["R1"]["strict"]["sensitivity"]["sign_test"]["tasks"] == 13
     assert h["R3"]["strict"]["verdict"] == "undetermined" and h["R3"]["strict"]["t"] is not None  # fwe now spreads
     m = result["models"][C.LFM3]
     assert m["per_length"]["131072"] == round(pre, 2) and m["strict_per_length"]["131072"] == round(strict, 2)

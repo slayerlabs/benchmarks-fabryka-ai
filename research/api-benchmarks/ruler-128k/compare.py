@@ -12,7 +12,9 @@ hypotheses.json carries the sha256 of every input and the commit, runner sha256 
 - Amendment 4: every score twice, as pre-registered (whole text scored when there is no `</think>`) and strict (an
   output without `</think>` scores 0, from summarize.py's `other_metrics.strict` and the rows' `closed_think`).
   Verdicts come from the pre-registered scores; the strict verdict (its own Holm family, m = 3) is shown next to each.
-- R1: LFM3-1.7B's mean at 131072 against 85.6. Confirmed: z <= -3 (after Holm); refuted: mean >= 85.6.
+- R1: LFM3-1.7B's mean at 131072 against 85.6. Confirmed: z <= -3 (after Holm); refuted: mean >= 85.6. Next to the
+  pre-registered rule (sample-level SE), not replacing it: the same difference with the SE clustered by task, a sign
+  test over the 13 tasks, the mean without the 2 lowest tasks, and the effective length with the z of each length.
 - R2 (Amendment 1): slope of the per-length mean against log2(length), LFM3-1.7B minus Bielik 11B v3.1, over the
   lengths both models hold. Confirmed: negative, clear after Holm; refuted: not 2 SE below 0. Amendment 6: with
   fewer than 3 complete lengths shared it is `not decided` (still in Holm's m = 3) and the per-length means of both
@@ -211,10 +213,45 @@ def r1(runs):
     run = runs[LFM3]
     mean, se = stat(lambda p: length_mean(p[LONG]), run)
     c = comparison(f"LFM3 mean @ {LONG} - {THRESHOLD}", mean - THRESHOLD, se, n_scored(run, [LONG]))
-    effective = [length for length in run["point"] if length_mean(run["point"][length]) >= THRESHOLD]
     return {"measure": f"LFM3 mean @ {LONG} vs {THRESHOLD}", "value": mean, "se": se, "z": c["z"], "p": c["p"],
             "n": c["n"], "comparisons": [c], "refuted": mean >= THRESHOLD, "confirmed_direction": mean < THRESHOLD,
-            "effective_length": max(effective, default=None)}
+            "sensitivity": r1_sensitivity(run), "effective_length": effective_length(run)}
+
+
+def sign_test(k, n):
+    """Two-sided binomial p of k of n under p = 1/2."""
+    tail = sum(math.comb(n, i) for i in range(min(k, n - k) + 1)) / 2 ** n
+    return min(1.0, 2 * tail)
+
+
+def r1_sensitivity(run, drop=2):
+    """Next to R1's pre-registered rule (sample-level SE): the mean at 131072 against 85.6 with the SE clustered by
+    task (13 tasks, df 12), a sign test over the tasks, and the mean without the `drop` lowest tasks (bootstrap SE)."""
+    tasks = run["point"][LONG]
+    k = statystyka.klastrowe_wazone([(1, tasks[t] - THRESHOLD) for t in TASKS])
+    below = sum(tasks[t] < THRESHOLD for t in TASKS)
+    worst = sorted(TASKS, key=lambda t: (tasks[t], t))[:drop]
+    rest = [t for t in TASKS if t not in worst]
+    mean, se = stat(lambda p: statistics.fmean(p[LONG][t] for t in rest), run)
+    return {"clustered": {"value": k["roznica"], "se": k["se"], "t": k["t"], "df": k["df"], "p": k["p_t"],
+                          "verdict": VERDICT[k["werdykt"]]},
+            "sign_test": {"below": below, "tasks": len(TASKS), "p": sign_test(below, len(TASKS)),
+                          "verdict": VERDICT[statystyka.werdykt_p(sign_test(below, len(TASKS)))]},
+            "without_lowest": {"tasks_dropped": worst, "mean": mean, "se": se, "z": z_of(mean - THRESHOLD, se),
+                               "verdict": VERDICT[statystyka.werdykt(z_of(mean - THRESHOLD, se))]}}
+
+
+def effective_length(run):
+    """The paper's effective length (longest length whose mean is >= 85.6) with the z of every length against 85.6,
+    and the longest length that is above 85.6 by at least 2 SE: the effective length is one of the two."""
+    per = {}
+    for length in sorted(run["point"]):
+        mean, se = stat(lambda p: length_mean(p[length]), run)
+        per[str(length)] = {"mean": mean, "se": se, "z": z_of(mean - THRESHOLD, se)}
+    point = max((int(x) for x, v in per.items() if v["mean"] >= THRESHOLD), default=None)
+    above = max((int(x) for x, v in per.items() if v["z"] is not None and v["z"] >= 2), default=None)
+    return {"point": point, "z": per[str(point)]["z"] if point else None, "se": per[str(point)]["se"] if point else None,
+            "above_2_se": above, "per_length": per}
 
 
 def length_means(run):
@@ -366,8 +403,8 @@ def analyse(results_dir, resamples):
     # Amendment 4: the verdicts are the pre-registered ones; the strict reading of each is shown next to it
     for name, s in read_hypotheses(strict_runs).items():
         hyps[name]["strict"] = ({k: s[k] for k in ("verdict", "outcome", "missing")} if "missing" in s
-                                else {k: s.get(k) for k in ("value", "se", "z", "t", "df", "p_holm", "verdict",
-                                                            "outcome", "n")})
+                                else {k: s[k] for k in ("value", "se", "z", "t", "df", "p_holm", "verdict", "outcome",
+                                                        "n", "sensitivity", "effective_length") if k in s})
     descriptive = {m: None if run is None else {
         "per_length": per_length(run),
         "strict_per_length": None if strict_runs[m] is None else per_length(strict_runs[m]),
@@ -456,8 +493,17 @@ def report(result):
                              f"{fmt_p(c['p'])} | {c['n']} |")
     r1_ = result["hypotheses"]["R1"]
     if "effective_length" in r1_:
-        lines.append(f"\nLFM3-1.7B effective length (longest length with mean >= {THRESHOLD}): "
-                     f"{r1_['effective_length'] or 'none'}")
+        e, s = r1_["effective_length"], r1_["sensitivity"]
+        lines.append(f"\nLFM3-1.7B effective length (longest length with mean >= {THRESHOLD}): {e['point'] or 'none'}"
+                     f" (z = {fmt(e['z'])} against {THRESHOLD}); longest length at least 2 SE above it: "
+                     f"{e['above_2_se'] or 'none'}")
+        lines.append("LFM3 mean vs 85.6 per length: " + ", ".join(f"{x}: {v['mean']:.2f} +- {v['se']:.2f}, z = "
+                                                                    f"{fmt(v['z'])}" for x, v in e["per_length"].items()))
+        c, g, w = s["clustered"], s["sign_test"], s["without_lowest"]
+        lines.append(f"R1 next to the rule: clustered by task t = {fmt(c['t'])} (df {c['df']}, p {fmt_p(c['p'])}, "
+                     f"{c['verdict']}); tasks below {THRESHOLD}: {g['below']} of {g['tasks']} (sign test p "
+                     f"{fmt_p(g['p'])}); without {', '.join(w['tasks_dropped'])}: {w['mean']:.2f} +- {w['se']:.2f}, "
+                     f"z = {fmt(w['z'])}")
     r3_ = result["hypotheses"]["R3"]
     if "drops" in r3_:
         if r3_.get("undetermined"):
