@@ -10,7 +10,9 @@ status `not comparable (Amendment 4)` with the hypotheses read; strict scoring (
 to the unchanged pre-registered scores. Generation path: the request body (protocol sampling, seed, output limit),
 run.sh's protocol constants, the last attempt of a sample wins. Provenance: effective sampling (vLLM fills from
 generation_config.json, PROTOCOL.md Amendment 3), commit/runner/hardware in the result, and the sha256 manifests that
-summarize.py and compare.py check (an out dir from before them is summarized with warnings, never a crash).
+summarize.py and compare.py check (an out dir from before them is summarized with warnings, never a crash). Strict
+scoring only where the rendered generation prompt opens a reasoning block (Amendment 5). API robustness and the
+event log (api-events.jsonl) against a local fake endpoint, as ../livecodebench-v6's tests do.
 Run: python3 tests/test_ruler_128k.py (or pytest).
 """
 import contextlib
@@ -160,8 +162,8 @@ def write_model(results_dir, model, means, skipped=None, errors=None, task_skips
                  for j in range(n)]
     metrics = S.aggregate(rows, skipped or {}, S.LENGTHS, resamples=2, task_skips=task_skips)
     if unclosed is not None:
-        run = {"settings": {"scored": S.CHAT_SCORED}, "lengths": S.LENGTHS, "tasks": S.TASKS}
-        metrics["strict"] = S.strict_metrics(run, rows, skipped or {}, task_skips, resamples=2)
+        run = {"lengths": S.LENGTHS, "tasks": S.TASKS}
+        metrics["strict"] = S.strict_metrics(run, rows, skipped or {}, task_skips, {"opens": True}, resamples=2)
     (results_dir / f"{model}.json").write_text(json.dumps({"model": model, "other_metrics": metrics}))
     with gzip.open(results_dir / f"{model}.jsonl.gz", "wt", encoding="utf-8") as f:
         for r in rows:
@@ -427,9 +429,19 @@ def fake_out_dir(root):
     return out
 
 
-def summarize_fake(out, root):
+# What the pinned templates render for one user message with the generation prompt (provenance.reasoning)
+LFM3_PROMPT_END = "<|im_start|>user\nProbe.<|im_end|>\n<|im_start|>assistant\n<think>"
+BIELIK_PROMPT_END = "<|im_start|>user\nProbe.<|im_end|>\n<|im_start|>assistant\n<think></think>"
+
+
+def lfm3_prompt(repo, revision):
+    assert (repo, revision) == ("LiquidAI/LFM3-1.7B", "1da06bec6a819da10b54c67e5c90972b46d81871")
+    return LFM3_PROMPT_END
+
+
+def summarize_fake(out, root, render=lfm3_prompt, **kwargs):
     return S.summarize_run(out, root / "results" / "lfm3-1.7b", keep, dict.fromkeys(S.TASKS, match_all),
-                           read_config=lfm3_config)
+                           read_config=lfm3_config, render=render, **kwargs)
 
 
 def stops(fn, text):
@@ -487,7 +499,7 @@ def test_summarize_new_out_dir_carries_generation_provenance_and_checks_inputs()
     with tempfile.TemporaryDirectory() as d:
         root = Path(d)
         out = fake_out_dir(root)
-        entry = V.record_generation(out, lfm3_config)
+        entry = V.record_generation(out, lfm3_config, lfm3_prompt)
         V.record_inputs(out)
         result = summarize_fake(out, root)
         (out / "4096" / "raw" / "qa_2.jsonl").write_text("{}\n")
@@ -501,7 +513,8 @@ def test_summarize_new_out_dir_carries_generation_provenance_and_checks_inputs()
         V.record_inputs(out)
         stops(lambda: summarize_fake(out, root), "different sampling")
     assert result["warnings"] == []
-    assert result["provenance"]["generation"] == [{k: entry[k] for k in ("time", "code", "runner_sha256", "hardware")}]
+    assert result["provenance"]["generation"] == [{k: entry[k] for k in ("time", "code", "runner_sha256", "hardware",
+                                                                         "reasoning")}]
     assert entry["code"] == V.code_version() and entry["runner_sha256"]["predict.py"] == V.sha256(BENCH / "predict.py")
     assert result["settings"]["sampling"] == entry["sampling"]
     assert result["settings"]["sampling"]["effective"]["repetition_penalty"] == 1.1
@@ -590,6 +603,220 @@ def test_compare_control_not_comparable_and_strict_next_to_pre_registered():
     assert m["strict_per_length"]["4096"] == m["per_length"]["4096"]  # every output there closed its reasoning
     assert result["models"][C.BIELIK]["strict_per_length"] is None
     assert f"| {C.LFM3} | strict | " in text and f"| {C.LFM3} | pre-registered | " in text
+
+
+BIELIK_SETTINGS = {**LFM3_SETTINGS, "serving": "Fabryka AI API, https://fabryka.ai/v1/chat/completions, model bielik",
+                   "weights": "speakleash/Bielik-11B-v3.1-Instruct @ d6e755d356ad418d0f0e30b8c428db267415ddb9",
+                   "context_window": 32768}
+
+
+def test_reasoning_opens_only_when_the_prompt_ends_with_an_open_think():
+    def prompt(text):
+        return lambda repo, revision: text
+    assert V.reasoning(LFM3_SETTINGS, prompt(LFM3_PROMPT_END))["opens"] is True
+    assert V.reasoning(LFM3_SETTINGS, prompt(LFM3_PROMPT_END + "\n"))["opens"] is True
+    closed = V.reasoning(BIELIK_SETTINGS, prompt(BIELIK_PROMPT_END))
+    assert closed["opens"] is False and "closes the reasoning block" in closed["reason"]
+    assert V.reasoning(BIELIK_SETTINGS, prompt("<|im_start|>assistant\n"))["opens"] is False
+    slayer = V.reasoning({"serving": "research/common/slayer_lm.py, bfloat16"}, prompt(LFM3_PROMPT_END))
+    assert slayer["opens"] is False and "raw prompt" in slayer["reason"]
+
+
+def test_strict_does_not_apply_when_the_template_closes_reasoning():
+    """Bielik's generation prompt ends `<think></think>`: its outputs never carry `</think>`, so strict scoring would
+    zero every sample. Decided from the template (rendered now for an old out dir, or recorded in generation.jsonl)."""
+    def bielik_prompt(repo, revision):
+        assert repo == "speakleash/Bielik-11B-v3.1-Instruct"
+        return BIELIK_PROMPT_END
+
+    def no_render(repo, revision):
+        raise AssertionError("generation.jsonl records it; nothing to render")
+
+    with tempfile.TemporaryDirectory() as d:
+        old = summarize_fake(strict_out_dir(Path(d), BIELIK_SETTINGS), Path(d), render=bielik_prompt)
+    with tempfile.TemporaryDirectory() as d:
+        out = strict_out_dir(Path(d), BIELIK_SETTINGS)
+        V.record_generation(out, lfm3_config, bielik_prompt)
+        recorded = summarize_fake(out, Path(d), render=no_render)
+    with tempfile.TemporaryDirectory() as d:
+        out = strict_out_dir(Path(d), LFM3_SETTINGS)
+        V.record_generation(out, lfm3_config, lfm3_prompt)
+        opened = summarize_fake(out, Path(d), render=no_render)
+    for result in (old, recorded):
+        assert result["score"] == 75.0  # pre-registered unchanged
+        strict = result["other_metrics"]["strict"]
+        assert strict["applies"] is False and "closes the reasoning block" in strict["reason"]
+        assert result["strict"]["score"] is None and "<think></think>" in result["strict"]["reason"]
+    assert "recorded" in old["other_metrics"]["strict"]["reasoning"]
+    assert opened["strict"]["score"] == 50.0 and opened["other_metrics"]["strict"]["reasoning"]["opens"] is True
+
+
+# API robustness and the event log (<out>/<model>/<length>/api-events.jsonl), as ../livecodebench-v6 tests it
+class FakeAPI:
+    """A local chat endpoint: the first `reset` requests drop the connection, the next `truncate` answer with a
+    body shorter than its Content-Length, the next `fail` answer `fail_code`; then a normal answer."""
+
+    def __init__(self, fail=0, fail_code=503, truncate=0, reset=0, body='{"error": "busy"}'):
+        import http.server
+        import threading
+        api, self.requests = self, []
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            def log_message(self, *args):
+                pass
+
+            def do_POST(self):
+                self.rfile.read(int(self.headers["Content-Length"]))
+                api.requests.append(self.path)
+                n = len(api.requests)
+                if n <= reset:
+                    self.close_connection = True
+                    return
+                if n <= reset + truncate:
+                    self.send_response(200)
+                    self.send_header("Content-Length", "1000")
+                    self.end_headers()
+                    self.wfile.write(b'{"choices": ')
+                    self.close_connection = True
+                    return
+                code, text = (fail_code, body) if n <= reset + truncate + fail else (200, json.dumps({
+                    "choices": [{"message": {"content": "<think>x</think>1234567"}, "finish_reason": "stop"}],
+                    "usage": {"prompt_tokens": 10, "completion_tokens": 3}}))
+                data = text.encode("utf-8")
+                self.send_response(code)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(data)))
+                self.end_headers()
+                self.wfile.write(data)
+
+        self.server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        self.url = f"http://127.0.0.1:{self.server.server_address[1]}"
+        threading.Thread(target=self.server.serve_forever, daemon=True).start()
+
+    def close(self):
+        self.server.shutdown()
+        self.server.server_close()
+
+
+def logged_client(url, path, retries=30):
+    return P.Client(url, 5, retries, P.Gate(0.01, 1.0), "key", P.EventLog(path, 4096))
+
+
+def read_events(path):
+    return [json.loads(line) for line in Path(path).read_text(encoding="utf-8").splitlines()]
+
+
+CHAT = "/v1/chat/completions"
+
+
+def test_api_429_is_retried_and_logged():
+    api = FakeAPI(fail=2, fail_code=429)
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / P.EVENTS
+        try:
+            response = logged_client(api.url, path).post(CHAT, {"model": "m"}, "qa_1", 7)
+        finally:
+            api.close()
+        events = read_events(path)
+    assert response["choices"][0]["finish_reason"] == "stop" and len(api.requests) == 3
+    assert [(e["length"], e["task"], e["index"], e["endpoint"], e["attempt"], e["status"], e["action"], e["pause_s"])
+            for e in events] == [(4096, "qa_1", 7, CHAT, 1, 429, "retry", 0.01),
+                                 (4096, "qa_1", 7, CHAT, 2, 429, "retry", 0.02),
+                                 (4096, "qa_1", 7, CHAT, 3, None, "recovered", None)]
+    assert events[0]["error"] == '{"error": "busy"}' and events[0]["time"].endswith("+00:00")
+
+
+def test_api_incomplete_read_and_reset_are_retried_like_a_5xx():
+    api = FakeAPI(reset=1, truncate=2)  # a dropped connection, then two answers cut before their Content-Length
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / P.EVENTS
+        try:
+            response = logged_client(api.url, path).post(CHAT, {"model": "m"}, "vt", 1)
+        finally:
+            api.close()
+        events = read_events(path)
+    assert response["usage"]["completion_tokens"] == 3 and len(api.requests) == 4
+    assert [e["action"] for e in events] == ["retry", "retry", "retry", "recovered"]
+    assert all(e["status"] is None for e in events)
+    assert "IncompleteRead" in events[1]["error"] and "IncompleteRead" in events[2]["error"]
+
+
+def test_api_failures_logged_with_counts():
+    long_error = '{"error": "' + "x" * 400 + '"}'
+    api = FakeAPI(fail=100, body=long_error)
+    bad = FakeAPI(fail=100, fail_code=400, body='{"error": "not supported"}')
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / P.EVENTS
+        try:
+            client = logged_client(api.url, path, retries=2)
+            stops_with = []
+            for c, task in ((client, "a"), (logged_client(bad.url, path), "b")):
+                try:
+                    c.post(CHAT, {"model": "m"}, task, 0)
+                    raise AssertionError("expected RuntimeError")
+                except RuntimeError as e:
+                    stops_with.append(str(e)[:8])
+        finally:
+            api.close()
+            bad.close()
+        events = read_events(path)
+    assert stops_with == ["HTTP 503", "HTTP 400"] and len(bad.requests) == 1  # a 400 is not retried
+    assert [(e["task"], e["status"], e["action"]) for e in events] == [
+        ("a", 503, "retry"), ("a", 503, "retry"), ("a", 503, "gave_up"), ("b", 400, "rejected")]
+    assert [e["pause_s"] for e in events] == [0.01, 0.02, 0.04, None]
+    assert events[0]["error"] == long_error[:300] and "not supported" in events[3]["error"]
+    assert P.event_counts(events) == {"events": 4, "by_action": {"gave_up": 1, "rejected": 1, "retry": 2},
+                                      "by_status": {"400": 1, "503": 3}, "samples": 2}
+    assert client.events.counts()["by_action"] == {"gave_up": 1, "retry": 2}  # this client's own events
+
+
+def test_generation_end_counts_this_calls_events():
+    with tempfile.TemporaryDirectory() as d:
+        out = strict_out_dir(Path(d), BIELIK_SETTINGS)
+        (out / "131072" / P.EVENTS).write_text(json.dumps(
+            {"time": "2020-01-01T00:00:00.000+00:00", "length": 131072, "task": "x", "index": 0, "status": 503,
+             "action": "retry"}) + "\n")  # an earlier call's event
+        V.record_generation(out, lfm3_config, lambda r, v: BIELIK_PROMPT_END)
+        log = P.EventLog(out / "131072" / P.EVENTS, 131072)
+        log.write(task="niah_single_1", index=3, status=503, action="retry", pause_s=10.0)
+        log.write(task="niah_single_1", index=3, status=None, action="recovered", pause_s=None)
+        entry = V.record_generation_end(out)
+        slayer = strict_out_dir(Path(d) / "s", {"serving": "research/common/slayer_lm.py, bfloat16",
+                                                "max_tokens": "RULER per-task answer budget"})
+        V.record_generation(slayer)
+        slayer_entry = V.record_generation_end(slayer)
+    assert entry["api_events"] == {"events": 2, "by_action": {"recovered": 1, "retry": 1},
+                                   "by_status": {"503": 1, "none": 1}, "samples": 1}
+    assert slayer_entry["api_events"] is None and slayer_entry["api_events_reason"] == V.NO_HTTP
+
+
+def test_summary_carries_api_events_or_null_with_reason():
+    events = [{"time": "2026-11-22T15:00:00.000+00:00", "length": 131072, "task": "niah_single_1", "index": 1,
+               "status": 503, "action": "retry"},
+              {"time": "2026-11-22T15:00:10.000+00:00", "length": 131072, "task": "niah_single_1", "index": 1,
+               "status": None, "action": "recovered"}]
+
+    def bielik(repo, revision):
+        return BIELIK_PROMPT_END
+
+    with tempfile.TemporaryDirectory() as d:
+        out = strict_out_dir(Path(d), BIELIK_SETTINGS)
+        p = summarize_fake(out, Path(d), render=bielik)["provenance"]
+        assert p["api_events"] is None and p["api_events_reason"] == S.NO_EVENT_LOG
+        p = summarize_fake(out, Path(d), render=bielik, no_log_reason="7 x HTTP 503 in the log")["provenance"]
+        assert p["api_events"] is None and p["api_events_reason"] == "7 x HTTP 503 in the log"
+    with tempfile.TemporaryDirectory() as d:
+        out = strict_out_dir(Path(d), BIELIK_SETTINGS)
+        V.record_generation(out, lfm3_config, bielik)
+        (out / "131072" / P.EVENTS).write_text("".join(json.dumps(e) + "\n" for e in events))
+        V.record_inputs(out)
+        p = summarize_fake(out, Path(d))["provenance"]
+        assert p["api_events"] == {"files": {f"131072/{P.EVENTS}": V.sha256(out / "131072" / P.EVENTS)}, "events": 2,
+                                   "by_action": {"recovered": 1, "retry": 1}, "by_status": {"503": 1, "none": 1},
+                                   "samples": 1}
+        with open(out / "131072" / P.EVENTS, "a") as f:
+            f.write("{}\n")
+        stops(lambda: summarize_fake(out, Path(d)), "sha256 differs")
 
 
 if __name__ == "__main__":
