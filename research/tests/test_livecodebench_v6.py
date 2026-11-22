@@ -1177,14 +1177,26 @@ def mean_se(d):
     return 100 * m, 100 * math.sqrt(sum((x - m) ** 2 for x in d) / (n - 1) / n)
 
 
+def cluster_se(d, keys):
+    """SE (pp) of mean(d) clustered by `keys`: sqrt(G/(G-1) * sum_g (sum_{i in g} (d_i - mean))^2) / n, and t."""
+    n, mean, sums = len(d), sum(d) / len(d), {}
+    for x, k in zip(d, keys):
+        sums[k] = sums.get(k, 0.0) + x - mean
+    g = len(sums)
+    se = math.sqrt(g / (g - 1) * sum(s * s for s in sums.values())) / n
+    return g, 100 * se, mean / se
+
+
 def independent_counts():
-    """pass@1 per run, and per LFM3-1.7B run the L1 and L3 differences against Bielik, paired by task_id."""
+    """pass@1 and mean output tokens per run; per LFM3-1.7B run the L1 and L3 differences against Bielik, paired
+    by task_id, their SE clustered by contest (platform + start time) and by platform, and the L3 costs."""
     rows = {run: real_rows(run) for run in REAL_RUNS}
-    out = {"pass@1": {}, "L1": {}, "L3": {}, "L3_f1": {}, "L1_platform_se": {}}
+    out = {"pass@1": {}, "mean_tokens": {}, "L1": {}, "L3": {}, "L3_f1": {}, "clustered": {}, "cost": {}}
     for run, rs in rows.items():
         ok = [r for r in rs.values() if r["status"] == "ok"]
         p = sum(bool(r["pass"]) for r in ok) / len(ok)
         out["pass@1"][run] = (round(100 * p, 2), round(100 * math.sqrt(p * (1 - p) / len(ok)), 2), len(ok))
+        out["mean_tokens"][run] = sum(r["output_tokens"] for r in ok) / len(ok)
     f1 = json.loads((RESULTS / "extraction-f1.json").read_text(encoding="utf-8"))["runs"]
     bielik = rows["bielik-11b-v3.1"]
     for run in ("lfm3-1.7b", "lfm3-1.7b-cardsampling"):
@@ -1192,34 +1204,40 @@ def independent_counts():
         ids = sorted(t for t in lfm if t in bielik and lfm[t]["status"] == bielik[t]["status"] == "ok")
         d = [int(bool(lfm[t]["pass"])) - int(bool(bielik[t]["pass"])) for t in ids]
         out["L1"][run] = (*mean_se(d), len(ids))
-        by_platform = {}
-        for t, x in zip(ids, d):
-            by_platform.setdefault(lfm[t]["platform"], []).append(x)
-        mean, g = sum(d) / len(d), len(by_platform)
-        out["L1_platform_se"][run] = 100 * math.sqrt(
-            g / (g - 1) * sum(sum(x - mean for x in xs) ** 2 for xs in by_platform.values())) / len(d)
+        contest = [(lfm[t]["platform"], lfm[t]["contest_date"]) for t in ids]
+        platform = [lfm[t]["platform"] for t in ids]
+
+        def mean_cost(m, rs, b, prompt=False):
+            return sum(2 * REAL_WEIGHTS[m] * ((r["output_tokens"] if b is None else min(r["output_tokens"], b))
+                                              + (r["prompt_tokens"] if prompt else 0))
+                       for r in (rs[t] for t in ids)) / len(ids)
+
+        budgets = (4096, 16384, None)
+        pairs = [(abs(math.log(mean_cost(run, lfm, ba) / mean_cost("bielik-11b-v3.1", bielik, bb))), ba, bb)
+                 for ba in budgets for bb in budgets]
+        _, ba, bb = min(pairs, key=lambda x: x[0])  # min keeps the first of equal ratios
 
         def l3(pass_a, pass_b):
-            """pass_a, pass_b: task_id -> passed, for LFM3-1.7B and Bielik."""
+            """pass_a, pass_b: task_id -> passed, for LFM3-1.7B and Bielik; d at the pair (ba, bb)."""
             def within(rs, passed, t, b):
                 return passed[t] and rs[t]["finished"] and (b is None or rs[t]["output_tokens"] <= b)
-
-            def mean_cost(m, rs, b):
-                return sum(2 * REAL_WEIGHTS[m] * (r["output_tokens"] if b is None else min(r["output_tokens"], b))
-                           for r in (rs[t] for t in ids)) / len(ids)
-            budgets = (4096, 16384, None)
-            pairs = [(abs(math.log(mean_cost(run, lfm, ba) / mean_cost("bielik-11b-v3.1", bielik, bb))), ba, bb)
-                     for ba in budgets for bb in budgets]
-            _, ba, bb = min(pairs, key=lambda x: x[0])  # min keeps the first of equal ratios
-            d3 = [int(within(lfm, pass_a, t, ba)) - int(within(bielik, pass_b, t, bb)) for t in ids]
-            return (*mean_se(d3), ba, bb)
+            return [int(within(lfm, pass_a, t, ba)) - int(within(bielik, pass_b, t, bb)) for t in ids]
 
         def passes(rs, m=None):  # official grades, or with extraction-f1.json's regrade of run m over them
             regraded = {t: g["pass"] for t, g in f1[m]["regraded"].items()} if m else {}
             return {t: regraded.get(t, bool(r["pass"])) for t, r in rs.items()}
 
-        out["L3"][run] = l3(passes(lfm), passes(bielik))
-        out["L3_f1"][run] = l3(passes(lfm, run), passes(bielik, "bielik-11b-v3.1"))
+        d3 = l3(passes(lfm), passes(bielik))
+        out["L3"][run] = (*mean_se(d3), ba, bb)
+        out["L3_f1"][run] = (*mean_se(l3(passes(lfm, run), passes(bielik, "bielik-11b-v3.1"))), ba, bb)
+        out["clustered"][run] = {hid: {"contest": cluster_se(x, contest), "platform": cluster_se(x, platform)}
+                                 for hid, x in (("L1", d), ("L3", d3))}
+        out["cost"][run] = {
+            "a": mean_cost(run, lfm, ba), "b": mean_cost("bielik-11b-v3.1", bielik, bb),
+            "prompt_a": sum(lfm[t]["prompt_tokens"] for t in ids) / len(ids),
+            "prompt_b": sum(bielik[t]["prompt_tokens"] for t in ids) / len(ids),
+            "with_prompt_a": mean_cost(run, lfm, ba, prompt=True),
+            "with_prompt_b": mean_cost("bielik-11b-v3.1", bielik, bb, prompt=True)}
     return out
 
 
@@ -1238,7 +1256,11 @@ def test_results_and_hypotheses_match_an_independent_count():
         value, se, ba, bb = c["L3"][run]
         assert math.isclose(l3["value"], value) and math.isclose(l3["se"], se), run
         assert (l3["budget_a"], l3["budget_b"]) == (ba, bb), run
-        assert math.isclose(l1["clustered"]["platform"]["se"], c["L1_platform_se"][run]), run
+        for hid, row in (("L1", l1), ("L3", l3)):
+            for name in ("contest", "platform"):
+                k, se, t = c["clustered"][run][hid][name]
+                got = row["clustered"][name]
+                assert got["k"] == k and math.isclose(got["se"], se) and math.isclose(got["t"], t), (run, hid, name)
     ex = {r["run"]: r for r in h["exploratory_extraction"]["hypotheses"]}
     for run, (value, se, ba, bb) in c["L3_f1"].items():
         assert math.isclose(ex[run]["L3"]["value"], value) and math.isclose(ex[run]["L3"]["se"], se), run
@@ -1267,13 +1289,32 @@ def test_readme_numbers_match_the_independent_count():
     names = {"lfm3-1.7b": "| LFM3-1.7B (`lfm3-1.7b`", "lfm3-1.7b-cardsampling": "| LFM3-1.7B with the card's sampling",
              "bielik-11b-v3.1": "| Bielik 11B v3.1 (`bielik-11b-v3.1`)"}
     for run, (score, stderr, n) in c["pass@1"].items():
-        assert readme_cells(text, names[run])[4:7] == [f"{score:.2f}", f"{stderr:.2f}", str(n)], run
+        cells = readme_cells(text, names[run])
+        assert cells[4:7] == [f"{score:.2f}", f"{stderr:.2f}", str(n)], run
+        assert cells[7] == f"{c['mean_tokens'][run]:.1f}", run  # mean output tokens of the answered problems
     for run in ("lfm3-1.7b", "lfm3-1.7b-cardsampling"):
         section = text[text.index(f"L1-L3 on {run}, "):]
         for hid, (value, se) in (("L1", c["L1"][run][:2]), ("L3", c["L3"][run][:2])):
             assert readme_cells(section, f"| {hid} |")[2] == f"{value:+.2f} ± {se:.2f}", (run, hid)
+            for name in ("contest", "platform"):  # the clustered-SE table of this run
+                k, cse, t = c["clustered"][run][hid][name]
+                cells = readme_cells(section, f"| {hid} | {name} |")
+                assert cells[2:5] == [str(k), f"{value:+.2f} ± {cse:.2f}", f"t = {t:+.2f}"], (run, hid, name)
+                assert cells[5] == str(k - 1), (run, hid, name)
         value, se, _, _ = c["L3_f1"][run]
         assert readme_cells(text, f"| L3 | {run} |")[5] == f"{value:+.2f} ± {se:.2f}", run
+        # "What L1-L3 compare": the equal-cost pair's costs and the prompt the cost leaves out
+        lines = text.splitlines()
+        i = next(i for i, line in enumerate(lines) if line.startswith(f"- **The \"equal cost\" pair of L3 on `{run}`"))
+        cost, prompt, x = lines[i], lines[i + 1], c["cost"][run]
+        ratio = x["b"] / x["a"]
+        assert f"mean costs {x['a']:.3g} vs {x['b']:.3g} FLOPs" in cost, run
+        assert f"{100 * abs(ratio - 1):.1f}% {'above' if ratio > 1 else 'below'}" in cost, run
+        assert f"(ratio {ratio:.3f})" in cost, run
+        assert f"average {x['prompt_b']:.0f} tokens" in prompt and \
+            f"LFM3-1.7B's {x['prompt_a']:.0f}, {x['prompt_b'] / x['prompt_a']:.2f}×" in prompt, run
+        assert f"costs {x['with_prompt_a']:.3g} vs {x['with_prompt_b']:.3g} FLOPs " \
+            f"(ratio {x['with_prompt_b'] / x['with_prompt_a']:.3f})" in prompt, run
 
 
 def test_readme_blocks_are_the_generator_output():
