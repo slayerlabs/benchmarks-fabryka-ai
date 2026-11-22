@@ -734,6 +734,19 @@ def test_summarize_new_out_dir_carries_generation_provenance_and_checks_inputs()
     assert result["settings"]["temperature"] == 0.6
 
 
+def test_readme_block_is_generated_from_the_results_files():
+    """README.md's Results and Hypotheses block is byte for byte what report.py renders from results/ (whose sha256
+    it checks first); a number swapped by hand in it makes the block differ (report.py --check exits 1)."""
+    import report as Rp
+    text = (BENCH / "README.md").read_text(encoding="utf-8")
+    block = Rp.render()
+    assert Rp.block_of(text) == block
+    swapped = text.replace("| 71.69 ± 0.93 |", "| 71.68 ± 0.93 |", 1)
+    assert swapped != text and Rp.block_of(swapped) != block
+    # every results file is in the manifest the block lists
+    assert all(f"`results/{name}`" in block for name in Rp.FILES)
+
+
 def test_compare_checks_result_sha256():
     with tempfile.TemporaryDirectory() as d:
         clear_case(Path(d))

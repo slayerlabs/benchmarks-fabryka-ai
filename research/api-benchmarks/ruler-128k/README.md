@@ -25,28 +25,119 @@ The measurement plan, fixed before the first output, is [PROTOCOL.md](PROTOCOL.m
   the runner files and the GPU and platform of each generating `run.sh` call and of the summary.
 - Extra services: the Fabryka AI API (`https://fabryka.ai/v1/chat/completions`) for Bielik
 
+<!-- report.py: generated from results/ by `python3 report.py`; edit report.py, not this block -->
 ## Results
 
-| model | how it runs | score | stderr | n | date |
-|---|---|---|---|---|---|
-| LFM3-1.7B (`lfm3-1.7b`) | vLLM 0.34.0, bf16, `LiquidAI/LFM3-1.7B` @ `1da06bec` | | | | |
-| Bielik 11B v3.1 (`bielik-11b-v3.1`) | Fabryka AI API (hidden provider system prompt, #277); prompts counted with `speakleash/Bielik-11B-v3.1-Instruct` @ `d6e755d3` | | | | |
-| Slayer 1B 1.09, update 70 000 (`slayer1b-1.09-k70000`) | `research/common/slayer_lm.py`, bf16, greedy, `SlayerLab/Slayer1B-1.09-checkpoints` @ `adfaf3fd` `wagi_70000.pt`, converted | | | | |
+| model | thinking mode | serving | output limit | score at 131072 | strict | n | lengths measured (tasks) | date |
+|---|---|---|---|---|---|---|---|---|
+| LFM3-1.7B (`lfm3-1.7b`) | reasons first: the generation prompt opens `<think>` | vLLM 0.34.0, bfloat16, `LiquidAI/LFM3-1.7B` @ `1da06bec` | context window minus templated input (262144-token window) | 71.69 ± 0.93 | 70.51 | 650 | 4096 (13), 8192 (13), 16384 (13), 32768 (13), 65536 (13), 131072 (13) | 2026-11-22 |
+| Bielik 11B v3.1 (`bielik-11b-v3.1`) | no reasoning: the template closes `<think></think>` | Fabryka AI API, hidden provider system prompt (#277); prompts counted with `speakleash/Bielik-11B-v3.1-Instruct` @ `d6e755d3` | context window minus the templated input counted locally minus a 256-token margin (32768-token window) | null: the 32768-token context window does not hold a 131072-token RULER sample | null | - | 4096 (12), 8192 (13), 16384 (13) | 2026-11-22 |
+| Slayer 1B 1.09, update 70 000 (`slayer1b-1.09-k70000`) | none: raw prompt without a chat template: no reasoning block | research/common/slayer_lm.py, bfloat16, greedy, `SlayerLab/Slayer1B-1.09-checkpoints` @ `adfaf3fd` `wagi_70000.pt`, converted | RULER per-task answer budget (4096-token window) | null: the 4096-token context window does not hold a 131072-token RULER sample | null | - | 4096 (12) | 2026-11-22 |
 
-No model has been run yet. Bielik (32 768-token window) and Slayer (4096) cannot hold 131072 tokens: their
-headline is `null` with the reason, and their shorter lengths are in `other_metrics`.
+Baselines: 0 (random and majority alike). RULER is generative: free-text answers scored by string match against the references, with no options to guess from.
+
+Mean of the task scores per length (± bootstrap SE over samples within tasks; a length with fewer than 13 tasks is partial: RULER's generator could not produce the task named in the result file). Strict (Amendment 4): an output without `</think>` scores 0, only where the generation prompt opens a reasoning block.
+
+| model | scoring | 4096 | 8192 | 16384 | 32768 | 65536 | 131072 |
+|---|---|---|---|---|---|---|---|
+| lfm3-1.7b | pre-registered | 93.35 ± 0.79 | 92.41 ± 0.79 | 87.30 ± 0.93 | 81.34 ± 0.93 | 76.88 ± 0.90 | 71.69 ± 0.93 |
+| lfm3-1.7b | strict | 92.28 ± 0.85 | 89.95 ± 0.85 | 86.07 ± 0.99 | 79.80 ± 1.00 | 75.19 ± 0.98 | 70.51 ± 1.01 |
+| bielik-11b-v3.1 | pre-registered | 97.44 ± 0.38 (12 tasks) | 93.89 ± 0.66 | 91.70 ± 0.76 | null | null | null |
+| slayer1b-1.09-k70000 | pre-registered | 45.34 ± 1.03 (12 tasks) | null | null | null | null | null |
+
+| model | requests scored (rows in `.jsonl.gz`) | errors |
+|---|---|---|
+| lfm3-1.7b | 3900 | 0 |
+| bielik-11b-v3.1 | 1900 | 0 |
+| slayer1b-1.09-k70000 | 600 | 0 |
+
+Each of Bielik's 1900 requests carries the provider system prompt, about 1057 tokens by the local count: about 2.0M prompt tokens on top of RULER's input.
 
 ## Hypotheses
 
-`python3 compare.py` (from this directory, after the runs) reads `results/<model-id>.json` and `.jsonl.gz` and
-evaluates PROTOCOL.md as amended: the control first (LFM3-1.7B at 131072 against its card value 65.56), then R1
-and R3 for LFM3-1.7B and R2 for LFM3-1.7B against Bielik 11B v3.1 over the lengths both models measured (Slayer per
-length, descriptive only). It prints the control as measured (z and PASS or FAIL against 65.56) with its status
-`not comparable (Amendment 4)`, every `deviation:` from the protocol's wording, the lengths and error rows left
-out, a table per hypothesis (value with bootstrap SE, z, Holm-adjusted p over all three hypotheses, verdict,
-outcome, n, and the same under strict scoring next to it) and the per-length means under both scorings, and writes
-the same to `results/hypotheses.json`. A hypothesis whose model has not run is `not run` and still counts in the
-Holm family (m = 3). The bootstraps are independent per model (Amendment 1).
+`python3 compare.py` evaluates PROTOCOL.md as amended and writes `results/hypotheses.json`; `python3 diagnostics.py` the exploratory checks in `results/diagnostics.json`. Holm runs over the three hypotheses (m = 3) whether or not they could be decided.
+
+**Control: FAIL, gap unexplained, z = 6.62.** LFM3-1.7B at 131072: 71.69 ± 0.93 against the card's 65.56, z = 6.62 (strict 70.51 ± 1.00, z = 4.96). R1-R3 are read under Amendment 4, against the protocol's rule that no hypothesis is read until the gap is explained (PROTOCOL.md, Control); the control's z = 6.62. Amendment 4 labels the card value `not comparable` because the card states no RULER setup (harness, thinking mode, samples, output cap; card @ 1da06bec line 536 gives only serving and sampling defaults); the label was added after the control had failed.
+
+Exploratory, not a fix of the control: after the failure the refuter rescored the 131072 outputs in 7 ways (`diagnostics.json`); 3 of them land within 2 SE of the card. With 7 variants tried, landing near the card says which unstated choices could explain the difference, not which one the card used. The SEs come from diagnostics.py's own bootstrap, so the pre-registered row's z differs from the control's in the second decimal.
+
+| scoring of LFM3-1.7B at 131072 | mean ± SE | z against 65.56 | within 2 SE |
+|---|---|---|---|
+| pre-registered | 71.69 ± 0.93 | 6.57 | no |
+| strict | 70.51 ± 1.01 | 4.92 | no |
+| answer cut to RULER's answer budget (about 0.75 words per token) | 67.20 ± 1.00 | 1.65 | yes |
+| output limit 8192 tokens (a longer output scores 0) | 66.51 ± 1.16 | 0.82 | yes |
+| output limit 16384 tokens (a longer output scores 0) | 69.44 ± 1.05 | 3.68 | no |
+| output limit 32768 tokens (a longer output scores 0) | 70.36 ± 1.01 | 4.74 | no |
+| output limit 65536 tokens (a longer output scores 0) | 70.51 ± 1.01 | 4.92 | no |
+| strict and answer cut | 66.94 ± 1.02 | 1.36 | yes |
+
+| hypothesis | pre-registered measure | value ± SE | z or t | Holm p (m = 3) | verdict | outcome | n | strict verdict |
+|---|---|---|---|---|---|---|---|---|
+| R1 | mean at 131072 below 85.6 with z <= -3 (sample-level SE) | 71.69 ± 0.93 | z = -15.01 | 1.8e-50 | clear | confirmed | 650 | clear |
+| R2 | slope difference, LFM3-1.7B minus Bielik (Amendment 1) | - | - | - | not decided (Amendment 6): fewer than 3 complete lengths shared | not decided | - | not run |
+| R3 | drop 4096 to 131072, tracing and aggregation minus retrieval (SE clustered by task) | -22.20 ± 14.51 | t = -1.53 (df 7) | - | undetermined | undetermined | 1300 | undetermined |
+
+**R1: confirmed by the pre-registered rule, clear.** LFM3-1.7B at 131072: 71.69 ± 0.93, -13.91 against 85.6, z = -15.01 (strict: z = -15.11, clear). The rule's SE treats the 13 tasks as fixed. Next to it, not replacing it: with the SE clustered by task t = -1.29 (df 12, p 0.22, noise); 5 of 13 tasks are below 85.6 (sign test p 0.58); without the 2 lowest tasks at 131072 (niah_multikey_3, cwe) the mean is 84.65 ± 1.09, z = -0.86 against 85.6 (noise). Protocol rule met; whether the context loss holds across tasks rather than in two of them is undetermined.
+
+Effective length (longest length with a mean of at least 85.6): 8192 or 16384. 16384 has 87.30, only z = 1.81 above 85.6 (strict 86.07, z = 0.47); 8192 is the longest length at least 2 SE above it. SEs below come from compare.py's bootstrap (seeded per model), the per-length table in Results from summarize.py's; they differ in the second decimal.
+
+| length | mean ± SE | z against 85.6 | strict mean ± SE | strict z |
+|---|---|---|---|---|
+| 4096 | 93.35 ± 0.80 | 9.73 | 92.28 ± 0.85 | 7.85 |
+| 8192 | 92.41 ± 0.78 | 8.76 | 89.95 ± 0.85 | 5.15 |
+| 16384 | 87.30 ± 0.94 | 1.81 | 86.07 ± 0.99 | 0.47 |
+| 32768 | 81.34 ± 0.92 | -4.63 | 79.80 ± 1.00 | -5.81 |
+| 65536 | 76.88 ± 0.91 | -9.57 | 75.19 ± 0.98 | -10.60 |
+| 131072 | 71.69 ± 0.93 | -15.01 | 70.51 ± 1.00 | -15.11 |
+
+**R2: not decided (Amendment 6): fewer than 3 complete lengths shared.** Complete lengths both models measured: 8192, 16384. Per-length means, descriptive only, no test statistic (Amendment 6):
+
+| length | LFM3-1.7B | Bielik 11B v3.1 | Bielik minus LFM3-1.7B, same tasks | Bielik input text (median characters, share of LFM3-1.7B's) |
+|---|---|---|---|---|
+| 4096 | 93.35; 94.63 on the same 12 tasks | 97.44 (12 tasks, no qa_2) | 2.81 (4.09 on unequal task sets) | 14137 (0.94) |
+| 8192 | 92.41 | 93.89 | 1.48 | 29037 (0.96) |
+| 16384 | 87.30 | 91.70 | 4.40 | 58467 (0.91) |
+
+- A comparison of modes, not of models: LFM3-1.7B reasons before it answers (its generation prompt opens `<think>`, output up to the rest of its window, vLLM), Bielik 11B v3.1 answers without reasoning (its template closes `<think></think>`) through the Fabryka AI API with a hidden provider system prompt.
+- RULER counts each length with the model's own tokenizer, so one nominal length holds a different amount of text per model (diagnostics.json, input_text).
+- RULER source files differ: PaulGrahamEssays.json lfm3-1.7b 8d31e1b6, bielik-11b-v3.1 58e35253 (the haystack text is not the same).
+
+**R3: undetermined.** The protocol measures the drop per category with the SE clustered by task; fewer than 3 tasks in tracing, aggregation: no clustered verdict (PROTOCOL.md R3: SE clustered by task; 3 clusters needed). Tracing - retrieval -22.20 ± 14.51 (t = -1.53, df 7, p 0.17; tracing's one task has no between-task SE, taken as 0), aggregation - retrieval 16.40 ± 45.76 (t = 0.36, df 1). Descriptive, with the sample-level SE (tasks fixed, not the protocol's SE): tracing - retrieval -22.20 ± 1.15, z = -19.28; read that way, the retrieval drop is not smaller than tracing's. Until the verification this was published as the verdict (refuted, clear).
+
+| LFM3-1.7B category | tasks | drop 4096 to 131072 | SE clustered by task | SE sample-level |
+|---|---|---|---|---|
+| retrieval | 8 | 23.00 | 14.51 | 1.02 |
+| tracing | 1 | 0.80 | - | 0.56 |
+| aggregation | 2 | 39.40 | 43.40 | 2.61 |
+| qa | 2 | 9.00 | 5.00 | 6.26 |
+
+**Strict scoring and outputs that stopped without `</think>`.** Amendment 4's reason for strict scoring was outputs looping to the length limit. LFM3-1.7B outputs without `</think>` per length and finish reason: 4096: 7 `length`; 8192: 16 `length`; 16384: 8 `length`; 32768: 13 `length`, 1 `stop`; 65536: 13 `length`; 131072: 10 `length`. 1 stopped on its own without closing its reasoning: 32768 niah_multikey_3 #27 (19482 output tokens, pre-registered score 0.00, strict 0.00). Strict scoring gives such an output 0 although it did not loop to the limit.
+
+**Samples with two raw records (LFM3-1.7B, 4096).** 173 samples have 2 records (a rerun appended: niah_multikey_3 1, cwe 29, fwe 43, qa_1 50, qa_2 50); every replaced record ended `stop`, 22 are identical to the last. The last record is scored (`ruler.latest_records`). With the first record instead the mean at 4096 is 93.29 (scored: 93.35), strict 93.14 (92.28); R3's tracing - retrieval -22.45 (-22.20) and aggregation - retrieval 14.75 (16.40). The scored record is not the longer one: median 1203 output tokens against 1546 for the replaced, longer in 83 of 173.
+
+**Provenance.**
+
+- LFM3-1.7B: generation declared, not recorded: commit `d45c3509` (README.md Deviations at 6a1afea0: 'The LFM3-1.7B run (started from d45c3509)'); archives `out/box/ruler-lfm3-1.7b-outputs.tgz` sha256 `704d8c6659a7…`, `out/box/ruler-lfm3-1.7b-data.tar.zst` sha256 `7df06b025aa8…`. Summary: commit `2d6ba0c7`, runner files differing from it: none.
+  The first summary was written by a summarize.py in no commit (sha256 `d80f85f1…`, tree at `128f7735`, dirty True); summarize.py at `2d6ba0c7` reproduces it: 0 fields differ outside provenance and warnings, rows identical: True (3900).
+- Bielik 11B v3.1: generation recorded by run.sh (`generation.jsonl`): commit `128f7735`, dirty True. Summary: commit `128f7735`, dirty True (runner files not listed).
+- Slayer 1B 1.09, update 70 000: generation declared, not recorded: commit `920787d4` (README.md Deviations at 6a1afea0: 'the Slayer run (920787d4)'); archives `out/box/ruler-slayer-outputs.tgz` sha256 `13d1386c8495…`. Summary: commit `2d6ba0c7`, runner files differing from it: none.
+  The first summary was written by a summarize.py in no commit (sha256 `d80f85f1…`, tree at `128f7735`, dirty True); summarize.py at `2d6ba0c7` reproduces it: 0 fields differ outside provenance and warnings, rows identical: True (600).
+
+Results files and their sha256 (`results/results.sha256.json`):
+
+| file | sha256 |
+|---|---|
+| `results/bielik-11b-v3.1.json` | `3bda3fdb8aecd85feae1262584252d2778d426e376470d3334bf9dfc4b54e828` |
+| `results/bielik-11b-v3.1.jsonl.gz` | `95fdeedbf0fc3a34413f0d0fcd04e2d174bcc28f1e030466e25ffeda07646d1d` |
+| `results/diagnostics.json` | `bb3b3c550df771be864ebeba03c1799959b1a6299ef4ff6bcef9b0a16a9d42f6` |
+| `results/hypotheses.json` | `5027f2e7d6d8b0843c720882fa930c557a7db8724f0ffcc165530477c46f2243` |
+| `results/lfm3-1.7b.json` | `74d5bea230b6f914cccdab23e91eb8e65d523bb4296a3a099e164ff87f1f2990` |
+| `results/lfm3-1.7b.jsonl.gz` | `769c228f520a5b8f775bcf08ccd3f6762993853c325e77bbe74ac98b8bc5dcf6` |
+| `results/reproduction.json` | `5b15d9ffb7740481d180178d420f0109f0532cadf892fc66159c6bab0598b4e8` |
+| `results/slayer1b-1.09-k70000.json` | `dd63e952bb7e874b0161a074253b7d1b54c2895cf6993b0a2a06dd92783d35ce` |
+| `results/slayer1b-1.09-k70000.jsonl.gz` | `4decdcb78f0be09ea5209e18fc118667efd816c7d522eefed820c51cf1750d15` |
+<!-- /report.py -->
 
 ## Deviations
 
@@ -97,18 +188,26 @@ Holm family (m = 3). The bootstraps are independent per model (Amendment 1).
   `compare.py` when a result file differs from `results/results.sha256.json`. The LFM3-1.7B run (started from
   d45c3509) and the Slayer run (920787d4) predate this: their results have `provenance.generation: null` with the
   reason, the sampling read from the pinned `generation_config.json` at summary time, and the input sha256 taken at
-  their first summary, not when the files were written; each gap is a line in the result's `warnings`.
-- **The control is `not comparable`, and every score is also given under strict scoring** (PROTOCOL.md, Amendment
-  4, decided after the result and after the control failed). Measured, LFM3-1.7B at 131072 is 71.69 +- 0.93
-  against the card's 65.56 (z = 6.62, FAIL); that stays reported. The card states no RULER setup (harness, thinking
-  mode, samples, scoring of unfinished reasoning, output cap; card @ `1da06bec` line 536 gives only serving and
-  sampling defaults), so its value is no pass/fail target, and R1-R3 are read with the control marked
-  `not comparable`. Liquid was not asked. Strict scoring: an output without `</think>` scores 0 (at 131072, 10 outputs
-  loop to the length limit without it and 8 of them score above 0 on their whole text); LFM3-1.7B strict at 131072
-  is 70.51. Results carry it in `strict` (headline) and `other_metrics.strict` (per length, task and category, with
-  the count of outputs without `</think>`), the `.jsonl.gz` rows in `closed_think`. Verdicts stay on the
-  pre-registered scoring, the strict verdict is shown next to each. Slayer (raw prompt, no reasoning block) has
-  only the pre-registered score.
+  their first summary, not when the files were written; each missing record is a line in the result's `warnings`.
+  What is known of their generation (those commits, the sha256 of the out-dir archives) is in
+  `provenance.generation_declared`, marked `declared, not recorded` (`declared_provenance.json`, Amendment 7).
+- **Published results only from committed code** (Amendment 7). The first LFM3-1.7B, Slayer and Bielik summaries
+  were written by a `summarize.py` that is in no commit, from a dirty tree; `reproduction.py` shows that
+  `summarize.py` at a commit reproduces the LFM3-1.7B and Slayer files (Hypotheses, Provenance). `summarize.py`,
+  `compare.py` and `diagnostics.py` now stop before writing into `results/` while a runner file differs from the
+  commit, and the code provenance lists the runner files that differ.
+- **The control failed; every score is also given under strict scoring** (PROTOCOL.md, Amendments 4 and 7, both
+  decided after the result and after the control failed). The measured control stays the reading: FAIL, with the
+  difference from the card unexplained (Hypotheses). The card states no RULER setup (harness, thinking mode, samples,
+  scoring of unfinished reasoning, output cap; card @ `1da06bec` line 536 gives only serving and sampling defaults);
+  Amendment 4 therefore labels the card value `not comparable` and reads R1-R3 anyway. That label came after the
+  failure and does not make it a pass: R1-R3 are read under Amendment 4, against the protocol's rule that no
+  hypothesis is read until the difference is explained. Liquid was not asked. The rescorings tried after the
+  failure are exploratory (Hypotheses, Control). Strict scoring: an output without `</think>` scores 0 (Amendment 4's
+  reason: outputs that loop to the length limit without it are scored on their whole text). Results carry it in
+  `strict` (headline) and `other_metrics.strict` (per length, task and category, with the count of outputs without
+  `</think>`), the `.jsonl.gz` rows in `closed_think`. Verdicts stay on the pre-registered scoring, the strict
+  verdict is shown next to each. Slayer (raw prompt, no reasoning block) has only the pre-registered score.
 - **Strict scoring applies only where the generation prompt opens a reasoning block** (PROTOCOL.md, Amendment 5,
   correcting Amendment 4's parenthesis). LFM3-1.7B's template ends the generation prompt with an open `<think>`, so
   an output without `</think>` never left its reasoning. Bielik's template ends it `<think></think>` (reasoning
@@ -121,7 +220,16 @@ Holm family (m = 3). The bootstraps are independent per model (Amendment 1).
   its 32768 does not fit the API window. The "at least 3 lengths" rule was only in `compare.py`, not in the
   protocol; R2 is not tested on the 2 lengths nor on the 12-task subset at 4096-16384. `compare.py` prints the
   R2 row as `not decided (Amendment 6)` and the per-length means of both models as a descriptive table (Bielik
-  4096 marked 12 tasks), with no test statistic.
+  4096 marked 12 tasks, with LFM3-1.7B's mean on the same 12 tasks next to it), with no test statistic. The
+  comparison is one of modes, not of models (reasoning on vLLM against no reasoning through the API with a provider
+  prompt), on different essay text and different amounts of text per nominal length (Hypotheses, R2).
+- **R3 decided with the SE the protocol names** (Amendment 7). The protocol measures R3 with the SE clustered by
+  task; `compare.py` used the sample-level SE (tasks fixed), and the published verdict was "refuted, clear". With
+  1 tracing task and 2 aggregation tasks there is no clustered verdict, so R3 is undetermined; the sample-level
+  reading is shown next to it as descriptive.
+- **Some LFM3-1.7B samples have two raw records.** A rerun appended second records for samples at 4096; the last
+  record of a sample is scored (`ruler.latest_records`). Counts and the means with the first record instead are in
+  Hypotheses.
 - **API failures logged per attempt, not for the first Bielik run.** `predict.py` writes every failed attempt,
   pause and recovery to `out/<model-id>/<length>/api-events.jsonl` (UTC time, task, sample, endpoint, attempt, HTTP
   status, the first 300 characters of the error, action, pause in seconds), as `../livecodebench-v6` does; the
@@ -146,7 +254,9 @@ Holm family (m = 3). The bootstraps are independent per model (Amendment 1).
   `PreTrainedTokenizerFast` (the class `slayer_lm.py` uses). With BOS, every RULER sample at 4096 needs at most 4096
   positions, because the last generated token is never fed back; `slayer_predict.py` checks this per sample.
 - **Essays are fetched live.** RULER's essay script downloads from paulgraham.com and GitHub at run time, so the
-  haystack text is not pinned by RULER; compare the sha256 in the `data` field before comparing models.
+  haystack text is not pinned by RULER. Bielik's `PaulGrahamEssays.json` differs from LFM3-1.7B's and Slayer's (the
+  sha256 in each result's `data` field); `compare.py` checks the files of the compared models, flags the difference
+  and refuses an R2 test on different files.
 
 ## Errors
 
@@ -182,7 +292,20 @@ generated stays in `out/<model-id>/<length>/`: `data/` (RULER samples), `raw/` (
 `out/<model-id>/`: `run.json`, `generation.jsonl` (one line per generating `run.sh` call) and `inputs.sha256.json`.
 The run resumes where it stopped. The `date` in a result is the day the run first started.
 
+After the runs, from this directory, with every runner file committed (the scripts that write into `results/` stop
+otherwise), RULER's checkout and the RULER venv of `run.sh`:
+
+```bash
+python3 compare.py                                         # results/hypotheses.json
+.venv/bin/python diagnostics.py --ruler-dir .cache/RULER --lfm3 out/_box/lfm3-1.7b --bielik out/bielik-11b-v3.1
+python3 report.py                                          # the Results and Hypotheses block of this README
+python3 report.py --check                                  # exit 1 when the block differs from results/
+```
+
+The LFM3-1.7B and Slayer out dirs of the published runs are `out/_box/<model-id>/` (copied from the rented machine;
+their archives are named in `declared_provenance.json`).
+
 Prompt tokens per model (50 samples x 13 tasks, about the length each): 2.7M at 4096, 5.3M at 8192, 10.6M at
 16384, 21.3M at 32768, 42.6M at 65536, 85.2M at 131072; about 168M for LFM3-1.7B, about 19M for Bielik over
-4096-16384 plus about 2.1M of its system prompt (1 057 tokens x 1 950 requests), 2.7M for Slayer. Output tokens
-depend on how long each model reasons.
+4096-16384 plus its provider system prompt on each request (Results), 2.7M for Slayer. Output tokens depend on how
+long each model reasons.
