@@ -212,3 +212,33 @@ report did not follow the protocol, how they follow it now, and what the verific
   reproduces them.
 - **Two records for one sample** (LFM3-1.7B at 4096, a rerun appended): the last record is scored, as
   `ruler.latest_records` has done since the first run; the report gives the means with the first record instead.
+
+## Amendment 8 (2026-11-22, 19:00 UTC)
+
+**Written after every result, Amendment 7 and the second round of verification** (two verifiers and a refuter).
+Seen: all results, `results/hypotheses.json` and the README as published at 89d83a77, and the reviewers' findings.
+No pre-registered wording or threshold changes; Amendments 4 and 7 stay as written and are corrected here.
+
+- **R3 is read the way R1 is.** The refutation clause above is a point rule; `compare.py`, written before the
+  results (e7858d51), codes it as `refuted = not all(value > 0)`, the same point logic as R1's "refuted: the mean at
+  131072 is >= 85.6". By that rule R3 is refuted (tracing drop 0.8 against retrieval 23.0). Amendment 7 made R3
+  "undetermined" with the rule that a clustered verdict needs 3 tasks, a rule added after the results: that rule
+  speaks to the strength across tasks, not to the point outcome. R3's outcome is therefore "refuted (point rule)"
+  and its strength across tasks undetermined (clustered t = -1.53, df 7; tracing has 1 task, aggregation 2; the
+  retrieval drop rests on 2 of the 8 retrieval tasks). It still enters Holm without a p, m = 3.
+- **The effective length across tasks.** "8192 or 16384" holds with the tasks as fixed. With the t of the task means
+  against 85.6 (df 12), no length beyond 4096 is above 85.6 at the p of |z| = 2, and 4 tasks are below 85.6 already
+  at 4096. Reported next to the tasks-fixed reading.
+- **The Bielik minus LFM3-1.7B table** (Amendment 6) gets an SE, z and the t across tasks for each difference, and
+  the difference without the task of the largest gap. It stays descriptive.
+- **Correction of Amendment 4.** It said the card does not state the thinking mode. The card @ `1da06bec` line 201
+  says "Reasoning is enabled by default", which this run follows. The other unstated choices stand.
+- **Baselines.** Random and majority answers score 0. A rule that answers with the whole input scores near 100,
+  because the scorer is a substring match with no cap on the answer's length.
+- **Correction of Amendment 7, provenance.** The LFM3-1.7B run was declared as started from d45c3509. Its out dir
+  contradicts that: no raw record has `counted_prompt_tokens`, which `predict.py` writes from d45c3509 on;
+  `run.json` has `chat_template_kwargs`, which only `run.sh` up to e7858d51 writes; `run.json` is 8 minutes older
+  than d45c3509. The run is from e7858d51 or earlier (run.sh 99ceb343, predict.py b9d407cb), inferred, not recorded.
+  Its requests to vLLM were the same, so no number moves.
+- **Two records for one sample.** Amendment 7 called them a rerun's records. `predict.py` sends again only samples
+  whose last record has no output, and each of the 173 had one, so why they got a second record is not known.
