@@ -18,8 +18,9 @@ hypotheses are in [PROTOCOL.md](PROTOCOL.md); this file says how the run is done
   background** (headline); `stderr` is `sqrt(p(1-p)/n)` and `stderr_clustered` the SE clustered by problem (65
   clusters), which the verdicts use. `other_metrics`: the same without background, main problems solved out of 65
   in both settings, the scorer's verdicts (pass, fail, time out), output tokens per answer (mean, median, max),
-  unfinished answers, length stops, prompts over the context, the share of answers that contain `<think>`, and on
-  the API the API's prompt count minus ours
+  unfinished answers, length stops, prompts over the context, the share of answers that contain `<think>`, on
+  the API the API's prompt count minus ours, and `extraction_e1`: pass rate, clustered SE and main problems of
+  both settings under the secondary extraction E1 (PROTOCOL.md Amendment 1), never the headline
 - Settings: one request per subproblem in step order, the prompt Gencode builds as the only user message (no
   system message of ours), temperature 0.6, top_p 0.95, seed 20261122; LFM3-1.7B also `top_k` 0,
   `repetition_penalty` 1.0, frequency and presence penalty 0, `max_tokens` = 262144 minus the prompt counted by
@@ -100,7 +101,15 @@ its 50 steps fail with the authors' own code (78.3: the target has shape (2, 2),
   closed a fence they never opened; for those the rule takes the prose after the closing fence, a SyntaxError
   that every later step of the problem inherits through its code file (with background 0 of 24 steps passed,
   without 1 of 24). Whether the Fabryka API drops the opening fence or Bielik writes it so is not known (logged in
-  the API problems note); the same pattern is in 54 of the 1055 Bielik answers of livecodebench-v6.
+  the API problems note); the same pattern is in 54 of the 1055 Bielik answers of livecodebench-v6. PROTOCOL.md
+  Amendment 1 adds extraction E1 as a secondary number for every model and both settings: `--score` also rebuilds
+  each step file from the recorded answers with E1 (the text before the only fence line when there is exactly one;
+  otherwise the official result; Gencode assembles the files with the earlier steps' E1 code) into
+  `out/<model-id>/generated_code_e1/` and runs the same scorer on them. Prompts are not regenerated, so later
+  steps were asked with the official extraction's code. A text whose only ```` ``` ```` sits inside a line has no
+  fence line, so E1 keeps the whole text there, where the official rule splits on it (the amendment's wording;
+  rare). hypotheses.py reports K2's z under E1 next to K2 and, when the verdicts differ, says K2 depends on code
+  extraction.
 - **Bielik runs on the Fabryka AI API, with its hidden provider system prompt** and no reasoning switch, as in
   livecodebench-v6: the request carries only `model`, `messages`, `temperature`, `top_p`, `max_tokens` and `seed`,
   and the prompt is counted locally with Bielik's tokenizer and chat template

@@ -19,6 +19,10 @@ Every SE is clustered by problem (summarize.clustered_se: CR1, 65 clusters on th
   enters with p = 1. Verdict: supported (refuted) "clear" when its Holm p_support (p_refute) <= Phi(-3), "likely"
   when <= Phi(-2), otherwise undetermined. `--group` reads the other benchmark's `group_tests` (same keys as ours:
   benchmark, id, z, p_support, p_refute, outcome_raw), agreed with the LiveCodeBench Pro 25Q2 harness.
+- Amendment 1: K2's z under extraction E1 (`score_e1`) is reported next to K2 (`hypotheses[0].e1`, `z_e1` in
+  group_tests), with its Holm p from the same family with K2's p replaced. When the raw outcome or the verdict after
+  Holm differs, `depends_on_extraction` is true and `extraction_note` (also printed) says K2 depends on code
+  extraction instead of stating the official verdict alone.
 The same statistics without background are printed as descriptive rows, not tested.
 """
 
@@ -75,8 +79,9 @@ def items(runs: dict[str, dict | None], setting: str) -> tuple[list[str], list[s
     return ids, [any_run[t]["problem_id"] for t in ids]
 
 
-def y(run: dict[str, dict], ids: list[str]) -> list[float]:
-    return [float(run[t]["score"]) for t in ids]
+def y(run: dict[str, dict], ids: list[str], field: str = "score") -> list[float]:
+    """Per-item 0/1: `score` under the official extraction, `score_e1` under E1 (PROTOCOL.md Amendment 1)."""
+    return [float(run[t][field]) for t in ids]
 
 
 def mean_z(d: list[float], clusters: list[str], null: float = 0.0, se_floor: float = 0.0) -> dict[str, Any]:
@@ -109,9 +114,9 @@ def control(runs: dict, ids_clusters: tuple | None) -> dict[str, Any]:
             "clusters": s["clusters"]}
 
 
-def k2(runs: dict, ids: list[str], clusters: list[str]) -> dict[str, Any]:
+def k2(runs: dict, ids: list[str], clusters: list[str], field: str = "score") -> dict[str, Any]:
     floor = math.sqrt(WEAKEST_CARD * (1 - WEAKEST_CARD) / N_STEPS)
-    s = mean_z(y(runs[BIELIK], ids), clusters, null=WEAKEST_CARD, se_floor=floor)
+    s = mean_z(y(runs[BIELIK], ids, field), clusters, null=WEAKEST_CARD, se_floor=floor)
     return {"measure": "Bielik pass rate minus 16.32", "value": 100 * (s["value"] - WEAKEST_CARD),
             "score": 100 * s["value"], "se": None if s["se"] is None else 100 * s["se"],
             "se_clustered": None if s["se_clustered"] is None else 100 * s["se_clustered"],
@@ -160,6 +165,28 @@ def group_tests_from(path: Path | None) -> list[dict[str, Any]]:
     return tests
 
 
+def k2_e1(row: dict[str, Any], e1: dict[str, Any], family: list[dict[str, Any]]) -> None:
+    """PROTOCOL.md Amendment 1: K2's z under extraction E1, next to K2. Its Holm p comes from the same family with
+    K2's official p replaced by the E1 one. When the raw outcome or the verdict after Holm differ between the two
+    extractions, K2 is marked as depending on code extraction (`depends_on_extraction`, `extraction_note`), and
+    the report does not state the official verdict alone."""
+    p_sup, p_ref = one_sided(e1["z"])
+    sup = holm([p_sup] + [t["p_support"] for t in family[1:]])[0]
+    ref = holm([p_ref] + [t["p_refute"] for t in family[1:]])[0]
+    outcome = raw_outcome(e1["z"])
+    e1.update({"extraction": "E1", "p_support": p_sup, "p_refute": p_ref, "p_support_holm": sup,
+               "p_refute_holm": ref, "outcome_raw": outcome, "verdict_holm": verdict(sup, ref)})
+    row["e1"] = e1
+    family[0]["z_e1"] = e1["z"]
+    differs = (outcome, e1["verdict_holm"]) != (row["outcome_raw"], row["verdict_holm"])
+    row["depends_on_extraction"] = differs
+    row["extraction_note"] = (
+        f"K2 depends on code extraction: official extraction {row['outcome_raw']} ({row['verdict_holm']} after "
+        f"Holm), E1 {outcome} ({e1['verdict_holm']} after Holm); neither verdict stands alone (PROTOCOL.md, "
+        "Amendment 1)." if differs else
+        f"K2 does not depend on code extraction: official and E1 both {outcome} ({e1['verdict_holm']} after Holm).")
+
+
 def analyse(results: Path, group: Path | None = None) -> dict[str, Any]:
     runs = {m: load(results, m) for m in (LFM, NOTHINK, BIELIK)}
     primary = items(runs, PRIMARY)
@@ -189,6 +216,8 @@ def analyse(results: Path, group: Path | None = None) -> dict[str, Any]:
         row["p_support_holm"], row["p_refute_holm"] = ps, pr
         row["verdict_holm"] = row["status"] if row["status"] != "computed" else verdict(ps, pr)
         row["read"] = k1["status"] == "passed"
+    if primary is not None:
+        k2_e1(rows[0], k2(runs, *primary, field="score_e1"), family)
     descriptive = None
     secondary = items(runs, SECONDARY)
     if secondary is not None:
@@ -219,6 +248,14 @@ def report(a: dict) -> str:
         out.append(f"| {r['id']} | {fmt(r.get('value'), '+.2f')} | {fmt(r.get('se'), '.2f')} | "
                    f"{fmt(r.get('z'), '+.2f')} | {fmt(r.get('p_support_holm'), '.3g')} | "
                    f"{fmt(r.get('p_refute_holm'), '.3g')} | {r['outcome_raw']} | {r['verdict_holm']} | {r['read']} |")
+        if "e1" in r:
+            e = r["e1"]
+            out.append(f"| K2 under E1 (Amendment 1) | {fmt(e['value'], '+.2f')} | {fmt(e['se'], '.2f')} | "
+                       f"{fmt(e['z'], '+.2f')} | {fmt(e['p_support_holm'], '.3g')} | {fmt(e['p_refute_holm'], '.3g')} | "
+                       f"{e['outcome_raw']} | {e['verdict_holm']} | {r['read']} |")
+    k2row = a["hypotheses"][0]
+    if k2row.get("depends_on_extraction"):
+        out.append(k2row["extraction_note"])
     out.append(f"Holm m = {a['holm']['m']}, family: " + ", ".join(f"{t['benchmark']} {t['id']}"
                                                                     for t in a["holm"]["family"]))
     return "\n".join(out)

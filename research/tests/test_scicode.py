@@ -86,6 +86,33 @@ def test_stubbed_clients_raise_when_called():
         sys.modules["openai"].OpenAI(api_key="x")
 
 
+def test_e1_extraction_cases():
+    """PROTOCOL.md Amendment 1: E1 is the official extraction with a python block or two or more fence lines, the
+    text before the only fence line when there is exactly one, the whole text without fence lines; imports removed."""
+    official = harness_or_skip().models.extract_python_script
+    e1 = lambda text: sr.e1_extract(text, official)  # noqa: E731
+    # no fence line: the whole text, import lines removed (as the official one)
+    assert e1("x = 1\nimport os\ny = 2") == official("x = 1\nimport os\ny = 2") == "x = 1\n\ny = 2"
+    # one fence line (a closing fence never opened, the Bielik smoke pattern): the code before it, not the prose after
+    lone = "\ndef f():\n    import math\n    return 1\n```\n\nThe function f returns one."
+    assert official(lone) == "\n\nThe function f returns one."
+    assert e1(lone) == "\ndef f():\n\n    return 1\n"
+    assert e1("x = 1\n  ```\nprose") == "x = 1\n"  # an indented fence line counts
+    # two fence lines without python: the official result
+    two = "```\ndef f(): pass\n```\nprose\n"
+    assert e1(two) == official(two) == "\ndef f(): pass\n"
+    # a python block, even unclosed: the official result
+    block = "Here:\n```python\nfrom os import path\nx = 1\n```\nbye ```"
+    assert e1(block) == official(block) == "\nx = 1\n"
+    assert e1("```python\nx = 1\n") == official("```python\nx = 1\n") == "\nx = 1\n"
+    # ``` inside a line is not a fence line: no fence line, so the whole text
+    assert e1("s = 'a ``` b'\n") == "s = 'a ``` b'\n" != official("s = 'a ``` b'\n")
+    # with thinking on, E1 reads the text after the last </think>, as the official extraction does
+    answer = ok("<think>```python\ndef draft(): pass\n```</think>\ndef f():\n    return 2\n```\nprose")
+    assert e1(sr.answer_text(answer, thinking=True)) == "\ndef f():\n    return 2\n"
+    assert e1(sr.answer_text(ok("```python\nx\n```"), thinking=True)) == ""  # unfinished: empty
+
+
 # ---------------------------------------------------------------------------------------------------------------
 # Prompts and code files against SciCode's own flow
 
@@ -180,6 +207,31 @@ def test_prompts_and_code_equal_scicodes_flow_and_survive_resume(tmp_path):
     assert answers[fail]["status"] == "ok" and len(answers) == len(calls)
     rec = answers[("without_background", "77", 2)]
     assert rec["extracted_code"].startswith("\ndef ") and rec["think_open"] is True
+
+
+def test_e1_files_rebuild_scicodes_files(tmp_path):
+    """Amendment 1: E1 files are Gencode's files with E1 code. When every answer has a python block, E1 is the
+    official extraction, so the rebuilt files equal SciCode's own byte for byte (also around the supplied 13.6);
+    one answer with a lone closing fence changes its own file and the later files of that problem only."""
+    h = harness_or_skip()
+    problems = load_problems()
+    cwd = os.getcwd()
+    try:
+        os.chdir(sr.SCICODE_DIR)
+        ours(h, tmp_path / "ours", problems)
+        answers = sr.latest(sr.read_jsonl(tmp_path / "ours" / "generations.jsonl"))
+        codes = sr.build_e1_files(h, problems, answers, list(sr.SETTINGS), True, "m", tmp_path / "e1")
+        assert files(tmp_path / "e1") == files(tmp_path / "ours" / "generated_code")
+        assert codes[("with_background", "13", 7)] == answers[("with_background", "13", 7)]["extracted_code"]
+        lone = ("with_background", "77", 2)
+        answers[lone] = dict(answers[lone], output="</think>\ndef dist(*args):\n    return 'E1'\n```\nThis computes.")
+        sr.build_e1_files(h, problems, answers, list(sr.SETTINGS), True, "m", tmp_path / "e1b")
+    finally:
+        os.chdir(cwd)
+    before, after = files(tmp_path / "e1"), files(tmp_path / "e1b")
+    changed = sorted(k for k in before if before[k] != after[k])
+    assert changed == sorted(f"m/with_background/77.{s}.py" for s in range(2, 13))
+    assert b"return 'E1'" in after["m/with_background/77.3.py"] and b"This computes" not in after["m/with_background/77.2.py"]
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -338,19 +390,22 @@ def test_parse_scorer_output_and_expected_steps():
 # summarize.py
 
 def g(setting, pid, step, passed, status="ok", verdict=None, tokens=100, finish="stop", unfinished=False,
-      think_open=False):
+      think_open=False, pass_e1=None):
+    pass_e1 = passed if pass_e1 is None else pass_e1
     return {"setting": setting, "problem_id": pid, "step": step, "step_id": f"{pid}.{step}",
             "verdict": verdict or ("pass" if passed else "fail"), "pass": passed, "status": status,
+            "verdict_e1": "pass" if pass_e1 else "fail", "pass_e1": pass_e1,
             "prompt_tokens": 50, "output_tokens": tokens if status == "ok" else None, "max_tokens": 1000,
             "context": 1050, "finish_reason": finish if status == "ok" else None,
             "unfinished": unfinished if status == "ok" else None, "think_open": think_open,
-            "api_prompt_tokens": None, "error": None, "started": "2026-11-23T10:00:00+00:00", "code": "x"}
+            "api_prompt_tokens": None, "error": None, "started": "2026-11-23T10:00:00+00:00", "code": "x",
+            "code_e1": "y"}
 
 
 # problem 1: 2 of 2 pass (solved); problem 2: 1 of 3; problem 3: 0 of 1 (unsupported) -> p = 3/6
 GRADED = [g("with_background", "1", 1, True), g("with_background", "1", 2, True, think_open=True),
           g("with_background", "2", 1, True, tokens=300), g("with_background", "2", 2, False, verdict="time out"),
-          g("with_background", "2", 3, False, finish="length", unfinished=True),
+          g("with_background", "2", 3, False, finish="length", unfinished=True, pass_e1=True),
           g("with_background", "3", 1, False, status="unsupported")]
 
 
@@ -387,25 +442,42 @@ def write_out(out, records, limit=None):
     out.mkdir(parents=True)
     (out / "graded.jsonl").write_text("".join(json.dumps(r) + "\n" for r in records), encoding="utf-8")
     provenance.record(out, ["graded.jsonl"], "test")
-    printed = {s: {"printed": {"correct_steps": sum(r["pass"] for r in records if r["setting"] == s),
-                               "correct_problems": summarize.problems_solved(
-                                   [r for r in records if r["setting"] == s])["solved"]}}
-               for s in {r["setting"] for r in records}}
+    printed = {}
+    for s in {r["setting"] for r in records}:
+        rs = [r for r in records if r["setting"] == s]
+        for key, field in ((s, "pass"), (f"e1/{s}", "pass_e1")):
+            printed[key] = {"printed": {"correct_steps": sum(r[field] for r in rs),
+                                        "correct_problems": summarize.problems_solved(rs, field)["solved"]}}
     run = {"generation": [{"step": "gen", "thinking": True, "sampling": {"request_sampling": {"temperature": 0.6}}}],
            "scoring": {"step": "score", "split": "test", "limit": limit, "runs": printed}}
     (out / "run.json").write_text(json.dumps(run), encoding="utf-8")
 
 
 def test_summary_file_limit_and_full_count(tmp_path):
-    records = GRADED + [dict(r, setting="without_background", **{"pass": False, "verdict": "fail"}) for r in GRADED]
+    # without background: nothing passes officially, only step 1.1 under E1
+    records = GRADED + [dict(r, setting="without_background", **{"pass": False, "verdict": "fail",
+                                                                  "pass_e1": r["step_id"] == "1.1",
+                                                                  "verdict_e1": "pass" if r["step_id"] == "1.1" else "fail"})
+                        for r in GRADED]
     write_out(tmp_path / "out", records, limit=3)
     summarize.main(str(tmp_path / "out"), str(tmp_path / "results" / "m"), 3)
     result = json.loads((tmp_path / "out" / "m-limit3.json").read_text())
     assert (result["score"], result["n"], result["stderr_clustered"]) == (50.0, 6, 25.0)
     assert result["other_metrics"]["without_background"]["score"] == 0.0
+    # E1 (Amendment 1) only in other_metrics: step 2.3 passes under E1, so 4 of 6 and problem 2 still unsolved
+    e1 = result["other_metrics"]["extraction_e1"]["with_background"]
+    assert (e1["score"], e1["correct"], e1["main_problems"]["solved"]) == (66.67, 4, 1)
+    assert result["other_metrics"]["extraction_e1"]["without_background"]["correct"] == 1
     with gzip.open(tmp_path / "out" / "m-limit3.jsonl.gz", "rt") as f:
         lines = [json.loads(x) for x in f]
     assert len(lines) == 12 and lines[0]["task_id"] == "with_background/1.1" and lines[0]["score"] == 1
+    assert [x["score_e1"] for x in lines[:6]] == [1, 1, 1, 0, 1, 0] and lines[0]["output_e1"] == "y"
+    # the scorer's E1 counts must match too
+    run = json.loads((tmp_path / "out" / "run.json").read_text())
+    run["scoring"]["runs"]["e1/with_background"]["printed"]["correct_steps"] = 3
+    (tmp_path / "out" / "run.json").write_text(json.dumps(run))
+    with pytest.raises(SystemExit, match="e1/with_background"):
+        summarize.main(str(tmp_path / "out"), str(tmp_path / "results" / "m"), 3)
     assert not (tmp_path / "results").exists()
     write_out(tmp_path / "full", records)
     with pytest.raises(SystemExit, match="expected 288"):
@@ -421,16 +493,17 @@ def test_null_result(tmp_path):
 # ---------------------------------------------------------------------------------------------------------------
 # hypotheses.py
 
-def write_model(results, model, passes, clusters):
-    """`passes` per item (0/1), items numbered within their problem in `clusters` order."""
+def write_model(results, model, passes, clusters, e1=None):
+    """`passes` per item (0/1), items numbered within their problem in `clusters` order; `e1` the per-item passes
+    under extraction E1 (default: the same)."""
     results.mkdir(exist_ok=True)
     counter = {}
     rows = []
-    for y, pid in zip(passes, clusters):
+    for y, y_e1, pid in zip(passes, e1 or passes, clusters):
         counter[pid] = counter.get(pid, 0) + 1
         for setting in sr.SETTINGS:
             rows.append({"task_id": f"{setting}/{pid}.{counter[pid]}", "setting": setting, "problem_id": pid,
-                         "step": counter[pid], "score": y})
+                         "step": counter[pid], "score": y, "score_e1": y_e1})
     with gzip.open(results / f"{model}.jsonl.gz", "wt") as f:
         f.write("".join(json.dumps(r) + "\n" for r in rows))
     provenance.record(results, [f"{model}.jsonl.gz"], "test")
@@ -518,6 +591,35 @@ def test_k2_se_floor_binds_when_clustered_se_is_small(tmp_path):
     k2 = hypotheses.analyse(r)["hypotheses"][0]
     floor = math.sqrt(0.1632 * 0.8368 / 288)
     assert k2["se_clustered"] == 0.0 and math.isclose(k2["z"], (0.25 - 0.1632) / floor)
+
+
+def test_k2_under_e1_and_dependence_on_extraction(tmp_path):
+    on = [1, 1, 1, 0] * 5 + [1, 1, 0, 0] * 5
+    off = [1, 0, 0, 0] * 10
+    b_official = [0, 0, 0, 0] * 10                    # 0 %: K2 supported
+    b_e1 = [1, 1, 0, 0] * 5 + [1, 0, 0, 0] * 5        # 37.5 %: K2 refuted under E1
+    r = tmp_path / "results"
+    write_model(r, "lfm3-1.7b", on, CLUSTERS)
+    write_model(r, "lfm3-1.7b-nothink", off, CLUSTERS)
+    write_model(r, "bielik-11b-v3.1", b_official, CLUSTERS, e1=b_e1)
+    a = hypotheses.analyse(r)
+    k2 = a["hypotheses"][0]
+    mean, se_cl = by_hand(b_e1, CLUSTERS)
+    se = max(se_cl, math.sqrt(0.1632 * 0.8368 / 288))
+    assert math.isclose(k2["e1"]["z"], (mean - 0.1632) / se) and k2["e1"]["outcome_raw"] == "refuted"
+    assert k2["outcome_raw"] == "supported" and k2["z"] < -2       # the official z is unchanged by E1
+    assert k2["depends_on_extraction"] is True and "depends on code extraction" in k2["extraction_note"]
+    assert a["group_tests"][0]["z"] == k2["z"] and a["group_tests"][0]["z_e1"] == k2["e1"]["z"]
+    # E1's Holm p uses the same family with K2's p replaced
+    family = [hypotheses.phi(k2["e1"]["z"]), a["hypotheses"][1]["p_support"]]
+    assert math.isclose(k2["e1"]["p_support_holm"], hypotheses.holm(family)[0])
+    assert "depends on code extraction" in hypotheses.report(a)
+    r2 = tmp_path / "same"
+    write_model(r2, "lfm3-1.7b", on, CLUSTERS)
+    write_model(r2, "lfm3-1.7b-nothink", off, CLUSTERS)
+    write_model(r2, "bielik-11b-v3.1", b_official, CLUSTERS, e1=[0, 0, 0, 0] * 9 + [1, 0, 0, 0])
+    k2 = hypotheses.analyse(r2)["hypotheses"][0]
+    assert k2["depends_on_extraction"] is False and k2["e1"]["outcome_raw"] == k2["outcome_raw"] == "supported"
 
 
 def test_holm_and_verdicts():

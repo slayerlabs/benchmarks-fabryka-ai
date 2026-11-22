@@ -16,7 +16,9 @@ split), which the verdicts use:
 
 with G problems, n steps and y_i 1 for a passed step. Main problems solved: a problem counts when all its scored
 steps pass (the scorer's rule when every step has a file), out of 65. The scorer's printed counts must equal the
-ones recomputed here. Python 3.10+ standard library only (the scoring VM's python3).
+ones recomputed here. The same counts under extraction E1 (PROTOCOL.md Amendment 1) go to
+`other_metrics.extraction_e1` and to `score_e1`/`output_e1` per line, never to the headline; the scorer's E1 counts
+are checked the same way. Python 3.10+ standard library only (the scoring VM's python3).
 """
 
 import gzip
@@ -61,12 +63,20 @@ def rate(passed: list[bool], clusters: list[str]) -> dict[str, Any]:
             "clusters": len(set(clusters))}
 
 
-def problems_solved(records: list[dict[str, Any]]) -> dict[str, Any]:
+def problems_solved(records: list[dict[str, Any]], key: str = "pass") -> dict[str, Any]:
     by_problem: dict[str, list[bool]] = defaultdict(list)
     for r in records:
-        by_problem[r["problem_id"]].append(bool(r["pass"]))
+        by_problem[r["problem_id"]].append(bool(r[key]))
     solved = sorted((p for p, steps in by_problem.items() if all(steps)), key=int)
     return {"solved": len(solved), "of": len(by_problem), "solved_ids": solved}
+
+
+def extraction_metrics(records: list[dict[str, Any]], extraction: str) -> dict[str, Any]:
+    """Pass rate, clustered SE, main problems and verdicts of one extraction's scoring (`e1`: Amendment 1)."""
+    p, v = f"pass_{extraction}", f"verdict_{extraction}"
+    return {**rate([bool(r[p]) for r in records], [r["problem_id"] for r in records]),
+            "main_problems": problems_solved(records, p),
+            "verdicts": {x: sum(1 for r in records if r[v] == x) for x in sorted({r[v] for r in records})}}
 
 
 def setting_metrics(records: list[dict[str, Any]]) -> dict[str, Any]:
@@ -170,7 +180,7 @@ def main(out_dir: str, target: str, limit: int | None) -> None:
     if run["scoring"]["limit"] != limit:
         sys.exit(f"summarize.py: scored with --limit {run['scoring']['limit']}, summarizing with --limit {limit}")
     settings = [s for s in SETTINGS if any(r["setting"] == s for r in records)]
-    per_setting = {}
+    per_setting, per_setting_e1 = {}, {}
     for s in settings:
         rs = [r for r in records if r["setting"] == s]
         if not limit and len(rs) != SPLIT_SIZES[split]["steps"]:
@@ -178,6 +188,9 @@ def main(out_dir: str, target: str, limit: int | None) -> None:
         m = setting_metrics(rs)
         check_against_scorer(s, m, run["scoring"]["runs"][s]["printed"])
         per_setting[s] = m
+        e1 = extraction_metrics(rs, "e1")
+        check_against_scorer(f"e1/{s}", e1, run["scoring"]["runs"][f"e1/{s}"]["printed"])
+        per_setting_e1[s] = e1
     head = per_setting["with_background"]
     started = sorted(r["started"] for r in records if r["started"])
     contexts = sorted({r["context"] for r in records if r["context"]})
@@ -215,6 +228,8 @@ def main(out_dir: str, target: str, limit: int | None) -> None:
         "other_metrics": {
             "with_background": {k: v for k, v in head.items() if k not in ("score", "stderr", "n")},
             **{s: per_setting[s] for s in settings if s != "with_background"},
+            "extraction_e1": {"note": "PROTOCOL.md Amendment 1, secondary: the same answers with extraction E1, "
+                                      "scored by the same scorer; never the headline", **per_setting_e1},
         },
         "deviations": "see README.md, Deviations",
         "provenance": {
@@ -233,12 +248,17 @@ def main(out_dir: str, target: str, limit: int | None) -> None:
         **{k: r[k] for k in ("setting", "problem_id", "step", "step_id", "verdict", "pass", "status", "prompt_tokens",
                              "output_tokens", "finish_reason", "unfinished", "think_open", "api_prompt_tokens")},
         "output": r["code"],
+        "score_e1": int(r["pass_e1"]),
+        "verdict_e1": r["verdict_e1"],
+        "output_e1": r["code_e1"],
     } for r in records]
     write_result(target, result, lines)
     print(json.dumps({k: result[k] for k in ("model", "score", "stderr", "stderr_clustered", "n")} |
                      {"other_metrics": {s: {k: v for k, v in m.items() if k in ("score", "correct", "n",
                                                                                  "main_problems", "timeouts")}
-                                        for s, m in per_setting.items()}}, indent=2))
+                                        for s, m in per_setting.items()},
+                      "extraction_e1": {s: {k: v for k, v in m.items() if k in ("score", "correct", "n")}
+                                        for s, m in per_setting_e1.items()}}, indent=2))
 
 
 if __name__ == "__main__":

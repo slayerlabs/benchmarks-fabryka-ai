@@ -39,6 +39,10 @@ pinned revision into an otherwise empty Hugging Face cache, and `score` runs the
 against the pin and records. One line per scored subproblem goes to `<out-dir>/graded.jsonl`, which summarize.py
 reads. `--limit N` takes the first N problems of the split in dataset order.
 
+PROTOCOL.md Amendment 1: `score` also rebuilds every step file from the recorded answers with extraction E1
+(`e1_extract`; Gencode assembles the files, `build_e1_files`) into `<out-dir>/generated_code_e1/` and scores them
+with the same scorer (logs in `score/logs_e1/`); graded.jsonl carries both verdicts. Prompts are not regenerated.
+
 Provenance (provenance.py) as in livecodebench-v6: run.json holds each step's code commit, runner checksums,
 machine and the sampling in effect; manifest.json the sha256 of each step's output, which the next step checks;
 api-events.jsonl every failed request attempt and each recovery.
@@ -741,6 +745,75 @@ def package_versions() -> dict[str, Any]:
     return versions
 
 
+# Amendment 1, extraction E1. A fence line is a line whose first non-blank characters are ```.
+FENCE_LINE = re.compile(r"^[ \t]*```", re.MULTILINE)
+# The import-line removal of scicode.gen.models.extract_python_script, applied after E1 as after the official one
+IMPORT_LINES = re.compile(r'^\s*(import .*|from .*\s+import\s+.*)', re.MULTILINE)
+
+
+def e1_extract(response: str, official: Callable[[str], str]) -> str:
+    """PROTOCOL.md Amendment 1: with a ```python block or at least two fence lines, what the official extraction
+    gives; with exactly one fence line, the text before that line; with none, the whole text; then the same
+    import-line removal."""
+    fences = list(FENCE_LINE.finditer(response))
+    if "```python" in response or len(fences) >= 2:
+        return official(response)
+    text = response[:fences[0].start()] if fences else response
+    return IMPORT_LINES.sub("", text)
+
+
+def build_e1_files(h: Any, rows: list[dict[str, Any]], answers: dict[tuple[str, str, int], dict[str, Any]],
+                   settings: list[str], thinking: bool, model_id: str, code_dir: Path) -> dict[tuple, str]:
+    """The scored step files under E1, as save_response_with_steps writes them: Gencode's
+    `{dependencies}\\n{earlier steps' code}\\n` (here the earlier steps' E1 code, and the harness's code for 13.6,
+    62.1 and 76.3, loaded as generate_response_with_steps loads it), then this step's E1 code. Returns the E1 code
+    per step. Prompts are not rebuilt: the answers were generated with the official extraction."""
+    g, parse = h.gencode, h.parse
+    codes: dict[tuple, str] = {}
+    for setting in settings:
+        with_background = setting == "with_background"
+        template = g.BACKGOUND_PROMPT_TEMPLATE if with_background else g.DEFAULT_PROMPT_TEMPLATE
+        for prob in rows:
+            gcode = g.Gencode(model=model_id, output_dir=code_dir, prompt_dir=code_dir,
+                              with_background=with_background, temperature=TEMPERATURE)
+            pid, steps = prob["problem_id"], len(prob["sub_steps"])
+            gcode.previous_llm_code = [None] * steps
+            for i in range(steps):
+                step = i + 1
+                if (pid, step) in HARNESS_STEPS:
+                    supplied = (SCICODE_DIR / "eval" / "data" / f"{pid}.{step}.txt").read_text(encoding="utf-8")
+                    name = parse.extract_function_name(prob["sub_steps"][i]["function_header"])
+                    gcode.previous_llm_code[i] = parse.get_function_from_code(supplied, name)
+                    continue
+                code = e1_extract(answer_text(answers[(setting, pid, step)], thinking), h.models.extract_python_script)
+                _, previous_code = gcode.generate_prompt_with_steps(prob, step, template)
+                path = code_dir / model_id / setting / f"{pid}.{step}.py"
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(f"{previous_code}\n{code}", encoding="utf-8")
+                gcode.previous_llm_code[i] = code
+                codes[(setting, pid, step)] = code
+    return codes
+
+
+def run_scorer(root: Path, env: dict[str, str], args: argparse.Namespace, setting: str, code_dir: Path,
+               score_dir: Path, logs_name: str, tag: str) -> dict[str, Any]:
+    """test_generated_code.py, unchanged, on one setting of `code_dir`; its output kept, its counts parsed."""
+    cmd = ["python", SCORER, "--model", args.model_id, "--split", args.split, "--code-dir", str(code_dir),
+           "--log-dir", str(score_dir / logs_name), "--output-dir", str(score_dir / f"results_{logs_name}")] + \
+        (["--with-background"] if setting == "with_background" else [])
+    started = time.time()
+    proc = subprocess.run(cmd, cwd=root, env=env, capture_output=True, text=True)
+    (score_dir / f"{tag}.stdout.txt").write_text(proc.stdout, encoding="utf-8")
+    (score_dir / f"{tag}.stderr.txt").write_text(proc.stderr, encoding="utf-8")
+    if proc.returncode != 0:
+        sys.exit(f"scicode_runner.py score: the scorer exited with {proc.returncode}: {proc.stderr[-3000:]}")
+    printed = parse_scorer_output(proc.stdout, proc.stderr)
+    if printed["dataset_revision_seen"] != DATA_REVISION:
+        sys.exit(f"scicode_runner.py score: the scorer loaded dataset revision {printed['dataset_revision_seen']}, "
+                 f"not {DATA_REVISION}")
+    return {"command": cmd, "seconds": round(time.time() - started, 1), "printed": printed}
+
+
 def check_answers(answers: dict[tuple[str, str, int], dict[str, Any]], expected: list[tuple[str, int]],
                   code_dir: Path) -> list[str]:
     """The settings to score. Every expected step must have an answer (`ok` or `unsupported`; a step whose request
@@ -782,48 +855,48 @@ def score(args: argparse.Namespace) -> None:
     settings = check_answers(answers, expected, out / "generated_code" / args.model_id)
     score_dir = out / "score"
     stamp = score_dir / "stamp.json"
-    if stamp.is_file() and json.loads(stamp.read_text())["generations_sha256"] != hashes["generations.jsonl"]:
-        shutil.rmtree(score_dir)  # the scorer reuses its per-step logs; these were for other answers
+    # the scorer reuses its per-step logs; they hold only for these answers and this runner (which builds E1 files)
+    key = {"generations_sha256": hashes["generations.jsonl"], "runner_sha256": sha256_file(HERE / "scicode_runner.py")}
+    if stamp.is_file() and json.loads(stamp.read_text()) != key:
+        shutil.rmtree(score_dir)
     score_dir.mkdir(parents=True, exist_ok=True)
-    stamp.write_text(json.dumps({"generations_sha256": hashes["generations.jsonl"]}) + "\n", encoding="utf-8")
+    stamp.write_text(json.dumps(key) + "\n", encoding="utf-8")
+    run = json.loads((out / "run.json").read_text(encoding="utf-8"))
+    thinking = bool(run["generation"][0].get("thinking"))
+    # Amendment 1: E1 step files rebuilt from the recorded answers, scored by the same scorer
+    e1_dir = out / "generated_code_e1"
+    if e1_dir.exists():
+        shutil.rmtree(e1_dir)
+    e1_codes = build_e1_files(harness(), rows, answers, settings, thinking, args.model_id, e1_dir)
     runs: dict[str, Any] = {}
-    verdicts: dict[tuple[str, str, int], str] = {}
+    verdicts: dict[tuple[str, str, str, int], str] = {}
     with tempfile.TemporaryDirectory() as work:
         root = scratch_copy(Path(work), H5_PATH)
         env = {**os.environ, **BLAS_THREADS, "PYTHONPATH": str(root / "src"), "PYTHONUNBUFFERED": "1"}
-        for setting in settings:
-            cmd = ["python", SCORER, "--model", args.model_id, "--split", args.split,
-                   "--code-dir", str(out / "generated_code"), "--log-dir", str(score_dir / "logs"),
-                   "--output-dir", str(score_dir / "results")] + (["--with-background"]
-                                                                   if setting == "with_background" else [])
-            started = time.time()
-            proc = subprocess.run(cmd, cwd=root, env=env, capture_output=True, text=True)
-            (score_dir / f"{setting}.stdout.txt").write_text(proc.stdout, encoding="utf-8")
-            (score_dir / f"{setting}.stderr.txt").write_text(proc.stderr, encoding="utf-8")
-            if proc.returncode != 0:
-                sys.exit(f"scicode_runner.py score: the scorer exited with {proc.returncode}: {proc.stderr[-3000:]}")
-            printed = parse_scorer_output(proc.stdout, proc.stderr)
-            if printed["dataset_revision_seen"] != DATA_REVISION:
-                sys.exit(f"scicode_runner.py score: the scorer loaded dataset revision "
-                         f"{printed['dataset_revision_seen']}, not {DATA_REVISION}")
-            logs = score_dir / "logs" / args.model_id / setting
-            for pid, step in expected:
-                first = (logs / f"{pid}.{step}.txt").read_text(encoding="utf-8").splitlines()
-                verdicts[(setting, pid, step)] = first[0] if first else ""
-            runs[setting] = {"command": cmd, "seconds": round(time.time() - started, 1), "printed": printed}
+        for extraction, code_dir, logs_name in (("official", out / "generated_code", "logs"),
+                                                ("e1", e1_dir, "logs_e1")):
+            for setting in settings:
+                key = setting if extraction == "official" else f"e1/{setting}"
+                runs[key] = run_scorer(root, env, args, setting, code_dir, score_dir, logs_name, key.replace("/", "_"))
+                logs = score_dir / logs_name / args.model_id / setting
+                for pid, step in expected:
+                    first = (logs / f"{pid}.{step}.txt").read_text(encoding="utf-8").splitlines()
+                    verdicts[(extraction, setting, pid, step)] = first[0] if first else ""
     with (out / "graded.jsonl").open("w", encoding="utf-8") as f:
         for setting in settings:
             for pid, step in expected:
                 a = answers[(setting, pid, step)]
-                verdict = verdicts[(setting, pid, step)]
+                verdict, verdict_e1 = (verdicts[(x, setting, pid, step)] for x in ("official", "e1"))
                 f.write(json.dumps({
                     "setting": setting, "problem_id": pid, "step": step, "step_id": a["step_id"],
                     "verdict": verdict, "pass": verdict == "pass", "status": a["status"],
+                    "verdict_e1": verdict_e1, "pass_e1": verdict_e1 == "pass",
                     "prompt_tokens": a.get("prompt_tokens"), "output_tokens": a.get("output_tokens"),
                     "max_tokens": a.get("max_tokens"), "context": a.get("context"),
                     "finish_reason": a.get("finish_reason"), "unfinished": a.get("unfinished"),
                     "think_open": a.get("think_open"), "api_prompt_tokens": a.get("api_prompt_tokens"),
                     "error": a.get("error"), "started": a.get("started"), "code": a.get("extracted_code"),
+                    "code_e1": e1_codes[(setting, pid, step)],
                 }, ensure_ascii=False) + "\n")
     provenance.record(out, ["graded.jsonl"], "scicode_runner.py score")
     prefetched = HF_CACHE / "prefetch.json"
