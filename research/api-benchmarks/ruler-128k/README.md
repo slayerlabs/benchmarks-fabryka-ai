@@ -2,7 +2,7 @@
 
 How well a model uses a long context: 13 synthetic tasks (needle retrieval, variable tracing, word aggregation, QA
 over many documents) at input lengths from 4096 to 131072 tokens, scored by string match, without a judge model.
-The measurement plan, fixed before the first output, is [PROTOCOL.md](PROTOCOL.md). Refs #306.
+The measurement plan, fixed before the first output, is [PROTOCOL.md](PROTOCOL.md) with its amendments. Refs #306.
 
 - Paper: [Hsieh et al. 2024, RULER: What's the Real Context Size of Your Long-Context Language Models?](https://arxiv.org/abs/2404.06654)
 - Harness: [NVIDIA/RULER](https://github.com/NVIDIA/RULER) @ `db43f92ff634bbce1c33d1fb15858aec4bba509a`: data from
@@ -15,21 +15,19 @@ The measurement plan, fixed before the first output, is [PROTOCOL.md](PROTOCOL.m
 - Metric: mean of the 13 task scores at 131072 tokens (percent); stderr from a bootstrap over samples within tasks
   (10 000 resamples). Each result file also has the mean per length, each task per length and the four categories
   (retrieval: the 8 `niah_*`; tracing: `vt`; aggregation: `cwe`, `fwe`; QA: `qa_1`, `qa_2`) in `other_metrics`.
-- Settings: LFM3-1.7B, Qwen3.5 and Bielik on vLLM 0.34.0, bf16: RULER's input and answer prefix as one user message
-  through the model's chat template with its defaults, temperature 0.6, top_p 0.95, seed 20261122 per request,
-  output up to the context window minus the input; the text after the last `</think>` is scored. Slayer: RULER's
-  raw prompt, greedy, RULER's per-task answer budget (30 to 128 tokens), 4096 only.
-- Extra services: none
+- Settings: RULER's input and answer prefix as one user message through the model's chat template with its
+  defaults, temperature 0.6, top_p 0.95, seed 20261122 per request, output up to the context window minus the
+  input; the text after the last `</think>` is scored. LFM3-1.7B on vLLM 0.34.0, bf16; Bielik 11B v3.1 through the
+  Fabryka AI API. Slayer: RULER's raw prompt, greedy, RULER's per-task answer budget (30 to 128 tokens), 4096 only.
+- Extra services: the Fabryka AI API (`https://fabryka.ai/v1/chat/completions`) for Bielik
 
 ## Results
 
 | model | how it runs | score | stderr | n | date |
 |---|---|---|---|---|---|
 | LFM3-1.7B (`lfm3-1.7b`) | vLLM 0.34.0, bf16, `LiquidAI/LFM3-1.7B` @ `1da06bec` | | | | |
-| Qwen3.5-4B (`qwen3.5-4b`) | vLLM 0.34.0, bf16, `Qwen/Qwen3.5-4B` @ `851bf6e8` | | | | |
-| Qwen3.5-9B (`qwen3.5-9b`) | vLLM 0.34.0, bf16, `Qwen/Qwen3.5-9B` @ `c2022362` | | | | |
-| Bielik 11B v3.1 (`bielik-11b-v3.1-vllm`) | vLLM 0.34.0, bf16, `speakleash/Bielik-11B-v3.1-Instruct` @ `d6e755d3` | | | | |
-| Slayer 1B 1.08 (`slayer1b-1.08`) | `research/common/slayer_lm.py`, bf16, greedy, `SlayerLab/Slayer1B-1.08` @ `ea0945b1` | | | | |
+| Bielik 11B v3.1 (`bielik-11b-v3.1`) | Fabryka AI API (hidden provider system prompt, #277); prompts counted with `speakleash/Bielik-11B-v3.1-Instruct` @ `d6e755d3` | | | | |
+| Slayer 1B 1.09, update 70 000 (`slayer1b-1.09-k70000`) | `research/common/slayer_lm.py`, bf16, greedy, `SlayerLab/Slayer1B-1.09-checkpoints` @ `adfaf3fd` `wagi_70000.pt`, converted | | | | |
 
 No model has been run yet. Bielik (32 768-token window) and Slayer (4096) cannot hold 131072 tokens: their
 headline is `null` with the reason, and their shorter lengths are in `other_metrics`.
@@ -37,44 +35,60 @@ headline is `null` with the reason, and their shorter lengths are in `other_metr
 ## Hypotheses
 
 `python3 compare.py` (from this directory, after the runs) reads `results/<model-id>.json` and `.jsonl.gz` and
-evaluates PROTOCOL.md: the Qwen3.5-9B control first, then R1-R3 for LFM3-1.7B against Qwen3.5-4B and Qwen3.5-9B
-(Bielik and Slayer per length, descriptive only). It prints the control (PASS or FAIL; after a FAIL the hypotheses
-are not read until the gap is explained), every `deviation:` from the protocol's wording, the lengths and error rows
-left out, a table per hypothesis (value with bootstrap SE, z, Holm-adjusted p over all three hypotheses, verdict,
-outcome, n) and writes the same to `results/hypotheses.json`. A hypothesis whose model has not run is `not run` and
-still counts in the Holm family. The bootstrap settings are those of the Metrics section of PROTOCOL.md.
+evaluates PROTOCOL.md as amended: the control first (LFM3-1.7B at 131072 against its card value 65.56), then R1
+and R3 for LFM3-1.7B and R2 for LFM3-1.7B against Bielik 11B v3.1 over the lengths both models measured (Slayer per
+length, descriptive only). It prints the control (PASS or FAIL; after a FAIL the hypotheses are not read until the
+gap is explained), every `deviation:` from the protocol's wording, the lengths and error rows left out, a table per
+hypothesis (value with bootstrap SE, z, Holm-adjusted p over all three hypotheses, verdict, outcome, n) and writes
+the same to `results/hypotheses.json`. A hypothesis whose model has not run is `not run` and still counts in the
+Holm family (m = 3). The bootstraps are independent per model (Amendment 1).
 
 ## Deviations
 
 - **50 samples per task and length, not RULER's 500.** A cost decision taken before the run (PROTOCOL.md): 650
   samples per length. The task scores have a wider stderr than in the paper.
-- **Bielik runs on vLLM, not through the Fabryka AI API.** PROTOCOL.md fixes vLLM for every instruction-tuned model
-  (same template handling, output limit and `/tokenize` fit check) and leaves the API row out of scope. The
-  vLLM version (0.34.0) is the one the LFM3 run in [ifeval](../ifeval/README.md) needed, not the 0.11.0 used there
-  for Bielik. Its chat template adds a provider system prompt with the date; the date is pinned to 2026-11-22.
+- **Bielik through the Fabryka AI API, with its hidden provider system prompt** (Amendment 1, #277). The API applies
+  Bielik's chat template with its defaults, which add a provider system prompt in Polish with the current date; it
+  rejects `chat_template_kwargs`, so the prompt cannot be turned off or the date pinned. Requests carry only
+  `model`, `messages` (plain string content), `max_tokens`, `temperature`, `top_p` and `seed`, the fields the API
+  accepted in [ifeval](../ifeval/README.md) (it rejects `"type": "text"` parts and `"stop": []`). 2 requests at a
+  time; after any failed request all requests pause (10 s, doubling up to 5 minutes), up to 30 retries per
+  request, as in ifeval.
+- **Bielik's prompt length is counted locally, with a 256-token margin.** The API has no `/tokenize`.
+  `predict.py` counts each templated prompt with Bielik's own tokenizer and chat template at the pinned revision,
+  template defaults included (a one-sentence message counts 1057 tokens here; ifeval saw about 1065 billed). The
+  fit check is counted prompt + 256 + RULER's answer budget <= 32768, and `max_tokens` is 32768 - counted prompt -
+  256. The margin covers differences the local count cannot see (the API's template version and date line).
+  Each raw record keeps the API's own `prompt_tokens` next to the local count, and `predict.py` prints the largest
+  difference after each length. With the system prompt, RULER's 32768-token samples are not expected to fit, so
+  Bielik's 32768 is expected to be `null` and R2 to use 4096-16384.
 - **Output limit: the context window minus the templated input.** RULER caps the answer at 30 to 128 tokens. The
-  instruction-tuned models here reason before they answer, so they get the rest of the window (PROTOCOL.md). A
+  instruction-tuned models here may reason before they answer, so they get the rest of the window (PROTOCOL.md). A
   response that hits the limit is still scored (with no `</think>` the whole text is scored, as in IFEval); their
   number per length is `other_metrics.unfinished`.
 - **RULER's input with its answer prefix as one user message.** The way RULER's own OpenAI client sends it
   (`call_api.py`, `client_wrappers.OpenAIClient`). The scorer is a case-insensitive substring match on the
   references, so the answer format does not change the score.
 - **A length is measured only when every templated prompt fits.** RULER counts `max_seq_length` without the chat
-  template. Before generating, `predict.py` counts each prompt with the server's template (`/tokenize`); if one of
-  them plus RULER's answer budget exceeds the window, the whole length is `null` with the reason, not cut down. This
-  can only happen for Bielik at 32768.
-- **Sampling defaults from each model's `generation_config.json`.** vLLM applies the parameters the request does
-  not set from the model's generation config: for LFM3-1.7B `top_k` 50 and `repetition_penalty` 1.1 (as in the
-  [ifeval](../ifeval/README.md) LFM3 run); Qwen3.5 at these revisions has no generation config.
+  template. Before generating, `predict.py` counts each prompt with the chat template (vLLM's `/tokenize`, or
+  locally for the API); if one of them plus RULER's answer budget exceeds the window, the whole length is `null`
+  with the reason, not cut down.
+- **Sampling defaults from LFM3-1.7B's `generation_config.json`.** vLLM applies the parameters the request does
+  not set from the model's generation config: `top_k` 50 and `repetition_penalty` 1.1, as in the
+  [ifeval](../ifeval/README.md) LFM3 run.
 - **Tokenizer library.** RULER pins transformers 4.44.2; LFM3-1.7B's tokenizer (`TokenizersBackend`) needs
-  transformers 5.x, so data generation and serving use transformers 5.22.2 for every model
+  transformers 5.x, so data generation, prompt counting and serving use transformers 5.22.2 for every model
   (`requirements.lock.txt`). The token counts come from the same tokenizer files.
 - **Scoring without NeMo.** `evaluate.py` imports the NeMo toolkit only for `read_manifest` (read a JSON-lines
   file); `nemo_shim/` provides that function, so RULER's evaluator runs unchanged without NeMo. `summarize.py`
   scores each sample with RULER's own `postprocess_pred` and metric function, for the bootstrap and the
   `.jsonl.gz`, and stops if their per-task means differ from `evaluate.py`'s scores.
+- **Slayer is a training checkpoint, converted** (Amendment 2). `run.sh` downloads `wagi_70000.pt` (checked against
+  its sha256 by `research/tools/konwertuj.py`), converts it against `SlayerLab/Slayer1B-1.08` @ `5f854a0c` as
+  `research/tools/przebieg_centralny.sh` does, and stops unless the converted `model.safetensors` has the sha256
+  of the full run (`b9e31fc9…`). The converted directory is cached in `.cache/slayer1b-1.09-k70000/`.
 - **Slayer's tokenizer for data generation.** Slayer's `config.json` has no `model_type`, so `AutoTokenizer`
-  cannot load its snapshot; `run.sh` gives RULER a directory with only its `tokenizer.json` as
+  cannot load the converted directory; `run.sh` gives RULER a directory with only its `tokenizer.json` as
   `PreTrainedTokenizerFast` (the class `slayer_lm.py` uses). With BOS, every RULER sample at 4096 needs at most 4096
   positions, because the last generated token is never fed back; `slayer_predict.py` checks this per sample.
 - **Essays are fetched live.** RULER's essay script downloads from paulgraham.com and GitHub at run time, so the
@@ -82,28 +96,37 @@ still counts in the Holm family. The bootstrap settings are those of the Metrics
 
 ## Errors
 
-A request that fails after the retries (`predict.py`: up to 8, on transport errors and HTTP 408/429/5xx) is
-recorded as an error and left out of the score; it is never a zero. Errors per task and length are in
-`other_metrics.errors`; rerunning `run.sh` sends only those samples again. A published result has no errors.
+A request that fails after the retries (`predict.py`: transport errors and HTTP 408/429/5xx; 8 retries on vLLM, 30
+on the API) is recorded as an error and left out of the score; it is never a zero. Other HTTP errors (e.g. 400) are
+recorded at once. Errors per task and length are in `other_metrics.errors`; rerunning `run.sh` sends only those
+samples again. A published result has no errors.
 
 ## Reproduce
 
-On a Linux machine with an NVIDIA GPU (H100 80 GB), python3, curl, wget and git:
+LFM3-1.7B and Slayer on a Linux machine with an NVIDIA GPU (H100 80 GB), python3, curl and git:
 
 ```bash
 bash run.sh lfm3-1.7b --limit 5    # smoke test: 5 samples per task at 4096, written to out/, not results/
 bash run.sh lfm3-1.7b
-bash run.sh qwen3.5-4b
-bash run.sh qwen3.5-9b
-HF_TOKEN=hf_... bash run.sh bielik-11b-v3.1-vllm    # gated repo
-bash run.sh slayer1b-1.08
+bash run.sh slayer1b-1.09-k70000
 ```
 
-`CONCURRENCY` (default 32) sets the parallel requests to vLLM, `PORT` its port. Everything generated stays in
-`out/<model-id>/<length>/`: `data/` (RULER samples), `raw/` (every attempt, with reasoning), `pred/` (RULER's
-prediction files and `summary.csv`), `skip.json` for a length that is not measured. The run resumes where it
-stopped. The `date` in a result is the day the run first started.
+Bielik on any Mac or Linux machine, no GPU. It needs the API key and a Hugging Face login with access to the
+gated `speakleash/Bielik-11B-v3.1-Instruct` (for its tokenizer and chat template; `run.sh` stops with the command
+to run if the login is missing):
+
+```bash
+export FABRYKA_API_KEY=...
+bash run.sh bielik-11b-v3.1 --limit 2    # smoke test
+bash run.sh bielik-11b-v3.1
+```
+
+`CONCURRENCY` sets the parallel requests (default 32 on vLLM, 2 on the API), `PORT` vLLM's port. Everything
+generated stays in `out/<model-id>/<length>/`: `data/` (RULER samples), `raw/` (every attempt, with reasoning),
+`pred/` (RULER's prediction files and `summary.csv`), `skip.json` for a length that is not measured. The run resumes
+where it stopped. The `date` in a result is the day the run first started.
 
 Prompt tokens per model (50 samples x 13 tasks, about the length each): 2.7M at 4096, 5.3M at 8192, 10.6M at
-16384, 21.3M at 32768, 42.6M at 65536, 85.2M at 131072; about 168M for LFM3-1.7B and each Qwen3.5, 40M for Bielik
-(plus its system prompt), 2.7M for Slayer. Output tokens depend on how long each model reasons.
+16384, 21.3M at 32768, 42.6M at 65536, 85.2M at 131072; about 168M for LFM3-1.7B, about 19M for Bielik over
+4096-16384 plus about 2.1M of its system prompt (1 057 tokens x 1 950 requests), 2.7M for Slayer. Output tokens
+depend on how long each model reasons.

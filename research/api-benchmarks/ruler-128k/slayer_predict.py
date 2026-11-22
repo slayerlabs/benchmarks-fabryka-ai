@@ -1,6 +1,6 @@
 """RULER at one length for Slayer, a base model: RULER's raw prompt, greedy, RULER's per-task answer budget.
 
-Usage: python slayer_predict.py --weights DIR --length-dir out/slayer1b-1.08/4096 --tasks t1 t2 ... --ruler-dir DIR
+Usage: python slayer_predict.py --weights DIR --length-dir out/slayer1b-1.09-k70000/4096 --tasks t1 t2 ... --ruler-dir DIR
 
 The model is loaded through research/common/slayer_lm.py (`SlayerLM`, the lm-eval wrapper used by the IFEval
 benchmark) and decoded with its greedy `generate`. The prompt is what RULER's call_api.py sends for a base model:
@@ -32,7 +32,8 @@ from ruler import answer_budgets, latest_records, read_jsonl  # noqa: E402
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--weights", required=True, help="local SlayerLab/Slayer1B-1.08 snapshot")
+    ap.add_argument("--weights", required=True, help="converted Slayer directory (model.safetensors, config.json, "
+                    "tokenizer.json), e.g. .cache/slayer1b-1.09-k70000 from run.sh")
     ap.add_argument("--length-dir", type=Path, required=True)
     ap.add_argument("--tasks", nargs="+", required=True)
     ap.add_argument("--ruler-dir", type=Path, required=True)

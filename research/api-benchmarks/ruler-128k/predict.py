@@ -1,25 +1,38 @@
-"""Send RULER samples of one length to an OpenAI-compatible chat endpoint (vLLM) and store the raw outputs.
+"""Send RULER samples of one length to an OpenAI-compatible chat endpoint and store the raw outputs.
 
-Usage: python predict.py --base-url URL --model NAME --length-dir out/<model-id>/<length> --tasks t1 t2 ...
-       --seed S --temperature T --top-p P [--chat-template-kwargs JSON] [--concurrency N]
+Two servers, one request shape:
+  vLLM (local GPU):   --base-url http://localhost:8000  [--chat-template-kwargs JSON]
+      prompts are counted by the server's /tokenize with its chat template; the window is its max_model_len.
+  Fabryka AI API:     --base-url https://fabryka.ai --api-key-env FABRYKA_API_KEY --tokenizer DIR --context 32768
+      the API has no /tokenize: prompts are counted here with the model's own tokenizer and chat template at the
+      pinned revision, template defaults (which include the provider system prompt the API adds), and --margin
+      tokens are kept free for what the local count cannot see (template version, date line on the API side).
 
-Each sample is one user message: RULER's `input` + `answer_prefix`, as RULER's own OpenAI client sends it
-(scripts/pred/call_api.py and client_wrappers.OpenAIClient @ db43f92). The model's chat template is applied by the
-server. Output limit: the server's context window minus the templated input (PROTOCOL.md, Settings).
+Each sample is one user message with plain string content: RULER's `input` + `answer_prefix`, as RULER's own
+OpenAI client sends it (scripts/pred/call_api.py, client_wrappers.OpenAIClient @ db43f92). Body: model, messages,
+max_tokens, temperature, top_p, seed (the fields the Fabryka API accepted in ../ifeval; no `stop`, no
+`chat_template_kwargs` unless given). max_tokens = window - counted prompt - margin (PROTOCOL.md: output limit is
+the context window minus the templated input).
 
-Before any generation, every sample of the length is tokenized through the server's /tokenize with the same
-messages. If one does not leave room for RULER's own answer budget, the whole length is written to `skip.json` with
-the reason and nothing is generated (PROTOCOL.md: a length the context does not hold gets `score: null`).
+Fit check, before any generation: if a counted prompt + margin + RULER's answer budget exceeds the window, the whole
+length is written to `skip.json` with the reason and nothing is sent (PROTOCOL.md: `score: null`, not cut down).
 
-Raw records go to <length-dir>/raw/<task>.jsonl, appended, one per attempt that ended:
-  {"index", "output", "finish_reason", "prompt_tokens", "output_tokens"}  or  {"index", "error"}.
-The last record of an index wins. A rerun skips indices with an output and retries the ones with an error, so a
-(task, length) with an output for every sample is not sent again. Only the Python standard library is used.
+Failures: transport errors and HTTP 408/429/5xx are retried (--max-retries). Any such failure pauses every request
+(10 s, doubling up to 5 min while failures continue, back to 10 s after a success), as ../ifeval/lm_eval_fabryka.py
+does for the same API. Other HTTP errors (e.g. 400) are not retried. A sample whose last attempt failed is recorded
+as {"index", "error"}: never scored, sent again on the next run.
+
+Raw records go to <length-dir>/raw/<task>.jsonl, appended, one per finished attempt:
+  {"index", "output", "finish_reason", "prompt_tokens" (server's usage), "counted_prompt_tokens", "output_tokens"}
+The last record of an index wins; a rerun skips indices with an output. The API key is read from the environment
+variable named by --api-key-env and is never printed.
 """
 
 import argparse
 import json
+import os
 import sys
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -28,42 +41,81 @@ from pathlib import Path
 
 from ruler import answer_budgets, latest_records, read_jsonl
 
-# Transport failures and server-side overload: retried. Anything else (e.g. 400) is recorded as an error at once.
 RETRY_STATUS = {408, 429, 500, 502, 503, 504}
+PAUSE_MIN, PAUSE_MAX = 10.0, 300.0
+
+
+class Gate:
+    """One pause shared by all requests: after a retryable failure nobody sends until it ends."""
+
+    def __init__(self, pause_min=PAUSE_MIN, pause_max=PAUSE_MAX):
+        self.lock = threading.Lock()
+        self.resume_at = 0.0
+        self.pause_min, self.pause_max = pause_min, pause_max
+        self.pause = pause_min
+
+    def wait(self):
+        while (wait := self.resume_at - time.monotonic()) > 0:
+            time.sleep(wait)
+
+    def failed(self):
+        with self.lock:
+            self.resume_at = max(self.resume_at, time.monotonic() + self.pause)
+            self.pause = min(2 * self.pause, self.pause_max)
+
+    def succeeded(self):
+        with self.lock:
+            self.pause = self.pause_min
 
 
 class Client:
-    def __init__(self, base_url, model, timeout, max_retries):
+    def __init__(self, base_url, timeout, max_retries, gate, api_key=None):
         self.base_url = base_url.rstrip("/")
-        self.model = model
         self.timeout = timeout
         self.max_retries = max_retries
+        self.gate = gate
+        self.headers = {"Content-Type": "application/json"}
+        if api_key:
+            self.headers["Authorization"] = f"Bearer {api_key}"
 
     def post(self, path, body):
-        """POST JSON with retries on transport errors; returns the decoded response or raises RuntimeError."""
+        """POST JSON; retries retryable failures behind the shared pause. Returns the response or raises RuntimeError."""
         data = json.dumps(body).encode("utf-8")
         last = None
         for attempt in range(self.max_retries + 1):
-            if attempt:
-                time.sleep(min(300, 5 * 2 ** (attempt - 1)))
-            request = urllib.request.Request(self.base_url + path, data=data,
-                                             headers={"Content-Type": "application/json"})
+            self.gate.wait()
+            request = urllib.request.Request(self.base_url + path, data=data, headers=self.headers)
             try:
                 with urllib.request.urlopen(request, timeout=self.timeout) as response:
-                    return json.loads(response.read().decode("utf-8"))
+                    result = json.loads(response.read().decode("utf-8"))
+                self.gate.succeeded()
+                return result
             except urllib.error.HTTPError as e:
-                detail = e.read().decode("utf-8", "replace")[:500]
-                last = f"HTTP {e.code}: {detail}"
+                last = f"HTTP {e.code}: {e.read().decode('utf-8', 'replace')[:500]}"
                 if e.code not in RETRY_STATUS:
-                    break
+                    raise RuntimeError(last) from None
             except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
                 last = f"{type(e).__name__}: {e}"
+            self.gate.failed()
             print(f"predict.py: {path} attempt {attempt + 1} failed: {last}", file=sys.stderr)
         raise RuntimeError(last)
 
 
 def messages(sample):
     return [{"role": "user", "content": sample["input"] + sample.get("answer_prefix", "")}]
+
+
+def local_counter(tokenizer_dir, context):
+    """Prompt counter with the model's own chat template (template defaults), for an API without /tokenize."""
+    from transformers import AutoTokenizer
+
+    tokenizer = AutoTokenizer.from_pretrained(tokenizer_dir)
+
+    def count(sample):
+        ids = tokenizer.apply_chat_template(messages(sample), add_generation_prompt=True, tokenize=True)
+        ids = ids["input_ids"] if hasattr(ids, "keys") else ids
+        return len(ids), context
+    return count
 
 
 def main():
@@ -75,16 +127,29 @@ def main():
     ap.add_argument("--seed", type=int, required=True)
     ap.add_argument("--temperature", type=float, required=True)
     ap.add_argument("--top-p", type=float, required=True)
+    ap.add_argument("--ruler-dir", type=Path, required=True, help="the pinned RULER checkout (answer budgets)")
     ap.add_argument("--chat-template-kwargs", type=json.loads, default=None)
+    ap.add_argument("--api-key-env", default=None, help="name of the environment variable that holds the key")
+    ap.add_argument("--tokenizer", default=None, help="count prompts locally with this tokenizer (no /tokenize)")
+    ap.add_argument("--context", type=int, default=None, help="context window, with --tokenizer")
+    ap.add_argument("--margin", type=int, default=0, help="tokens kept free beyond the counted prompt")
     ap.add_argument("--concurrency", type=int, default=32)
     ap.add_argument("--timeout", type=float, default=7200, help="seconds per request")
     ap.add_argument("--max-retries", type=int, default=8)
-    ap.add_argument("--ruler-dir", type=Path, required=True, help="the pinned RULER checkout (answer budgets)")
+    ap.add_argument("--pause-min", type=float, default=PAUSE_MIN, help="seconds; for tests against a mock server")
     args = ap.parse_args()
+    if args.tokenizer and not args.context:
+        ap.error("--tokenizer needs --context")
 
     length = int(args.length_dir.name)
     budgets = answer_budgets(args.ruler_dir)
-    client = Client(args.base_url, args.model, args.timeout, args.max_retries)
+    api_key = None
+    if args.api_key_env:
+        api_key = os.environ.get(args.api_key_env)
+        if not api_key:
+            sys.exit(f"predict.py: set {args.api_key_env}")
+    client = Client(args.base_url, args.timeout, args.max_retries, Gate(args.pause_min, max(args.pause_min, PAUSE_MAX)),
+                    api_key)
     extra = {"chat_template_kwargs": args.chat_template_kwargs} if args.chat_template_kwargs else {}
     raw_dir = args.length_dir / "raw"
     raw_dir.mkdir(parents=True, exist_ok=True)
@@ -101,42 +166,45 @@ def main():
     if not jobs:
         return
 
-    def count(job):
-        """(templated prompt tokens, context window); the token list itself is dropped (up to 131k ints)."""
-        task, sample = job
-        body = {"model": args.model, "messages": messages(sample), "add_generation_prompt": True, **extra}
-        response = client.post("/tokenize", body)
-        return response["count"], response["max_model_len"]
+    if args.tokenizer:
+        counter = local_counter(args.tokenizer, args.context)
+        counts = [counter(s) for _, s in jobs]
+    else:
+        def count(job):
+            """(templated prompt tokens, window); the token list itself is dropped (up to 131k ints)."""
+            body = {"model": args.model, "messages": messages(job[1]), "add_generation_prompt": True, **extra}
+            response = client.post("/tokenize", body)
+            return response["count"], response["max_model_len"]
+        with ThreadPoolExecutor(max_workers=min(args.concurrency, 16)) as pool:
+            counts = list(pool.map(count, jobs))
 
     # Samples with an output already passed this check on an earlier run.
-    with ThreadPoolExecutor(max_workers=min(args.concurrency, 16)) as pool:
-        counts = list(pool.map(count, jobs))
     too_long = [(task, s["index"], n, ctx) for (task, s), (n, ctx) in zip(jobs, counts)
-                if n + budgets[task] > ctx]
+                if n + args.margin + budgets[task] > ctx]
     if too_long:
         task, index, n, ctx = max(too_long, key=lambda t: t[2])
         reason = (f"{len(too_long)} of {len(jobs)} prompts do not fit: with the chat template the longest "
-                  f"({task} #{index}) has {n} tokens, which with RULER's answer budget of {budgets[task]} exceeds "
-                  f"the {ctx}-token context window")
+                  f"({task} #{index}) has {n} tokens, which with a {args.margin}-token margin and RULER's answer "
+                  f"budget of {budgets[task]} exceeds the {ctx}-token context window")
         (args.length_dir / "skip.json").write_text(json.dumps({"reason": reason}, indent=2) + "\n", encoding="utf-8")
         print(f"predict.py: {length} skipped: {reason}")
         return
 
     def generate(task, sample, n, ctx):
-        body = {"model": args.model, "messages": messages(sample), "temperature": args.temperature,
-                "top_p": args.top_p, "seed": args.seed, "max_completion_tokens": ctx - n, **extra}
+        body = {"model": args.model, "messages": messages(sample), "max_tokens": ctx - n - args.margin,
+                "temperature": args.temperature, "top_p": args.top_p, "seed": args.seed, **extra}
         try:
             response = client.post("/v1/chat/completions", body)
             choice = response["choices"][0]
             record = {"index": sample["index"], "output": choice["message"]["content"] or "",
                       "finish_reason": choice["finish_reason"], "prompt_tokens": response["usage"]["prompt_tokens"],
-                      "output_tokens": response["usage"]["completion_tokens"]}
+                      "counted_prompt_tokens": n, "output_tokens": response["usage"]["completion_tokens"]}
         except RuntimeError as e:
             record = {"index": sample["index"], "error": str(e)}
         return task, record
 
     files = {task: open(raw_dir / f"{task}.jsonl", "a", encoding="utf-8", buffering=1) for task in pending}
-    errors = 0
+    errors, gaps = 0, []
     try:
         with ThreadPoolExecutor(max_workers=args.concurrency) as pool:
             futures = [pool.submit(generate, task, s, n, ctx) for (task, s), (n, ctx) in zip(jobs, counts)]
@@ -144,11 +212,18 @@ def main():
                 task, record = future.result()
                 files[task].write(json.dumps(record, ensure_ascii=False) + "\n")
                 errors += "error" in record
+                if "output" in record:
+                    gaps.append(record["prompt_tokens"] - record["counted_prompt_tokens"])
                 if i % 50 == 0 or i == len(jobs):
                     print(f"predict.py: {length}: {i}/{len(jobs)} ({errors} errors)")
     finally:
         for f in files.values():
             f.close()
+    if gaps:
+        print(f"predict.py: server prompt tokens minus counted: min {min(gaps)}, max {max(gaps)} "
+              f"(margin {args.margin})")
+        if max(gaps) > args.margin:
+            print(f"predict.py: WARNING: a prompt exceeded the counted size by more than the margin", file=sys.stderr)
     if errors:
         print(f"predict.py: {errors} samples at {length} ended with an error; rerun to retry them", file=sys.stderr)
 

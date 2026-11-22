@@ -102,7 +102,7 @@ def test_bootstrap_se_is_zero_for_constant_scores_and_reproducible():
 
 
 def test_result_headline_is_131072_or_null_with_reason():
-    run = {"model": "slayer1b-1.08", "date": "2026-11-22", "ruler_commit": "db43f92", "seed": 20261122,
+    run = {"model": "slayer1b-1.09-k70000", "date": "2026-11-22", "ruler_commit": "db43f92", "seed": 20261122,
            "num_samples": 50, "data_sources": {"squad.json": "abc"}, "settings": {}}
     metrics = {"per_length": {"4096": {"score": 10.0, "stderr": 1.0, "n": 650},
                               "131072": {"score": None, "reason": "too long"}}}
@@ -152,18 +152,19 @@ def write_model(results_dir, model, means, skipped=None, errors=None):
 
 
 WINDOW = "the context window does not hold this length"
+FIT = "templated prompts do not fit"
+# At 131072 the mean is 882 / 13 = 67.85, within 2 SE of the card's 65.56: the control passes.
 LFM3_STEEP = {4096: by_category(98, 100, 90, 70), 8192: by_category(98, 90, 85, 68),
               16384: by_category(96, 80, 75, 66), 32768: by_category(94, 60, 65, 60),
-              65536: by_category(92, 45, 50, 55), 131072: by_category(90, 30, 40, 50)}
+              65536: by_category(92, 45, 50, 55), 131072: by_category(84, 30, 40, 50)}
 
 
 def clear_case(results_dir, lfm3_errors=None):
     write_model(results_dir, C.LFM3, LFM3_STEEP, errors=lfm3_errors)
-    write_model(results_dir, C.QWEN_4B, {**dict.fromkeys(S.LENGTHS[:-1], 92), 131072: 86})
-    write_model(results_dir, C.QWEN_9B, {**dict.fromkeys(S.LENGTHS[:-1], 92), 131072: 88})
-    write_model(results_dir, "bielik-11b-v3.1-vllm", dict.fromkeys(S.LENGTHS[:4], 80),
-                skipped={65536: WINDOW, 131072: WINDOW})
-    write_model(results_dir, "slayer1b-1.08", {4096: 20}, skipped=dict.fromkeys(S.LENGTHS[1:], WINDOW))
+    # Bielik through the API: 32768 does not fit with its system prompt, 65536 and 131072 exceed the window.
+    write_model(results_dir, C.BIELIK, {4096: 70, 8192: 80, 16384: 90},
+                skipped={32768: FIT, 65536: WINDOW, 131072: WINDOW})
+    write_model(results_dir, C.SLAYER, {4096: 20}, skipped=dict.fromkeys(S.LENGTHS[1:], WINDOW))
 
 
 def run_compare(results_dir):
@@ -178,36 +179,41 @@ def test_compare_clear_case():
         clear_case(Path(d))
         result, text = run_compare(Path(d))
         assert json.loads((Path(d) / "hypotheses.json").read_text()) == json.loads(json.dumps(result))
-    assert result["control"]["status"] == "PASS" and result["control"]["mean"] == 88.0
+    assert result["control"]["status"] == "PASS" and result["control"]["mean"] == 882 / 13
+    assert result["control"]["card"] == 65.56
     h = result["hypotheses"]
-    assert h["R1"]["value"] == 930 / 13 and h["R1"]["n"] == 650
-    assert h["R1"]["effective_length"] == 16384  # 92.6, 90.8, 87.1, then 81.5 at 32768
+    assert h["R1"]["value"] == 882 / 13 and h["R1"]["n"] == 650
+    assert h["R1"]["effective_length"] == 16384  # 92.6, 90.8, 86.9, then 81.7 at 32768
     for name in ("R1", "R2", "R3"):
         assert (h[name]["verdict"], h[name]["outcome"]) == ("clear", "confirmed"), (name, h[name])
-    assert [c["value"] < 0 for c in h["R2"]["comparisons"]] == [True, True]
+    # R2 over the lengths both models hold: Bielik's 32768 is null, so 4096-16384.
+    assert h["R2"]["lengths"] == [4096, 8192, 16384] and h["R2"]["lengths_excluded"] == [32768, 65536, 131072]
+    assert len(h["R2"]["comparisons"]) == 1 and h["R2"]["value"] < 0
+    assert abs(h["R2"]["slopes"][C.BIELIK]["slope"] - 10) < 1e-9  # 70, 80, 90 per doubling
     drops = h["R3"]["drops"]
-    assert {c: d["drop"] for c, d in drops.items()} == {"retrieval": 8, "tracing": 70, "aggregation": 50, "qa": 20}
-    assert drops["retrieval"]["se_clustered"] == 0  # every niah task drops by 8
+    assert {c: d["drop"] for c, d in drops.items()} == {"retrieval": 14, "tracing": 70, "aggregation": 50, "qa": 20}
+    assert drops["retrieval"]["se_clustered"] == 0  # every niah task drops by 14
     assert [drops[c]["verdict_clustered"] for c in ("tracing", "aggregation", "qa")] == ["undetermined"] * 3
     assert [c["verdict_clustered"] for c in h["R3"]["comparisons"]] == ["undetermined", "undetermined"]
-    assert result["models"]["bielik-11b-v3.1-vllm"]["excluded_lengths"] == {"65536": WINDOW, "131072": WINDOW}
-    assert result["models"]["bielik-11b-v3.1-vllm"]["per_length"]["131072"] is None
-    assert f"excluded: bielik-11b-v3.1-vllm @ 131072: {WINDOW}" in text
-    assert sum(line.startswith("deviation: ") for line in text.splitlines()) == len(C.DEVIATIONS) == 3
+    assert result["models"][C.BIELIK]["excluded_lengths"] == {"32768": FIT, "65536": WINDOW, "131072": WINDOW}
+    assert result["models"][C.BIELIK]["per_length"]["131072"] is None
+    assert result["models"][C.SLAYER]["per_length"]["4096"] == 20
+    assert f"excluded: {C.BIELIK} @ 32768: {FIT}" in text
+    assert sum(line.startswith("deviation: ") for line in text.splitlines()) == len(C.DEVIATIONS) == 2
 
 
 def test_compare_noise_case_holm_and_control_fail():
     with tempfile.TemporaryDirectory() as d:
         write_model(Path(d), C.LFM3, {**dict.fromkeys(S.LENGTHS[:-1], 86), 131072: 84})
-        write_model(Path(d), C.QWEN_4B, {**dict.fromkeys(S.LENGTHS[:-1], 88), 131072: 86})
-        write_model(Path(d), C.QWEN_9B, {**dict.fromkeys(S.LENGTHS[:-1], 88), 131072: 96})
+        write_model(Path(d), C.BIELIK, dict.fromkeys(S.LENGTHS[:4], 86), skipped={65536: WINDOW, 131072: WINDOW})
         result, text = run_compare(Path(d))
     assert result["control"]["status"] == "FAIL"
     assert text.index("hypotheses not read until explained") < text.index("| hypothesis |")
     h = result["hypotheses"]
     assert (h["R1"]["verdict"], h["R1"]["outcome"]) == ("noise", "open") and h["R1"]["value"] == 84
-    # vs 4B the slopes are equal (z = 0), vs 9B LFM3 is clearly steeper: the weaker comparison decides.
-    assert (h["R2"]["verdict"], h["R2"]["outcome"]) == ("noise", "open") and abs(h["R2"]["z"]) < 1e-9
+    # LFM3 and Bielik are both flat over 4096-32768: equal slopes, z = 0, under 2 SE, so R2 is refuted.
+    assert (h["R2"]["verdict"], h["R2"]["outcome"]) == ("noise", "refuted") and abs(h["R2"]["z"]) < 1e-9
+    assert h["R2"]["lengths"] == [4096, 8192, 16384, 32768]
     assert h["R3"]["outcome"] == "refuted" and h["R3"]["value"] == 0  # every category drops by 2
     # Holm, m = 3: in raw-p order the adjusted p are 3p, then max(previous, 2p), then max(previous, p), capped at 1.
     rows = sorted(h.values(), key=lambda x: x["p"])
@@ -236,16 +242,21 @@ def test_compare_missing_model_is_not_run_and_holm_keeps_m_3():
     with tempfile.TemporaryDirectory() as d:
         clear_case(Path(d))
         for suffix in (".json", ".jsonl.gz"):
-            (Path(d) / f"{C.QWEN_9B}{suffix}").unlink()
+            (Path(d) / f"{C.BIELIK}{suffix}").unlink()
         result, text = run_compare(Path(d))
+        for suffix in (".json", ".jsonl.gz"):
+            (Path(d) / f"{C.LFM3}{suffix}").unlink()
+        no_lfm3, _ = run_compare(Path(d))
     h = result["hypotheses"]
-    assert result["control"] == {"status": "not run", "missing": [C.QWEN_9B]}
-    assert (h["R2"]["verdict"], h["R2"]["outcome"], h["R2"]["missing"]) == ("not run", "not run", [C.QWEN_9B])
-    assert "| R2 | missing: qwen3.5-9b |" in text and "control: not run" in text
-    assert result["models"][C.QWEN_9B] is None and result["holm_m"] == 3
+    assert result["control"]["status"] == "PASS"  # the control needs LFM3 only
+    assert (h["R2"]["verdict"], h["R2"]["outcome"], h["R2"]["missing"]) == ("not run", "not run", [C.BIELIK])
+    assert f"| R2 | missing: {C.BIELIK} |" in text
+    assert result["models"][C.BIELIK] is None and result["holm_m"] == 3
     low, high = sorted((h["R1"], h["R3"]), key=lambda x: x["p"])
     assert low["p_holm"] == min(1.0, 3 * low["p"])  # m stays 3 with R2 not run
     assert high["p_holm"] == max(low["p_holm"], min(1.0, 2 * high["p"]))
+    assert no_lfm3["control"] == {"status": "not run", "missing": [C.LFM3]}
+    assert all(x["verdict"] == "not run" for x in no_lfm3["hypotheses"].values())
 
 
 if __name__ == "__main__":

@@ -1,22 +1,23 @@
-"""Hypotheses R1-R3 and the control of PROTOCOL.md, from the per-sample results of every model.
+"""Hypotheses R1-R3 and the control of PROTOCOL.md (as amended), from the per-sample results of every model.
 
 Usage: python3 compare.py   (reads results/<model-id>.json and .jsonl.gz, writes results/hypotheses.json)
 
-- Control: Qwen3.5-9B's mean at 131072 against its card value 87.11; PASS when |z| < 2. Without a PASS the
-  hypotheses are printed but not read.
+- Control (Amendment 1): LFM3-1.7B's mean at 131072 against its card value 65.56; PASS when |z| < 2. Without a
+  PASS the hypotheses are printed but not read.
 - R1: LFM3-1.7B's mean at 131072 against 85.6. Confirmed: z <= -3 (after Holm); refuted: mean >= 85.6.
-- R2: slope of the per-length mean against log2(length), LFM3-1.7B minus Qwen3.5-4B and minus Qwen3.5-9B.
-  Confirmed: both differences negative, clear after Holm; refuted: neither is 2 SE below 0.
+- R2 (Amendment 1): slope of the per-length mean against log2(length), LFM3-1.7B minus Bielik 11B v3.1, over the
+  lengths both models hold. Confirmed: negative, clear after Holm; refuted: not 2 SE below 0.
 - R3: LFM3-1.7B's drop from 4096 to 131072 per category; tracing minus retrieval and aggregation minus retrieval.
   Confirmed: both positive, clear after Holm; refuted: the retrieval drop is not smaller than both.
+- Slayer 1B 1.09 at update 70 000 (Amendment 2): per length, descriptive only.
 
 z = value / SE, two-sided normal p, Holm over the three hypotheses with m = 3 whether or not they ran. Verdict from
-the Holm-adjusted p at the p of |z| = 3 (clear) and |z| = 2 (likely), else noise. R2 and R3 combine two comparisons;
-the weaker one (in the predicted direction) is the hypothesis's z. SEs come from one bootstrap per model: samples
-resampled within each task and length, 10 000 resamples, seed fixed per model. Errors (score null) are left out
-and counted, never scored as 0; a length that is null for a model is left out and listed.
+the Holm-adjusted p at the p of |z| = 3 (clear) and |z| = 2 (likely), else noise. R3 combines two comparisons; the
+weaker one (in the predicted direction) is the hypothesis's z. SEs come from one bootstrap per model (independent
+per model, Amendment 1): samples resampled within each task and length, 10 000 resamples, seed fixed per model.
+Errors (score null) are left out and counted, never scored as 0; a length that is null for a model is left out and
+listed.
 """
-
 import gzip
 import json
 import math
@@ -30,9 +31,9 @@ sys.path.insert(0, str(HERE.parents[1] / "tools"))
 import statystyka  # noqa: E402  (Holm, p from z and t, clustered SE; shared with the other research reports)
 from summarize import BOOTSTRAP_RESAMPLES, BOOTSTRAP_SEED, CATEGORIES, HEADLINE_LENGTH, LENGTHS, TASKS  # noqa: E402
 
-LFM3, QWEN_4B, QWEN_9B = "lfm3-1.7b", "qwen3.5-4b", "qwen3.5-9b"
-DESCRIPTIVE = ["bielik-11b-v3.1-vllm", "slayer1b-1.08"]
-CONTROL_CARD = 87.11  # Qwen3.5-9B, LFM3-1.7B card
+LFM3, BIELIK, SLAYER = "lfm3-1.7b", "bielik-11b-v3.1", "slayer1b-1.09-k70000"
+DESCRIPTIVE = [SLAYER]
+CONTROL_CARD = 65.56  # LFM3-1.7B card, RULER 128K (PROTOCOL.md, Amendment 1)
 THRESHOLD = 85.6  # Llama-2-7B at 4K, the paper's effective-length threshold
 SHORT, LONG = LENGTHS[0], HEADLINE_LENGTH
 M = 3  # hypotheses in the Holm family, fixed by the protocol
@@ -40,14 +41,11 @@ MIN_CLUSTERS = statystyka.MIN_KLASTROW
 VERDICT = {"pewne": "clear", "prawdopodobne": "likely", "szum": "noise", statystyka.NIEROZSTRZYGALNE: "undetermined",
            None: "undetermined"}
 DEVIATIONS = [
-    "R2: the protocol asks for a paired bootstrap over samples, but RULER generates its data with each model's own "
-    "tokenizer, so sample i of two models is a different text; the slopes get independent bootstraps per model and "
-    "the SE of the difference is sqrt(SE_a^2 + SE_b^2).",
     "R3: the protocol asks for an SE clustered by task, but tracing has 1 task and aggregation 2, under the 3 "
     "clusters a clustered verdict needs; the verdict uses the sample-level bootstrap SE (tasks fixed), and the "
     "clustered SE is reported next to it, undetermined for every category with fewer than 3 tasks.",
-    "R2, R3: each hypothesis compares against two references; its z is the weaker of the two comparisons "
-    "(it holds only if both hold), so each hypothesis enters Holm once and m stays 3.",
+    "R3: the hypothesis compares two categories against retrieval; its z is the weaker of the two comparisons "
+    "(it holds only if both hold), so it enters Holm once and m stays 3.",
 ]
 
 
@@ -138,11 +136,11 @@ def comparison(label, value, se, n):
 
 
 def control(runs):
-    run = runs.get(QWEN_9B)
+    run = runs.get(LFM3)
     if run is None:
-        return {"status": "not run", "missing": [QWEN_9B]}
+        return {"status": "not run", "missing": [LFM3]}
     if LONG not in run["point"]:
-        return {"status": "not run", "missing": [f"{QWEN_9B} @ {LONG}: {run['excluded'][LONG]}"]}
+        return {"status": "not run", "missing": [f"{LFM3} @ {LONG}: {run['excluded'][LONG]}"]}
     mean, se = stat(lambda p: length_mean(p[LONG]), run)
     z = z_of(mean - CONTROL_CARD, se)
     return {"status": "PASS" if z is not None and abs(z) < 2 else "FAIL", "mean": mean, "se": se, "card": CONTROL_CARD,
@@ -170,22 +168,19 @@ def r1(runs):
 
 
 def r2(runs):
-    if gone := missing(runs, [LFM3, QWEN_4B, QWEN_9B], []):
+    if gone := missing(runs, [LFM3, BIELIK], []):
         return {"missing": gone}
-    comps, slopes, excluded = [], {}, {}
-    for ref in (QWEN_4B, QWEN_9B):
-        lengths = [length for length in LENGTHS if length in runs[LFM3]["point"] and length in runs[ref]["point"]]
-        excluded[ref] = [length for length in LENGTHS if length not in lengths]
-        if len(lengths) < 3:
-            return {"missing": [f"{LFM3} vs {ref}: fewer than 3 lengths measured by both"]}
-        s_l, se_l = stat(lambda p: slope(p, lengths), runs[LFM3])
-        s_r, se_r = stat(lambda p: slope(p, lengths), runs[ref])
-        slopes[f"{LFM3} (lengths shared with {ref})"] = {"slope": s_l, "se": se_l}
-        slopes[ref] = {"slope": s_r, "se": se_r}
-        comps.append(comparison(f"slope {LFM3} - {ref}", s_l - s_r, math.hypot(se_l, se_r),
-                                n_scored(runs[LFM3], lengths) + n_scored(runs[ref], lengths)))
-    return combine("slope per doubling, LFM3 - Qwen3.5 (weaker of 4B, 9B)", comps, sign=-1,
-                   slopes=slopes, lengths_excluded=excluded)
+    # The lengths both models hold (Amendment 1: 4096-32768); a length null for either model is left out.
+    lengths = [length for length in LENGTHS if length in runs[LFM3]["point"] and length in runs[BIELIK]["point"]]
+    if len(lengths) < 3:
+        return {"missing": [f"{LFM3} vs {BIELIK}: fewer than 3 lengths measured by both"]}
+    s_l, se_l = stat(lambda p: slope(p, lengths), runs[LFM3])
+    s_b, se_b = stat(lambda p: slope(p, lengths), runs[BIELIK])
+    comp = comparison(f"slope {LFM3} - {BIELIK}", s_l - s_b, math.hypot(se_l, se_b),
+                      n_scored(runs[LFM3], lengths) + n_scored(runs[BIELIK], lengths))
+    return combine("slope per doubling, LFM3 - Bielik", [comp], sign=-1,
+                   slopes={LFM3: {"slope": s_l, "se": se_l}, BIELIK: {"slope": s_b, "se": se_b}},
+                   lengths=lengths, lengths_excluded=[length for length in LENGTHS if length not in lengths])
 
 
 def r3(runs):
@@ -235,7 +230,7 @@ def combine(measure, comps, sign, **extra):
 
 def analyse(results_dir, resamples):
     runs = {}
-    for model in [LFM3, QWEN_4B, QWEN_9B, *DESCRIPTIVE]:
+    for model in [LFM3, BIELIK, *DESCRIPTIVE]:
         run = load(results_dir, model)
         if run is not None and model not in DESCRIPTIVE:
             run.update(point=point(run["scores"]), resamples=resamples,
@@ -276,7 +271,7 @@ def report(result):
     if c["status"] == "not run":
         lines.append(f"control: not run (missing: {', '.join(c['missing'])}); hypotheses not read until it passes")
     else:
-        lines.append(f"control: Qwen3.5-9B @ {LONG} = {c['mean']:.2f} +- {c['se']:.2f} vs card {c['card']}, "
+        lines.append(f"control: LFM3-1.7B @ {LONG} = {c['mean']:.2f} +- {c['se']:.2f} vs card {c['card']}, "
                      f"z = {fmt(c['z'])}: {c['status']}")
         if c["status"] == "FAIL":
             lines.append("control FAIL: hypotheses not read until explained")
