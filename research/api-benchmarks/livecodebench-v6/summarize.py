@@ -7,6 +7,11 @@ published result.
 Only answered problems (`status: ok`) are scored. A request that failed in our infrastructure (`error`) or a
 prompt that does not fit the context (`unsupported`) is left out of n and counted on its own, never as a wrong
 answer (PROTOCOL.md, "Settings").
+
+graded.jsonl must still have the sha256 `lcb.py score` recorded in `<out-dir>/manifest.json`, and
+`<out-dir>/run.json` must hold the generation and scoring records (code commit, runner checksums, machine,
+sampling in effect); both go into the result file. The sha256 of the two files written here goes into
+`manifest.json` next to them, which compare.py checks.
 """
 
 import gzip
@@ -17,6 +22,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import provenance
 from lcb import DATA_REPO, DATA_REVISION, EVAL_PROCESSES, EVAL_TIMEOUT, LCB_COMMIT, PROMPT_STYLE, SEED, TEMPERATURE, TOP_P
 
 BUDGETS = (4096, 16384)  # PROTOCOL.md, "Metrics"; "no limit" is the main score
@@ -77,8 +83,26 @@ def margin_of(records: list[dict[str, Any]]) -> list[int]:
                    for r in records if r["status"] == "ok" and r.get("max_tokens") is not None})
 
 
+def run_record(out_dir: Path) -> dict[str, Any]:
+    """run.json of the run: the generation sessions (all with the same sampling) and the scoring step."""
+    path = out_dir / "run.json"
+    if not path.is_file():
+        sys.exit(f"summarize.py: {path} is missing; lcb.py generate and score write it (code commit, machine, "
+                 "sampling in effect), and a result without it cannot say what produced it")
+    run = json.loads(path.read_text(encoding="utf-8"))
+    if not run.get("generation") or "scoring" not in run:
+        sys.exit(f"summarize.py: {path} lacks the generation or scoring record; run lcb.py generate and score")
+    samplings = {json.dumps(g["sampling"], sort_keys=True) for g in run["generation"]}
+    if len(samplings) != 1:
+        sys.exit(f"summarize.py: the generation sessions in {path} used different sampling settings: {samplings}")
+    return run
+
+
 def main(out_dir: str, target: str, limit: int | None) -> None:
     path = Path(out_dir) / "graded.jsonl"
+    hashes = provenance.verify(Path(out_dir), ["graded.jsonl"], "summarize.py")
+    run = run_record(Path(out_dir))
+    raw_sha = provenance.read_manifest(Path(out_dir))["files"].get("generations.jsonl", {}).get("sha256")
     records = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
     model = Path(target).name
     if limit:
@@ -115,9 +139,18 @@ def main(out_dir: str, target: str, limit: int | None) -> None:
             "scored_text": "after the last </think>",
             "eval_timeout_s": EVAL_TIMEOUT,
             "eval_processes": EVAL_PROCESSES,
+            **run["generation"][0]["sampling"],
         },
         "other_metrics": {k: v for k, v in m.items() if k not in ("score", "stderr", "n")},
         "deviations": "see README.md, Deviations",
+        "provenance": {
+            "generation": [{k: v for k, v in g.items() if k != "sampling"} for g in run["generation"]],
+            "scoring": run["scoring"],
+            "summary": provenance.step("summarize.py"),
+            "inputs_sha256": hashes,
+        },
+        "raw_outputs": {"file": f"out/{model}/generations.jsonl (with thinking; not committed)", "sha256": raw_sha,
+                        "jsonl_gz_output": "the code LiveCodeBench extracted from the text after the last </think>"},
     }
     if reason:
         result["reason"] = reason
@@ -137,6 +170,8 @@ def main(out_dir: str, target: str, limit: int | None) -> None:
     size = Path(f"{target}.jsonl.gz").stat().st_size
     if size > 10 * 1024 * 1024:
         sys.exit(f"summarize.py: {target}.jsonl.gz is {size} bytes, over the 10 MB limit of the repo")
+    provenance.record(Path(target).parent, [f"{Path(target).name}.json", f"{Path(target).name}.jsonl.gz"],
+                      "summarize.py")
     print(json.dumps(result, indent=2))
 
 

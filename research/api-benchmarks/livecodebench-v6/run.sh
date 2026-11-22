@@ -12,7 +12,8 @@
 # Steps: clone LiveCodeBench at the pinned commit, send one chat request per problem (lcb.py generate; resumes
 # where it stopped), score with LiveCodeBench's evaluator on the CPU (lcb.py score) and write
 # results/<model-id>.json and .jsonl.gz (summarize.py). For LFM3-1.7B, `vllm serve` runs at the pinned revision
-# during generation.
+# during generation. Each step records our code commit, runner checksums and machine in out/<model-id>/run.json and
+# the sha256 of what it wrote in manifest.json; the next step stops if its input no longer matches.
 # Env: CONCURRENCY (requests in flight; default 64 on vLLM, 2 on the API), REQUEST_TIMEOUT (seconds per request,
 # default 21600), PORT (vLLM, default 8000), OUT_DIR, RESULTS_DIR.
 set -euo pipefail
@@ -97,7 +98,7 @@ else
   grep -i "generation config" "$OUT/vllm.log" || true  # the sampling defaults vLLM took from the model
 
   "$VENV_LCB/bin/python" "$HERE/lcb.py" generate "$OUT" --base-url "http://localhost:$PORT" --model "$MODEL" \
-    --concurrency "${CONCURRENCY:-64}" ${LIMIT[@]+"${LIMIT[@]}"}
+    --model-repo "$REPO@$REVISION" --concurrency "${CONCURRENCY:-64}" ${LIMIT[@]+"${LIMIT[@]}"}
   kill $VLLM_PID; wait $VLLM_PID 2>/dev/null || true
 fi
 

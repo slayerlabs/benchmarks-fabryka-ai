@@ -11,6 +11,8 @@ raw z: |z| >= 3 clear, 2-3 likely, < 2 noise; SE = 0 gives no z and the verdict 
 hypotheses with m = 3 always; a hypothesis whose models have not been run is `not run`, and still counts in m.
 The control (Amendment 1) is LFM3-1.7B's own pass@1 against its card value. The v6-only problems and every budget
 pair of L3 are printed as descriptive rows, not tested.
+Every result file read must have the sha256 summarize.py recorded in <results-dir>/manifest.json; otherwise
+nothing is computed.
 """
 
 import gzip
@@ -20,6 +22,8 @@ import statistics
 import sys
 from pathlib import Path
 from typing import Any
+
+import provenance
 
 HERE = Path(__file__).parent
 LFM = "lfm3-1.7b"
@@ -60,6 +64,7 @@ def load(results: Path, model: str) -> dict[str, dict] | None:
     path = results / f"{model}.jsonl.gz"
     if not path.is_file():
         return None
+    provenance.verify(results, [path.name], "compare.py")
     with gzip.open(path, "rt", encoding="utf-8") as f:
         return {r["task_id"]: r for r in map(json.loads, f)}
 
@@ -204,6 +209,7 @@ def control(results: Path) -> dict[str, Any]:
     path = results / f"{LFM}.json"
     if not path.is_file():
         return {"status": "not run", "card": CONTROL_CARD}
+    provenance.verify(results, [path.name], "compare.py")
     r = json.loads(path.read_text(encoding="utf-8"))
     if r["score"] is None or not r["stderr"]:
         return {"status": "undecidable", "card": CONTROL_CARD, "score": r["score"], "stderr": r["stderr"]}

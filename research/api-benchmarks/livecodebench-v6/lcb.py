@@ -2,8 +2,8 @@
 
 Runs in the LiveCodeBench venv that run.sh builds, with the pinned clone in `.cache/LiveCodeBench`:
 
-    python lcb.py generate <out-dir> --base-url http://localhost:8000 --model <served-name> [--limit N]
-                           [--chat-template-kwargs JSON]
+    python lcb.py generate <out-dir> --base-url http://localhost:8000 --model <served-name>
+                           --model-repo REPO@REVISION [--limit N] [--chat-template-kwargs JSON]
     python lcb.py generate <out-dir> --chat-url https://.../v1/chat/completions --model <name> --api-key-env VAR
                            --tokenizer REPO@REVISION --context N --margin M [--retries R] [--limit N]
     python lcb.py score <out-dir> [--limit N]
@@ -17,6 +17,12 @@ rendering adds. A problem that already has an answer is skipped, so an interrupt
 request failed is tried again. `score` extracts the code from the text after the last `</think>` and runs
 LiveCodeBench's evaluator on it, writing one line per problem to `<out-dir>/graded.jsonl`, which summarize.py
 reads. `--limit N` takes the first N problems in LiveCodeBench's order (sorted by question_id).
+
+Provenance (provenance.py): each `generate` appends to `<out-dir>/run.json` our code commit, the runner checksums,
+the machine (GPU, CPU, platform) and the sampling settings in effect (sent in the request, and on vLLM the defaults
+it fills from the model's `generation_config.json`); `score` writes the same for the scoring machine. Each step
+records the sha256 of the file it wrote in `<out-dir>/manifest.json`, and `score` stops unless generations.jsonl
+still has the sha256 `generate` recorded.
 """
 
 import argparse
@@ -35,6 +41,8 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+import provenance
 
 HERE = Path(__file__).resolve().parent
 LCB_DIR = Path(os.environ.get("LCB_DIR", HERE / ".cache" / "LiveCodeBench"))
@@ -59,6 +67,11 @@ PROMPT_STYLE = "OpenAIChat"
 # lcb_runner/runner/parser.py defaults of the evaluator: seconds per test case, and worker processes.
 EVAL_TIMEOUT = 6
 EVAL_PROCESSES = 12
+# Sampling parameters vLLM v0.34.0 fills from the model's generation_config.json when a request leaves them unset
+# (`ModelConfig.get_diff_sampling_param`, `generation_config="auto"`; priority request -> these -> vLLM's own).
+VLLM_GENERATION_CONFIG_PARAMS = ("repetition_penalty", "presence_penalty", "frequency_penalty", "temperature", "top_k",
+                                 "top_p", "min_p", "max_new_tokens", "skip_special_tokens")
+API_SERVER_DEFAULTS = "unknown (Fabryka API)"
 
 THINK_END = "</think>"
 # After any failed attempt every request waits: 10 s, doubling up to 5 min while failures continue, back to 10 s
@@ -170,6 +183,7 @@ class Server:
     count: Callable[[list[dict[str, str]]], int] | None = None
     context: int = 0
     margin: int = 0
+    model_repo: str | None = None  # vLLM: REPO@REVISION it serves, whose generation_config.json sets its defaults
     gate: Gate = field(default_factory=Gate)
 
 
@@ -238,6 +252,48 @@ def local_counter(spec: str) -> Callable[[list[dict[str, str]]], int]:
     return count
 
 
+def request_body(server: Server, messages: list[dict[str, str]], max_tokens: int) -> dict[str, Any]:
+    extra = {"chat_template_kwargs": server.template_kwargs} if server.template_kwargs else {}
+    if server.tokenize_url:
+        # Sampling as oai_runner.py sends it (no stop for chat models), with the PROTOCOL.md temperature, top_p, seed.
+        body = {"model": server.model, "messages": messages, "n": 1, "temperature": TEMPERATURE, "top_p": TOP_P,
+                "max_tokens": max_tokens, "seed": SEED, "frequency_penalty": 0, "presence_penalty": 0, **extra}
+    else:
+        # Only the fields the Fabryka API accepted in the IFEval run (no `n`, penalties, `stop` or template switches).
+        body = {"model": server.model, "messages": messages, "temperature": TEMPERATURE, "top_p": TOP_P,
+                "max_tokens": max_tokens, "seed": SEED}
+    return body
+
+
+def vllm_defaults(generation_config: dict[str, Any], body: dict[str, Any]) -> dict[str, Any]:
+    """What vLLM v0.34.0 takes from `generation_config` for a request with `body`: the parameters it reads from the
+    file (non-null), minus those the request sets itself; `max_new_tokens` is vLLM's `max_tokens`."""
+    taken = {p: generation_config[p] for p in VLLM_GENERATION_CONFIG_PARAMS if generation_config.get(p) is not None}
+    if "max_new_tokens" in taken:
+        taken["max_tokens"] = taken.pop("max_new_tokens")
+    return {p: v for p, v in taken.items() if p not in body}
+
+
+def generation_config(model_repo: str) -> dict[str, Any]:
+    """The model's generation_config.json at the pinned revision (`REPO@REVISION`), as vLLM reads it."""
+    from huggingface_hub import hf_hub_download
+
+    repo, _, revision = model_repo.partition("@")
+    return json.loads(Path(hf_hub_download(repo, "generation_config.json", revision=revision)).read_text("utf-8"))
+
+
+def sampling(server: Server) -> dict[str, Any]:
+    """The sampling settings in effect: what the request sends, and what the server fills in for the rest."""
+    body = request_body(server, [], 0)
+    sent = {k: v for k, v in body.items() if k not in ("model", "messages", "max_tokens", "chat_template_kwargs")}
+    if not server.tokenize_url:
+        return {"request_sampling": sent, "server_defaults": API_SERVER_DEFAULTS}
+    if not server.model_repo:
+        raise SetupError("vLLM generation needs --model-repo REPO@REVISION to record the sampling defaults")
+    return {"request_sampling": sent, "server_defaults": vllm_defaults(generation_config(server.model_repo), body),
+            "server_defaults_source": f"vLLM generation_config=auto: {server.model_repo} generation_config.json"}
+
+
 def answer(server: Server, messages: list[dict[str, str]]) -> dict[str, Any]:
     """One sample for one prompt; output limited only by the context (max_tokens = context - prompt tokens, minus
     the margin for a hosted API)."""
@@ -254,14 +310,7 @@ def answer(server: Server, messages: list[dict[str, str]]) -> dict[str, Any]:
     if max_tokens < 1:
         return {**record, "status": "unsupported",
                 "error": f"prompt has {prompt_tokens} tokens (margin {server.margin}), the context is {context}"}
-    if server.tokenize_url:
-        # Sampling as oai_runner.py sends it (no stop for chat models), with the PROTOCOL.md temperature, top_p, seed.
-        body = {"model": server.model, "messages": messages, "n": 1, "temperature": TEMPERATURE, "top_p": TOP_P,
-                "max_tokens": max_tokens, "seed": SEED, "frequency_penalty": 0, "presence_penalty": 0, **extra}
-    else:
-        # Only the fields the Fabryka API accepted in the IFEval run (no `n`, penalties, `stop` or template switches).
-        body = {"model": server.model, "messages": messages, "temperature": TEMPERATURE, "top_p": TOP_P,
-                "max_tokens": max_tokens, "seed": SEED}
+    body = request_body(server, messages, max_tokens)
     response = post_with_retries(server, server.chat_url, body)
     choice = response["choices"][0]
     message = choice["message"]
@@ -283,7 +332,8 @@ def server_from(args: argparse.Namespace) -> Server:
     if args.base_url:
         kwargs = json.loads(args.chat_template_kwargs) if args.chat_template_kwargs else None
         return Server(model=args.model, chat_url=f"{args.base_url}/v1/chat/completions", retries=args.retries,
-                      timeout=args.request_timeout, tokenize_url=f"{args.base_url}/tokenize", template_kwargs=kwargs)
+                      timeout=args.request_timeout, tokenize_url=f"{args.base_url}/tokenize", template_kwargs=kwargs,
+                      model_repo=args.model_repo or None)
     if args.chat_template_kwargs:
         sys.exit("lcb.py generate: a hosted API takes no --chat-template-kwargs")
     if not (args.api_key_env and args.tokenizer and args.context):
@@ -296,11 +346,27 @@ def server_from(args: argparse.Namespace) -> Server:
                   context=args.context, margin=args.margin)
 
 
+def update_run(out: Path, key: str, value: dict[str, Any]) -> None:
+    """`<out>/run.json`: `generation` is a list (one entry per `generate`, as a run may resume elsewhere), `scoring`
+    the last `score`."""
+    path = out / "run.json"
+    run = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {"generation": []}
+    if key == "generation":
+        run["generation"].append(value)
+    else:
+        run[key] = value
+    path.write_text(json.dumps(run, indent=2) + "\n", encoding="utf-8")
+
+
 def generate(args: argparse.Namespace) -> None:
     out = Path(args.out_dir).resolve()
     out.mkdir(parents=True, exist_ok=True)
     gen_path = out / "generations.jsonl"
+    if gen_path.is_file():  # resuming: the answers kept must be the ones the earlier run wrote
+        provenance.verify(out, ["generations.jsonl"], "lcb.py generate")
     server = server_from(args)
+    update_run(out, "generation", {**provenance.step("lcb.py generate"), "model": args.model, "limit": args.limit,
+                                   "sampling": sampling(server)})
     lcb = lcb_modules()
     rows = load_rows(args.limit)
     done = {r["question_id"] for r in read_jsonl(gen_path) if r["status"] != "error"}
@@ -325,15 +391,20 @@ def generate(args: argparse.Namespace) -> None:
         print(f"{question_id}: {record['status']} {record.get('output_tokens', '')} {record.get('finish_reason', '')}"
               f" {record['seconds']} s", flush=True)
 
-    with ThreadPoolExecutor(args.concurrency) as pool:
-        for future in [pool.submit(run, item) for item in todo]:
-            future.result()
+    try:
+        with ThreadPoolExecutor(args.concurrency) as pool:
+            for future in [pool.submit(run, item) for item in todo]:
+                future.result()
+    finally:  # also after an interrupted run, so that a resumed one can check what it keeps
+        if gen_path.is_file():
+            provenance.record(out, ["generations.jsonl"], "lcb.py generate")
 
 
 def score(args: argparse.Namespace) -> None:
     out = Path(args.out_dir).resolve()
     lcb = lcb_modules()
     rows = load_rows(args.limit)
+    provenance.verify(out, ["generations.jsonl"], "lcb.py score")
     answers = {r["question_id"]: r for r in read_jsonl(out / "generations.jsonl")}  # the last record wins
     missing = [r["question_id"] for r in rows if r["question_id"] not in answers]
     if missing:
@@ -361,6 +432,8 @@ def score(args: argparse.Namespace) -> None:
                 "error": a.get("error"), "eval_metadata": meta, "code": code, "started": a.get("started"),
                 "max_tokens": a.get("max_tokens"), "api_prompt_tokens": a.get("api_prompt_tokens"),
             }, ensure_ascii=False) + "\n")
+    provenance.record(out, ["graded.jsonl"], "lcb.py score")
+    update_run(out, "scoring", {**provenance.step("lcb.py score"), "limit": args.limit})
     print(f"lcb.py: graded {len(scored)} of {len(rows)} problems -> {out / 'graded.jsonl'}")
 
 
@@ -371,6 +444,7 @@ def main() -> None:
     g.add_argument("out_dir")
     g.add_argument("--base-url", default="", help="our vLLM server (counts the prompt through its /tokenize)")
     g.add_argument("--chat-url", default="", help="a hosted API's chat completions URL")
+    g.add_argument("--model-repo", default="", help="vLLM: REPO@REVISION served, to record its sampling defaults")
     g.add_argument("--model", required=True)
     g.add_argument("--limit", type=int)
     g.add_argument("--chat-template-kwargs", default="")
