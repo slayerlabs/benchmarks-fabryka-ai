@@ -1356,7 +1356,7 @@ def test_exact_budget_and_prompt_counted_pair_on_fakes():
     assert compare.exact_budget("lfm3-1.7b", rows, 2 * p * (100 + 150 + 150) / 3) == 150
     assert compare.exact_budget("lfm3-1.7b", rows, 2 * p * (100 + 150.4 + 150.4) / 3) == 150  # nearest integer
     assert compare.exact_budget("lfm3-1.7b", rows, 2 * p * 1000) == 300  # beyond every answer: the longest
-    assert compare.mean_cost("lfm3-1.7b", rows, 150, prompt=True) == 2 * p * ((100 + 150 + 150) / 3 + 300)
+    assert math.isclose(compare.mean_cost("lfm3-1.7b", rows, 150, prompt=True), 2 * p * ((100 + 150 + 150) / 3 + 300))
     with tempfile.TemporaryDirectory() as tmp:
         res = Path(tmp)
         write_run(res, compare.LFM, CLEAR_LFM)
