@@ -61,7 +61,7 @@ window from the length a model actually uses ([Hsieh et al. 2024](https://arxiv.
 ## Control (before any claim)
 
 Qwen3.5-9B at 131072 must land within 2 SE of its card value (87.11). If it does not, the setup is the suspect:
-no hypothesis below is read until the gap is explained.
+no hypothesis below is read until the gap is explained. <!-- ocena-bez-se: pre-registered rule, written before any result; "gap" names the control's difference, no comparison is claimed -->
 
 ## Hypotheses
 
@@ -146,7 +146,7 @@ scoring next to the pre-registered one.
   RULER is not among the listed exceptions. The card does not state the harness (RULER's own scripts or another
   implementation), the thinking mode, the number of samples, how an output that never closes its reasoning is
   scored, or any output cap or timeout. The review of the run found no scoring bug; the gap can come from any of
-  these unstated choices, so 65.56 cannot serve as a pass/fail target for this setup. Liquid was not asked.
+  these unstated choices, so 65.56 cannot serve as a pass/fail target for this setup. Liquid was not asked. <!-- ocena-bez-se: amendment text as decided; the control's z = 6.62 is in the bullet above -->
 - **The control is marked `not comparable (Amendment 4)` instead of passed,** and the hypotheses R1-R3 are read
   with that mark. compare.py still prints the measured z and FAIL against 65.56.
 - **Every score is reported twice.** Pre-registered, as above: the text after the last `</think>` is scored, and
@@ -183,3 +183,32 @@ score only. No pre-registered number changes.
 - **The per-length table is descriptive only, with no test statistic:** LFM3-1.7B 4096/8192/16384 = 93.35 / 92.41 /
   87.30; Bielik 11B v3.1 = 97.44 (12 tasks, no `qa_2`) / 93.89 / 91.70. R2 still counts in the Holm family
   (m = 3), as a hypothesis that was not run.
+
+## Amendment 7 (2026-11-22, 17:40 UTC)
+
+**Written after every result and after their verification** (two verifiers and a refuter, the team's
+`zespol-benchmark` process). Seen: all results, `results/hypotheses.json` as published at 503f2225, and the
+verifiers' recomputations. No pre-registered wording or threshold changes. This records where the code and the
+report did not follow the protocol, how they follow it now, and what the verification found.
+
+- **R3 is read with the SE named above** (Hypotheses, R3: "SE clustered by task"). `compare.py` used the
+  sample-level bootstrap SE (tasks fixed) for the verdict and reported R3 as refuted, clear. Tracing has 1 task and
+  aggregation 2, under the 3 clusters a clustered verdict needs, so R3 is undetermined; it enters Holm without a p
+  and m stays 3. The sample-level comparison is reported next to it, as descriptive.
+- **R1 keeps its rule** (z <= -3 on the sample-level SE). Reported next to it, not replacing it: the same
+  difference with the SE clustered by task, a sign test over the tasks, the mean without the 2 lowest tasks, and the
+  effective length with the z of every length.
+- **The control failed and nothing has explained the difference.** Amendment 4's `not comparable` label was added
+  after the failure; the report states the control as failed, unexplained, and R1-R3 as read under Amendment 4,
+  against the rule above that no hypothesis is read until the difference is explained. The rescorings the refuter
+  tried after the failure (7 variants) are reported as exploratory, with that count.
+- **Data parity.** Bielik's `PaulGrahamEssays.json` differs from LFM3-1.7B's and Slayer's (RULER fetches the
+  essays live). `compare.py` checks the source files of the compared models and refuses the R2 test when they
+  differ; the descriptive R2 table of Amendment 6 states the difference, the unequal task sets at 4096, the text per
+  nominal length and that it compares modes (reasoning on vLLM, no reasoning through the API), not models.
+- **Provenance.** What is known of the LFM3-1.7B and Slayer generation (the commits the runs started from, the
+  sha256 of the out-dir archives) is recorded as declared, not recorded. Results are written only from committed
+  runner files; the first summaries came from a `summarize.py` in no commit, and the same code at a commit
+  reproduces them.
+- **Two records for one sample** (LFM3-1.7B at 4096, a rerun appended): the last record is scored, as
+  `ruler.latest_records` has done since the first run; the report gives the means with the first record instead.
