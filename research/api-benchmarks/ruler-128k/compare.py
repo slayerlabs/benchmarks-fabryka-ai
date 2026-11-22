@@ -71,8 +71,10 @@ R2_CAVEATS = [
 CONTROL_READING = ("R1-R3 are read under Amendment 4, against the protocol's rule that no hypothesis is read until the "
                    "gap is explained (PROTOCOL.md, Control)")
 CONTROL_LABEL = ("Amendment 4 labels the card value `not comparable` because the card states no RULER setup (harness, "
-                 "thinking mode, samples, output cap; card @ 1da06bec line 536 gives only serving and sampling "
-                 "defaults); the label was added after the control had failed")
+                 "samples, scoring of unfinished reasoning, output cap; card @ 1da06bec line 536 gives only serving and "
+                 "sampling defaults); the label was added after the control had failed. Amendment 4 also listed the "
+                 "thinking mode as unstated, which is wrong: the card says at line 201 that reasoning is enabled by "
+                 "default, as in this run (Amendment 8)")
 THRESHOLD = 85.6  # Llama-2-7B at 4K, the paper's effective-length threshold
 SHORT, LONG = LENGTHS[0], HEADLINE_LENGTH
 M = 3  # hypotheses in the Holm family, fixed by the protocol

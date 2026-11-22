@@ -201,9 +201,11 @@ Results files and their sha256 (`results/results.sha256.json`):
   commit, and the code provenance lists the runner files that differ.
 - **The control failed; every score is also given under strict scoring** (PROTOCOL.md, Amendments 4 and 7, both
   decided after the result and after the control failed). The measured control stays the reading: FAIL, with the
-  difference from the card unexplained (Hypotheses). The card states no RULER setup (harness, thinking mode, samples,
-  scoring of unfinished reasoning, output cap; card @ `1da06bec` line 536 gives only serving and sampling defaults);
-  Amendment 4 therefore labels the card value `not comparable` and reads R1-R3 anyway. That label came after the
+  difference from the card unexplained (Hypotheses). The card states no RULER setup (harness, samples, scoring of
+  unfinished reasoning, output cap; card @ `1da06bec` line 536 gives only serving and sampling defaults). Amendment 4
+  also named the thinking mode as unstated; that is wrong: the card says at line 201 "Reasoning is enabled by
+  default", which this run follows (Amendment 8). Amendment 4 stays as written. It
+  labels the card value `not comparable` and reads R1-R3 anyway. That label came after the
   failure and does not make it a pass: R1-R3 are read under Amendment 4, against the protocol's rule that no
   hypothesis is read until the difference is explained. Liquid was not asked. The rescorings tried after the
   failure are exploratory (Hypotheses, Control). Strict scoring: an output without `</think>` scores 0 (Amendment 4's
