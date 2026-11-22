@@ -1,13 +1,13 @@
 {
   "files": {
     "dev-ground-truth.json": {
-      "at": "2026-11-22T16:30:02+00:00",
-      "sha256": "0dd1bbc50dcb33495ffcb6a65da89a80b6a08ba607ae1593b1c9facd0c16c9f5",
+      "at": "2026-11-22T17:06:27+00:00",
+      "sha256": "93a9b3ef137dc30fb9520d90c47d0b595f9bd53f239905978887f0bdf66d4e3d",
       "written_by": "summarize.py"
     },
     "dev-ground-truth.jsonl.gz": {
-      "at": "2026-11-22T16:30:02+00:00",
-      "sha256": "737b3729918d4ec39e5a81e9f4c3649c20278b398f395fb41bd59bc1b93d2097",
+      "at": "2026-11-22T17:06:27+00:00",
+      "sha256": "bd0f5d8ff6b824bb6fce43e91ce2c9ab4bca01c3016a5a017963d4dfb5438d0f",
       "written_by": "summarize.py"
     }
   }

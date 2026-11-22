@@ -68,6 +68,40 @@
         "of": 50,
         "share": 0.0
       }
+    },
+    "extraction_e1": {
+      "note": "PROTOCOL.md Amendment 1, secondary: the same answers with extraction E1, scored by the same scorer; never the headline",
+      "with_background": {
+        "score": 96.0,
+        "stderr": 2.77,
+        "stderr_clustered": 2.59,
+        "n": 50,
+        "correct": 48,
+        "clusters": 15,
+        "main_problems": {
+          "solved": 13,
+          "of": 15,
+          "solved_ids": [
+            "1",
+            "3",
+            "4",
+            "6",
+            "7",
+            "10",
+            "19",
+            "29",
+            "38",
+            "44",
+            "47",
+            "49",
+            "51"
+          ]
+        },
+        "verdicts": {
+          "fail": 2,
+          "pass": 48
+        }
+      }
     }
   },
   "deviations": "see README.md, Deviations",
@@ -115,18 +149,18 @@
     ],
     "scoring": {
       "step": "scicode_runner.py score",
-      "at": "2026-11-22T16:30:01+00:00",
-      "code_commit": "04eb5c19066124dfc068101f56d2039e6f5f51f8",
+      "at": "2026-11-22T17:06:25+00:00",
+      "code_commit": "2ade850c2c7ff4d5ebd6f41eae0caacfa50c4eb2",
       "code_commit_source": "host",
       "dirty": false,
       "runner_sha256": {
         "run.sh": "6474912e862d2f50955fc0fb0c654d3d9158fb763b5439e76217f5d4bee1ecc6",
-        "scicode_runner.py": "63384b278a938c672c9939d7cc93121b2109f9b1037f49a2b913ee2c39cd9ed8",
-        "summarize.py": "cf48975affc387ce7eb7bbdcd2a842802da29418cf53a3b41d4da8ef70719fb9",
-        "hypotheses.py": "49d7caf5855f0085f464c29a6b4b698f5dba0378e39f6ad5e3cf09535d19b354",
+        "scicode_runner.py": "bd20dc2c5a5bdfdde5208126f4748866f0407d5c28df98bf0b5145216a4be761",
+        "summarize.py": "b206a9d32438b01bc3609bb964720f673a668c0462f7ea57cef377b1f66fdccd",
+        "hypotheses.py": "f8843aaf3ee9b100e4f1e86547152869c9e44f04e12b94b0e109c259a00fc0ca",
         "provenance.py": "0564193ded8b1365017eab60a148b94f4c648e762513ee9925aa588c5c0ba3ab",
         "Dockerfile.scoring": "5996d6efd23d18e42619b051ff17f77c55c9bc4244874b3963290d57807b9ab5",
-        "requirements-scoring.lock": "96ed3a5704cdb6fac21f6a2728ff24044a6dee180c57a0407f5499aa93754076",
+        "requirements-scoring.lock": "565303cad3e49ff4f49e6af28386e8cb60bc8412682d44f07504677bcd57df10",
         "requirements-generate.lock": "14231797536cdc3d5cc4d94223137c26909e28e1786d6ac4c9cdecb2e0d8e37f",
         "setup_scoring_vm.sh": "945d67385a6e3f98ffc4821f003b4108c8dcad1ccb9450c3152d79efbfa690e9"
       },
@@ -185,7 +219,7 @@
       },
       "scorer_timeout_s": 1800,
       "container": {
-        "image_id": "sha256:1ebd2bc5b8d83f62abf5375a38fbc91d1be87471cf9b372345fba53f1549b85f",
+        "image_id": "sha256:261432609549a9638b735a97e423d9b2b2aa952754dfd2b649cd6b02c09c59cb",
         "network": "none"
       },
       "runs": {
@@ -202,10 +236,35 @@
             "--log-dir",
             "/root/scicode/repo/research/api-benchmarks/scicode/out/dev-ground-truth/score/logs",
             "--output-dir",
-            "/root/scicode/repo/research/api-benchmarks/scicode/out/dev-ground-truth/score/results",
+            "/root/scicode/repo/research/api-benchmarks/scicode/out/dev-ground-truth/score/results_logs",
             "--with-background"
           ],
-          "seconds": 222.6,
+          "seconds": 221.9,
+          "printed": {
+            "correct_problems": 13,
+            "problems_denominator": 15,
+            "correct_steps": 48,
+            "steps_denominator": 50,
+            "dataset_revision_seen": "4510f6a6aa27c43fad7b43da2c59602a86e88480"
+          }
+        },
+        "e1/with_background": {
+          "command": [
+            "python",
+            "eval/scripts/test_generated_code.py",
+            "--model",
+            "dev-ground-truth",
+            "--split",
+            "validation",
+            "--code-dir",
+            "/root/scicode/repo/research/api-benchmarks/scicode/out/dev-ground-truth/generated_code_e1",
+            "--log-dir",
+            "/root/scicode/repo/research/api-benchmarks/scicode/out/dev-ground-truth/score/logs_e1",
+            "--output-dir",
+            "/root/scicode/repo/research/api-benchmarks/scicode/out/dev-ground-truth/score/results_logs_e1",
+            "--with-background"
+          ],
+          "seconds": 222.7,
           "printed": {
             "correct_problems": 13,
             "problems_denominator": 15,
@@ -218,18 +277,18 @@
     },
     "summary": {
       "step": "summarize.py",
-      "at": "2026-11-22T16:30:01+00:00",
-      "code_commit": "04eb5c19066124dfc068101f56d2039e6f5f51f8",
+      "at": "2026-11-22T17:06:26+00:00",
+      "code_commit": "2ade850c2c7ff4d5ebd6f41eae0caacfa50c4eb2",
       "code_commit_source": "git",
       "dirty": false,
       "runner_sha256": {
         "run.sh": "6474912e862d2f50955fc0fb0c654d3d9158fb763b5439e76217f5d4bee1ecc6",
-        "scicode_runner.py": "63384b278a938c672c9939d7cc93121b2109f9b1037f49a2b913ee2c39cd9ed8",
-        "summarize.py": "cf48975affc387ce7eb7bbdcd2a842802da29418cf53a3b41d4da8ef70719fb9",
-        "hypotheses.py": "49d7caf5855f0085f464c29a6b4b698f5dba0378e39f6ad5e3cf09535d19b354",
+        "scicode_runner.py": "bd20dc2c5a5bdfdde5208126f4748866f0407d5c28df98bf0b5145216a4be761",
+        "summarize.py": "b206a9d32438b01bc3609bb964720f673a668c0462f7ea57cef377b1f66fdccd",
+        "hypotheses.py": "f8843aaf3ee9b100e4f1e86547152869c9e44f04e12b94b0e109c259a00fc0ca",
         "provenance.py": "0564193ded8b1365017eab60a148b94f4c648e762513ee9925aa588c5c0ba3ab",
         "Dockerfile.scoring": "5996d6efd23d18e42619b051ff17f77c55c9bc4244874b3963290d57807b9ab5",
-        "requirements-scoring.lock": "96ed3a5704cdb6fac21f6a2728ff24044a6dee180c57a0407f5499aa93754076",
+        "requirements-scoring.lock": "565303cad3e49ff4f49e6af28386e8cb60bc8412682d44f07504677bcd57df10",
         "requirements-generate.lock": "14231797536cdc3d5cc4d94223137c26909e28e1786d6ac4c9cdecb2e0d8e37f",
         "setup_scoring_vm.sh": "945d67385a6e3f98ffc4821f003b4108c8dcad1ccb9450c3152d79efbfa690e9"
       },
@@ -240,7 +299,7 @@
       "python": "3.10.12"
     },
     "inputs_sha256": {
-      "graded.jsonl": "726a92c273c29d63b02982fee1de8bdf9573c008ac60dd7c6e6e5cf705fbbda5"
+      "graded.jsonl": "d893b2ad3f0592123381bef60d9993a5784009f69d425bc67d7e89e0a22ee99c"
     },
     "api_events": null,
     "api_events_reason": "no api-events.jsonl: this run sent no requests (ground truth) or was not run through the API"
