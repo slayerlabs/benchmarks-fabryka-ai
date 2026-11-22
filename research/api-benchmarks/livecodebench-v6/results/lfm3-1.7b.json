@@ -1,0 +1,125 @@
+{
+  "benchmark": "LiveCodeBench v6 (code generation, release_v6)",
+  "model": "lfm3-1.7b",
+  "metric": "pass@1",
+  "score": 72.23,
+  "stderr": 1.38,
+  "n": 1055,
+  "date": "2026-11-22",
+  "harness": "https://github.com/LiveCodeBench/LiveCodeBench @ 28fef95ea8c9f7a547c8329f2cd3d32b92c1fa24",
+  "data": "https://huggingface.co/datasets/livecodebench/code_generation_lite @ 0fe84c3912ea0c4d4a78037083943e8f0c4dd505, release_v6",
+  "settings": {
+    "prompt_style": "OpenAIChat",
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "seed": 20261122,
+    "max_tokens": "context minus prompt tokens",
+    "context": 262144,
+    "trials": 1,
+    "scored_text": "after the last </think>",
+    "eval_timeout_s": 6,
+    "eval_processes": 12,
+    "request_sampling": {
+      "n": 1,
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "seed": 20261122,
+      "frequency_penalty": 0,
+      "presence_penalty": 0
+    },
+    "server_defaults": {
+      "repetition_penalty": 1.1,
+      "top_k": 50
+    },
+    "server_defaults_source": "vLLM generation_config=auto: LiquidAI/LFM3-1.7B@1da06bec6a819da10b54c67e5c90972b46d81871 generation_config.json (effective values, recorded after the run from that file; PROTOCOL.md, Amendment 3)"
+  },
+  "other_metrics": {
+    "v6_only": {
+      "score": 57.14,
+      "stderr": 3.74,
+      "n": 175
+    },
+    "per_difficulty": {
+      "easy": {
+        "score": 97.2,
+        "stderr": 0.92,
+        "n": 322
+      },
+      "medium": {
+        "score": 79.63,
+        "stderr": 2.06,
+        "n": 383
+      },
+      "hard": {
+        "score": 41.14,
+        "stderr": 2.63,
+        "n": 350
+      }
+    },
+    "pass_at_budget": {
+      "4096": {
+        "score": 20.76,
+        "stderr": 1.25,
+        "n": 1055
+      },
+      "16384": {
+        "score": 52.61,
+        "stderr": 1.54,
+        "n": 1055
+      }
+    },
+    "output_tokens": {
+      "mean": 16277.7,
+      "median": 13386,
+      "max": 67266
+    },
+    "problems": 1055,
+    "unfinished": 0,
+    "errors": 0,
+    "unsupported": 0,
+    "evaluator_runner_errors": 0
+  },
+  "deviations": "see README.md, Deviations",
+  "provenance": {
+    "recorded": "by hand on 2026-11-22, after the method verification, for a result produced before lcb.py recorded provenance; see README.md, Deviations",
+    "generation": [
+      {
+        "step": "lcb.py generate",
+        "code_commit": "fc13b0bd (inferred: graded.jsonl lacks fields HEAD adds)",
+        "dirty": "unknown (not recorded)",
+        "runner_sha256": {
+          "run.sh": "f8f5ad8acb53575f9d1ab9ab0f0fb162cf6f59be5e1d21a93786c3ac82c46359",
+          "lcb.py": "436f42d5b261172532c9c7c765f2f3f95e63b6c28cf7871322c01ad0251fa9dc",
+          "summarize.py": "4b4588d71ba4355465c33998409982acfedc8ab4abe74ffff5fdb89af4056252",
+          "note": "sha256 of the files at fc13b0bd, not measured on the machine at run time"
+        },
+        "gpu": "H100 80GB (vast.ai; written by hand, nvidia-smi output not captured)",
+        "platform": "unknown (vast.ai Linux instance, not captured)",
+        "cpu": "unknown (not captured)",
+        "model": "lfm3-1.7b",
+        "limit": null
+      }
+    ],
+    "scoring": {
+      "step": "lcb.py score",
+      "code_commit": "fc13b0bd (inferred: graded.jsonl lacks fields HEAD adds)",
+      "dirty": "unknown (not recorded)",
+      "gpu": "H100 80GB (vast.ai; the same instance as generation, scoring on its CPU)",
+      "platform": "unknown (vast.ai Linux instance, not captured)",
+      "cpu": "unknown (not captured)",
+      "limit": null
+    },
+    "summary": {
+      "step": "summarize.py",
+      "code_commit": "unknown (not recorded; fc13b0bd's summarize.py writes this file's original fields)"
+    },
+    "inputs_sha256": {
+      "graded.jsonl": "53b63644ae80b70efef18a3b46de01fbf46f68b3f7982a2462a73e6d32938f46"
+    }
+  },
+  "raw_outputs": {
+    "file": "out/lfm3-1.7b/generations.jsonl (with thinking; not committed), kept gzipped as out/lfm3-1.7b/lfm3-lcb-generations.jsonl.gz (sha256 31ffd66d74e3e9f61cd770dede59023b56bb45be48829f7f3ca5c51ad797d0f4)",
+    "sha256": "f87135ab212a42d11b8921d20cc10f02cc9fe7672c607055e1edae98951c693a",
+    "jsonl_gz_output": "the code LiveCodeBench extracted from the text after the last </think>"
+  }
+}

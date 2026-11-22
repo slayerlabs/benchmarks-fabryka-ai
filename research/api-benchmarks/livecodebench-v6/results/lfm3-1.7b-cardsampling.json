@@ -1,0 +1,257 @@
+{
+  "benchmark": "LiveCodeBench v6 (code generation, release_v6)",
+  "model": "lfm3-1.7b-cardsampling",
+  "metric": "pass@1",
+  "score": 72.89,
+  "stderr": 1.37,
+  "n": 1055,
+  "date": "2026-11-22",
+  "harness": "https://github.com/LiveCodeBench/LiveCodeBench @ 28fef95ea8c9f7a547c8329f2cd3d32b92c1fa24",
+  "data": "https://huggingface.co/datasets/livecodebench/code_generation_lite @ 0fe84c3912ea0c4d4a78037083943e8f0c4dd505, release_v6",
+  "settings": {
+    "prompt_style": "OpenAIChat",
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "seed": 20261122,
+    "max_tokens": "context minus prompt tokens",
+    "context": 262144,
+    "trials": 1,
+    "scored_text": "after the last </think>",
+    "eval_timeout_s": 6,
+    "eval_processes": 12,
+    "request_sampling": {
+      "n": 1,
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "seed": 20261122,
+      "frequency_penalty": 0,
+      "presence_penalty": 0,
+      "repetition_penalty": 1.0,
+      "top_k": 0
+    },
+    "server_defaults": {},
+    "server_defaults_source": "vLLM generation_config=auto: LiquidAI/LFM3-1.7B@1da06bec6a819da10b54c67e5c90972b46d81871 generation_config.json",
+    "effective": {
+      "n": 1,
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "seed": 20261122,
+      "frequency_penalty": 0,
+      "presence_penalty": 0,
+      "repetition_penalty": 1.0,
+      "top_k": 0
+    }
+  },
+  "other_metrics": {
+    "v6_only": {
+      "score": 56.57,
+      "stderr": 3.75,
+      "n": 175
+    },
+    "per_difficulty": {
+      "easy": {
+        "score": 98.14,
+        "stderr": 0.75,
+        "n": 322
+      },
+      "medium": {
+        "score": 79.9,
+        "stderr": 2.05,
+        "n": 383
+      },
+      "hard": {
+        "score": 42.0,
+        "stderr": 2.64,
+        "n": 350
+      }
+    },
+    "pass_at_budget": {
+      "4096": {
+        "score": 18.1,
+        "stderr": 1.19,
+        "n": 1055
+      },
+      "16384": {
+        "score": 44.93,
+        "stderr": 1.53,
+        "n": 1055
+      }
+    },
+    "output_tokens": {
+      "mean": 19175.0,
+      "median": 17200,
+      "max": 64994
+    },
+    "problems": 1055,
+    "unfinished": 0,
+    "errors": 0,
+    "unsupported": 0,
+    "evaluator_runner_errors": 0
+  },
+  "deviations": "see README.md, Deviations",
+  "provenance": {
+    "generation": [
+      {
+        "step": "lcb.py generate",
+        "at": "2026-11-22T06:00:41+00:00",
+        "code_commit": "b16e0c3c986c2fe9477a087726c04f80a458fffe",
+        "dirty": false,
+        "runner_sha256": {
+          "run.sh": "835eca201cc1443e3f7ceb3174f5dbc17268440a10bdabbbecb4e24d54db1423",
+          "lcb.py": "4c4963609161d322a88e1ace1f0f2c28360d6bbb03749203db3bfe9231a5d6fc",
+          "summarize.py": "23d2cc2a3326f9e4c2f2ce117aa70b368d564197dcb663e20c8ff25f65ee6288",
+          "compare.py": "03e2b6e5eb9824ccbd655f22b68ac33ea7b2a9be2a9f4c6c2951fdad00cdc73c",
+          "ablation.py": "00f0f1091b097eea920da0a4bfe6ea7c13cd64f2deea876c758867191eb58cb4",
+          "provenance.py": "0a080f5503e58f24b0290ae61f5727b74fba662a0882050a7daee7694ec76080"
+        },
+        "gpu": "NVIDIA H100 80GB HBM3",
+        "platform": "Linux-6.8.0-147-generic-x86_64-with-glibc2.35",
+        "cpu": "Intel(R) Xeon(R) Platinum 8480+",
+        "cpu_count": 224,
+        "python": "3.12.16",
+        "model": "lfm3-1.7b",
+        "limit": 5,
+        "server": {
+          "base_url": "http://localhost:8000",
+          "version": {
+            "version": "0.34.0"
+          },
+          "models": {
+            "object": "list",
+            "data": [
+              {
+                "id": "lfm3-1.7b",
+                "object": "model",
+                "created": 1795327241,
+                "owned_by": "vllm",
+                "root": "LiquidAI/LFM3-1.7B",
+                "parent": null,
+                "max_model_len": 262144,
+                "permission": [
+                  {
+                    "id": "modelperm-882a4b3f2d6a5678",
+                    "object": "model_permission",
+                    "created": 1795327241,
+                    "allow_create_engine": false,
+                    "allow_sampling": true,
+                    "allow_logprobs": true,
+                    "allow_search_indices": false,
+                    "allow_view": true,
+                    "allow_fine_tuning": false,
+                    "organization": "*",
+                    "group": null,
+                    "is_blocking": false
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "step": "lcb.py generate",
+        "at": "2026-11-22T06:06:34+00:00",
+        "code_commit": "b16e0c3c986c2fe9477a087726c04f80a458fffe",
+        "dirty": false,
+        "runner_sha256": {
+          "run.sh": "835eca201cc1443e3f7ceb3174f5dbc17268440a10bdabbbecb4e24d54db1423",
+          "lcb.py": "4c4963609161d322a88e1ace1f0f2c28360d6bbb03749203db3bfe9231a5d6fc",
+          "summarize.py": "23d2cc2a3326f9e4c2f2ce117aa70b368d564197dcb663e20c8ff25f65ee6288",
+          "compare.py": "03e2b6e5eb9824ccbd655f22b68ac33ea7b2a9be2a9f4c6c2951fdad00cdc73c",
+          "ablation.py": "00f0f1091b097eea920da0a4bfe6ea7c13cd64f2deea876c758867191eb58cb4",
+          "provenance.py": "0a080f5503e58f24b0290ae61f5727b74fba662a0882050a7daee7694ec76080"
+        },
+        "gpu": "NVIDIA H100 80GB HBM3",
+        "platform": "Linux-6.8.0-147-generic-x86_64-with-glibc2.35",
+        "cpu": "Intel(R) Xeon(R) Platinum 8480+",
+        "cpu_count": 224,
+        "python": "3.12.16",
+        "model": "lfm3-1.7b",
+        "limit": null,
+        "server": {
+          "base_url": "http://localhost:8000",
+          "version": {
+            "version": "0.34.0"
+          },
+          "models": {
+            "object": "list",
+            "data": [
+              {
+                "id": "lfm3-1.7b",
+                "object": "model",
+                "created": 1795327595,
+                "owned_by": "vllm",
+                "root": "LiquidAI/LFM3-1.7B",
+                "parent": null,
+                "max_model_len": 262144,
+                "permission": [
+                  {
+                    "id": "modelperm-9053e69a5241cca6",
+                    "object": "model_permission",
+                    "created": 1795327595,
+                    "allow_create_engine": false,
+                    "allow_sampling": true,
+                    "allow_logprobs": true,
+                    "allow_search_indices": false,
+                    "allow_view": true,
+                    "allow_fine_tuning": false,
+                    "organization": "*",
+                    "group": null,
+                    "is_blocking": false
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "scoring": {
+      "step": "lcb.py score",
+      "at": "2026-11-22T08:26:08+00:00",
+      "code_commit": "b16e0c3c986c2fe9477a087726c04f80a458fffe",
+      "dirty": false,
+      "runner_sha256": {
+        "run.sh": "835eca201cc1443e3f7ceb3174f5dbc17268440a10bdabbbecb4e24d54db1423",
+        "lcb.py": "4c4963609161d322a88e1ace1f0f2c28360d6bbb03749203db3bfe9231a5d6fc",
+        "summarize.py": "23d2cc2a3326f9e4c2f2ce117aa70b368d564197dcb663e20c8ff25f65ee6288",
+        "compare.py": "03e2b6e5eb9824ccbd655f22b68ac33ea7b2a9be2a9f4c6c2951fdad00cdc73c",
+        "ablation.py": "00f0f1091b097eea920da0a4bfe6ea7c13cd64f2deea876c758867191eb58cb4",
+        "provenance.py": "0a080f5503e58f24b0290ae61f5727b74fba662a0882050a7daee7694ec76080"
+      },
+      "gpu": "NVIDIA H100 80GB HBM3",
+      "platform": "Linux-6.8.0-147-generic-x86_64-with-glibc2.35",
+      "cpu": "Intel(R) Xeon(R) Platinum 8480+",
+      "cpu_count": 224,
+      "python": "3.12.16",
+      "limit": null
+    },
+    "summary": {
+      "step": "summarize.py",
+      "at": "2026-11-22T08:27:45+00:00",
+      "code_commit": "b16e0c3c986c2fe9477a087726c04f80a458fffe",
+      "dirty": false,
+      "runner_sha256": {
+        "run.sh": "835eca201cc1443e3f7ceb3174f5dbc17268440a10bdabbbecb4e24d54db1423",
+        "lcb.py": "4c4963609161d322a88e1ace1f0f2c28360d6bbb03749203db3bfe9231a5d6fc",
+        "summarize.py": "23d2cc2a3326f9e4c2f2ce117aa70b368d564197dcb663e20c8ff25f65ee6288",
+        "compare.py": "03e2b6e5eb9824ccbd655f22b68ac33ea7b2a9be2a9f4c6c2951fdad00cdc73c",
+        "ablation.py": "00f0f1091b097eea920da0a4bfe6ea7c13cd64f2deea876c758867191eb58cb4",
+        "provenance.py": "0a080f5503e58f24b0290ae61f5727b74fba662a0882050a7daee7694ec76080"
+      },
+      "gpu": null,
+      "platform": "macOS-26.6-arm64-arm-64bit",
+      "cpu": "Apple M5 Pro",
+      "cpu_count": 18,
+      "python": "3.12.2"
+    },
+    "inputs_sha256": {
+      "graded.jsonl": "1ecdc1a3293c7820291d1e2f16edcbfa66df4d5a2460d6440399e0afd5f7d2ea"
+    }
+  },
+  "raw_outputs": {
+    "file": "out/lfm3-1.7b-cardsampling/generations.jsonl (with thinking; not committed)",
+    "sha256": "bd7e6137c051d56f43de29c8debc2a836cc66fe351778ef30adb1913f3678c15",
+    "jsonl_gz_output": "the code LiveCodeBench extracted from the text after the last </think>"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "files": {
+    "bielik-11b-v3.1.json": {
+      "at": "2026-11-22T13:54:36+00:00",
+      "sha256": "a75c5ca85e48ad4365f672fd9c3e57e6f200580d8740434fcb4b50cb8245ad63",
+      "written_by": "summarize.py"
+    },
+    "bielik-11b-v3.1.jsonl.gz": {
+      "at": "2026-11-22T13:54:36+00:00",
+      "sha256": "82d824c499c6b601f5079690c6a1704233147c1ca71d4034b797032af8b917a0",
+      "written_by": "summarize.py"
+    },
+    "lfm3-1.7b-cardsampling.json": {
+      "at": "2026-11-22T08:27:45+00:00",
+      "sha256": "4d0aba4808b85ecdbb17b234b025aa019d64e30fc3887577e193876dcb4416d9",
+      "written_by": "summarize.py"
+    },
+    "lfm3-1.7b-cardsampling.jsonl.gz": {
+      "at": "2026-11-22T08:27:45+00:00",
+      "sha256": "2dede261cb85a771ae9ba8fdfdfed88ab16e7b65cb032a0a261d207a4fe2f521",
+      "written_by": "summarize.py"
+    },
+    "lfm3-1.7b.json": {
+      "at": "2026-11-22T05:33:39+00:00",
+      "sha256": "746a9d4a1cbb9785da9a1ce072ab6f3875fe135eb401e44d0f60ce68cecb55f4",
+      "written_by": "recorded after the run from the files' current hashes (2026-11-22, after method verification), not by the step that wrote them; see README.md, Deviations"
+    },
+    "lfm3-1.7b.jsonl.gz": {
+      "at": "2026-11-22T05:33:39+00:00",
+      "sha256": "c722dac8871897739124ab70446bc24e91783669226775007aaa0da6699ae24a",
+      "written_by": "recorded after the run from the files' current hashes (2026-11-22, after method verification), not by the step that wrote them; see README.md, Deviations"
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "thesis": "A1 (PROTOCOL.md, Amendment 4): |pass@1(original) - pass@1(card sampling)| < 2 pt",
+  "original": "lfm3-1.7b",
+  "ablation": "lfm3-1.7b-cardsampling",
+  "margin_pt": 2.0,
+  "alpha": 0.05,
+  "z": 1.6448536269514715,
+  "sampling": {
+    "lfm3-1.7b": {
+      "repetition_penalty": 1.1,
+      "top_k": 50
+    },
+    "lfm3-1.7b-cardsampling": {
+      "repetition_penalty": 1.0,
+      "top_k": 0
+    }
+  },
+  "score": {
+    "lfm3-1.7b": 72.23,
+    "lfm3-1.7b-cardsampling": 72.89
+  },
+  "paired_pass_at_1": {
+    "lfm3-1.7b": 72.22748815165878,
+    "lfm3-1.7b-cardsampling": 72.8909952606635
+  },
+  "difference": "original minus ablation, pp",
+  "n": 1055,
+  "delta": -0.6635071090047393,
+  "se": 0.9337601435234708,
+  "ci90": [
+    -2.1994058677820467,
+    0.8723916497725683
+  ],
+  "p_lower": 0.07617182054497784,
+  "p_upper": 0.0021691600067514916,
+  "p_tost": 0.07617182054497784,
+  "verdict": "not shown equivalent",
+  "mcnemar": {
+    "only_original": 45,
+    "only_ablation": 52,
+    "p_exact": 0.5426101580458746,
+    "descriptive": true
+  },
+  "excluded": {
+    "not_scored_original": 0,
+    "not_scored_ablation": 0,
+    "missing_original": 0,
+    "missing_ablation": 0,
+    "total": 0
+  },
+  "consequence": "A1 not shown equivalent: both numbers are reported (lfm3-1.7b 72.23, lfm3-1.7b-cardsampling 72.89); the card-sampling one is the headline for comparisons with the card's 73.46",
+  "inputs_sha256": {
+    "lfm3-1.7b-cardsampling.json": "4d0aba4808b85ecdbb17b234b025aa019d64e30fc3887577e193876dcb4416d9",
+    "lfm3-1.7b-cardsampling.jsonl.gz": "2dede261cb85a771ae9ba8fdfdfed88ab16e7b65cb032a0a261d207a4fe2f521",
+    "lfm3-1.7b.json": "746a9d4a1cbb9785da9a1ce072ab6f3875fe135eb401e44d0f60ce68cecb55f4",
+    "lfm3-1.7b.jsonl.gz": "c722dac8871897739124ab70446bc24e91783669226775007aaa0da6699ae24a"
+  }
+}
