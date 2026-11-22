@@ -30,8 +30,9 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 RUNNER_FILES = ["run.sh", "predict.py", "slayer_predict.py", "prepare_limited.py", "ruler.py", "summarize.py",
-                "compare.py", "provenance.py", "requirements.lock.txt",
-                "nemo_shim/nemo/collections/asr/parts/utils/manifest_utils.py", "../../common/slayer_lm.py"]
+                "compare.py", "provenance.py", "diagnostics.py", "report.py", "declared_provenance.json",
+                "requirements.lock.txt", "nemo_shim/nemo/collections/asr/parts/utils/manifest_utils.py",
+                "../../common/slayer_lm.py", "../../tools/statystyka.py"]
 # vLLM 0.34.0 vllm/config/model.py get_diff_sampling_param: the generation_config.json fields it uses
 VLLM_CONFIG_FIELDS = ["repetition_penalty", "presence_penalty", "frequency_penalty", "temperature", "top_k", "top_p",
                       "min_p", "max_new_tokens", "skip_special_tokens"]
@@ -70,6 +71,25 @@ def code_version(root=HERE):
         return {"commit": None, "dirty": None, "reason": "not a git checkout or no git"}
     status = _run("git", "-C", str(root), "status", "--porcelain")
     return {"commit": commit, "dirty": None if status is None else bool(status)}
+
+
+def uncommitted_runner_files(root=HERE):
+    """Runner files that differ from HEAD (modified, staged or untracked); None outside a git checkout."""
+    status = _run("git", "-C", str(root), "status", "--porcelain", "--untracked-files=all", "--",
+                  *(name for name in RUNNER_FILES if (Path(root) / name).exists()))
+    # `_run` strips the output, which can cut the first line's leading status column: split on whitespace instead
+    return None if status is None else sorted(line.split(None, 1)[1] for line in status.splitlines() if line.strip())
+
+
+def require_committed(who, root=HERE):
+    """Stop before writing a published result while a runner file differs from the commit (the first summary of
+    this benchmark was written by a summarize.py that is in no commit)."""
+    changed = uncommitted_runner_files(root)
+    if changed is None:
+        raise SystemExit(f"{who}: STOP: not a git checkout; a published result needs the commit of its code")
+    if changed:
+        raise SystemExit(f"{who}: STOP: runner files differ from the commit: {', '.join(changed)}; commit them "
+                         "first, a published result must name a commit that holds the code that wrote it")
 
 
 def runner_sha256(root=HERE):

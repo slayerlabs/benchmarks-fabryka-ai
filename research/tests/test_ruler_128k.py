@@ -604,10 +604,38 @@ def test_summarize_old_out_dir_records_gaps_and_writes_manifests():
     assert {"gpu", "platform", "machine", "processor", "cpu_count"} <= set(prov["summarize"]["hardware"])
     sampling = result["settings"]["sampling"]
     assert sampling["from_generation_config"] == {"repetition_penalty": 1.1, "top_k": 50} and "recorded" in sampling
-    assert len(result["warnings"]) == 2 and "no generation.jsonl" in result["warnings"][0]
-    assert V.INPUTS in result["warnings"][1]
+    assert len(result["warnings"]) == 3 and "no generation.jsonl" in result["warnings"][0]
+    # lfm3-1.7b is in declared_provenance.json: the commit its run started from, marked declared, not recorded
+    declared = prov["generation_declared"]
+    assert declared["status"] == "declared, not recorded" and declared["code"]["commit"].startswith("d45c3509")
+    assert "out/box/ruler-lfm3-1.7b-outputs.tgz" in declared["archives_sha256"]
+    assert result["warnings"][1].startswith("generation provenance declared, not recorded: commit d45c3509")
+    assert V.INPUTS in result["warnings"][2]
     assert again["warnings"] == result["warnings"]  # the manifest written by summarize.py keeps saying so
     assert manifest == files
+
+
+def test_published_results_need_committed_runner_files():
+    """The first summary was written by a summarize.py in no commit (sha256 d80f85f1..., tree dirty). Writing into
+    results/ now stops while a runner file differs from HEAD; a temp dir (tests, smoke runs) is not checked."""
+    import shutil
+    import subprocess
+    with tempfile.TemporaryDirectory() as d:
+        root = Path(d) / "research" / "api-benchmarks" / "ruler-128k"
+        root.mkdir(parents=True)
+        for name in ("run.sh", "summarize.py"):
+            shutil.copy(BENCH / name, root / name)
+        git = ["git", "-C", str(root), "-c", "user.name=t", "-c", "user.email=t@t"]
+        subprocess.run([*git, "init", "-q"], check=True)
+        subprocess.run([*git, "add", "-A"], check=True)
+        subprocess.run([*git, "commit", "-qm", "x"], check=True)
+        clean = V.uncommitted_runner_files(root)
+        (root / "summarize.py").write_text("# changed\n")
+        (root / "report.py").write_text("# new\n")
+        dirty = V.uncommitted_runner_files(root)
+        stops(lambda: V.require_committed("summarize.py", root), "runner files differ from the commit")
+    assert clean == [] and dirty == ["report.py", "summarize.py"]  # relative to the checkout (here: the bench dir)
+    assert "declared_provenance.json" in V.RUNNER_FILES and "../../tools/statystyka.py" in V.RUNNER_FILES
 
 
 def test_summarize_new_out_dir_carries_generation_provenance_and_checks_inputs():

@@ -4,7 +4,8 @@ Usage: python3 compare.py   (reads results/<model-id>.json and .jsonl.gz, writes
 
 Before reading, the sha256 of each model's result files is checked against results/results.sha256.json (written by
 summarize.py); a mismatch stops. A result file not listed there is recorded now and named in `warnings`.
-hypotheses.json carries the sha256 of every input and the commit, runner sha256 and machine of this run.
+hypotheses.json carries the sha256 of every input and the commit, runner sha256 and machine of this run; its own
+sha256 goes to results.sha256.json. Writing results/hypotheses.json stops while a runner file differs from the commit.
 
 - Control (Amendment 1): LFM3-1.7B's mean at 131072 against its card value 65.56; PASS when |z| < 2, else FAIL with
   the gap unexplained (PROTOCOL.md, Control: no hypothesis is read until it is explained). Amendment 4 (decided after
@@ -593,10 +594,14 @@ def report(result):
 
 
 def main(results_dir=HERE / "results", resamples=BOOTSTRAP_RESAMPLES):
-    result = analyse(Path(results_dir), resamples)
+    results_dir = Path(results_dir)
+    if results_dir.resolve() == (HERE / "results").resolve():
+        provenance.require_committed("compare.py")
+    result = analyse(results_dir, resamples)
     print(report(result))
-    Path(results_dir).mkdir(parents=True, exist_ok=True)
-    (Path(results_dir) / "hypotheses.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    results_dir.mkdir(parents=True, exist_ok=True)
+    (results_dir / "hypotheses.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    provenance.write_manifest(results_dir, ["hypotheses.json"], provenance.RESULTS)
     return result
 
 

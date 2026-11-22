@@ -1,0 +1,24 @@
+{
+  "_about": "What is known about the generation of runs that predate generation.jsonl: declared by the person who ran them, not recorded by run.sh at generation. summarize.py copies the entry of the model into provenance.generation_declared when the out dir has no generation.jsonl.",
+  "lfm3-1.7b": {
+    "status": "declared, not recorded",
+    "code": {"commit": "d45c3509e11c945f691d33828ce94662be142c93", "dirty": null},
+    "source": "README.md Deviations at 6a1afea0: 'The LFM3-1.7B run (started from d45c3509)'",
+    "archives_sha256": {
+      "out/box/ruler-lfm3-1.7b-outputs.tgz": "704d8c6659a7a3f54e0bde32857ff4e3b62e5e681dc2cfa43815e3c581a84036",
+      "out/box/ruler-lfm3-1.7b-data.tar.zst": "7df06b025aa8a9b31fde5911cb8b7e1b9782108867a06c8f26a570b3b104609d"
+    },
+    "archives_note": "the rented machine's out dir (raw outputs; RULER data) as packed after the run, kept outside the repo (CONTRIBUTING.md: no archives); their sha256 were taken on 2026-11-22 after the run, not at packing",
+    "unknown": "dirty flag, runner sha256, GPU and platform of generation"
+  },
+  "slayer1b-1.09-k70000": {
+    "status": "declared, not recorded",
+    "code": {"commit": "920787d4d023fbbed276147bd901a9a4df70373f", "dirty": null},
+    "source": "README.md Deviations at 6a1afea0: 'the Slayer run (920787d4)'",
+    "archives_sha256": {
+      "out/box/ruler-slayer-outputs.tgz": "13d1386c849528b4dd592b00b4428ca24bf24acbc920c496132eb318cfb66bb1"
+    },
+    "archives_note": "the rented machine's out dir (raw outputs) as packed after the run, kept outside the repo (CONTRIBUTING.md: no archives); its sha256 was taken on 2026-11-22 after the run, not at packing",
+    "unknown": "dirty flag, runner sha256, GPU and platform of generation"
+  }
+}
