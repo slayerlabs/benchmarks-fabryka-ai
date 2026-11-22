@@ -93,10 +93,14 @@ its 50 steps fail with the authors' own code (78.3: the target has shape (2, 2),
   Bielik), PROTOCOL.md defines no unfinished case: the text after the last `</think>` is extracted as it is, also
   from an answer stopped by the length limit, and such answers are counted (`length_stops`). A prompt over the
   context is `unsupported`: not sent, empty code, and it fails like a wrong answer (PROTOCOL.md).
-- **An answer without a code fence is scored whole.** `extract_python_script` takes the whole response when it
-  has no ```` ``` ```` (and prints "Fail to extract python code from specific format."); this is the harness's
-  behaviour and is kept. In the 2-problem Bielik smoke test (24 steps per setting, not committed) 9 answers with
-  background and none without had no fence.
+- **Answers are extracted by SciCode's rule, whatever their fences.** `extract_python_script` takes the first
+  ```` ```python ```` block, else the text after the first ```` ``` ````, else the whole response (printing "Fail to
+  extract python code from specific format."); this is kept. In the 2-problem Bielik smoke test (24 steps per
+  setting, not committed) 41 of 48 answers began directly with code, without an opening fence, and 17 of them
+  closed a fence they never opened; for those the rule takes the prose after the closing fence, a SyntaxError
+  that every later step of the problem inherits through its code file (with background 0 of 24 steps passed,
+  without 1 of 24). Whether the Fabryka API drops the opening fence or Bielik writes it so is not known (logged in
+  the API problems note); the same pattern is in 54 of the 1055 Bielik answers of livecodebench-v6.
 - **Bielik runs on the Fabryka AI API, with its hidden provider system prompt** and no reasoning switch, as in
   livecodebench-v6: the request carries only `model`, `messages`, `temperature`, `top_p`, `max_tokens` and `seed`,
   and the prompt is counted locally with Bielik's tokenizer and chat template
