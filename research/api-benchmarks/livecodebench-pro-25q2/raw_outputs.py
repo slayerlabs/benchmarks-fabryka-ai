@@ -8,12 +8,17 @@ stayed in this benchmark's `out/bielik-11b-v3.1/` on the generating Mac. For eac
 generations.jsonl and whether it equals `raw_outputs.sha256` in results/<model-id>.json (the sha256 lcbpro.py
 generate recorded), and the archive's own sha256. It also gives the cause of every `no_code` answer (nothing
 extracted), read from the raw text after the last `</think>`: `python_fence` (a ```python block instead of C++),
-`tool_call` (a `<tool_call>` instead of an answer), `length_stop` (cut by the output limit), `other`.
+`tool_call` (a `<tool_call>` instead of an answer), `length_stop` (cut by the output limit), `other`; and, per
+run, how many answers close a reasoning block with `</think>`, the median share of an answer's characters before
+its last `</think>`, and how many accepted answers close one (PROTOCOL.md Amendment 1: with `enable_thinking:
+false` the template opens and closes an empty `<think></think>`, so a `</think>` in the output is reasoning the
+model wrote anyway).
 """
 
 import gzip
 import hashlib
 import json
+import statistics
 import sys
 import tarfile
 from pathlib import Path
@@ -48,17 +53,29 @@ def last_records(data: bytes) -> dict[str, dict[str, Any]]:
     return out
 
 
+def reasoning(last: dict[str, dict[str, Any]], accepted: dict[str, bool]) -> dict[str, Any]:
+    answered = [r for r in last.values() if r["status"] == "ok"]
+    closed = [r for r in answered if "</think>" in r["output"]]
+    shares = [len(r["output"].rsplit("</think>", 1)[0]) / len(r["output"]) for r in closed]
+    return {"answers": len(answered), "closing_think": len(closed),
+            "median_share_before_last_think_end": round(statistics.median(shares), 4) if shares else None,
+            "accepted": sum(accepted.values()),
+            "accepted_closing_think": sum(1 for r in closed if accepted.get(r["problem_id"]))}
+
+
 def entry(results: Path, run: str, data: bytes, where: str) -> dict[str, Any]:
     provenance.verify(results, [f"{run}.json", f"{run}.jsonl.gz"], "raw_outputs.py")
     recorded = json.loads((results / f"{run}.json").read_text(encoding="utf-8"))["raw_outputs"]["sha256"]
     sha = hashlib.sha256(data).hexdigest()
     with gzip.open(results / f"{run}.jsonl.gz", "rt", encoding="utf-8") as f:
-        no_code = sorted(r["task_id"] for r in map(json.loads, f) if r["category"] == "no_code")
+        rows = [json.loads(line) for line in f]
+    no_code = sorted(r["task_id"] for r in rows if r["category"] == "no_code")
     last = last_records(data)
     causes: dict[str, list[str]] = {}
     for pid in no_code:
         causes.setdefault(no_code_cause(last[pid]), []).append(pid)
-    return {"file": where, "sha256": sha, "matches_result": sha == recorded, "no_code": causes}
+    return {"file": where, "sha256": sha, "matches_result": sha == recorded, "no_code": causes,
+            "reasoning": reasoning(last, {r["task_id"]: bool(r["accepted"]) for r in rows})}
 
 
 def main(archive: Path, results: Path) -> None:

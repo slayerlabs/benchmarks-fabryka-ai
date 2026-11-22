@@ -612,6 +612,10 @@ def tests(args: argparse.Namespace) -> None:
     (out / "tests.json").write_text(json.dumps({"repo": TESTS_REPO, "revision": TESTS_REVISION, "files": files,
                                                 "missing": missing}, indent=2) + "\n", encoding="utf-8")
     provenance.record(out, ["tests.json"], "lcbpro.py tests")
+    update_run(out, "tests", {**provenance.step("lcbpro.py tests"), "limit": args.limit, "repo": TESTS_REPO,
+                              "revision": TESTS_REVISION,
+                              "tests_json_sha256": provenance.read_manifest(out)["files"]["tests.json"]["sha256"],
+                              "missing": missing})
     print(f"lcbpro.py: {len(files) - len(missing)} test zips at {TESTS_REVISION}, missing: {missing or 'none'}")
 
 

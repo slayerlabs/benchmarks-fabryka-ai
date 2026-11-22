@@ -464,8 +464,10 @@ def write_generation(out, answers, thinking="on"):
             f.write(json.dumps({"problem_id": pid, "prompt_tokens": 10, "context": 100, "max_tokens": 90,
                                 "output_tokens": 50, "started": "2026-11-23T10:00:00+00:00", **a}) + "\n")
     (out / "api-events.jsonl").write_text("")
-    (out / "tests.json").write_text(json.dumps({"revision": lcbpro.TESTS_REVISION,
-                                                "files": {"A": {}, "B": {}, "C": None}}))
+    (out / "tests.json").write_text(json.dumps({"repo": lcbpro.TESTS_REPO, "revision": lcbpro.TESTS_REVISION,
+                                                "files": {"A": {"sha256": "aa", "bytes": 1},
+                                                          "B": {"sha256": "bb", "bytes": 1}, "C": None},
+                                                "missing": ["C"]}))
     (out / "run.json").write_text(json.dumps({"generation": [{"sampling": {"thinking": thinking}}]}))
     provenance.record(out, ["problems.json", "generations.jsonl", "api-events.jsonl", "tests.json"], "test")
 
@@ -584,7 +586,8 @@ def write_results(res, runs):
     for model, accepted in runs.items():
         with gzip.open(res / f"{model}.jsonl.gz", "wt") as f:
             for i, a in enumerate(accepted):
-                f.write(json.dumps({"task_id": f"p{i:03d}", "accepted": bool(a)}) + "\n")
+                f.write(json.dumps({"task_id": f"{2000 + i // 7}{'ABCDEFG'[i % 7]}", "accepted": bool(a),
+                                    "difficulty": ("easy", "medium", "hard")[i % 3]}) + "\n")
         provenance.record(res, [f"{model}.jsonl.gz"], "test")
 
 

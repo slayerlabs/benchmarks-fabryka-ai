@@ -27,6 +27,7 @@ other benchmark's script.
 import gzip
 import json
 import math
+import re
 import statistics
 import sys
 from pathlib import Path
@@ -57,6 +58,11 @@ def load(results: Path, model: str) -> dict[str, int] | None:
     provenance.verify(results, [path.name], "compare.py")
     with gzip.open(path, "rt", encoding="utf-8") as f:
         return {r["task_id"]: int(bool(r["accepted"])) for r in map(json.loads, f)}
+
+
+def difficulties(results: Path, model: str) -> dict[str, str]:
+    with gzip.open(results / f"{model}.jsonl.gz", "rt", encoding="utf-8") as f:
+        return {r["task_id"]: r["difficulty"] for r in map(json.loads, f)}
 
 
 def raw_outcome(z: float | None) -> str:
@@ -120,6 +126,49 @@ def k3(on: dict[str, int] | None, off: dict[str, int] | None, bielik: dict[str, 
     if lead_z is None or lead_mean <= 0 or lead_z < 3:
         return {**record, "status": "precondition not met", "z_descriptive": z, "z": None}
     return {**record, "status": "ok", "z": z}
+
+
+def contest(problem_id: str) -> str:
+    """Codeforces contest of a problem id ("2084" of "2084G1")."""
+    return re.match(r"\d+", problem_id).group(0)
+
+
+def binom_cdf(k: int, n: int) -> float:
+    """P(X <= k) for X ~ Binomial(n, 1/2)."""
+    return sum(math.comb(n, i) for i in range(k + 1)) / 2 ** n
+
+
+def k3_robustness(on: dict[str, int], off: dict[str, int], bielik: dict[str, int],
+                  difficulty: dict[str, str]) -> dict[str, Any]:
+    """DESCRIPTIVE, added after the results (PROTOCOL.md Amendment 1); no verdict reads it. K3's d_i
+    (off - on/2 - B/2) with problems of one contest treated as one cluster: SE clustered by contest
+    sqrt(G/(G-1) * sum_g (sum_{i in g} (d_i - D))^2) / n and z = D / SE; a sign test over contests (contests with
+    sum d > 0 against sum d < 0, one-sided binomial p in the direction of D's sign); D, SE and z per difficulty."""
+    ids = sorted(on)
+    d = {t: off[t] - on[t] / 2 - bielik[t] / 2 for t in ids}
+    mean = statistics.fmean(d.values())
+    sums: dict[str, float] = {}
+    resid: dict[str, float] = {}
+    for t in ids:
+        sums[contest(t)] = sums.get(contest(t), 0.0) + d[t]
+        resid[contest(t)] = resid.get(contest(t), 0.0) + d[t] - mean
+    g = len(resid)
+    se = math.sqrt(g / (g - 1) * sum(r * r for r in resid.values())) / len(ids)
+    pos, neg = sum(1 for s in sums.values() if s > 0), sum(1 for s in sums.values() if s < 0)
+    levels = {}
+    order = ("easy", "medium", "hard")
+    for level in sorted(set(difficulty.values()), key=lambda x: (order.index(x) if x in order else len(order), x)):
+        sub = [d[t] for t in ids if difficulty[t] == level]
+        m, s, z = paired_z(sub) if len(sub) > 1 else (statistics.fmean(sub), 0.0, None)
+        levels[level] = {"value": 100 * m, "se": 100 * s, "z": z, "n": len(sub),
+                         "accepted": {"on": sum(on[t] for t in ids if difficulty[t] == level),
+                                      "off": sum(off[t] for t in ids if difficulty[t] == level),
+                                      "bielik": sum(bielik[t] for t in ids if difficulty[t] == level)}}
+    return {"descriptive": True,
+            "clustered_by_contest": {"contests": g, "se": 100 * se, "z": mean / se if se > 0 else None},
+            "sign_test_contests": {"positive": pos, "negative": neg, "zero": g - pos - neg,
+                                   "p_one_sided": binom_cdf(min(pos, neg), pos + neg)},
+            "per_difficulty": levels}
 
 
 def holm(p: list[float | None], m: int) -> list[float | None]:
@@ -187,8 +236,11 @@ def analyse(results: Path, group_file: Path | None = None) -> dict[str, Any]:
     notes = [note] if note else []
     if not readable:
         notes.append(f"control K1 {c['status']}: no hypothesis is read until it passes (PROTOCOL.md, Control)")
+    robustness = (k3_robustness(on, off, bielik, difficulties(results, ON))
+                  if on is not None and off is not None and bielik is not None else None)
     return {"benchmark": BENCHMARK_ID, "protocol": "PROTOCOL.md", "control": c, "hypotheses": hypotheses,
-            "group_tests": mine, "holm": {"m": GROUP_SIZE, "family": holm_rows}, "notes": notes}
+            "group_tests": mine, "holm": {"m": GROUP_SIZE, "family": holm_rows}, "notes": notes,
+            "k3_robustness": robustness}
 
 
 def fmt(x: float | None, spec: str) -> str:
@@ -215,6 +267,19 @@ def report(a: dict[str, Any]) -> str:
                                                    else f"{t['outcome_raw']} (p = 1 in Holm)")
               for t in a["holm"]["family"]]
     lines += [f"note: {n}" for n in a["notes"]]
+    r = a.get("k3_robustness")
+    if r:
+        cl, sign = r["clustered_by_contest"], r["sign_test_contests"]
+        lines += ["", "K3 robustness (DESCRIPTIVE, added after the results; PROTOCOL.md Amendment 1):", "",
+                  "| view | D ± SE (pp) | z | n |", "|---|---|---|---|",
+                  f"| SE clustered by contest | {a['hypotheses'][1]['value']:+.2f} ± {cl['se']:.2f} | "
+                  f"{fmt(cl['z'], '+.2f')} | {cl['contests']} contests |"]
+        for level, x in r["per_difficulty"].items():
+            acc = x["accepted"]
+            lines.append(f"| {level} only (accepted on / off / Bielik: {acc['on']} / {acc['off']} / {acc['bielik']}) "
+                         f"| {x['value']:+.2f} ± {x['se']:.2f} | {fmt(x['z'], '+.2f')} | {x['n']} |")
+        lines += ["", f"Sign test over contests: {sign['positive']} with D > 0, {sign['negative']} with D < 0, "
+                      f"{sign['zero']} with D = 0; one-sided binomial p = {sign['p_one_sided']:.2g}."]
     return "\n".join(lines)
 
 

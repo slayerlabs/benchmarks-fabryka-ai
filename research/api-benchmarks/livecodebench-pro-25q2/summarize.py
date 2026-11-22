@@ -118,6 +118,18 @@ def api_events(out_dir: Path, model: str) -> dict[str, Any]:
     return {"api_events": {"file": f"out/{model}/api-events.jsonl (not committed)", "sha256": sha, **counts}}
 
 
+def test_zips(out_dir: Path, model: str, run: dict[str, Any]) -> dict[str, Any]:
+    """The test zips the run was judged on: tests.json (checked against the manifest) with its revision and the
+    sha256 of every zip, and the `lcbpro.py tests` step record when run.json has one (runs before it recorded the
+    step have only the file)."""
+    sha = provenance.verify(out_dir, ["tests.json"], "summarize.py")["tests.json"]
+    record = json.loads((out_dir / "tests.json").read_text(encoding="utf-8"))
+    return {"file": f"out/{model}/tests.json (not committed)", "sha256": sha, "repo": record["repo"],
+            "revision": record["revision"], "missing": record["missing"],
+            "zip_sha256": {pid: f["sha256"] for pid, f in sorted(record["files"].items()) if f is not None},
+            "step": run.get("tests")}
+
+
 def write_result(target: str, result: dict[str, Any], rows: list[dict[str, Any]] | None) -> None:
     Path(target).parent.mkdir(parents=True, exist_ok=True)
     Path(f"{target}.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
@@ -191,7 +203,7 @@ def main(out_dir: str, target: str, limit: int | None) -> None:
         "deviations": "see README.md, Deviations",
         "provenance": {
             "generation": [{k: v for k, v in g.items() if k != "sampling"} for g in run["generation"]],
-            "tests": run.get("tests"),
+            "tests": test_zips(out, model, run),
             "scoring": scoring,
             "summary": provenance.step("summarize.py"),
             "inputs_sha256": hashes,
