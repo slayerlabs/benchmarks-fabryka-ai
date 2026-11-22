@@ -18,7 +18,7 @@ depends on the sampling settings and the question it asks is unresolved. The v6-
 of L3 are printed as descriptive rows, not tested.
 L1 and L3 also get a clustered SE, descriptive (the rules note: an SE over problems treats problems of one contest
 as independent): the same mean difference with the SE from the spread between clusters, by contest (platform and
-contest date; the data has no contest id) and by platform (k = 3), t = mean / SE read at df = k - 1 with the verdict
+contest time; the data has no contest id) and by platform (k = 3), t = mean / SE read at df = k - 1 with the verdict
 from its two-sided p at the p of |z| = 3 and 2 (research/tools/statystyka.py, `se_k`; fewer than 3 clusters is
 `undecidable`).
 Every result file read must have the sha256 summarize.py recorded in <results-dir>/manifest.json; otherwise
@@ -49,7 +49,7 @@ CONTROL_RUN = "lfm3-1.7b-cardsampling"
 EXTRACTION = "extraction-f1.json"  # exploratory, written by extraction.py (rule F1); read only when present
 # Clusters for the clustered SE of L1 and L3: problems of one contest share setters, date and topics
 CLUSTERS = {
-    "contest": lambda r: f"{r['platform']} {r['contest_date'][:10]}",
+    "contest": lambda r: f"{r['platform']} {r['contest_date']}",  # a contest's start time on its platform
     "platform": lambda r: r["platform"],
 }
 VERDICT_EN = {"pewne": "clear", "prawdopodobne": "likely", "szum": "noise", statystyka.NIEROZSTRZYGALNE: "undecidable",
@@ -299,11 +299,12 @@ def family(lfm: str, runs: dict) -> tuple[list[dict], dict | None, list[str]]:
     return rows, main, missing
 
 
-def reading(rows: list[dict], other: dict | None) -> list[dict[str, Any]]:
+def reading(rows: list[dict], other: dict | None, exploratory: dict | None = None) -> list[dict[str, Any]]:
     """Each hypothesis on the verdict run next to the card-sampling run (Amendment 4 reports both numbers when A1
     does not show the samplings equivalent). Where the protocol's rule gives another outcome on the second run, the
     hypothesis depends on the sampling settings and the question it asks is unresolved, whatever the verdict run
-    says; the text never gives the verdict run's outcome alone."""
+    says; the text never gives the verdict run's outcome alone. L1 and L3 add, as descriptive, the verdicts with the
+    clustered SE and, when present, after the exploratory extraction rule F1."""
     def z(r: dict) -> str:
         return "n/a" if r["z"] is None else f"{r['z']:+.2f}"
 
@@ -321,6 +322,15 @@ def reading(rows: list[dict], other: dict | None) -> list[dict[str, Any]]:
                     f"{r['id']} depends on the sampling settings, so the question it asks is unresolved")
         else:
             text = f"{r['id']}: {r['outcome']} on both runs ({LFM} z = {z(r)}, {CONTROL_RUN} z = {z(o)})"
+        pairs = ((LFM, r), (CONTROL_RUN, o))
+        if r.get("clustered") and o.get("clustered"):
+            text += "; descriptive, verdict with the SE clustered " + "; ".join(
+                f"by {name} (k = {r['clustered'][name]['k']}): "
+                + ", ".join(f"{x['clustered'][name]['verdict']} on {run}" for run, x in pairs) for name in CLUSTERS)
+        f1 = {e["run"]: e.get(r["id"]) for e in exploratory["hypotheses"]} if exploratory else {}
+        if all(f1.get(run) for run, _ in pairs):
+            text += "; exploratory, after extraction rule F1: " + ", ".join(
+                f"z = {z(f1[run])} ({f1[run]['verdict']}) on {run}" for run, _ in pairs)
         out.append({"id": r["id"], "outcome": r["outcome"], "outcome_other_run": o["outcome"],
                     "depends_on_sampling": depends, "text": text})
     return out
@@ -343,11 +353,12 @@ def analyse(results: Path) -> dict[str, Any]:
                  "hypotheses": other_rows}
         if other_main is not None:
             descriptive.append({"status": "ok", **other_main})
+    exploratory = exploratory_extraction(results, runs)
     return {"benchmark": "LiveCodeBench v6", "protocol": "PROTOCOL.md", "difference": "LFM3-1.7B minus other, pp",
             "control": control(results), "verdict_run": LFM, "hypotheses": rows, "other_run": other,
-            "reading": reading(rows, other), "descriptive": descriptive,
+            "reading": reading(rows, other, exploratory), "descriptive": descriptive,
             "extraction": {m: empty_code(r) for m, r in runs.items() if r is not None},
-            "exploratory_extraction": exploratory_extraction(results, runs),
+            "exploratory_extraction": exploratory,
             "parameters": PARAMETERS, "holm_m": 3, "deviations": deviations}
 
 
@@ -453,7 +464,7 @@ def extraction_section(a: dict) -> list[str]:
     x = a["exploratory_extraction"]
     if not x:
         return out
-    out += ["", f"Exploratory, added after the results ({x['status']}): every answer re-extracted with rule "
+    out += ["", f"Exploratory ({x['status']}): every answer re-extracted with rule "
             f"{x['rule']}; "
             "the answers whose code changes are graded again with LiveCodeBench's evaluator (extraction.py, "
             f"results/{x['file']}).", "",
@@ -486,7 +497,7 @@ def report(a: dict) -> str:
         out.append(f"control: {c['status']}")
     d = c.get("descriptive")
     if d and d.get("z") is not None:
-        out.append(f"descriptive, not tested: LFM3-1.7B ({d['run']}, the run L1-L3 use) {d['score']:.2f} ± "
+        out.append(f"descriptive, not tested: LFM3-1.7B ({d['run']}, the verdict run of L1-L3) {d['score']:.2f} ± "
                    f"{d['stderr']:.2f} vs card {d['card']}, z = {d['z']:+.2f}")
     out += ["", f"L1-L3 on {a['verdict_run']}, the verdict run:", ""] + hypotheses_table(a["hypotheses"])
     out += clustered_table(a["hypotheses"])

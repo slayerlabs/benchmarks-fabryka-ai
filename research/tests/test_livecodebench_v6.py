@@ -1014,8 +1014,8 @@ def test_control_uses_card_sampling_run_with_original_descriptive():
     assert c["descriptive"]["run"] == "lfm3-1.7b" and math.isclose(c["descriptive"]["z"], (72.23 - 73.46) / 1.38)
     assert "status" not in c["descriptive"]
     assert "control: LFM3-1.7B (lfm3-1.7b-cardsampling) 72.89 ± 1.37 vs card 73.46, z = -0.42: passed" in text
-    assert "descriptive, not tested: LFM3-1.7B (lfm3-1.7b, the run L1-L3 use) 72.23 ± 1.38 vs card 73.46, z = -0.89" \
-        in text
+    assert ("descriptive, not tested: LFM3-1.7B (lfm3-1.7b, the verdict run of L1-L3) 72.23 ± 1.38 vs card 73.46, "
+            "z = -0.89") in text
     assert (failed["run"], failed["status"]) == ("lfm3-1.7b-cardsampling", "failed")
     assert compare.CONTROL_RUN == "lfm3-1.7b-cardsampling"
 
@@ -1044,6 +1044,10 @@ def test_hypotheses_on_both_lfm3_runs_and_reading():
     assert "`refuted` on lfm3-1.7b, the verdict run" in l3["text"] and \
         "`confirmed` on lfm3-1.7b-cardsampling" in l3["text"] and "unresolved" in l3["text"]
     assert f"- {l3['text']}" in text and "L1-L3 on lfm3-1.7b-cardsampling, reported next to the verdict run" in text
+    # one contest and one platform in these fakes: the clustered verdicts are undecidable, and they are named
+    assert ("; descriptive, verdict with the SE clustered by contest (k = 1): undecidable on lfm3-1.7b, undecidable "
+            "on lfm3-1.7b-cardsampling; by platform (k = 1): undecidable") in l3["text"]
+    assert "exploratory" not in l3["text"]  # no extraction-f1.json here
     assert [(d["a"], d["b"]) for d in a["descriptive"]] == [("lfm3-1.7b", "bielik-11b-v3.1"),
                                                            ("lfm3-1.7b-cardsampling", "bielik-11b-v3.1")]
     assert [r["depends_on_sampling"] for r in same["reading"]] == [False] * 3
@@ -1151,7 +1155,7 @@ def test_extraction_regrade_file_and_compare_exploratory_rows():
     assert ex["lfm3-1.7b"]["L1"]["value"] == 0 and ex["lfm3-1.7b"]["L1"]["n"] == 3
     assert a["exploratory_extraction"]["sha256"] == files["extraction-f1.json"]["sha256"]
     assert "| bielik-11b-v3.1 | 3 | 2 | 2 | 1 | 0 |" in text and "| bielik-11b-v3.1 | 3 | 2 |" in text
-    assert "Exploratory, added after the results" in text
+    assert "Exploratory (added after the results; not a protocol test, the official results stand)" in text
 
 
 # The committed results, checked without this benchmark's code: an independent count from results/*.jsonl.gz

@@ -201,7 +201,7 @@ verdict and n. L1-L3 are decided on `lfm3-1.7b`, the verdict run (#170). Amendme
 does not show the two samplings equivalent, so the same table follows for `lfm3-1.7b-cardsampling` (its own Holm),
 and a `Reading` line per hypothesis gives both outcomes: where they differ, the hypothesis depends on the sampling
 settings and the question it asks is unresolved, whichever outcome the verdict run has. For L1 and L3 a second
-table puts the SE clustered by contest (platform and contest date; the data has no contest id) and by platform
+table puts the SE clustered by contest (platform and contest time; the data has no contest id) and by platform
 (k = 3) next to the SE over problems, with t read at df = k − 1, as descriptive rows: problems of one contest are
 not independent. The same paired numbers per difficulty, at equal cost and on the v6-only problems are descriptive
 rows. A problem that errored or did not fit the context for either model is left out of both sides and counted. A
