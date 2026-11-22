@@ -1,0 +1,14 @@
+{
+  "files": {
+    "dev-ground-truth.json": {
+      "at": "2026-11-22T16:30:02+00:00",
+      "sha256": "0dd1bbc50dcb33495ffcb6a65da89a80b6a08ba607ae1593b1c9facd0c16c9f5",
+      "written_by": "summarize.py"
+    },
+    "dev-ground-truth.jsonl.gz": {
+      "at": "2026-11-22T16:30:02+00:00",
+      "sha256": "737b3729918d4ec39e5a81e9f4c3649c20278b398f395fb41bd59bc1b93d2097",
+      "written_by": "summarize.py"
+    }
+  }
+}

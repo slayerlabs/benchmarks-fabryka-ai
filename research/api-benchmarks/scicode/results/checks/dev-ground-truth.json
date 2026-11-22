@@ -1,0 +1,253 @@
+{
+  "benchmark": "SciCode (validation split)",
+  "model": "dev-ground-truth",
+  "metric": "subproblem pass rate, with background (correct steps / 288 x 100, test_generated_code.py)",
+  "score": 96.0,
+  "stderr": 2.77,
+  "stderr_clustered": 2.59,
+  "n": 50,
+  "date": "2026-11-22",
+  "harness": "https://github.com/scicode-bench/SciCode @ e3158ea011d4235245a547460d3688d7ccbf9900",
+  "data": "https://huggingface.co/datasets/SciCode1/SciCode @ 4510f6a6aa27c43fad7b43da2c59602a86e88480, validation; test_data.h5 sha256 48b0272a88b17dbd29777c217e1b4fb2b019b92e11cc2add847409db9541b890",
+  "settings": {
+    "prompt": "SciCode Gencode (eval/scripts/gencode.py), one user message per subproblem, no system message",
+    "settings_run": [
+      "with_background"
+    ],
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "seed": 20261122,
+    "thinking": false,
+    "max_tokens": "context minus prompt tokens",
+    "context": [],
+    "trials": 1,
+    "scored_text": "extract_python_script of the text after the last </think> (empty when unfinished with thinking on)",
+    "scorer_timeout_s": 1800,
+    "blas_threads": 1,
+    "oracle": "ground_truth_code of the dev split"
+  },
+  "other_metrics": {
+    "with_background": {
+      "stderr_clustered": 2.59,
+      "correct": 48,
+      "clusters": 15,
+      "main_problems": {
+        "solved": 13,
+        "of": 15,
+        "solved_ids": [
+          "1",
+          "3",
+          "4",
+          "6",
+          "7",
+          "10",
+          "19",
+          "29",
+          "38",
+          "44",
+          "47",
+          "49",
+          "51"
+        ]
+      },
+      "verdicts": {
+        "fail": 2,
+        "pass": 48
+      },
+      "timeouts": 0,
+      "output_tokens": {
+        "mean": null,
+        "median": null,
+        "max": null
+      },
+      "unfinished": 0,
+      "length_stops": 0,
+      "unsupported": 0,
+      "answers_with_think_open": {
+        "count": 0,
+        "of": 50,
+        "share": 0.0
+      }
+    }
+  },
+  "deviations": "see README.md, Deviations",
+  "provenance": {
+    "generation": [
+      {
+        "step": "scicode_runner.py generate",
+        "at": "2026-11-22T16:26:09+00:00",
+        "code_commit": "04eb5c19066124dfc068101f56d2039e6f5f51f8",
+        "code_commit_source": "git",
+        "dirty": false,
+        "runner_sha256": {
+          "run.sh": "6474912e862d2f50955fc0fb0c654d3d9158fb763b5439e76217f5d4bee1ecc6",
+          "scicode_runner.py": "63384b278a938c672c9939d7cc93121b2109f9b1037f49a2b913ee2c39cd9ed8",
+          "summarize.py": "cf48975affc387ce7eb7bbdcd2a842802da29418cf53a3b41d4da8ef70719fb9",
+          "hypotheses.py": "49d7caf5855f0085f464c29a6b4b698f5dba0378e39f6ad5e3cf09535d19b354",
+          "provenance.py": "0564193ded8b1365017eab60a148b94f4c648e762513ee9925aa588c5c0ba3ab",
+          "Dockerfile.scoring": "5996d6efd23d18e42619b051ff17f77c55c9bc4244874b3963290d57807b9ab5",
+          "requirements-scoring.lock": "96ed3a5704cdb6fac21f6a2728ff24044a6dee180c57a0407f5499aa93754076",
+          "requirements-generate.lock": "14231797536cdc3d5cc4d94223137c26909e28e1786d6ac4c9cdecb2e0d8e37f",
+          "setup_scoring_vm.sh": "945d67385a6e3f98ffc4821f003b4108c8dcad1ccb9450c3152d79efbfa690e9"
+        },
+        "gpu": "NVIDIA GeForce RTX 3070",
+        "platform": "Linux-5.15.0-1067-kvm-x86_64-with-glibc2.35",
+        "cpu": "AMD EPYC 7302P 16-Core Processor",
+        "cpu_count": 30,
+        "python": "3.11.18",
+        "model": "",
+        "model_id": "dev-ground-truth",
+        "split": "validation",
+        "limit": null,
+        "settings": [
+          "with_background"
+        ],
+        "thinking": false,
+        "stubbed_modules": [
+          "openai",
+          "anthropic",
+          "google.generativeai",
+          "config",
+          "litellm",
+          "litellm.utils"
+        ]
+      }
+    ],
+    "scoring": {
+      "step": "scicode_runner.py score",
+      "at": "2026-11-22T16:30:01+00:00",
+      "code_commit": "04eb5c19066124dfc068101f56d2039e6f5f51f8",
+      "code_commit_source": "host",
+      "dirty": false,
+      "runner_sha256": {
+        "run.sh": "6474912e862d2f50955fc0fb0c654d3d9158fb763b5439e76217f5d4bee1ecc6",
+        "scicode_runner.py": "63384b278a938c672c9939d7cc93121b2109f9b1037f49a2b913ee2c39cd9ed8",
+        "summarize.py": "cf48975affc387ce7eb7bbdcd2a842802da29418cf53a3b41d4da8ef70719fb9",
+        "hypotheses.py": "49d7caf5855f0085f464c29a6b4b698f5dba0378e39f6ad5e3cf09535d19b354",
+        "provenance.py": "0564193ded8b1365017eab60a148b94f4c648e762513ee9925aa588c5c0ba3ab",
+        "Dockerfile.scoring": "5996d6efd23d18e42619b051ff17f77c55c9bc4244874b3963290d57807b9ab5",
+        "requirements-scoring.lock": "96ed3a5704cdb6fac21f6a2728ff24044a6dee180c57a0407f5499aa93754076",
+        "requirements-generate.lock": "14231797536cdc3d5cc4d94223137c26909e28e1786d6ac4c9cdecb2e0d8e37f",
+        "setup_scoring_vm.sh": "945d67385a6e3f98ffc4821f003b4108c8dcad1ccb9450c3152d79efbfa690e9"
+      },
+      "gpu": null,
+      "platform": "Linux-5.15.0-1067-kvm-x86_64-with-glibc2.36",
+      "cpu": "AMD EPYC 7302P 16-Core Processor",
+      "cpu_count": 30,
+      "python": "3.11.9",
+      "split": "validation",
+      "limit": null,
+      "scicode_commit": "e3158ea011d4235245a547460d3688d7ccbf9900",
+      "test_data_h5": {
+        "path": "/root/scicode/repo/research/api-benchmarks/scicode/.cache/test_data.h5",
+        "bytes": 1049345865,
+        "sha256": "48b0272a88b17dbd29777c217e1b4fb2b019b92e11cc2add847409db9541b890",
+        "sha256_ok": true
+      },
+      "dataset_cache_revisions": [
+        "4510f6a6aa27c43fad7b43da2c59602a86e88480"
+      ],
+      "dataset_prefetch": {
+        "at": "2026-11-22T16:25:07+00:00",
+        "revision": "4510f6a6aa27c43fad7b43da2c59602a86e88480",
+        "files_sha256": {
+          "problems_test.jsonl": "38797fef78f434720be6d053b4f3a86839d6f8ea5fb9115450677cd3a6edf81d",
+          "problems_dev.jsonl": "193968aff23b7ed931c8f6d196b611e2f6694adb49e6cc085444a60ad2fc4f7b"
+        },
+        "main_at_prefetch": "4510f6a6aa27c43fad7b43da2c59602a86e88480"
+      },
+      "blas_threads": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1"
+      },
+      "packages": {
+        "numpy": "1.26.4",
+        "scipy": "1.13.1",
+        "sympy": "1.12.1",
+        "h5py": "3.11.0",
+        "matplotlib": "3.9.0",
+        "datasets": "3.6.0",
+        "huggingface-hub": "0.36.2",
+        "pyarrow": "17.0.0",
+        "numpy_blas": {
+          "name": "openblas64",
+          "found": true,
+          "version": "0.3.23.dev",
+          "detection method": "pkgconfig",
+          "include directory": "/usr/local/include",
+          "lib directory": "/usr/local/lib",
+          "openblas configuration": "USE_64BITINT=1 DYNAMIC_ARCH=1 DYNAMIC_OLDER= NO_CBLAS= NO_LAPACK= NO_LAPACKE= NO_AFFINITY=1 USE_OPENMP= HASWELL MAX_THREADS=2",
+          "pc file directory": "/usr/local/lib/pkgconfig"
+        }
+      },
+      "scorer_timeout_s": 1800,
+      "container": {
+        "image_id": "sha256:1ebd2bc5b8d83f62abf5375a38fbc91d1be87471cf9b372345fba53f1549b85f",
+        "network": "none"
+      },
+      "runs": {
+        "with_background": {
+          "command": [
+            "python",
+            "eval/scripts/test_generated_code.py",
+            "--model",
+            "dev-ground-truth",
+            "--split",
+            "validation",
+            "--code-dir",
+            "/root/scicode/repo/research/api-benchmarks/scicode/out/dev-ground-truth/generated_code",
+            "--log-dir",
+            "/root/scicode/repo/research/api-benchmarks/scicode/out/dev-ground-truth/score/logs",
+            "--output-dir",
+            "/root/scicode/repo/research/api-benchmarks/scicode/out/dev-ground-truth/score/results",
+            "--with-background"
+          ],
+          "seconds": 222.6,
+          "printed": {
+            "correct_problems": 13,
+            "problems_denominator": 15,
+            "correct_steps": 48,
+            "steps_denominator": 50,
+            "dataset_revision_seen": "4510f6a6aa27c43fad7b43da2c59602a86e88480"
+          }
+        }
+      }
+    },
+    "summary": {
+      "step": "summarize.py",
+      "at": "2026-11-22T16:30:01+00:00",
+      "code_commit": "04eb5c19066124dfc068101f56d2039e6f5f51f8",
+      "code_commit_source": "git",
+      "dirty": false,
+      "runner_sha256": {
+        "run.sh": "6474912e862d2f50955fc0fb0c654d3d9158fb763b5439e76217f5d4bee1ecc6",
+        "scicode_runner.py": "63384b278a938c672c9939d7cc93121b2109f9b1037f49a2b913ee2c39cd9ed8",
+        "summarize.py": "cf48975affc387ce7eb7bbdcd2a842802da29418cf53a3b41d4da8ef70719fb9",
+        "hypotheses.py": "49d7caf5855f0085f464c29a6b4b698f5dba0378e39f6ad5e3cf09535d19b354",
+        "provenance.py": "0564193ded8b1365017eab60a148b94f4c648e762513ee9925aa588c5c0ba3ab",
+        "Dockerfile.scoring": "5996d6efd23d18e42619b051ff17f77c55c9bc4244874b3963290d57807b9ab5",
+        "requirements-scoring.lock": "96ed3a5704cdb6fac21f6a2728ff24044a6dee180c57a0407f5499aa93754076",
+        "requirements-generate.lock": "14231797536cdc3d5cc4d94223137c26909e28e1786d6ac4c9cdecb2e0d8e37f",
+        "setup_scoring_vm.sh": "945d67385a6e3f98ffc4821f003b4108c8dcad1ccb9450c3152d79efbfa690e9"
+      },
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "platform": "Linux-5.15.0-1067-kvm-x86_64-with-glibc2.35",
+      "cpu": "AMD EPYC 7302P 16-Core Processor",
+      "cpu_count": 30,
+      "python": "3.10.12"
+    },
+    "inputs_sha256": {
+      "graded.jsonl": "726a92c273c29d63b02982fee1de8bdf9573c008ac60dd7c6e6e5cf705fbbda5"
+    },
+    "api_events": null,
+    "api_events_reason": "no api-events.jsonl: this run sent no requests (ground truth) or was not run through the API"
+  },
+  "raw_outputs": {
+    "file": "out/dev-ground-truth/generations.jsonl (with thinking; not committed)",
+    "sha256": "7edf13a4aadc2536872ef7db78d9ece33890162575c0d35452a57d22b7d5090e",
+    "jsonl_gz_output": "the code extract_python_script took from the text after the last </think>"
+  }
+}
