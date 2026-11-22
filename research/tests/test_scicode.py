@@ -24,6 +24,7 @@ import json
 import math
 import os
 import sys
+import types
 import urllib.error
 from pathlib import Path
 
@@ -371,6 +372,86 @@ def test_check_answers_requires_every_step_and_only_those_files(tmp_path):
         sr.check_answers(good, expected, code)
 
 
+def e1_case(tmp_path, identical):
+    """out/ with official and E1 files for steps 1.1-1.3; the E1 file differs where `identical` is False. Official
+    verdicts: all fail."""
+    out = tmp_path / "out"
+    expected = [("1", 1), ("1", 2), ("1", 3)]
+    for (pid, step), same in zip(expected, identical):
+        for kind in ("generated_code", "generated_code_e1"):
+            path = out / kind / "m" / "with_background" / f"{pid}.{step}.py"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("code" if same or kind == "generated_code" else "other code")
+    verdicts = {("official", "with_background", p, s): "fail" for p, s in expected}
+    return out, expected, verdicts
+
+
+def fake_scorer(seen):
+    """Like test_generated_code.py: a step with a log keeps it; any other file it is given passes."""
+    def run(root, env, args, setting, code_dir, score_dir, logs_name, tag):
+        files = sorted(p.name for p in (code_dir / args.model_id / setting).iterdir())
+        seen.append(files)
+        logs = score_dir / logs_name / args.model_id / setting
+        logs.mkdir(parents=True, exist_ok=True)
+        for name in files:
+            log = logs / name.replace(".py", ".txt")
+            if not log.exists():
+                log.write_text("pass")
+        return {"command": ["fake"], "seconds": 0.0, "printed": {"correct_steps": len(files)}}
+    return run
+
+
+def test_e1_reuses_official_verdicts_for_identical_files(tmp_path, monkeypatch):
+    seen = []
+    monkeypatch.setattr(sr, "run_scorer", fake_scorer(seen))
+    args = types.SimpleNamespace(model_id="m")
+    out, expected, verdicts = e1_case(tmp_path, identical=[True, False, True])
+    r = sr.score_e1(None, {}, args, "with_background", out, out / "score", expected, verdicts)
+    assert seen == [["1.2.py"]]  # only the differing file reaches the scorer
+    assert [verdicts[("e1", "with_background", "1", s)] for s in (1, 2, 3)] == ["fail", "pass", "fail"]
+    assert (r["reused_identical"], r["scored"], r["reused_passes"]) == (2, 1, 0)
+    assert r["reused_steps"] == [("1", 1), ("1", 3)] and r["printed"] == {"correct_steps": 1}
+    # all identical: no scorer run at all, every E1 verdict is the official one
+    seen.clear()
+    out, expected, verdicts = e1_case(tmp_path / "same", identical=[True, True, True])
+    verdicts[("official", "with_background", "1", 2)] = "time out"
+    r = sr.score_e1(None, {}, args, "with_background", out, out / "score", expected, verdicts)
+    assert seen == [] and r["printed"] is None and (r["reused_identical"], r["scored"]) == (3, 0)
+    assert [verdicts[("e1", "with_background", "1", s)] for s in (1, 2, 3)] == ["fail", "time out", "fail"]
+
+
+def test_e1_logs_kept_only_for_the_same_scored_files(tmp_path, monkeypatch):
+    monkeypatch.setattr(sr, "run_scorer", fake_scorer([]))
+    args = types.SimpleNamespace(model_id="m")
+    out, expected, verdicts = e1_case(tmp_path, identical=[True, False, True])
+    logs = out / "score" / "logs_e1" / "m" / "with_background"
+    logs.mkdir(parents=True)
+    (logs / "1.3.txt").write_text("pass")  # a log from before the stamp existed: removed
+    sr.score_e1(None, {}, args, "with_background", out, out / "score", expected, verdicts)
+    assert sorted(p.name for p in logs.iterdir()) == ["1.2.txt"]
+    (logs / "1.2.txt").write_text("fail")  # the same files again: the scorer reuses this log
+    v = dict(verdicts)
+    sr.score_e1(None, {}, args, "with_background", out, out / "score", expected, v)
+    assert v[("e1", "with_background", "1", 2)] == "fail"
+    (out / "generated_code_e1" / "m" / "with_background" / "1.2.py").write_text("changed")
+    v = dict(verdicts)
+    sr.score_e1(None, {}, args, "with_background", out, out / "score", expected, v)
+    assert v[("e1", "with_background", "1", 2)] == "pass"  # other E1 file: its old log went, it was scored again
+
+
+def test_official_logs_survive_a_runner_change(tmp_path):
+    score = tmp_path / "score"
+    (score / "logs").mkdir(parents=True)
+    (score / "logs" / "1.1.txt").write_text("pass")
+    # a stamp written by 2ade850c, with the runner's sha256: the official logs stay for the same answers
+    (score / "stamp.json").write_text(json.dumps({"generations_sha256": "a", "runner_sha256": "old"}))
+    sr.keep_official_logs(score, "a")
+    assert (score / "logs" / "1.1.txt").read_text() == "pass"
+    assert json.loads((score / "stamp.json").read_text()) == {"generations_sha256": "a"}
+    sr.keep_official_logs(score, "b")  # other answers: everything goes
+    assert not (score / "logs").exists()
+
+
 def test_parse_scorer_output_and_expected_steps():
     stdout = "Testing function 1.1 ...\ncorrect problems: 3/65\ncorrect steps: 40/288\n"
     stderr = ("Using the latest cached version of the dataset since SciCode1/SciCode couldn't be found\n"
@@ -391,10 +472,13 @@ def test_parse_scorer_output_and_expected_steps():
 
 def g(setting, pid, step, passed, status="ok", verdict=None, tokens=100, finish="stop", unfinished=False,
       think_open=False, pass_e1=None):
-    pass_e1 = passed if pass_e1 is None else pass_e1
+    """A graded line; an E1 verdict given here means the E1 file differed and was scored, else the official one is
+    reused."""
+    reused = pass_e1 is None
+    pass_e1 = passed if reused else pass_e1
     return {"setting": setting, "problem_id": pid, "step": step, "step_id": f"{pid}.{step}",
             "verdict": verdict or ("pass" if passed else "fail"), "pass": passed, "status": status,
-            "verdict_e1": "pass" if pass_e1 else "fail", "pass_e1": pass_e1,
+            "verdict_e1": "pass" if pass_e1 else "fail", "pass_e1": pass_e1, "e1_reused": reused,
             "prompt_tokens": 50, "output_tokens": tokens if status == "ok" else None, "max_tokens": 1000,
             "context": 1050, "finish_reason": finish if status == "ok" else None,
             "unfinished": unfinished if status == "ok" else None, "think_open": think_open,
@@ -445,19 +529,23 @@ def write_out(out, records, limit=None):
     printed = {}
     for s in {r["setting"] for r in records}:
         rs = [r for r in records if r["setting"] == s]
-        for key, field in ((s, "pass"), (f"e1/{s}", "pass_e1")):
-            printed[key] = {"printed": {"correct_steps": sum(r[field] for r in rs),
-                                        "correct_problems": summarize.problems_solved(rs, field)["solved"]}}
+        printed[s] = {"printed": {"correct_steps": sum(r["pass"] for r in rs),
+                                  "correct_problems": summarize.problems_solved(rs)["solved"]}}
+        scored = [r for r in rs if not r["e1_reused"]]
+        printed[f"e1/{s}"] = {"printed": {"correct_steps": sum(r["pass_e1"] for r in scored)} if scored else None,
+                              "reused_identical": len(rs) - len(scored),
+                              "reused_passes": sum(r["pass"] for r in rs if r["e1_reused"])}
     run = {"generation": [{"step": "gen", "thinking": True, "sampling": {"request_sampling": {"temperature": 0.6}}}],
            "scoring": {"step": "score", "split": "test", "limit": limit, "runs": printed}}
     (out / "run.json").write_text(json.dumps(run), encoding="utf-8")
 
 
 def test_summary_file_limit_and_full_count(tmp_path):
-    # without background: nothing passes officially, only step 1.1 under E1
+    # without background: nothing passes officially, only step 1.1 under E1 (scored, not reused)
     records = GRADED + [dict(r, setting="without_background", **{"pass": False, "verdict": "fail",
                                                                   "pass_e1": r["step_id"] == "1.1",
-                                                                  "verdict_e1": "pass" if r["step_id"] == "1.1" else "fail"})
+                                                                  "verdict_e1": "pass" if r["step_id"] == "1.1" else "fail",
+                                                                  "e1_reused": r["step_id"] != "1.1"})
                         for r in GRADED]
     write_out(tmp_path / "out", records, limit=3)
     summarize.main(str(tmp_path / "out"), str(tmp_path / "results" / "m"), 3)
@@ -468,13 +556,20 @@ def test_summary_file_limit_and_full_count(tmp_path):
     e1 = result["other_metrics"]["extraction_e1"]["with_background"]
     assert (e1["score"], e1["correct"], e1["main_problems"]["solved"]) == (66.67, 4, 1)
     assert result["other_metrics"]["extraction_e1"]["without_background"]["correct"] == 1
+    assert (e1["reused_identical"], e1["scored"]) == (5, 1)
     with gzip.open(tmp_path / "out" / "m-limit3.jsonl.gz", "rt") as f:
         lines = [json.loads(x) for x in f]
     assert len(lines) == 12 and lines[0]["task_id"] == "with_background/1.1" and lines[0]["score"] == 1
     assert [x["score_e1"] for x in lines[:6]] == [1, 1, 1, 0, 1, 0] and lines[0]["output_e1"] == "y"
-    # the scorer's E1 counts must match too
+    assert [x["e1_reused"] for x in lines[:6]] == [True, True, True, True, False, True]
+    # the scorer's E1 counts plus the reused official passes must match ours
     run = json.loads((tmp_path / "out" / "run.json").read_text())
-    run["scoring"]["runs"]["e1/with_background"]["printed"]["correct_steps"] = 3
+    run["scoring"]["runs"]["e1/with_background"]["printed"]["correct_steps"] = 0
+    (tmp_path / "out" / "run.json").write_text(json.dumps(run))
+    with pytest.raises(SystemExit, match="e1/with_background"):
+        summarize.main(str(tmp_path / "out"), str(tmp_path / "results" / "m"), 3)
+    run["scoring"]["runs"]["e1/with_background"]["printed"]["correct_steps"] = 1
+    run["scoring"]["runs"]["e1/with_background"]["reused_identical"] = 4
     (tmp_path / "out" / "run.json").write_text(json.dumps(run))
     with pytest.raises(SystemExit, match="e1/with_background"):
         summarize.main(str(tmp_path / "out"), str(tmp_path / "results" / "m"), 3)

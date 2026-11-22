@@ -854,13 +854,7 @@ def score(args: argparse.Namespace) -> None:
     expected = expected_steps(rows)
     settings = check_answers(answers, expected, out / "generated_code" / args.model_id)
     score_dir = out / "score"
-    stamp = score_dir / "stamp.json"
-    # the scorer reuses its per-step logs; they hold only for these answers and this runner (which builds E1 files)
-    key = {"generations_sha256": hashes["generations.jsonl"], "runner_sha256": sha256_file(HERE / "scicode_runner.py")}
-    if stamp.is_file() and json.loads(stamp.read_text()) != key:
-        shutil.rmtree(score_dir)
-    score_dir.mkdir(parents=True, exist_ok=True)
-    stamp.write_text(json.dumps(key) + "\n", encoding="utf-8")
+    keep_official_logs(score_dir, hashes["generations.jsonl"])
     run = json.loads((out / "run.json").read_text(encoding="utf-8"))
     thinking = bool(run["generation"][0].get("thinking"))
     # Amendment 1: E1 step files rebuilt from the recorded answers, scored by the same scorer
@@ -873,24 +867,21 @@ def score(args: argparse.Namespace) -> None:
     with tempfile.TemporaryDirectory() as work:
         root = scratch_copy(Path(work), H5_PATH)
         env = {**os.environ, **BLAS_THREADS, "PYTHONPATH": str(root / "src"), "PYTHONUNBUFFERED": "1"}
-        for extraction, code_dir, logs_name in (("official", out / "generated_code", "logs"),
-                                                ("e1", e1_dir, "logs_e1")):
-            for setting in settings:
-                key = setting if extraction == "official" else f"e1/{setting}"
-                runs[key] = run_scorer(root, env, args, setting, code_dir, score_dir, logs_name, key.replace("/", "_"))
-                logs = score_dir / logs_name / args.model_id / setting
-                for pid, step in expected:
-                    first = (logs / f"{pid}.{step}.txt").read_text(encoding="utf-8").splitlines()
-                    verdicts[(extraction, setting, pid, step)] = first[0] if first else ""
+        for setting in settings:
+            runs[setting] = run_scorer(root, env, args, setting, out / "generated_code", score_dir, "logs", setting)
+            verdicts.update(read_verdicts(score_dir / "logs" / args.model_id / setting, "official", setting, expected))
+        for setting in settings:
+            runs[f"e1/{setting}"] = score_e1(root, env, args, setting, out, score_dir, expected, verdicts)
     with (out / "graded.jsonl").open("w", encoding="utf-8") as f:
         for setting in settings:
+            reused = set(map(tuple, runs[f"e1/{setting}"]["reused_steps"]))
             for pid, step in expected:
                 a = answers[(setting, pid, step)]
                 verdict, verdict_e1 = (verdicts[(x, setting, pid, step)] for x in ("official", "e1"))
                 f.write(json.dumps({
                     "setting": setting, "problem_id": pid, "step": step, "step_id": a["step_id"],
                     "verdict": verdict, "pass": verdict == "pass", "status": a["status"],
-                    "verdict_e1": verdict_e1, "pass_e1": verdict_e1 == "pass",
+                    "verdict_e1": verdict_e1, "pass_e1": verdict_e1 == "pass", "e1_reused": (pid, step) in reused,
                     "prompt_tokens": a.get("prompt_tokens"), "output_tokens": a.get("output_tokens"),
                     "max_tokens": a.get("max_tokens"), "context": a.get("context"),
                     "finish_reason": a.get("finish_reason"), "unfinished": a.get("unfinished"),
@@ -907,10 +898,73 @@ def score(args: argparse.Namespace) -> None:
         "blas_threads": BLAS_THREADS, "packages": package_versions(), "scorer_timeout_s": SCORER_TIMEOUT_S,
         "container": {"image_id": os.environ.get("SCICODE_IMAGE_ID"), "network": os.environ.get("SCICODE_NETWORK")},
         "runs": runs})
-    for setting, r in runs.items():
+    for key, r in runs.items():
         p = r["printed"]
-        print(f"{setting}: correct steps {p['correct_steps']}/{p['steps_denominator']}, correct problems "
-              f"{p['correct_problems']}/{p['problems_denominator']}, dataset {p['dataset_revision_seen']}")
+        reused = f"; E1: {r['reused_identical']} steps identical to the official file (official verdict reused), " \
+                 f"{r['scored']} scored" if key.startswith("e1/") else ""
+        counts = "no step scored" if p is None else (f"correct steps {p['correct_steps']}/{p['steps_denominator']}, "
+                                                       f"correct problems {p['correct_problems']}/{p['problems_denominator']}, "
+                                                       f"dataset {p['dataset_revision_seen']}")
+        print(f"{key}: {counts}{reused}")
+
+
+def keep_official_logs(score_dir: Path, generations_sha256: str) -> None:
+    """The scorer reuses its per-step logs. The official logs hold for as long as the answers are the same (their
+    files come from generate, not from this runner); a stamp from older code with more fields counts by its
+    generations_sha256 alone. Other answers: the whole score directory goes."""
+    stamp = score_dir / "stamp.json"
+    if stamp.is_file() and json.loads(stamp.read_text())["generations_sha256"] != generations_sha256:
+        shutil.rmtree(score_dir)
+    score_dir.mkdir(parents=True, exist_ok=True)
+    stamp.write_text(json.dumps({"generations_sha256": generations_sha256}) + "\n", encoding="utf-8")
+
+
+def read_verdicts(logs: Path, extraction: str, setting: str, steps: list[tuple[str, int]]) -> dict[tuple, str]:
+    """First line of the scorer's log per step: pass, fail or time out."""
+    out = {}
+    for pid, step in steps:
+        first = (logs / f"{pid}.{step}.txt").read_text(encoding="utf-8").splitlines()
+        out[(extraction, setting, pid, step)] = first[0] if first else ""
+    return out
+
+
+def score_e1(root: Path, env: dict[str, str], args: argparse.Namespace, setting: str, out: Path, score_dir: Path,
+             expected: list[tuple[str, int]], verdicts: dict[tuple, str]) -> dict[str, Any]:
+    """The E1 pass of one setting. A step whose E1 file is byte-identical to its official file is the same program
+    with the same tests, so it takes the official verdict without a scorer run. The other steps' E1 files are copied
+    alone into `generated_code_e1_scored/` and scored there by the unchanged scorer; its printed problem count then
+    covers only those files, so the main-problem count under E1 comes from the per-step verdicts. The scorer's E1
+    logs are kept only while the scored files are the same (stamp: sha256 over their names and bytes)."""
+    official = out / "generated_code" / args.model_id / setting
+    rebuilt = out / "generated_code_e1" / args.model_id / setting
+    names = {(pid, step): f"{pid}.{step}.py" for pid, step in expected}
+    differing = [s for s in expected if (rebuilt / names[s]).read_bytes() != (official / names[s]).read_bytes()]
+    reused = [s for s in expected if s not in set(differing)]
+    for pid, step in reused:
+        verdicts[("e1", setting, pid, step)] = verdicts[("official", setting, pid, step)]
+    scored_dir = out / "generated_code_e1_scored"
+    target = scored_dir / args.model_id / setting
+    if target.exists():
+        shutil.rmtree(target)
+    target.mkdir(parents=True)
+    digest = hashlib.sha256()
+    for s in differing:
+        shutil.copyfile(rebuilt / names[s], target / names[s])
+        digest.update(names[s].encode() + b"\0" + (rebuilt / names[s]).read_bytes() + b"\0")
+    logs = score_dir / "logs_e1" / args.model_id / setting
+    stamp_path = score_dir / "logs_e1" / "stamp.json"
+    stamps = json.loads(stamp_path.read_text()) if stamp_path.is_file() else {}
+    if stamps.get(setting) != digest.hexdigest() and logs.exists():
+        shutil.rmtree(logs)  # logs of other E1 files (or from before this stamp existed)
+    stamp_path.parent.mkdir(parents=True, exist_ok=True)
+    stamp_path.write_text(json.dumps({**stamps, setting: digest.hexdigest()}) + "\n", encoding="utf-8")
+    record: dict[str, Any] = {"reused_identical": len(reused), "scored": len(differing),
+                              "reused_passes": sum(verdicts[("e1", setting, p, s)] == "pass" for p, s in reused),
+                              "reused_steps": reused, "printed": None, "command": None, "seconds": 0.0}
+    if differing:
+        record.update(run_scorer(root, env, args, setting, scored_dir, score_dir, "logs_e1", f"e1_{setting}"))
+        verdicts.update(read_verdicts(logs, "e1", setting, differing))
+    return record
 
 
 def main() -> None:

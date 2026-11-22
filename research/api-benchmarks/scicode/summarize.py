@@ -72,11 +72,14 @@ def problems_solved(records: list[dict[str, Any]], key: str = "pass") -> dict[st
 
 
 def extraction_metrics(records: list[dict[str, Any]], extraction: str) -> dict[str, Any]:
-    """Pass rate, clustered SE, main problems and verdicts of one extraction's scoring (`e1`: Amendment 1)."""
+    """Pass rate, clustered SE, main problems and verdicts of one extraction's scoring (`e1`: Amendment 1), with the
+    number of steps whose E1 file was identical to the official one and took its verdict (`reused_identical`)."""
     p, v = f"pass_{extraction}", f"verdict_{extraction}"
+    reused = sum(1 for r in records if r[f"{extraction}_reused"])
     return {**rate([bool(r[p]) for r in records], [r["problem_id"] for r in records]),
             "main_problems": problems_solved(records, p),
-            "verdicts": {x: sum(1 for r in records if r[v] == x) for x in sorted({r[v] for r in records})}}
+            "verdicts": {x: sum(1 for r in records if r[v] == x) for x in sorted({r[v] for r in records})},
+            "reused_identical": reused, "scored": len(records) - reused}
 
 
 def setting_metrics(records: list[dict[str, Any]]) -> dict[str, Any]:
@@ -116,6 +119,18 @@ def check_against_scorer(setting: str, m: dict[str, Any], printed: dict[str, Any
     theirs = (printed["correct_steps"], printed["correct_problems"])
     if ours != theirs:
         sys.exit(f"summarize.py: {setting}: correct steps and problems {ours} here, {theirs} printed by the scorer")
+
+
+def check_e1_against_scorer(setting: str, m: dict[str, Any], run: dict[str, Any]) -> None:
+    """E1: the scorer ran only on the steps whose E1 file differs from the official one, so its printed correct
+    steps plus the reused official passes must equal ours, and the reused count must match (its printed problem
+    count covers only the scored files and is not compared)."""
+    printed = run["printed"]["correct_steps"] if run["printed"] else 0
+    ours = (m["correct"], m["reused_identical"])
+    theirs = (printed + run["reused_passes"], run["reused_identical"])
+    if ours != theirs:
+        sys.exit(f"summarize.py: {setting}: correct steps and reused steps {ours} here, {theirs} from the scorer "
+                 "and the reused official verdicts")
 
 
 def run_record(out_dir: Path) -> dict[str, Any]:
@@ -189,7 +204,7 @@ def main(out_dir: str, target: str, limit: int | None) -> None:
         check_against_scorer(s, m, run["scoring"]["runs"][s]["printed"])
         per_setting[s] = m
         e1 = extraction_metrics(rs, "e1")
-        check_against_scorer(f"e1/{s}", e1, run["scoring"]["runs"][f"e1/{s}"]["printed"])
+        check_e1_against_scorer(f"e1/{s}", e1, run["scoring"]["runs"][f"e1/{s}"])
         per_setting_e1[s] = e1
     head = per_setting["with_background"]
     started = sorted(r["started"] for r in records if r["started"])
@@ -251,6 +266,7 @@ def main(out_dir: str, target: str, limit: int | None) -> None:
         "score_e1": int(r["pass_e1"]),
         "verdict_e1": r["verdict_e1"],
         "output_e1": r["code_e1"],
+        "e1_reused": r["e1_reused"],
     } for r in records]
     write_result(target, result, lines)
     print(json.dumps({k: result[k] for k in ("model", "score", "stderr", "stderr_clustered", "n")} |
