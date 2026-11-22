@@ -11,8 +11,11 @@ raw z: |z| >= 3 clear, 2-3 likely, < 2 noise; SE = 0 gives no z and the verdict 
 hypotheses with m = 3 always; a hypothesis whose models have not been run is `not run`, and still counts in m.
 The control (Amendment 1) is LFM3-1.7B's own pass@1 against its card value, from the card-sampling run
 (`lfm3-1.7b-cardsampling`, Amendment 4) when it exists, with the original `lfm3-1.7b` run shown next to it as
-descriptive; L1-L3 use the original `lfm3-1.7b` run. The v6-only problems and every budget pair of L3 are printed
-as descriptive rows, not tested.
+descriptive. L1-L3 are decided on the original `lfm3-1.7b` run (the verdict run, #170); as Amendment 4 reports both
+numbers when A1 does not show the samplings equivalent, they are also computed on `lfm3-1.7b-cardsampling` (its own
+Holm, m = 3), and the `reading` line of each hypothesis gives both outcomes: where they differ, the hypothesis
+depends on the sampling settings and the question it asks is unresolved. The v6-only problems and every budget pair
+of L3 are printed as descriptive rows, not tested.
 L1 and L3 also get a clustered SE, descriptive (the rules note: an SE over problems treats problems of one contest
 as independent): the same mean difference with the SE from the spread between clusters, by contest (platform and
 contest date; the data has no contest id) and by platform (k = 3), t = mean / SE read at df = k - 1 with the verdict
@@ -60,6 +63,7 @@ PARAMETERS = {
     "lfm3-1.7b": 1_728_801_536,
     "bielik-11b-v3.1": 11_168_796_672,  # card: "11 billion parameters"
 }
+WEIGHTS = {LFM: LFM, CONTROL_RUN: LFM, BIELIK: BIELIK}  # run -> model weights (the card-sampling run: same weights)
 
 P_CLEAR = math.erfc(3 / math.sqrt(2))  # two-sided p at |z| = 3
 P_LIKELY = math.erfc(2 / math.sqrt(2))  # two-sided p at |z| = 2
@@ -97,10 +101,10 @@ def passes_within(r: dict, budget: int | None) -> bool:
     return bool(r["pass"]) and bool(r["finished"]) and (budget is None or r["output_tokens"] <= budget)
 
 
-def cost(model: str, r: dict, budget: int | None) -> float:
+def cost(run: str, r: dict, budget: int | None) -> float:
     """2 x parameters x output tokens, the tokens capped at the budget (an answer cut at B used B tokens)."""
     tokens = r["output_tokens"] if budget is None else min(r["output_tokens"], budget)
-    return 2 * PARAMETERS[model] * tokens
+    return 2 * PARAMETERS[WEIGHTS[run]] * tokens
 
 
 def verdict(z: float | None) -> str:
@@ -265,11 +269,10 @@ def control(results: Path) -> dict[str, Any]:
     return tested
 
 
-def analyse(results: Path) -> dict[str, Any]:
-    runs = {m: load(results, m) for m in (LFM, BIELIK)}
-    deviations = list(DEVIATIONS)
-    main = compare(LFM, BIELIK, runs[LFM], runs[BIELIK]) if runs[LFM] is not None and runs[BIELIK] is not None else None
-    missing = [m for m in (LFM, BIELIK) if runs[m] is None]
+def family(lfm: str, runs: dict) -> tuple[list[dict], dict | None, list[str]]:
+    """L1-L3 of one LFM3-1.7B run against Bielik, with Holm over the three (m = 3)."""
+    main = compare(lfm, BIELIK, runs[lfm], runs[BIELIK]) if runs[lfm] is not None and runs[BIELIK] is not None else None
+    missing = [m for m in (lfm, BIELIK) if runs[m] is None]
     rows = []
     for hid, fn in (("L1", l1), ("L2", l2), ("L3", l3)):
         if main is None:
@@ -280,14 +283,56 @@ def analyse(results: Path) -> dict[str, Any]:
     for row, p in zip(rows, holm([r["p"] for r in rows], m=3)):
         row["p_holm"] = p
         row["verdict_holm"] = "not run" if row["outcome"] == "not run" else verdict_p(p)
+    return rows, main, missing
+
+
+def reading(rows: list[dict], other: dict | None) -> list[dict[str, Any]]:
+    """Each hypothesis on the verdict run next to the card-sampling run (Amendment 4 reports both numbers when A1
+    does not show the samplings equivalent). Where the protocol's rule gives another outcome on the second run, the
+    hypothesis depends on the sampling settings and the question it asks is unresolved, whatever the verdict run
+    says; the text never gives the verdict run's outcome alone."""
+    def z(r: dict) -> str:
+        return "n/a" if r["z"] is None else f"{r['z']:+.2f}"
+
+    out = []
+    for i, r in enumerate(rows):
+        o = other["hypotheses"][i] if other else None
+        if r["outcome"] == "not run" or o is None or o["outcome"] == "not run":
+            out.append({"id": r["id"], "outcome": r["outcome"], "outcome_other_run": o and o["outcome"],
+                        "depends_on_sampling": None, "text": f"{r['id']}: {r['outcome']} on {LFM} (the verdict run)"})
+            continue
+        depends = r["outcome"] != o["outcome"]
+        if depends:
+            text = (f"{r['id']}: the protocol's rule gives `{r['outcome']}` on {LFM}, the verdict run (z = {z(r)}, "
+                    f"{r['verdict']}), but `{o['outcome']}` on {CONTROL_RUN} (z = {z(o)}, {o['verdict']}): "
+                    f"{r['id']} depends on the sampling settings, so the question it asks is unresolved")
+        else:
+            text = f"{r['id']}: {r['outcome']} on both runs ({LFM} z = {z(r)}, {CONTROL_RUN} z = {z(o)})"
+        out.append({"id": r["id"], "outcome": r["outcome"], "outcome_other_run": o["outcome"],
+                    "depends_on_sampling": depends, "text": text})
+    return out
+
+
+def analyse(results: Path) -> dict[str, Any]:
+    runs = {m: load(results, m) for m in (LFM, CONTROL_RUN, BIELIK)}
+    deviations = list(DEVIATIONS)
+    rows, main, missing = family(LFM, runs)
     if missing:
         deviations.append("a hypothesis that is not run counts in Holm's m = 3 with p = 1 (ranked last).")
     if main is None:
         descriptive = [{"a": LFM, "b": BIELIK, "status": "not run", "missing": missing}]
     else:
         descriptive = [{"status": "ok", **main}]
+    other = None
+    if runs[CONTROL_RUN] is not None:  # Amendment 4: both runs reported; the verdict run stays LFM (#170)
+        other_rows, other_main, _ = family(CONTROL_RUN, runs)
+        other = {"run": CONTROL_RUN, "role": "reported next to the verdict run (Amendment 4), not the verdict",
+                 "hypotheses": other_rows}
+        if other_main is not None:
+            descriptive.append({"status": "ok", **other_main})
     return {"benchmark": "LiveCodeBench v6", "protocol": "PROTOCOL.md", "difference": "LFM3-1.7B minus other, pp",
-            "control": control(results), "hypotheses": rows, "descriptive": descriptive,
+            "control": control(results), "verdict_run": LFM, "hypotheses": rows, "other_run": other,
+            "reading": reading(rows, other), "descriptive": descriptive,
             "parameters": PARAMETERS, "holm_m": 3, "deviations": deviations}
 
 
@@ -322,23 +367,10 @@ def clustered_table(rows: list[dict]) -> list[str]:
     return lines
 
 
-def report(a: dict) -> str:
-    out = []
-    c = a["control"]
-    if c["status"] in ("passed", "failed"):
-        out.append(f"control: LFM3-1.7B ({c['run']}) {c['score']:.2f} ± {c['stderr']:.2f} vs card {c['card']}, "
-                   f"z = {c['z']:+.2f}: {c['status']}")
-        if c["status"] == "failed":
-            out.append("control failed: the setup is the suspect; no hypothesis is read until the gap is explained")
-    else:
-        out.append(f"control: {c['status']}")
-    d = c.get("descriptive")
-    if d and d.get("z") is not None:
-        out.append(f"descriptive, not tested: LFM3-1.7B ({d['run']}, the run L1-L3 use) {d['score']:.2f} ± "
-                   f"{d['stderr']:.2f} vs card {d['card']}, z = {d['z']:+.2f}")
-    out += ["", "| hypothesis | measure | value ± SE (pp) | z | Holm p | verdict | after Holm | outcome | n |",
-            "|---|---|---|---|---|---|---|---|---|"]
-    for r in a["hypotheses"]:
+def hypotheses_table(rows: list[dict]) -> list[str]:
+    out = ["| hypothesis | measure | value ± SE (pp) | z | Holm p | verdict | after Holm | outcome | n |",
+           "|---|---|---|---|---|---|---|---|---|"]
+    for r in rows:
         measure = r.get("measure", "")
         if r["outcome"] == "not run":
             out.append(f"| {r['id']} | | | | | not run | not run | not run (missing: {', '.join(r['missing'])}) | |")
@@ -357,12 +389,35 @@ def report(a: dict) -> str:
                 note = " (sign not established)" if lvl in r["sign_not_established"] else ""
                 out.append(f"| L2 {lvl} | pass@1 difference, {lvl}{note} | {value_se(x)} | {fmt(x['z'], '+.2f')} | "
                            f"| {x['verdict']} | | | {x['n']} |")
+    return out
+
+
+def report(a: dict) -> str:
+    out = []
+    c = a["control"]
+    if c["status"] in ("passed", "failed"):
+        out.append(f"control: LFM3-1.7B ({c['run']}) {c['score']:.2f} ± {c['stderr']:.2f} vs card {c['card']}, "
+                   f"z = {c['z']:+.2f}: {c['status']}")
+        if c["status"] == "failed":
+            out.append("control failed: the setup is the suspect; no hypothesis is read until the gap is explained")
+    else:
+        out.append(f"control: {c['status']}")
+    d = c.get("descriptive")
+    if d and d.get("z") is not None:
+        out.append(f"descriptive, not tested: LFM3-1.7B ({d['run']}, the run L1-L3 use) {d['score']:.2f} ± "
+                   f"{d['stderr']:.2f} vs card {d['card']}, z = {d['z']:+.2f}")
+    out += ["", f"L1-L3 on {a['verdict_run']}, the verdict run:", ""] + hypotheses_table(a["hypotheses"])
     out += clustered_table(a["hypotheses"])
-    out += ["", "Descriptive (not tested), LFM3-1.7B minus each model:", "",
-            "| model | measure | value ± SE (pp) | z | verdict | n | excluded |", "|---|---|---|---|---|---|---|"]
+    other = a["other_run"]
+    if other:
+        out += ["", f"L1-L3 on {other['run']}, {other['role']}:", ""] + hypotheses_table(other["hypotheses"])
+        out += clustered_table(other["hypotheses"])
+    out += ["", "Reading:", ""] + [f"- {r['text']}" for r in a["reading"]]
+    out += ["", "Descriptive (not tested), each LFM3-1.7B run minus each model:", "",
+            "| run | model | measure | value ± SE (pp) | z | verdict | n | excluded |", "|---|---|---|---|---|---|---|---|"]
     for d in a["descriptive"]:
         if d["status"] == "not run":
-            out.append(f"| {d['b']} | not run (missing: {', '.join(d['missing'])}) | | | | | |")
+            out.append(f"| {d['a']} | {d['b']} | not run (missing: {', '.join(d['missing'])}) | | | | | |")
             continue
         ex = d["excluded"]["total"]
         lines = [("all problems", d["overall"])]
@@ -373,7 +428,8 @@ def report(a: dict) -> str:
                           f"{e['mean_cost_a']:.3g} vs {e['mean_cost_b']:.3g} FLOPs)", e))
         lines.append(("v6-only problems", d["v6_only"]))
         for name, r in lines:
-            out.append(f"| {d['b']} | {name} | {value_se(r)} | {fmt(r['z'], '+.2f')} | {r['verdict']} | {r['n']} | {ex} |")
+            out.append(f"| {d['a']} | {d['b']} | {name} | {value_se(r)} | {fmt(r['z'], '+.2f')} | {r['verdict']} | "
+                       f"{r['n']} | {ex} |")
     out.append("")
     out += [f"deviation: {x}" for x in a["deviations"]]
     return "\n".join(out)

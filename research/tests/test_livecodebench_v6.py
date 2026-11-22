@@ -1016,6 +1016,36 @@ def test_control_uses_card_sampling_run_with_original_descriptive():
     assert compare.CONTROL_RUN == "lfm3-1.7b-cardsampling"
 
 
+def test_hypotheses_on_both_lfm3_runs_and_reading():
+    near_bielik = run_of({"easy": 11, "medium": 10, "hard": 10}, tokens=10000)  # +1 problem over Bielik: noise
+    with tempfile.TemporaryDirectory() as tmp:
+        res = Path(tmp)
+        write_run(res, compare.LFM, CLEAR_LFM)
+        write_run(res, compare.BIELIK, CLEAR_BIELIK)
+        alone = compare.analyse(res)  # without the card-sampling run: the verdict run only
+        write_run(res, compare.CONTROL_RUN, near_bielik)
+        a = compare.analyse(res)
+        text = compare.report(a)
+        write_run(res, compare.CONTROL_RUN, CLEAR_LFM)
+        same = compare.analyse(res)
+    assert alone["other_run"] is None and [r["depends_on_sampling"] for r in alone["reading"]] == [None] * 3
+    assert a["verdict_run"] == "lfm3-1.7b" and [h["outcome"] for h in a["hypotheses"]] == ["refuted"] * 3
+    other = a["other_run"]
+    assert other["run"] == "lfm3-1.7b-cardsampling"
+    assert [h["outcome"] for h in other["hypotheses"]] == ["confirmed", "not established", "confirmed"]
+    assert [h["p_holm"] for h in other["hypotheses"]] == compare.holm([h["p"] for h in other["hypotheses"]], m=3)
+    l3 = by_id(a["reading"])["L3"]
+    assert l3["depends_on_sampling"] and (l3["outcome"], l3["outcome_other_run"]) == ("refuted", "confirmed")
+    # the verdict run's outcome never stands alone: both outcomes and "unresolved" in the same sentence
+    assert "`refuted` on lfm3-1.7b, the verdict run" in l3["text"] and \
+        "`confirmed` on lfm3-1.7b-cardsampling" in l3["text"] and "unresolved" in l3["text"]
+    assert f"- {l3['text']}" in text and "L1-L3 on lfm3-1.7b-cardsampling, reported next to the verdict run" in text
+    assert [(d["a"], d["b"]) for d in a["descriptive"]] == [("lfm3-1.7b", "bielik-11b-v3.1"),
+                                                           ("lfm3-1.7b-cardsampling", "bielik-11b-v3.1")]
+    assert [r["depends_on_sampling"] for r in same["reading"]] == [False] * 3
+    assert by_id(same["reading"])["L3"]["text"].startswith("L3: refuted on both runs (lfm3-1.7b z = +")
+
+
 if __name__ == "__main__":
     failed = 0
     for name, fn in list(globals().items()):
