@@ -211,7 +211,9 @@ def report(a: dict[str, Any]) -> str:
             lines.append(f"| K3 lead on − B (precondition z ≥ 3) | {lead['value']:+.2f} ± {lead['se']:.2f} | "
                          f"{fmt(lead['z'], '+.2f')} | | | | |")
     lines += ["", "Holm family:", ""]
-    lines += [f"- {t['benchmark']} {t['id']}: z {fmt(t['z'], '+.2f')}, {t['verdict_holm']}" for t in a["holm"]["family"]]
+    lines += [f"- {t['benchmark']} {t['id']}: " + (f"z {t['z']:+.2f}, {t['verdict_holm']}" if t["z"] is not None
+                                                   else f"{t['outcome_raw']} (p = 1 in Holm)")
+              for t in a["holm"]["family"]]
     lines += [f"note: {n}" for n in a["notes"]]
     return "\n".join(lines)
 
@@ -226,6 +228,7 @@ def main(argv: list[str]) -> None:
     a = analyse(results, group)
     print(report(a))
     (results / "hypotheses.json").write_text(json.dumps(a, indent=2) + "\n", encoding="utf-8")
+    provenance.record(results, ["hypotheses.json"], "compare.py")
 
 
 if __name__ == "__main__":

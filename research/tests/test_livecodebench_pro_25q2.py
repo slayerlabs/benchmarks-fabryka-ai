@@ -697,3 +697,37 @@ def test_analyse_with_and_without_the_other_benchmark():
         write_results(res, {compare.ON: [1] * 20 + [0] * (n - 20)})
         failed = compare.analyse(res, other)
         assert failed["control"]["status"] == "failed" and not any(h["read"] for h in failed["hypotheses"])
+
+
+def test_explore_budget_boundary_and_compile_error_causes():
+    sys.path.insert(0, str(BENCH))
+    try:
+        import explore
+    finally:
+        sys.path.remove(str(BENCH))
+    rs = [{"accepted": True, "output_tokens": 4096}, {"accepted": True, "output_tokens": 4097},
+          {"accepted": False, "output_tokens": 10}, {"accepted": True, "output_tokens": 32768},
+          {"accepted": False, "output_tokens": None}]
+    assert explore.budgets(rs) == {"4096": 1, "8192": 2, "16384": 2, "32768": 3}  # at most B tokens counts
+    note = ("main.cpp:3:5: error: 'set' was not declared in this scope\nnote: 'std::set' is defined in header "
+            "'<set>'; did you forget to '#include <set>'?")
+    assert explore.cause(note) == "compiler_says_missing_include"
+    assert explore.cause("main.cpp:19:25: error: 'gcd' was not declared in this scope\n") == "undeclared_std_name"
+    assert explore.cause("x.cpp:1: error: 'numeric_limits' is not a member of 'std'") == "undeclared_std_name"
+    assert explore.cause("main.cpp:5:1: error: 'result' was not declared in this scope") == "other"
+    assert explore.cause("main.cpp:9: error: expected ';' at end of input\nerror: 'gcd' was not declared") == "other"
+
+
+def test_readme_blocks_are_the_generator_output():
+    sys.path.insert(0, str(BENCH))
+    try:
+        import readme
+    finally:
+        sys.path.remove(str(BENCH))
+    results = BENCH / "results"
+    text = (BENCH / "README.md").read_text(encoding="utf-8")
+    bodies = readme.blocks(results)
+    assert readme.render(text, bodies) == text  # byte for byte: no number edited by hand, none stale
+    line = next(x for x in text.splitlines() if x.startswith("| Bielik 11B v3.1 (`bielik-11b-v3.1`) |"))
+    swapped = text.replace(line, line.replace(" | 1.80 | ", " | 1.81 | ", 1), 1)
+    assert swapped != text and readme.render(swapped, bodies) != swapped  # one swapped number is caught
