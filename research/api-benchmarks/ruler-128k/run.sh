@@ -238,6 +238,10 @@ for L in "${LENGTHS[@]}"; do
 done
 
 # --- generation ----------------------------------------------------------------------------------------------
+# generation.jsonl, one line per run.sh call that generates: commit of this repo and dirty flag, sha256 of the runner
+# files, GPU and platform of this machine, and the sampling in effect (vLLM: what the request does not set comes from
+# the model's generation_config.json at the pinned revision; PROTOCOL.md, Amendment 3).
+"$PY" "$HERE/provenance.py" generation "$OUT"
 PREDICT=("$PY" "$HERE/predict.py" --model "$MODEL" --tasks "${TASKS[@]}" --seed "$SEED" --temperature "$TEMPERATURE"
          --top-p "$TOP_P" --concurrency "$CONCURRENCY" --ruler-dir "$RULER_DIR")
 if [[ -z "$RUN_LENGTHS" ]]; then
@@ -284,5 +288,7 @@ for L in $RUN_LENGTHS; do
   (cd "$RULER_DIR/scripts/eval" && PYTHONPATH="$HERE/nemo_shim" "$PY" evaluate.py \
     --data_dir "$OUT/$L/pred" --benchmark synthetic)
 done
+# inputs.sha256.json: the sha256 of every file summarize.py reads, written here, checked by summarize.py
+"$PY" "$HERE/provenance.py" manifest "$OUT"
 
 "$PY" "$HERE/summarize.py" results "$OUT" "${RESULTS_DIR:-$HERE/results}/$MODEL" --ruler-dir "$RULER_DIR"

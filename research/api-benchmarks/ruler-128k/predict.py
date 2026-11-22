@@ -105,6 +105,12 @@ def messages(sample):
     return [{"role": "user", "content": sample["input"] + sample.get("answer_prefix", "")}]
 
 
+def request_body(args, sample, counted, window, extra):
+    """The chat request for one sample: the output limit is the window minus the counted prompt and the margin."""
+    return {"model": args.model, "messages": messages(sample), "max_tokens": window - counted - args.margin,
+            "temperature": args.temperature, "top_p": args.top_p, "seed": args.seed, **extra}
+
+
 def local_counter(tokenizer_dir, context):
     """Prompt counter with the model's own chat template (template defaults), for an API without /tokenize."""
     from transformers import AutoTokenizer
@@ -194,8 +200,7 @@ def main():
         return
 
     def generate(task, sample, n, ctx):
-        body = {"model": args.model, "messages": messages(sample), "max_tokens": ctx - n - args.margin,
-                "temperature": args.temperature, "top_p": args.top_p, "seed": args.seed, **extra}
+        body = request_body(args, sample, n, ctx, extra)
         try:
             response = client.post("/v1/chat/completions", body)
             choice = response["choices"][0]

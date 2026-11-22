@@ -2,6 +2,10 @@
 
 Usage: python3 compare.py   (reads results/<model-id>.json and .jsonl.gz, writes results/hypotheses.json)
 
+Before reading, the sha256 of each model's result files is checked against results/results.sha256.json (written by
+summarize.py); a mismatch stops. A result file not listed there is recorded now and named in `warnings`.
+hypotheses.json carries the sha256 of every input and the commit, runner sha256 and machine of this run.
+
 - Control (Amendment 1): LFM3-1.7B's mean at 131072 against its card value 65.56; PASS when |z| < 2. Without a
   PASS the hypotheses are printed but not read.
 - R1: LFM3-1.7B's mean at 131072 against 85.6. Confirmed: z <= -3 (after Holm); refuted: mean >= 85.6.
@@ -30,6 +34,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[1] / "tools"))
 import statystyka  # noqa: E402  (Holm, p from z and t, clustered SE; shared with the other research reports)
 from summarize import BOOTSTRAP_RESAMPLES, BOOTSTRAP_SEED, CATEGORIES, HEADLINE_LENGTH, LENGTHS, TASKS  # noqa: E402
+import provenance  # noqa: E402
 
 LFM3, BIELIK, SLAYER = "lfm3-1.7b", "bielik-11b-v3.1", "slayer1b-1.09-k70000"
 DESCRIPTIVE = [SLAYER]
@@ -239,8 +244,14 @@ def combine(measure, comps, sign, **extra):
 
 
 def analyse(results_dir, resamples):
-    runs = {}
+    runs, warnings, inputs = {}, [], {}
     for model in [LFM3, BIELIK, *DESCRIPTIVE]:
+        names = [f"{model}.json", f"{model}.jsonl.gz"]
+        if all((results_dir / n).is_file() for n in names):
+            if provenance.check(results_dir, names, provenance.RESULTS, "compare.py", add_unrecorded=True):
+                warnings.append(f"{model}: result files not in {provenance.RESULTS}; their sha256 were recorded by "
+                                "compare.py now, not by summarize.py when they were written")
+            inputs.update(provenance.hashes(results_dir, names))
         run = load(results_dir, model)
         if run is not None and model not in DESCRIPTIVE:
             run.update(point=point(run["scores"]), resamples=resamples,
@@ -265,7 +276,8 @@ def analyse(results_dir, resamples):
         "partial_lengths": {str(k): v for k, v in sorted(run["partial"].items())},
         "errors_excluded": {str(k): v for k, v in run["errors"].items() if v}} for m, run in runs.items()}
     return {"control": control(runs), "hypotheses": hyps, "holm_m": M, "models": descriptive,
-            "deviations": DEVIATIONS, "bootstrap": {"resamples": resamples, "seed": f"{BOOTSTRAP_SEED}:<model-id>"}}
+            "deviations": DEVIATIONS, "bootstrap": {"resamples": resamples, "seed": f"{BOOTSTRAP_SEED}:<model-id>"},
+            "warnings": warnings, "inputs_sha256": inputs, "provenance": provenance.machine()}
 
 
 def fmt(x, digits=2):
@@ -277,7 +289,7 @@ def fmt_p(p):
 
 
 def report(result):
-    lines = [f"deviation: {d}" for d in result["deviations"]]
+    lines = [f"deviation: {d}" for d in result["deviations"]] + [f"warning: {w}" for w in result["warnings"]]
     c = result["control"]
     if c["status"] == "not run":
         lines.append(f"control: not run (missing: {', '.join(c['missing'])}); hypotheses not read until it passes")
