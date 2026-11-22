@@ -116,6 +116,12 @@ Holm family (m = 3). The bootstraps are independent per model (Amendment 1).
   is null with the reason, as for Slayer's raw prompt. `run.sh` records the rendered prompt end in
   `generation.jsonl` (`reasoning`); for an out dir without it, `summarize.py` renders one prompt with the pinned
   chat template, its defaults and the generation prompt. Results carry it in `other_metrics.strict.reasoning`.
+- **R2 not decided** (PROTOCOL.md, Amendment 6, decided after the per-length means were seen). LFM3-1.7B and
+  Bielik share only two complete lengths, 8192 and 16384: Bielik's 4096 is partial (`qa_2` generator timeout) and
+  its 32768 does not fit the API window. The "at least 3 lengths" rule was only in `compare.py`, not in the
+  protocol; R2 is not tested on the 2 lengths nor on the 12-task subset at 4096-16384. `compare.py` prints the
+  R2 row as `not decided (Amendment 6)` and the per-length means of both models as a descriptive table (Bielik
+  4096 marked 12 tasks), with no test statistic.
 - **API failures logged per attempt, not for the first Bielik run.** `predict.py` writes every failed attempt,
   pause and recovery to `out/<model-id>/<length>/api-events.jsonl` (UTC time, task, sample, endpoint, attempt, HTTP
   status, the first 300 characters of the error, action, pause in seconds), as `../livecodebench-v6` does; the

@@ -168,3 +168,18 @@ LFM3-1.7B's prompt (`...<|im_start|>assistant\n<think>`) opens one. Whether a pr
 rendered prompt (it ends with an open `<think>`), recorded at generation or rendered from the pinned template; where
 it does not, strict scoring is null with the reason, as for Slayer. Bielik is reported with its pre-registered
 score only. No pre-registered number changes.
+
+## Amendment 6 (2026-11-22, 16:10 UTC)
+
+**Written after the LFM3-1.7B and Bielik results, after the per-length means were seen.**
+
+- **R2 is reported as "not decided".** Amendment 1 compares the slopes over the lengths both models hold. The
+  complete lengths both models measured are 8192 and 16384 only: Bielik's 4096 is partial (RULER's `qa_2` generator
+  timed out, so 12 of 13 tasks), and Bielik's 32768 does not fit the API window (562 of 650 templated prompts exceed
+  it).
+- **The rule "at least 3 lengths" was not in this protocol.** It existed only in `compare.py` (commit `e7858d51`).
+  Ania decided, after seeing the per-length means, that R2 is not tested. Two alternatives were rejected: a slope
+  over the 2 complete lengths (8192, 16384), and a slope over 4096-16384 on the 12-task subset without `qa_2`.
+- **The per-length table is descriptive only, with no test statistic:** LFM3-1.7B 4096/8192/16384 = 93.35 / 92.41 /
+  87.30; Bielik 11B v3.1 = 97.44 (12 tasks, no `qa_2`) / 93.89 / 91.70. R2 still counts in the Holm family
+  (m = 3), as a hypothesis that was not run.

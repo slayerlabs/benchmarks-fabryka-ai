@@ -318,6 +318,25 @@ def test_compare_partial_length_is_not_comparable():
     assert result["models"][C.LFM3]["partial_lengths"]["131072"]["skipped_tasks"] == ["qa_2"]
     assert result["models"][C.LFM3]["per_length"]["131072"] is None
     assert f"excluded: {C.LFM3} @ 131072: {reason}" in text and "control: not run" in text
+    # Amendment 6, the real case: Bielik 4096 partial (qa_2), 8192 and 16384 complete, 32768 does not fit. Two
+    # complete shared lengths: R2 is not decided and not tested; the means are shown, descriptive only.
+    with tempfile.TemporaryDirectory() as d:
+        write_model(Path(d), C.LFM3, LFM3_STEEP)
+        write_model(Path(d), C.BIELIK, {4096: 70, 8192: 80, 16384: 90},
+                    skipped={32768: FIT, 65536: WINDOW, 131072: WINDOW}, task_skips={4096: {"qa_2": QA2_SKIP}})
+        result, text = run_compare(Path(d))
+    r2 = result["hypotheses"]["R2"]
+    assert (r2["status"], r2["verdict"], r2["outcome"]) == (C.R2_NOT_DECIDED, "not decided", "not decided")
+    assert "p" not in r2
+    assert r2["lengths"] == [8192, 16384] and list(r2["descriptive"]) == ["4096", "8192", "16384"]
+    assert r2["descriptive"]["4096"][C.BIELIK] == {"mean": 70.0, "tasks": 12, "skipped_tasks": ["qa_2"]}
+    assert r2["descriptive"]["8192"] == {C.LFM3: {"mean": result["models"][C.LFM3]["per_length"]["8192"], "tasks": 13},
+                                         C.BIELIK: {"mean": 80.0, "tasks": 13}}
+    lfm3_4096 = result["models"][C.LFM3]["per_length"]["4096"]
+    assert f"| R2 | {C.R2_NOT_DECIDED} | - | - | -" in text
+    assert f"| 4096 | {lfm3_4096:.2f} | 70.00 (12 tasks, no qa_2) |" in text
+    low, high = sorted((result["hypotheses"]["R1"], result["hypotheses"]["R3"]), key=lambda x: x["p"])
+    assert low["p_holm"] == min(1.0, 3 * low["p"])  # m stays 3 with R2 not decided
 
 
 def control_run(mean, se):

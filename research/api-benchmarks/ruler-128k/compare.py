@@ -14,7 +14,9 @@ hypotheses.json carries the sha256 of every input and the commit, runner sha256 
   Verdicts come from the pre-registered scores; the strict verdict (its own Holm family, m = 3) is shown next to each.
 - R1: LFM3-1.7B's mean at 131072 against 85.6. Confirmed: z <= -3 (after Holm); refuted: mean >= 85.6.
 - R2 (Amendment 1): slope of the per-length mean against log2(length), LFM3-1.7B minus Bielik 11B v3.1, over the
-  lengths both models hold. Confirmed: negative, clear after Holm; refuted: not 2 SE below 0.
+  lengths both models hold. Confirmed: negative, clear after Holm; refuted: not 2 SE below 0. Amendment 6: with
+  fewer than 3 complete lengths shared it is `not decided` (still in Holm's m = 3) and the per-length means of both
+  models over the lengths both measured (partial ones with their task count) are printed, descriptive only.
 - R3: LFM3-1.7B's drop from 4096 to 131072 per category; tracing minus retrieval and aggregation minus retrieval.
   Confirmed: both positive, clear after Holm; refuted: the retrieval drop is not smaller than both.
 - Slayer 1B 1.09 at update 70 000 (Amendment 2): per length, descriptive only.
@@ -44,6 +46,7 @@ LFM3, BIELIK, SLAYER = "lfm3-1.7b", "bielik-11b-v3.1", "slayer1b-1.09-k70000"
 DESCRIPTIVE = [SLAYER]
 CONTROL_CARD = 65.56  # LFM3-1.7B card, RULER 128K (PROTOCOL.md, Amendment 1)
 CONTROL_STATUS = "not comparable (Amendment 4)"
+R2_NOT_DECIDED = "not decided (Amendment 6): fewer than 3 complete lengths shared"
 CONTROL_REASON = ("the card states no setup for its RULER value (harness, thinking mode, samples, output cap; "
                   "card @ 1da06bec line 536 gives only serving and sampling defaults), so it is no pass/fail "
                   "target; the measured z is reported, the hypotheses are read")
@@ -207,13 +210,31 @@ def r1(runs):
             "effective_length": max(effective, default=None)}
 
 
+def length_means(run):
+    """length -> (13-task mean, None) for complete lengths, (mean of the generated tasks, skipped) for partial."""
+    out = {length: (length_mean(run["point"][length]), None) for length in run["point"]}
+    out.update({length: (p["score"], p["skipped_tasks"]) for length, p in run["partial"].items()})
+    return out
+
+
+def r2_descriptive(runs):
+    """Amendment 6: per-length means of LFM3-1.7B and Bielik over every length both measured, partial ones marked
+    with their task count; descriptive only, no test statistic."""
+    lfm3, bielik = length_means(runs[LFM3]), length_means(runs[BIELIK])
+    return {str(length): {m: {"mean": round(means[length][0], 2), "tasks": len(TASKS) - len(means[length][1] or []),
+                              **({"skipped_tasks": means[length][1]} if means[length][1] else {})}
+                          for m, means in ((LFM3, lfm3), (BIELIK, bielik))}
+            for length in LENGTHS if length in lfm3 and length in bielik}
+
+
 def r2(runs):
     if gone := missing(runs, [LFM3, BIELIK], []):
         return {"missing": gone}
     # The lengths both models hold (Amendment 1: 4096-32768); a length null for either model is left out.
     lengths = [length for length in LENGTHS if length in runs[LFM3]["point"] and length in runs[BIELIK]["point"]]
-    if len(lengths) < 3:
-        return {"missing": [f"{LFM3} vs {BIELIK}: fewer than 3 lengths measured by both"]}
+    if len(lengths) < 3:  # Amendment 6: not tested on 2 lengths nor on a task subset; the means are descriptive
+        return {"missing": [f"{LFM3} vs {BIELIK}: complete lengths shared: {lengths}"], "status": R2_NOT_DECIDED,
+                "lengths": lengths, "descriptive": r2_descriptive(runs)}
     s_l, se_l = stat(lambda p: slope(p, lengths), runs[LFM3])
     s_b, se_b = stat(lambda p: slope(p, lengths), runs[BIELIK])
     comp = comparison(f"slope {LFM3} - {BIELIK}", s_l - s_b, math.hypot(se_l, se_b),
@@ -283,7 +304,8 @@ def read_hypotheses(runs):
     adjusted = statystyka.holm([h.get("p") for h in hyps.values()], m=M)
     for h, p_holm in zip(hyps.values(), adjusted):
         if "missing" in h:
-            h.update(verdict="not run", outcome="not run")
+            label = "not decided" if "status" in h else "not run"
+            h.update(verdict=label, outcome=label)
             continue
         h["p_holm"] = p_holm
         h["verdict"] = VERDICT[statystyka.werdykt_p(p_holm)] if p_holm is not None else "undetermined"
@@ -311,7 +333,7 @@ def analyse(results_dir, resamples):
     hyps = read_hypotheses(runs)
     # Amendment 4: the verdicts are the pre-registered ones; the strict reading of each is shown next to it
     for name, s in read_hypotheses(strict_runs).items():
-        hyps[name]["strict"] = ({"verdict": "not run", "outcome": "not run", "missing": s["missing"]} if "missing" in s
+        hyps[name]["strict"] = ({k: s[k] for k in ("verdict", "outcome", "missing")} if "missing" in s
                                 else {k: s[k] for k in ("value", "se", "z", "p_holm", "verdict", "outcome", "n")})
     descriptive = {m: None if run is None else {
         "per_length": per_length(run),
@@ -357,14 +379,26 @@ def report(result):
               "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for name, h in result["hypotheses"].items():
         s = h["strict"]
-        strict = ("- | - | - | not run | not run" if "missing" in s else
+        strict = (f"- | - | - | {s['verdict']} | {s['outcome']}" if "missing" in s else
                   f"{s['value']:.2f} +- {s['se']:.2f} | {fmt(s['z'])} | {fmt_p(s['p_holm'])} | {s['verdict']} | "
                   f"{s['outcome']}")
+        if "status" in h:
+            lines.append(f"| {name} | {h['status']} | - | - | - | {h['verdict']} | {h['outcome']} | - | {strict} |")
+            continue
         if "missing" in h:
             lines.append(f"| {name} | missing: {', '.join(h['missing'])} | - | - | - | not run | not run | - | {strict} |")
             continue
         lines.append(f"| {name} | {h['measure']} | {h['value']:.2f} +- {h['se']:.2f} | {fmt(h['z'])} | "
                      f"{fmt_p(h['p_holm'])} | {h['verdict']} | {h['outcome']} | {h['n']} | {strict} |")
+    r2_ = result["hypotheses"]["R2"]
+    if "descriptive" in r2_:
+        lines += ["", f"R2 descriptive only (Amendment 6, no test statistic): per-length means over the lengths both "
+                      f"models measured; complete for both: {', '.join(map(str, r2_['lengths'])) or 'none'}",
+                  f"| length | {LFM3} | {BIELIK} |", "|---|---|---|"]
+        for length, d in r2_["descriptive"].items():
+            cells = [f"{d[m]['mean']:.2f}" + (f" ({d[m]['tasks']} tasks, no {', '.join(d[m]['skipped_tasks'])})"
+                                              if "skipped_tasks" in d[m] else "") for m in (LFM3, BIELIK)]
+            lines.append(f"| {length} | " + " | ".join(cells) + " |")
     comps = [(name, c) for name, h in result["hypotheses"].items() for c in h.get("comparisons", [])]
     if comps:
         lines += ["", "| hypothesis | comparison | value +- SE | z | p (unadjusted) | n |", "|---|---|---|---|---|---|"]
