@@ -98,3 +98,16 @@ Written before any Qwen3.5 or Bielik output. Seen so far: one smoke run of LFM3-
 - **R2** compares LFM3-1.7B with Bielik 11B v3.1 instead of the Qwen3.5 models: slope of the mean against
   log2(length) over the lengths both models hold (4096–32768); refuted when the difference is under 2 SE.
   Bootstraps are independent per model, because RULER generates each model's data with its own tokenizer.
+
+## Amendment 2 (2026-11-22, 04:40 UTC)
+
+Written before any Slayer output (a 1.08 data-generation step was stopped before generation).
+
+- **Slayer checkpoint:** the latest published one, Slayer 1B 1.09 at update 70 000, replaces 1.08. Model id
+  `slayer1b-1.09-k70000`: `wagi_70000.pt` from `SlayerLab/Slayer1B-1.09-checkpoints` @
+  `adfaf3fd5402bc7f3adbfe077798f20262979433` (sha256 `9ed73494fc139422f5314f72b4f970242454a7ab9d8caceee6b52fe5bdfc40c0`
+  in that revision's `SHA256SUMS`), converted with `research/tools/konwertuj.py` against
+  `SlayerLab/Slayer1B-1.08` @ `5f854a0cc7160594d54d1788d37a44e8ebabe16c`, as the full run does for this checkpoint
+  (`research/tools/przebieg_centralny.sh`). The converted `model.safetensors` must have the sha256 the full run
+  recorded (`b9e31fc953af44638fd64ca163dd8d5658cfe02928445fa9a412f11a618bb24e`, `research/tools/ewaluacja/ewaluacja.py`).
+  Everything else about the Slayer row is unchanged (4096 only, raw prompt, greedy).
