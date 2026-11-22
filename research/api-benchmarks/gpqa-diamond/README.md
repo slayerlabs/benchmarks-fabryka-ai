@@ -13,7 +13,7 @@ come from a local exploratory run on rented GPUs and do not close issue #302. Se
   `83022cefff930aea54f654c0b282e74b9eeda5c6`, 198 questions (full Diamond). Gated: needs consent on Hugging Face
 - Metric: `exact_match` with the `flexible-extract` filter (see Deviations for `strict-match`)
 - Settings (our run): 0-shot chain of thought, chat template, greedy (`do_sample=false`, `temperature=0.0`),
-  stop `</s>`, bf16, `max_gen_toks` 8192 (also 2048 and 16384, see below), 1 trial
+  stop `</s>`, bf16, `max_gen_toks` 8192 (also 2048, 16384 and a composed 32768, see below), 1 trial
 - Card settings (reference, LFM3-1.7B): temperature 0.6, top_p 0.95, reasoning on, output limited only by the
   context window (262144), served with vLLM in bf16. GPQA is not among the card's exceptions. CoT, number of
   shots and answer extraction method are not stated on the card
@@ -29,20 +29,24 @@ come from a local exploratory run on rented GPUs and do not close issue #302. Se
 | LFM3-1.7B (`lfm3-1.7b-2048`) | local RTX 5090, lm-eval CoT greedy, 2048 tokens, batch 1 | 29.29 | 3.24 | 198 | 2026-11-19 |
 | Bielik 11B v3.1 (`bielik-11b-v3.1-2048`) | local RTX 5090, lm-eval CoT greedy, 2048 tokens, batch 1 | 36.36 | 3.43 | 198 | 2026-11-19 |
 | LFM3-1.7B (`lfm3-1.7b-16k`) | rented RTX 3090, lm-eval CoT greedy, 16384 tokens, batch 16 | 58.59 | 3.51 | 198 | 2026-11-21 |
+| LFM3-1.7B (`lfm3-1.7b-32k`) | composed: 162 concluded @16384 + 36 truncated re-scored @32768 (rented RTX 3090) | 64.65 | 3.40 | 198 | 2026-11-22 |
 | Slayer 1B | not run | null | null | 198 | - |
 
 Rows with a different setup are not interchangeable: compare models only through the paired tests below, never
 across rows of different budget or hardware. The main row (Fabryka API, card settings) is not computed here.
 The 2048, 8192 and 16384 runs each have files in `results/`. The 16384 run is a clean full-198 run (it replaces an
-earlier two-budget projection of 59.09 that was never stored). A 32768 pass on the items still truncated at 16384 is
-running and will land as a follow-up commit.
+earlier two-budget projection of 59.09 that was never stored). The 32768 row is composed, not a fresh full-198 run:
+the 162 items that concluded by 16384 keep their result and the 36 still truncated at 16384 are re-scored at 32768
+(`results/lfm3-1.7b-32k.jsonl.gz`; the 36-item re-score is `results/lfm3-1.7b-32k-subsetB.jsonl.gz`). After 32768
+only 2 of the 36 re-scored items still reach the cap.
 
-![LFM3-1.7B GPQA Diamond accuracy by token budget, 2048 to 32768; 32768 is a projection](charts/budget-curve.svg)
+![LFM3-1.7B GPQA Diamond accuracy by token budget, 2048 to 32768; 32768 is a composed full-198 point](charts/budget-curve.svg)
 
-The curve reads left to right as the budget doubles (x axis is log2). The three measured points are 2048, 8192 and
-16384; 32768 is a projection, drawn with a dashed segment and a hollow marker: the 162 items that concluded by 16384
-are kept and the 36 still truncated are re-scored at the rate truncated items reached once unblocked (~32%). It is
-not a measurement; the running 32768 pass will replace it.
+The curve reads left to right as the budget doubles (x axis is log2). The points are 2048, 8192, 16384 and 32768;
+the 32768 point is composed (the 162 items that concluded by 16384 keep their result, the 36 still truncated are
+re-scored at 32768). Greedy decoding is deterministic in theory, but bf16 batched reruns flip a few items: taking
+the 32768 result for all 67 re-run items instead gives 62.63 rather than 64.65, a 4-item spread that is the noise
+floor (see Deviations).
 
 Paired tests (same 198 questions, paired difference per item, z = Δ / SE; the SE is the paired SE over the items,
 and the reading follows the repo convention |z| < 2 noise, 2-3 borderline, >= 3 clear):
@@ -55,11 +59,14 @@ and the reading follows the repo convention |z| < 2 noise, 2-3 borderline, >= 3 
 | Bielik, 2048 vs 8192 | +3 for 8192 | +1.52 ± 2.91 | z = 0.52 | noise |
 | LFM3, 8192 vs 16384 (full 198) | +10 for 16384 | +5.05 ± 3.26 | z = 1.55 | noise on the full set |
 | LFM3, 8192 vs 16384 (the 74 items truncated at 8192) | +11 for 16384 | +14.86 ± 7.12 | z = 2.09 | borderline; selected subset |
+| LFM3, 16384 vs 32768 (the 36 items truncated at 16384) | +12 for 32768 | +33.33 ± 7.97 | z = 4.18 | clear on this selected subset |
 
 Reading the budget bump: on the full 198 the 8192 -> 16384 move is within noise (z = 1.55), and the headline rises
 53.54 -> 58.59. The gain is concentrated in the items that were truncated at 8192 (the 74-item subset, z = 2.09),
-but even there it is borderline. At 16384, 36 of 198 (18%) still reach the cap, so 16384 is not the ceiling; the
-32768 pass on those items is being computed and will land as a follow-up commit.
+but even there it is borderline. At 16384, 36 of 198 (18%) still reach the cap, so 16384 is not the ceiling.
+Re-scoring those 36 at 32768 moves 12 of them to correct and none the other way (+33.33 ± 7.97 points on that
+subset, z = 4.18), and the composed full-198 headline rises to 64.65 (62.63 under the all-67 composition, a
+4-item noise-floor spread). After 32768 only 2 of 198 still reach the cap.
 
 ## Deviations
 
@@ -73,8 +80,10 @@ but even there it is borderline. At 16384, 36 of 198 (18%) still reach the cap, 
   the card's 63.37 (z = -2.8, using our run's SE 3.54); at 16384 the full run reaches 58.59, 1.4 SE below the card
   (z = -1.36). Budget sweep for LFM3: 2048 to 8192 adds 24.24 ± 3.93 points (z = 6.16); 8192 to 16384 adds
   5.05 ± 3.26 (z = 1.55, within noise on the full 198), with the gain concentrated in the items truncated at 8192.
-  At 16384, 36 of 198 (18%) still reach the cap, so the budget is still biting and 16384 is not the ceiling; a 32768
-  pass on those items is being computed. Bielik barely moves with budget (+1.52 ± 2.91 points, z = 0.52, noise).
+  At 16384, 36 of 198 (18%) still reach the cap, so the budget is still biting and 16384 is not the ceiling;
+  re-scoring those 36 at 32768 fixes 12 and leaves only 2 of 198 at the cap, lifting the composed headline to 64.65
+  (62.63 under the all-67 composition; the composed 64.65 is within noise of the card, z = +0.38). Bielik barely
+  moves with budget (+1.52 ± 2.91 points, z = 0.52, noise).
 - **Harness version.** We used lm-eval 0.4.13 (from `pip freeze` on the pod; it was not saved in `results.json`),
   transformers 5.22.1, torch 2.8.0+cu128. The repo pin elsewhere is 0.4.9.1. Not reconciled.
 - **Backend.** All runs use the lm-eval HuggingFace backend (`model: hf`, the `HFLM` class) on transformers in bf16
@@ -104,7 +113,8 @@ but even there it is borderline. At 16384, 36 of 198 (18%) still reach the cap, 
   only `doc_id`, `exact_match` (flexible-extract) and `answer_is_present` (the response contains "answer is").
   This differs from the IFEval card, which stores the model output. The 16384 file
   (`results/lfm3-1.7b-16k.jsonl.gz`) additionally carries a `truncated_16384` flag (the tokenizer pass was run on
-  the pod); the 8192 and 2048 files do not, so a `truncated_8192` flag is not present. This deviation from
+  the pod); the 8192 and 2048 files do not, so a `truncated_8192` flag is not present. The 32768 files carry a
+  `truncated_32768` flag the same way. This deviation from
   METHODOLOGY.md needs agreement in #bench-team.
 - **Not run through `run.sh` from a clean checkout.** `run.sh` is built from the real lm-eval command but has only
   been syntax-checked (`bash -n`), not run on a GPU.

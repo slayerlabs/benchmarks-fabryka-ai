@@ -1,7 +1,7 @@
 <svg xmlns='http://www.w3.org/2000/svg' width='900' height='500' viewBox='0 0 900 500'>
 <rect width='900' height='500' fill='#ffffff'/>
 <text x='40.0' y='46.0' font-size='19' fill='#0b0b0b' text-anchor='start' font-weight='700' font-family='Helvetica Neue, Arial, sans-serif'>Accuracy rises with the token budget - LFM3-1.7B (GPQA Diamond CoT)</text>
-<text x='40.0' y='72.0' font-size='13' fill='#52514e' text-anchor='start' font-weight='400' font-family='Helvetica Neue, Arial, sans-serif'>flexible-extract, n=198, whiskers = 95% CI (Wilson). X axis log2. 32768 is a projection, not a measurement.</text>
+<text x='40.0' y='72.0' font-size='13' fill='#52514e' text-anchor='start' font-weight='400' font-family='Helvetica Neue, Arial, sans-serif'>flexible-extract, n=198, whiskers = 95% CI (Wilson). X axis log2. 32768 is the composed full-198 point (see caption).</text>
 <line x1='70' y1='416.0' x2='690.0' y2='416.0' stroke='#e6e5e1' stroke-width='1'/>
 <text x='58.0' y='420.0' font-size='12' fill='#8a8984' text-anchor='end' font-weight='400' font-family='Helvetica Neue, Arial, sans-serif'>20%</text>
 <line x1='70' y1='357.2' x2='690.0' y2='357.2' stroke='#e6e5e1' stroke-width='1'/>
@@ -20,10 +20,9 @@
 <text x='380.0' y='454.0' font-size='13' fill='#52514e' text-anchor='middle' font-weight='700' font-family='Helvetica Neue, Arial, sans-serif'>8192</text>
 <text x='535.0' y='454.0' font-size='13' fill='#52514e' text-anchor='middle' font-weight='700' font-family='Helvetica Neue, Arial, sans-serif'>16384</text>
 <text x='690.0' y='454.0' font-size='13' fill='#52514e' text-anchor='middle' font-weight='700' font-family='Helvetica Neue, Arial, sans-serif'>32768 tok</text>
-<text x='690.0' y='470.0' font-size='11' fill='#8a8984' text-anchor='middle' font-weight='400' font-family='Helvetica Neue, Arial, sans-serif'>(projection)</text>
 <line x1='70.0' y1='361.4' x2='380.0' y2='218.8' stroke='#2a78d6' stroke-width='3'/>
 <line x1='380.0' y1='218.8' x2='535.0' y2='189.1' stroke='#2a78d6' stroke-width='3'/>
-<line x1='535.0' y1='189.1' x2='690.0' y2='165.3' stroke='#2a78d6' stroke-width='3' stroke-dasharray='7 5'/>
+<line x1='535.0' y1='189.1' x2='690.0' y2='153.5' stroke='#2a78d6' stroke-width='3'/>
 <line x1='70.0' y1='321.9' x2='70.0' y2='396.0' stroke='#2a78d6' stroke-width='1.6' opacity='0.8'/>
 <circle cx='70.0' cy='361.4' r='6' fill='#2a78d6' stroke='#ffffff' stroke-width='2'/>
 <text x='70.0' y='347.4' font-size='12.5' fill='#2a78d6' text-anchor='middle' font-weight='700' font-family='Helvetica Neue, Arial, sans-serif'>29.3%</text>
@@ -33,12 +32,12 @@
 <line x1='535.0' y1='150.2' x2='535.0' y2='230.2' stroke='#2a78d6' stroke-width='1.6' opacity='0.8'/>
 <circle cx='535.0' cy='189.1' r='6' fill='#2a78d6' stroke='#ffffff' stroke-width='2'/>
 <text x='535.0' y='175.1' font-size='12.5' fill='#2a78d6' text-anchor='middle' font-weight='700' font-family='Helvetica Neue, Arial, sans-serif'>58.6%</text>
-<line x1='690.0' y1='127.3' x2='690.0' y2='206.1' stroke='#2a78d6' stroke-width='1.6' opacity='0.8'/>
-<circle cx='690.0' cy='165.3' r='6' fill='#ffffff' stroke='#2a78d6' stroke-width='2.4'/>
-<text x='690.0' y='151.3' font-size='12.5' fill='#8a8984' text-anchor='middle' font-weight='700' font-family='Helvetica Neue, Arial, sans-serif'>62.6% ~</text>
-<text x='706.0' y='163.3' font-size='14.5' fill='#0b0b0b' text-anchor='start' font-weight='700' font-family='Helvetica Neue, Arial, sans-serif'>LFM3-1.7B</text>
-<text x='706.0' y='181.3' font-size='12' fill='#52514e' text-anchor='start' font-weight='400' font-family='Helvetica Neue, Arial, sans-serif'>1.7B params</text>
-<text x='706.0' y='198.3' font-size='11.5' fill='#8a8984' text-anchor='start' font-weight='400' font-family='Helvetica Neue, Arial, sans-serif'>32768: estimate</text>
+<line x1='690.0' y1='116.1' x2='690.0' y2='193.7' stroke='#2a78d6' stroke-width='1.6' opacity='0.8'/>
+<circle cx='690.0' cy='153.5' r='6' fill='#2a78d6' stroke='#ffffff' stroke-width='2'/>
+<text x='690.0' y='139.5' font-size='12.5' fill='#2a78d6' text-anchor='middle' font-weight='700' font-family='Helvetica Neue, Arial, sans-serif'>64.6%</text>
+<text x='706.0' y='151.5' font-size='14.5' fill='#0b0b0b' text-anchor='start' font-weight='700' font-family='Helvetica Neue, Arial, sans-serif'>LFM3-1.7B</text>
+<text x='706.0' y='169.5' font-size='12' fill='#52514e' text-anchor='start' font-weight='400' font-family='Helvetica Neue, Arial, sans-serif'>1.7B params</text>
+<text x='706.0' y='186.5' font-size='11.5' fill='#52514e' text-anchor='start' font-weight='400' font-family='Helvetica Neue, Arial, sans-serif'>32768: composed</text>
 <line x1='70.0' y1='319.8' x2='380.0' y2='310.9' stroke='#eb6834' stroke-width='3'/>
 <line x1='70.0' y1='279.0' x2='70.0' y2='357.2' stroke='#eb6834' stroke-width='1.6' opacity='0.8'/>
 <circle cx='70.0' cy='319.8' r='6' fill='#eb6834' stroke='#ffffff' stroke-width='2'/>
@@ -47,5 +46,5 @@
 <text x='394.0' y='315.9' font-size='13' fill='#eb6834' text-anchor='start' font-weight='700' font-family='Helvetica Neue, Arial, sans-serif'>Bielik-11B-v3.1</text>
 <text x='394.0' y='331.9' font-size='11' fill='#8a8984' text-anchor='start' font-weight='400' font-family='Helvetica Neue, Arial, sans-serif'>flat, not run &gt;8192</text>
 <line x1='40' y1='478' x2='860' y2='478' stroke='#e6e5e1' stroke-width='1'/>
-<text x='40.0' y='493.0' font-size='10.4' fill='#52514e' text-anchor='start' font-weight='400' font-family='Helvetica Neue, Arial, sans-serif'>Truncation fades with budget: LFM3 reaches 'answer is' in 19% (2k), 65% (8k), 82% (16k; 18% still hit the cap). 32768: 162 resolved + 36 truncated at ~32%.</text>
+<text x='40.0' y='493.0' font-size='10.4' fill='#52514e' text-anchor='start' font-weight='400' font-family='Helvetica Neue, Arial, sans-serif'>Truncation fades with budget: LFM3 reaches 'answer is' in 19% (2k), 65% (8k), 82% (16k; 18% still hit the cap). At 32768 the composed full-198 is 64.6%; only 2 of 198 still hit the cap.</text>
 </svg>
