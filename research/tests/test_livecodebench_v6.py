@@ -9,20 +9,30 @@ compare.py (PROTOCOL.md hypotheses L1-L3, Amendment 1: LFM3-1.7B against Bielik 
 its card's 73.46) is checked on fixed fake per-problem results: a clear lead, a noise difference, Holm ordering with
 m = 3, errors left out of both sides of a pair, and `not run` without a model file. lcb.py's request layer for the
 Fabryka API is checked against a fake server on 127.0.0.1: the request fields, max_tokens = context - local prompt
-count - margin, retries with the shared pause, a 400 not retried, a prompt over the context never sent.
+count - margin, retries with the shared pause, a 400 not retried, a prompt over the context never sent. The vLLM
+request (its exact body and max_tokens = context - prompt from /tokenize), the evaluator settings, the alignment of
+LiveCodeBench's grades with the problems in `score`, the v6-only flag and order of `load_rows`, the control's 2 SE
+threshold, the recorded sampling settings (sent, and vLLM's defaults from generation_config.json), the provenance in
+run.json and the result, and the sha256 checks of each step's input are checked with fakes of LiveCodeBench's
+modules and of the Hugging Face download, so without the clone, GPU or network.
 Run: python3 tests/test_livecodebench_v6.py (or pytest).
 """
+import argparse
+import contextlib
 import gzip
+import hashlib
 import importlib.util
 import json
 import math
 import sys
 import tempfile
+import types
 from pathlib import Path
 
 BENCH = Path(__file__).resolve().parents[1] / "api-benchmarks" / "livecodebench-v6"
 sys.path.insert(0, str(BENCH))
 import lcb  # noqa: E402
+import provenance  # noqa: E402
 import summarize  # noqa: E402
 
 
@@ -120,11 +130,21 @@ def test_lcb_extract_code_on_the_text_after_think():
     assert extract_code(lcb.after_think("<think>no code</think>no code either"), style) == ""
 
 
+def write_out(out, records, sampling=None):
+    """An out dir as lcb.py score leaves it: graded.jsonl with its sha256 in manifest.json, and run.json."""
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "graded.jsonl").write_text("".join(json.dumps(r) + "\n" for r in records), encoding="utf-8")
+    provenance.record(out, ["graded.jsonl"], "test")
+    sampling = sampling or {"request_sampling": {"temperature": 0.6}, "server_defaults": {"top_k": 50}}
+    run = {"generation": [{"step": "lcb.py generate", "code_commit": "abc", "gpu": "GPU X", "sampling": sampling}],
+           "scoring": {"step": "lcb.py score", "code_commit": "abc", "cpu": "CPU Y"}}
+    (out / "run.json").write_text(json.dumps(run), encoding="utf-8")
+
+
 def test_summary_files():
     with tempfile.TemporaryDirectory() as tmp:
         out = Path(tmp) / "out"
-        out.mkdir()
-        (out / "graded.jsonl").write_text("".join(json.dumps(r) + "\n" for r in RECORDS), encoding="utf-8")
+        write_out(out, RECORDS)
         summarize.main(str(out), str(Path(tmp) / "results" / "m"), None)
         result = json.loads((Path(tmp) / "results" / "m.json").read_text(encoding="utf-8"))
         assert (result["model"], result["score"], result["n"], result["date"]) == ("m", 75.0, 4, "2026-11-23")
@@ -157,6 +177,7 @@ def write_run(results, model, rows, score=None, stderr=None):
         f.write("".join(json.dumps(r) + "\n" for r in rows))
     (results / f"{model}.json").write_text(json.dumps({"model": model, "score": score, "stderr": stderr}),
                                            encoding="utf-8")
+    provenance.record(results, [f"{model}.jsonl.gz", f"{model}.json"], "test")  # as summarize.py does
 
 
 def run_of(passes_per_level, tokens, n_per_level=30, prefix="p"):
@@ -287,12 +308,15 @@ class FakeAPI:
     def __init__(self, fail=0, reasoning=False):
         import http.server
         import threading
-        self.fail, self.requests, self.headers = fail, [], []
+        self.fail, self.requests, self.headers, self.tokenize_requests = fail, [], [], []
         api = self
 
         class Handler(http.server.BaseHTTPRequestHandler):
             def do_POST(self):
                 body = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
+                if self.path.endswith("/tokenize"):  # vLLM's prompt count
+                    api.tokenize_requests.append(body)
+                    return self.reply(200, {"count": 1000, "max_model_len": 262144})
                 api.requests.append(body)
                 api.headers.append(dict(self.headers))
                 if body["max_tokens"] == 1:
@@ -403,6 +427,249 @@ def test_api_reasoning_field_stops_the_run():
         pass
     finally:
         api.close()
+
+
+# vLLM request, evaluator settings, grade alignment, problem set, sampling record, provenance and input checks
+
+LFM3_REPO = "LiquidAI/LFM3-1.7B@1da06bec6a819da10b54c67e5c90972b46d81871"
+# generation_config.json of LFM3_REPO, sampling fields as in the file
+LFM3_GENERATION_CONFIG = {"_from_model_config": True, "bos_token_id": 124894, "do_sample": True,
+                          "eos_token_id": [124900], "pad_token_id": 124893, "repetition_penalty": 1.1,
+                          "temperature": 0.1, "top_k": 50, "transformers_version": "5.12.1", "use_cache": True}
+VLLM_SAMPLING = {"n": 1, "temperature": 0.6, "top_p": 0.95, "seed": 20261122, "frequency_penalty": 0,
+                 "presence_penalty": 0}
+
+
+@contextlib.contextmanager
+def patched(obj, **attrs):
+    old = {k: getattr(obj, k) for k in attrs}
+    for k, v in attrs.items():
+        setattr(obj, k, v)
+    try:
+        yield
+    finally:
+        for k, v in old.items():
+            setattr(obj, k, v)
+
+
+def exit_message(fn, *args):
+    """The message of the sys.exit that `fn(*args)` must raise."""
+    try:
+        fn(*args)
+    except SystemExit as e:
+        return str(e.code)
+    raise AssertionError(f"{fn.__name__} did not stop")
+
+
+def sha256(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def test_evaluator_and_prompt_style_pinned():
+    # PROTOCOL.md / README "Settings": LiveCodeBench's OpenAIChat prompt; evaluator 6 s per test case, 12 processes
+    assert (lcb.EVAL_TIMEOUT, lcb.EVAL_PROCESSES, lcb.PROMPT_STYLE) == (6, 12, "OpenAIChat")
+    parser = lcb.LCB_DIR / "lcb_runner" / "runner" / "parser.py"
+    if not parser.is_file():
+        skip("no LiveCodeBench clone in .cache/ (run.sh makes it)")
+    text = " ".join(parser.read_text(encoding="utf-8").split())
+    assert '"--timeout", type=int, default=6,' in text  # the runner defaults the constants claim to copy
+    assert '"--num_process_evaluate", type=int, default=12,' in text
+
+
+class FakeProblem:
+    """Stands for LiveCodeBench's CodeGenerationProblem; `passes` says what the fake evaluator grades it."""
+
+    def __init__(self, **row):
+        self.row = row
+
+    def get_evaluation_sample(self):
+        return {"question_id": self.row["question_id"], "passes": self.row["passes"]}
+
+
+def fake_lcb(calls):
+    """LiveCodeBench's modules as lcb.py uses them: the evaluator grades each sample by its `passes` and returns
+    results keyed by sample index, which extract_instance_results orders (pass_k_utils.py @ LCB_COMMIT)."""
+    def codegen_metrics(samples, generations, num_process_evaluate, timeout):
+        calls.append({"num_process_evaluate": num_process_evaluate, "timeout": timeout, "generations": generations})
+        results = {i: [[1, 1] if s["passes"] else [1, -2]] for i, s in enumerate(samples)}
+        return {}, results, [[json.dumps({"question_id": s["question_id"]})] for s in samples]
+
+    def extract_instance_results(results):
+        grades = {k: [all(g > 0 for g in gen) for gen in res] for k, res in results.items()}
+        return [v for _, v in sorted(grades.items(), key=lambda item: item[0])]
+
+    def prompt(problem, style):
+        return [{"role": "system", "content": "s"}, {"role": "user", "content": problem.row["question_id"]}]
+
+    return argparse.Namespace(
+        benchmark=types.SimpleNamespace(CodeGenerationProblem=FakeProblem),
+        evaluation=types.SimpleNamespace(codegen_metrics=codegen_metrics,
+                                         extract_instance_results=extract_instance_results),
+        prompts=types.SimpleNamespace(format_prompt_generation=prompt),
+        extraction=types.SimpleNamespace(extract_code=lambda text, style: text.strip()), style=lcb.PROMPT_STYLE)
+
+
+ROWS = [{"question_id": q, "platform": "atcoder", "difficulty": d, "contest_date": "2025-01-01T00:00:00",
+         "in_v6_only": v6, "passes": p}
+        for q, d, v6, p in (("q1", "easy", False, True), ("q2", "medium", True, False), ("q3", "hard", False, False))]
+
+
+def vllm_args(api, out):
+    return argparse.Namespace(
+        out_dir=str(out), base_url=api.url.removesuffix("/v1/chat/completions"), chat_url="", model="lfm3-1.7b",
+        model_repo=LFM3_REPO, limit=None, chat_template_kwargs="", api_key_env="", tokenizer="", context=0, margin=0,
+        retries=3, concurrency=2, request_timeout=10)
+
+
+def test_vllm_pipeline_body_alignment_provenance_and_input_checks():
+    api = FakeAPI()
+    calls = []
+    with tempfile.TemporaryDirectory() as tmp, \
+            patched(lcb, lcb_modules=lambda: fake_lcb(calls), load_rows=lambda limit: [dict(r) for r in ROWS],
+                    generation_config=lambda repo: LFM3_GENERATION_CONFIG if repo == LFM3_REPO else {}):
+        out, results = Path(tmp) / "out", Path(tmp) / "results"
+        try:
+            lcb.generate(vllm_args(api, out))
+        finally:
+            api.close()
+
+        # the vLLM request: exactly the PROTOCOL.md sampling and seed, max_tokens = context - prompt from /tokenize
+        assert len(api.requests) == 3 and len(api.tokenize_requests) == 3
+        for body in api.requests:
+            assert {k: v for k, v in body.items() if k != "messages"} == \
+                {"model": "lfm3-1.7b", **VLLM_SAMPLING, "max_tokens": 262144 - 1000}
+        gen = [json.loads(line) for line in (out / "generations.jsonl").read_text(encoding="utf-8").splitlines()]
+        assert {(g["context"], g["prompt_tokens"], g["max_tokens"]) for g in gen} == {(262144, 1000, 261144)}
+
+        # generation-time record: our commit, runner checksums, machine, and the sampling in effect
+        run = json.loads((out / "run.json").read_text(encoding="utf-8"))
+        g = run["generation"][0]
+        state = provenance.code_state()
+        assert g["code_commit"] == state["code_commit"] and g["dirty"] == state["dirty"]
+        assert g["runner_sha256"]["lcb.py"] == sha256(BENCH / "lcb.py")
+        assert set(g["runner_sha256"]) == set(provenance.RUNNER_FILES)
+        assert "gpu" in g and g["platform"] and g["cpu"]
+        assert g["sampling"] == {
+            "request_sampling": VLLM_SAMPLING, "server_defaults": {"repetition_penalty": 1.1, "top_k": 50},
+            "server_defaults_source": f"vLLM generation_config=auto: {LFM3_REPO} generation_config.json"}
+        assert provenance.read_manifest(out)["files"]["generations.jsonl"]["sha256"] == \
+            sha256(out / "generations.jsonl")
+
+        lcb.score(argparse.Namespace(out_dir=str(out), limit=None))
+        assert [(c["timeout"], c["num_process_evaluate"]) for c in calls] == [(6, 12)]
+        graded = [json.loads(line) for line in (out / "graded.jsonl").read_text(encoding="utf-8").splitlines()]
+        # each grade on its own problem: q1 passes, q2 and q3 fail, the evaluator's metadata names the same problem
+        assert [(r["question_id"], r["pass"], r["eval_metadata"]["question_id"], r["in_v6_only"]) for r in graded] == \
+            [("q1", True, "q1", False), ("q2", False, "q2", True), ("q3", False, "q3", False)]
+        assert json.loads((out / "run.json").read_text(encoding="utf-8"))["scoring"]["step"] == "lcb.py score"
+
+        summarize.main(str(out), str(results / "lfm3-1.7b"), None)
+        result = json.loads((results / "lfm3-1.7b.json").read_text(encoding="utf-8"))
+        assert result["score"] == round(100 / 3, 2) and result["other_metrics"]["v6_only"]["score"] == 0.0
+        assert result["settings"]["server_defaults"] == {"repetition_penalty": 1.1, "top_k": 50}
+        assert result["settings"]["request_sampling"] == VLLM_SAMPLING
+        assert result["settings"]["eval_timeout_s"] == 6 and result["settings"]["prompt_style"] == "OpenAIChat"
+        p = result["provenance"]
+        assert p["generation"][0]["code_commit"] == state["code_commit"] and "sampling" not in p["generation"][0]
+        assert p["scoring"]["step"] == "lcb.py score" and p["summary"]["step"] == "summarize.py"
+        assert p["inputs_sha256"] == {"graded.jsonl": sha256(out / "graded.jsonl")}
+        assert result["raw_outputs"]["sha256"] == sha256(out / "generations.jsonl")
+        files = provenance.read_manifest(results)["files"]
+        assert {n: f["sha256"] for n, f in files.items()} == \
+            {n: sha256(results / n) for n in ("lfm3-1.7b.json", "lfm3-1.7b.jsonl.gz")}
+
+        # every step refuses an input changed after it was written
+        with gzip.open(results / "lfm3-1.7b.jsonl.gz", "rt", encoding="utf-8") as f:
+            rows = [json.loads(line) for line in f]
+        compare.analyse(results)  # untouched: runs
+        rows[1]["pass"], rows[1]["score"] = True, 1
+        with gzip.open(results / "lfm3-1.7b.jsonl.gz", "wt", encoding="utf-8") as f:
+            f.write("".join(json.dumps(r) + "\n" for r in rows))
+        assert "sha256" in exit_message(compare.analyse, results)
+        graded_text = (out / "graded.jsonl").read_text(encoding="utf-8")
+        (out / "graded.jsonl").write_text(graded_text.replace('"pass": false', '"pass": true', 1), encoding="utf-8")
+        assert "sha256" in exit_message(summarize.main, str(out), str(results / "lfm3-1.7b"), None)
+        with (out / "generations.jsonl").open("a", encoding="utf-8") as f:
+            f.write(json.dumps({**gen[1], "output": "print(2)"}) + "\n")
+        assert "sha256" in exit_message(lcb.score, argparse.Namespace(out_dir=str(out), limit=None))
+        assert "sha256" in exit_message(lcb.generate, vllm_args(api, out))  # a resume checks what it keeps
+
+
+def test_compare_and_summarize_refuse_unrecorded_or_changed_inputs():
+    with tempfile.TemporaryDirectory() as tmp:
+        res = Path(tmp) / "results"
+        write_run(res, compare.LFM, CLEAR_LFM, score=74.0, stderr=1.4)
+        write_run(res, compare.BIELIK, CLEAR_BIELIK)
+        compare.analyse(res)
+        (res / f"{compare.LFM}.json").write_text(json.dumps({"model": compare.LFM, "score": 73.5, "stderr": 1.4}),
+                                                 encoding="utf-8")
+        message = exit_message(compare.analyse, res)
+        assert "lfm3-1.7b.json" in message and "sha256" in message
+        (res / provenance.MANIFEST).unlink()
+        assert "no sha256" in exit_message(compare.analyse, res)
+        out = Path(tmp) / "out"
+        write_out(out, RECORDS)
+        (out / provenance.MANIFEST).unlink()
+        assert "no sha256" in exit_message(summarize.main, str(out), str(res / "m"), None)
+        write_out(out, RECORDS)
+        (out / "run.json").unlink()
+        assert "run.json" in exit_message(summarize.main, str(out), str(res / "m"), None)
+
+
+def test_load_rows_order_and_v6_only():
+    files = {"test.jsonl": ["b", "a"], "test2.jsonl": ["c"], "test3.jsonl": [], "test4.jsonl": ["d"],
+             "test5.jsonl": ["e"], "test6.jsonl": ["z", "f"]}  # test6.jsonl: the problems added in v6
+    seen = []
+    with tempfile.TemporaryDirectory() as tmp:
+        for name, ids in files.items():
+            (Path(tmp) / name).write_text("".join(json.dumps({"question_id": i}) + "\n" for i in ids), encoding="utf-8")
+
+        def download(repo, name, repo_type, revision):
+            seen.append((repo, name, repo_type, revision))
+            return str(Path(tmp) / name)
+
+        fake = types.ModuleType("huggingface_hub")
+        fake.hf_hub_download = download
+        old = sys.modules.get("huggingface_hub")
+        sys.modules["huggingface_hub"] = fake
+        try:
+            rows, first3 = lcb.load_rows(None), lcb.load_rows(3)
+        finally:
+            if old is None:
+                del sys.modules["huggingface_hub"]
+            else:
+                sys.modules["huggingface_hub"] = old
+    assert [r["question_id"] for r in rows] == ["a", "b", "c", "d", "e", "f", "z"]  # sorted by question_id
+    assert [r["question_id"] for r in rows if r["in_v6_only"]] == ["f", "z"]
+    assert [r["question_id"] for r in first3] == ["a", "b", "c"]
+    assert seen[:6] == [(lcb.DATA_REPO, n, "dataset", lcb.DATA_REVISION) for n in lcb.RELEASE_FILES["release_v6"]]
+
+
+def test_control_within_two_se():
+    # PROTOCOL.md, Amendment 1: passed within 2 SE of the card's 73.46, failed beyond (also between 2 and 3 SE)
+    for z, status in ((1.9, "passed"), (-1.9, "passed"), (2.5, "failed"), (-2.5, "failed"), (-2.9, "failed")):
+        with tempfile.TemporaryDirectory() as tmp:
+            res = Path(tmp)
+            write_run(res, compare.LFM, CLEAR_LFM, score=compare.CONTROL_CARD + z * 1.0, stderr=1.0)
+            c = compare.control(res)
+        assert c["status"] == status and math.isclose(c["z"], z), (z, c)
+
+
+def test_sampling_record():
+    body = lcb.request_body(lcb.Server(model="m", chat_url="u", retries=1, timeout=1, tokenize_url="t"), [], 0)
+    # vLLM fills what the request leaves unset; temperature and top_p come from the request
+    assert lcb.vllm_defaults(LFM3_GENERATION_CONFIG, body) == {"repetition_penalty": 1.1, "top_k": 50}
+    assert lcb.vllm_defaults({**LFM3_GENERATION_CONFIG, "max_new_tokens": 100, "min_p": None}, body) == \
+        {"repetition_penalty": 1.1, "top_k": 50}
+    assert lcb.vllm_defaults({"min_p": 0.05}, body) == {"min_p": 0.05}
+    assert lcb.sampling(api_server("http://127.0.0.1:9/v1/chat/completions")) == {
+        "request_sampling": {"temperature": 0.6, "top_p": 0.95, "seed": 20261122},
+        "server_defaults": "unknown (Fabryka API)"}
+    try:
+        lcb.sampling(lcb.Server(model="m", chat_url="u", retries=1, timeout=1, tokenize_url="t"))
+        raise AssertionError("expected SetupError without --model-repo")
+    except lcb.SetupError:
+        pass
 
 
 if __name__ == "__main__":
