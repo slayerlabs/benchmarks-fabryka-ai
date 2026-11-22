@@ -159,8 +159,20 @@ def equal_cost(a: str, b: str, a_runs: dict, b_runs: dict, ids: list[str]) -> di
     best = min(pairs, key=lambda x: x["log_ratio"])  # first in BUDGETS order on a tie
     d = [int(passes_within(a_runs[t], best["budget_a"])) - int(passes_within(b_runs[t], best["budget_b"])) for t in ids]
     return {**paired(d), **{k: best[k] for k in ("budget_a", "budget_b", "mean_cost_a", "mean_cost_b")},
+            **prompt_cost(a, b, a_runs, b_runs, ids, best),
             "clustered": clustered(d, [a_runs[t] for t in ids]),
             "pairs": [{k: v for k, v in x.items() if k != "log_ratio"} for x in pairs]}
+
+
+def prompt_cost(a: str, b: str, a_runs: dict, b_runs: dict, ids: list[str], best: dict) -> dict[str, float]:
+    """Descriptive: PROTOCOL.md leaves the prompt out of the cost ("shared by all models"), but each model's prompt
+    is its own count with its own template (Bielik's with the API's provider system prompt). The mean prompt tokens
+    and the mean cost at the chosen pair with the prompt counted, 2 x parameters x (prompt + output tokens)."""
+    pa = statistics.fmean(a_runs[t]["prompt_tokens"] for t in ids)
+    pb = statistics.fmean(b_runs[t]["prompt_tokens"] for t in ids)
+    return {"mean_prompt_tokens_a": pa, "mean_prompt_tokens_b": pb,
+            "mean_cost_with_prompt_a": best["mean_cost_a"] + 2 * PARAMETERS[WEIGHTS[a]] * pa,
+            "mean_cost_with_prompt_b": best["mean_cost_b"] + 2 * PARAMETERS[WEIGHTS[b]] * pb}
 
 
 def clustered(d: list[int], rows: list[dict]) -> dict[str, Any] | None:

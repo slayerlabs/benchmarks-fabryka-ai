@@ -166,12 +166,12 @@ LEVELS = ("easy", "medium", "hard")
 
 
 def row(tid, passed, difficulty, tokens=2000, finished=True, v6_only=False, status="ok", platform="atcoder",
-        contest_date="2025-03-01T00:00:00", output="print(1)"):
+        contest_date="2025-03-01T00:00:00", output="print(1)", prompt_tokens=300):
     ok = status == "ok"
     return {"task_id": tid, "score": int(passed) if ok else None, "difficulty": difficulty, "in_v6_only": v6_only,
             "status": status, "pass": passed if ok else None, "output_tokens": tokens if ok else None,
             "finished": finished if ok else None, "platform": platform, "contest_date": contest_date,
-            "output": output if ok else None}
+            "output": output if ok else None, "prompt_tokens": prompt_tokens}
 
 
 def write_run(results, model, rows, score=None, stderr=None):
@@ -255,6 +255,9 @@ def test_compare_clear_lead_refutes_l1_l2_l3():
     assert (h["L3"]["budget_a"], h["L3"]["budget_b"]) == (16384, 4096)
     assert h["L3"]["mean_cost_a"] == 2 * compare.PARAMETERS["lfm3-1.7b"] * 10000
     assert h["L3"]["mean_cost_b"] == 2 * compare.PARAMETERS["bielik-11b-v3.1"] * 2000
+    # descriptive: the prompt (300 tokens each here) counted on top, 2 x parameters x (prompt + output tokens)
+    assert (h["L3"]["mean_prompt_tokens_a"], h["L3"]["mean_prompt_tokens_b"]) == (300, 300)
+    assert h["L3"]["mean_cost_with_prompt_b"] == 2 * compare.PARAMETERS["bielik-11b-v3.1"] * 2300
     assert (h["L3"]["verdict"], h["L3"]["outcome"]) == ("clear", "refuted")
     assert a["control"]["status"] == "passed"  # LFM3-1.7B 74.0 vs its card's 73.46, within 2 x 1.4
     v6 = a["descriptive"][0]["v6_only"]  # every 5th problem: 6 per level, LFM3 passes all, Bielik the first 2
