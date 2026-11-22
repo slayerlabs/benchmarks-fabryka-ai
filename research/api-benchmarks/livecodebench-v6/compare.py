@@ -21,6 +21,9 @@ as independent): the same mean difference with the SE from the spread between cl
 contest time; the data has no contest id) and by platform (k = 3), t = mean / SE read at df = k - 1 with the verdict
 from its two-sided p at the p of |z| = 3 and 2 (research/tools/statystyka.py, `se_k`; fewer than 3 clusters is
 `undecidable`).
+Exploratory rows, added after the results and labelled so: L1 and L3 after extraction rule F1 (extraction.py), and
+L3 at an exactly equal mean cost and with the prompt counted in the cost (`exploratory_cost`). They never change an
+outcome under PROTOCOL.md.
 Every result file read must have the sha256 summarize.py recorded in <results-dir>/manifest.json; otherwise
 nothing is computed.
 """
@@ -353,12 +356,13 @@ def analyse(results: Path) -> dict[str, Any]:
                  "hypotheses": other_rows}
         if other_main is not None:
             descriptive.append({"status": "ok", **other_main})
-    exploratory = exploratory_extraction(results, runs)
+    f1 = load_f1(results, runs)
+    exploratory = exploratory_extraction(f1, runs)
     return {"benchmark": "LiveCodeBench v6", "protocol": "PROTOCOL.md", "difference": "LFM3-1.7B minus other, pp",
             "control": control(results), "verdict_run": LFM, "hypotheses": rows, "other_run": other,
             "reading": reading(rows, other, exploratory), "descriptive": descriptive,
             "extraction": {m: empty_code(r) for m, r in runs.items() if r is not None},
-            "exploratory_extraction": exploratory,
+            "exploratory_extraction": exploratory, "exploratory_cost": exploratory_cost(runs, f1),
             "parameters": PARAMETERS, "holm_m": 3, "deviations": deviations}
 
 
@@ -368,29 +372,38 @@ def empty_code(run: dict[str, dict]) -> dict[str, int]:
     return {"answered": len(ok), "empty_code": sum(1 for r in ok if r["output"] == "")}
 
 
-def exploratory_extraction(results: Path, runs: dict) -> dict[str, Any] | None:
-    """Exploratory, after the results: L1 and L3 with every run's answers graded under extraction rule F1
-    (extraction.py, results/extraction-f1.json); None when that file is absent. The official numbers stand."""
+def load_f1(results: Path, runs: dict) -> tuple[dict, str, dict] | None:
+    """results/extraction-f1.json (checked against the manifest and against the result files it was computed
+    from), its sha256, and every loaded run with the F1 regrade over its official grades; None when absent."""
     path = results / EXTRACTION
     if not path.is_file():
         return None
     sha = provenance.verify(results, [EXTRACTION], "compare.py")[EXTRACTION]
     x = json.loads(path.read_text(encoding="utf-8"))
     recorded = provenance.read_manifest(results)["files"]
-    for m in (m for m, r in runs.items() if r is not None):
+    loaded = [m for m, r in runs.items() if r is not None]
+    for m in loaded:
         if x["runs"][m]["result"]["sha256"] != recorded[f"{m}.jsonl.gz"]["sha256"]:
             sys.exit(f"compare.py: {path} was computed from another {m}.jsonl.gz than the one in {results}; "
                      "run extraction.py again")
-
-    def regraded(m: str) -> dict[str, dict]:
+    regraded = {}
+    for m in loaded:
         new = x["runs"][m]["regraded"]
-        return {t: {**r, "pass": new[t]["pass"]} if t in new else r for t, r in runs[m].items()}
+        regraded[m] = {t: {**r, "pass": new[t]["pass"]} if t in new else r for t, r in runs[m].items()}
+    return x, sha, regraded
 
+
+def exploratory_extraction(f1: tuple | None, runs: dict) -> dict[str, Any] | None:
+    """Exploratory, after the results: L1 and L3 with every run's answers graded under extraction rule F1
+    (extraction.py, results/extraction-f1.json); None when that file is absent. The official numbers stand."""
+    if f1 is None:
+        return None
+    x, sha, regraded = f1
     rows = []
     for lfm in (LFM, CONTROL_RUN):
         if runs[lfm] is None or runs[BIELIK] is None:
             continue
-        c = compare(lfm, BIELIK, regraded(lfm), regraded(BIELIK))
+        c = compare(lfm, BIELIK, regraded[lfm], regraded[BIELIK])
         keep = ("value", "se", "z", "p", "verdict", "n")
         e = c["equal_cost"]
         rows.append({"run": lfm, "L1": {k: c["overall"][k] for k in keep},
@@ -398,6 +411,64 @@ def exploratory_extraction(results: Path, runs: dict) -> dict[str, Any] | None:
     counts = ("answered", "fence_lines", "empty_code", "changed", "passing_after_f1", "official_passes_lost")
     return {"file": EXTRACTION, "sha256": sha, "rule": x["rule"], "status": x["exploratory"],
             "runs": {m: {k: v[k] for k in counts} for m, v in x["runs"].items()}, "hypotheses": rows}
+
+
+def mean_cost(run: str, rows: list[dict], budget: int | None, prompt: bool = False) -> float:
+    """Mean cost per answer at `budget`; with `prompt`, 2 x parameters x prompt tokens is added."""
+    weights = 2 * PARAMETERS[WEIGHTS[run]]
+    return statistics.fmean(cost(run, r, budget) + (weights * r["prompt_tokens"] if prompt else 0) for r in rows)
+
+
+def exact_budget(run: str, rows: list[dict], target: float) -> int:
+    """The integer output budget whose mean cost (output tokens only) is nearest `target`; the smaller one on a
+    tie, the longest answer when no budget reaches it."""
+    lo, hi = 0, max(r["output_tokens"] for r in rows)
+    if mean_cost(run, rows, hi) <= target:
+        return hi
+    while lo < hi:  # the smallest budget whose mean cost reaches the target (mean cost grows with the budget)
+        mid = (lo + hi) // 2
+        lo, hi = (mid + 1, hi) if mean_cost(run, rows, mid) < target else (lo, mid)
+    below = max(lo - 1, 0)
+    return below if target - mean_cost(run, rows, below) <= mean_cost(run, rows, lo) - target else lo
+
+
+def at_budgets(a: str, a_runs: dict, b_runs: dict, ids: list[str], ba: int | None, bb: int | None,
+               prompt: bool) -> dict[str, Any]:
+    """Pass-at-budget difference (pp) at one budget pair, with the platform-clustered t, and the pair's costs."""
+    d = [int(passes_within(a_runs[t], ba)) - int(passes_within(b_runs[t], bb)) for t in ids]
+    ca = mean_cost(a, [a_runs[t] for t in ids], ba, prompt)
+    cb = mean_cost(BIELIK, [b_runs[t] for t in ids], bb, prompt)
+    return {"budget_a": ba, "budget_b": bb, "mean_cost_a": ca, "mean_cost_b": cb, "cost_ratio": ca / cb,
+            **paired(d), "platform": clustered(d, [a_runs[t] for t in ids])["platform"]}
+
+
+def exploratory_cost(runs: dict, f1: tuple | None) -> list[dict[str, Any]] | None:
+    """Exploratory, added after the results (the method refutation's readings of L3; not a protocol test):
+    - `exact cost`: LFM3-1.7B's budget set to the integer whose mean cost equals Bielik's at its L3 budget as
+      nearly as an integer allows, instead of the nearest of the three protocol budgets;
+    - `prompt counted`: the protocol's nearest-pair rule over the nine budget pairs with the prompt in the cost.
+    Each on both LFM3-1.7B runs, with the official grades and, when extraction-f1.json exists, after rule F1."""
+    if runs[BIELIK] is None:
+        return None
+    out = []
+    for lfm in (LFM, CONTROL_RUN):
+        if runs[lfm] is None:
+            continue
+        ids, _ = pair(runs[lfm], runs[BIELIK])
+        if not ids:
+            continue
+        a_rows, b_rows = [runs[lfm][t] for t in ids], [runs[BIELIK][t] for t in ids]
+        bb = equal_cost(lfm, BIELIK, runs[lfm], runs[BIELIK], ids)["budget_b"]
+        exact = exact_budget(lfm, a_rows, mean_cost(BIELIK, b_rows, bb))
+        with_prompt = min(((ba, bp) for ba in BUDGETS for bp in BUDGETS), key=lambda x: abs(math.log(
+            mean_cost(lfm, a_rows, x[0], True) / mean_cost(BIELIK, b_rows, x[1], True))))  # first on a tie
+        grades = [("official", runs)] + ([("after F1", f1[2])] if f1 else [])
+        for reading_, (ba, bp, prompt) in (("exact cost", (exact, bb, False)),
+                                           ("prompt counted", (*with_prompt, True))):
+            for name, rs in grades:
+                out.append({"reading": reading_, "run": lfm, "grades": name,
+                            **at_budgets(lfm, rs[lfm], rs[BIELIK], ids, ba, bp, prompt)})
+    return out
 
 
 def fmt(x: float | None, spec: str) -> str:
@@ -485,6 +556,27 @@ def extraction_section(a: dict) -> list[str]:
     return out
 
 
+def cost_section(a: dict) -> list[str]:
+    rows = a["exploratory_cost"]
+    if not rows:
+        return []
+    out = ["", "Exploratory, added after the results (the method refutation's readings of L3; not a protocol test): "
+           "`exact cost` sets LFM3-1.7B's budget to the integer whose mean cost (output tokens) is nearest Bielik's "
+           "at its L3 budget, instead of the nearest of the protocol's three budgets; `prompt counted` applies the "
+           "protocol's nearest-pair rule with the prompt tokens in the cost. L3 under PROTOCOL.md stays as in the "
+           "reading line above; these rows do not change it.", "",
+           "| reading | LFM3-1.7B run | grades | LFM3 B | Bielik B | mean cost LFM3 vs Bielik (FLOPs) | cost ratio "
+           "LFM3/Bielik | value ± SE (pp) | z | verdict | platform t | df | p | verdict | n |",
+           "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+    for r in rows:
+        c = r["platform"]
+        out.append(f"| {r['reading']} | {r['run']} | {r['grades']} | {budget(r['budget_a'])} | {budget(r['budget_b'])} "
+                   f"| {r['mean_cost_a']:.3g} vs {r['mean_cost_b']:.3g} | {r['cost_ratio']:.3f} | {value_se(r)} | "
+                   f"{fmt(r['z'], '+.2f')} | {r['verdict']} | {fmt(c['t'], '+.2f')} | {c['df']} | {fmt(c['p'], '.3g')} "
+                   f"| {c['verdict']} | {r['n']} |")
+    return out
+
+
 def report(a: dict) -> str:
     out = []
     c = a["control"]
@@ -525,6 +617,7 @@ def report(a: dict) -> str:
             out.append(f"| {d['a']} | {d['b']} | {name} | {value_se(r)} | {fmt(r['z'], '+.2f')} | {r['verdict']} | "
                        f"{r['n']} | {ex} |")
     out += extraction_section(a)
+    out += cost_section(a)
     out.append("")
     out += [f"deviation: {x}" for x in a["deviations"]]
     return "\n".join(out)

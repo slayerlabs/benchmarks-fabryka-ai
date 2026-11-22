@@ -1317,6 +1317,57 @@ def test_readme_numbers_match_the_independent_count():
             f"(ratio {x['with_prompt_b'] / x['with_prompt_a']:.3f})" in prompt, run
 
 
+def test_exploratory_exact_cost_matches_an_independent_count():
+    import bisect
+    rows = {run: real_rows(run) for run in REAL_RUNS}
+    bielik = rows["bielik-11b-v3.1"]
+    h = json.loads((RESULTS / "hypotheses.json").read_text(encoding="utf-8"))
+    text = (BENCH / "README.md").read_text(encoding="utf-8")
+    got = {(r["reading"], r["run"], r["grades"]): r for r in h["exploratory_cost"]}
+    for run in ("lfm3-1.7b", "lfm3-1.7b-cardsampling"):
+        lfm = rows[run]
+        ids = sorted(t for t in lfm if t in bielik and lfm[t]["status"] == bielik[t]["status"] == "ok")
+        bb = 4096  # Bielik's budget in L3 on both runs (hypotheses.json, checked above against the recount)
+        target = sum(2 * REAL_WEIGHTS["bielik-11b-v3.1"] * min(bielik[t]["output_tokens"], bb) for t in ids) / len(ids)
+        tokens = sorted(lfm[t]["output_tokens"] for t in ids)
+        prefix = [0]
+        for x in tokens:
+            prefix.append(prefix[-1] + x)
+
+        def cost_at(b):  # mean of 2 x parameters x min(tokens, b)
+            k = bisect.bisect_right(tokens, b)
+            return 2 * REAL_WEIGHTS[run] * (prefix[k] + b * (len(tokens) - k)) / len(tokens)
+        b = min(range(tokens[-1] + 1), key=lambda b: abs(cost_at(b) - target))  # the first nearest
+        d = [int(bool(lfm[t]["pass"]) and lfm[t]["finished"] and lfm[t]["output_tokens"] <= b)
+             - int(bool(bielik[t]["pass"]) and bielik[t]["finished"] and bielik[t]["output_tokens"] <= bb) for t in ids]
+        value, se = mean_se(d)
+        row = got[("exact cost", run, "official")]
+        assert (row["budget_a"], row["budget_b"]) == (b, bb), run
+        assert math.isclose(row["value"], value) and math.isclose(row["se"], se), run
+        assert readme_cells(text, f"| exact cost | {run} | official |")[3] == str(b), run
+        assert readme_cells(text, f"| exact cost | {run} | official |")[8] == f"{value / se:+.2f}", run
+
+
+def test_exact_budget_and_prompt_counted_pair_on_fakes():
+    rows = [row(f"t{i}", True, "easy", tokens=x) for i, x in enumerate((100, 200, 300))]
+    p = compare.PARAMETERS["lfm3-1.7b"]
+    assert compare.exact_budget("lfm3-1.7b", rows, 2 * p * (100 + 150 + 150) / 3) == 150
+    assert compare.exact_budget("lfm3-1.7b", rows, 2 * p * (100 + 150.4 + 150.4) / 3) == 150  # nearest integer
+    assert compare.exact_budget("lfm3-1.7b", rows, 2 * p * 1000) == 300  # beyond every answer: the longest
+    assert compare.mean_cost("lfm3-1.7b", rows, 150, prompt=True) == 2 * p * ((100 + 150 + 150) / 3 + 300)
+    with tempfile.TemporaryDirectory() as tmp:
+        res = Path(tmp)
+        write_run(res, compare.LFM, CLEAR_LFM)
+        write_run(res, compare.BIELIK, CLEAR_BIELIK)
+        a = compare.analyse(res)
+    exact, prompt = a["exploratory_cost"]  # no extraction-f1.json, no card-sampling run: two rows
+    assert (exact["reading"], exact["grades"], exact["budget_b"]) == ("exact cost", "official", 4096)
+    # Bielik at 4096 costs 2 x 11.17e9 x 2000, more than LFM3's 10000-token answers ever cost: the longest answer
+    assert exact["budget_a"] == 10000 and exact["cost_ratio"] < 1
+    assert prompt["reading"] == "prompt counted" and math.isclose(
+        prompt["cost_ratio"], (p * 10300) / (compare.PARAMETERS["bielik-11b-v3.1"] * 2300))
+
+
 def test_readme_blocks_are_the_generator_output():
     import readme
     text = (BENCH / "README.md").read_text(encoding="utf-8")
