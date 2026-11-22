@@ -105,3 +105,24 @@ Holm-adjusted p with the thresholds of z = 2 and z = 3. Both on the primary sett
 - The card does not say whether it gave the background; if the control passes only in the secondary setting, the
   report says so and the control is failed, not swapped.
 - Bielik through the API differs from Bielik on vLLM (provider prompt, unknown serving); the row describes the API.
+
+## Amendment 1 (2026-11-22, 16:55 UTC)
+
+Written after the Bielik smoke (`--limit 2`: problems 77 and 11, 24 steps per setting) and before any other model
+output of this benchmark. Seen so far: those 48 Bielik answers and their scores (0 of 24 steps with background,
+1 of 24 without). Nothing above is changed.
+
+- **Finding.** 41 of the 48 answers begin with code without an opening ```` ```python ```` line, and 17 close a
+  fence they never opened. SciCode's `extract_python_script` then takes the prose after the closing fence, so the
+  step's file fails with a SyntaxError and so does every later step of the problem. The same pattern is in 54 of
+  1055 Bielik answers of livecodebench-v6. Whether the API or the model drops the opening fence is not known.
+- **What stays.** Every headline number, K1, K2 and K3 use SciCode's official extraction, as the card's numbers do.
+- **Added, secondary, for every model and both settings: extraction E1.** For each answer (the text after the
+  last `</think>` when thinking is on): if it holds a ```` ```python ```` block, or at least two fence lines, E1
+  gives what the official extraction gives; if it holds exactly one fence line, E1 takes the text before that line;
+  with no fence line, the whole text (as the official one). The same import-line removal follows. Prompts are not
+  regenerated: the generation chain used the official extraction, and E1 only rebuilds the scored step files
+  (dependencies, earlier steps' E1 code, this step's E1 code) and scores them with the same scorer.
+- **Reported next to K2, not instead of it:** K2's z under E1. If K2's verdict differs between the official
+  extraction and E1, the report says that K2 depends on code extraction and does not state the official verdict
+  alone.
