@@ -5,7 +5,11 @@ No network, RULER checkout, torch or lm-eval: the RULER metric is replaced by a 
 after the last `</think>` is what gets scored; an error is left out of the score, never counted as 0; the
 13-task mean, the category means and the nulls for lengths that did not run or have a task without any score.
 compare.py (hypotheses R1-R3 and the control) on fake per-sample results: a clear and a noise case, Holm with m = 3,
-errors left out, null lengths listed, `not run` for a missing model and a control FAIL above the table.
+errors left out, null lengths listed, `not run` for a missing model and a control FAIL above the table, and the
+control's 2-SE bound itself. Generation path: the request body (protocol sampling, seed, output limit), run.sh's
+protocol constants, the last attempt of a sample wins. Provenance: effective sampling (vLLM fills from
+generation_config.json, PROTOCOL.md Amendment 3), commit/runner/hardware in the result, and the sha256 manifests that
+summarize.py and compare.py check (an out dir from before them is summarized with warnings, never a crash).
 Run: python3 tests/test_ruler_128k.py (or pytest).
 """
 import contextlib
@@ -19,7 +23,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "api-benchmarks" / "ruler-128k"))
 import compare as C  # noqa: E402
 import summarize as S  # noqa: E402
-from ruler import answer_text  # noqa: E402
+import predict as P  # noqa: E402
+import provenance as V  # noqa: E402
+from ruler import answer_text, latest_records  # noqa: E402
+
+BENCH = Path(__file__).resolve().parents[1] / "api-benchmarks" / "ruler-128k"
 
 
 def match_all(preds, refs):
@@ -153,6 +161,7 @@ def write_model(results_dir, model, means, skipped=None, errors=None, task_skips
     with gzip.open(results_dir / f"{model}.jsonl.gz", "wt", encoding="utf-8") as f:
         for r in rows:
             f.write(json.dumps({k: v for k, v in r.items() if k != "finished"}) + "\n")
+    V.write_manifest(results_dir, [f"{model}.json", f"{model}.jsonl.gz"], V.RESULTS)  # as summarize.py does
 
 
 WINDOW = "the context window does not hold this length"
@@ -301,6 +310,210 @@ def test_compare_partial_length_is_not_comparable():
     assert result["models"][C.LFM3]["partial_lengths"]["131072"]["skipped_tasks"] == ["qa_2"]
     assert result["models"][C.LFM3]["per_length"]["131072"] is None
     assert f"excluded: {C.LFM3} @ 131072: {reason}" in text and "control: not run" in text
+
+
+def control_run(mean, se):
+    """A fake LFM3 run for compare.control: the mean at 131072 is `mean`, its bootstrap SE exactly `se`."""
+    d = se / 2 ** 0.5  # stdev of [mean - d, mean + d] is d * sqrt(2)
+    return {"point": {C.LONG: dict.fromkeys(S.TASKS, mean)}, "resamples": 2,
+            "boot": {C.LONG: {t: [mean - d, mean + d] for t in S.TASKS}},
+            "scores": {C.LONG: {t: [mean] for t in S.TASKS}}}
+
+
+def test_control_passes_within_2_se_only():
+    for z, status in ((0.0, "PASS"), (1.9, "PASS"), (-1.9, "PASS"), (2.1, "FAIL"), (-2.1, "FAIL"), (2.5, "FAIL"),
+                      (-2.9, "FAIL")):
+        c = C.control({C.LFM3: control_run(C.CONTROL_CARD + z * 1.5, 1.5)})
+        assert abs(c["z"] - z) < 1e-9 and abs(c["se"] - 1.5) < 1e-9, (z, c)
+        assert c["status"] == status, (z, c)
+    assert C.CONTROL_CARD == 65.56
+
+
+def test_request_body_sends_protocol_sampling_seed_and_output_limit():
+    import argparse
+    args = argparse.Namespace(model="lfm3-1.7b", margin=256, temperature=0.6, top_p=0.95, seed=20261122)
+    sample = {"index": 3, "input": "Find the number.", "answer_prefix": " Answer:"}
+    assert P.request_body(args, sample, 1000, 32768, {}) == {
+        "model": "lfm3-1.7b", "messages": [{"role": "user", "content": "Find the number. Answer:"}],
+        "max_tokens": 32768 - 1000 - 256, "temperature": 0.6, "top_p": 0.95, "seed": 20261122}
+    body = P.request_body(args, sample, 5000, 262144, {"chat_template_kwargs": {"enable_thinking": True}})
+    assert body["max_tokens"] == 262144 - 5000 - 256 and body["chat_template_kwargs"] == {"enable_thinking": True}
+
+
+def test_run_sh_carries_the_protocol_sampling():
+    text = (BENCH / "run.sh").read_text(encoding="utf-8")
+    values = {k: v for k, v in (line.split("=", 1) for line in text.splitlines()
+                                if line.split("=", 1)[0] in ("SEED", "TEMPERATURE", "TOP_P", "NUM_SAMPLES"))}
+    assert values == {"SEED": "20261122", "NUM_SAMPLES": "50", "TEMPERATURE": "0.6", "TOP_P": "0.95"}
+    assert '--seed "$SEED" --temperature "$TEMPERATURE"' in text and '--top-p "$TOP_P"' in text
+    protocol = (BENCH / "PROTOCOL.md").read_text(encoding="utf-8")
+    assert "temperature 0.6, top_p 0.95" in protocol and "one sampling seed (20261122) per request" in protocol
+
+
+def test_last_attempt_of_a_sample_wins():
+    with tempfile.TemporaryDirectory() as d:
+        raw = Path(d) / "niah_single_1.jsonl"
+        raw.write_text("".join(json.dumps(r) + "\n" for r in [
+            {"index": 0, "error": "HTTP 500"}, {"index": 0, "output": "a"},
+            {"index": 1, "output": "b"}, {"index": 1, "error": "HTTP 503"}]))
+        latest = latest_records(raw)
+    assert latest == {0: {"index": 0, "output": "a"}, 1: {"index": 1, "error": "HTTP 503"}}
+
+
+# LiquidAI/LFM3-1.7B @ 1da06bec generation_config.json, the fields vLLM reads
+LFM3_CONFIG = {"bos_token_id": 124894, "do_sample": True, "eos_token_id": [124900], "pad_token_id": 124893,
+               "repetition_penalty": 1.1, "temperature": 0.1, "top_k": 50, "transformers_version": "5.12.1"}
+LFM3_SETTINGS = {"weights": "LiquidAI/LFM3-1.7B @ 1da06bec6a819da10b54c67e5c90972b46d81871",
+                 "context_window": 262144, "seed": 20261122, "serving": "vLLM 0.34.0, bfloat16",
+                 "max_tokens": "context window minus templated input", "temperature": 0.6, "top_p": 0.95,
+                 "scored": "text after the last </think>"}
+
+
+def lfm3_config(repo, revision):
+    assert (repo, revision) == ("LiquidAI/LFM3-1.7B", "1da06bec6a819da10b54c67e5c90972b46d81871")
+    return LFM3_CONFIG
+
+
+def test_effective_sampling_per_serving_path():
+    vllm = V.sampling(LFM3_SETTINGS, lfm3_config)
+    # vLLM 0.34.0 fills what the request does not set from generation_config.json (PROTOCOL.md, Amendment 3)
+    assert vllm["from_generation_config"] == {"repetition_penalty": 1.1, "top_k": 50}
+    assert vllm["effective"] == {"repetition_penalty": 1.1, "presence_penalty": 0.0, "frequency_penalty": 0.0,
+                                 "temperature": 0.6, "top_p": 0.95, "top_k": 50, "min_p": 0.0, "seed": 20261122,
+                                 "max_tokens": "per request: context window minus templated input"}
+    api = V.sampling({**LFM3_SETTINGS, "serving": "Fabryka AI API, https://fabryka.ai/v1/chat/completions",
+                      "weights": "speakleash/Bielik-11B-v3.1-Instruct @ d6e755d3"}, read_config=None)
+    assert api == {"sent": {"temperature": 0.6, "top_p": 0.95, "seed": 20261122,
+                            "max_tokens": "per request: context window minus templated input"},
+                   "server_defaults": "unknown (Fabryka API)"}
+    slayer = V.sampling({"serving": "research/common/slayer_lm.py, bfloat16", "temperature": 0.0, "seed": 20261122,
+                         "max_tokens": "RULER per-task answer budget", "weights": "SlayerLab/x @ y"})
+    assert slayer["effective"]["decoding"].startswith("greedy") and slayer["sent"] == {
+        "max_tokens": "RULER per-task answer budget"}
+
+
+WINDOW_8192 = "the 4096-token context window does not hold a 8192-token RULER sample"
+
+
+def fake_out_dir(root):
+    """An out dir as run.sh leaves it: 4096 with niah_single_1 (two attempts per sample) and qa_2 skipped by RULER's
+    generator, 8192 outside the window. Last attempt wins: sample 0 -> 100, sample 1 -> error (first wins: 0, 100)."""
+    out = root / "out" / "lfm3-1.7b"
+    (out / "8192").mkdir(parents=True)
+    (out / "8192" / "skip.json").write_text(json.dumps({"reason": WINDOW_8192}))
+    (out / "run.json").write_text(json.dumps({
+        "model": "lfm3-1.7b", "date": "2026-11-22", "ruler_commit": "db43f92", "seed": 20261122, "num_samples": 2,
+        "limit": None, "tasks": ["niah_single_1", "qa_2"], "lengths": [4096, 8192],
+        "data_sources": {"squad.json": "abc"}, "settings": LFM3_SETTINGS}))
+    data = out / "4096" / "data"
+    (data / "niah_single_1").mkdir(parents=True)
+    (data / "niah_single_1" / "validation.jsonl").write_text("".join(
+        json.dumps({"index": i, "input": "...", "answer_prefix": "", "outputs": ["1234567"], "length": 4000}) + "\n"
+        for i in range(2)))
+    (data / "qa_2").mkdir()
+    (data / "qa_2" / "skip.json").write_text(json.dumps({"reason": QA2_SKIP}))
+    (out / "4096" / "raw").mkdir()
+    (out / "4096" / "raw" / "niah_single_1.jsonl").write_text("".join(json.dumps(r) + "\n" for r in [
+        {"index": 0, "output": "<think>1234567</think>no idea", "finish_reason": "stop", "output_tokens": 5},
+        {"index": 1, "output": "<think>x</think>1234567", "finish_reason": "stop", "output_tokens": 3},
+        {"index": 0, "output": "<think>x</think>It is 1234567.", "finish_reason": "stop", "output_tokens": 6},
+        {"index": 1, "error": "HTTP 500: overloaded"}]))
+    return out
+
+
+def summarize_fake(out, root):
+    return S.summarize_run(out, root / "results" / "lfm3-1.7b", keep, dict.fromkeys(S.TASKS, match_all),
+                           read_config=lfm3_config)
+
+
+def stops(fn, text):
+    try:
+        fn()
+    except SystemExit as e:
+        assert text in str(e), str(e)
+        return
+    raise AssertionError(f"did not stop ({text})")
+
+
+def test_summarize_scores_last_attempt_and_task_skip_as_null():
+    with tempfile.TemporaryDirectory() as d:
+        out = fake_out_dir(Path(d))
+        result = summarize_fake(out, Path(d))
+        with gzip.open(Path(d) / "results" / "lfm3-1.7b.jsonl.gz", "rt") as f:
+            lines = [json.loads(x) for x in f]
+    m = result["other_metrics"]
+    assert [(r["index"], r["score"]) for r in lines] == [(0, 100.0), (1, None)]
+    assert m["per_task"]["4096"] == {"niah_single_1": 100.0, "qa_2": None}
+    assert m["errors"]["4096"] == {"niah_single_1": 1}
+    assert m["per_length"]["4096"]["score"] == 100.0 and m["per_length"]["4096"]["n"] == 1
+    assert m["per_length"]["4096"]["partial"] is True and m["per_length"]["4096"]["skipped_tasks"] == {"qa_2": QA2_SKIP}
+    assert m["per_length"]["8192"] == {"score": None, "reason": WINDOW_8192}
+    assert result["score"] is None and result["reason"] == "length not run"
+
+
+def test_summarize_old_out_dir_records_gaps_and_writes_manifests():
+    """An out dir from a run.sh before generation.jsonl and inputs.sha256.json: summarized, gaps null with reasons."""
+    with tempfile.TemporaryDirectory() as d:
+        root = Path(d)
+        out = fake_out_dir(root)
+        result = summarize_fake(out, root)
+        again = summarize_fake(out, root)
+        manifest = json.loads((root / "results" / V.RESULTS).read_text())
+        files = {n: V.sha256(root / "results" / n) for n in ("lfm3-1.7b.json", "lfm3-1.7b.jsonl.gz")}
+        with open(out / "4096" / "raw" / "niah_single_1.jsonl", "a") as f:
+            f.write(json.dumps({"index": 1, "output": "1234567", "finish_reason": "stop", "output_tokens": 1}) + "\n")
+        stops(lambda: summarize_fake(out, root), "sha256 differs")
+    prov = result["provenance"]
+    assert prov["generation"] is None and "no generation.jsonl" in prov["generation_reason"]
+    assert prov["summarize"]["code"] == V.code_version()
+    assert prov["summarize"]["runner_sha256"]["summarize.py"] == V.sha256(BENCH / "summarize.py")
+    assert set(prov["summarize"]["runner_sha256"]) == set(V.RUNNER_FILES)
+    assert {"gpu", "platform", "machine", "processor", "cpu_count"} <= set(prov["summarize"]["hardware"])
+    sampling = result["settings"]["sampling"]
+    assert sampling["from_generation_config"] == {"repetition_penalty": 1.1, "top_k": 50} and "recorded" in sampling
+    assert len(result["warnings"]) == 2 and "no generation.jsonl" in result["warnings"][0]
+    assert V.INPUTS in result["warnings"][1]
+    assert again["warnings"] == result["warnings"]  # the manifest written by summarize.py keeps saying so
+    assert manifest == files
+
+
+def test_summarize_new_out_dir_carries_generation_provenance_and_checks_inputs():
+    with tempfile.TemporaryDirectory() as d:
+        root = Path(d)
+        out = fake_out_dir(root)
+        entry = V.record_generation(out, lfm3_config)
+        V.record_inputs(out)
+        result = summarize_fake(out, root)
+        (out / "4096" / "raw" / "qa_2.jsonl").write_text("{}\n")
+        stops(lambda: summarize_fake(out, root), "not in")
+        (out / "4096" / "raw" / "qa_2.jsonl").unlink()
+        (out / "8192" / "skip.json").unlink()
+        stops(lambda: summarize_fake(out, root), "missing: 8192/skip.json")
+        (out / "8192" / "skip.json").write_text(json.dumps({"reason": WINDOW_8192}))
+        with open(out / "generation.jsonl", "a") as f:
+            f.write(json.dumps({**entry, "sampling": V.sampling(LFM3_SETTINGS, lambda r, v: {})}) + "\n")
+        V.record_inputs(out)
+        stops(lambda: summarize_fake(out, root), "different sampling")
+    assert result["warnings"] == []
+    assert result["provenance"]["generation"] == [{k: entry[k] for k in ("time", "code", "runner_sha256", "hardware")}]
+    assert entry["code"] == V.code_version() and entry["runner_sha256"]["predict.py"] == V.sha256(BENCH / "predict.py")
+    assert result["settings"]["sampling"] == entry["sampling"]
+    assert result["settings"]["sampling"]["effective"]["repetition_penalty"] == 1.1
+    assert result["settings"]["temperature"] == 0.6
+
+
+def test_compare_checks_result_sha256():
+    with tempfile.TemporaryDirectory() as d:
+        clear_case(Path(d))
+        result, text = run_compare(Path(d))
+        assert result["warnings"] == [] and len(result["inputs_sha256"]) == 6
+        assert result["provenance"]["code"] == V.code_version()
+        (Path(d) / V.RESULTS).unlink()  # results summarized before results.sha256.json existed
+        unrecorded, text = run_compare(Path(d))
+        summary = Path(d) / f"{C.LFM3}.json"
+        summary.write_text(summary.read_text() + "\n")
+        stops(lambda: run_compare(Path(d)), "sha256 differs")
+    assert len(unrecorded["warnings"]) == 3 and f"warning: {C.LFM3}: result files not in" in text
 
 
 if __name__ == "__main__":
