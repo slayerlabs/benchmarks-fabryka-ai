@@ -319,7 +319,7 @@ Code extraction: answered problems whose extracted code is empty (LiveCodeBench 
 | lfm3-1.7b-cardsampling | 1055 | 0 |
 | bielik-11b-v3.1 | 1055 | 51 |
 
-Exploratory (added after the results; not a protocol test, the official results stand): every answer re-extracted with rule F1: with exactly one line containing three backticks, the lines before it (after it when only whitespace precedes it); with none, the whole text; otherwise LiveCodeBench's extraction (the last two such lines); the answers whose code changes are graded again with LiveCodeBench's evaluator (extraction.py, results/extraction-f1.json).
+Exploratory (added after the results; not a protocol test, the official results stand): every answer re-extracted with rule F1: with exactly one line containing three backticks, the lines before it (after it when only whitespace precedes it); with none, the whole text; otherwise LiveCodeBench's extraction (the last two such lines); the answers whose code changes are graded again with LiveCodeBench's evaluator on the machine that ran extraction.py (AMD EPYC 7302P 16-Core Processor, Linux-5.15.0-1067-kvm-x86_64-with-glibc2.35, 8 processes, from the file's provenance), not on the machines that scored the official runs (results/<model-id>.json, provenance.scoring); results/extraction-f1.json.
 
 | run | answered | empty code | changed by F1 | of these passing | official passes lost |
 |---|---|---|---|---|---|
@@ -333,6 +333,19 @@ Exploratory (added after the results; not a protocol test, the official results 
 | L3 | lfm3-1.7b | +4.08 ± 1.08 | +3.78 | clear | +2.84 ± 1.09 | +2.62 | likely | 1055 |
 | L1 | lfm3-1.7b-cardsampling | +56.21 ± 1.53 | +36.78 | clear | +54.98 ± 1.53 | +35.87 | clear | 1055 |
 | L3 | lfm3-1.7b-cardsampling | +1.42 ± 1.07 | +1.33 | noise | +0.19 ± 1.08 | +0.18 | noise | 1055 |
+
+Exploratory, added after the results (the method refutation's readings of L3; not a protocol test): `exact cost` sets LFM3-1.7B's budget to the integer whose mean cost (output tokens) is nearest Bielik's at its L3 budget, instead of the nearest of the protocol's three budgets; `prompt counted` applies the protocol's nearest-pair rule with the prompt tokens in the cost. L3 under PROTOCOL.md stays as in the reading line above; these rows do not change it.
+
+| reading | LFM3-1.7B run | grades | LFM3 B | Bielik B | mean cost LFM3 vs Bielik (FLOPs) | cost ratio LFM3/Bielik | value ± SE (pp) | z | verdict | platform t | df | p | verdict | n |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| exact cost | lfm3-1.7b | official | 5201 | 4096 | 1.58e+13 vs 1.58e+13 | 1.000 | +8.72 ± 1.12 | +7.77 | clear | +6.98 | 2 | 0.0199 | likely | 1055 |
+| exact cost | lfm3-1.7b | after F1 | 5201 | 4096 | 1.58e+13 vs 1.58e+13 | 1.000 | +7.49 ± 1.13 | +6.65 | clear | +5.02 | 2 | 0.0375 | likely | 1055 |
+| prompt counted | lfm3-1.7b | official | none | 4096 | 5.82e+13 vs 5.43e+13 | 1.074 | +55.55 ± 1.53 | +36.29 | clear | +13.01 | 2 | 0.00586 | likely | 1055 |
+| prompt counted | lfm3-1.7b | after F1 | none | 4096 | 5.82e+13 vs 5.43e+13 | 1.074 | +54.31 ± 1.54 | +35.26 | clear | +13.47 | 2 | 0.00546 | likely | 1055 |
+| exact cost | lfm3-1.7b-cardsampling | official | 5136 | 4096 | 1.58e+13 vs 1.58e+13 | 1.000 | +5.21 ± 1.08 | +4.82 | clear | +2.79 | 2 | 0.108 | noise | 1055 |
+| exact cost | lfm3-1.7b-cardsampling | after F1 | 5136 | 4096 | 1.58e+13 vs 1.58e+13 | 1.000 | +3.98 ± 1.08 | +3.68 | clear | +1.89 | 2 | 0.2 | noise | 1055 |
+| prompt counted | lfm3-1.7b-cardsampling | official | none | 4096 | 6.83e+13 vs 5.43e+13 | 1.258 | +56.21 ± 1.53 | +36.78 | clear | +16.26 | 2 | 0.00376 | likely | 1055 |
+| prompt counted | lfm3-1.7b-cardsampling | after F1 | none | 4096 | 6.83e+13 vs 5.43e+13 | 1.258 | +54.98 ± 1.53 | +35.87 | clear | +17.08 | 2 | 0.00341 | likely | 1055 |
 
 deviation: L2 has no single test statistic in PROTOCOL.md; its p for Holm is the largest of the three per-level two-sided p values (intersection-union: the pattern holds only if every level's sign does), its z the level's with that p.
 deviation: PROTOCOL.md gives only L2's refutation; L2 is `confirmed` only with signs (+, +, -) and |z| >= 2 on every level, `refuted` with the same sign on all three levels, otherwise `not established`.
