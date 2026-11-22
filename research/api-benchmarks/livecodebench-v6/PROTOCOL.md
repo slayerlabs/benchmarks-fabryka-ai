@@ -11,7 +11,7 @@ The LFM3-1.7B card reports LiveCodeBench v6 73.46 for LFM3-1.7B against 61.99 / 
 Qwen3.5-9B: the one coding result on the card where the 1.7B model is ahead of a model five times its size. Is
 the lead larger than noise, on which problems does it come from, and does it survive at an equal cost per answer?
 Test-time compute lets a smaller model beat a larger one on easy and medium problems but not on the hardest
-([Snell et al. 2024](https://arxiv.org/abs/2408.03314)).
+([Snell et al. 2024](https://arxiv.org/abs/2408.03314)). <!-- ocena-bez-se: pre-registered question quoting the card's numbers, not a measured difference -->
 
 ## Sources
 
@@ -63,7 +63,7 @@ Bielik runs on vLLM, not the Fabryka API: the API adds a hidden system prompt an
 ## Control (before any claim)
 
 Qwen3.5-9B must land within 2 SE of its card value (69.86). If it does not, the setup is the suspect: no hypothesis
-below is read until the gap is explained.
+below is read until the gap is explained. <!-- ocena-bez-se: pre-registered control rule, not a result -->
 
 ## Hypotheses
 
@@ -71,12 +71,12 @@ Verdicts: |z| ≥ 3 clear, 2–3 likely, < 2 noise. Comparisons paired by proble
 hypotheses.
 
 - **L1.** LFM3-1.7B's lead over Qwen3.5-9B is not larger than 3 SE of the paired difference. Refuted: LFM3-1.7B is
-  ahead with z ≥ 3.
+  ahead with z ≥ 3. <!-- ocena-bez-se: pre-registered refutation rule (the z threshold is the evidence), not a result -->
 - **L2.** The difference LFM3-1.7B − Qwen3.5-9B is positive on `easy` and `medium` problems and negative on
   `hard` ones. Refuted: the difference has the same sign on all three levels.
 - **L3.** At an equal cost per answer, LFM3-1.7B's lead over Qwen3.5-9B disappears. Measure: pass@1 against cost
   per answer from the budgets above; the comparison is at the budget pair whose mean costs are closest. Refuted:
-  LFM3-1.7B is ahead with z ≥ 3 at equal cost.
+  LFM3-1.7B is ahead with z ≥ 3 at equal cost. <!-- ocena-bez-se: pre-registered refutation rule (the z threshold is the evidence), not a result -->
 
 ## Limits stated in advance
 
@@ -117,7 +117,7 @@ Written after the LFM3-1.7B result existed (generated and scored). Nothing above
   `generation_config.json` (`LiquidAI/LFM3-1.7B` @ `1da06bec6a819da10b54c67e5c90972b46d81871`). That gave
   `repetition_penalty` 1.1 and `top_k` 50 on every LFM3-1.7B request, instead of vLLM's neutral 1.0 and no top-k
   limit. The README named this as a deviation before the first request, but this protocol did not, and the result
-  file did not record it. The method verification of the result found the gap, after the result existed.
+  file did not record it. The method verification of the result found the gap, after the result existed. <!-- ocena-bez-se: "gap" is the missing record of two settings, not a difference between scores -->
 - **Effect not estimated.** How much `repetition_penalty` 1.1 and `top_k` 50 move LFM3-1.7B's pass@1 is not
   known. A rerun with them set to neutral values (an ablation) is a separate decision and is not part of this
   amendment. This amendment does not rerun or change the LFM3-1.7B result; the two settings are named next to it.
@@ -154,4 +154,4 @@ method verification (Amendment 3). Nothing above is changed.
   served model.
 - **Consequence, fixed before computing.** If A1 holds (equivalent), the original 72.23 stands and the gap named in
   Amendment 3 is closed. If not, both numbers are reported, and the card-sampling one is the headline for
-  comparisons with the card's 73.46.
+  comparisons with the card's 73.46. <!-- ocena-bez-se: consequence fixed before computing, not a result -->
