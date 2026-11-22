@@ -105,3 +105,26 @@ thresholds of z = 2 and z = 3.
 - Time-limit verdicts depend on the CPU; the card's judging machine is unknown.
 - The card's k/334 values suggest it averaged two samples for some models; we take one.
 - Bielik through the API differs from Bielik on vLLM (provider prompt, unknown serving); the row describes the API.
+
+## Amendment 1 (2026-11-22, after the results)
+
+Written after all three runs had been judged and their results committed (`b96ad6ba`: K1 passed, K2 supported,
+K3 refuted), and after the first verification of those results. Nothing above changes: no hypothesis, metric,
+threshold or control is altered, and no official verdict is re-judged.
+
+1. **Correction to "Settings".** LFM3-1.7B's chat template at `1da06bec` has no default system prompt (its system
+   block is rendered only when a request sends one), so LFM3-1.7B's prompts had no system block at all; "gets its
+   chat template's default system prompt" reads "gets none".
+2. **What the K3 switch does.** With `enable_thinking: false` the template ends the prompt with an empty
+   `<think></think>`; LFM3-1.7B then still reasons in most answers and closes that reasoning with its own
+   `</think>` (counts in README, Results). K3 is reported as written, under the pre-registered switch. Whether the
+   switch removes thinking was not checked before the run; how much of LFM3-1.7B's advantage over Bielik the
+   thinking itself buys is therefore undetermined by K3.
+3. **Analyses added after the results, all descriptive; no verdict reads them:** K3 with its SE clustered by
+   contest, a sign test over contests and K3 per difficulty (compare.py); accepted answers within output budgets
+   and compile errors by cause (explore.py); answers closing `</think>` and the causes of answers without code
+   (raw_outputs.py); the effect of extracting from the whole answer, as the harness does, and Bielik's compile
+   errors with a `bits/stdc++.h` prefix, both re-judged with 4 workers on the scoring VM while it was shared with
+   another job (rejudge.py); exact 95% intervals where no problem of a group was accepted (readme.py).
+4. **Provenance added to the results:** the test-zip manifest each run was judged on (`tests.json`: revision and
+   sha256 of every zip), written into the result files by re-running `summarize.py` on the same `graded.jsonl`.
