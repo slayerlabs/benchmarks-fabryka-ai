@@ -1154,6 +1154,137 @@ def test_extraction_regrade_file_and_compare_exploratory_rows():
     assert "Exploratory, added after the results" in text
 
 
+# The committed results, checked without this benchmark's code: an independent count from results/*.jsonl.gz
+# against results/*.json, results/hypotheses.json, compare.py on the same files, and the numbers in README.md.
+RESULTS = BENCH / "results"
+REAL_RUNS = ("lfm3-1.7b", "lfm3-1.7b-cardsampling", "bielik-11b-v3.1")
+REAL_WEIGHTS = {"lfm3-1.7b": 1_728_801_536, "lfm3-1.7b-cardsampling": 1_728_801_536,
+                "bielik-11b-v3.1": 11_168_796_672}  # safetensors tensor-shape sums (PROTOCOL.md revisions)
+
+
+def real_rows(run):
+    with gzip.open(RESULTS / f"{run}.jsonl.gz", "rt", encoding="utf-8") as f:
+        return {r["task_id"]: r for r in (json.loads(line) for line in f)}
+
+
+def mean_se(d):
+    n = len(d)
+    m = sum(d) / n
+    return 100 * m, 100 * math.sqrt(sum((x - m) ** 2 for x in d) / (n - 1) / n)
+
+
+def independent_counts():
+    """pass@1 per run, and per LFM3-1.7B run the L1 and L3 differences against Bielik, paired by task_id."""
+    rows = {run: real_rows(run) for run in REAL_RUNS}
+    out = {"pass@1": {}, "L1": {}, "L3": {}, "L3_f1": {}, "L1_platform_se": {}}
+    for run, rs in rows.items():
+        ok = [r for r in rs.values() if r["status"] == "ok"]
+        p = sum(bool(r["pass"]) for r in ok) / len(ok)
+        out["pass@1"][run] = (round(100 * p, 2), round(100 * math.sqrt(p * (1 - p) / len(ok)), 2), len(ok))
+    f1 = json.loads((RESULTS / "extraction-f1.json").read_text(encoding="utf-8"))["runs"]
+    bielik = rows["bielik-11b-v3.1"]
+    for run in ("lfm3-1.7b", "lfm3-1.7b-cardsampling"):
+        lfm = rows[run]
+        ids = sorted(t for t in lfm if t in bielik and lfm[t]["status"] == bielik[t]["status"] == "ok")
+        d = [int(bool(lfm[t]["pass"])) - int(bool(bielik[t]["pass"])) for t in ids]
+        out["L1"][run] = (*mean_se(d), len(ids))
+        by_platform = {}
+        for t, x in zip(ids, d):
+            by_platform.setdefault(lfm[t]["platform"], []).append(x)
+        mean, g = sum(d) / len(d), len(by_platform)
+        out["L1_platform_se"][run] = 100 * math.sqrt(
+            g / (g - 1) * sum(sum(x - mean for x in xs) ** 2 for xs in by_platform.values())) / len(d)
+
+        def l3(pass_a, pass_b):
+            """pass_a, pass_b: task_id -> passed, for LFM3-1.7B and Bielik."""
+            def within(rs, passed, t, b):
+                return passed[t] and rs[t]["finished"] and (b is None or rs[t]["output_tokens"] <= b)
+
+            def mean_cost(m, rs, b):
+                return sum(2 * REAL_WEIGHTS[m] * (r["output_tokens"] if b is None else min(r["output_tokens"], b))
+                           for r in (rs[t] for t in ids)) / len(ids)
+            budgets = (4096, 16384, None)
+            pairs = [(abs(math.log(mean_cost(run, lfm, ba) / mean_cost("bielik-11b-v3.1", bielik, bb))), ba, bb)
+                     for ba in budgets for bb in budgets]
+            _, ba, bb = min(pairs, key=lambda x: x[0])  # min keeps the first of equal ratios
+            d3 = [int(within(lfm, pass_a, t, ba)) - int(within(bielik, pass_b, t, bb)) for t in ids]
+            return (*mean_se(d3), ba, bb)
+
+        def passes(rs, m=None):  # official grades, or with extraction-f1.json's regrade of run m over them
+            regraded = {t: g["pass"] for t, g in f1[m]["regraded"].items()} if m else {}
+            return {t: regraded.get(t, bool(r["pass"])) for t, r in rs.items()}
+
+        out["L3"][run] = l3(passes(lfm), passes(bielik))
+        out["L3_f1"][run] = l3(passes(lfm, run), passes(bielik, "bielik-11b-v3.1"))
+    return out
+
+
+def test_results_and_hypotheses_match_an_independent_count():
+    c = independent_counts()
+    for run, (score, stderr, n) in c["pass@1"].items():
+        r = json.loads((RESULTS / f"{run}.json").read_text(encoding="utf-8"))
+        assert (r["score"], r["stderr"], r["n"]) == (score, stderr, n), run
+    h = json.loads((RESULTS / "hypotheses.json").read_text(encoding="utf-8"))
+    families = {h["verdict_run"]: h["hypotheses"], h["other_run"]["run"]: h["other_run"]["hypotheses"]}
+    assert h["verdict_run"] == "lfm3-1.7b"
+    for run, rows in families.items():
+        l1, l3 = by_id(rows)["L1"], by_id(rows)["L3"]
+        value, se, n = c["L1"][run]
+        assert math.isclose(l1["value"], value) and math.isclose(l1["se"], se) and l1["n"] == n, run
+        value, se, ba, bb = c["L3"][run]
+        assert math.isclose(l3["value"], value) and math.isclose(l3["se"], se), run
+        assert (l3["budget_a"], l3["budget_b"]) == (ba, bb), run
+        assert math.isclose(l1["clustered"]["platform"]["se"], c["L1_platform_se"][run]), run
+    ex = {r["run"]: r for r in h["exploratory_extraction"]["hypotheses"]}
+    for run, (value, se, ba, bb) in c["L3_f1"].items():
+        assert math.isclose(ex[run]["L3"]["value"], value) and math.isclose(ex[run]["L3"]["se"], se), run
+
+
+def test_compare_on_the_committed_results_matches_the_independent_count():
+    # catches a pairing error in compare.py (e.g. Bielik's answers shifted by one problem) without regenerating
+    c = independent_counts()
+    a = compare.analyse(RESULTS)
+    for run, rows in ((a["verdict_run"], a["hypotheses"]), (a["other_run"]["run"], a["other_run"]["hypotheses"])):
+        value, se, _ = c["L1"][run]
+        assert math.isclose(by_id(rows)["L1"]["value"], value) and math.isclose(by_id(rows)["L1"]["se"], se), run
+        value, se, _, _ = c["L3"][run]
+        assert math.isclose(by_id(rows)["L3"]["value"], value) and math.isclose(by_id(rows)["L3"]["se"], se), run
+
+
+def readme_cells(text, starts):
+    """Cells of the first README table line that starts with `starts`."""
+    line = next(line for line in text.splitlines() if line.startswith(starts))
+    return [c.strip() for c in line.strip().strip("|").split("|")]
+
+
+def test_readme_numbers_match_the_independent_count():
+    text = (BENCH / "README.md").read_text(encoding="utf-8")
+    c = independent_counts()
+    names = {"lfm3-1.7b": "| LFM3-1.7B (`lfm3-1.7b`", "lfm3-1.7b-cardsampling": "| LFM3-1.7B with the card's sampling",
+             "bielik-11b-v3.1": "| Bielik 11B v3.1 (`bielik-11b-v3.1`)"}
+    for run, (score, stderr, n) in c["pass@1"].items():
+        assert readme_cells(text, names[run])[4:7] == [f"{score:.2f}", f"{stderr:.2f}", str(n)], run
+    for run in ("lfm3-1.7b", "lfm3-1.7b-cardsampling"):
+        section = text[text.index(f"L1-L3 on {run}, "):]
+        for hid, (value, se) in (("L1", c["L1"][run][:2]), ("L3", c["L3"][run][:2])):
+            assert readme_cells(section, f"| {hid} |")[2] == f"{value:+.2f} ± {se:.2f}", (run, hid)
+        value, se, _, _ = c["L3_f1"][run]
+        assert readme_cells(text, f"| L3 | {run} |")[5] == f"{value:+.2f} ± {se:.2f}", run
+
+
+def test_readme_blocks_are_the_generator_output():
+    import readme
+    text = (BENCH / "README.md").read_text(encoding="utf-8")
+    bodies = readme.blocks(RESULTS)
+    assert readme.render(text, bodies) == text  # byte for byte: no number edited by hand, none stale
+    row_line = next(line for line in text.splitlines() if line.startswith("| Bielik 11B v3.1 (`bielik-11b-v3.1`)"))
+    score = readme_cells(text, "| Bielik 11B v3.1 (`bielik-11b-v3.1`)")[4]
+    swapped = text.replace(row_line, row_line.replace(f"| {score} |", f"| {score[::-1]} |", 1))
+    assert swapped != text and readme.render(swapped, bodies) != swapped  # one swapped number is caught
+    broken = text.replace("<!-- readme.py: end hypotheses -->", "")
+    assert "needs exactly one" in exit_message(readme.render, broken, bodies)
+
+
 if __name__ == "__main__":
     failed = 0
     for name, fn in list(globals().items()):
