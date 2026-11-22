@@ -2,10 +2,11 @@
 writes, which the next step checks before it reads them.
 
 Each step that writes a file a later step reads (lcb.py generate -> generations.jsonl, lcb.py score -> graded.jsonl,
-summarize.py -> results/<model-id>.json and .jsonl.gz, compare.py -> results/hypotheses.json, ablation.py ->
-results/ablation-a1.json and .md) records the file's sha256 in `manifest.json` in the same directory. A step that
-reads such a file (lcb.py score, summarize.py, compare.py) stops when the file is not in the manifest or its sha256
-differs: the numbers would come from a file nobody recorded writing.
+summarize.py -> results/<model-id>.json and .jsonl.gz, extraction.py -> results/extraction-f1.json, compare.py ->
+results/hypotheses.json, ablation.py -> results/ablation-a1.json and .md) records the file's sha256 in
+`manifest.json` in the same directory. A step that reads such a file (lcb.py score, summarize.py, extraction.py,
+compare.py, ablation.py) stops when the file is not in the manifest or its sha256 differs: the numbers would come
+from a file nobody recorded writing.
 """
 
 import datetime
@@ -19,7 +20,7 @@ from pathlib import Path
 from typing import Any
 
 HERE = Path(__file__).resolve().parent
-RUNNER_FILES = ("run.sh", "lcb.py", "summarize.py", "compare.py", "ablation.py", "provenance.py")
+RUNNER_FILES = ("run.sh", "lcb.py", "summarize.py", "extraction.py", "compare.py", "ablation.py", "provenance.py")
 MANIFEST = "manifest.json"
 
 

@@ -46,6 +46,7 @@ BUDGETS = (4096, 16384, None)  # PROTOCOL.md, "Metrics"; None = no limit
 CONTROL_CARD = 73.46  # PROTOCOL.md, Amendment 1, "Control": LFM3-1.7B on its own card
 # PROTOCOL.md, Amendment 4: A1 was not shown equivalent, so the card-sampling run is the one compared with the card
 CONTROL_RUN = "lfm3-1.7b-cardsampling"
+EXTRACTION = "extraction-f1.json"  # exploratory, written by extraction.py (rule F1); read only when present
 # Clusters for the clustered SE of L1 and L3: problems of one contest share setters, date and topics
 CLUSTERS = {
     "contest": lambda r: f"{r['platform']} {r['contest_date'][:10]}",
@@ -333,7 +334,47 @@ def analyse(results: Path) -> dict[str, Any]:
     return {"benchmark": "LiveCodeBench v6", "protocol": "PROTOCOL.md", "difference": "LFM3-1.7B minus other, pp",
             "control": control(results), "verdict_run": LFM, "hypotheses": rows, "other_run": other,
             "reading": reading(rows, other), "descriptive": descriptive,
+            "extraction": {m: empty_code(r) for m, r in runs.items() if r is not None},
+            "exploratory_extraction": exploratory_extraction(results, runs),
             "parameters": PARAMETERS, "holm_m": 3, "deviations": deviations}
+
+
+def empty_code(run: dict[str, dict]) -> dict[str, int]:
+    """Answered problems whose extracted code is empty (LiveCodeBench found fewer than two fence lines): a fail."""
+    ok = [r for r in run.values() if r["status"] == "ok"]
+    return {"answered": len(ok), "empty_code": sum(1 for r in ok if r["output"] == "")}
+
+
+def exploratory_extraction(results: Path, runs: dict) -> dict[str, Any] | None:
+    """Exploratory, after the results: L1 and L3 with every run's answers graded under extraction rule F1
+    (extraction.py, results/extraction-f1.json); None when that file is absent. The official numbers stand."""
+    path = results / EXTRACTION
+    if not path.is_file():
+        return None
+    sha = provenance.verify(results, [EXTRACTION], "compare.py")[EXTRACTION]
+    x = json.loads(path.read_text(encoding="utf-8"))
+    recorded = provenance.read_manifest(results)["files"]
+    for m in (m for m, r in runs.items() if r is not None):
+        if x["runs"][m]["result"]["sha256"] != recorded[f"{m}.jsonl.gz"]["sha256"]:
+            sys.exit(f"compare.py: {path} was computed from another {m}.jsonl.gz than the one in {results}; "
+                     "run extraction.py again")
+
+    def regraded(m: str) -> dict[str, dict]:
+        new = x["runs"][m]["regraded"]
+        return {t: {**r, "pass": new[t]["pass"]} if t in new else r for t, r in runs[m].items()}
+
+    rows = []
+    for lfm in (LFM, CONTROL_RUN):
+        if runs[lfm] is None or runs[BIELIK] is None:
+            continue
+        c = compare(lfm, BIELIK, regraded(lfm), regraded(BIELIK))
+        keep = ("value", "se", "z", "p", "verdict", "n")
+        e = c["equal_cost"]
+        rows.append({"run": lfm, "L1": {k: c["overall"][k] for k in keep},
+                     "L3": {**{k: e[k] for k in keep}, "budget_a": e["budget_a"], "budget_b": e["budget_b"]}})
+    counts = ("answered", "fence_lines", "empty_code", "changed", "passing_after_f1", "official_passes_lost")
+    return {"file": EXTRACTION, "sha256": sha, "rule": x["rule"], "status": x["exploratory"],
+            "runs": {m: {k: v[k] for k in counts} for m, v in x["runs"].items()}, "hypotheses": rows}
 
 
 def fmt(x: float | None, spec: str) -> str:
@@ -392,6 +433,35 @@ def hypotheses_table(rows: list[dict]) -> list[str]:
     return out
 
 
+def extraction_section(a: dict) -> list[str]:
+    out = ["", "Code extraction: answered problems whose extracted code is empty (LiveCodeBench takes the lines "
+           "between the last two fence lines; fewer than two give empty code, graded as a fail):", "",
+           "| run | answered | empty code |", "|---|---|---|"]
+    out += [f"| {m} | {x['answered']} | {x['empty_code']} |" for m, x in a["extraction"].items()]
+    x = a["exploratory_extraction"]
+    if not x:
+        return out
+    out += ["", f"Exploratory, added after the results ({x['status']}): every answer re-extracted with rule "
+            f"{x['rule']}; "
+            "the answers whose code changes are graded again with LiveCodeBench's evaluator (extraction.py, "
+            f"results/{x['file']}).", "",
+            "| run | answered | empty code | changed by F1 | of these passing | official passes lost |",
+            "|---|---|---|---|---|---|"]
+    out += [f"| {m} | {r['answered']} | {r['empty_code']} | {r['changed']} | {r['passing_after_f1']} | "
+            f"{r['official_passes_lost']} |" for m, r in x["runs"].items()]
+    official = {(a["verdict_run"], h["id"]): h for h in a["hypotheses"]}
+    if a["other_run"]:
+        official |= {(a["other_run"]["run"], h["id"]): h for h in a["other_run"]["hypotheses"]}
+    out += ["", "| hypothesis | LFM3-1.7B run | official value ± SE (pp) | z | verdict | after F1 value ± SE (pp) | "
+            "z | verdict | n |", "|---|---|---|---|---|---|---|---|---|"]
+    for r in x["hypotheses"]:
+        for hid in ("L1", "L3"):
+            o, f = official[(r["run"], hid)], r[hid]
+            out.append(f"| {hid} | {r['run']} | {value_se(o)} | {fmt(o['z'], '+.2f')} | {o['verdict']} | "
+                       f"{value_se(f)} | {fmt(f['z'], '+.2f')} | {f['verdict']} | {f['n']} |")
+    return out
+
+
 def report(a: dict) -> str:
     out = []
     c = a["control"]
@@ -414,7 +484,8 @@ def report(a: dict) -> str:
         out += clustered_table(other["hypotheses"])
     out += ["", "Reading:", ""] + [f"- {r['text']}" for r in a["reading"]]
     out += ["", "Descriptive (not tested), each LFM3-1.7B run minus each model:", "",
-            "| run | model | measure | value ± SE (pp) | z | verdict | n | excluded |", "|---|---|---|---|---|---|---|---|"]
+            "| run | model | measure | value ± SE (pp) | z | verdict | n | excluded |",
+            "|---|---|---|---|---|---|---|---|"]
     for d in a["descriptive"]:
         if d["status"] == "not run":
             out.append(f"| {d['a']} | {d['b']} | not run (missing: {', '.join(d['missing'])}) | | | | | |")
@@ -430,6 +501,7 @@ def report(a: dict) -> str:
         for name, r in lines:
             out.append(f"| {d['a']} | {d['b']} | {name} | {value_se(r)} | {fmt(r['z'], '+.2f')} | {r['verdict']} | "
                        f"{r['n']} | {ex} |")
+    out += extraction_section(a)
     out.append("")
     out += [f"deviation: {x}" for x in a["deviations"]]
     return "\n".join(out)

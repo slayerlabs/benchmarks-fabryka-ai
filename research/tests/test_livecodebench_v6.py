@@ -166,11 +166,12 @@ LEVELS = ("easy", "medium", "hard")
 
 
 def row(tid, passed, difficulty, tokens=2000, finished=True, v6_only=False, status="ok", platform="atcoder",
-        contest_date="2025-03-01T00:00:00"):
+        contest_date="2025-03-01T00:00:00", output="print(1)"):
     ok = status == "ok"
     return {"task_id": tid, "score": int(passed) if ok else None, "difficulty": difficulty, "in_v6_only": v6_only,
             "status": status, "pass": passed if ok else None, "output_tokens": tokens if ok else None,
-            "finished": finished if ok else None, "platform": platform, "contest_date": contest_date}
+            "finished": finished if ok else None, "platform": platform, "contest_date": contest_date,
+            "output": output if ok else None}
 
 
 def write_run(results, model, rows, score=None, stderr=None):
@@ -1044,6 +1045,110 @@ def test_hypotheses_on_both_lfm3_runs_and_reading():
                                                            ("lfm3-1.7b-cardsampling", "bielik-11b-v3.1")]
     assert [r["depends_on_sampling"] for r in same["reading"]] == [False] * 3
     assert by_id(same["reading"])["L3"]["text"].startswith("L3: refuted on both runs (lfm3-1.7b z = +")
+
+
+def lcb_extract_code(text, style):
+    """LiveCodeBench's extract_code for chat styles (extraction_utils.py @ LCB_COMMIT): the last two fence lines."""
+    lines = text.split("\n")
+    idx = [i for i, line in enumerate(lines) if "```" in line]
+    return "" if len(idx) < 2 else "\n".join(lines[idx[-2] + 1: idx[-1]])
+
+
+def test_extraction_rule_f1():
+    import extraction
+    assert extraction.f1("solve()\n```", "") == "solve()"  # closing fence only: the code before it
+    assert extraction.f1("  \n```python\nsolve()", "") == "solve()"  # opening fence only: the code after it
+    assert extraction.f1("solve()", "") == "solve()"  # no fence: the whole text
+    assert extraction.f1("a\n```\nb\n```", "b") == "b"  # two or more fence lines: LiveCodeBench's code
+    assert extraction.f1("```\na\n```\nb\n```", "b") == "b"
+    assert [extraction.fence_lines(t) for t in ("x", "```py\nx\n```", "x\n```")] == [[], [0, 2], [1]]
+
+
+# raw answers (after </think>), whether each official extraction passed, and the result rows built from them
+F1_RAW = {
+    "lfm3-1.7b": {"q1": "t</think>```python\nsolve()\n```", "q2": "t</think>no fence: nothing",
+                  "q3": "```\nsolve()\n```"},
+    "lfm3-1.7b-cardsampling": {"q1": "```\nsolve()\n```", "q2": "```\nsolve()\n```", "q3": "```\nsolve()\n```"},
+    "bielik-11b-v3.1": {"q1": "solve()\n```", "q2": "```\nbroken", "q3": "x\n```python\nsolve()\n```"},
+}
+
+
+def write_f1_fixture(root):
+    out, res = root / "out", root / "results"
+    for run, answers in F1_RAW.items():
+        raw = extraction_raw_name(run)
+        (out / run).mkdir(parents=True)
+        lines = "".join(json.dumps({"question_id": q, "status": "ok", "output": o}) + "\n" for q, o in answers.items())
+        if raw.endswith(".gz"):
+            with gzip.open(out / run / raw, "wt", encoding="utf-8") as f:
+                f.write(lines)
+        else:
+            (out / run / raw).write_text(lines, encoding="utf-8")
+        provenance.record(out / run, [raw], "test")
+        codes = {q: lcb_extract_code(lcb.after_think(o), None) for q, o in answers.items()}
+        write_run(res, run, [row(q, "solve" in c, "easy", output=c) for q, c in codes.items()])
+    return out, res
+
+
+def extraction_raw_name(run):
+    import extraction
+    return extraction.RAW.get(run, "generations.jsonl")
+
+
+def f1_modules(calls):
+    """fake_lcb with LiveCodeBench's extraction and an evaluator that passes code containing `solve`."""
+    mods = fake_lcb(calls)
+
+    def codegen_metrics(samples, generations, num_process_evaluate, timeout):
+        calls.append({"num_process_evaluate": num_process_evaluate, "timeout": timeout, "generations": generations})
+        results = {i: [[1, 1] if "solve" in g[0] else [1, -2]] for i, g in enumerate(generations)}
+        return {}, results, [[json.dumps({"n": i})] for i in range(len(generations))]
+
+    mods.evaluation.codegen_metrics = codegen_metrics
+    mods.extraction.extract_code = lcb_extract_code
+    return mods
+
+
+def test_extraction_regrade_file_and_compare_exploratory_rows():
+    import extraction
+    rows = [{"question_id": q, "passes": None} for q in ("q1", "q2", "q3")]
+    calls = []
+    with tempfile.TemporaryDirectory() as tmp, patched(lcb, load_rows=lambda limit: [dict(r) for r in rows]):
+        out, res = write_f1_fixture(Path(tmp))
+        extraction.main(out, res, 3, modules=f1_modules(calls))
+        x = json.loads((res / "extraction-f1.json").read_text(encoding="utf-8"))
+        files = provenance.read_manifest(res)["files"]
+        assert (files["extraction-f1.json"]["sha256"], files["extraction-f1.json"]["written_by"]) == \
+            (sha256(res / "extraction-f1.json"), "extraction.py")
+        a = compare.analyse(res)
+        text = compare.report(a)
+        # a result file whose code is not LiveCodeBench's extraction of the raw answer stops the run
+        write_run(res, "bielik-11b-v3.1", [row("q1", False, "easy", output="other"), row("q2", False, "easy"),
+                                           row("q3", True, "easy", output="solve()")])
+        stopped = exit_message(extraction.main, out, res, 3, f1_modules([]))
+        assert "is not the code in results/bielik-11b-v3.1.jsonl.gz" in stopped
+        assert "another bielik-11b-v3.1.jsonl.gz" in exit_message(compare.analyse, res)  # stale exploratory file
+    assert [(c["num_process_evaluate"], c["timeout"]) for c in calls] == [(3, lcb.EVAL_TIMEOUT)]
+    assert calls[0]["generations"] == [["no fence: nothing"], ["solve()"], ["broken"]]  # only the changed answers
+    b, lfm = x["runs"]["bielik-11b-v3.1"], x["runs"]["lfm3-1.7b"]
+    assert (b["fence_lines"], b["empty_code"], b["changed"], b["passing_after_f1"]) == ({"1": 2, "2": 1}, 2, 2, 1)
+    assert b["regraded"]["q1"]["pass"] and not b["regraded"]["q2"]["pass"]
+    assert not b["regraded"]["q1"]["official_pass"]
+    assert (lfm["fence_lines"], lfm["empty_code"], lfm["changed"], lfm["passing_after_f1"]) == \
+        ({"0": 1, "2": 2}, 1, 1, 0)
+    assert x["runs"]["lfm3-1.7b-cardsampling"]["changed"] == 0
+    assert x["exploratory"].startswith("added after the results")
+    assert x["runs"]["bielik-11b-v3.1"]["result"]["sha256"] == files["bielik-11b-v3.1.jsonl.gz"]["sha256"]
+    assert {m: v["empty_code"] for m, v in a["extraction"].items()} == \
+        {"lfm3-1.7b": 1, "lfm3-1.7b-cardsampling": 0, "bielik-11b-v3.1": 2}
+    # official L1 on lfm3-1.7b: d = (1, 0, 0) over q1-q3; after F1 Bielik's q1 passes: d = (0, 0, 0)
+    h = a["hypotheses"][0]
+    assert math.isclose(h["value"], 100 / 3)
+    ex = {r["run"]: r for r in a["exploratory_extraction"]["hypotheses"]}
+    assert ex["lfm3-1.7b"]["L1"]["value"] == 0 and ex["lfm3-1.7b"]["L1"]["n"] == 3
+    assert a["exploratory_extraction"]["sha256"] == files["extraction-f1.json"]["sha256"]
+    assert "| bielik-11b-v3.1 | 3 | 2 | 2 | 1 | 0 |" in text and "| bielik-11b-v3.1 | 3 | 2 |" in text
+    assert "Exploratory, added after the results" in text
 
 
 if __name__ == "__main__":
