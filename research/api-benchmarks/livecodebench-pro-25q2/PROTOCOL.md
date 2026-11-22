@@ -1,0 +1,107 @@
+# LiveCodeBench Pro 25Q2: measurement protocol
+
+Written and committed before the first model output. Nothing below changes after a result is seen; anything
+added later is an amendment with its time and what had been seen by then, or is marked exploratory in the README.
+
+Refs #296. Part of the "Coding" group of the LFM3-1.7B card (LiveCodeBench v6 #295, LiveCodeBench Pro 25Q2 #296,
+SciCode #297), measured together for one comparative paper.
+
+## Question
+
+On the LFM3-1.7B card's coding benchmarks, where does Bielik 11B v3.1, as served by the Fabryka AI API, stand
+against the six models on the card, and how much of LFM3-1.7B's lead over it comes from LFM3-1.7B thinking before
+it answers? LiveCodeBench v6 (#295) is the pilot that raised the question (LFM3-1.7B 72.23 vs Bielik 16.68, with
+LFM3-1.7B thinking and Bielik not); its numbers are not used for any verdict here.
+
+## Sources
+
+- Paper: Zheng et al. 2025, LiveCodeBench Pro: How Do Olympiad Medalists Judge LLMs in Competitive Programming?,
+  [arXiv 2506.11928](https://arxiv.org/abs/2506.11928).
+- Harness: [GavinZhengOI/LiveCodeBench-Pro](https://github.com/GavinZhengOI/LiveCodeBench-Pro) @
+  `d614eef4f95b3654bf0758c64e1194b2575850b8` (last code change `31ad6e44`), with its judge submodule
+  [LightCPVerifier](https://github.com/YanagiOrigami/LightCPVerifier) @ `021d121c882e70856b66113142495e31b9fe1d80`:
+  prompt `api_interface.LLMInterface().prompt`, code extraction `util.extract_longest_cpp_code`, judge
+  `judge.LightCPVerifierJudge`, aggregation as `benchmark.print_stats`.
+- Problems: [QAQAQAQAQ/LiveCodeBench-Pro](https://huggingface.co/datasets/QAQAQAQAQ/LiveCodeBench-Pro) @
+  `adebffce047dddb7768a86bace6aea4f7425e3bc`, split `quater_2025_4_6` (= 25Q2, 167 problems, April–June 2025).
+- Tests: [QAQAQAQAQ/LiveCodeBench-Pro-Testcase](https://huggingface.co/datasets/QAQAQAQAQ/LiveCodeBench-Pro-Testcase)
+  @ `5257736c0a4e30ba0949d41c56a257c323d9c600`, one zip per problem.
+- Reference: [LiquidAI/LFM3-1.7B](https://huggingface.co/LiquidAI/LFM3-1.7B) card, "Benchmarks" and "Evaluation
+  details": LFM3-1.7B 31.74, LFM2.5-2.6B 19.16, MiniCPM5-2B 29.34, Gemma 4 E4B 29.94, Qwen3.5-4B 24.25,
+  Qwen3.5-9B 34.43. Every value is k/167 or k/334, so the card scores accepted problems over all 167.
+
+## Models
+
+| model id | what | serving |
+|---|---|---|
+| `lfm3-1.7b` | `LiquidAI/LFM3-1.7B` @ `1da06bec6a819da10b54c67e5c90972b46d81871`, thinking on (template default) | vLLM 0.34.0, bf16, context 262144 |
+| `lfm3-1.7b-nothink` | the same weights, `chat_template_kwargs: {"enable_thinking": false}` | the same server |
+| `bielik-11b-v3.1` | Bielik 11B v3.1 through the Fabryka AI API (`https://fabryka.ai/v1`), with the API's hidden provider system prompt and no reasoning switch | API, context 32768 |
+| `slayer1b-1.09-k70000` | not run: `null` | — |
+
+Slayer 1B is a base model with a 4096-token context and does not follow chat instructions; on 30 Python tasks in
+`research/slayer-1b/rozmowy-1.08` it wrote no function that passed its tests. Olympiad problems in C++ are below
+its floor, so its row is `null` with that reason, not a run.
+
+## Settings
+
+- Problem set: all 167 problems of `quater_2025_4_6`, sorted by `problem_id`. One sample per problem (pass@1).
+- Prompt: the harness's own string, `LLMInterface().prompt + problem_statement`, imported from the pinned checkout,
+  sent as the only user message. No system message of ours: LFM3-1.7B gets its chat template's default system
+  prompt; Bielik gets whatever the API adds.
+- LFM3-1.7B sampling, sent in every request: temperature 0.6, top_p 0.95, `top_k` 0 (no limit),
+  `repetition_penalty` 1.0, frequency and presence penalty 0, seed 20261122. These are the card's settings; they are
+  sent explicitly because vLLM 0.34.0 otherwise fills `repetition_penalty` 1.1 and `top_k` 50 from the model's
+  `generation_config.json` (livecodebench-v6, Amendments 3–4). `max_tokens` = 262144 minus the prompt tokens
+  counted by the server's `/tokenize`.
+- Bielik: temperature 0.6, top_p 0.95, seed 20261122 (whatever the API honours is recorded). `max_tokens` = 32768
+  minus the prompt counted locally with Bielik's tokenizer and chat template (with the provider prompt) minus a
+  margin of 64, as in livecodebench-v6 at `7d931ba2`. At most 2 requests at once, retries behind a shared pause,
+  every retry and error logged to `api-events.jsonl`.
+- Code: `extract_longest_cpp_code` on the text after the last `</think>`. With thinking on, an answer without
+  `</think>` or stopped by the length limit is unfinished: it counts as a fail and the count is reported.
+- Judge: LightCPVerifier at the pinned commit, its image built once and its digest recorded (the Dockerfile pulls
+  go-judge "latest"). All three models are judged on the same machine with the same worker count, after all
+  generation has finished. The machine (CPU model, cores, worker count) is recorded.
+- Infrastructure failures (a request that fails in our code or the API after all retries, a judge `error` that is
+  not a compile error) are retried once; if they persist they are recorded as errors, not as wrong answers.
+
+## Metrics
+
+- Headline: accepted / 167 × 100, a problem whose test zip is missing or whose judging errors persist counting as
+  not accepted (the card's denominator). Secondary: the same with those problems left out, with their count.
+- stderr `sqrt(p(1-p)/n)`.
+- Per difficulty (easy, medium, hard from the dataset): accepted / n.
+- Judge verdicts (accepted, wrong answer, time limit, memory limit, runtime error, compile error, no code
+  extracted), output tokens per answer (mean, median, max), unfinished answers.
+- For `lfm3-1.7b-nothink`: the share of answers that still contain `<think>` (the card says the switch is
+  inconsistent on reasoning-heavy tasks).
+
+## Control (before any claim)
+
+**K1.** `lfm3-1.7b` lands within 2 SE of its card value 31.74 (SE from our run). If it does not, the setup is the
+suspect: no hypothesis below is read until the gap is explained in an amendment.
+
+## Hypotheses
+
+Verdicts from z: |z| ≥ 3 clear, 2–3 likely, < 2 noise (undetermined). One-sided p from z, Holm over the four
+hypotheses of the Coding group (K2 and K3 here and in SciCode #297); the verdict uses the Holm-adjusted p with the
+thresholds of z = 2 and z = 3.
+
+- **K2.** Bielik 11B v3.1 (API) scores below the weakest model on the card, 19.16.
+  z = (p_Bielik − 0.1916) / SE, SE = max(sqrt(p(1−p)/n), sqrt(0.1916 · 0.8084 / n)), n = 167.
+  Supported when z ≤ −2; refuted when z ≥ 2; otherwise undetermined.
+- **K3.** Turning thinking off takes away at least half of LFM3-1.7B's lead over Bielik:
+  D = (off − B) − ½ (on − B) < 0, with on = `lfm3-1.7b`, off = `lfm3-1.7b-nothink`, B = Bielik. Paired by
+  problem: d_i = off_i − ½ on_i − ½ B_i, D = mean(d), SE = sd(d)/sqrt(n). Supported when z ≤ −2; refuted when
+  z ≥ 2; otherwise undetermined. Read only if the lead itself is clear (on − B > 0 with paired z ≥ 3); otherwise
+  K3 is reported as "precondition not met".
+
+## Limits stated in advance
+
+- 25Q2 problems and their editorials have been public since mid-2025, before LFM3-1.7B, Qwen3.5 and Bielik v3.1
+  were trained. Contamination cannot be ruled out; no contamination-free claim is made.
+- n = 167 gives an SE of about 3.6 points at p ≈ 0.3, so the control window is about ±7 points and K3 has low power.
+- Time-limit verdicts depend on the CPU; the card's judging machine is unknown.
+- The card's k/334 values suggest it averaged two samples for some models; we take one.
+- Bielik through the API differs from Bielik on vLLM (provider prompt, unknown serving); the row describes the API.
