@@ -126,16 +126,19 @@ def load(results_dir, model, strict=False):
             excluded[length] = entry["reason"] if entry else "length not in the result"
     usable = [length for length in LENGTHS if length not in excluded]
     scores = {length: {t: [] for t in TASKS} for length in usable}
+    partial_scores = {length: {t: [] for t in TASKS if t not in p["skipped_tasks"]} for length, p in partial.items()}
     errors = {length: 0 for length in usable}
     with gzip.open(samples, "rt", encoding="utf-8") as f:
         for row in map(json.loads, f):
-            if row["length"] not in scores:
+            target = scores if row["length"] in scores else partial_scores if row["length"] in partial_scores else None
+            if target is None:
                 continue
             if row["score"] is None:
-                errors[row["length"]] += 1
+                if target is scores:  # an error in a partial length stays out of its descriptive mean too
+                    errors[row["length"]] += 1
             else:
                 score = row["score"] if not strict or row["closed_think"] else 0.0
-                scores[row["length"]][row["task"]].append(score)
+                target[row["length"]][row["task"]].append(score)
     for length in usable:
         missing = [t for t, s in scores[length].items() if not s]
         if missing:
@@ -147,7 +150,7 @@ def load(results_dir, model, strict=False):
             raise SystemExit(f"compare.py: {model} @ {length}{' (strict)' if strict else ''}: samples average "
                              f"{mean:.4f}, {summary.name} says {per_length[str(length)]['score']}")
     return {"scores": scores, "excluded": excluded, "errors": errors, "partial": partial,
-            "data_sources": data_sources(result)}
+            "partial_scores": partial_scores, "data_sources": data_sources(result)}
 
 
 def data_sources(result):
@@ -320,8 +323,9 @@ def length_means(run):
 
 def r2_descriptive(runs):
     """Amendment 6: per-length means of LFM3-1.7B and Bielik over every length both measured, partial ones marked
-    with their task count; where one model has fewer tasks, the other's mean on the same tasks next to it.
-    Descriptive only, no test statistic."""
+    with their task count; where one model has fewer tasks, the other's mean on the same tasks next to it. Amendment 8:
+    Bielik minus LFM3-1.7B on the same tasks with an independent bootstrap SE and z, the t across tasks (paired by
+    task, df = tasks - 1) and the difference without the task of the largest gap. Descriptive only, not a test of R2."""
     means = {m: length_means(runs[m]) for m in (LFM3, BIELIK)}
     out = {}
     for length in LENGTHS:
@@ -336,8 +340,34 @@ def r2_descriptive(runs):
             if len(shared) < row[m]["tasks"] and length in runs[m]["point"]:
                 row[m]["mean_on_shared_tasks"] = round(statistics.fmean(runs[m]["point"][length][t] for t in shared), 2)
                 row[m]["shared_tasks"] = len(shared)
+        row["bielik_minus_lfm3"] = difference(runs, length, shared)
         out[str(length)] = row
     return out
+
+
+def task_scores(run, length):
+    return run["scores"][length] if length in run["scores"] else run["partial_scores"][length]
+
+
+def difference(runs, length, tasks):
+    """Bielik minus LFM3-1.7B over `tasks` at `length`: mean difference, independent bootstrap SE (samples within
+    tasks, per model), z; the t across tasks (paired by task); and the same without the task of the largest gap."""
+    resamples = runs[LFM3]["resamples"]
+    boots = {m: bootstrap({length: {t: task_scores(runs[m], length)[t] for t in tasks}}, resamples,
+                          f"{BOOTSTRAP_SEED}:{m}:r2:{length}")[length] for m in (LFM3, BIELIK)}
+    gaps = {t: statistics.fmean(task_scores(runs[BIELIK], length)[t]) - statistics.fmean(task_scores(runs[LFM3], length)[t])
+            for t in tasks}
+
+    def over(ts):
+        value = statistics.fmean(gaps[t] for t in ts)
+        draws = [statistics.fmean(boots[BIELIK][t][r] - boots[LFM3][t][r] for t in ts) for r in range(resamples)]
+        se = statistics.stdev(draws)
+        return {"value": value, "se": se, "z": z_of(value, se), "tasks": len(ts)}
+
+    k = statystyka.klastrowe_wazone([(1, gaps[t]) for t in tasks])
+    largest = max(tasks, key=lambda t: (abs(gaps[t]), t))
+    return {**over(tasks), "across_tasks": {"t": k["t"], "df": k["df"], "p": k["p_t"]},
+            "without_largest_gap": {"task": largest, "gap": gaps[largest], **over([t for t in tasks if t != largest])}}
 
 
 def r2(runs):
@@ -570,12 +600,17 @@ def report(result):
     if "descriptive" in r2_:
         lines += ["", f"R2 descriptive only (Amendment 6, no test statistic): per-length means over the lengths both "
                       f"models measured; complete for both: {', '.join(map(str, r2_['lengths'])) or 'none'}",
-                  f"| length | {LFM3} | {BIELIK} |", "|---|---|---|"]
+                  f"| length | {LFM3} | {BIELIK} | Bielik - LFM3, same tasks: value +- SE, z, t across tasks (df), p "
+                  "| without the largest gap |", "|---|---|---|---|---|"]
         for length, d in r2_["descriptive"].items():
             cells = [f"{d[m]['mean']:.2f}" + (f" ({d[m]['tasks']} tasks, no {', '.join(d[m]['skipped_tasks'])})"
                                               if "skipped_tasks" in d[m] else "")
                      + (f"; {d[m]['mean_on_shared_tasks']:.2f} on the same {d[m]['shared_tasks']} tasks"
                         if "mean_on_shared_tasks" in d[m] else "") for m in (LFM3, BIELIK)]
+            g = d["bielik_minus_lfm3"]
+            a, w = g["across_tasks"], g["without_largest_gap"]
+            cells += [f"{g['value']:.2f} +- {g['se']:.2f}, z = {fmt(g['z'])}, t {fmt(a['t'])} ({a['df']}), p "
+                      f"{fmt_p(a['p'])}", f"without {w['task']}: {w['value']:.2f} +- {w['se']:.2f}, z = {fmt(w['z'])}"]
             lines.append(f"| {length} | " + " | ".join(cells) + " |")
         lines += [f"R2 caveat: {c}" for c in r2_["caveats"]]
     comps = [(name, c) for name, h in result["hypotheses"].items() for c in h.get("comparisons", [])]

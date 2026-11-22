@@ -199,19 +199,23 @@ def r2_block(h, diag):
     lfm3, bielik = "lfm3-1.7b", "bielik-11b-v3.1"
     ratio = diag["input_text"]["bielik_over_lfm3"]
     out = [f"**R2: {r2['status']}.** Complete lengths both models measured: {', '.join(map(str, r2['lengths']))}. "
-           "Per-length means, descriptive only, no test statistic (Amendment 6):", "",
-           f"| length | {MODELS[lfm3]} | {MODELS[bielik]} | Bielik minus LFM3-1.7B, same tasks | Bielik input text "
-           "(median characters, share of LFM3-1.7B's) |", "|---|---|---|---|---|"]
+           "Per-length means, descriptive only, not a test of R2 (Amendments 6 and 8). The difference is on the same "
+           "tasks; its SE combines the two models' bootstraps (independent: RULER generated each model's data with its "
+           "own tokenizer); the t is across tasks (each task's difference, df = tasks - 1).", "",
+           f"| length | {MODELS[lfm3]} | {MODELS[bielik]} | Bielik minus LFM3-1.7B, same tasks: value ± SE, z | across "
+           "tasks: t (df), p | without the task of the largest gap | Bielik input text (median characters, share of "
+           "LFM3-1.7B's) |", "|---|---|---|---|---|---|---|"]
     for length, d in r2["descriptive"].items():
-        a, b = d[lfm3], d[bielik]
-        same = a.get("mean_on_shared_tasks", a["mean"]), b.get("mean_on_shared_tasks", b["mean"])
+        a, b, g = d[lfm3], d[bielik], d["bielik_minus_lfm3"]
+        at, w = g["across_tasks"], g["without_largest_gap"]
         note_a = f"{f2(a['mean'])}" + (f"; {f2(a['mean_on_shared_tasks'])} on the same {a['shared_tasks']} tasks"
                                        if "mean_on_shared_tasks" in a else "")
         note_b = f"{f2(b['mean'])}" + (f" ({b['tasks']} tasks, no {', '.join(b['skipped_tasks'])})"
                                        if "skipped_tasks" in b else "")
-        diff = f"{f2(same[1] - same[0])}" + (f" ({f2(b['mean'] - a['mean'])} on unequal task sets)"
-                                             if "mean_on_shared_tasks" in a else "")
-        out.append(f"| {length} | {note_a} | {note_b} | {diff} | "
+        diff = f"{f2(g['value'])} ± {f2(g['se'])}, z = {f2(g['z'])}" + (
+            f" ({f2(b['mean'] - a['mean'])} on unequal task sets)" if "mean_on_shared_tasks" in a else "")
+        out.append(f"| {length} | {note_a} | {note_b} | {diff} | t = {f2(at['t'])} ({at['df']}), p {fp(at['p'])} | "
+                   f"without {w['task']} ({f2(w['gap'])}): {f2(w['value'])} ± {f2(w['se'])}, z = {f2(w['z'])} | "
                    f"{diag['input_text']['median_chars'][bielik][length]:.0f} ({f2(ratio[length])}) |")
     out += [""] + [f"- {c[0].upper()}{c[1:]}." for c in r2["caveats"]]
     return out

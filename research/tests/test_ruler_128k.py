@@ -480,8 +480,24 @@ def test_compare_partial_length_is_not_comparable():
     assert "p" not in r2
     assert r2["lengths"] == [8192, 16384] and list(r2["descriptive"]) == ["4096", "8192", "16384"]
     assert r2["descriptive"]["4096"][C.BIELIK] == {"mean": 70.0, "tasks": 12, "skipped_tasks": ["qa_2"]}
-    assert r2["descriptive"]["8192"] == {C.LFM3: {"mean": result["models"][C.LFM3]["per_length"]["8192"], "tasks": 13},
-                                         C.BIELIK: {"mean": 80.0, "tasks": 13}}
+    d8 = r2["descriptive"]["8192"]
+    assert {m: d8[m] for m in (C.LFM3, C.BIELIK)} == {
+        C.LFM3: {"mean": result["models"][C.LFM3]["per_length"]["8192"], "tasks": 13},
+        C.BIELIK: {"mean": 80.0, "tasks": 13}}
+    # Amendment 8: Bielik minus LFM3 on the same tasks, SE from independent bootstraps, t across tasks (paired)
+    import statistics
+    lfm3_8192 = by_category(98, 90, 84, 68)  # 85 per aggregation task is 42 of 50 samples: 84
+    gaps = {t: 80 - v for t, v in lfm3_8192.items()}
+    g = d8["bielik_minus_lfm3"]
+    assert abs(g["value"] - statistics.fmean(gaps.values())) < 1e-9 and g["tasks"] == 13 and g["se"] > 0
+    assert abs(g["z"] - g["value"] / g["se"]) < 1e-9
+    k = C.statystyka.klastrowe_wazone([(1, x) for x in gaps.values()])
+    assert g["across_tasks"] == {"t": k["t"], "df": 12, "p": k["p_t"]}
+    w = g["without_largest_gap"]  # retrieval tasks (98) and qa (68) gaps: -18 and 12; 8 retrieval ties -> by name
+    assert (w["task"], w["gap"], w["tasks"]) == ("niah_single_3", -18, 12)
+    assert abs(w["value"] - statistics.fmean(v for t, v in gaps.items() if t != "niah_single_3")) < 1e-9
+    # 4096: Bielik has 12 tasks (no qa_2), the difference is over those 12, Bielik's partial scores included
+    assert r2["descriptive"]["4096"]["bielik_minus_lfm3"]["tasks"] == 12
     lfm3_4096 = result["models"][C.LFM3]["per_length"]["4096"]
     assert f"| R2 | {C.R2_NOT_DECIDED} | - | - | -" in text
     # LFM3 on the 12 tasks Bielik has at 4096: 784 + 100 + 180 + 70 over 12, next to its 13-task mean
