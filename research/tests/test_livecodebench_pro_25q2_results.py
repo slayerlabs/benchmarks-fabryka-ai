@@ -4,7 +4,9 @@ No module of api-benchmarks/livecodebench-pro-25q2 is imported here. From result
 recounts the headline score and its stderr, accepted/n per difficulty, the judge categories, K1, K2 (with the SE
 floor), K3 (paired, with its lead precondition), the exploratory budget table and compile-error totals, and checks
 them against results/<model-id>.json, results/hypotheses.json, results/exploratory.json and the numbers printed in
-README.md (parsed from its tables and sentences here, not by the generator).
+README.md (parsed from its tables and sentences here, not by the generator). Where the raw outputs are on this
+machine (LCBPRO_RAW_ARCHIVE, out/bielik-11b-v3.1), the reasoning counts of results/raw-outputs.json are recounted
+from them too.
 Run: python3 -m pytest research/tests/test_livecodebench_pro_25q2_results.py
 """
 import gzip
@@ -231,3 +233,52 @@ def test_no_code_causes_are_the_no_code_problems():
 def test_files_fit_the_repo():
     for path in RESULTS.iterdir():
         assert path.stat().st_size <= 10 * 1024 * 1024, path
+
+
+RAW_ARCHIVE = Path(os.environ.get("LCBPRO_RAW_ARCHIVE", Path.home() / "Documents/GitHub/labaj-agency/out/"
+                                                                       "coding-group/box/export.tgz"))
+ARCHIVE_PREFIX = "lcbpro/research/api-benchmarks/livecodebench-pro-25q2/out"
+
+
+def raw_generations():
+    """run -> raw generations.jsonl bytes, from the archive (LFM3 runs) and out/ (Bielik); None when absent."""
+    import tarfile
+    local = BENCH / "out" / "bielik-11b-v3.1" / "generations.jsonl"
+    if not RAW_ARCHIVE.is_file() or not local.is_file():
+        return None
+    with tarfile.open(RAW_ARCHIVE) as t:
+        data = {run: t.extractfile(f"{ARCHIVE_PREFIX}/{run}/generations.jsonl").read()
+                for run in ("lfm3-1.7b", "lfm3-1.7b-nothink")}
+    return {**data, "bielik-11b-v3.1": local.read_bytes()}
+
+
+def test_reasoning_counts_recounted_from_the_raw_outputs():
+    import hashlib
+    import statistics
+    import pytest
+    data = raw_generations()
+    if data is None:
+        pytest.skip(f"raw outputs not on this machine ({RAW_ARCHIVE}, out/bielik-11b-v3.1)")
+    raw = json.loads((RESULTS / "raw-outputs.json").read_text(encoding="utf-8"))["runs"]
+    text = " ".join(readme().split())
+    for run, blob in data.items():
+        assert hashlib.sha256(blob).hexdigest() == result(run)["raw_outputs"]["sha256"], run
+        last = {}
+        for line in blob.decode("utf-8").splitlines():
+            if line.strip():
+                r = json.loads(line)
+                last[r["problem_id"]] = r
+        ok = [r for r in last.values() if r["status"] == "ok"]
+        closing = [r for r in ok if "</think>" in r["output"]]
+        acc = {t for t, r in rows(run).items() if r["accepted"]}
+        share = statistics.median(r["output"].rindex("</think>") / len(r["output"]) for r in closing)
+        want = {"answers": len(ok), "closing_think": len(closing),
+                "median_share_before_last_think_end": round(share, 4), "accepted": len(acc),
+                "accepted_closing_think": sum(1 for r in closing if r["problem_id"] in acc),
+                "think_end_then_fence": sum(1 for r in closing if "</think>```" in r["output"])}
+        assert raw[run]["reasoning"] == want, run
+        assert (f"| {run} |" in text and f"| {len(closing)} of {len(ok)} | {100 * round(share, 4):.1f}% | "
+                f"{want['accepted_closing_think']} of {len(acc)} |" in text), run
+    bielik = raw["bielik-11b-v3.1"]["reasoning"]
+    assert (f"no reasoning switch through the API; {bielik['closing_think']}/{bielik['answers']} answers close a "
+            "short `</think>` draft") in text

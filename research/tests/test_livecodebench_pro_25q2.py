@@ -283,6 +283,43 @@ def test_raw_outputs_checks_every_run_and_stops_on_a_mismatch():
             assert "bielik-11b-v3.1" in exit_message(raw_outputs.main, archive, res)
 
 
+def test_reasoning_counts_use_the_last_think_end_and_only_closing_accepted_answers():
+    raw_outputs = bench_module("raw_outputs")
+    a = "x" * 10 + "</think>" + "y" * 80 + "</think>" + "zz"  # first and last `</think>` far apart
+    c = "q</think>```cpp\n"
+    last = {"A": {"problem_id": "A", "status": "ok", "output": a},
+            "B": {"problem_id": "B", "status": "ok", "output": "no tag"},
+            "C": {"problem_id": "C", "status": "ok", "output": c},
+            "D": {"problem_id": "D", "status": "error", "output": "</think>"}}
+    got = raw_outputs.reasoning(last, {"A": True, "B": True, "C": False, "D": False})
+    share_a, share_c = 98 / 108, 1 / 16  # characters before the LAST `</think>` over all characters
+    assert got == {"answers": 3, "closing_think": 2,
+                   "median_share_before_last_think_end": round((share_a + share_c) / 2, 4),
+                   "accepted": 2, "accepted_closing_think": 1, "think_end_then_fence": 1}
+
+
+def test_rejudge_keeps_only_outcomes_the_extraction_does_not_decide():
+    rejudge = bench_module("rejudge")
+    grades = {
+        "CE": {"category": "compile_error", "code": "old", "accepted": False},  # judged again: the code changes
+        "WA": {"category": "wrong_answer", "code": "old", "accepted": False},  # whole answer has no code
+        "AC": {"category": "accepted", "code": "same", "accepted": True},  # unchanged: keeps its verdict
+        "NC": {"category": "no_code", "code": None, "accepted": False},  # whole answer finds code
+        **{k: {"category": k, "code": None, "accepted": False}
+           for k in ("no_tests", "unfinished", "request_error", "unsupported")},
+    }
+    answers = {pid: {"output": pid} for pid in grades}
+    whole = {"CE": "new", "WA": None, "AC": "same", "NC": "found", "no_tests": "x", "unfinished": "x",
+             "request_error": "x", "unsupported": "x"}
+    todo, no_code = rejudge.whole_answer_todo(answers, grades, lambda text: whole[text])
+    assert todo == {"CE": "new", "NC": "found"} and no_code == {"WA": {"category": "no_code", "accepted": False}}
+    assert set(rejudge.KEEP) == {"no_tests", "unfinished", "request_error", "unsupported"}
+    s = rejudge.summary(grades, {"CE": {"category": "accepted", "accepted": True}, **no_code,
+                                 "NC": {"category": "wrong_answer", "accepted": False}})
+    assert (s["changed_code"], s["accepted_official"], s["accepted_variant"], s["gained"], s["lost"]) == \
+        (3, 1, 2, ["CE"], [])
+
+
 def test_unfinished_and_unscored_answers_never_reach_the_judge():
     def extract(text):
         return "CODE:" + text
