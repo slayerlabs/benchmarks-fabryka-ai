@@ -1,0 +1,107 @@
+# SciCode: measurement protocol
+
+Written and committed before the first model output. Nothing below changes after a result is seen; anything
+added later is an amendment with its time and what had been seen by then, or is marked exploratory in the README.
+
+Refs #297. Part of the "Coding" group of the LFM3-1.7B card (LiveCodeBench v6 #295, LiveCodeBench Pro 25Q2 #296,
+SciCode #297), measured together for one comparative paper.
+
+## Question
+
+On the LFM3-1.7B card's coding benchmarks, where does Bielik 11B v3.1, as served by the Fabryka AI API, stand
+against the six models on the card, and how much of LFM3-1.7B's lead over it comes from LFM3-1.7B thinking before
+it answers? LiveCodeBench v6 (#295) is the pilot that raised the question; its numbers are not used for any
+verdict here. SciCode differs from the two LiveCodeBench sets: research code in Python, split into dependent
+subproblems, with numerical tests.
+
+## Sources
+
+- Paper: Tian et al. 2024, SciCode: A Research Coding Benchmark Curated by Scientists,
+  [arXiv 2407.13168](https://arxiv.org/abs/2407.13168).
+- Harness: [scicode-bench/SciCode](https://github.com/scicode-bench/SciCode) @
+  `e3158ea011d4235245a547460d3688d7ccbf9900`: prompts `eval/scripts/gencode.py` (`Gencode`), code extraction
+  `scicode.gen.models.extract_python_script`, scorer `eval/scripts/test_generated_code.py` (subproblems over 288).
+- Problems: [SciCode1/SciCode](https://huggingface.co/datasets/SciCode1/SciCode) @
+  `4510f6a6aa27c43fad7b43da2c59602a86e88480`, split `test`: 65 problems, 288 scored subproblems (13.6, 62.1 and
+  76.3 are supplied by the harness).
+- Test targets: `test_data.h5`, 1,049,345,865 bytes, sha256
+  `48b0272a88b17dbd29777c217e1b4fb2b019b92e11cc2add847409db9541b890` (the authors' Google Drive file, mirrored
+  byte-identical at `xantheocracy/scicode-mirror` @ `2f903a64a1c4eb62c7c649b0caf7ecb2c0217590`).
+- Reference: [LiquidAI/LFM3-1.7B](https://huggingface.co/LiquidAI/LFM3-1.7B) card: LFM3-1.7B 28.47, LFM2.5-2.6B
+  16.32, MiniCPM5-2B 27.78, Gemma 4 E4B 25.00, Qwen3.5-4B 23.02, Qwen3.5-9B 31.60. Five of six are k/288, the
+  subproblem rate of `test_generated_code.py`; the card does not say whether the background was given.
+
+## Models
+
+| model id | what | serving |
+|---|---|---|
+| `lfm3-1.7b` | `LiquidAI/LFM3-1.7B` @ `1da06bec6a819da10b54c67e5c90972b46d81871`, thinking on (template default) | vLLM 0.34.0, bf16, context 262144 |
+| `lfm3-1.7b-nothink` | the same weights, `chat_template_kwargs: {"enable_thinking": false}` | the same server |
+| `bielik-11b-v3.1` | Bielik 11B v3.1 through the Fabryka AI API (`https://fabryka.ai/v1`), with the API's hidden provider system prompt and no reasoning switch | API, context 32768 |
+| `slayer1b-1.09-k70000` | not run: `null` | — |
+
+Slayer 1B is a base model with a 4096-token context and does not follow chat instructions; on 30 Python tasks in
+`research/slayer-1b/rozmowy-1.08` it wrote no function that passed its tests. Its row is `null` with that reason.
+
+## Settings
+
+- Two prompt settings, every model, every subproblem:
+  - **primary: with background** (`eval/data/multistep_template.txt`), the setting Artificial Analysis and
+    NeMo-Skills use and the one we take for the card's number;
+  - **secondary: without background** (`eval/data/background_comment_template.txt`), the paper's standard setup.
+- Prompts built by the harness's `Gencode` at the pinned commit, one request per subproblem in step order, each
+  prompt carrying the model's own extracted code for the earlier steps, exactly as `generate_response_with_steps`
+  does. Sent as the only user message: no system message of ours (LFM3-1.7B gets its template's default system
+  prompt, Bielik whatever the API adds).
+- LFM3-1.7B sampling, sent in every request: temperature 0.6, top_p 0.95, `top_k` 0, `repetition_penalty` 1.0,
+  frequency and presence penalty 0, seed 20261122 (sent explicitly: vLLM 0.34.0 otherwise fills 1.1 and 50 from
+  `generation_config.json`). `max_tokens` = 262144 minus the prompt tokens from the server's `/tokenize`.
+- Bielik: temperature 0.6, top_p 0.95, seed 20261122; `max_tokens` = 32768 minus the prompt counted locally with
+  Bielik's tokenizer and template (with the provider prompt) minus 64. A prompt that does not fit is `unsupported`
+  for that subproblem and counts as failed, with the count reported. At most 2 requests at once, shared pause,
+  every retry and error in `api-events.jsonl`.
+- Code: `extract_python_script` on the text after the last `</think>`, written with `save_response_with_steps`.
+  With thinking on, an answer without `</think>` or stopped by the length limit is unfinished and its (empty) code
+  is what the next steps receive; the count is reported.
+- Scoring: `test_generated_code.py` unchanged (1800 s per step, sequential), all models on the same isolated
+  machine, after all generation has finished, BLAS threads 1, Python and package versions recorded from a lock.
+
+## Metrics
+
+- Headline: correct subproblems / 288 × 100 (as printed by `test_generated_code.py`), with background.
+- stderr: `sqrt(p(1-p)/n)` and, because steps of one problem depend on each other, the SE clustered by problem
+  (65 clusters), both reported; verdicts use the clustered one.
+- Main problems solved / 65, both settings. Output tokens per answer, unfinished answers, timeouts.
+- For `lfm3-1.7b-nothink`: the share of answers that still contain `<think>`.
+
+## Control (before any claim)
+
+**K1.** `lfm3-1.7b`, with background, lands within 2 clustered SE of its card value 28.47. If it does not, the
+setup is the suspect: no hypothesis below is read until the gap is explained in an amendment. The run without
+background is not a second chance at the control: it is reported next to it whatever it shows.
+
+## Hypotheses
+
+Verdicts from z: |z| ≥ 3 clear, 2–3 likely, < 2 noise (undetermined). One-sided p from z, Holm over the four
+hypotheses of the Coding group (K2 and K3 here and in LiveCodeBench Pro 25Q2 #296); the verdict uses the
+Holm-adjusted p with the thresholds of z = 2 and z = 3. Both on the primary setting (with background).
+
+- **K2.** Bielik 11B v3.1 (API) scores below the weakest model on the card, 16.32.
+  z = (p_Bielik − 0.1632) / SE, SE = max(clustered SE of p_Bielik, sqrt(0.1632 · 0.8368 / 288)).
+  Supported when z ≤ −2; refuted when z ≥ 2; otherwise undetermined.
+- **K3.** Turning thinking off takes away at least half of LFM3-1.7B's lead over Bielik:
+  D = (off − B) − ½ (on − B) < 0. Paired by subproblem: d_i = off_i − ½ on_i − ½ B_i, D = mean(d), SE clustered
+  by problem. Supported when z ≤ −2; refuted when z ≥ 2; otherwise undetermined. Read only if the lead itself is
+  clear (on − B > 0 with paired clustered z ≥ 3); otherwise "precondition not met".
+
+## Limits stated in advance
+
+- SciCode problems and test targets have been public since July 2024; every model here was trained later.
+  Contamination cannot be ruled out.
+- SciCode-Verified (arXiv 2608.04975) reports defects in most test problems, many rejecting correct solutions. We
+  score the original data, as the card does; the defects lower every model, not one.
+- An unparsable early step fails the later steps of the same problem; models that write less code early lose more.
+- Numerical tests near `allclose` tolerances can depend on library versions and BLAS threading.
+- The card does not say whether it gave the background; if the control passes only in the secondary setting, the
+  report says so and the control is failed, not swapped.
+- Bielik through the API differs from Bielik on vLLM (provider prompt, unknown serving); the row describes the API.
