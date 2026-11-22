@@ -1,0 +1,208 @@
+{
+  "exploratory": true,
+  "lfm3-1.7b": {
+    "control_variants": {
+      "length": 131072,
+      "card": 65.56,
+      "variants_tried": 7,
+      "note": "exploratory: tried after the control had failed; not a fix of the control",
+      "variants": {
+        "pre-registered": {
+          "mean": 71.69238461538461,
+          "se": 0.9332232400944868,
+          "z_vs_card": 6.571187205714807,
+          "within_2_se": false
+        },
+        "strict": {
+          "mean": 70.51289230769231,
+          "se": 1.0060890193011987,
+          "z_vs_card": 4.922916573657121,
+          "within_2_se": false
+        },
+        "answer cut to RULER's answer budget (about 0.75 words per token)": {
+          "mean": 67.20007692307692,
+          "se": 0.9960476336028047,
+          "z_vs_card": 1.6465848296276706,
+          "within_2_se": true
+        },
+        "output limit 8192 tokens (a longer output scores 0)": {
+          "mean": 66.51289230769231,
+          "se": 1.164288948395187,
+          "z_vs_card": 0.818432837489131,
+          "within_2_se": true
+        },
+        "output limit 16384 tokens (a longer output scores 0)": {
+          "mean": 69.43596923076923,
+          "se": 1.0534411503933456,
+          "z_vs_card": 3.679341014276855,
+          "within_2_se": false
+        },
+        "output limit 32768 tokens (a longer output scores 0)": {
+          "mean": 70.35904615384615,
+          "se": 1.0120205217197484,
+          "z_vs_card": 4.742044307254783,
+          "within_2_se": false
+        },
+        "output limit 65536 tokens (a longer output scores 0)": {
+          "mean": 70.51289230769231,
+          "se": 1.0060890193011987,
+          "z_vs_card": 4.922916573657121,
+          "within_2_se": false
+        },
+        "strict and answer cut": {
+          "mean": 66.94366153846154,
+          "se": 1.017859060226452,
+          "z_vs_card": 1.3593842139143542,
+          "within_2_se": true
+        }
+      }
+    },
+    "duplicates": {
+      "rule": "the last record of a sample is scored (ruler.latest_records); a rerun appends",
+      "per_length": {
+        "4096": {
+          "samples_with_more_than_one_record": {
+            "niah_multikey_3": 1,
+            "cwe": 29,
+            "fwe": 43,
+            "qa_1": 50,
+            "qa_2": 50
+          },
+          "records_per_sample": [
+            2
+          ],
+          "finish_reason_of_replaced": {
+            "stop": 173
+          },
+          "identical_outputs": 22,
+          "output_tokens_median": {
+            "first": 1546,
+            "last": 1203
+          },
+          "last_longer_than_first": 83,
+          "mean": {
+            "last (scored)": 93.35393846153846,
+            "first": 93.29243076923078
+          },
+          "strict_mean": {
+            "last (scored)": 92.2770153846154,
+            "first": 93.13858461538462
+          }
+        }
+      },
+      "r3_comparisons_at_4096": {
+        "last (scored)": {
+          "drop tracing - drop retrieval": -22.200000000000003,
+          "drop aggregation - drop retrieval": 16.400100000000002
+        },
+        "first": {
+          "drop tracing - drop retrieval": -22.450000000000003,
+          "drop aggregation - drop retrieval": 14.750300000000003
+        }
+      }
+    },
+    "think_end": {
+      "without_think_end_by_finish_reason": {
+        "4096": {
+          "length": 7
+        },
+        "8192": {
+          "length": 16
+        },
+        "16384": {
+          "length": 8
+        },
+        "32768": {
+          "length": 13,
+          "stop": 1
+        },
+        "65536": {
+          "length": 13
+        },
+        "131072": {
+          "length": 10
+        }
+      },
+      "stopped_without_think_end": [
+        {
+          "length": 32768,
+          "task": "niah_multikey_3",
+          "index": 27,
+          "output_tokens": 19482,
+          "pre_registered_score": 0.0,
+          "strict_score": 0.0
+        }
+      ]
+    }
+  },
+  "input_text": {
+    "median_chars": {
+      "lfm3-1.7b": {
+        "4096": 14997.0,
+        "8192": 30297.0,
+        "16384": 64541.0,
+        "32768": 135212.5,
+        "65536": 271095.0,
+        "131072": 544903.0
+      },
+      "bielik-11b-v3.1": {
+        "4096": 14137.0,
+        "8192": 29037.0,
+        "16384": 58467.0,
+        "32768": 117507.0
+      }
+    },
+    "bielik_over_lfm3": {
+      "4096": 0.9426551977062079,
+      "8192": 0.9584117239330627,
+      "16384": 0.9058892796826823,
+      "32768": 0.8690542664324674
+    }
+  },
+  "inputs": {
+    "lfm3-1.7b": {
+      "out_dir": "out/_box/lfm3-1.7b",
+      "inputs.sha256.json": "91f8f3bac7b8ab401c7db673c4c8319cb61f14780766ee5bd47f6c4c36fb22b1"
+    },
+    "bielik-11b-v3.1": {
+      "out_dir": "out/bielik-11b-v3.1",
+      "inputs.sha256.json": "d2a0e01404a738d1149bda93e732cdb2b25e541e6036c4a154cfc9737d5e96e7"
+    }
+  },
+  "provenance": {
+    "time": "2026-11-22T17:31:43+00:00",
+    "code": {
+      "commit": "2d6ba0c7427d524e25c028610c57cb361a82e380",
+      "dirty": true,
+      "uncommitted_runner_files": []
+    },
+    "runner_sha256": {
+      "run.sh": "61b6baa8360b4f3d4aade1cd3f9d45d9d4c07a605b519f8929dab809c48941b8",
+      "predict.py": "d6177879bc9f2d791ff596687de62eeaf0155db2b3ccf632e846258b8b4abd44",
+      "slayer_predict.py": "e75b03ea22b22c3827069e55e7b7f06b34c8e28dadf595939677db4d0da42422",
+      "prepare_limited.py": "8ca6e7451dce1851cf3beadd13ebf0c7f66dc62bd721bca750ad50c5a7f26974",
+      "ruler.py": "7491f1fbc3337240e151f564319cf591f3442ce6adc945dfff44f066bcbd5fc7",
+      "summarize.py": "69189db3dc4494e4f2445deb61f8a9f730546c56bbaf9e8b8fc7482a693f2493",
+      "compare.py": "a9ac5d283e82a16cba519f1f80a2fcea903af7d8316b6fa2df33cac0bbbfb2d0",
+      "provenance.py": "76f9366be7dec5d43da7e11fb321c872beb1d5d533e837a20b59f5263be10b50",
+      "diagnostics.py": "ac3d74bc73fc776d5fa78b9824461ec3e4057e892c37033e5f89d9ac1110ac31",
+      "report.py": null,
+      "reproduction.py": "afac1456f07b1b6d5b6edbcb8dcd98e267fa7d1d0b93df62ed6239d6badffe62",
+      "declared_provenance.json": "5f96798de2098bc48554f5ff96c8f8b11759ac8c13d8ca4972d679684a22d893",
+      "requirements.lock.txt": "734278c83bf2e15d209f8b38eb07b71df447f1478f82651de2ebc422423c60af",
+      "nemo_shim/nemo/collections/asr/parts/utils/manifest_utils.py": "1eee490503e415bc1d289baeb5b027593683287cc9d191003da9a415ab1a06ce",
+      "../../common/slayer_lm.py": "5ae131e1e46b36ff2091d313485a234a9bfc1609b2ba726ab1a73008e5a3a2fa",
+      "../../tools/statystyka.py": "ae7331ca606ee5856f7bf74f8f9699a6b96659c385fb2d2b0f805636763c46ff"
+    },
+    "hardware": {
+      "gpu": [
+        "NVIDIA GeForce RTX 3070"
+      ],
+      "platform": "Linux-5.15.0-1067-kvm-x86_64-with-glibc2.35",
+      "machine": "x86_64",
+      "processor": "x86_64",
+      "cpu_count": 30,
+      "python": "3.12.16"
+    }
+  }
+}
