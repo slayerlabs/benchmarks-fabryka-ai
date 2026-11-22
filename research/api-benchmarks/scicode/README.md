@@ -105,7 +105,13 @@ its 50 steps fail with the authors' own code (78.3: the target has shape (2, 2),
   Amendment 1 adds extraction E1 as a secondary number for every model and both settings: `--score` also rebuilds
   each step file from the recorded answers with E1 (the text before the only fence line when there is exactly one;
   otherwise the official result; Gencode assembles the files with the earlier steps' E1 code) into
-  `out/<model-id>/generated_code_e1/` and runs the same scorer on them. Prompts are not regenerated, so later
+  `out/<model-id>/generated_code_e1/`. A step whose E1 file is byte-identical to its official file is the same
+  program under the same tests, so it takes the official verdict without a second scorer run; the other steps' E1
+  files are copied alone into `out/<model-id>/generated_code_e1_scored/` and scored there by the same, unchanged
+  scorer. Each result counts both (`other_metrics.extraction_e1.<setting>.reused_identical` and `scored`); since
+  that scorer run sees only the differing files, its printed problem count is not compared, and the E1
+  main-problem count comes from the per-step verdicts (its printed correct steps plus the reused passes must equal
+  ours). Prompts are not regenerated, so later
   steps were asked with the official extraction's code. A text whose only ```` ``` ```` sits inside a line has no
   fence line, so E1 keeps the whole text there, where the official rule splits on it (the amendment's wording;
   rare). hypotheses.py reports K2's z under E1 next to K2 and, when the verdicts differ, says K2 depends on code

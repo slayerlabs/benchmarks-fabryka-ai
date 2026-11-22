@@ -42,6 +42,9 @@ reads. `--limit N` takes the first N problems of the split in dataset order.
 PROTOCOL.md Amendment 1: `score` also rebuilds every step file from the recorded answers with extraction E1
 (`e1_extract`; Gencode assembles the files, `build_e1_files`) into `<out-dir>/generated_code_e1/` and scores them
 with the same scorer (logs in `score/logs_e1/`); graded.jsonl carries both verdicts. Prompts are not regenerated.
+A step whose E1 file is byte-identical to its official file takes the official verdict (`score_e1`); only the
+differing files are scored, from `<out-dir>/generated_code_e1_scored/`. The official logs stay valid while the
+answers do (`keep_official_logs`), whatever the runner version.
 
 Provenance (provenance.py) as in livecodebench-v6: run.json holds each step's code commit, runner checksums,
 machine and the sampling in effect; manifest.json the sha256 of each step's output, which the next step checks;
