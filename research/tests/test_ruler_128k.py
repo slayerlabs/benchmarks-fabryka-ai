@@ -64,6 +64,11 @@ def test_diagnostics_variants_duplicates_and_think_end():
         dups = G.duplicates(out, keep, metrics)
         ends = G.think_end(out, keep, metrics)
         text = G.input_text({"lfm3-1.7b": out, "bielik-11b-v3.1": out})
+        # echo baseline: put the reference into one vt input at 4096; the echoed input then scores 100 there
+        vt = out / "4096" / "data" / "vt" / "validation.jsonl"
+        vt.write_text(vt.read_text().replace('"input": "yyyy', '"input": "1234567 yyyy', 1))
+        echo = G.echo_baseline(out, keep, metrics)
+    assert echo["per_length"] == {"4096": {"mean": 25.0, "tasks": 2}, "131072": {"mean": 0.0, "tasks": 2}}
     v = variants["variants"]
     assert variants["variants_tried"] == 7 and len(v) == 8
     assert v["pre-registered"]["mean"] == 75 and v["strict"]["mean"] == 75

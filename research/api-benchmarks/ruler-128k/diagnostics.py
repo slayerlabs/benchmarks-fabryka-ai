@@ -14,6 +14,8 @@ Nothing here is a verdict or a pre-registered number: each block was asked for b
   tokenizer, so the same nominal length holds different text).
 - think_end: outputs without `</think>` per length and finish reason; those that stopped on their own (`stop`)
   are listed, since strict scoring gives them 0 although Amendment 4's reason was outputs looping to the limit.
+- echo_baseline: the score of a rule that answers with the whole input, per length (RULER's scorer is a substring
+  match with no length cap, so the input, which holds every needle, scores near 100; Amendment 8).
 
 Every out dir is checked against its inputs.sha256.json before it is read (provenance.verify_inputs). Scoring is
 RULER's own postprocess_pred and metric (ruler.scorer), as in summarize.py; the last record of a sample wins.
@@ -164,6 +166,21 @@ def input_text(out_dirs):
     return {"median_chars": out, "bielik_over_lfm3": ratio}
 
 
+def echo_baseline(out_dir, postprocess, metrics):
+    """length -> mean over tasks of the score an output equal to the sample's input would get."""
+    out = {}
+    for length in LENGTHS:
+        means = []
+        for task in TASKS:
+            data = Path(out_dir) / str(length) / "data" / task / "validation.jsonl"
+            if data.is_file():
+                means.append(statistics.fmean(metrics[task]([postprocess(s["input"], None)], [s["outputs"]])
+                                              for s in read_jsonl(data)))
+        if means:
+            out[str(length)] = {"mean": statistics.fmean(means), "tasks": len(means)}
+    return {"rule": "the output is the sample's whole input", "per_length": out}
+
+
 def think_end(out_dir, postprocess, metrics):
     per_length, stopped = {}, []
     for length in LENGTHS:
@@ -199,7 +216,8 @@ def main():
     result = {"exploratory": True, "lfm3-1.7b": {
         "control_variants": control_variants(args.lfm3, postprocess, metrics, budgets),
         "duplicates": duplicates(args.lfm3, postprocess, metrics),
-        "think_end": think_end(args.lfm3, postprocess, metrics)},
+        "think_end": think_end(args.lfm3, postprocess, metrics),
+        "echo_baseline": echo_baseline(args.lfm3, postprocess, metrics)},
         "input_text": input_text(dirs), "inputs": inputs, "provenance": provenance.machine()}
     args.target.parent.mkdir(parents=True, exist_ok=True)
     args.target.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")

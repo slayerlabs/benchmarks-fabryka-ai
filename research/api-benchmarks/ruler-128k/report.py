@@ -6,8 +6,8 @@ Usage: python3 report.py           rewrite the block between the markers in READ
 Reads results/<model-id>.json and .jsonl.gz, hypotheses.json (compare.py), diagnostics.json (diagnostics.py) and
 reproduction.json (reproduction.py), each checked first against results/results.sha256.json. Every row of the results
 table names the thinking mode, the serving path, the output limit and the tasks measured (team rule from the
-LiveCodeBench v6 verification). RULER is generative: answers are free text scored by string match, so there is no
-random or majority baseline other than 0.
+LiveCodeBench v6 verification). RULER is generative: answers are free text scored by string match, so random and
+majority baselines are 0; a rule that echoes the input scores near 100 with this scorer (diagnostics.json).
 """
 import argparse
 import gzip
@@ -98,8 +98,13 @@ def results_section(data, rows):
         out.append(f"| {label} (`{m}`) | {thinking(r)} | {serving(r)} | {r['settings']['max_tokens']} "
                    f"({r['settings']['context_window']}-token window) | {score} | {strict} | {r['n'] or '-'} | "
                    f"{lengths_measured(r)} | {r['date']} |")
-    out += ["", "Baselines: 0 (random and majority alike). RULER is generative: free-text answers scored by string "
-                "match against the references, with no options to guess from.", "",
+    echo = data["diagnostics.json"]["lfm3-1.7b"]["echo_baseline"]["per_length"]
+    out += ["", "Baselines: random and majority 0 (RULER is generative: free-text answers scored by string match against "
+                "the references, with no options to guess from). A rule baseline scores high: an output that echoes the "
+                "input (LFM3-1.7B's samples) scores " + ", ".join(f"{f2(v['mean'])} at {x}" for x, v in echo.items())
+            + ", because the scorer is a case-insensitive substring match with no cap on the answer's length and the "
+              "input contains the references (`diagnostics.json`, Amendment 8). The output limit here is the rest of the "
+              "window, so a long answer is not cut down.", "",
             "Mean of the task scores per length (± bootstrap SE over samples within tasks; a length with fewer than "
             "13 tasks is partial: RULER's generator could not produce the task named in the result file). Strict "
             "(Amendment 4): an output without `</think>` scores 0, only where the generation prompt opens a "
