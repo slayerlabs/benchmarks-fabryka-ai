@@ -28,6 +28,10 @@ hypotheses are in [PROTOCOL.md](PROTOCOL.md); this file says how the run is done
   sequential, BLAS threads 1, in the container of `Dockerfile.scoring` (python 3.11.9, packages from
   `requirements-scoring.lock`)
 - Extra services: the Fabryka AI API for Bielik; one GPU for LFM3-1.7B; a Linux VM with Docker for scoring
+- Fabryka AI API, listed at `https://fabryka.ai/v1/models` on 2026-11-23: two models, `bielik-11b-v3.1`
+  (`context_length` 32768) and `basal-2.0-max` (`context_length` 32768). The exact id sent for this benchmark is
+  `bielik-11b-v3.1` and the maximum context as served is 32768 tokens, which is the context the requests are
+  budgeted against (Settings). Slayer 1B is not on that list, as in `ifeval`, which is why its row is `null`.
 
 ## Results
 
@@ -84,6 +88,31 @@ Raw outputs (with thinking, not committed): the LFM3-1.7B runs in `labaj-agency/
 Setup check (not a model): the dev split's `ground_truth_code`, fed through the same Gencode files and scorer, passes 48 of 50 steps and 13 of 15 problems (results/checks/dev-ground-truth.json); the 2 failing steps fail with the authors' own code (SciCode issue #43).
 
 <!-- readme.py: end results -->
+
+## Reference results
+
+The cited table's SciCode row, each model's own reported value (LFM3-1.7B card, "Benchmarks", read on
+2026-11-23). **28.47 is this benchmark's headline metric: correct subproblems / 288 x 100 (82/288).** The card
+does not say whether the background was given (PROTOCOL.md, "Sources" and "Limits"); five of the six values are
+k/288 and Qwen3.5-4B's 23.02 is not (66/288 = 22.92, 67/288 = 23.26). All six are downloadable on Hugging Face:
+`LiquidAI/LFM3-1.7B`, `LiquidAI/LFM2.5-2.6B`, `openbmb/MiniCPM5-2B`, `google/gemma-4-e4b`,
+`Qwen/Qwen3.5-4B`, `Qwen/Qwen3.5-9B` (the card names no repository; these are the repositories of its names,
+checked on 2026-11-23).
+
+| model | SciCode on the card | k/288 |
+|---|---|---|
+| LFM3-1.7B, the reference here | **28.47** | 82 |
+| LFM2.5-2.6B | 16.32 | 47 |
+| MiniCPM5-2B | 27.78 | 80 |
+| Gemma 4 E4B | 25.00 | 72 |
+| Qwen3.5-4B | 23.02 | not k/288 |
+| Qwen3.5-9B | 31.60 | 91 |
+
+The card's "Evaluation details" for that table: every model on vLLM in BF16 at its full context (262144 tokens
+for LFM3-1.7B, Qwen3.5-4B and Qwen3.5-9B; 131072 for LFM2.5-2.6B, MiniCPM5-2B and Gemma 4 E4B), temperature
+0.6 and top_p 0.95 for every evaluation it does not list, and no output limit other than the context. SciCode is
+not listed among the exceptions, so those are its settings; this run sends the same temperature, top_p and seed
+to every model and takes the output limit from the context (Settings above).
 
 ## Hypotheses
 
@@ -278,6 +307,50 @@ How the measurement ran (facts from results/scoring-events.json and the result f
   writes its `score: null` file with the reason.
 - **Contamination cannot be ruled out** (PROTOCOL.md, Limits); SciCode-Verified's defects are not corrected.
 
+## Hand check
+
+Read by hand before trusting the run, five subproblems per model: prompt, committed output of the step and its
+verdict, on the primary setting (with background), subproblems **77.1, 13.1, 42.3, 65.4, 11.3** (2026-11-23).
+The prompts are not in the repo: `prompt_replay.py` rebuilds them with the pinned harness from the committed
+code of the earlier steps, the path a resumed run uses
+(`.venv-gen/bin/python prompt_replay.py --hand 77.1 13.1 42.3 65.4 11.3`).
+
+- **Prompts**: the same text in the three runs for the first step of a problem (77.1 is 2536 characters
+  everywhere, 13.1 is 2800), the multistep template with background — PROBLEM DESCRIPTION, PROBLEM STEPS AND
+  FUNCTION CODE, NEXT STEP, DEPENDENCIES, RESPONSE GUIDELINES — 2536 to 8547 characters over these five; later
+  steps differ only through the code carried over.
+- **lfm3-1.7b**: 77.1, 13.1 and 11.3 pass, 42.3 and 65.4 fail; five distinct functions with docstrings
+  (`wrap`, `partial_derivs_vec`, `threshold_current`, `ghz_protocol`, `tensor`), 1211 to 24280 output tokens.
+  94/288 pass in this setting.
+- **lfm3-1.7b-nothink**: the same five prompts, different answers: 42.3 and 65.4 pass here, 11.3 fails.
+  71/288 pass.
+- **bielik-11b-v3.1**: all five fail. 77.1 and 11.3 answer in prose the official extraction keeps no code from,
+  13.1, 42.3 and 65.4 write code that fails the tests; its 7 passes with background sit on other subproblems
+  (32.1, 39.1, 58.1, 64.1, 64.3, 66.5, 80.1).
+
+Neither all zeros nor identical between models or between the two LFM3 runs, so Bielik's low score is the model
+and the extraction of Amendment 1, not a setup bug; the same pipeline passes 48 of 50 dev steps with the
+authors' own code (Results). What is read here is the committed output of each step, which is what the scorer
+tests; the full answers are not in the repo (their sha256 is in `results/raw-outputs.json`).
+
+## Slayer 1B's context
+
+Slayer 1B was not run, so its row is `score: null` (Results, "Reproduce"). Its served context is 4096 tokens
+and the prompts of this benchmark are longer than that for a large part of the split. Counted with Slayer's own
+tokenizer (`research/slayer-1b/tokenizer/tokenizer.json`, 16384 tokens) over the prompts the pinned harness
+builds (`prompt_replay.py` prints this table):
+
+| run the prompt carries the code of | with background | without background | median, with bg | max, with bg |
+|---|---|---|---|---|
+| lfm3-1.7b | 88/288 steps, 29/65 problems | 73/288 steps, 20/65 problems | 2702 | 14518 |
+| lfm3-1.7b-nothink | 134/288 steps, 41/65 problems | 113/288 steps, 36/65 problems | 3610 | 30159 |
+| bielik-11b-v3.1 | 49/288 steps, 13/65 problems | 46/288 steps, 12/65 problems | 2166 | 10167 |
+
+A prompt over the context is not sent and counts as failed (PROTOCOL.md, "Settings"); the benchmark is not cut
+down to fit it, and a prompt that does fit still has to leave room for the answer. These are counts of prompts,
+not of a Slayer run: a run would carry Slayer's own earlier code, which does not exist, so how many tasks
+Slayer itself could not answer within its context is not known without running it.
+
 ## Reproduce
 
 Each model is generated once (both settings), then scored on the scoring VM. Every step resumes where it stopped.
@@ -336,5 +409,15 @@ python3 explore.py          # results/exploratory.json
 python3 readme.py           # the generated blocks of this README; --check compares byte for byte
 ```
 
+Prompts of the committed runs, rebuilt with the pinned harness for the hand check and for the Slayer-context
+table (needs the SciCode clone and the pinned dataset, both made by `run.sh`, and `.venv-gen`):
+
+```bash
+.venv-gen/bin/python prompt_replay.py --hand 77.1 13.1 42.3 65.4 11.3   # replay, then those five subproblems
+.venv-gen/bin/python prompt_replay.py --reuse                            # the counts of "Slayer 1B's context"
+```
+
 Tests: `.venv-gen/bin/python -m pytest ../../tests/test_scicode.py ../../tests/test_scicode_results.py -q` (no GPU,
 network or `test_data.h5`; the raw-output recount runs where the archive and `out/bielik-11b-v3.1/` are).
+`uv pip sync` in run.sh makes `.venv-gen` match the lock exactly, so it removes what the lock does not hold:
+install pytest there once with `uv pip install --python .venv-gen/bin/python pytest`.
