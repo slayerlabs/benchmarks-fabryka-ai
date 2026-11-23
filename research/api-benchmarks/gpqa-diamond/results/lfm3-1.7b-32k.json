@@ -1,8 +1,8 @@
 {
   "benchmark": "GPQA Diamond (exploratory, CoT zero-shot)",
   "model": "lfm3-1.7b",
-  "metric": "exact_match (flexible-extract), composed full-198 at a 32768 budget",
-  "composition": "162 items that concluded by 16384 keep their 16384 result; 36 items still truncated at 16384 are re-scored at 32768. Greedy decoding is deterministic in theory, but bf16 batched reruns flip a few items (a ~4-item noise floor, see README Deviations), so this is a pre-specified composition, not a bit-exact rerun.",
+  "metric": "exact_match (flexible-extract), composed full-198 at a 32768 budget (two compositions, see composition and sensitivity_all67_at32768)",
+  "composition": "Default composition: the 36 items truncated at 16384 take their 32768 re-run result; the other 162 keep their 16384 result. The 32768 re-run covered 67 items: those 36 plus 31 that had concluded by 16384 but had no 'answer is' phrase. Greedy decoding is deterministic in theory, but bf16 batched reruns flip items: on the 31, 4 changed (all correct to wrong), and 1 (doc 147) reached the cap at 32768. Taking the 32768 result for all 67 gives the alternative composition below. The composition was not recorded in a committed note before the re-run; report both scores side by side.",
   "score": 64.65,
   "stderr": 3.4,
   "n": 198,
@@ -24,10 +24,13 @@
     "transformers": "5.22.1",
     "torch": "2.8.0+cu128",
     "trials": 1,
-    "trust_remote_code": true
+    "trust_remote_code": true,
+    "rerun_subset": "67 doc_ids: truncated at 16384 (36) or no 'answer is' at 16384 (31); see scripts/select_rerun_subset.py"
   },
-  "still_truncated_at_32768": 2,
+  "still_truncated_at_32768": {
+    "default_composition": 2,
+    "all67_composition": 3
+  },
   "deviations": "see README.md, Deviations",
-  "max_gen_toks": 32768,
-  "sensitivity_all67_at32768": "124/198 = 62.63%"
+  "sensitivity_all67_at32768": "124/198 = 62.63% (alternative composition: all 67 re-run items take their 32768 result); default composition 128/198 = 64.65%"
 }
