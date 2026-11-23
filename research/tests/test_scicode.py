@@ -35,6 +35,7 @@ sys.path.insert(0, str(BENCH))
 import hypotheses  # noqa: E402
 import provenance  # noqa: E402
 import scicode_runner as sr  # noqa: E402
+import raw_outputs  # noqa: E402
 import summarize  # noqa: E402
 
 
@@ -757,3 +758,30 @@ def test_changed_result_file_is_refused(tmp_path):
         f.write("\n")
     with pytest.raises(SystemExit, match="sha256"):
         hypotheses.analyse(r)
+
+
+def test_raw_outputs_reads_after_the_last_think_end():
+    """raw_outputs.py on a synthetic run: two `</think>` in one answer (the text after the last counts), a lone fence
+    after it, a python block, a stray `</think>` with nothing after it, an unclosed ```python line alone (one fence
+    line, but not a lone fence), and an unfinished answer."""
+    import statistics
+
+    def rec(step, output, passed, code, unfinished=False):
+        return ({"setting": "with_background", "problem_id": "1", "step": step, "status": "ok", "output": output,
+                 "unfinished": unfinished}, {"pass": passed, "output": code})
+    pairs = {("with_background", "1", 1): rec(1, "a</think>```python\nx\n```\n</think>def f(): pass\n```\nprose",
+                                               True, "prose"),
+             ("with_background", "1", 2): rec(2, "```python\ny = 1\n```", False, "\ny = 1\n"),
+             ("with_background", "1", 3): rec(3, "draft</think>", False, ""),
+             ("with_background", "1", 4): rec(4, "```python\n", False, ""),
+             ("with_background", "1", 5): rec(5, "reasoning, cut", False, "", unfinished=True)}
+    last = {k: v[0] for k, v in pairs.items()}
+    graded = {k: v[1] for k, v in pairs.items()}
+    x = raw_outputs.per_setting(last, graded, "with_background")
+    out1 = pairs[("with_background", "1", 1)][0]["output"]
+    assert x["reasoning"] == {"answers": 5, "closing_think": 2,
+                              "median_share_before_last_think_end": round(
+                                  statistics.median([out1.rindex("</think>") / len(out1), 5 / 13]), 4),
+                              "passed": 1, "passed_closing_think": 1}
+    assert x["extraction"] == {"empty_official": 3, "empty_by_cause": {"other": ["1.3", "1.4"], "unfinished": ["1.5"]},
+                               "answers_lone_fence": 1, "answers_without_fence_line": 2}

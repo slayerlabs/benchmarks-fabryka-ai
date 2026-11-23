@@ -230,6 +230,7 @@ def analyse(results: Path, group: Path | None = None) -> dict[str, Any]:
             "holm": {"m": GROUP_M, "family": [{k: t[k] for k in ("benchmark", "id", "p_support", "p_refute")}
                                               for t in family],
                      "other_benchmark_file": str(group) if group else None,
+                     "other_benchmark_sha256": provenance.sha256_file(group) if group else None,
                      "missing_counted_as_p_1": GROUP_M - len(family) + sum(1 for t in family if t["p_support"] is None)},
             "descriptive": descriptive}
 
@@ -271,6 +272,7 @@ def main(argv: list[str]) -> None:
     a = analyse(results, group)
     print(report(a))
     (results / "hypotheses.json").write_text(json.dumps(a, indent=2) + "\n", encoding="utf-8")
+    provenance.record(results, ["hypotheses.json"], "hypotheses.py")
 
 
 if __name__ == "__main__":
