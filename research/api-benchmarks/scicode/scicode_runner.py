@@ -622,56 +622,106 @@ def load_slayer(pretrained: str, device: str = "cpu", dtype: str = "bfloat16"):
     return slayer_model.Slayer(pretrained, device=device, dtype=dt)
 
 
-def slayer_responder(model: Any, thinking: bool) -> Callable[[str, dict[str, Any]], dict[str, Any]]:
-    """Plain-text greedy generation for a base Slayer model (no chat template)."""
-    lock = threading.Lock()
+def slayer_generate(model: Any, prompt_ids: list[int], max_new_tokens: int) -> list[int]:
+    """Batch-1 wrapper around batched greedy generation (same per-row result as sequential)."""
+    return slayer_generate_batch(model, [prompt_ids], max_new_tokens=max_new_tokens)[0]
 
-    def respond(prompt: str, ctx: dict[str, Any]) -> dict[str, Any]:
-        ids = model.encode(prompt)
-        prompt_tokens = len(ids)
+
+def slayer_generate_batch(model: Any, prompt_ids_list: list[list[int]], max_new_tokens: int | None = None,
+                          max_total: int = SLAYER_CONTEXT) -> list[list[int]]:
+    from slayer_batch import generate_batch  # research/common on sys.path via load_slayer
+
+    return generate_batch(model, prompt_ids_list, max_total=max_total, stop_id=model.bos)
+
+
+def _slayer_decode(model: Any, out_ids: list[int]) -> str:
+    decoded = model.tok.decode(out_ids, skip_special_tokens=False)
+    if decoded.startswith("<|endoftext|>"):
+        decoded = decoded[len("<|endoftext|>"):]
+    return decoded
+
+
+def _slayer_record(model: Any, prompt: str, thinking: bool, out_ids: list[int]) -> dict[str, Any]:
+    prompt_tokens = 1 + len(model.encode(prompt))  # BOS rule: one leading BOS per request
+    max_new_tokens = SLAYER_CONTEXT - prompt_tokens
+    finish_reason = "stop" if (out_ids and out_ids[-1] == model.bos) else "length"
+    decoded_ids = out_ids[:-1] if (out_ids and out_ids[-1] == model.bos) else out_ids
+    output = _slayer_decode(model, decoded_ids)
+    return {"status": "ok", "prompt_tokens": prompt_tokens, "context": SLAYER_CONTEXT,
+            "max_tokens": max_new_tokens, "output": output, "finish_reason": finish_reason,
+            "unfinished": is_unfinished(output, finish_reason, thinking), "output_tokens": len(out_ids)}
+
+
+class BatchedSlayerResponder:
+    """Collects prompts from worker threads and runs batched greedy generation.
+
+    Same per-row greedy result as batch size 1, with per-row stop at EOS or 4096 total tokens.
+    """
+
+    def __init__(self, model: Any, thinking: bool, batch_size: int = 8, flush_s: float = 0.05):
+        self.model = model
+        self.thinking = thinking
+        self.batch_size = max(1, batch_size)
+        self.flush_s = flush_s
+        self.cond = threading.Condition()
+        self.queue: list[dict[str, Any]] = []
+        self.closed = False
+        self.worker = threading.Thread(target=self._loop, name="slayer-batch", daemon=True)
+        self.worker.start()
+
+    def close(self) -> None:
+        with self.cond:
+            self.closed = True
+            self.cond.notify_all()
+        self.worker.join(timeout=30)
+
+    def __call__(self, prompt: str, ctx: dict[str, Any]) -> dict[str, Any]:
+        ids = self.model.encode(prompt)
+        prompt_tokens = 1 + len(ids)  # BOS rule: exactly one leading BOS per request
         max_new_tokens = SLAYER_CONTEXT - prompt_tokens
         if max_new_tokens < SLAYER_MIN_ANSWER_TOKENS:
             return {"status": "unsupported", "prompt_tokens": prompt_tokens, "context": SLAYER_CONTEXT,
                     "unfinished": None, "max_tokens": max_new_tokens,
-                    "error": f"prompt has {prompt_tokens} tokens, leaving {max_new_tokens} < "
+                    "error": f"prompt has {prompt_tokens} tokens (including BOS), leaving {max_new_tokens} < "
                              f"{SLAYER_MIN_ANSWER_TOKENS} for the answer in a {SLAYER_CONTEXT}-token context"}
-        with lock:
-            out_ids = slayer_generate(model, ids, max_new_tokens)
-        output = model.tok.decode(out_ids, skip_special_tokens=False)
-        # Strip BOS/EOS token text if tokenizer decodes it
-        if output.startswith("<|endoftext|>"):
-            output = output[len("<|endoftext|>"):]
-        finish_reason = "stop" if (len(out_ids) < max_new_tokens or (out_ids and out_ids[-1] == model.bos)) else "length"
-        # slayer_generate stops on BOS and does not include it in out_ids; length means we hit the limit
-        if out_ids and out_ids[-1] == model.bos:
-            finish_reason = "stop"
-            output = model.tok.decode(out_ids[:-1], skip_special_tokens=False)
-            if output.startswith("<|endoftext|>"):
-                output = output[len("<|endoftext|>"):]
-        return {"status": "ok", "prompt_tokens": prompt_tokens, "context": SLAYER_CONTEXT,
-                "max_tokens": max_new_tokens, "output": output, "finish_reason": finish_reason,
-                "unfinished": is_unfinished(output, finish_reason, thinking),
-                "output_tokens": len(out_ids)}
+        item = {"ids": ids, "prompt": prompt, "event": threading.Event(), "out": None, "err": None}
+        with self.cond:
+            self.queue.append(item)
+            self.cond.notify_all()
+        item["event"].wait()
+        if item["err"] is not None:
+            raise item["err"]
+        return _slayer_record(self.model, prompt, self.thinking, item["out"])
 
-    return respond
+    def _loop(self) -> None:
+        while True:
+            with self.cond:
+                while not self.queue and not self.closed:
+                    self.cond.wait(timeout=self.flush_s)
+                if not self.queue and self.closed:
+                    return
+                if not self.queue:
+                    continue
+                # Flush when batch full or after timeout with pending items.
+                if len(self.queue) < self.batch_size and not self.closed:
+                    self.cond.wait(timeout=self.flush_s)
+                batch = self.queue[:self.batch_size]
+                del self.queue[:len(batch)]
+            try:
+                outs = slayer_generate_batch(self.model, [it["ids"] for it in batch], max_total=SLAYER_CONTEXT)
+                for it, out_ids in zip(batch, outs):
+                    it["out"] = out_ids
+            except Exception as e:  # noqa: BLE001
+                for it in batch:
+                    it["err"] = e
+            finally:
+                for it in batch:
+                    it["event"].set()
 
 
-def slayer_generate(model: Any, prompt_ids: list[int], max_new_tokens: int) -> list[int]:
-    """Greedy generation using Slayer.krok (KV cache), stopping on BOS/EOS."""
-    import torch  # noqa: E402
-
-    device = model.device
-    cache: list[Any] = []
-    ids = torch.tensor([prompt_ids], dtype=torch.long, device=device)
-    logits = model.krok(ids, cache)[0]
-    out: list[int] = []
-    for _ in range(max_new_tokens):
-        nxt = int(logits.argmax().item())
-        out.append(nxt)
-        if nxt == model.bos:
-            break
-        logits = model.krok(torch.tensor([[nxt]], dtype=torch.long, device=device), cache)[0]
-    return out
+def slayer_responder(model: Any, thinking: bool, batch_size: int = 8) -> BatchedSlayerResponder:
+    """Batched plain-text greedy generation for a base Slayer model (no chat template)."""
+    return BatchedSlayerResponder(model, thinking, batch_size=batch_size)
 
 
 def slayer_sampling(pretrained: str) -> dict[str, Any]:
@@ -714,9 +764,10 @@ def generate(args: argparse.Namespace) -> None:
     elif args.slayer_pretrained:
         slayer = load_slayer(args.slayer_pretrained, device=args.slayer_device, dtype=args.slayer_dtype)
         server = None
-        respond = slayer_responder(slayer, args.thinking)
-        run_sampling = slayer_sampling(args.slayer_pretrained)
-        args.concurrency = 1  # single local model
+        batch_size = max(1, int(getattr(args, "slayer_batch_size", 8)))
+        respond = slayer_responder(slayer, args.thinking, batch_size=batch_size)
+        run_sampling = {**slayer_sampling(args.slayer_pretrained), "slayer_batch_size": batch_size}
+        args.concurrency = batch_size  # independent chains submit to the batched responder
     else:
         server = server_from(args)
         server.events = EventLog(out / "api-events.jsonl")
@@ -739,6 +790,8 @@ def generate(args: argparse.Namespace) -> None:
             for future in [pool.submit(gen.run, c, done) for c in chains]:
                 future.result()
     finally:
+        if hasattr(respond, "close"):
+            respond.close()
         if server is not None:
             update_run(out, "generation_end", {"api_events": server.events.counts()})
             provenance.record(out, ["api-events.jsonl"], "scicode_runner.py generate")
@@ -1099,6 +1152,8 @@ def main() -> None:
                         "greedy generation, no chat template, context 4096")
     g.add_argument("--slayer-device", default="cuda", help="device for local Slayer generation (cuda or cpu)")
     g.add_argument("--slayer-dtype", default="bfloat16", help="dtype for local Slayer generation (bfloat16, float16, float32)")
+    g.add_argument("--slayer-batch-size", type=int, default=8,
+                   help="batched greedy generation for local Slayer (same per-row result as batch size 1)")
     sub.add_parser("prefetch")
     s = sub.add_parser("score")
     s.add_argument("out_dir")
