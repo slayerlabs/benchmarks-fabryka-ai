@@ -244,10 +244,10 @@ def repeat_lines(results: Path) -> list[str]:
     ev = read_json(results, "scoring-events.json")
     out = []
     for r in ev["repeated_steps"]:
-        counts = ", ".join(f"{v} {n} times" for v, n in sorted(r["rescored"].items()))
+        counts = ", ".join(f"{v} {n} of {r['runs']}" for v, n in sorted(r["rescored"].items()))
         out.append(f"  - *Descriptive:* `{r['model']}` {SETTING_LABEL[r['setting']]} step {r['step']} (officially "
                    f"{r['kept']}; its test checks a simulation the step's code runs on random numbers without a "
-                   f"seed) re-scored {r['runs']} times with the same image: {counts}. The refuter reports SciCode-Verified "
+                   f"seed) re-scored with the same image: {counts}. The refuter reports SciCode-Verified "
                    f"flagging problem {r['step'].split('.')[0]} (not checked here)."
                    + (" A pass there would raise D, not lower it." if r["setting"] == hypotheses.PRIMARY else ""))
     return out

@@ -385,8 +385,8 @@ def test_scoring_vm_facts_recounted_from_the_copied_logs():
         assert counts == r["rescored"] and len(runs) == r["runs"]
         assert all(x["graded_sha256"] == result(r["model"])["provenance"]["inputs_sha256"]["graded.jsonl"] for x in runs)
         assert (f"step {r['step']} (officially {kept[r['step']]};" in hyp
-                and f"re-scored {len(runs)} times with the same image: "
-                + ", ".join(f"{v} {n} times" for v, n in sorted(counts.items())) in hyp)
+                and "re-scored with the same image: "
+                + ", ".join(f"{v} {n} of {len(runs)}" for v, n in sorted(counts.items())) in hyp)
     for name in ev["inputs_sha256"]:
         assert hashlib.sha256((folder / name).read_bytes()).hexdigest() == ev["inputs_sha256"][name]
 
