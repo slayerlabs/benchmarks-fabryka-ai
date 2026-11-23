@@ -22,12 +22,12 @@ MODEL="${1:?usage: bash run.sh <model-id> [--limit N] [--judge-model MODEL]}"
 shift || true
 
 LIMIT=""
-JUDGE_MODEL="${JUDGE_MODEL:-o3-mini-2025-01-31}"
+JUDGE_MODEL="${JUDGE_MODEL:-claude-opus-5-5}"
 MAX_COMPLETION_TOKENS="${MAX_COMPLETION_TOKENS:-8192}"
 TEMPERATURE="${TEMPERATURE:-0.6}"
 TOP_P="${TOP_P:-0.95}"
 NUM_WORKERS="${NUM_WORKERS:-10}"
-JUDGE_WORKERS="${JUDGE_WORKERS:-100}"
+JUDGE_WORKERS="${JUDGE_WORKERS:-5}"
 SUBSET="${SUBSET:-text-only}"
 
 while [[ $# -gt 0 ]]; do
@@ -147,23 +147,20 @@ PY
     ;;
 esac
 
-if [[ -z "${OPENAI_API_KEY:-}" && -z "${JUDGE_OPENAI_API_KEY:-}" ]]; then
-  echo "Judge step skipped: no OPENAI_API_KEY/JUDGE_OPENAI_API_KEY set." >&2
+if [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
+  echo "Judge step skipped: no ANTHROPIC_API_KEY set." >&2
   echo "Generation output: $PREDICTIONS" >&2
   echo "Run judge after owner provides judge access, then summarize.py." >&2
   exit 0
 fi
 
-JUDGE_KEY="${JUDGE_OPENAI_API_KEY:-$OPENAI_API_KEY}"
-JUDGE_BASE_ARGS=()
-[[ -n "${JUDGE_BASE_URL:-}" ]] && JUDGE_BASE_ARGS=(--base_url "$JUDGE_BASE_URL")
-
-OPENAI_API_KEY="$JUDGE_KEY" "$PY" "$HERE/judge.py" \
+ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" "$PY" "$HERE/judge.py" \
   --dataset cais/hle \
   --predictions "$PREDICTIONS" \
   --num_workers "$JUDGE_WORKERS" \
   --judge "$JUDGE_MODEL" \
-  --output "$JUDGED"
+  --output "$JUDGED" \
+  ${LIMIT:+--limit "$LIMIT"}
 
 "$PY" "$HERE/summarize.py" \
   --predictions "$PREDICTIONS" \
