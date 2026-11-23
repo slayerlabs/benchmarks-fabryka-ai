@@ -15,13 +15,35 @@ from datasets import load_dataset
 import judge as J
 
 HERE = Path(__file__).resolve().parent
-OPUS = "claude-opus-4-6"
-SONNET = "claude-sonnet-4-6"
-# Batch pricing USD per MTok (50% off). Sources: Anthropic pricing pages.
-PRICES = {
-    OPUS: {"input": 2.5 / 1e6, "output": 12.5 / 1e6},
-    SONNET: {"input": 1.5 / 1e6, "output": 7.5 / 1e6},
-}
+PRICING_SOURCE = "https://platform.claude.com/docs/en/about-claude/pricing"
+
+
+def _env(name: str) -> str:
+    v = os.environ.get(name)
+    if not v:
+        raise SystemExit(f"missing required env: {name}")
+    return v
+
+
+def judge_config():
+    # Single source of truth: env / run.sh. No hardcoded model IDs.
+    judge_model = _env("JUDGE_MODEL")
+    agreement_model = _env("AGREEMENT_MODEL")
+    prices = {
+        judge_model: {
+            "input": float(_env("JUDGE_BATCH_INPUT_USD_PER_MTOK")) / 1e6,
+            "output": float(_env("JUDGE_BATCH_OUTPUT_USD_PER_MTOK")) / 1e6,
+            "source": PRICING_SOURCE,
+        },
+        agreement_model: {
+            "input": float(_env("AGREEMENT_BATCH_INPUT_USD_PER_MTOK")) / 1e6,
+            "output": float(_env("AGREEMENT_BATCH_OUTPUT_USD_PER_MTOK")) / 1e6,
+            "source": PRICING_SOURCE,
+        },
+    }
+    return judge_model, agreement_model, prices
+
+
 CAP_USD = 15.0
 
 
@@ -60,7 +82,7 @@ def build_requests(questions, predictions, ids, model):
     return reqs
 
 
-def estimate_usd(reqs, predictions, questions, model):
+def estimate_usd(reqs, predictions, questions, model, prices):
     # rough char/3.5 for input, 150 output tokens
     inp = 0
     for r in reqs:
@@ -68,7 +90,7 @@ def estimate_usd(reqs, predictions, questions, model):
         q, p = questions[qid], predictions[qid]
         inp += (600 + len(q["question"]) + len(q["answer"]) + len(p.get("response", ""))) / 3.5
     out = len(reqs) * 150
-    pr = PRICES[model]
+    pr = prices[model]
     return inp * pr["input"] + out * pr["output"], inp, out
 
 
@@ -84,7 +106,7 @@ def submit_and_wait(client, reqs, poll=30):
         time.sleep(poll)
 
 
-def collect_results(client, batch_id, questions, predictions):
+def collect_results(client, batch_id, questions, predictions, configured_model):
     judged = {}
     total_in = total_out = 0
     failed = []
@@ -96,6 +118,9 @@ def collect_results(client, batch_id, questions, predictions):
             failed.append((qid, result.type))
             continue
         msg = result.message
+        returned_model = getattr(msg, "model", None)
+        if not returned_model or not str(returned_model).startswith(configured_model):
+            raise SystemExit(f"model mismatch for {qid}: got {returned_model!r}, expected prefix {configured_model!r}")
         usage = msg.usage
         total_in += getattr(usage, "input_tokens", 0)
         total_out += getattr(usage, "output_tokens", 0)
@@ -126,6 +151,7 @@ def collect_results(client, batch_id, questions, predictions):
             "input_tokens": getattr(usage, "input_tokens", 0),
             "output_tokens": getattr(usage, "output_tokens", 0),
         }
+        pred["judge_model"] = returned_model
         judged[qid] = pred
     return judged, total_in, total_out, failed, no_tool
 
@@ -136,8 +162,8 @@ def save_judged(path, judged):
         json.dump(judged, f, indent=2, ensure_ascii=False)
 
 
-def cost_usd(model, inp, out):
-    pr = PRICES[model]
+def cost_usd(model, inp, out, prices):
+    pr = prices[model]
     return inp * pr["input"] + out * pr["output"]
 
 
@@ -180,7 +206,9 @@ def accuracy_stats(judged, n_total):
     confidence = np.array(confidence) / 100
     n = len(correct)
     acc = 100 * float(correct.sum()) / n_total if n_total else 0.0
-    stderr = 1.96 * math.sqrt(acc * (100 - acc) / n_total) if n_total else 0.0
+    # stderr on percent scale: sqrt(p*(1-p)/n) * 100
+    p = acc / 100.0
+    stderr = 100 * math.sqrt(p * (1 - p) / n_total) if n_total else 0.0
     cal = 100 * calib_err(confidence, correct, p="2", beta=100) if n else 0.0
     return n, acc, stderr, cal
 
@@ -199,34 +227,11 @@ def cohens_kappa(labels_a, labels_b):
     return (po - pe) / (1 - pe)
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--predictions", default=str(HERE / "out/bielik-11b-v3.1/hle_bielik-11b-v3.1.json"))
-    ap.add_argument("--outdir", default=str(HERE / "out/bielik-11b-v3.1"))
-    ap.add_argument("--cap-usd", type=float, default=CAP_USD)
-    args = ap.parse_args()
-
-    client = load_env()
-    questions = load_questions()
-    predictions = json.load(open(args.predictions, encoding="utf-8"))
-    all_ids = sorted(predictions.keys())
-    ids_300 = all_ids[:300]
-    ids_100 = all_ids[:100]
-
-    outdir = Path(args.outdir)
-    outdir.mkdir(parents=True, exist_ok=True)
+def run_plan(client, questions, predictions, outdir, plan, prices, cap_usd):
     spent = 0.0
     tokens_total = {"input": 0, "output": 0}
     runs = []
-
-    plan = [
-        ("opus_all", OPUS, all_ids, outdir / "judged_opus_all.json"),
-        ("opus_repeat_100", OPUS, ids_100, outdir / "judged_opus_repeat_100.json"),
-        ("sonnet_300", SONNET, ids_300, outdir / "judged_sonnet_300.json"),
-    ]
-
     for name, model, ids, outpath in plan:
-        # Resume: if already complete, load
         existing = {}
         if outpath.exists():
             existing = json.load(open(outpath, encoding="utf-8"))
@@ -235,39 +240,44 @@ def main():
             print(f"{name}: already complete n={len(existing)}", flush=True)
             runs.append({"name": name, "model": model, "n": len(existing), "input_tokens": 0, "output_tokens": 0, "usd": 0.0, "skipped": "complete"})
             continue
-
         reqs = build_requests(questions, predictions, todo, model)
-        est, est_in, est_out = estimate_usd(reqs, predictions, questions, model)
-        print(f"{name}: todo={len(todo)} est_usd={est:.2f} spent={spent:.2f} cap={args.cap_usd:.2f}", flush=True)
-        if spent + est > args.cap_usd:
-            print(f"{name}: SKIPPED would exceed cap (est {spent+est:.2f} > {args.cap_usd:.2f})", flush=True)
+        est, _, _ = estimate_usd(reqs, predictions, questions, model, prices)
+        print(f"{name}: todo={len(todo)} est_usd={est:.2f} spent={spent:.2f} cap={cap_usd:.2f}", flush=True)
+        if spent + est > cap_usd:
+            print(f"{name}: SKIPPED would exceed cap (est {spent+est:.2f} > {cap_usd:.2f})", flush=True)
             runs.append({"name": name, "model": model, "n": 0, "skipped": "cap"})
             continue
-
         batch_id = submit_and_wait(client, reqs)
-        judged, tin, tout, failed, no_tool = collect_results(client, batch_id, questions, predictions)
-        # merge
+        judged, tin, tout, failed, no_tool = collect_results(client, batch_id, questions, predictions, model)
         existing.update(judged)
         save_judged(str(outpath), existing)
-        usd = cost_usd(model, tin, tout)
+        usd = cost_usd(model, tin, tout, prices)
         spent += usd
         tokens_total["input"] += tin
         tokens_total["output"] += tout
-        run = {"name": name, "model": model, "batch_id": batch_id, "n_requested": len(todo), "n_judged": len(judged), "n_total_file": len(existing), "failed": len(failed), "no_tool": no_tool, "input_tokens": tin, "output_tokens": tout, "usd": round(usd, 4), "failed_ids": [f[0] for f in failed]}
+        run = {
+            "name": name, "model": model, "configured_model": model, "batch_id": batch_id,
+            "n_requested": len(todo), "n_judged": len(judged), "n_total_file": len(existing),
+            "failed": len(failed), "no_tool": no_tool,
+            "input_tokens": tin, "output_tokens": tout, "usd": round(usd, 6),
+            "failed_ids": [f[0] for f in failed],
+            "returned_models": sorted({v.get("judge_model") for v in judged.values()}),
+        }
         runs.append(run)
-        print(f"{name}: judged={len(judged)} failed={len(failed)} tokens_in={tin} tokens_out={tout} usd={usd:.4f} spent_total={spent:.4f}", flush=True)
+        print(f"{name}: judged={len(judged)} failed={len(failed)} tokens_in={tin} tokens_out={tout} usd={usd:.6f} spent_total={spent:.6f}", flush=True)
         if failed:
-            print(f"{name} failed_ids={ [f for f in failed[:20]] }", flush=True)
-        if spent > args.cap_usd:
-            print(f"WARNING: spent {spent:.2f} > cap {args.cap_usd:.2f}", flush=True)
+            print(f"{name} failed_ids={failed[:20]}", flush=True)
+        if spent > cap_usd:
+            print(f"WARNING: spent {spent:.2f} > cap {cap_usd:.2f}", flush=True)
+    return runs, spent, tokens_total
 
-    # Report
+
+def build_report(predictions, outdir, ids_300, ids_100, runs, spent, tokens_total, cap_usd):
     opus_all = json.load(open(outdir / "judged_opus_all.json", encoding="utf-8")) if (outdir / "judged_opus_all.json").exists() else {}
     opus_rep = json.load(open(outdir / "judged_opus_repeat_100.json", encoding="utf-8")) if (outdir / "judged_opus_repeat_100.json").exists() else {}
     son300 = json.load(open(outdir / "judged_sonnet_300.json", encoding="utf-8")) if (outdir / "judged_sonnet_300.json").exists() else {}
 
     n_judged, acc, stderr, cal = accuracy_stats(opus_all, len(predictions))
-    # Agreement Opus-Sonnet on 300
     common300 = [qid for qid in ids_300 if qid in opus_all and qid in son300]
     agree_n = len(common300)
     agree = sum(1 for qid in common300 if ("yes" in opus_all[qid]["judge_response"]["correct"]) == ("yes" in son300[qid]["judge_response"]["correct"]))
@@ -276,33 +286,70 @@ def main():
     labels_s = [1 if "yes" in son300[qid]["judge_response"]["correct"] else 0 for qid in common300]
     kappa = cohens_kappa(labels_o, labels_s) if agree_n else float("nan")
     disagreements = [qid for qid in common300 if ("yes" in opus_all[qid]["judge_response"]["correct"]) != ("yes" in son300[qid]["judge_response"]["correct"])]
-
-    # Self-agreement Opus 100
     common100 = [qid for qid in ids_100 if qid in opus_all and qid in opus_rep]
     self_n = len(common100)
     self_agree = sum(1 for qid in common100 if ("yes" in opus_all[qid]["judge_response"]["correct"]) == ("yes" in opus_rep[qid]["judge_response"]["correct"]))
     self_pct = 100 * self_agree / self_n if self_n else float("nan")
 
-    report = {
+    return {
         "model": "bielik-11b-v3.1",
         "benchmark": "Humanity's Last Exam (no tools), text-only subset",
         "n_total_predictions": len(predictions),
         "n_judged_opus": n_judged,
-        "accuracy": round(acc, 2),
-        "stderr_95ci_half_width": round(stderr, 2),
-        "calibration_error": round(cal, 2),
+        "accuracy": round(acc, 4),
+        "stderr": round(stderr, 4),
+        "stderr_formula": "sqrt(p*(1-p)/n)*100, percent scale",
+        "calibration_error": round(cal, 4),
         "tokens": tokens_total,
-        "usd_spent": round(spent, 4),
-        "cap_usd": args.cap_usd,
+        "usd_spent": round(spent, 6),
+        "cap_usd": cap_usd,
+        "pricing_source": PRICING_SOURCE,
         "runs": runs,
         "opus_sonnet_agreement_n": agree_n,
-        "opus_sonnet_agreement_pct": round(agree_pct, 2) if agree_n else None,
-        "opus_sonnet_cohens_kappa": round(kappa, 4) if agree_n else None,
+        "opus_sonnet_agreement_pct": round(agree_pct, 4) if agree_n else None,
+        "opus_sonnet_cohens_kappa": round(kappa, 6) if agree_n else None,
         "opus_self_agreement_n": self_n,
-        "opus_self_agreement_pct": round(self_pct, 2) if self_n else None,
+        "opus_self_agreement_pct": round(self_pct, 4) if self_n else None,
         "disagreement_ids_first_10": disagreements[:10],
     }
-    report_path = outdir / "judge_report.json"
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--predictions", default=str(HERE / "out/bielik-11b-v3.1/hle_bielik-11b-v3.1.json"))
+    ap.add_argument("--outdir", default=str(HERE / "out/bielik-11b-v3.1"))
+    ap.add_argument("--cap-usd", type=float, default=CAP_USD)
+    ap.add_argument("--mode", choices=["pilot5", "full"], required=True)
+    args = ap.parse_args()
+
+    J.load_dotenv()
+    judge_model, agreement_model, prices = judge_config()
+    client = load_env()
+    questions = load_questions()
+    predictions = json.load(open(args.predictions, encoding="utf-8"))
+    all_ids = sorted(predictions.keys())
+    ids_300 = all_ids[:300]
+    ids_100 = all_ids[:100]
+    outdir = Path(args.outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    if args.mode == "pilot5":
+        plan = [("pilot5_opus", judge_model, all_ids[:5], outdir / "judged_pilot5_configured.json")]
+    else:
+        plan = [
+            ("opus_all", judge_model, all_ids, outdir / "judged_opus_all.json"),
+            ("opus_repeat_100", judge_model, ids_100, outdir / "judged_opus_repeat_100.json"),
+            ("sonnet_300", agreement_model, ids_300, outdir / "judged_sonnet_300.json"),
+        ]
+
+    runs, spent, tokens_total = run_plan(client, questions, predictions, outdir, plan, prices, args.cap_usd)
+    report = build_report(predictions, outdir, ids_300, ids_100, runs, spent, tokens_total, args.cap_usd)
+    report["config"] = {
+        "judge_model": judge_model,
+        "agreement_model": agreement_model,
+        "prices": {k: {"input_usd_per_mtok": v["input"] * 1e6, "output_usd_per_mtok": v["output"] * 1e6, "source": v["source"]} for k, v in prices.items()},
+    }
+    report_path = outdir / ("judge_pilot5_report.json" if args.mode == "pilot5" else "judge_report.json")
     with open(report_path, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2, ensure_ascii=False)
     print(json.dumps(report, indent=2, ensure_ascii=False), flush=True)

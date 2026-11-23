@@ -22,7 +22,14 @@ MODEL="${1:?usage: bash run.sh <model-id> [--limit N] [--judge-model MODEL]}"
 shift || true
 
 LIMIT=""
+# Judge config: single source of truth. Prices: https://platform.claude.com/docs/en/about-claude/pricing
+# Opus 5.5: $4/$20 per MTok, batch $2/$10. Sonnet 5.5: $2/$10 per MTok, batch $1/$5.
 JUDGE_MODEL="${JUDGE_MODEL:-claude-opus-5-5}"
+AGREEMENT_MODEL="${AGREEMENT_MODEL:-claude-sonnet-5-5}"
+JUDGE_BATCH_INPUT_USD_PER_MTOK="${JUDGE_BATCH_INPUT_USD_PER_MTOK:-2}"
+JUDGE_BATCH_OUTPUT_USD_PER_MTOK="${JUDGE_BATCH_OUTPUT_USD_PER_MTOK:-10}"
+AGREEMENT_BATCH_INPUT_USD_PER_MTOK="${AGREEMENT_BATCH_INPUT_USD_PER_MTOK:-1}"
+AGREEMENT_BATCH_OUTPUT_USD_PER_MTOK="${AGREEMENT_BATCH_OUTPUT_USD_PER_MTOK:-5}"
 MAX_COMPLETION_TOKENS="${MAX_COMPLETION_TOKENS:-8192}"
 TEMPERATURE="${TEMPERATURE:-0.6}"
 TOP_P="${TOP_P:-0.95}"
