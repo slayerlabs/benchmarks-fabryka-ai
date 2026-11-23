@@ -6,7 +6,8 @@ usage: python scripts/truncation_flags.py SAMPLES.jsonl FLAGS.jsonl.gz MAX_GEN_T
 Counts the generated tokens of every response in SAMPLES.jsonl with the model tokenizer
 (add_special_tokens=False, trust_remote_code) and sets truncated_<MAX_GEN_TOKS> = tokens >= MAX_GEN_TOKS - 8.
 The 8-token margin is the one used on the pod for the published files (the response text is re-tokenised, so the
-count can differ by a few tokens from the generator's own). FLAGS.jsonl.gz is rewritten in place.
+count can differ by a few tokens from the generator's own). Checked against the pod-side token counts of the
+published runs: the largest non-truncated response has 16367 tokens and the smallest truncated one 16380. FLAGS.jsonl.gz is rewritten in place.
 Needs `transformers` and the LFM3 tokenizer (LiquidAI/LFM3-1.7B @ 1da06bec6a819da10b54c67e5c90972b46d81871).
 """
 import gzip

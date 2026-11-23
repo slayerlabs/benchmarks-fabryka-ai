@@ -2,7 +2,7 @@
   "benchmark": "GPQA Diamond (exploratory, CoT zero-shot)",
   "model": "lfm3-1.7b",
   "metric": "exact_match (flexible-extract), composed full-198 at a 32768 budget (two compositions, see composition and sensitivity_all67_at32768)",
-  "composition": "Default composition: the 36 items truncated at 16384 take their 32768 re-run result; the other 162 keep their 16384 result. The 32768 re-run covered 67 items: those 36 plus 31 that had concluded by 16384 but had no 'answer is' phrase. Greedy decoding is deterministic in theory, but bf16 batched reruns flip items: on the 31, 4 changed (all correct to wrong), and 1 (doc 147) reached the cap at 32768. Taking the 32768 result for all 67 gives the alternative composition below. The composition was not recorded in a committed note before the re-run; report both scores side by side.",
+  "composition": "Default composition: the 36 items truncated at 16384 take their 32768 re-run result; the other 162 keep their 16384 result. The 32768 re-run covered 67 items: those 36 plus 31 that had concluded by 16384 but had no 'answer is' conclusion (the run brief names them only so; no other reason was recorded). Greedy decoding is deterministic in theory, but bf16 batched reruns flip items: on the 31, 4 changed (all correct to wrong), and 1 (doc 147) reached the cap at 32768. Taking the 32768 result for all 67 gives the alternative composition below. The composition was not recorded in a committed note before the re-run; report both scores side by side.",
   "score": 64.65,
   "stderr": 3.4,
   "n": 198,

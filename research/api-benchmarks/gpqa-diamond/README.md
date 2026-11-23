@@ -45,18 +45,21 @@ and the 32768 score is not read from either one alone. What the 67 items are:
 - 36 items hit the cap at 16384 (`truncated_16384`). 32 of them were wrong at 16384 and 4 right.
 - 31 items had concluded by 16384 (not truncated) but their response has no "answer is" phrase. 23 of them were
   correct and 8 wrong at 16384. The rule that selected the 67 (truncated at 16384 OR no "answer is") was written
-  in the run brief before the re-run (`scripts/select_rerun_subset.py` reproduces it and the exact id list). No
-  reason for adding the 31 was recorded; during the run they were expected to reproduce their 16384 result
-  under greedy decoding.
+  in the run brief before the re-run (`scripts/select_rerun_subset.py` reproduces it and the exact id list). The
+  brief names the 31 only as responses with no "answer is" conclusion; no other reason for adding them was
+  recorded, and during the run they were expected to reproduce their 16384 result under greedy decoding.
 - The 36 truncated items: 4 -> 16 correct at 32768, 12 fixed and 0 broken (Δ = +33.33 ± 7.97 points, z = 4.18, a
   descriptive number, see the subset rows below). 2 of the 36 (docs 63 and 131) still hit the cap at 32768.
 - The 31 concluded items did not reproduce: 4 changed, all from correct to wrong (docs 23, 65, 87, 188), and doc
   147 (wrong both times) hit the cap at 32768 although it had concluded at 16384. The operator's run summary also
-  records a different generation length for 19 of the 31 (that summary is not in the repo). All 4 changes go in
+  records a different generation length for 19 of the 31 (pod-side token counts, not stored in the repo). All 4 changes go in
   one direction, which four changes cannot separate from noise (two-sided sign test p = 0.125); we assign no cause.
 - Composition A takes the 32768 result only for the 36 truncated items (128/198, 2 items at the cap). Composition B
   takes it for all 67 (124/198, 3 items at the cap, the 4 changed items included). Neither composition was recorded
   in a committed note before the re-run, so this card does not present either as fixed in advance.
+
+`results/lfm3-1.7b-32k-subsetB.jsonl.gz` holds the 67 re-run items (its "B" means "subset B", not composition B);
+`results/lfm3-1.7b-32k.jsonl.gz` is composition A, and composition B is rebuilt with `scripts/compose_32k.py --all-rerun`.
 
 ![LFM3-1.7B GPQA Diamond accuracy by token budget, 2048 to 32768; 32768 is shown as two compositions, 64.6% and 62.6%](charts/budget-curve.svg)
 
@@ -177,7 +180,7 @@ still reach the cap.
 export HF_TOKEN=hf_...          # consent to the gated Idavidrein/gpqa dataset required
 bash run.sh lfm3-1.7b           # CUDA GPU, 8192 tokens, output in out/lfm3-1.7b-8192
 bash run.sh bielik-11b-v3.1
-MAX_GEN_TOKS=16384 bash run.sh lfm3-1.7b   # output in out/lfm3-1.7b-16384, the 8192 output is kept
+MAX_GEN_TOKS=16384 BATCH_SIZE=16 bash run.sh lfm3-1.7b   # output in out/lfm3-1.7b-16384, the 8192 output is kept
 bash run.sh lfm3-1.7b --limit 5 # smoke test
 ```
 

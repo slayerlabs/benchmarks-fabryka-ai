@@ -5,9 +5,9 @@ usage: python scripts/select_rerun_subset.py FLAGS_16K.jsonl.gz OUT.json [TASK]
 
 Rule used for the published 32768 re-run: the doc_ids that hit the cap at 16384 (truncated_16384) OR whose
 response has no "answer is" phrase (answer_is_present false). On the 16384 run that is 36 + 31 = 67 items.
-The 31 items did conclude by 16384; they were added because a missing "answer is" can mean an unfinished
-answer. Under greedy decoding they were expected to reproduce their 16384 result, and 4 of them did not (see
-README, Deviations). The rule was written in the run brief before the re-run, not in a committed note.
+The 31 items did conclude by 16384. The run brief names them only as responses with no "answer is" conclusion;
+no other reason was recorded. Under greedy decoding they were expected to reproduce their 16384 result, and 4 of
+them did not (see README, Results). The rule was written in the run brief before the re-run, not in a committed note.
 
 OUT.json is the format `lm_eval --samples` takes: {"<task>": [doc_id, ...]}. The task name must match the task
 that run.sh runs, `gpqa_diamond_cot_zeroshot_pinned` (the published re-run used the stock name
