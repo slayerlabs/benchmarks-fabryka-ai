@@ -518,6 +518,68 @@ def write_problems(out: Path, rows: list[dict[str, Any]]) -> None:
     provenance.record(out, ["problems.json"], "lcbpro.py generate")
 
 
+SLAYER_CONTEXT = 4096
+SLAYER_MIN_ANSWER_TOKENS = 256
+
+
+def load_slayer(pretrained: str, device: str = "cpu", dtype: str = "bfloat16"):
+    common = HERE.parents[1] / "common"
+    if str(common) not in sys.path:
+        sys.path.insert(0, str(common))
+    import torch  # noqa: E402
+    import slayer_model  # noqa: E402
+
+    dt = {"bfloat16": torch.bfloat16, "bf16": torch.bfloat16, "float16": torch.float16,
+          "fp16": torch.float16, "float32": torch.float32, "fp32": torch.float32}.get(dtype, torch.bfloat16)
+    return slayer_model.Slayer(pretrained, device=device, dtype=dt)
+
+
+def slayer_generate(model: Any, prompt_ids: list[int], max_new_tokens: int) -> list[int]:
+    import torch  # noqa: E402
+
+    device = model.device
+    cache: list[Any] = []
+    ids = torch.tensor([prompt_ids], dtype=torch.long, device=device)
+    logits = model.krok(ids, cache)[0]
+    out: list[int] = []
+    for _ in range(max_new_tokens):
+        nxt = int(logits.argmax().item())
+        out.append(nxt)
+        if nxt == model.bos:
+            break
+        logits = model.krok(torch.tensor([[nxt]], dtype=torch.long, device=device), cache)[0]
+    return out
+
+
+def slayer_answer(model: Any, prompt: str, thinking: bool) -> dict[str, Any]:
+    ids = model.encode(prompt)
+    prompt_tokens = len(ids)
+    max_new_tokens = SLAYER_CONTEXT - prompt_tokens
+    if max_new_tokens < SLAYER_MIN_ANSWER_TOKENS:
+        return {"status": "unsupported", "prompt_tokens": prompt_tokens, "context": SLAYER_CONTEXT,
+                "max_tokens": max_new_tokens,
+                "error": f"prompt has {prompt_tokens} tokens, leaving {max_new_tokens} < "
+                         f"{SLAYER_MIN_ANSWER_TOKENS} for the answer in a {SLAYER_CONTEXT}-token context"}
+    out_ids = slayer_generate(model, ids, max_new_tokens)
+    finish_reason = "stop" if (out_ids and out_ids[-1] == model.bos) else "length"
+    if out_ids and out_ids[-1] == model.bos:
+        decoded = model.tok.decode(out_ids[:-1], skip_special_tokens=False)
+    else:
+        decoded = model.tok.decode(out_ids, skip_special_tokens=False)
+    if decoded.startswith("<|endoftext|>"):
+        decoded = decoded[len("<|endoftext|>"):]
+    return {"status": "ok", "prompt_tokens": prompt_tokens, "context": SLAYER_CONTEXT,
+            "max_tokens": max_new_tokens, "output": decoded, "finish_reason": finish_reason,
+            "output_tokens": len(out_ids)}
+
+
+def slayer_sampling(pretrained: str) -> dict[str, Any]:
+    return {"request_sampling": {"temperature": 0, "top_p": 1, "greedy": True, "seed": None},
+            "server_defaults": "none (local Slayer greedy generation)",
+            "slayer_pretrained": pretrained, "slayer_loader": "research/common/slayer_lm.py (slayer_model.Slayer)",
+            "dtype": "bfloat16", "context": SLAYER_CONTEXT}
+
+
 def generate(args: argparse.Namespace) -> None:
     out = Path(args.out_dir).resolve()
     out.mkdir(parents=True, exist_ok=True)
@@ -526,17 +588,56 @@ def generate(args: argparse.Namespace) -> None:
     if gen_path.is_file():  # resuming: the answers (and the event log) kept must be the ones the earlier run wrote
         logged = ["api-events.jsonl"] if "api-events.jsonl" in provenance.read_manifest(out)["files"] else []
         provenance.verify(out, ["generations.jsonl", *logged], "lcbpro.py generate")
-    server = server_from(args)
-    server.events = EventLog(events_path)
+
     prompt = harness_prompt()
     rows = load_rows()
     write_problems(out, rows)
+    done = {r["problem_id"] for r in read_jsonl(gen_path) if r["status"] != "error"}
+
+    if args.slayer_pretrained:
+        slayer = load_slayer(args.slayer_pretrained, device=args.slayer_device, dtype=args.slayer_dtype)
+        args.concurrency = 1
+        update_run(out, "generation", {**provenance.step("lcbpro.py generate"), "model": args.model,
+                                       "limit": args.limit, "harness": f"{HARNESS_REPO} @ {HARNESS_COMMIT}",
+                                       "data": f"{DATA_REPO} @ {DATA_REVISION}, {SPLIT}",
+                                       "sampling": slayer_sampling(args.slayer_pretrained)})
+        todo = [(r["problem_id"], prompt(r["problem_statement"]))
+                for r in (rows[:args.limit] if args.limit else rows) if r["problem_id"] not in done]
+        del rows
+        print(f"lcbpro.py: {len(done)} problems already answered, {len(todo)} to go", flush=True)
+        lock = threading.Lock()
+
+        def run(item: tuple[str, str]) -> dict[str, Any]:
+            problem_id, text = item
+            started = datetime.datetime.now(datetime.timezone.utc)
+            try:
+                with lock:
+                    record = slayer_answer(slayer, text, think=args.chat_template_kwargs == "")
+            except Exception as e:  # noqa: BLE001
+                record = {"status": "error", "error": repr(e)}
+            record = {"problem_id": problem_id, "model": args.model, "started": started.isoformat(),
+                      "seconds": round(time.time() - started.timestamp(), 1), **record}
+            with lock, gen_path.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(record, ensure_ascii=False) + "\n")
+            print(f"{problem_id}: {record['status']} {record.get('output_tokens', '')} {record.get('finish_reason', '')}"
+                  f" {record['seconds']} s", flush=True)
+            return record
+
+        try:
+            for item in todo:
+                run(item)
+        finally:
+            if gen_path.is_file():
+                provenance.record(out, ["generations.jsonl"], "lcbpro.py generate")
+        return
+
+    server = server_from(args)
+    server.events = EventLog(events_path)
     update_run(out, "generation", {**provenance.step("lcbpro.py generate"), "model": args.model, "limit": args.limit,
                                    "harness": f"{HARNESS_REPO} @ {HARNESS_COMMIT}",
                                    "data": f"{DATA_REPO} @ {DATA_REVISION}, {SPLIT}",
                                    "sampling": sampling(server),
                                    **({"server": server_info(args.base_url)} if args.base_url else {})})
-    done = {r["problem_id"] for r in read_jsonl(gen_path) if r["status"] != "error"}
     todo = [(r["problem_id"], [{"role": "user", "content": prompt(r["problem_statement"])}])
             for r in (rows[:args.limit] if args.limit else rows) if r["problem_id"] not in done]
     del rows
@@ -815,6 +916,11 @@ def main() -> None:
     g.add_argument("--retries", type=int, default=3, help="attempts per request")
     g.add_argument("--concurrency", type=int, default=int(os.environ.get("CONCURRENCY", "64")))
     g.add_argument("--request-timeout", type=float, default=float(os.environ.get("REQUEST_TIMEOUT", "21600")))
+    g.add_argument("--slayer-pretrained", default="",
+                   help="local Slayer checkpoint directory (config.json, tokenizer.json, model.safetensors); plain-text "
+                        "greedy generation, no chat template, context 4096")
+    g.add_argument("--slayer-device", default="cuda", help="device for local Slayer generation (cuda or cpu)")
+    g.add_argument("--slayer-dtype", default="bfloat16", help="dtype for local Slayer generation (bfloat16, float16, float32)")
     for name in ("tests", "score"):
         s = sub.add_parser(name)
         s.add_argument("out_dir")
