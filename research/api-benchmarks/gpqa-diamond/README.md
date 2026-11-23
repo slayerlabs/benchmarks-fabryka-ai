@@ -29,44 +29,84 @@ come from a local exploratory run on rented GPUs and do not close issue #302. Se
 | LFM3-1.7B (`lfm3-1.7b-2048`) | local RTX 5090, lm-eval CoT greedy, 2048 tokens, batch 1 | 29.29 | 3.24 | 198 | 2026-11-19 |
 | Bielik 11B v3.1 (`bielik-11b-v3.1-2048`) | local RTX 5090, lm-eval CoT greedy, 2048 tokens, batch 1 | 36.36 | 3.43 | 198 | 2026-11-19 |
 | LFM3-1.7B (`lfm3-1.7b-16k`) | rented RTX 3090, lm-eval CoT greedy, 16384 tokens, batch 16 | 58.59 | 3.51 | 198 | 2026-11-21 |
-| LFM3-1.7B (`lfm3-1.7b-32k`) | composed: 162 concluded @16384 + 36 truncated re-scored @32768 (rented RTX 3090) | 64.65 | 3.40 | 198 | 2026-11-22 |
+| LFM3-1.7B (`lfm3-1.7b-32k`), composition A | composed: 162 items kept at their 16384 result + the 36 items truncated at 16384 re-scored @32768 (rented RTX 3090) | 64.65 | 3.40 | 198 | 2026-11-22 |
+| LFM3-1.7B (`lfm3-1.7b-32k`), composition B | composed: the 67 re-run items all take their 32768 result, the other 131 keep their 16384 result (same re-run) | 62.63 | 3.44 | 198 | 2026-11-22 |
 | Slayer 1B | not run | null | null | 198 | - |
 
 Rows with a different setup are not interchangeable: compare models only through the paired tests below, never
 across rows of different budget or hardware. The main row (Fabryka API, card settings) is not computed here.
 The 2048, 8192 and 16384 runs each have files in `results/`. The 16384 run is a clean full-198 run (it replaces an
-earlier two-budget projection of 59.09 that was never stored). The 32768 row is composed, not a fresh full-198 run:
-the 162 items that concluded by 16384 keep their result and the 36 still truncated at 16384 are re-scored at 32768
-(`results/lfm3-1.7b-32k.jsonl.gz`; the 36-item re-score is `results/lfm3-1.7b-32k-subsetB.jsonl.gz`). After 32768
-only 2 of the 36 re-scored items still reach the cap.
+earlier two-budget projection of 59.09 that was never stored).
 
-![LFM3-1.7B GPQA Diamond accuracy by token budget, 2048 to 32768; 32768 is a composed full-198 point](charts/budget-curve.svg)
+**The 32768 point is not a fresh full-198 run and has no single headline.** It is reported as two compositions,
+A (64.65) and B (62.63), a 4-item difference. Both are built from the 16384 run plus one 32768 re-run of 67 items,
+and the 32768 score is not read from either one alone. What the 67 items are:
+
+- 36 items hit the cap at 16384 (`truncated_16384`). 32 of them were wrong at 16384 and 4 right.
+- 31 items had concluded by 16384 (not truncated) but their response has no "answer is" phrase. 23 of them were
+  correct and 8 wrong at 16384. The rule that selected the 67 (truncated at 16384 OR no "answer is") was written
+  in the run brief before the re-run (`scripts/select_rerun_subset.py` reproduces it and the exact id list). No
+  reason for adding the 31 was recorded; during the run they were expected to reproduce their 16384 result
+  under greedy decoding.
+- The 36 truncated items: 4 -> 16 correct at 32768, 12 fixed and 0 broken (Δ = +33.33 ± 7.97 points, z = 4.18, a
+  descriptive number, see the subset rows below). 2 of the 36 (docs 63 and 131) still hit the cap at 32768.
+- The 31 concluded items did not reproduce: 4 changed, all from correct to wrong (docs 23, 65, 87, 188), and doc
+  147 (wrong both times) hit the cap at 32768 although it had concluded at 16384. The operator's run summary also
+  records a different generation length for 19 of the 31 (that summary is not in the repo). All 4 changes go in
+  one direction, which four changes cannot separate from noise (two-sided sign test p = 0.125); we assign no cause.
+- Composition A takes the 32768 result only for the 36 truncated items (128/198, 2 items at the cap). Composition B
+  takes it for all 67 (124/198, 3 items at the cap, the 4 changed items included). Neither composition was recorded
+  in a committed note before the re-run, so this card does not present either as fixed in advance.
+
+![LFM3-1.7B GPQA Diamond accuracy by token budget, 2048 to 32768; 32768 is shown as two compositions, 64.6% and 62.6%](charts/budget-curve.svg)
 
 The curve reads left to right as the budget doubles (x axis is log2). The points are 2048, 8192, 16384 and 32768;
-the 32768 point is composed (the 162 items that concluded by 16384 keep their result, the 36 still truncated are
-re-scored at 32768). Greedy decoding is deterministic in theory, but bf16 batched reruns flip a few items: taking
-the 32768 result for all 67 re-run items instead gives 62.63 rather than 64.65, a 4-item spread that is the noise
-floor (see Deviations).
+at 32768 both compositions are drawn (filled A, hollow B).
 
-Paired tests (same 198 questions, paired difference per item, z = Δ / SE; the SE is the paired SE over the items,
-and the reading follows the repo convention |z| < 2 noise, 2-3 borderline, >= 3 clear):
+**Not like-for-like.** Composition A can only go up from the 16384 run by construction: it re-runs 36 items of which
+32 were wrong and keeps everything else. The full-198 comparison of 16384 against composition A (+12 items,
+Δ = +6.06 ± 1.70 points, z = 3.57) is therefore descriptive only and not read as a budget effect. The card
+(63.37) samples at temperature 0.6, top_p 0.95 with reasoning on; our runs are greedy with a different composition,
+so this is not a reproduction of the card. Against the card's point value (no card SE, so the uncertainty is
+understated): composition A is +1.28 points (z = +0.38, within noise), composition B is -0.74 points (z = -0.22,
+within noise). That is consistent with the card at a large budget, nothing stronger.
 
-| comparison | net (items) | Δ ± SE (points) | z | reading |
+### Paired tests
+
+Same 198 questions, paired difference per item, z = Δ / SE (the SE is the paired SE over the items). The reading
+follows the repo convention |z| < 2 noise, 2-3 borderline, >= 3 clear. The six tests below use all 198 items and
+form one family for the Holm correction (`tools/statystyka.py`, `po_holmie`).
+
+| comparison | net (items) | Δ ± SE (points) | z | verdict | after Holm |
+|---|---|---|---|---|---|
+| LFM3 vs Bielik, 8192 (LFM3 on RTX A4000 batch 22, Bielik on RTX 5090 batch 1) | +31 for LFM3 | +15.66 ± 4.59 | z = 3.41 | clear | yes (borderline) |
+| LFM3 vs Bielik, 8192, strict variant (correct only if "answer is" is present; same GPUs) | +27 for LFM3 | +13.64 ± 4.73 | z = 2.88 | borderline | yes (borderline) |
+| LFM3 vs Bielik, 2048 (both on RTX 5090 batch 1) | -14 for LFM3 (Bielik +14) | -7.07 ± 4.67 | z = -1.51 | noise | no (noise) |
+| LFM3, 2048 vs 8192 | +48 for 8192 | +24.24 ± 3.93 | z = 6.16 | clear | yes (clear) |
+| Bielik, 2048 vs 8192 | +3 for 8192 | +1.52 ± 2.91 | z = 0.52 | noise | no (noise) |
+| LFM3, 8192 vs 16384 (full 198) | +10 for 16384 | +5.05 ± 3.26 | z = 1.55 | noise | no (noise) |
+
+The sign of the LFM3 vs Bielik comparison depends on the token budget, so it is a property of the budget as much as of
+the models: LFM3 is +15.66 ± 4.59 points at 8192 (z = 3.41) and -7.07 ± 4.67 points at 2048 (z = -1.51, noise,
+Bielik higher but within noise). The two 8192 cells also differ in GPU and batch size (A4000 batch 22 against
+5090 batch 1). After the Holm correction over these six tests, 3 of 6 remain: the LFM3 vs Bielik 8192 comparison
+drops from clear to borderline, the strict variant stays borderline, and the 2048 to 8192 budget effect for LFM3 stays clear.
+
+Two further tests pick their items by outcome, so they sit outside the Holm family and are descriptive only. The
+items are chosen because one arm ran out of budget, which makes that arm almost always wrong on them, so the gain is
+biased upward and no verdict is attached:
+
+| subset test | net (items) | Δ ± SE (points) | z | reading |
 |---|---|---|---|---|
-| LFM3 vs Bielik, 8192 | +31 for LFM3 | +15.66 ± 4.59 | z = 3.41 | clear lead for LFM3 |
-| LFM3 vs Bielik, 8192, strict variant (correct only if "answer is" is present) | +27 for LFM3 | +13.64 ± 4.73 | z = 2.88 | LFM3 ahead, just under the clear line |
-| LFM3, 2048 vs 8192 | +48 for 8192 | +24.24 ± 3.93 | z = 6.16 | large budget effect for LFM3 |
-| Bielik, 2048 vs 8192 | +3 for 8192 | +1.52 ± 2.91 | z = 0.52 | noise |
-| LFM3, 8192 vs 16384 (full 198) | +10 for 16384 | +5.05 ± 3.26 | z = 1.55 | noise on the full set |
-| LFM3, 8192 vs 16384 (the 74 items truncated at 8192) | +11 for 16384 | +14.86 ± 7.12 | z = 2.09 | borderline; selected subset |
-| LFM3, 16384 vs 32768 (the 36 items truncated at 16384) | +12 for 32768 | +33.33 ± 7.97 | z = 4.18 | clear on this selected subset |
+| LFM3, 8192 vs 16384 (the 74 items truncated at 8192) | +12 for 16384 | +16.22 ± 6.67 | z = 2.43 | descriptive only, selected subset |
+| LFM3, 16384 vs 32768 (the 36 items truncated at 16384, composition A) | +12 for 32768 | +33.33 ± 7.97 | z = 4.18 | descriptive only, selected subset |
 
-Reading the budget bump: on the full 198 the 8192 -> 16384 move is within noise (z = 1.55), and the headline rises
-53.54 -> 58.59. The gain is concentrated in the items that were truncated at 8192 (the 74-item subset, z = 2.09),
-but even there it is borderline. At 16384, 36 of 198 (18%) still reach the cap, so 16384 is not the ceiling.
-Re-scoring those 36 at 32768 moves 12 of them to correct and none the other way (+33.33 ± 7.97 points on that
-subset, z = 4.18), and the composed full-198 headline rises to 64.65 (62.63 under the all-67 composition, a
-4-item noise-floor spread). After 32768 only 2 of 198 still reach the cap.
+Reading the budget bump: on the full 198 the 8192 -> 16384 move is within noise (z = 1.55), and the point score
+rises 53.54 -> 58.59. The gain sits in the items that were truncated at 8192 (the 74-item subset, descriptive), which
+is where it would sit if the budget were all that changed. The 74 doc ids are in
+`results/lfm3-1.7b-truncated-8192-ids.json` (the 8192 file has no `truncated_8192` flag). At 16384, 36 of 198 (18%)
+still reach the cap, so 16384 is not the ceiling. After 32768, 2 of 198 (composition A) or 3 of 198 (composition B)
+still reach the cap.
 
 ## Deviations
 
@@ -76,14 +116,15 @@ subset, z = 4.18), and the composed full-198 headline rises to 64.65 (62.63 unde
   #302.
 - **Token budget and truncation.** At 8192 tokens LFM3-1.7B is cut off: 74 of 198 outputs reach the limit
   (measured with the tokenizer on the pod), and 65.2% reach an "answer is" phrase. The card has an effectively
-  unlimited budget, which probably explains most of the distance from the card: at 8192 our 53.54 sits 2.8 SE below
+  unlimited budget, which probably explains part of the distance from the card: at 8192 our 53.54 sits 2.8 SE below
   the card's 63.37 (z = -2.8, using our run's SE 3.54); at 16384 the full run reaches 58.59, 1.4 SE below the card
   (z = -1.36). Budget sweep for LFM3: 2048 to 8192 adds 24.24 ± 3.93 points (z = 6.16); 8192 to 16384 adds
   5.05 ± 3.26 (z = 1.55, within noise on the full 198), with the gain concentrated in the items truncated at 8192.
-  At 16384, 36 of 198 (18%) still reach the cap, so the budget is still biting and 16384 is not the ceiling;
-  re-scoring those 36 at 32768 fixes 12 and leaves only 2 of 198 at the cap, lifting the composed headline to 64.65
-  (62.63 under the all-67 composition; the composed 64.65 is within noise of the card, z = +0.38). Bielik barely
-  moves with budget (+1.52 ± 2.91 points, z = 0.52, noise).
+  At 16384, 36 of 198 (18%) still reach the cap, so the budget is still biting. The 32768 point is two compositions
+  of one 67-item re-run, 64.65 (A) and 62.63 (B), see Results for what the 67 items are and for the 31 that did not
+  reproduce. Both are within noise of the card (z = +0.38 and z = -0.22), but the card samples at T = 0.6 and our
+  runs are greedy, so that is consistency at a large budget, not a reproduction. Bielik barely moves with budget
+  (+1.52 ± 2.91 points, z = 0.52, noise).
 - **Harness version.** We used lm-eval 0.4.13 (from `pip freeze` on the pod; it was not saved in `results.json`),
   transformers 5.22.1, torch 2.8.0+cu128. The repo pin elsewhere is 0.4.9.1. Not reconciled.
 - **Backend.** All runs use the lm-eval HuggingFace backend (`model: hf`, the `HFLM` class) on transformers in bf16
@@ -92,8 +133,10 @@ subset, z = 4.18), and the composed full-198 headline rises to 64.65 (62.63 unde
   not a quantised-runtime artifact.
 - **Hardware and batch differ between cells**: LFM3 8192 on RTX A4000 (batch 22), Bielik 8192 on RTX 5090
   (batch 1), LFM3 16384 on RTX 3090 (batch 16), both 2048 runs on RTX 5090 (batch 1). Greedy decoding is
-  deterministic in theory, but bf16 with padding flips single tokens (a smoke test showed this). That does not
-  explain the 15.66 ± 4.59 point difference between the models at 8192 (z = 3.41).
+  deterministic in theory, but bf16 with padding flips single tokens (a smoke test showed this). The 8192 comparison
+  between the models mixes both GPUs and batch sizes; we did not run the two models on one GPU at one batch size, so
+  the 15.66 ± 4.59 point difference at 8192 (z = 3.41) is not separated from that effect. The 2048 comparison has the
+  same GPU and batch for both models.
 - **`strict-match` is 0 for LFM3 and about 1% for Bielik, which we treat as a setup finding, not noise.** (On the
   saved 8192 samples we count 0 of 198 for LFM3 and 2 of 198 for Bielik.) We opened the samples. The `strict-match`
   filter only accepts the sentence "The answer is X" and returns `[invalid]` otherwise. LFM3 ends with
@@ -114,18 +157,44 @@ subset, z = 4.18), and the composed full-198 headline rises to 64.65 (62.63 unde
   This differs from the IFEval card, which stores the model output. The 16384 file
   (`results/lfm3-1.7b-16k.jsonl.gz`) additionally carries a `truncated_16384` flag (the tokenizer pass was run on
   the pod); the 8192 and 2048 files do not, so a `truncated_8192` flag is not present. The 32768 files carry a
-  `truncated_32768` flag the same way. This deviation from
-  METHODOLOGY.md needs agreement in #bench-team.
-- **Not run through `run.sh` from a clean checkout.** `run.sh` is built from the real lm-eval command but has only
-  been syntax-checked (`bash -n`), not run on a GPU.
+  `truncated_32768` flag the same way (threshold: generated tokens >= budget - 8, see `scripts/truncation_flags.py`).
+  This deviation from METHODOLOGY.md needs agreement in #bench-team.
+- **The published runs did not pin the dataset revision in lm-eval.** The stock task has no `revision`, and each
+  run's `results.json` records `dataset_kwargs: null`. Per the run brief the dataset was pre-downloaded at
+  `83022cef...` and loaded offline on the pod; that is not recorded by lm-eval itself. `run.sh` now pins the revision
+  at run time (a `_pinned` task that includes the stock one) and checks it after the run.
+- **`run.sh` and `scripts/` are not the code that produced the published files.** The published runs used a pod
+  runner (`run16k.sh`) and pod-side scripts that are not in the repo; `run.sh` and `scripts/` were written afterwards
+  from the same lm-eval command. What was checked: the three flag scripts below reproduce the published
+  `.jsonl.gz` files record for record from the raw lm-eval samples (all four 2048 and 8192 files, the 16384 file and
+  the 67-item re-run file, minus the `truncated_*` flag), `select_rerun_subset.py` reproduces the id list of the
+  re-run byte for byte, and `compose_32k.py` reproduces `lfm3-1.7b-32k.jsonl.gz`. Not checked: `truncation_flags.py`
+  against the real LFM3 tokenizer, and `run.sh` on a GPU (it is syntax-checked with `bash -n` only).
 
 ## Reproduce
 
 ```bash
 export HF_TOKEN=hf_...          # consent to the gated Idavidrein/gpqa dataset required
-bash run.sh lfm3-1.7b           # CUDA GPU
+bash run.sh lfm3-1.7b           # CUDA GPU, 8192 tokens, output in out/lfm3-1.7b-8192
 bash run.sh bielik-11b-v3.1
+MAX_GEN_TOKS=16384 bash run.sh lfm3-1.7b   # output in out/lfm3-1.7b-16384, the 8192 output is kept
 bash run.sh lfm3-1.7b --limit 5 # smoke test
+```
+
+The per-item files and the 32768 composition are rebuilt from the raw lm-eval samples (which hold gated question
+text and model output, so they stay local) with the scripts in `scripts/`, standard library only except step 2:
+
+```bash
+# 1. flags from a run's samples: doc_id, exact_match (flexible-extract), answer_is_present
+python scripts/samples_to_flags.py out/lfm3-1.7b-16384/<model dir>/samples_*.jsonl results/lfm3-1.7b-16k.jsonl.gz
+# 2. truncation flag (needs transformers and the LFM3 tokenizer)
+python scripts/truncation_flags.py out/lfm3-1.7b-16384/<model dir>/samples_*.jsonl results/lfm3-1.7b-16k.jsonl.gz 16384 <path to LFM3 weights>
+# 3. the re-run subset (truncated at 16384 or no "answer is"), then re-run only those items at 32768
+python scripts/select_rerun_subset.py results/lfm3-1.7b-16k.jsonl.gz out/subset.json
+SAMPLES_JSON=out/subset.json MAX_GEN_TOKS=32768 BATCH_SIZE=16 bash run.sh lfm3-1.7b
+# flags for the re-run (steps 1 and 2 again, budget 32768), then compose
+python scripts/compose_32k.py results/lfm3-1.7b-16k.jsonl.gz results/lfm3-1.7b-32k-subsetB.jsonl.gz results/lfm3-1.7b-32k.jsonl.gz
+python scripts/compose_32k.py results/lfm3-1.7b-16k.jsonl.gz results/lfm3-1.7b-32k-subsetB.jsonl.gz /tmp/composition-B.jsonl.gz --all-rerun
 ```
 
 This reproduces the exploratory local run only. The official path is the Fabryka API at the card settings.
