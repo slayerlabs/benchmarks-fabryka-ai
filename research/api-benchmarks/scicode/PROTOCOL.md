@@ -77,7 +77,7 @@ Slayer 1B is a base model with a 4096-token context and does not follow chat ins
 ## Control (before any claim)
 
 **K1.** `lfm3-1.7b`, with background, lands within 2 clustered SE of its card value 28.47. If it does not, the
-setup is the suspect: no hypothesis below is read until the gap is explained in an amendment. The run without
+setup is the suspect: no hypothesis below is read until the gap is explained in an amendment. The run without <!-- ocena-bez-se: pre-registered rule, not a result -->
 background is not a second chance at the control: it is reported next to it whatever it shows.
 
 ## Hypotheses
@@ -126,3 +126,34 @@ output of this benchmark. Seen so far: those 48 Bielik answers and their scores 
 - **Reported next to K2, not instead of it:** K2's z under E1. If K2's verdict differs between the official
   extraction and E1, the report says that K2 depends on code extraction and does not state the official verdict
   alone.
+
+## Amendment 2 (2026-11-23, after the results)
+
+Written after all three runs had been scored (final `--score` at `3b731440`, 2026-11-22 21:10 to 23:51 UTC) and
+their results seen: K1 passed, K2 supported, K3 refuted, the same under E1 for K2. Nothing above changes: no
+hypothesis, metric, threshold or control is altered, and no verdict is re-computed differently. The numbers below are
+in README.md (generated from `results/`) and in `results/scoring-events.json`.
+
+1. **Correction to "Settings".** LFM3-1.7B's chat template at `1da06bec` has no default system prompt (its system
+   block is rendered only when a request sends one; LiveCodeBench Pro 25Q2, Amendment 1, for the same template), so
+   LFM3-1.7B's prompts had no system block; "gets its template's default system prompt" reads "gets none".
+2. **What the K3 switch does.** With `enable_thinking: false` the template ends the prompt with an empty
+   `<think></think>`; LFM3-1.7B then still writes reasoning and closes it with its own `</think>` in about half of
+   its answers (none of them contains `<think>`, which is what "Metrics" asked to count). K3 is reported as written,
+   under the pre-registered switch; it was not checked before the run whether the switch removes thinking, so how
+   much of LFM3-1.7B's lead over Bielik the thinking itself buys is undetermined by K3.
+3. **Scoring conditions not written above.** (a) The three models were scored side by side, in three containers on
+   the one VM (from 18:31 UTC), not one after another; the queue log with the load average is in
+   `results/scoring-vm/`. (b) The scoring container has a 48 GB memory limit (run.sh), which the official scorer does
+   not; the kernel's OOM killer ended a test script three times, and a killed step counts as failed, as the scorer
+   grades it. Two kills are Bielik's step 53.4 without background in the final official and E1 passes; the first
+   (20:09:46 UTC) was in Bielik's first scoring, whose without-background logs were later removed (neither LFM3 run
+   wrote a verdict between 20:09:30 and 20:10:10 UTC; which step it killed is not recorded). (c) The VM's disk was
+   full for about a minute around 20:12 to 20:17 UTC while another job copied data; Bielik's official
+   without-background pass, running then, was scored again from scratch, and the official LFM3 verdicts written
+   between 20:10 and 20:20 UTC, and the two LFM3 time-outs that ran through that window, were scored again
+   afterwards with the same image and compared. (d) The E1 pass gives a step the official verdict without a scorer
+   run when its E1 file is byte-identical to the official one (`d83c7b17`); for both LFM3 runs every E1 file was.
+4. **Analyses added after the results, all descriptive; no verdict reads them:** answers closing `</think>`, the
+   share of characters before it and the passed steps among them (raw_outputs.py), the causes of empty extractions,
+   exact 95% intervals where a count is 0, and the without-background forms of K1 to K3 (readme.py).

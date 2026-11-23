@@ -31,23 +31,146 @@ hypotheses are in [PROTOCOL.md](PROTOCOL.md); this file says how the run is done
 
 ## Results
 
-| model | how it runs | score (with background) | stderr | stderr clustered | n | date |
+<!-- readme.py: results (generated from results/ by readme.py; edit readme.py, not this block) -->
+
+Headline: correct subproblems with background, out of 288 (test_generated_code.py). Verdicts read the SE clustered by problem (65 clusters).
+
+| model | thinking | serving | output limit | correct (%) | stderr | stderr clustered | n | main problems | mean output tokens | date |
+|---|---|---|---|---|---|---|---|---|---|---|
+| LFM3-1.7B (`lfm3-1.7b`) | on (template default) | vLLM 0.34.0, bf16, one H100 | context minus prompt tokens (context 262144) | 32.64 | 2.76 | 3.63 | 288 | 5/65 (7.69%) | 7708.5 | 2026-11-22 |
+| LFM3-1.7B (`lfm3-1.7b-nothink`) | off requested (`enable_thinking: false`) | the same vLLM server | context minus prompt tokens (context 262144) | 24.65 | 2.54 | 3.04 | 288 | 4/65 (6.15%) | 5203.3 | 2026-11-22 |
+| Bielik 11B v3.1 (`bielik-11b-v3.1`) | no reasoning switch through the API | Fabryka AI API, with the API's provider system prompt | context minus prompt tokens minus a margin of 64 (context 32768) | 2.43 | 0.91 | 1.01 | 288 | 0/65 (exact 95% CI 0 to 5.52%) | 655.2 | 2026-11-22 |
+| Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`) | | | | null (a base model with a 4096-token context that does not follow chat instructions; on 30 Python tasks in research/slayer-1b/rozmowy-1.08 it wrote no function that passed its tests (PROTOCOL.md, Models)) | | | | | | |
+
+Both prompt settings: correct (%) ± stderr (correct/288; clustered SE), main problems solved (all scored steps pass) out of 65, and the scorer's verdicts per step:
+
+| run | setting | correct | main problems | pass | fail | time out |
 |---|---|---|---|---|---|---|
-| LFM3-1.7B (`lfm3-1.7b`) | vLLM 0.34.0, bf16, context 262144, thinking on | | | | | |
-| LFM3-1.7B without thinking (`lfm3-1.7b-nothink`) | the same server, `enable_thinking: false` | | | | | |
-| Bielik 11B v3.1 (`bielik-11b-v3.1`) | Fabryka AI API, context 32768, with the API's provider system prompt, no thinking | | | | | |
-| Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`) | not run (PROTOCOL.md, Models) | null | | | | |
+| lfm3-1.7b | with background | 32.64 ± 2.76 (94/288; clustered 3.63) | 5/65 (7.69%) | 94 | 193 | 1 |
+| lfm3-1.7b | without background | 22.92 ± 2.48 (66/288; clustered 3.02) | 1/65 (1.54%) | 66 | 219 | 3 |
+| lfm3-1.7b-nothink | with background | 24.65 ± 2.54 (71/288; clustered 3.04) | 4/65 (6.15%) | 71 | 216 | 1 |
+| lfm3-1.7b-nothink | without background | 17.36 ± 2.23 (50/288; clustered 2.75) | 0/65 (exact 95% CI 0 to 5.52%) | 50 | 236 | 2 |
+| bielik-11b-v3.1 | with background | 2.43 ± 0.91 (7/288; clustered 1.01) | 0/65 (exact 95% CI 0 to 5.52%) | 7 | 281 | 0 |
+| bielik-11b-v3.1 | without background | 1.74 ± 0.77 (5/288; clustered 0.75) | 0/65 (exact 95% CI 0 to 5.52%) | 5 | 281 | 2 |
 
-No model has been run yet. The without-background scores are in each result file under
-`other_metrics.without_background`.
+| run | setting | output tokens mean / median / max | unfinished (thinking on) | stopped by the length limit | prompts over the context | answers containing `<think>` |
+|---|---|---|---|---|---|---|
+| lfm3-1.7b | with background | 7708.5 / 6814.0 / 39805 | 0 | 0 | 0 | 0 of 288 |
+| lfm3-1.7b | without background | 8232.5 / 7638.5 / 23673 | 0 | 0 | 0 | 0 of 288 |
+| lfm3-1.7b-nothink | with background | 5203.3 / 3710.0 / 31765 | 0 | 0 | 0 | 0 of 288 |
+| lfm3-1.7b-nothink | without background | 5324.0 / 3896.5 / 27465 | 0 | 0 | 0 | 0 of 288 |
+| bielik-11b-v3.1 | with background | 655.2 / 562.0 / 2716 | 0 | 0 | 0 | 0 of 288 |
+| bielik-11b-v3.1 | without background | 697.2 / 626.5 / 1918 | 0 | 0 | 0 | 0 of 288 |
 
-Setup check (not a model): the dev split's `ground_truth_code`, fed through the same Gencode files and the same
-scorer (`bash run.sh dev-ground-truth`, `--split validation`), in `results/checks/dev-ground-truth.json`. Two of
-its 50 steps fail with the authors' own code (78.3: the target has shape (2, 2), the reference returns
-(10001, 2); 70.8: `np.allclose` false), as SciCode issue #43 reports for some dev ground truth.
+Secondary extraction E1 (PROTOCOL.md Amendment 1), the same answers: a step whose E1 file is byte-identical to its official file took the official verdict, the others were scored by the same scorer:
+
+| run | setting | correct, official | correct, E1 | main problems, E1 | steps with the official verdict (identical file) | steps scored under E1 |
+|---|---|---|---|---|---|---|
+| lfm3-1.7b | with background | 94/288 | 32.64 ± 2.76 (94/288; clustered 3.63) | 5/65 (7.69%) | 288 | 0 |
+| lfm3-1.7b | without background | 66/288 | 22.92 ± 2.48 (66/288; clustered 3.02) | 1/65 (1.54%) | 288 | 0 |
+| lfm3-1.7b-nothink | with background | 71/288 | 24.65 ± 2.54 (71/288; clustered 3.04) | 4/65 (6.15%) | 288 | 0 |
+| lfm3-1.7b-nothink | without background | 50/288 | 17.36 ± 2.23 (50/288; clustered 2.75) | 0/65 (exact 95% CI 0 to 5.52%) | 288 | 0 |
+| bielik-11b-v3.1 | with background | 7/288 | 3.12 ± 1.03 (9/288; clustered 1.20) | 0/65 (exact 95% CI 0 to 5.52%) | 84 | 204 |
+| bielik-11b-v3.1 | without background | 5/288 | 1.74 ± 0.77 (5/288; clustered 0.75) | 0/65 (exact 95% CI 0 to 5.52%) | 157 | 131 |
+
+Bielik's prompt: the API's `usage.prompt_tokens` minus our local count with Bielik's own template, with background: min 0, max 0. Its request log holds 2 events (recovered 1, retry 1; HTTP 503 1, none 1).
+
+Baselines: 0 for random and majority answers (no fixed output passes a step's numerical tests). The LFM3-1.7B card reports 28.47; the control is in Hypotheses.
+
+Scoring: all three runs on one VM (AMD EPYC 7302P 16-Core Processor, 30 vCPUs), SciCode `e3158ea0`, container image `sha256:261432609549a9638b735a97e423d9b2b2aa952754dfd2b649cd6b02c09c59cb` (network none; python 3.11.9, numpy 1.26.4 with openblas64 0.3.23.dev, scipy 1.13.1, sympy 1.12.1, h5py 3.11.0), BLAS threads 1, 1800 s per step; `test_data.h5` sha256 `48b0272a88b17dbd29777c217e1b4fb2b019b92e11cc2add847409db9541b890` checked; dataset revision the scorer loaded: `4510f6a6aa27c43fad7b43da2c59602a86e88480`.
+
+Raw outputs (with thinking, not committed): the LFM3-1.7B runs in `labaj-agency/out/coding-group/box/export.tgz`, sha256 `2bcf89771f031feb5fbae69617bcd5a60d2d73359c58cadf3c62e7ba218c51c6`; Bielik's in `out/bielik-11b-v3.1/generations.jsonl on the generating Mac`. Each run's generations.jsonl sha256 equals its result file's `raw_outputs.sha256` (results/raw-outputs.json).
+
+Setup check (not a model): the dev split's `ground_truth_code`, fed through the same Gencode files and scorer, passes 48 of 50 steps and 13 of 15 problems (results/checks/dev-ground-truth.json); the 2 failing steps fail with the authors' own code (SciCode issue #43).
+
+<!-- readme.py: end results -->
+
+## Hypotheses
+
+<!-- readme.py: hypotheses (generated from results/ by readme.py; edit readme.py, not this block) -->
+
+K1 control: LFM3-1.7B 32.64 ± 3.63 (clustered) vs card 28.47, z = +1.15: passed
+
+| test | value (pp) | SE (pp) | z | Holm p support | Holm p refute | raw | verdict after Holm | read |
+|---|---|---|---|---|---|---|---|---|
+| K2 | -13.89 | 2.18 | -6.38 | 3.58e-10 | 1 | supported | supported (clear) | True |
+| K2 under E1 (Amendment 1) | -13.20 | 2.18 | -6.06 | 2.73e-09 | 1 | supported | supported (clear) | True |
+| K3 | +7.12 | 2.02 | +3.52 | 1 | 0.000659 | refuted | refuted (clear) | True |
+Holm m = 4, family: scicode K2, scicode K3, livecodebench-pro-25q2 K2, livecodebench-pro-25q2 K3
+
+Without background (descriptive, not tested; PROTOCOL.md: the without-background run is no second chance at the control):
+
+| test form | value (pp) | SE (pp) | z |
+|---|---|---|---|
+| K1 form: LFM3-1.7B minus the card's 28.47 | -5.55 | 3.02 | -1.84 |
+| K2 form | -14.58 | 2.18 | -6.70 |
+| K3 form | +5.03 | 1.76 | +2.87 |
+
+Reading:
+
+- **K1** passed: LFM3-1.7B with background lands within 2 clustered SE of its card value (z = +1.15), so K2 and K3 are read.
+- **K2** (supported (clear)) compares Bielik through the API with a number on the card, not with a model run here: LFM2.5-2.6B's 16.32, with the SE floor of PROTOCOL.md. Under E1 (Amendment 1) z = -6.06, supported (clear): K2 does not depend on code extraction: official and E1 both supported (supported (clear) after Holm).
+- **K3** refuted under the pre-registered switch (`enable_thinking: false`): with the switch off LFM3 keeps more than half of its lead over Bielik (D = +7.12 ± 2.02, z = +3.52; the lead itself +30.21, z = +8.18). The switch removes reasoning only in part: with it off 147 of 288 answers with background still reason and close a `</think>` (median 93.3% of an answer's characters before it), against 288 of 288 with thinking on; 17 of its 71 passed steps come from such answers, and it writes 5203 output tokens per answer on average against 7708. How much of the lead thinking itself buys is therefore undetermined by K3 (PROTOCOL.md, Amendment 2).
+- **Holm over the Coding group** (m = 4) used LiveCodeBench Pro 25Q2's K2 and K3 from `results/group-tests-livecodebench-pro-25q2.json`, copied from branch `research/livecodebench-pro-25q2` at `f16b862b`.
+
+<!-- readme.py: end hypotheses -->
+
+## Exploratory
+
+<!-- readme.py: exploratory (generated from results/ by readme.py; edit readme.py, not this block) -->
+
+**EXPLORATORY: added after the results were seen (PROTOCOL.md, Amendment 2); no verdict reads it.** From the raw outputs (raw_outputs.py), the last answer of each step:
+
+| run | setting | answers closing a reasoning block with `</think>` | median share of the answer before its last `</think>` | passed steps whose answer closes `</think>` |
+|---|---|---|---|---|
+| lfm3-1.7b | with background | 288 of 288 | 93.3% | 94 of 94 |
+| lfm3-1.7b | without background | 288 of 288 | 92.3% | 66 of 66 |
+| lfm3-1.7b-nothink | with background | 147 of 288 | 93.3% | 17 of 71 |
+| lfm3-1.7b-nothink | without background | 146 of 288 | 92.6% | 23 of 50 |
+| bielik-11b-v3.1 | with background | 8 of 288 | 63.3% | 0 of 7 |
+| bielik-11b-v3.1 | without background | 0 of 288 | none | 0 of 5 |
+
+Bielik's API template ends the prompt with an empty `<think></think>`, so each `</think>` in its output is a stray tag it wrote: 8 answers with background, 0 without. The official extraction reads only the text after it.
+
+Empty official extractions (no code at all) and their cause, read from the text the extraction saw (`lone fence`: exactly one fence line and no ```` ```python ````, so the official rule took the text after a fence that closes code never opened, here nothing), and over all answers how many have such a lone fence (where E1 differs) or no fence line:
+
+| run | setting | empty extractions | lone fence | unfinished | other | answers with a lone fence | answers without a fence line |
+|---|---|---|---|---|---|---|---|
+| lfm3-1.7b | with background | 0 | 0 | 0 | 0 | 0 | 0 |
+| lfm3-1.7b | without background | 0 | 0 | 0 | 0 | 0 | 0 |
+| lfm3-1.7b-nothink | with background | 0 | 0 | 0 | 0 | 0 | 0 |
+| lfm3-1.7b-nothink | without background | 0 | 0 | 0 | 0 | 0 | 0 |
+| bielik-11b-v3.1 | with background | 35 | 33 | 0 | 2 | 120 | 68 |
+| bielik-11b-v3.1 | without background | 32 | 32 | 0 | 0 | 60 | 1 |
+
+<!-- readme.py: end exploratory -->
 
 ## Deviations
 
+How the measurement ran (facts from results/scoring-events.json and the result files; PROTOCOL.md Amendment 2):
+
+<!-- readme.py: scoring (generated from results/ by readme.py; edit readme.py, not this block) -->
+
+- Generation (commit at the start of each session): lfm3-1.7b: `e65c9c27` (2026-11-22T16:51:37+00:00, AMD EPYC 9684X 96-Core Processor, NVIDIA H100 80GB HBM3); lfm3-1.7b-nothink: `e65c9c27` (2026-11-22T16:51:26+00:00, AMD EPYC 9684X 96-Core Processor, NVIDIA H100 80GB HBM3); bielik-11b-v3.1: `04eb5c19` (2026-11-22T16:33:53+00:00, Apple M5 Pro, limit 2), `2ade850c` (2026-11-22T17:05:18+00:00, Apple M5 Pro).
+- Scoring code: `3b731440030a178e73f660c632c2df68fd2fce29` for all three runs (final `--score`).
+- Side by side: 2026-11-22T18:31:32Z parallel: bielik and nothink start next to lfm3-1.7b (deviation: models scored side by side) — the three models were scored at the same time in three containers on one VM (results/scoring-vm/score-scicode.log, with the load average at each start and end); a step near the 1800 s limit can time out under load that it would pass on an idle machine.
+- Container memory limit 48g (run.sh --score, docker --memory); the official scorer has none. The kernel's OOM killer ended 3 test scripts: Nov 22 20:09:46 UTC (container `3eeaa55f5947`, 47.7 GiB resident); Nov 22 22:45:12 UTC (container `a7f34304de3a`, 47.7 GiB resident); Nov 22 23:50:55 UTC (container `a7f34304de3a`, 47.7 GiB resident). In the final scorer output the killed steps are: bielik-11b-v3.1 e1_without_background 53.4, bielik-11b-v3.1 without_background 53.4; each counts as a failed step, as the scorer grades it.
+- Disk full: the journal logged 250 "No space left on device" lines at Nov 22 20:17:04 UTC. Queue log, 2026-11-22T21:08:49Z: final: removed Bielik official without_background logs (disk-full window) for rescoring. Queue log, 2026-11-22T21:10:16Z: final: removed Bielik official without_background logs (disk-full window) for rescoring. The official LFM3 steps whose verdicts were written between 20:10 and 20:20 UTC, and the time-outs that ran through that window, were re-scored afterwards with the same image and compared with the kept verdicts: lfm3-1.7b without background (lfm3-63.6): 1 of 1 the same; lfm3-1.7b-nothink without background (nothink-64.6): 1 of 1 the same; lfm3-1.7b-nothink without background (nothink-window): 42 of 42 the same.
+- E1 identity reuse: lfm3-1.7b with background: 288 reused, 0 scored; lfm3-1.7b without background: 288 reused, 0 scored; lfm3-1.7b-nothink with background: 288 reused, 0 scored; lfm3-1.7b-nothink without background: 288 reused, 0 scored; bielik-11b-v3.1 with background: 84 reused, 204 scored; bielik-11b-v3.1 without background: 157 reused, 131 scored.
+
+<!-- readme.py: end scoring -->
+
+- **The scoring commit differs from the generation commits, and two scoring records say `dirty: true`.**
+  Generation and scoring are separate steps (PROTOCOL.md): the LFM3-1.7B runs were generated on the H100 box at
+  `e65c9c27` and Bielik's on the Mac (its first 2 problems, 77 and 11, 48 answers, in the smoke session at
+  `04eb5c19`, the other 528 at `2ade850c`, resuming that session); the generation path of `scicode_runner.py` is the
+  same in all three commits (between them only the docstring and the scoring functions change). All three were
+  scored at `3b731440`; each record's `runner_sha256` equals the files at the commit it names. `dirty` is git's view
+  of the VM checkout when a step started: after the first model's summary, `results/manifest.json` there was
+  modified, so the later two scoring steps saw a tracked file changed; no runner file differed (the tests compare
+  the recorded runner sha256 with the commits).
+- **The dev check's 2 failing steps fail with the authors' own code**: 78.3 (the target has shape (2, 2), the
+  reference returns (10001, 2)) and 70.8 (`np.allclose` false), as SciCode issue #43 reports.
 - **Only the model call is ours.** `scicode_runner.py` runs `Gencode.generate_response_with_steps` itself, which
   builds the prompt from the model's extracted code for the earlier steps, takes the code with
   `extract_python_script` and writes `<problem>.<step>.py` with `save_response_with_steps`; it replaces
@@ -166,7 +289,7 @@ bash run.sh lfm3-1.7b --score
 bash run.sh lfm3-1.7b-nothink --score
 bash run.sh bielik-11b-v3.1 --score
 bash run.sh dev-ground-truth && bash run.sh dev-ground-truth --score   # setup check, no model
-python3 hypotheses.py results --group ../livecodebench-pro-25q2/results/hypotheses.json
+python3 hypotheses.py results --group results/group-tests-livecodebench-pro-25q2.json
 ```
 
 `--score` writes `results/<model-id>.json` and `.jsonl.gz` (with `--limit N`: `out/<model-id>/<model-id>-limitN.*`).
@@ -175,4 +298,17 @@ machine and sampling in effect, plus for scoring the image id, `test_data.h5` sh
 scorer loaded and the package versions; `manifest.json` holds the sha256 each step wrote, which the next step
 checks; `api-events.jsonl` every failed request attempt and each recovery.
 
-Tests: `.venv-gen/bin/python -m pytest ../../tests/test_scicode.py -x -q` (no GPU, network or `test_data.h5`).
+After scoring, on the machine with the raw outputs (stdlib only):
+
+```bash
+python3 raw_outputs.py ~/Documents/GitHub/labaj-agency/out/coding-group/box/export.tgz   # results/raw-outputs.json
+python3 scoring_events.py   # results/scoring-events.json, from the logs copied into results/scoring-vm/
+python3 readme.py           # the generated blocks of this README; --check compares byte for byte
+```
+
+`results/scoring-vm/` holds what was copied off the scoring VM: the queue log, the final scorer outputs, the kernel's
+OOM lines, the journal's disk-full lines, and the window re-scoring (`window_rescore.sh` / `.py`, run there, and its
+`window-*.json` comparisons).
+
+Tests: `.venv-gen/bin/python -m pytest ../../tests/test_scicode.py ../../tests/test_scicode_results.py -q` (no GPU,
+network or `test_data.h5`; the raw-output recount runs where the archive and `out/bielik-11b-v3.1/` are).
