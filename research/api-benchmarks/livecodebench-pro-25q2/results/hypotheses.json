@@ -110,7 +110,7 @@
       {
         "benchmark": "scicode",
         "id": "K3",
-        "z": 3.515238318123505,
+        "z": 3.515238318123504,
         "p_support": 0.9997803202400652,
         "p_refute": 0.00021967975993475441,
         "outcome_raw": "refuted",
@@ -172,6 +172,6 @@
   },
   "group_file": {
     "file": "scicode/results/hypotheses.json",
-    "sha256": "843eb6809a3446e18500516610465040afc47b5608e351fb2355322fb5f38f84"
+    "sha256": "21a710a707ef062efea92dc111e46362225b314d4efa237bd6b5f3a6a17b5532"
   }
 }

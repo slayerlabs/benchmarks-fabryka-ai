@@ -168,7 +168,7 @@ Reading:
 
 - **K2** (supported (clear)) compares Bielik through the API with a number on the card, not with a model run here: LFM2.5-2.6B's 19.16, with the SE floor of PROTOCOL.md.
 - **K3** refuted under the pre-registered switch (`enable_thinking: false`): with the switch off LFM3 keeps most of its lead (D = +11.68 ± 2.36, z = +4.94); the switch does not remove reasoning (153/167 answers reason and close `</think>`), so how much of the lead thinking itself buys is undetermined. With the switch off the median answer has 93% of its characters before its last `</think>`, 46 of its 48 accepted answers close one, and it writes 24545 output tokens per answer on average (PROTOCOL.md, Amendment 1).
-- **Holm over the Coding group** (m = 4) uses SciCode's K2 and K3 from its `scicode/results/hypotheses.json` (sha256 `843eb6809a3446e18500516610465040afc47b5608e351fb2355322fb5f38f84`).
+- **Holm over the Coding group** (m = 4) uses SciCode's K2 and K3 from its `scicode/results/hypotheses.json` (sha256 `21a710a707ef062efea92dc111e46362225b314d4efa237bd6b5f3a6a17b5532`).
 
 <!-- readme.py: end hypotheses -->
 

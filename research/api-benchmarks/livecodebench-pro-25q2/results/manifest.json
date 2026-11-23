@@ -16,8 +16,8 @@
       "written_by": "explore.py"
     },
     "hypotheses.json": {
-      "at": "2026-11-23T04:51:15+00:00",
-      "sha256": "22c811ffa0d809609dc01bca4b5dffe4def8b46d1f583626d9e5383f1286c586",
+      "at": "2026-11-23T05:28:44+00:00",
+      "sha256": "24c5cc86ef78c9d23f4fdc3be691f5d736230867387eb6b9cbd5ce4a1c8dfb6a",
       "written_by": "compare.py"
     },
     "lfm3-1.7b-nothink.json": {
