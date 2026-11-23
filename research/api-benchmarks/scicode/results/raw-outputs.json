@@ -1,0 +1,195 @@
+{
+  "archive": {
+    "file": "labaj-agency/out/coding-group/box/export.tgz",
+    "committed": false,
+    "sha256": "2bcf89771f031feb5fbae69617bcd5a60d2d73359c58cadf3c62e7ba218c51c6"
+  },
+  "runs": {
+    "lfm3-1.7b": {
+      "file": "labaj-agency/out/coding-group/box/export.tgz : scicode/research/api-benchmarks/scicode/out/lfm3-1.7b/generations.jsonl",
+      "sha256": "9d3a8ace4a2282c8e76b5922ff07e02fe0ee87b4b80324b9cf6c21fe33c6c20a",
+      "matches_result": true,
+      "settings": {
+        "with_background": {
+          "reasoning": {
+            "answers": 288,
+            "closing_think": 288,
+            "median_share_before_last_think_end": 0.9335,
+            "passed": 94,
+            "passed_closing_think": 94
+          },
+          "extraction": {
+            "empty_official": 0,
+            "empty_by_cause": {},
+            "answers_lone_fence": 0,
+            "answers_without_fence_line": 0
+          }
+        },
+        "without_background": {
+          "reasoning": {
+            "answers": 288,
+            "closing_think": 288,
+            "median_share_before_last_think_end": 0.9231,
+            "passed": 66,
+            "passed_closing_think": 66
+          },
+          "extraction": {
+            "empty_official": 0,
+            "empty_by_cause": {},
+            "answers_lone_fence": 0,
+            "answers_without_fence_line": 0
+          }
+        }
+      }
+    },
+    "lfm3-1.7b-nothink": {
+      "file": "labaj-agency/out/coding-group/box/export.tgz : scicode/research/api-benchmarks/scicode/out/lfm3-1.7b-nothink/generations.jsonl",
+      "sha256": "a6d8160b47a9daa816d9e64ea5f6d0d66b80112639aef93b578dbfd06f35734a",
+      "matches_result": true,
+      "settings": {
+        "with_background": {
+          "reasoning": {
+            "answers": 288,
+            "closing_think": 147,
+            "median_share_before_last_think_end": 0.9335,
+            "passed": 71,
+            "passed_closing_think": 17
+          },
+          "extraction": {
+            "empty_official": 0,
+            "empty_by_cause": {},
+            "answers_lone_fence": 0,
+            "answers_without_fence_line": 0
+          }
+        },
+        "without_background": {
+          "reasoning": {
+            "answers": 288,
+            "closing_think": 146,
+            "median_share_before_last_think_end": 0.9257,
+            "passed": 50,
+            "passed_closing_think": 23
+          },
+          "extraction": {
+            "empty_official": 0,
+            "empty_by_cause": {},
+            "answers_lone_fence": 0,
+            "answers_without_fence_line": 0
+          }
+        }
+      }
+    },
+    "bielik-11b-v3.1": {
+      "file": "out/bielik-11b-v3.1/generations.jsonl on the generating Mac",
+      "sha256": "3917d2c8487b2f7be34d4f96bb8dd99d5112d8eafbbf1ecbe65ada5b665438b9",
+      "matches_result": true,
+      "settings": {
+        "with_background": {
+          "reasoning": {
+            "answers": 288,
+            "closing_think": 8,
+            "median_share_before_last_think_end": 0.6327,
+            "passed": 7,
+            "passed_closing_think": 0
+          },
+          "extraction": {
+            "empty_official": 35,
+            "empty_by_cause": {
+              "lone_fence": [
+                "11.7",
+                "12.14",
+                "13.2",
+                "13.3",
+                "13.4",
+                "13.5",
+                "13.8",
+                "13.12",
+                "16.2",
+                "18.1",
+                "20.2",
+                "22.2",
+                "33.1",
+                "34.1",
+                "43.2",
+                "43.3",
+                "50.4",
+                "56.2",
+                "57.2",
+                "60.1",
+                "61.2",
+                "61.4",
+                "63.2",
+                "63.6",
+                "64.6",
+                "65.1",
+                "65.6",
+                "67.5",
+                "68.7",
+                "77.9",
+                "77.10",
+                "79.2",
+                "80.4"
+              ],
+              "other": [
+                "12.12",
+                "42.2"
+              ]
+            },
+            "answers_lone_fence": 120,
+            "answers_without_fence_line": 68
+          }
+        },
+        "without_background": {
+          "reasoning": {
+            "answers": 288,
+            "closing_think": 0,
+            "median_share_before_last_think_end": null,
+            "passed": 5,
+            "passed_closing_think": 0
+          },
+          "extraction": {
+            "empty_official": 32,
+            "empty_by_cause": {
+              "lone_fence": [
+                "11.2",
+                "11.10",
+                "12.3",
+                "12.4",
+                "12.13",
+                "12.14",
+                "13.4",
+                "13.12",
+                "13.13",
+                "13.14",
+                "21.3",
+                "31.1",
+                "31.3",
+                "33.1",
+                "48.3",
+                "50.2",
+                "52.2",
+                "52.3",
+                "56.1",
+                "57.4",
+                "64.2",
+                "66.2",
+                "66.5",
+                "68.5",
+                "71.2",
+                "71.6",
+                "71.7",
+                "72.5",
+                "73.6",
+                "77.5",
+                "77.8",
+                "80.7"
+              ]
+            },
+            "answers_lone_fence": 60,
+            "answers_without_fence_line": 1
+          }
+        }
+      }
+    }
+  }
+}

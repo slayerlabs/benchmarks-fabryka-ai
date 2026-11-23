@@ -1,0 +1,16 @@
+{
+ "model": "lfm3-1.7b-nothink",
+ "setting": "without_background",
+ "steps": 1,
+ "same": 1,
+ "differ": [],
+ "rows": [
+  {
+   "step": "64.6",
+   "kept": "time out",
+   "rescored": "time out",
+   "same": true
+  }
+ ],
+ "scorer_seconds": 1801.7
+}

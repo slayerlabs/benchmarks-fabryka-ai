@@ -1,0 +1,262 @@
+{
+ "model": "lfm3-1.7b-nothink",
+ "setting": "without_background",
+ "steps": 42,
+ "same": 42,
+ "differ": [],
+ "rows": [
+  {
+   "step": "2.1",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "11.1",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "11.5",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "11.7",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "12.6",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "12.14",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "13.1",
+   "kept": "pass",
+   "rescored": "pass",
+   "same": true
+  },
+  {
+   "step": "13.7",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "14.1",
+   "kept": "pass",
+   "rescored": "pass",
+   "same": true
+  },
+  {
+   "step": "14.2",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "15.2",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "18.2",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "25.1",
+   "kept": "pass",
+   "rescored": "pass",
+   "same": true
+  },
+  {
+   "step": "25.3",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "28.2",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "28.3",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "30.1",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "35.1",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "37.1",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "37.2",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "39.2",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "45.3",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "45.4",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "58.2",
+   "kept": "pass",
+   "rescored": "pass",
+   "same": true
+  },
+  {
+   "step": "58.3",
+   "kept": "pass",
+   "rescored": "pass",
+   "same": true
+  },
+  {
+   "step": "58.4",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "59.3",
+   "kept": "pass",
+   "rescored": "pass",
+   "same": true
+  },
+  {
+   "step": "62.6",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "63.2",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "63.3",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "64.5",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "65.2",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "65.3",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "66.2",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "66.4",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "67.2",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "71.3",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "71.5",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "72.3",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "75.2",
+   "kept": "pass",
+   "rescored": "pass",
+   "same": true
+  },
+  {
+   "step": "79.4",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  },
+  {
+   "step": "80.7",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  }
+ ],
+ "scorer_seconds": 63.7
+}

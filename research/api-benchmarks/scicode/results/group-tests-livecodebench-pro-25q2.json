@@ -1,0 +1,27 @@
+{
+  "note": "K2 and K3 of LiveCodeBench Pro 25Q2 for Holm over the Coding group (PROTOCOL.md, Hypotheses), copied verbatim from that benchmark's results/hypotheses.json; hypotheses.py --group reads `group_tests`.",
+  "source": {
+    "branch": "research/livecodebench-pro-25q2",
+    "commit": "f16b862b08bd3601391871af715c1e5a01618675",
+    "file": "research/api-benchmarks/livecodebench-pro-25q2/results/hypotheses.json",
+    "sha256": "22c811ffa0d809609dc01bca4b5dffe4def8b46d1f583626d9e5383f1286c586"
+  },
+  "group_tests": [
+    {
+      "benchmark": "livecodebench-pro-25q2",
+      "id": "K2",
+      "z": -5.701471051997423,
+      "p_support": 5.938895427580987e-09,
+      "p_refute": 0.9999999940611046,
+      "outcome_raw": "supported"
+    },
+    {
+      "benchmark": "livecodebench-pro-25q2",
+      "id": "K3",
+      "z": 4.942451322714204,
+      "p_support": 0.9999996142681458,
+      "p_refute": 3.857318542355159e-07,
+      "outcome_raw": "refuted"
+    }
+  ]
+}

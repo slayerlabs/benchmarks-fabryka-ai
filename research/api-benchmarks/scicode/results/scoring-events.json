@@ -1,0 +1,211 @@
+{
+  "scorer_runs_final": {
+    "bielik-11b-v3.1": {
+      "e1_with_background": {
+        "files": 204,
+        "killed_sigkill": [],
+        "printed_correct_steps": 2
+      },
+      "e1_without_background": {
+        "files": 131,
+        "killed_sigkill": [
+          "53.4"
+        ],
+        "printed_correct_steps": 1
+      },
+      "with_background": {
+        "files": 288,
+        "killed_sigkill": [],
+        "printed_correct_steps": 7
+      },
+      "without_background": {
+        "files": 288,
+        "killed_sigkill": [
+          "53.4"
+        ],
+        "printed_correct_steps": 5
+      }
+    },
+    "lfm3-1.7b-nothink": {
+      "with_background": {
+        "files": 288,
+        "killed_sigkill": [],
+        "printed_correct_steps": 71
+      },
+      "without_background": {
+        "files": 288,
+        "killed_sigkill": [],
+        "printed_correct_steps": 50
+      }
+    },
+    "lfm3-1.7b": {
+      "with_background": {
+        "files": 288,
+        "killed_sigkill": [],
+        "printed_correct_steps": 94
+      },
+      "without_background": {
+        "files": 288,
+        "killed_sigkill": [],
+        "printed_correct_steps": 66
+      }
+    }
+  },
+  "kernel_oom_kills": [
+    {
+      "time_utc": "Nov 22 20:09:46",
+      "container": "3eeaa55f5947",
+      "pid": 140537,
+      "anon_rss_kb": 49970628,
+      "total_vm_kb": 51466808
+    },
+    {
+      "time_utc": "Nov 22 22:45:12",
+      "container": "a7f34304de3a",
+      "pid": 205851,
+      "anon_rss_kb": 49970248,
+      "total_vm_kb": 51538612
+    },
+    {
+      "time_utc": "Nov 22 23:50:55",
+      "container": "a7f34304de3a",
+      "pid": 207000,
+      "anon_rss_kb": 49970772,
+      "total_vm_kb": 51471064
+    }
+  ],
+  "container_memory_limit": "48g (run.sh --score, docker --memory)",
+  "disk_full_journal": [
+    {
+      "time_utc": "Nov 22 20:17:04",
+      "lines": 7
+    },
+    {
+      "time_utc": "Nov 22 20:17:04",
+      "lines": 243
+    }
+  ],
+  "queue_log": [
+    {
+      "time": "2026-11-22T17:43:37Z",
+      "entry": "code 2ade850c2c7ff4d5ebd6f41eae0caacfa50c4eb2"
+    },
+    {
+      "time": "2026-11-22T17:43:37Z",
+      "entry": "start lfm3-1.7b generations=576 load=0.23 0.87 1.73"
+    },
+    {
+      "time": "2026-11-22T18:31:32Z",
+      "entry": "parallel: bielik and nothink start next to lfm3-1.7b (deviation: models scored side by side)"
+    },
+    {
+      "time": "2026-11-22T18:31:32Z",
+      "entry": "code 2ade850c2c7ff4d5ebd6f41eae0caacfa50c4eb2"
+    },
+    {
+      "time": "2026-11-22T18:31:32Z",
+      "entry": "start bielik-11b-v3.1 generations=576 load=1.00 1.02 1.41"
+    },
+    {
+      "time": "2026-11-22T18:31:32Z",
+      "entry": "code 2ade850c2c7ff4d5ebd6f41eae0caacfa50c4eb2"
+    },
+    {
+      "time": "2026-11-22T18:31:32Z",
+      "entry": "start lfm3-1.7b-nothink generations=576 load=1.00 1.02 1.41"
+    },
+    {
+      "time": "2026-11-22T21:08:49Z",
+      "entry": "final: stopped 2ade850c scoring, code 2ade850c2c7ff4d5ebd6f41eae0caacfa50c4eb2"
+    },
+    {
+      "time": "2026-11-22T21:08:49Z",
+      "entry": "final: removed Bielik official without_background logs (disk-full window) for rescoring"
+    },
+    {
+      "time": "2026-11-22T21:08:49Z",
+      "entry": "final start lfm3-1.7b load=3.56 3.70 3.71"
+    },
+    {
+      "time": "2026-11-22T21:10:16Z",
+      "entry": "final: stopped 2ade850c scoring, code 3b731440030a178e73f660c632c2df68fd2fce29"
+    },
+    {
+      "time": "2026-11-22T21:10:16Z",
+      "entry": "final: removed Bielik official without_background logs (disk-full window) for rescoring"
+    },
+    {
+      "time": "2026-11-22T21:10:16Z",
+      "entry": "final start lfm3-1.7b load=1.84 3.11 3.50"
+    },
+    {
+      "time": "2026-11-22T21:10:24Z",
+      "entry": "final end lfm3-1.7b exit=0 load=1.77 3.07 3.49"
+    },
+    {
+      "time": "2026-11-22T21:10:24Z",
+      "entry": "final start lfm3-1.7b-nothink load=1.77 3.07 3.49"
+    },
+    {
+      "time": "2026-11-22T21:10:32Z",
+      "entry": "final end lfm3-1.7b-nothink exit=0 load=1.81 3.04 3.47"
+    },
+    {
+      "time": "2026-11-22T21:10:32Z",
+      "entry": "final start bielik-11b-v3.1 load=1.81 3.04 3.47"
+    },
+    {
+      "time": "2026-11-22T23:51:41Z",
+      "entry": "final end bielik-11b-v3.1 exit=0 load=1.00 1.00 1.00"
+    },
+    {
+      "time": "2026-11-22T23:51:41Z",
+      "entry": "final: scoring done"
+    }
+  ],
+  "window_rescore": {
+    "lfm3-63.6": {
+      "model": "lfm3-1.7b",
+      "setting": "without_background",
+      "steps": 1,
+      "same": 1,
+      "differ": [],
+      "scorer_seconds": 1801.7
+    },
+    "nothink-64.6": {
+      "model": "lfm3-1.7b-nothink",
+      "setting": "without_background",
+      "steps": 1,
+      "same": 1,
+      "differ": [],
+      "scorer_seconds": 1801.7
+    },
+    "nothink-window": {
+      "model": "lfm3-1.7b-nothink",
+      "setting": "without_background",
+      "steps": 42,
+      "same": 42,
+      "differ": [],
+      "scorer_seconds": 63.7
+    }
+  },
+  "inputs_sha256": {
+    "bielik-11b-v3.1.e1_with_background.stdout.txt": "bed151eb49537f21ce5a0f25d24ef963a9df484ffb9919db7455361e17d8cf2b",
+    "bielik-11b-v3.1.e1_without_background.stdout.txt": "c373e88684ce082869bd9d9ab7535f9c046c548f5c217a89185ee00630494df2",
+    "bielik-11b-v3.1.with_background.stdout.txt": "46f659e014b844d9f0b70c46ebd4199074ef61ceaf39ffeece55b08815a9ffef",
+    "bielik-11b-v3.1.without_background.stdout.txt": "075d94a78c5926cfe5f96f7bef3d8cb97b2cad139678d0b1a9631bd34c5f74d5",
+    "disk-full-journal.txt": "c643fb11e7949db69ab56cda9a2aca723e164ecde7f6e2c5f2caab4254a938b7",
+    "kernel-oom.txt": "37de48a5f046b6f4a0c1af637d786f99353d6f4b759e58df715e6eee6c2651ab",
+    "lfm3-1.7b-nothink.with_background.stdout.txt": "eea770aef8c9870401b9e8e80ac649f9f7f1a9ba4b19ea74e537cd22f96e8ecf",
+    "lfm3-1.7b-nothink.without_background.stdout.txt": "a10092e0d19c70fa4e962850c40ba1d071ae2460d19e03c45f6358672a255f0d",
+    "lfm3-1.7b.with_background.stdout.txt": "70176e7c5fbecdc392f37e1240e817cbcc5c119eb41dffdae4bdf5cd0af0fa8b",
+    "lfm3-1.7b.without_background.stdout.txt": "c8dab28e59127851676a87615b04c7455101bec072bcf4c47cd37e14044e9cd6",
+    "score-scicode.log": "d638d17cb0b93428006e0295faece1e31a22435f1aa8bffa2a698fe72a28774d",
+    "window-lfm3-63.6.json": "0dc57046bc2813a254b0fb5e2685c6d406cdc8f47c8ae45062a178bb9c23c22a",
+    "window-nothink-64.6.json": "25a5e149bfff86de83693bf6f272a384f99470955d6a22517e02a70fe5670387",
+    "window-nothink-window.json": "942797c44d2970a90a36f08d77655268470be9746001eda9553d1baed1962304",
+    "window-steps.txt": "bce685b2fcab8f3c14b6c53f1af2c3b054badf67ba139f1374daaa1f84d6a8df",
+    "window_rescore.py": "6cc39874c7e692e6a185e7dfe50a16d354db4b447a21c6c5bf4e780c9fec91ae",
+    "window_rescore.sh": "271736edbe11ee40ecb9309f9ebdd5aac6f5b9cd506442e3fb98a6507193a74d"
+  }
+}

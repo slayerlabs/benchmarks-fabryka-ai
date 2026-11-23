@@ -1,0 +1,166 @@
+{
+  "benchmark": "scicode",
+  "protocol": "PROTOCOL.md",
+  "setting": "with_background",
+  "control": {
+    "id": "K1",
+    "status": "passed",
+    "card": 28.470000000000002,
+    "score": 32.63888888888889,
+    "se_clustered": 3.6287197748886695,
+    "z": 1.1488594180620606,
+    "n": 288,
+    "clusters": 65
+  },
+  "hypotheses": [
+    {
+      "id": "K2",
+      "status": "computed",
+      "measure": "Bielik pass rate minus 16.32",
+      "value": -13.889444444444447,
+      "score": 2.430555555555556,
+      "se": 2.177582757707883,
+      "se_clustered": 1.0098655062066626,
+      "se_binomial_floor": 2.177582757707883,
+      "z": -6.378377306341475,
+      "n": 288,
+      "p_support": 8.948707132506849e-11,
+      "p_refute": 0.9999999999105129,
+      "outcome_raw": "supported",
+      "p_support_holm": 3.5794828530027396e-10,
+      "p_refute_holm": 1.0,
+      "verdict_holm": "supported (clear)",
+      "read": true,
+      "e1": {
+        "measure": "Bielik pass rate minus 16.32",
+        "value": -13.195,
+        "score": 3.125,
+        "se": 2.177582757707883,
+        "se_clustered": 1.2011738966385237,
+        "se_binomial_floor": 2.177582757707883,
+        "z": -6.059471197268764,
+        "n": 288,
+        "extraction": "E1",
+        "p_support": 6.828488952022851e-10,
+        "p_refute": 0.9999999993171511,
+        "p_support_holm": 2.7313955808091403e-09,
+        "p_refute_holm": 1.0,
+        "outcome_raw": "supported",
+        "verdict_holm": "supported (clear)"
+      },
+      "depends_on_extraction": false,
+      "extraction_note": "K2 does not depend on code extraction: official and E1 both supported (supported (clear) after Holm)."
+    },
+    {
+      "id": "K3",
+      "status": "computed",
+      "measure": "D = (off - B) - (on - B) / 2, paired by subproblem",
+      "value": 7.118055555555555,
+      "se": 2.024914077334961,
+      "z": 3.515238318123504,
+      "z_computed": 3.515238318123504,
+      "n": 288,
+      "precondition": {
+        "lead_on_minus_bielik": 30.208333333333332,
+        "se": 3.6912670099962326,
+        "z": 8.183730207413028,
+        "met": true
+      },
+      "p_support": 0.9997803202400652,
+      "p_refute": 0.00021967975993475441,
+      "outcome_raw": "refuted",
+      "p_support_holm": 1.0,
+      "p_refute_holm": 0.0006590392798042632,
+      "verdict_holm": "refuted (clear)",
+      "read": true
+    }
+  ],
+  "group_tests": [
+    {
+      "benchmark": "scicode",
+      "id": "K2",
+      "z": -6.378377306341475,
+      "p_support": 8.948707132506849e-11,
+      "p_refute": 0.9999999999105129,
+      "outcome_raw": "supported",
+      "z_e1": -6.059471197268764
+    },
+    {
+      "benchmark": "scicode",
+      "id": "K3",
+      "z": 3.515238318123504,
+      "p_support": 0.9997803202400652,
+      "p_refute": 0.00021967975993475441,
+      "outcome_raw": "refuted"
+    }
+  ],
+  "holm": {
+    "m": 4,
+    "family": [
+      {
+        "benchmark": "scicode",
+        "id": "K2",
+        "p_support": 8.948707132506849e-11,
+        "p_refute": 0.9999999999105129
+      },
+      {
+        "benchmark": "scicode",
+        "id": "K3",
+        "p_support": 0.9997803202400652,
+        "p_refute": 0.00021967975993475441
+      },
+      {
+        "benchmark": "livecodebench-pro-25q2",
+        "id": "K2",
+        "p_support": 5.938895427580987e-09,
+        "p_refute": 0.9999999940611046
+      },
+      {
+        "benchmark": "livecodebench-pro-25q2",
+        "id": "K3",
+        "p_support": 0.9999996142681458,
+        "p_refute": 3.857318542355159e-07
+      }
+    ],
+    "other_benchmark_file": "results/group-tests-livecodebench-pro-25q2.json",
+    "other_benchmark_sha256": "041c9075766c50e641183ac06050120692cf302558a565b7d8edabbbdd8cd024",
+    "missing_counted_as_p_1": 0
+  },
+  "descriptive": {
+    "setting": "without_background",
+    "note": "descriptive, not tested",
+    "K1_form": {
+      "status": "passed",
+      "card": 28.470000000000002,
+      "score": 22.916666666666664,
+      "se_clustered": 3.015684403461852,
+      "z": -1.841483587260786,
+      "n": 288,
+      "clusters": 65
+    },
+    "K2_form": {
+      "measure": "Bielik pass rate minus 16.32",
+      "value": -14.583888888888891,
+      "score": 1.7361111111111112,
+      "se": 2.177582757707883,
+      "se_clustered": 0.7487195451819229,
+      "se_binomial_floor": 2.177582757707883,
+      "z": -6.697283415414186,
+      "n": 288
+    },
+    "K3_form": {
+      "measure": "D = (off - B) - (on - B) / 2, paired by subproblem",
+      "value": 5.034722222222222,
+      "se": 1.7556311862100025,
+      "z": 2.8677562017401907,
+      "z_computed": 2.8677562017401907,
+      "n": 288,
+      "precondition": {
+        "lead_on_minus_bielik": 21.180555555555554,
+        "se": 2.7378285890390375,
+        "z": 7.736260641134518,
+        "met": true
+      }
+    }
+  }
+}
