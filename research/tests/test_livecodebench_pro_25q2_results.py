@@ -148,6 +148,30 @@ def test_k1_k2_k3_and_holm():
         assert k["verdict_holm"].split(" ")[0] == want and cells(section, f"| {k['id']} |")[5].split(" ")[0] == want
 
 
+SCICODE_HYPOTHESES = Path(os.environ.get(
+    "LCBPRO_GROUP_FILE", BENCH.parents[3] / ".wt-scicode" / "research" / "api-benchmarks" / "scicode" / "results" /
+    "hypotheses.json"))
+
+
+def test_holm_family_includes_scicode():
+    """The committed hypotheses.json must come from `compare.py --group`: SciCode's K2 and K3 with their z in the
+    Holm family and the group file recorded; without --group they would count as p = 1."""
+    h = json.loads((RESULTS / "hypotheses.json").read_text(encoding="utf-8"))
+    g = h["group_file"]
+    assert g is not None and re.fullmatch(r"[0-9a-f]{64}", g["sha256"]) and g["file"].startswith("scicode/")
+    family = {(t["benchmark"], t["id"]): t for t in h["holm"]["family"]}
+    assert set(family) == {("livecodebench-pro-25q2", "K2"), ("livecodebench-pro-25q2", "K3"),
+                           ("scicode", "K2"), ("scicode", "K3")}
+    assert all(family[("scicode", k)]["z"] is not None for k in ("K2", "K3"))
+    assert not any("p = 1" in n for n in h["notes"])
+    assert f"(sha256 `{g['sha256']}`)" in readme()
+    if SCICODE_HYPOTHESES.is_file():  # SciCode's file on this machine: the one Holm read
+        import hashlib
+        assert hashlib.sha256(SCICODE_HYPOTHESES.read_bytes()).hexdigest() == g["sha256"]
+        theirs = {t["id"]: t for t in json.loads(SCICODE_HYPOTHESES.read_text(encoding="utf-8"))["group_tests"]}
+        assert all(family[("scicode", k)]["z"] == theirs[k]["z"] for k in ("K2", "K3"))
+
+
 def test_k3_robustness_and_reading():
     on, off, b = accepted("lfm3-1.7b"), accepted("lfm3-1.7b-nothink"), accepted("bielik-11b-v3.1")
     ids = sorted(on)
