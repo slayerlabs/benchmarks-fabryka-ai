@@ -6,6 +6,7 @@ CLI flag for it. Environment variables set it here, and nothing else in the harn
 
   NL_JUDGE_LLM   litellm model id of the judge (required)
   TAU3_USAGE_LOG optional path: append one JSON line of token usage per successful model call
+  EMPTY_RETRIES / TAU3_EMPTY_LOG  repeat empty completions (see below) up to N times / log them
   NL_JUDGE_ARGS  JSON dict of extra litellm arguments (default {"temperature": 0.0}, the harness default)
 
 All other arguments are passed to `tau2 run` unchanged: python tau3_run.py run --domain airline ...
@@ -40,6 +41,37 @@ def _log_usage(kwargs, response, start, end):
 
 if _LOG:
     litellm.success_callback = [_log_usage]
+
+# Empty completions. Bielik through the Fabryka API sometimes returns a message with neither content nor tool calls
+# (seen in the smoke test, as agent and as simulator); the harness validates every message and aborts the whole task
+# attempt with an infrastructure error. Such a call is repeated here, up to EMPTY_RETRIES times (default 5), with the
+# same arguments; every repetition is appended to $TAU3_EMPTY_LOG if set. Calls that return something are untouched.
+import tau2.utils.llm_utils as _llm
+
+_completion = _llm.completion
+_EMPTY_RETRIES = int(os.environ.get("EMPTY_RETRIES", "5"))
+_EMPTY_LOG = os.environ.get("TAU3_EMPTY_LOG")
+
+
+def _completion_no_empty(*args, **kwargs):
+    for attempt in range(_EMPTY_RETRIES + 1):
+        r = _completion(*args, **kwargs)
+        try:
+            m = r.choices[0].message
+            empty = not (m.content or "").strip() and not m.tool_calls
+        except (AttributeError, IndexError):
+            empty = False
+        if not empty or attempt == _EMPTY_RETRIES:
+            return r
+        if _EMPTY_LOG:
+            with _LOCK, open(_EMPTY_LOG, "a") as f:
+                f.write(json.dumps({"model": kwargs.get("model"), "attempt": attempt + 1,
+                                "finish_reason": r.choices[0].finish_reason, "content": m.content,
+                                "completion_tokens": r.usage.completion_tokens,
+                                "n_messages": len(kwargs.get("messages", [])), "has_tools": bool(kwargs.get("tools"))}) + "\n")
+
+
+_llm.completion = _completion_no_empty
 
 if __name__ == "__main__":
     sys.exit(main())

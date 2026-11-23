@@ -17,6 +17,7 @@ fi
 PY="$VENV/bin/python"
 # Fabryka AI API (agent and, in the smoke test, simulator and judge): OpenAI-compatible, via litellm's openai/ provider.
 : "${FABRYKA_API_KEY:=$(cat "$HOME/.config/fabryka-api.key")}"
+export TAU3_EMPTY_LOG="$OUT/empty_calls.jsonl"
 export OPENAI_API_KEY="$FABRYKA_API_KEY" OPENAI_API_BASE="https://fabryka.ai/v1"
 AGENT="openai/bielik-11b-v3.1"
 # LFM3-1.7B card, "Evaluation details": temperature 0.6 and top_p 0.95 unless a benchmark is listed as an exception

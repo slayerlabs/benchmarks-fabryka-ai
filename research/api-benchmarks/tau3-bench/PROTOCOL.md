@@ -66,6 +66,18 @@ this probe are therefore **not comparable** with 68.01 or with any other publish
 `NL_ASSERTION` part of the reward (112 of 114 retail tasks) is judged by a weak model; reward differences are read
 as descriptive only.
 
+## Empty completions
+
+Bielik through the Fabryka API sometimes returns a completion of one token with neither content nor tool calls
+(`finish_reason: stop`). The harness validates every message and ends the task attempt with an infrastructure error
+(retried up to 3 times by the harness, and repeated errors drop the task from the metrics). `tau3_run.py` therefore
+repeats an empty completion up to 5 times with the same arguments, for every model, and logs each repetition to
+`out/empty_calls.jsonl`. A task that still ends in an infrastructure error is reported as such and is **not** counted
+as a simulator fault or as an agent failure: it is "not assessable" and listed with its cause. In the smoke test the
+empty completions came from Bielik used as the **simulator** (airline task 18: the same prompt returns one empty token
+5 times in a row) and once from Bielik as agent (retail task 108); the Claude arms remove the first cause only, so
+infrastructure errors from the agent are expected in some of the 40 simulations and are counted and reported per arm.
+
 ## Sample
 
 20 tasks, 5 per domain, drawn once with `random.Random(20261123).sample` from the task ids sorted as strings
