@@ -9,6 +9,7 @@ import argparse
 import asyncio
 import json
 import os
+import random
 
 from datasets import load_dataset
 from openai import AsyncOpenAI
@@ -46,6 +47,23 @@ def format_message(question, model):
     ]
 
 
+RETRYABLE_STATUS = {429, 503}
+MAX_ATTEMPTS = 10
+BACKOFF_START_S = 5.0
+BACKOFF_MAX_S = 300.0
+
+
+def _is_retryable(exc: Exception) -> bool:
+    import openai
+
+    if isinstance(exc, (openai.RateLimitError, openai.APITimeoutError, openai.APIConnectionError,
+                        openai.InternalServerError)):
+        return True
+    if isinstance(exc, openai.APIStatusError):
+        return exc.status_code in RETRYABLE_STATUS
+    return False
+
+
 async def attempt_question(client, question, args):
     messages = format_message(question, args.model)
     params = {
@@ -59,17 +77,31 @@ async def attempt_question(client, question, args):
     if "o1" not in args.model:
         params["temperature"] = args.temperature
         params["top_p"] = args.top_p
-    try:
-        response = await client.chat.completions.create(**params)
-        content = response.choices[0].message.content
-        tokens = json.loads(response.usage.model_dump_json())
-    except Exception as e:
-        print(f"Error {question.get('id','?')}: {e}")
-        return None
 
-    if content is None:
-        return None
-    return question["id"], content, tokens
+    retries = 0
+    delay = BACKOFF_START_S
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        try:
+            response = await client.chat.completions.create(**params)
+            content = response.choices[0].message.content
+            tokens = json.loads(response.usage.model_dump_json())
+            if content is None:
+                raise ValueError("empty content")
+            if retries:
+                print(f"retries {question.get('id','?')}: {retries}")
+            return question["id"], content, tokens, retries
+        except Exception as e:
+            if attempt < MAX_ATTEMPTS and _is_retryable(e):
+                retries += 1
+                jitter = random.uniform(0, delay * 0.25)
+                sleep_s = min(delay + jitter, BACKOFF_MAX_S)
+                print(f"retry {attempt}/{MAX_ATTEMPTS} {question.get('id','?')}: {type(e).__name__} status={getattr(e, 'status_code', None)} sleep={sleep_s:.1f}s")
+                await asyncio.sleep(sleep_s)
+                delay = min(delay * 2, BACKOFF_MAX_S)
+                continue
+            print(f"failed {question.get('id','?')} after {attempt} attempts: {e}")
+            return None
+    return None
 
 
 async def attempt_all(client, questions, args):
@@ -119,20 +151,26 @@ def main():
     questions = [q for q in questions if q["id"] not in predictions]
 
     results = asyncio.run(attempt_all(client, questions, args))
+    failed = []
     for result in results:
         if result is None:
+            # attempt_question already logged the ID
             continue
-        unique_id, response, usage = result
+        unique_id, response, usage, retries = result
         predictions[unique_id] = {
             "model": args.model,
             "response": response,
             "usage": usage,
         }
 
+    # Reconstruct failed IDs from this batch (None results)
+    failed = [q["id"] for q, r in zip(questions, results) if r is None]
     os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
     with open(args.output, "w", encoding="utf-8") as f:
         json.dump(predictions, f, indent=4)
     print(f"wrote {len(predictions)} predictions to {args.output}")
+    if failed:
+        print(f"failed_after_retries={len(failed)} ids={failed}")
 
 
 if __name__ == "__main__":
