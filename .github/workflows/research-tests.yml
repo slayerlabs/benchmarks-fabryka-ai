@@ -29,6 +29,7 @@ jobs:
       - run: pip install pytest numpy==2.0.2 scipy==1.13.1
       - run: >-
           python -m pytest -q -p no:cacheprovider
+          tests/test_aa_lcr.py
           tests/test_anli_r3.py
           tests/test_bbh.py
           tests/test_blimp.py

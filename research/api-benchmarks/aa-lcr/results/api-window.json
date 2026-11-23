@@ -1,0 +1,136 @@
+{
+ "date": "2026-11-23T12:24Z",
+ "endpoint": "https://fabryka.ai/v1/chat/completions",
+ "model": "bielik-11b-v3.1",
+ "listed_context_length": 32768,
+ "request": "messages = one user message, max_tokens 1, temperature 0",
+ "note": "usage.prompt_tokens is the server's count, including the provider system prompt",
+ "probes": [
+  {
+   "target_templated_tokens": 1000,
+   "local_templated_tokens": 1052,
+   "status": 200,
+   "usage": {
+    "completion_tokens": 1,
+    "completion_tokens_details": null,
+    "prompt_tokens": 1052,
+    "prompt_tokens_details": null,
+    "total_tokens": 1053
+   },
+   "finish_reason": "length",
+   "seconds": 0.5
+  },
+  {
+   "target_templated_tokens": 16000,
+   "local_templated_tokens": 16000,
+   "status": 200,
+   "usage": {
+    "completion_tokens": 1,
+    "completion_tokens_details": null,
+    "prompt_tokens": 16000,
+    "prompt_tokens_details": null,
+    "total_tokens": 16001
+   },
+   "finish_reason": "length",
+   "seconds": 8.1
+  },
+  {
+   "target_templated_tokens": 30000,
+   "local_templated_tokens": 30000,
+   "status": 200,
+   "usage": {
+    "completion_tokens": 1,
+    "completion_tokens_details": null,
+    "prompt_tokens": 30000,
+    "prompt_tokens_details": null,
+    "total_tokens": 30001
+   },
+   "finish_reason": "length",
+   "seconds": 10.5
+  },
+  {
+   "target_templated_tokens": 32000,
+   "local_templated_tokens": 32000,
+   "status": 200,
+   "usage": {
+    "completion_tokens": 1,
+    "completion_tokens_details": null,
+    "prompt_tokens": 32000,
+    "prompt_tokens_details": null,
+    "total_tokens": 32001
+   },
+   "finish_reason": "length",
+   "seconds": 2.1
+  },
+  {
+   "target_templated_tokens": 32700,
+   "local_templated_tokens": 32700,
+   "status": 200,
+   "usage": {
+    "completion_tokens": 1,
+    "completion_tokens_details": null,
+    "prompt_tokens": 32700,
+    "prompt_tokens_details": null,
+    "total_tokens": 32701
+   },
+   "finish_reason": "length",
+   "seconds": 1.0
+  },
+  {
+   "target_templated_tokens": 32767,
+   "local_templated_tokens": 32767,
+   "status": 200,
+   "usage": {
+    "completion_tokens": 1,
+    "completion_tokens_details": null,
+    "prompt_tokens": 32767,
+    "prompt_tokens_details": null,
+    "total_tokens": 32768
+   },
+   "finish_reason": "length",
+   "seconds": 0.4
+  },
+  {
+   "target_templated_tokens": 32768,
+   "local_templated_tokens": 32768,
+   "status": 400,
+   "error": "{\"error\":{\"message\":\"The model rejected this request\",\"type\":\"invalid_request_error\"}}",
+   "seconds": 0.4
+  },
+  {
+   "target_templated_tokens": 32769,
+   "local_templated_tokens": 32769,
+   "status": 400,
+   "error": "{\"error\":{\"message\":\"The model rejected this request\",\"type\":\"invalid_request_error\"}}",
+   "seconds": 0.5
+  },
+  {
+   "target_templated_tokens": 33000,
+   "local_templated_tokens": 33000,
+   "status": 400,
+   "error": "{\"error\":{\"message\":\"The model rejected this request\",\"type\":\"invalid_request_error\"}}",
+   "seconds": 0.3
+  },
+  {
+   "target_templated_tokens": 40000,
+   "local_templated_tokens": 40000,
+   "status": 400,
+   "error": "{\"error\":{\"message\":\"The model rejected this request\",\"type\":\"invalid_request_error\"}}",
+   "seconds": 1.0
+  },
+  {
+   "target_templated_tokens": 65536,
+   "local_templated_tokens": 65536,
+   "status": 400,
+   "error": "{\"error\":{\"message\":\"The model rejected this request\",\"type\":\"invalid_request_error\"}}",
+   "seconds": 0.3
+  },
+  {
+   "target_templated_tokens": "shortest AA-LCR prompt (question 9)",
+   "local_templated_tokens": 100913,
+   "status": 400,
+   "error": "{\"error\":{\"message\":\"The model rejected this request\",\"type\":\"invalid_request_error\"}}",
+   "seconds": 0.4
+  }
+ ]
+}
