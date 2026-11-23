@@ -83,9 +83,16 @@ def limit_cell(r: dict[str, Any]) -> str:
     return f"{r['settings']['max_tokens']} (context {r['settings']['context']})"
 
 
+SLAYER_RUN = ("Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`)", "no (base model)",
+               "local, research/common/slayer_lm.py, bf16, greedy")
+
+
 def results_block(results: Path) -> str:
     files = {m: read_json(results, f"{m}.json") for m in RUNS}
     slayer = read_json(results, f"{NOT_RUN[1]}.json")
+    slayer_scored = slayer.get("score") is not None
+    if slayer_scored:
+        files[NOT_RUN[1]] = slayer
     out = ["Headline: correct subproblems with background, out of 288 (test_generated_code.py). Verdicts read the "
            "SE clustered by problem (65 clusters).", "",
            "| model | thinking | serving | output limit | correct (%) | stderr | stderr clustered | n | main problems "
@@ -96,7 +103,16 @@ def results_block(results: Path) -> str:
         out.append(f"| {name} | {thinking} | {serving} | {limit_cell(r)} | {r['score']:.2f} | {r['stderr']:.2f} | "
                    f"{r['stderr_clustered']:.2f} | {r['n']} | {problems_cell(wb['main_problems'])} | "
                    f"{wb['output_tokens']['mean']:.1f} | {r['date']} |")
-    out.append(f"| {NOT_RUN[0]} | | | | null ({slayer['reason']}) | | | | | | |")
+    if slayer_scored:
+        r = slayer
+        wb = setting_metrics(r, "with_background")
+        name, thinking, serving = SLAYER_RUN
+        serving = r.get("settings", {}).get("serving", serving)
+        out.append(f"| {name} | {thinking} | {serving} | {limit_cell(r)} | {r['score']:.2f} | {r['stderr']:.2f} | "
+                   f"{r['stderr_clustered']:.2f} | {r['n']} | {problems_cell(wb['main_problems'])} | "
+                   f"{wb['output_tokens']['mean']:.1f} | {r['date']} |")
+    else:
+        out.append(f"| {NOT_RUN[0]} | | | | null ({slayer['reason']}) | | | | | | |")
     out += ["", "Both prompt settings: correct (%) ± stderr (correct/288; clustered SE), main problems solved (all "
             "scored steps pass) out of 65, and the scorer's verdicts per step:", "",
             "| run | setting | correct | main problems | pass | fail | time out |", "|---|---|---|---|---|---|---|"]
@@ -136,13 +152,13 @@ def results_block(results: Path) -> str:
             "", "Baselines: 0 for random and majority answers (no fixed output passes a step's numerical tests). "
                 f"The LFM3-1.7B card reports {100 * hypotheses.CARD_LFM:.2f}; the control is in Hypotheses."]
     s = files["lfm3-1.7b"]["provenance"]["scoring"]
-    machines = {json.dumps({k: f["provenance"]["scoring"][k] for k in ("cpu", "cpu_count", "container", "packages",
-                                                                       "test_data_h5", "scicode_commit")},
-                           sort_keys=True) for f in files.values()}
+    main_runs = [m for m in RUNS if m in files]
+    machines = {json.dumps({k: files[m]["provenance"]["scoring"][k] for k in ("cpu", "cpu_count", "container", "packages",
+                                                                               "test_data_h5", "scicode_commit")},
+                           sort_keys=True) for m in main_runs}
     if len(machines) != 1:
         sys.exit("readme.py: the runs were scored on different machines, images or packages")
-    seen = sorted({v["printed"]["dataset_revision_seen"] for f in files.values()
-                   for v in f["provenance"]["scoring"]["runs"].values() if v["printed"]})
+    seen = sorted({v["printed"]["dataset_revision_seen"] for m in main_runs for v in files[m]["provenance"]["scoring"]["runs"].values() if v["printed"]})
     pk = s["packages"]
     out += ["", f"Scoring: all three runs on one VM ({s['cpu']}, {s['cpu_count']} vCPUs), SciCode "
                 f"`{s['scicode_commit'][:8]}`, container image `{s['container']['image_id']}` (network "
@@ -151,6 +167,11 @@ def results_block(results: Path) -> str:
                 f"h5py {pk['h5py']}), BLAS threads 1, 1800 s per step; `test_data.h5` sha256 "
                 f"`{s['test_data_h5']['sha256']}` checked; dataset revision the scorer loaded: "
                 f"{', '.join(f'`{x}`' for x in seen)}."]
+    if slayer_scored and NOT_RUN[1] in files:
+        ss = files[NOT_RUN[1]]["provenance"]["scoring"]
+        out.append(f"Slayer was scored separately on {ss.get('cpu', '?')}, {ss.get('cpu_count', '?')} vCPUs, "
+                   f"container image `{ss.get('container', {}).get('image_id', '?')}` (network "
+                   f"{ss.get('container', {}).get('network', '?')}); see Deviations.")
     raw = read_json(results, "raw-outputs.json")
     out += ["", f"Raw outputs (with thinking, not committed): the LFM3-1.7B runs in `{raw['archive']['file']}`, "
                 f"sha256 `{raw['archive']['sha256']}`; Bielik's in `{raw['runs']['bielik-11b-v3.1']['file']}`. Each "

@@ -605,6 +605,82 @@ class Generator:
                   f"{record.get('finish_reason', '')}", flush=True)
 
 
+SLAYER_CONTEXT = 4096
+SLAYER_MIN_ANSWER_TOKENS = 256
+
+
+def load_slayer(pretrained: str, device: str = "cpu", dtype: str = "bfloat16"):
+    """Load Slayer through the common loader (research/common/slayer_lm.py reuses slayer_model.Slayer)."""
+    common = HERE.parents[1] / "common"
+    if str(common) not in sys.path:
+        sys.path.insert(0, str(common))
+    import torch  # noqa: E402
+    import slayer_model  # noqa: E402
+
+    dt = {"bfloat16": torch.bfloat16, "bf16": torch.bfloat16, "float16": torch.float16,
+          "fp16": torch.float16, "float32": torch.float32, "fp32": torch.float32}.get(dtype, torch.bfloat16)
+    return slayer_model.Slayer(pretrained, device=device, dtype=dt)
+
+
+def slayer_responder(model: Any, thinking: bool) -> Callable[[str, dict[str, Any]], dict[str, Any]]:
+    """Plain-text greedy generation for a base Slayer model (no chat template)."""
+    lock = threading.Lock()
+
+    def respond(prompt: str, ctx: dict[str, Any]) -> dict[str, Any]:
+        ids = model.encode(prompt)
+        prompt_tokens = len(ids)
+        max_new_tokens = SLAYER_CONTEXT - prompt_tokens
+        if max_new_tokens < SLAYER_MIN_ANSWER_TOKENS:
+            return {"status": "unsupported", "prompt_tokens": prompt_tokens, "context": SLAYER_CONTEXT,
+                    "unfinished": None, "max_tokens": max_new_tokens,
+                    "error": f"prompt has {prompt_tokens} tokens, leaving {max_new_tokens} < "
+                             f"{SLAYER_MIN_ANSWER_TOKENS} for the answer in a {SLAYER_CONTEXT}-token context"}
+        with lock:
+            out_ids = slayer_generate(model, ids, max_new_tokens)
+        output = model.tok.decode(out_ids, skip_special_tokens=False)
+        # Strip BOS/EOS token text if tokenizer decodes it
+        if output.startswith("<|endoftext|>"):
+            output = output[len("<|endoftext|>"):]
+        finish_reason = "stop" if (len(out_ids) < max_new_tokens or (out_ids and out_ids[-1] == model.bos)) else "length"
+        # slayer_generate stops on BOS and does not include it in out_ids; length means we hit the limit
+        if out_ids and out_ids[-1] == model.bos:
+            finish_reason = "stop"
+            output = model.tok.decode(out_ids[:-1], skip_special_tokens=False)
+            if output.startswith("<|endoftext|>"):
+                output = output[len("<|endoftext|>"):]
+        return {"status": "ok", "prompt_tokens": prompt_tokens, "context": SLAYER_CONTEXT,
+                "max_tokens": max_new_tokens, "output": output, "finish_reason": finish_reason,
+                "unfinished": is_unfinished(output, finish_reason, thinking),
+                "output_tokens": len(out_ids)}
+
+    return respond
+
+
+def slayer_generate(model: Any, prompt_ids: list[int], max_new_tokens: int) -> list[int]:
+    """Greedy generation using Slayer.krok (KV cache), stopping on BOS/EOS."""
+    import torch  # noqa: E402
+
+    device = model.device
+    cache: list[Any] = []
+    ids = torch.tensor([prompt_ids], dtype=torch.long, device=device)
+    logits = model.krok(ids, cache)[0]
+    out: list[int] = []
+    for _ in range(max_new_tokens):
+        nxt = int(logits.argmax().item())
+        out.append(nxt)
+        if nxt == model.bos:
+            break
+        logits = model.krok(torch.tensor([[nxt]], dtype=torch.long, device=device), cache)[0]
+    return out
+
+
+def slayer_sampling(pretrained: str) -> dict[str, Any]:
+    return {"request_sampling": {"temperature": 0, "top_p": 1, "greedy": True, "seed": None},
+            "server_defaults": "none (local Slayer greedy generation)",
+            "slayer_pretrained": pretrained, "slayer_loader": "research/common/slayer_lm.py (slayer_model.Slayer)",
+            "dtype": "bfloat16", "context": SLAYER_CONTEXT}
+
+
 def api_responder(server: Server, thinking: bool) -> Callable[[str, dict[str, Any]], dict[str, Any]]:
     def respond(prompt: str, ctx: dict[str, Any]) -> dict[str, Any]:
         # The prompt as the only user message: no system message of ours (PROTOCOL.md, "Settings")
@@ -635,6 +711,12 @@ def generate(args: argparse.Namespace) -> None:
             sys.exit("scicode_runner.py generate: --oracle needs --split validation (only the dev split has "
                      "ground_truth_code)")
         server, respond, run_sampling = None, oracle_responder, {"oracle": "ground_truth_code of the dev split"}
+    elif args.slayer_pretrained:
+        slayer = load_slayer(args.slayer_pretrained, device=args.slayer_device, dtype=args.slayer_dtype)
+        server = None
+        respond = slayer_responder(slayer, args.thinking)
+        run_sampling = slayer_sampling(args.slayer_pretrained)
+        args.concurrency = 1  # single local model
     else:
         server = server_from(args)
         server.events = EventLog(out / "api-events.jsonl")
@@ -1012,6 +1094,11 @@ def main() -> None:
     g.add_argument("--concurrency", type=int, default=int(os.environ.get("CONCURRENCY", "64")),
                    help="chains (problem x setting) in flight, so also requests in flight")
     g.add_argument("--request-timeout", type=float, default=float(os.environ.get("REQUEST_TIMEOUT", "21600")))
+    g.add_argument("--slayer-pretrained", default="",
+                   help="local Slayer checkpoint directory (config.json, tokenizer.json, model.safetensors); plain-text "
+                        "greedy generation, no chat template, context 4096")
+    g.add_argument("--slayer-device", default="cuda", help="device for local Slayer generation (cuda or cpu)")
+    g.add_argument("--slayer-dtype", default="bfloat16", help="dtype for local Slayer generation (bfloat16, float16, float32)")
     sub.add_parser("prefetch")
     s = sub.add_parser("score")
     s.add_argument("out_dir")

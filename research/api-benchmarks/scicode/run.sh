@@ -72,9 +72,15 @@ case "$MODEL" in
   dev-ground-truth)
     SERVING=oracle; SPLIT=validation ;;
   slayer1b-1.09-k70000)
-    python3 "$HERE/summarize.py" --null "$RESULTS/$MODEL" \
-      "not run, a cost decision (PROTOCOL.md, Models): on the 30 Python tasks of research/slayer-1b/rozmowy-1.08 (PAPER.md, H5.1) Slayer 1B wrote no function that passed its tests (0 of 30), so running 288 × 2 SciCode steps was judged not worth its cost. null here records that decision; Slayer 1B can run the steps that fit its 4096-token context (counted with its tokenizer and empty earlier-step code, 7 of the 288 prompts with background and 0 of the 288 without exceed it)"
-    exit 0 ;;
+    SERVING=slayer
+    SLAYER_REPO="SlayerLab/Slayer1B-1.09-checkpoints"
+    SLAYER_REVISION="adfaf3fd5402bc7f3adbfe077798f20262979433"
+    SLAYER_FILE="wagi_70000.pt"
+    SLAYER_TEMPLATE_REPO="SlayerLab/Slayer1B-1.08"
+    SLAYER_TEMPLATE_REVISION="5f854a0cc7160594d54d1788d37a44e8ebabe16c"
+    SLAYER_DIR="${SLAYER_DIR:-$HERE/.cache/slayer1b-1.09-k70000}"
+    SLAYER_DEVICE="${SLAYER_DEVICE:-cuda}"
+    SLAYER_DTYPE="${SLAYER_DTYPE:-bfloat16}" ;;
   *)
     echo "unknown model-id: $MODEL (lfm3-1.7b | lfm3-1.7b-nothink | bielik-11b-v3.1 | dev-ground-truth | slayer1b-1.09-k70000)" >&2
     exit 2 ;;
@@ -107,7 +113,37 @@ command -v uv >/dev/null || python3 -m pip install -q uv
 uv pip sync -q --python "$VENV_GEN/bin/python" "$HERE/requirements-generate.lock"
 GEN=("$VENV_GEN/bin/python" "$HERE/scicode_runner.py" generate "$OUT" --model-id "$MODEL" --split "$SPLIT")
 
-if [[ "$SERVING" == oracle ]]; then
+prepare_slayer() {
+  local SLAYER_PY="${SLAYER_PYTHON:-$VENV_GEN/bin/python}"
+  if [[ ! -f "$SLAYER_DIR/config.json" || ! -f "$SLAYER_DIR/model.safetensors" || ! -f "$SLAYER_DIR/tokenizer.json" ]]; then
+    echo "preparing Slayer model at $SLAYER_DIR"
+    "$SLAYER_PY" -c "import torch, safetensors, tokenizers, transformers" >/dev/null 2>&1 || \
+      uv pip install -q --python "$SLAYER_PY" torch safetensors tokenizers transformers
+    "$SLAYER_PY" - "$SLAYER_REPO" "$SLAYER_REVISION" "$SLAYER_FILE" "$SLAYER_TEMPLATE_REPO" "$SLAYER_TEMPLATE_REVISION" "$SLAYER_DIR" "$HERE/../../tools/konwertuj.py" <<'PY'
+import os, sys
+from huggingface_hub import hf_hub_download, snapshot_download
+repo, rev, fname, tpl_repo, tpl_rev, out, konvertuj = sys.argv[1:8]
+ckpt = hf_hub_download(repo, fname, revision=rev)
+tpl = snapshot_download(tpl_repo, revision=tpl_rev, allow_patterns=["config.json", "tokenizer.json", "model.safetensors"])
+os.makedirs(out, exist_ok=True)
+# konwertuj.py is a script; run it in-process with argv
+sys.argv = ["konwertuj.py", ckpt, tpl, out]
+with open(konvertuj, encoding="utf-8") as f:
+    code = compile(f.read(), konvertuj, "exec")
+exec(code, {"__name__": "__main__", "__file__": konvertuj})
+PY
+  fi
+}
+
+if [[ "$SERVING" == slayer ]]; then
+  prepare_slayer
+  SLAYER_PY="${SLAYER_PYTHON:-$VENV_GEN/bin/python}"
+  "$SLAYER_PY" -c "import torch, safetensors, tokenizers" >/dev/null 2>&1 || \
+    uv pip install -q --python "$SLAYER_PY" torch safetensors tokenizers transformers
+  "$SLAYER_PY" "$HERE/scicode_runner.py" generate "$OUT" --model-id "$MODEL" --split "$SPLIT" \
+    --slayer-pretrained "$SLAYER_DIR" --slayer-device "$SLAYER_DEVICE" --slayer-dtype "$SLAYER_DTYPE" \
+    --concurrency 1 ${LIMIT[@]+"${LIMIT[@]}"}
+elif [[ "$SERVING" == oracle ]]; then
   "${GEN[@]}" --oracle --concurrency 4 ${LIMIT[@]+"${LIMIT[@]}"}
 elif [[ "$SERVING" == api ]]; then
   : "${FABRYKA_API_KEY:?set FABRYKA_API_KEY (Fabryka AI API key)}"
