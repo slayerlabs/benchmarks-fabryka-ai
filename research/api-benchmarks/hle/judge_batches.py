@@ -29,6 +29,7 @@ def judge_config():
     # Single source of truth: env / run.sh. No hardcoded model IDs.
     judge_model = _env("JUDGE_MODEL")
     agreement_model = _env("AGREEMENT_MODEL")
+    stability_model = os.environ.get("STABILITY_MODEL")
     prices = {
         judge_model: {
             "input": float(_env("JUDGE_BATCH_INPUT_USD_PER_MTOK")) / 1e6,
@@ -41,7 +42,13 @@ def judge_config():
             "source": PRICING_SOURCE,
         },
     }
-    return judge_model, agreement_model, prices
+    if stability_model:
+        prices[stability_model] = {
+            "input": float(_env("STABILITY_BATCH_INPUT_USD_PER_MTOK")) / 1e6,
+            "output": float(_env("STABILITY_BATCH_OUTPUT_USD_PER_MTOK")) / 1e6,
+            "source": PRICING_SOURCE,
+        }
+    return judge_model, agreement_model, stability_model, prices
 
 
 CAP_USD = 15.0
@@ -272,30 +279,72 @@ def run_plan(client, questions, predictions, outdir, plan, prices, cap_usd):
     return runs, spent, tokens_total
 
 
+def confusion(a_labels, b_labels):
+    # rows a, cols b, labels [0=no,1=yes]
+    tn = sum(1 for a,b in zip(a_labels,b_labels) if a==0 and b==0)
+    fp = sum(1 for a,b in zip(a_labels,b_labels) if a==0 and b==1)
+    fn = sum(1 for a,b in zip(a_labels,b_labels) if a==1 and b==0)
+    tp = sum(1 for a,b in zip(a_labels,b_labels) if a==1 and b==1)
+    return {"tn_no_no": tn, "fp_no_yes": fp, "fn_yes_no": fn, "tp_yes_yes": tp}
+
+
+def pair_agreement(name_a, name_b, ja, jb, ids):
+    common = [qid for qid in ids if qid in ja and qid in jb]
+    la = [1 if "yes" in ja[qid]["judge_response"]["correct"] else 0 for qid in common]
+    lb = [1 if "yes" in jb[qid]["judge_response"]["correct"] else 0 for qid in common]
+    n = len(common)
+    agree = sum(1 for x,y in zip(la,lb) if x==y)
+    pct = 100 * agree / n if n else float("nan")
+    kappa = cohens_kappa(la, lb) if n else float("nan")
+    dis = [qid for qid,x,y in zip(common,la,lb) if x!=y]
+    return {
+        "pair": f"{name_a} vs {name_b}",
+        "n": n,
+        "agreement_pct": round(pct, 4) if n else None,
+        "cohens_kappa": round(kappa, 6) if n else None,
+        "confusion": confusion(la, lb) if n else None,
+        "disagreement_ids_first_10": dis[:10],
+    }
+
+
 def build_report(predictions, outdir, ids_300, ids_100, runs, spent, tokens_total, cap_usd):
-    opus_all = json.load(open(outdir / "judged_opus_all.json", encoding="utf-8")) if (outdir / "judged_opus_all.json").exists() else {}
-    opus_rep = json.load(open(outdir / "judged_opus_repeat_100.json", encoding="utf-8")) if (outdir / "judged_opus_repeat_100.json").exists() else {}
-    son300 = json.load(open(outdir / "judged_sonnet_300.json", encoding="utf-8")) if (outdir / "judged_sonnet_300.json").exists() else {}
+    # Main judge: prefer judged_opus4_all (kept main), else judged_opus_all
+    main_path = outdir / "judged_opus4_all.json" if (outdir / "judged_opus4_all.json").exists() else outdir / "judged_opus_all.json"
+    opus_main = json.load(open(main_path, encoding="utf-8")) if main_path.exists() else {}
+    opus5_300 = json.load(open(outdir / "judged_opus5_300.json", encoding="utf-8")) if (outdir / "judged_opus5_300.json").exists() else {}
+    son5_300 = json.load(open(outdir / "judged_sonnet5_300.json", encoding="utf-8")) if (outdir / "judged_sonnet5_300.json").exists() else {}
+    opus4_rep = json.load(open(outdir / "judged_opus4_repeat_100.json", encoding="utf-8")) if (outdir / "judged_opus4_repeat_100.json").exists() else {}
+    # legacy
+    opus_rep = opus4_rep or (json.load(open(outdir / "judged_opus_repeat_100.json", encoding="utf-8")) if (outdir / "judged_opus_repeat_100.json").exists() else {})
+    son300 = son5_300 or (json.load(open(outdir / "judged_sonnet_300.json", encoding="utf-8")) if (outdir / "judged_sonnet_300.json").exists() else {})
 
-    n_judged, acc, stderr, cal = accuracy_stats(opus_all, len(predictions))
-    common300 = [qid for qid in ids_300 if qid in opus_all and qid in son300]
-    agree_n = len(common300)
-    agree = sum(1 for qid in common300 if ("yes" in opus_all[qid]["judge_response"]["correct"]) == ("yes" in son300[qid]["judge_response"]["correct"]))
-    agree_pct = 100 * agree / agree_n if agree_n else float("nan")
-    labels_o = [1 if "yes" in opus_all[qid]["judge_response"]["correct"] else 0 for qid in common300]
-    labels_s = [1 if "yes" in son300[qid]["judge_response"]["correct"] else 0 for qid in common300]
-    kappa = cohens_kappa(labels_o, labels_s) if agree_n else float("nan")
-    disagreements = [qid for qid in common300 if ("yes" in opus_all[qid]["judge_response"]["correct"]) != ("yes" in son300[qid]["judge_response"]["correct"])]
-    common100 = [qid for qid in ids_100 if qid in opus_all and qid in opus_rep]
-    self_n = len(common100)
-    self_agree = sum(1 for qid in common100 if ("yes" in opus_all[qid]["judge_response"]["correct"]) == ("yes" in opus_rep[qid]["judge_response"]["correct"]))
-    self_pct = 100 * self_agree / self_n if self_n else float("nan")
+    n_judged, acc, stderr, cal = accuracy_stats(opus_main, len(predictions))
 
+    three_way = []
+    if opus_main and opus5_300:
+        three_way.append(pair_agreement("opus4.6", "opus5.5", opus_main, opus5_300, ids_300))
+    if opus_main and son5_300:
+        three_way.append(pair_agreement("opus4.6", "sonnet5.5", opus_main, son5_300, ids_300))
+    if opus5_300 and son5_300:
+        three_way.append(pair_agreement("opus5.5", "sonnet5.5", opus5_300, son5_300, ids_300))
+
+    self_ag = None
+    if opus_main and opus_rep:
+        common100 = [qid for qid in ids_100 if qid in opus_main and qid in opus_rep]
+        la = [1 if "yes" in opus_main[qid]["judge_response"]["correct"] else 0 for qid in common100]
+        lb = [1 if "yes" in opus_rep[qid]["judge_response"]["correct"] else 0 for qid in common100]
+        n = len(common100)
+        agree = sum(1 for x,y in zip(la,lb) if x==y)
+        self_ag = {"n": n, "self_agreement_pct": round(100*agree/n, 4) if n else None, "cohens_kappa": round(cohens_kappa(la,lb), 6) if n else None, "confusion": confusion(la,lb) if n else None}
+
+    # legacy fields for compatibility
+    legacy_pair = three_way[-1] if three_way else None
     return {
         "model": "bielik-11b-v3.1",
         "benchmark": "Humanity's Last Exam (no tools), text-only subset",
         "n_total_predictions": len(predictions),
-        "n_judged_opus": n_judged,
+        "n_judged_main": n_judged,
+        "main_judge_model": next((v.get("judge_model") for v in opus_main.values() if v.get("judge_model")), None),
         "accuracy": round(acc, 4),
         "stderr": round(stderr, 4),
         "stderr_formula": "sqrt(p*(1-p)/n)*100, percent scale",
@@ -305,12 +354,12 @@ def build_report(predictions, outdir, ids_300, ids_100, runs, spent, tokens_tota
         "cap_usd": cap_usd,
         "pricing_source": PRICING_SOURCE,
         "runs": runs,
-        "opus_sonnet_agreement_n": agree_n,
-        "opus_sonnet_agreement_pct": round(agree_pct, 4) if agree_n else None,
-        "opus_sonnet_cohens_kappa": round(kappa, 6) if agree_n else None,
-        "opus_self_agreement_n": self_n,
-        "opus_self_agreement_pct": round(self_pct, 4) if self_n else None,
-        "disagreement_ids_first_10": disagreements[:10],
+        "three_way_agreement": three_way,
+        "self_agreement_opus4_repeat_100": self_ag,
+        "opus_sonnet_agreement_n": legacy_pair["n"] if legacy_pair else 0,
+        "opus_sonnet_agreement_pct": legacy_pair["agreement_pct"] if legacy_pair else None,
+        "opus_sonnet_cohens_kappa": legacy_pair["cohens_kappa"] if legacy_pair else None,
+        "disagreement_ids_first_10": legacy_pair["disagreement_ids_first_10"] if legacy_pair else [],
     }
 
 
@@ -319,11 +368,11 @@ def main():
     ap.add_argument("--predictions", default=str(HERE / "out/bielik-11b-v3.1/hle_bielik-11b-v3.1.json"))
     ap.add_argument("--outdir", default=str(HERE / "out/bielik-11b-v3.1"))
     ap.add_argument("--cap-usd", type=float, default=CAP_USD)
-    ap.add_argument("--mode", choices=["pilot5", "full"], required=True)
+    ap.add_argument("--mode", choices=["pilot5", "full", "agreement"], required=True)
     args = ap.parse_args()
 
     J.load_dotenv()
-    judge_model, agreement_model, prices = judge_config()
+    judge_model, agreement_model, stability_model, prices = judge_config()
     client = load_env()
     questions = load_questions()
     predictions = json.load(open(args.predictions, encoding="utf-8"))
@@ -335,6 +384,14 @@ def main():
 
     if args.mode == "pilot5":
         plan = [("pilot5_opus", judge_model, all_ids[:5], outdir / "judged_pilot5_configured.json")]
+    elif args.mode == "agreement":
+        if not stability_model:
+            raise SystemExit("STABILITY_MODEL required for agreement mode")
+        plan = [
+            ("opus5_300", judge_model, ids_300, outdir / "judged_opus5_300.json"),
+            ("sonnet5_300", agreement_model, ids_300, outdir / "judged_sonnet5_300.json"),
+            ("opus4_repeat_100", stability_model, ids_100, outdir / "judged_opus4_repeat_100.json"),
+        ]
     else:
         plan = [
             ("opus_all", judge_model, all_ids, outdir / "judged_opus_all.json"),
@@ -347,9 +404,11 @@ def main():
     report["config"] = {
         "judge_model": judge_model,
         "agreement_model": agreement_model,
+        "stability_model": stability_model,
         "prices": {k: {"input_usd_per_mtok": v["input"] * 1e6, "output_usd_per_mtok": v["output"] * 1e6, "source": v["source"]} for k, v in prices.items()},
     }
-    report_path = outdir / ("judge_pilot5_report.json" if args.mode == "pilot5" else "judge_report.json")
+    name = {"pilot5": "judge_pilot5_report.json", "agreement": "judge_agreement_report.json"}.get(args.mode, "judge_report.json")
+    report_path = outdir / name
     with open(report_path, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2, ensure_ascii=False)
     print(json.dumps(report, indent=2, ensure_ascii=False), flush=True)
