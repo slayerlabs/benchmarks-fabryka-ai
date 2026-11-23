@@ -535,42 +535,69 @@ def load_slayer(pretrained: str, device: str = "cpu", dtype: str = "bfloat16"):
 
 
 def slayer_generate(model: Any, prompt_ids: list[int], max_new_tokens: int) -> list[int]:
-    import torch  # noqa: E402
+    """Batch-1 wrapper around batched greedy generation (same result as sequential)."""
+    return slayer_generate_batch(model, [prompt_ids], max_new_tokens=max_new_tokens)[0]
 
-    device = model.device
-    cache: list[Any] = []
-    ids = torch.tensor([prompt_ids], dtype=torch.long, device=device)
-    logits = model.krok(ids, cache)[0]
-    out: list[int] = []
-    for _ in range(max_new_tokens):
-        nxt = int(logits.argmax().item())
-        out.append(nxt)
-        if nxt == model.bos:
-            break
-        logits = model.krok(torch.tensor([[nxt]], dtype=torch.long, device=device), cache)[0]
-    return out
+
+def slayer_generate_batch(model: Any, prompt_ids_list: list[list[int]], max_new_tokens: int | None = None,
+                          max_total: int = SLAYER_CONTEXT) -> list[list[int]]:
+    from slayer_batch import generate_batch  # research/common on sys.path via load_slayer
+
+    # max_new_tokens kept for compatibility; max_total enforces per-row 4096 total.
+    return generate_batch(model, prompt_ids_list, max_total=max_total, stop_id=model.bos)
+
+
+def _slayer_decode(model: Any, out_ids: list[int]) -> str:
+    decoded = model.tok.decode(out_ids, skip_special_tokens=False)
+    if decoded.startswith("<|endoftext|>"):
+        decoded = decoded[len("<|endoftext|>"):]
+    return decoded
 
 
 def slayer_answer(model: Any, prompt: str, thinking: bool) -> dict[str, Any]:
-    ids = model.encode(prompt)
-    prompt_tokens = len(ids)
-    max_new_tokens = SLAYER_CONTEXT - prompt_tokens
-    if max_new_tokens < SLAYER_MIN_ANSWER_TOKENS:
-        return {"status": "unsupported", "prompt_tokens": prompt_tokens, "context": SLAYER_CONTEXT,
-                "max_tokens": max_new_tokens,
-                "error": f"prompt has {prompt_tokens} tokens, leaving {max_new_tokens} < "
-                         f"{SLAYER_MIN_ANSWER_TOKENS} for the answer in a {SLAYER_CONTEXT}-token context"}
-    out_ids = slayer_generate(model, ids, max_new_tokens)
-    finish_reason = "stop" if (out_ids and out_ids[-1] == model.bos) else "length"
-    if out_ids and out_ids[-1] == model.bos:
-        decoded = model.tok.decode(out_ids[:-1], skip_special_tokens=False)
-    else:
-        decoded = model.tok.decode(out_ids, skip_special_tokens=False)
-    if decoded.startswith("<|endoftext|>"):
-        decoded = decoded[len("<|endoftext|>"):]
-    return {"status": "ok", "prompt_tokens": prompt_tokens, "context": SLAYER_CONTEXT,
-            "max_tokens": max_new_tokens, "output": decoded, "finish_reason": finish_reason,
-            "output_tokens": len(out_ids)}
+    return slayer_answer_batch(model, [(prompt, thinking)])[0]
+
+
+def slayer_answer_batch(model: Any, items: list[tuple[str, bool]]) -> list[dict[str, Any]]:
+    """Batched greedy generation; identical per-row results to batch size 1.
+
+    BOS rule: exactly one leading BOS per request (matches IFEval/SlayerLM).
+    """
+    encoded: list[list[int]] = []
+    metas: list[dict[str, Any]] = []
+    for prompt, _thinking in items:
+        ids = model.encode(prompt)
+        prompt_tokens = 1 + len(ids)  # one leading BOS per request
+        max_new_tokens = SLAYER_CONTEXT - prompt_tokens
+        meta = {"prompt_tokens": prompt_tokens, "context": SLAYER_CONTEXT, "max_tokens": max_new_tokens}
+        if max_new_tokens < SLAYER_MIN_ANSWER_TOKENS:
+            metas.append({**meta, "status": "unsupported",
+                          "error": f"prompt has {prompt_tokens} tokens (including BOS), leaving {max_new_tokens} < "
+                                   f"{SLAYER_MIN_ANSWER_TOKENS} for the answer in a {SLAYER_CONTEXT}-token context"})
+            encoded.append([])
+        else:
+            metas.append(meta)
+            encoded.append(ids)
+    # Generate only supported prompts, in original order mapping.
+    idx = [i for i, m in enumerate(metas) if m.get("status") != "unsupported"]
+    outs: list[list[int]] = [[] for _ in items]
+    if idx:
+        batch_ids = [encoded[i] for i in idx]
+        batch_outs = slayer_generate_batch(model, batch_ids, max_total=SLAYER_CONTEXT)
+        for j, i in enumerate(idx):
+            outs[i] = batch_outs[j]
+    records: list[dict[str, Any]] = []
+    for i, meta in enumerate(metas):
+        if meta.get("status") == "unsupported":
+            records.append(meta)
+            continue
+        out_ids = outs[i]
+        finish_reason = "stop" if (out_ids and out_ids[-1] == model.bos) else "length"
+        decoded_ids = out_ids[:-1] if (out_ids and out_ids[-1] == model.bos) else out_ids
+        records.append({"status": "ok", "prompt_tokens": meta["prompt_tokens"], "context": SLAYER_CONTEXT,
+                        "max_tokens": meta["max_tokens"], "output": _slayer_decode(model, decoded_ids),
+                        "finish_reason": finish_reason, "output_tokens": len(out_ids)})
+    return records
 
 
 def slayer_sampling(pretrained: str) -> dict[str, Any]:
@@ -597,35 +624,36 @@ def generate(args: argparse.Namespace) -> None:
     if args.slayer_pretrained:
         slayer = load_slayer(args.slayer_pretrained, device=args.slayer_device, dtype=args.slayer_dtype)
         args.concurrency = 1
+        batch_size = max(1, int(getattr(args, "slayer_batch_size", 8)))
+        sampling = {**slayer_sampling(args.slayer_pretrained), "slayer_batch_size": batch_size}
         update_run(out, "generation", {**provenance.step("lcbpro.py generate"), "model": args.model,
                                        "limit": args.limit, "harness": f"{HARNESS_REPO} @ {HARNESS_COMMIT}",
-                                       "data": f"{DATA_REPO} @ {DATA_REVISION}, {SPLIT}",
-                                       "sampling": slayer_sampling(args.slayer_pretrained)})
+                                       "data": f"{DATA_REPO} @ {DATA_REVISION}, {SPLIT}", "sampling": sampling})
         todo = [(r["problem_id"], prompt(r["problem_statement"]))
                 for r in (rows[:args.limit] if args.limit else rows) if r["problem_id"] not in done]
         del rows
-        print(f"lcbpro.py: {len(done)} problems already answered, {len(todo)} to go", flush=True)
-        lock = threading.Lock()
+        print(f"lcbpro.py: {len(done)} problems already answered, {len(todo)} to go, slayer_batch_size={batch_size}",
+              flush=True)
 
-        def run(item: tuple[str, str]) -> dict[str, Any]:
-            problem_id, text = item
-            started = datetime.datetime.now(datetime.timezone.utc)
-            try:
-                with lock:
-                    record = slayer_answer(slayer, text, think=args.chat_template_kwargs == "")
-            except Exception as e:  # noqa: BLE001
-                record = {"status": "error", "error": repr(e)}
+        def write_record(problem_id: str, started: datetime.datetime, record: dict[str, Any]) -> dict[str, Any]:
             record = {"problem_id": problem_id, "model": args.model, "started": started.isoformat(),
                       "seconds": round(time.time() - started.timestamp(), 1), **record}
-            with lock, gen_path.open("a", encoding="utf-8") as f:
+            with gen_path.open("a", encoding="utf-8") as f:
                 f.write(json.dumps(record, ensure_ascii=False) + "\n")
             print(f"{problem_id}: {record['status']} {record.get('output_tokens', '')} {record.get('finish_reason', '')}"
                   f" {record['seconds']} s", flush=True)
             return record
 
         try:
-            for item in todo:
-                run(item)
+            for i in range(0, len(todo), batch_size):
+                chunk = todo[i:i + batch_size]
+                started = datetime.datetime.now(datetime.timezone.utc)
+                try:
+                    records = slayer_answer_batch(slayer, [(text, False) for _, text in chunk])
+                except Exception as e:  # noqa: BLE001
+                    records = [{"status": "error", "error": repr(e)} for _ in chunk]
+                for (problem_id, _), rec in zip(chunk, records):
+                    write_record(problem_id, started, rec)
         finally:
             if gen_path.is_file():
                 provenance.record(out, ["generations.jsonl"], "lcbpro.py generate")
@@ -921,6 +949,8 @@ def main() -> None:
                         "greedy generation, no chat template, context 4096")
     g.add_argument("--slayer-device", default="cuda", help="device for local Slayer generation (cuda or cpu)")
     g.add_argument("--slayer-dtype", default="bfloat16", help="dtype for local Slayer generation (bfloat16, float16, float32)")
+    g.add_argument("--slayer-batch-size", type=int, default=8,
+                   help="batched greedy generation for local Slayer (same per-row result as batch size 1)")
     for name in ("tests", "score"):
         s = sub.add_parser(name)
         s.add_argument("out_dir")
