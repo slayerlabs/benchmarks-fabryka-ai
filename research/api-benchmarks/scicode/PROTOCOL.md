@@ -183,3 +183,31 @@ Added after review (2026-11-24), no verdict rule changed:
    computed without `--group`, so LiveCodeBench Pro 25Q2's K2 and K3 enter with p = 1, as "Hypotheses" and
    hypotheses.py already allow when that file is not given; the group Holm over both benchmarks is computed once,
    from both merged files on main.
+
+## Amendment 3 (2026-11-24): Slayer 1B run added
+
+Written after the review that added Amendment 2 points 8-9 (the cost decision recorded a `null` Slayer row). The run
+was carried out after that cost decision and confirms it: the measured result is 0.00. Nothing above changes: no
+hypothesis, metric, threshold, control, existing K result or Holm correction is altered. Original protocol text for
+this amendment was written in commit `07ee0f2aad4dec937b91388d0a8ea29aa2ccdf21` (2026-11-23T18:02:59+01:00), before
+any Slayer output; this version updates it with the run outcome and keeps the pre-registered settings.
+
+- **Model:** `slayer1b-1.09-k70000`, checkpoint `SlayerLab/Slayer1B-1.09-checkpoints` @
+  `adfaf3fd5402bc7f3adbfe077798f20262979433`, file `wagi_70000.pt` (same source as PR #334), converted with the
+  1.08 template `SlayerLab/Slayer1B-1.08` @ `5f854a0cc7160594d54d1788d37a44e8ebabe16c`. Loader:
+  `research/common/slayer_lm.py` (reuses `slayer_model.Slayer`), bf16, greedy (the only decoding
+  `SlayerLM.generate` supports), context 4096.
+- **Prompt:** the same official prompt text the harness builds for the other models, in both settings (with and
+  without background), passed as plain text without a chat template (base model, no chat template). No system
+  message; the only addition is raw plain-text prompting as in the IFEval Slayer run. Any other prompt addition is
+  a deviation recorded in README.
+- **Context / output length:** `max_new_tokens = 4096 - prompt_tokens` (Slayer tokenizer v6). An item whose prompt
+  alone does not leave at least 256 tokens for the answer is not truncated: it gets an empty answer, which the
+  official scorer grades as a failure, and is counted in README as `context_overflow` (number and IDs per setting).
+  The headline score stays on the full benchmark (all 288 subproblems, same n as the other models). A second
+  number "on items that fit" is reported only in an exploratory section. If more than 50% of items overflow in a
+  setting, that setting is reported as `score: null` with the reason and the counts instead.
+- **Reading:** the Slayer row is **descriptive**, outside the K1?K3 hypothesis family and the Holm correction. It
+  must not change any existing K result. The measured 0.00 confirms the cost decision recorded in Amendment 2 point 8;
+  the merge decision belongs to the maintainer.
+
