@@ -201,7 +201,8 @@ any Slayer output; this version updates it with the run outcome and keeps the pr
   without background), passed as plain text without a chat template (base model, no chat template). No system
   message; the only addition is raw plain-text prompting as in the IFEval Slayer run. Any other prompt addition is
   a deviation recorded in README.
-- **Context / output length:** `max_new_tokens = 4096 - prompt_tokens` (Slayer tokenizer v6). An item whose prompt
+- **BOS / token counting:** exactly one leading BOS per request, matching `research/api-benchmarks/ifeval/lm_eval_slayer.py` and `research/common/slayer_lm.py` (`SlayerLM.tok_batch_encode`). Prompt token counts and generation both include this BOS. Tokenizer: Slayer v6 (32768 vocab) from `SlayerLab/Slayer1B-1.08` @ `5f854a0cc7160594d54d1788d37a44e8ebabe16c`, `tokenizer.json` sha256 `0640d3bd3674d7a6e59c540d945a2ad275a12e1bcaeb6007c37a90751f9815dd`.
+- **Context / output length:** `max_new_tokens = 4096 - prompt_tokens` where `prompt_tokens` includes BOS. An item whose prompt
   alone does not leave at least 256 tokens for the answer is not truncated: it gets an empty answer, which the
   official scorer grades as a failure, and is counted in README as `context_overflow` (number and IDs per setting).
   The headline score stays on the full benchmark (all 288 subproblems, same n as the other models). A second
