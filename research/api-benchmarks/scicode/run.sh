@@ -27,6 +27,10 @@
 # Env: CONCURRENCY (chains in flight, so requests in flight; default 64 on vLLM, 2 on the API), REQUEST_TIMEOUT
 # (seconds per request, default 21600), PORT (vLLM started here, default 8000), OUT_DIR, RESULTS_DIR, BASE_URL,
 # SERVED_MODEL, SCORE_MEMORY (container memory limit, default 48g).
+#
+# Windows in Git Bash works for the API and the oracle paths: where `python3` is only the Microsoft Store stub the
+# script uses `python`, and it reads the venv from `Scripts/` when there is no `bin/`. `--score` needs Linux and
+# Docker, and starting vLLM needs a Linux box with one NVIDIA GPU.
 set -euo pipefail
 export PYTHONUTF8=1
 
@@ -46,6 +50,10 @@ done
 HERE="$(cd "$(dirname "$0")" && pwd)"
 VENV_GEN="${VENV_GEN:-$HERE/.venv-gen}"
 VENV_VLLM="${VENV_VLLM:-$HERE/.venv-vllm}"
+# Windows in Git Bash: `python3` is often only the Microsoft Store stub, and a venv there has Scripts/, not bin/
+if python3 -c 'pass' >/dev/null 2>&1; then PY=python3; else PY=python; fi
+VENV_PY="$VENV_GEN/bin/python"
+[[ -x "$VENV_PY" ]] || VENV_PY="$VENV_GEN/Scripts/python.exe"
 OUT="${OUT_DIR:-$HERE/out}/$MODEL"
 RESULTS="${RESULTS_DIR:-$HERE/results}"
 PORT="${PORT:-8000}"
@@ -104,17 +112,17 @@ if [[ "$SCORE" == 1 ]]; then
     "$IMAGE" python scicode_runner.py score "$OUT" --model-id "$MODEL" --split "$SPLIT" ${LIMIT[@]+"${LIMIT[@]}"}
   TARGET="$RESULTS/$MODEL"
   [[ "$MODEL" == dev-ground-truth ]] && TARGET="$RESULTS/checks/$MODEL"
-  python3 "$HERE/summarize.py" "$OUT" "$TARGET" ${LIMIT[@]+"${LIMIT[@]}"}
+  "$PY" "$HERE/summarize.py" "$OUT" "$TARGET" ${LIMIT[@]+"${LIMIT[@]}"}
   exit 0
 fi
 
-command -v uv >/dev/null || python3 -m pip install -q uv
+command -v uv >/dev/null || "$PY" -m pip install -q uv
 [[ -d "$VENV_GEN" ]] || uv venv -q --python 3.11 "$VENV_GEN"
-uv pip sync -q --python "$VENV_GEN/bin/python" "$HERE/requirements-generate.lock"
-GEN=("$VENV_GEN/bin/python" "$HERE/scicode_runner.py" generate "$OUT" --model-id "$MODEL" --split "$SPLIT")
+uv pip sync -q --python "$VENV_PY" "$HERE/requirements-generate.lock"
+GEN=("$VENV_PY" "$HERE/scicode_runner.py" generate "$OUT" --model-id "$MODEL" --split "$SPLIT")
 
 prepare_slayer() {
-  local SLAYER_PY="${SLAYER_PYTHON:-$VENV_GEN/bin/python}"
+  local SLAYER_PY="${SLAYER_PYTHON:-$VENV_PY}"
   if [[ ! -f "$SLAYER_DIR/config.json" || ! -f "$SLAYER_DIR/model.safetensors" || ! -f "$SLAYER_DIR/tokenizer.json" ]]; then
     echo "preparing Slayer model at $SLAYER_DIR"
     "$SLAYER_PY" -c "import torch, safetensors, tokenizers, transformers" >/dev/null 2>&1 || \
@@ -137,7 +145,7 @@ PY
 
 if [[ "$SERVING" == slayer ]]; then
   prepare_slayer
-  SLAYER_PY="${SLAYER_PYTHON:-$VENV_GEN/bin/python}"
+  SLAYER_PY="${SLAYER_PYTHON:-$VENV_PY}"
   "$SLAYER_PY" -c "import torch, safetensors, tokenizers" >/dev/null 2>&1 || \
     uv pip install -q --python "$SLAYER_PY" torch safetensors tokenizers transformers
   "$SLAYER_PY" "$HERE/scicode_runner.py" generate "$OUT" --model-id "$MODEL" --split "$SPLIT" \
