@@ -170,7 +170,8 @@
       "steps": 1,
       "same": 1,
       "differ": [],
-      "scorer_seconds": 1801.7
+      "scorer_seconds": 1801.8,
+      "graded_sha256": "4bd253b82231d3cf49e9d61268b1e5b4f186c5f6c557cbb9cb43908153dd189c"
     },
     "nothink-64.6": {
       "model": "lfm3-1.7b-nothink",
@@ -178,7 +179,8 @@
       "steps": 1,
       "same": 1,
       "differ": [],
-      "scorer_seconds": 1801.7
+      "scorer_seconds": 1801.8,
+      "graded_sha256": "4104a2c818613bd4ec4cf605a11500ce5078c05fe3b9a65a8d7316d2346325a7"
     },
     "nothink-window": {
       "model": "lfm3-1.7b-nothink",
@@ -186,7 +188,61 @@
       "steps": 42,
       "same": 42,
       "differ": [],
-      "scorer_seconds": 63.7
+      "scorer_seconds": 63.2,
+      "graded_sha256": "4104a2c818613bd4ec4cf605a11500ce5078c05fe3b9a65a8d7316d2346325a7"
+    }
+  },
+  "repeated_steps": [
+    {
+      "tag": "repeat-lfm3-1.7b-nothink-with_background-14.2",
+      "model": "lfm3-1.7b-nothink",
+      "setting": "with_background",
+      "step": "14.2",
+      "kept": "fail",
+      "runs": 10,
+      "rescored": {
+        "pass": 9,
+        "fail": 1
+      },
+      "file_sha256": "108a0cc245d7faeb0d65eb68edb30bc1cc39d3739acf172c1671d7af9a623448",
+      "graded_sha256": "4104a2c818613bd4ec4cf605a11500ce5078c05fe3b9a65a8d7316d2346325a7"
+    },
+    {
+      "tag": "repeat-lfm3-1.7b-nothink-without_background-14.2",
+      "model": "lfm3-1.7b-nothink",
+      "setting": "without_background",
+      "step": "14.2",
+      "kept": "fail",
+      "runs": 10,
+      "rescored": {
+        "fail": 10
+      },
+      "file_sha256": "1a071d3c85dda208f80dde8890cada1cbd4e9663699a8a928d3b5c88b7f8647d",
+      "graded_sha256": "4104a2c818613bd4ec4cf605a11500ce5078c05fe3b9a65a8d7316d2346325a7"
+    }
+  ],
+  "reference_extraction": {
+    "bielik-11b-v3.1": {
+      "with_background": {
+        "answers_with_think_end": 8,
+        "answers_whose_code_differs": 6,
+        "files_differing": 28,
+        "passed_after_think": 7,
+        "passed_whole_answer": 7,
+        "verdicts_changed": 0,
+        "verdicts_of_differing_files": [
+          "fail -> fail"
+        ]
+      },
+      "without_background": {
+        "answers_with_think_end": 0,
+        "answers_whose_code_differs": 0,
+        "files_differing": 0,
+        "passed_after_think": 5,
+        "passed_whole_answer": 5,
+        "verdicts_changed": 0,
+        "verdicts_of_differing_files": []
+      }
     }
   },
   "inputs_sha256": {
@@ -200,12 +256,31 @@
     "lfm3-1.7b-nothink.without_background.stdout.txt": "a10092e0d19c70fa4e962850c40ba1d071ae2460d19e03c45f6358672a255f0d",
     "lfm3-1.7b.with_background.stdout.txt": "70176e7c5fbecdc392f37e1240e817cbcc5c119eb41dffdae4bdf5cd0af0fa8b",
     "lfm3-1.7b.without_background.stdout.txt": "c8dab28e59127851676a87615b04c7455101bec072bcf4c47cd37e14044e9cd6",
+    "reference-extraction-bielik-11b-v3.1.json": "b35f4971d3e4345d85c41cddbf2ad32f6d2ec48ae077d682459897ec2bf19a3e",
+    "repeat-lfm3-1.7b-nothink-with_background-14.2-run1.json": "54295dfefe50536ca0efbc8eec6317c24ed2bd4cabca5e84a99e6169c994d285",
+    "repeat-lfm3-1.7b-nothink-with_background-14.2-run10.json": "54295dfefe50536ca0efbc8eec6317c24ed2bd4cabca5e84a99e6169c994d285",
+    "repeat-lfm3-1.7b-nothink-with_background-14.2-run2.json": "006555bfe12e70c5773961d53b1aca149fbaad804852e14d1eae5d9ef6f6a837",
+    "repeat-lfm3-1.7b-nothink-with_background-14.2-run3.json": "a97ba22d8c1841a9d4cbe00f4a6ae8c683b054e066b496c4a318db759ab2d915",
+    "repeat-lfm3-1.7b-nothink-with_background-14.2-run4.json": "26695b2f2366cc7394d943f557501cf4c527a77861caf87a32318aeae74002a5",
+    "repeat-lfm3-1.7b-nothink-with_background-14.2-run5.json": "d08a9ca67cdb9d58126d6dca042be8cd2b5e203e895c9a4df303a591e8b54516",
+    "repeat-lfm3-1.7b-nothink-with_background-14.2-run6.json": "2b0dfc89c583877243848a40ac2d56a88a835dd7a290716a9ec3093a7bbabe60",
+    "repeat-lfm3-1.7b-nothink-with_background-14.2-run7.json": "e6b57461656ebe5cd32098a3d19def81256bbeaaf7602e9f07bd01311c62ee91",
+    "repeat-lfm3-1.7b-nothink-with_background-14.2-run8.json": "6bd61061e1e84ec511ec6476c101606b62191df40b63a79e09bf39759456c75e",
+    "repeat-lfm3-1.7b-nothink-with_background-14.2-run9.json": "5188e60ec746fa30f2003ce884640fd93b982cd8417aae6630600a739023f35d",
+    "repeat-lfm3-1.7b-nothink-without_background-14.2-run1.json": "08587fda5e2247af383e8cb69d6dfd93d257c48905bc14c535da8e11d76b86c1",
+    "repeat-lfm3-1.7b-nothink-without_background-14.2-run10.json": "08587fda5e2247af383e8cb69d6dfd93d257c48905bc14c535da8e11d76b86c1",
+    "repeat-lfm3-1.7b-nothink-without_background-14.2-run2.json": "41c9a338388a426a652ea94ffa3c84123d28e99459e25c2e0780358ab1a80535",
+    "repeat-lfm3-1.7b-nothink-without_background-14.2-run3.json": "08587fda5e2247af383e8cb69d6dfd93d257c48905bc14c535da8e11d76b86c1",
+    "repeat-lfm3-1.7b-nothink-without_background-14.2-run4.json": "08587fda5e2247af383e8cb69d6dfd93d257c48905bc14c535da8e11d76b86c1",
+    "repeat-lfm3-1.7b-nothink-without_background-14.2-run5.json": "08587fda5e2247af383e8cb69d6dfd93d257c48905bc14c535da8e11d76b86c1",
+    "repeat-lfm3-1.7b-nothink-without_background-14.2-run6.json": "08587fda5e2247af383e8cb69d6dfd93d257c48905bc14c535da8e11d76b86c1",
+    "repeat-lfm3-1.7b-nothink-without_background-14.2-run7.json": "41c9a338388a426a652ea94ffa3c84123d28e99459e25c2e0780358ab1a80535",
+    "repeat-lfm3-1.7b-nothink-without_background-14.2-run8.json": "08587fda5e2247af383e8cb69d6dfd93d257c48905bc14c535da8e11d76b86c1",
+    "repeat-lfm3-1.7b-nothink-without_background-14.2-run9.json": "08587fda5e2247af383e8cb69d6dfd93d257c48905bc14c535da8e11d76b86c1",
     "score-scicode.log": "d638d17cb0b93428006e0295faece1e31a22435f1aa8bffa2a698fe72a28774d",
-    "window-lfm3-63.6.json": "0dc57046bc2813a254b0fb5e2685c6d406cdc8f47c8ae45062a178bb9c23c22a",
-    "window-nothink-64.6.json": "25a5e149bfff86de83693bf6f272a384f99470955d6a22517e02a70fe5670387",
-    "window-nothink-window.json": "942797c44d2970a90a36f08d77655268470be9746001eda9553d1baed1962304",
-    "window-steps.txt": "bce685b2fcab8f3c14b6c53f1af2c3b054badf67ba139f1374daaa1f84d6a8df",
-    "window_rescore.py": "6cc39874c7e692e6a185e7dfe50a16d354db4b447a21c6c5bf4e780c9fec91ae",
-    "window_rescore.sh": "271736edbe11ee40ecb9309f9ebdd5aac6f5b9cd506442e3fb98a6507193a74d"
+    "window-lfm3-63.6.json": "091132afffb5c68139e14dd4da7b39477f0f66df4d7211073036208d9ee7764e",
+    "window-nothink-64.6.json": "a2a95e70fbc6c591c22f673098989c4726f9e6f0668b341074ddb9fbf6270e97",
+    "window-nothink-window.json": "d2d8bed2454cb6d04608211c5bd4f460c4af5a25187678c045bfec8756fd0f12",
+    "window-steps.txt": "bce685b2fcab8f3c14b6c53f1af2c3b054badf67ba139f1374daaa1f84d6a8df"
   }
 }

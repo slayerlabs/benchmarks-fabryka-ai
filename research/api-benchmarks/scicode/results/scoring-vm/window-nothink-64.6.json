@@ -12,5 +12,9 @@
    "same": true
   }
  ],
- "scorer_seconds": 1801.7
+ "scorer_seconds": 1801.8,
+ "graded_sha256": "4104a2c818613bd4ec4cf605a11500ce5078c05fe3b9a65a8d7316d2346325a7",
+ "files_sha256": {
+  "64.6": "d8e1409e1b809d6963842c0eae85274b147b10921260fd092f84e6d19c230667"
+ }
 }

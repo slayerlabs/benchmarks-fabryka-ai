@@ -10,9 +10,14 @@
       "sha256": "6a0669d7968396fc56022d4c897466f4628ba0e88c8e81ca5a4d76c9d1cc47d2",
       "written_by": "summarize.py"
     },
+    "exploratory.json": {
+      "at": "2026-11-23T07:30:57+00:00",
+      "sha256": "e961a4a2ce2bc53d64c8aed0d4d528b9950cfdfc70b650ff58d47c76f3e665db",
+      "written_by": "explore.py"
+    },
     "hypotheses.json": {
-      "at": "2026-11-23T05:26:49+00:00",
-      "sha256": "21a710a707ef062efea92dc111e46362225b314d4efa237bd6b5f3a6a17b5532",
+      "at": "2026-11-23T07:30:57+00:00",
+      "sha256": "fd1166ee4fb6f1d4d0545e3446c09aac7d370eb8f4f424bc5e8aa351a92131fd",
       "written_by": "hypotheses.py"
     },
     "lfm3-1.7b-nothink.json": {
@@ -36,13 +41,13 @@
       "written_by": "summarize.py"
     },
     "raw-outputs.json": {
-      "at": "2026-11-23T05:26:49+00:00",
-      "sha256": "5de072b8b92c66de077d788633352635790b11f718b0df555beae64160f16691",
+      "at": "2026-11-23T07:30:57+00:00",
+      "sha256": "4237792aca197c47132b9bb5228df16e0be5f00b69870b2d4f2c66c5825c794c",
       "written_by": "raw_outputs.py"
     },
     "scoring-events.json": {
-      "at": "2026-11-23T05:26:49+00:00",
-      "sha256": "cafe007f6110e2492552fc845e51631c53dfd0606f2480fd720069e207c653ae",
+      "at": "2026-11-23T07:30:57+00:00",
+      "sha256": "4aa43f952bfb18ae52abbb501a4cd5273b3b8d75d483c86354af051f2c3682e0",
       "written_by": "scoring_events.py"
     },
     "slayer1b-1.09-k70000.json": {

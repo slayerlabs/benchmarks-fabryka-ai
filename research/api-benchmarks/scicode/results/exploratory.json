@@ -1,0 +1,11 @@
+{
+  "k3_without_reasoning_passes": {
+    "note": "exploratory: nothink's passes from answers closing `</think>` counted as failed",
+    "passes_removed": 17,
+    "value": 1.215277777777778,
+    "se": 1.989131125917079,
+    "z": 0.6109591076945619,
+    "n": 288,
+    "clusters": 65
+  }
+}
