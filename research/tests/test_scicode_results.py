@@ -123,6 +123,7 @@ def test_scores_se_main_problems_and_verdicts():
             assert m["stderr_clustered"] == round(100 * se_cl, 2) and m["correct"] == k, (run, s)
             sv, of = solved(rs)
             assert (m["main_problems"]["solved"], m["main_problems"]["of"]) == (sv, of)
+            assert m["timeouts"] == sum(1 for r in rs if r["verdict"] == "time out"), (run, s)
             verdicts = {v: sum(1 for r in rs if r["verdict"] == v) for v in ("pass", "fail", "time out")}
             c = cells(results, f"| {run} | {LABEL[s]} | ")
             assert c[2:7] == [share_cell(k, N, se_cl), problems_cell(sv, of), str(verdicts["pass"]),
@@ -230,14 +231,81 @@ def test_k1_k2_k3_holm_and_reading():
                                                 f"{z2e:+.2f}"]
     assert cells(hyp, "| K3 |")[1:4] == [f"{100 * d:+.2f}", f"{100 * d_se:.2f}", f"{z3:+.2f}"]
     assert cells(hyp, "| K2 |")[7] == k2["verdict_holm"] and cells(hyp, "| K3 |")[7] == k3["verdict_holm"]
+    assert (f"Holm m = {2 + len(group)}, family: scicode K2, scicode K3, "
+            + ", ".join(f"{t['benchmark']} {t['id']}" for t in group)) in hyp
+    flat = " ".join(hyp.split())
+    gap = 100 * (p_on - CARD_LFM3)
+    assert (f"({gap:+.2f} pt, z = {z1:+.2f})" in flat and f"the gap is {abs(gap):.2f} pt" in flat
+            and f"2 clustered SE are {200 * se1:.2f} pt" in flat and abs(gap) > 2)
+    # Student's t (df = problems - 1) for our K2 and K3, by numerical integration of the density, then Holm m = 4
+    df = len(set(cl)) - 1
+
+    def t_cdf(x):
+        dens = lambda u: math.exp(math.lgamma((df + 1) / 2) - math.lgamma(df / 2)) / math.sqrt(df * math.pi) * \
+            (1 + u * u / df) ** (-(df + 1) / 2)  # noqa: E731
+        lo, n = -60.0, 200000
+        hstep = (x - lo) / n
+        s = dens(lo) + dens(x) + sum((4 if i % 2 else 2) * dens(lo + i * hstep) for i in range(1, n))
+        return s * hstep / 3
+    ps_t = [t_cdf(z2), t_cdf(z3) if met else None]
+    sup_t = holm([1.0 if p is None else p for p in ps_t] + [t["p_support"] for t in group])
+    ref_t = holm([1.0 if p is None else 1 - p for p in ps_t] + [t["p_refute"] for t in group])
+    tc = h["t_check"]
+    assert math.isclose(tc["K2"]["p_support_holm"], sup_t[0], rel_tol=1e-4)
+    assert math.isclose(tc["K3"]["p_refute_holm"], ref_t[1], rel_tol=1e-4)
+    assert (tc["K2"]["verdict_holm"], tc["K3"]["verdict_holm"]) == (verdict(sup_t[0], ref_t[0]), verdict(sup_t[1], ref_t[1]))
+    assert (f"K2 Holm p {sup_t[0]:.3g}, {tc['K2']['verdict_holm']}; K3 Holm p {ref_t[1]:.3g}, "
+            f"{tc['K3']['verdict_holm']}") in flat
     raw = json.loads((RESULTS / "raw-outputs.json").read_text(encoding="utf-8"))["runs"]
     rs = raw["lfm3-1.7b-nothink"]["settings"]["with_background"]["reasoning"]
     assert (f"**K3** {k3['verdict_holm'].split(' ')[0]} under the pre-registered switch (`enable_thinking: false`): "
             f"with the switch off LFM3 keeps more than half of its lead over Bielik (D = {100 * d:+.2f} ± "
-            f"{100 * d_se:.2f}, z = {z3:+.2f}; the lead itself {100 * lead:+.2f}, z = {lead / lead_se:+.2f}). The "
-            f"switch removes reasoning only in part: with it off {rs['closing_think']} of {rs['answers']} answers with "
+            f"{100 * d_se:.2f}, z = {z3:+.2f}; the lead itself {100 * lead:+.2f}, z = {lead / lead_se:+.2f}). "
+            f"*Descriptive, from the raw outputs, added after the results (Amendment 2):* the switch removes reasoning "
+            f"only in part: with it off {rs['closing_think']} of {rs['answers']} answers with "
             "background still reason and close a `</think>`") in " ".join(hyp.split())
     assert "How much of the lead thinking itself buys is therefore undetermined by K3" in " ".join(hyp.split())
+    # K3 robustness (descriptive): per-problem contributions, dropping the largest, jackknife, bootstrap, sign test
+    dd = {t: off[t]["score"] - on[t]["score"] / 2 - b[t]["score"] / 2 for t in ids}
+    contrib = {}
+    for t in ids:
+        contrib.setdefault(on[t]["problem_id"], []).append(dd[t])
+    order = sorted(contrib, key=lambda g: (-sum(contrib[g]), int(g)))
+    rob = h["k3_robustness"]
+    for k, x in enumerate(rob["drop_top_problems"], 1):
+        keep = [t for t in ids if on[t]["problem_id"] not in order[:k]]
+        m_k, se_k = clustered([dd[t] for t in keep], [on[t]["problem_id"] for t in keep])
+        p_k = holm([1 - phi(z2), 1 - phi(m_k / se_k)] + [t["p_refute"] for t in group])[1]
+        assert x["dropped"] == order[:k] and math.isclose(x["z"], m_k / se_k) and math.isclose(x["p_refute_holm"], p_k)
+        assert x["verdict_holm"] == verdict(1.0, p_k)
+        assert cells(hyp, f"| {', '.join(order[:k])} |")[1:6] == [f"{100 * m_k:+.2f}", f"{100 * se_k:.2f}", f"{m_k / se_k:+.2f}",
+                                                                 f"{p_k:.3g}", verdict(1.0, p_k)]
+    total, g = sum(dd.values()), len(contrib)
+    loo = [(total - sum(v)) / (N - len(v)) for v in contrib.values()]
+    se_jk = math.sqrt((g - 1) / g * sum((x - sum(loo) / g) ** 2 for x in loo))
+    assert math.isclose(rob["jackknife"]["z"], (total / N) / se_jk)
+    import random
+    rng, names, draws = random.Random(rob["cluster_bootstrap"]["seed"]), sorted(contrib, key=int), []
+    for _ in range(rob["cluster_bootstrap"]["draws"]):
+        pick = [rng.choice(names) for _ in names]
+        draws.append(sum(sum(contrib[c]) for c in pick) / sum(len(contrib[c]) for c in pick))
+    draws.sort()
+    lo_hi = [100 * draws[int(0.025 * len(draws))], 100 * draws[int(0.975 * len(draws)) - 1]]
+    assert rob["cluster_bootstrap"]["ci95"] == lo_hi and lo_hi[0] < 100 * d < lo_hi[1]
+    pos = sum(1 for v in contrib.values() if sum(v) > 0)
+    neg = sum(1 for v in contrib.values() if sum(v) < 0)
+    one = sum(math.comb(pos + neg, i) for i in range(min(pos, neg) + 1)) / 2 ** (pos + neg)
+    assert (rob["sign_test_problems"]["positive"], rob["sign_test_problems"]["negative"]) == (pos, neg)
+    assert math.isclose(rob["sign_test_problems"]["p_one_sided"], one)
+    assert (f"[{lo_hi[0]:.2f}; {lo_hi[1]:.2f}] pp" in flat and f"{pos} positive, {neg} negative" in flat
+            and f"z = {(total / N) / se_jk:+.2f}" in flat)
+    # exploratory: nothink's passes from answers closing </think> counted as failed
+    steps = {f"with_background/{s}" for s in rs["passed_closing_think_steps"]}
+    assert len(steps) == rs["passed_closing_think"] and all(off[t]["score"] == 1 for t in steps)
+    d0, se0 = clustered([(0 if t in steps else off[t]["score"]) - on[t]["score"] / 2 - b[t]["score"] / 2 for t in ids], cl)
+    cf = json.loads((RESULTS / "exploratory.json").read_text(encoding="utf-8"))["k3_without_reasoning_passes"]
+    assert math.isclose(cf["value"], 100 * d0) and math.isclose(cf["z"], d0 / se0)
+    assert f"gives D = {100 * d0:+.2f} ± {100 * se0:.2f} (z = {d0 / se0:+.2f})" in flat
 
 
 def test_scoring_vm_facts_recounted_from_the_copied_logs():
@@ -280,6 +348,45 @@ def test_scoring_vm_facts_recounted_from_the_copied_logs():
         same = sum(1 for r in w["rows"] if r["kept"] == r["rescored"])
         assert (same, len(w["rows"])) == (ev["window_rescore"][tag]["same"], ev["window_rescore"][tag]["steps"])
         assert f"({tag}): {same} of {len(w['rows'])} the same" in dev
+        assert w["graded_sha256"] == result(w["model"])["provenance"]["inputs_sha256"]["graded.jsonl"]
+    for path in sorted(folder.glob("reference-extraction-*.json")):
+        r = json.loads(path.read_text(encoding="utf-8"))
+        run = r["model"]
+        assert r["inputs_sha256"]["graded.jsonl"] == result(run)["provenance"]["inputs_sha256"]["graded.jsonl"]
+        assert r["inputs_sha256"]["generations.jsonl"] == result(run)["raw_outputs"]["sha256"]
+        raw = json.loads((RESULTS / "raw-outputs.json").read_text(encoding="utf-8"))["runs"][run]["settings"]
+        for s, x in r["settings"].items():
+            kept = {f"{q['problem_id']}.{q['step']}": q["verdict"] for q in setting_rows(run, s)}
+            assert all(kept[n] == v[0] for n, v in x["verdicts_of_differing_files"].items())
+            assert sorted(x["verdicts_of_differing_files"]) == sorted(x["files_differing"])
+            assert x["passed_after_think"] == sum(v == "pass" for v in kept.values())
+            changed = x["verdicts_changed"]
+            assert x["passed_whole_answer"] == x["passed_after_think"] + sum(
+                (b == "pass") - (a == "pass") for a, b in changed.values())
+            assert len(x["answers_with_think_end"]) == raw[s]["reasoning"]["closing_think"]
+            assert (f"{LABEL[s]}: {len(x['answers_with_think_end'])} answers contain `</think>`, "
+                    f"{len(x['answers_whose_code_differs'])} give other code, {len(x['files_differing'])} step files "
+                    f"differ") in dev
+            assert (f"passed {x['passed_after_think']} after the last `</think>` and {x['passed_whole_answer']} from the "
+                    f"whole answer, {len(changed)} verdicts change") in dev
+    repeats = {}
+    for path in folder.glob("repeat-*-run*.json"):
+        repeats.setdefault(path.stem.rsplit("-run", 1)[0], []).append(json.loads(path.read_text(encoding="utf-8")))
+    hyp = " ".join(section("Hypotheses").split())
+    assert len(repeats) == len(ev["repeated_steps"])
+    for r in ev["repeated_steps"]:
+        runs = repeats[r["tag"]]
+        rows_ = [x["rows"][0] for x in runs]
+        kept = {f"{q['problem_id']}.{q['step']}": q["verdict"] for q in setting_rows(r["model"], r["setting"])}
+        assert all(x["kept"] == kept[x["step"]] for x in rows_) and {x["step"] for x in rows_} == {r["step"]}
+        counts = {}
+        for x in rows_:
+            counts[x["rescored"]] = counts.get(x["rescored"], 0) + 1
+        assert counts == r["rescored"] and len(runs) == r["runs"]
+        assert all(x["graded_sha256"] == result(r["model"])["provenance"]["inputs_sha256"]["graded.jsonl"] for x in runs)
+        assert (f"step {r['step']} (officially {kept[r['step']]};" in hyp
+                and f"re-scored {len(runs)} times with the same image: "
+                + ", ".join(f"{v} {n} times" for v, n in sorted(counts.items())) in hyp)
     for name in ev["inputs_sha256"]:
         assert hashlib.sha256((folder / name).read_bytes()).hexdigest() == ev["inputs_sha256"][name]
 
@@ -346,7 +453,9 @@ def test_reasoning_and_extraction_counts_recounted_from_the_raw_outputs():
                     "median_share_before_last_think_end": None if share is None else round(share, 4),
                     "passed": len(passed), "passed_closing_think": sum(1 for t in passed if "</think>" in last[t]["output"])}
             got = raw["runs"][run]["settings"][s]
-            assert got["reasoning"] == want, (run, s)
+            assert {k: v for k, v in got["reasoning"].items() if k != "passed_closing_think_steps"} == want, (run, s)
+            assert sorted(got["reasoning"]["passed_closing_think_steps"]) == sorted(
+                t.split("/")[1] for t in passed if "</think>" in last[t]["output"]), (run, s)
             after = {t: last[t]["output"].split("</think>")[-1] for t in ids}
             fence = {t: [ln for ln in a.split("\n") if ln.lstrip(" \t").startswith("```")] for t, a in after.items()}
             lone = {t for t in ids if len(fence[t]) == 1 and "```python" not in after[t]}

@@ -11,7 +11,9 @@ Inputs (copied from coding-judge-vm after scoring; PROTOCOL.md Amendment 2):
 - `window-<tag>.json`: the re-scoring of the steps whose official verdicts were written around the disk-full window
   (window_rescore.py, run on the VM by `window_rescore.sh`), each comparing the kept verdict with a fresh one;
 - `reference-extraction-<model-id>.json`: the same answers extracted from the whole answer, as SciCode's gencode.py
-  would, re-scored where the step files differ (reference_extraction.py, run on the VM).
+  would, re-scored where the step files differ (reference_extraction.py, run on the VM);
+- `repeat-<tag>-run<N>.json`: one step's official file scored again N times (window_rescore.py, one compare.json
+  per run), for a step whose test is not deterministic.
 Writes, per run and pass, the step files the final scorer went through (`files`: it prints "Testing function" also
 for a step whose log it reuses), those it reports killed by SIGKILL (the container's 48 GB
 memory limit: the OOM killer), and its printed correct steps; the kernel's OOM kills (time, container, resident
@@ -51,6 +53,20 @@ def scorer_runs(folder: Path) -> dict[str, dict[str, Any]]:
     return runs
 
 
+def repeated(tag: str, runs: list[dict[str, Any]]) -> dict[str, Any]:
+    """One step scored again several times: its kept verdict and how often each fresh verdict came out."""
+    rows = [r["rows"][0] for r in runs]
+    if len({(r["model"], r["setting"]) for r in runs}) != 1 or len({x["step"] for x in rows}) != 1 or \
+            len({r["files_sha256"][rows[0]["step"]] for r in runs}) != 1:
+        sys.exit(f"scoring_events.py: the repeat-{tag} runs are not one step's one file")
+    rescored: dict[str, int] = {}
+    for x in rows:
+        rescored[x["rescored"]] = rescored.get(x["rescored"], 0) + 1
+    return {"tag": tag, "model": runs[0]["model"], "setting": runs[0]["setting"], "step": rows[0]["step"],
+            "kept": rows[0]["kept"], "runs": len(runs), "rescored": rescored,
+            "file_sha256": runs[0]["files_sha256"][rows[0]["step"]], "graded_sha256": runs[0]["graded_sha256"]}
+
+
 def main(results: Path) -> None:
     folder = results / "scoring-vm"
     oom = (folder / "kernel-oom.txt").read_text(encoding="utf-8")
@@ -61,6 +77,9 @@ def main(results: Path) -> None:
     queue = [{"time": t, "entry": e} for t, e in QUEUE.findall((folder / "score-scicode.log").read_text())]
     window = {p.stem[len("window-"):]: json.loads(p.read_text(encoding="utf-8"))
               for p in sorted(folder.glob("window-*.json"))}
+    repeats: dict[str, list[dict[str, Any]]] = {}
+    for p in sorted(folder.glob("repeat-*-run*.json"), key=lambda p: int(p.stem.rsplit("-run", 1)[1])):
+        repeats.setdefault(p.stem.rsplit("-run", 1)[0], []).append(json.loads(p.read_text(encoding="utf-8")))
     reference = {p.stem[len("reference-extraction-"):]: json.loads(p.read_text(encoding="utf-8"))
                  for p in sorted(folder.glob("reference-extraction-*.json"))}
     record = {
@@ -71,6 +90,7 @@ def main(results: Path) -> None:
         "queue_log": queue,
         "window_rescore": {tag: {k: v for k, v in w.items() if k not in ("rows", "files_sha256")}
                            for tag, w in window.items()},
+        "repeated_steps": [repeated(tag, runs) for tag, runs in sorted(repeats.items())],
         "reference_extraction": {run: {s: {"answers_with_think_end": len(x["answers_with_think_end"]),
                                            "answers_whose_code_differs": len(x["answers_whose_code_differs"]),
                                            "files_differing": len(x["files_differing"]),

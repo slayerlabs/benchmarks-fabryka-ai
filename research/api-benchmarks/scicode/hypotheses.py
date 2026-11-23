@@ -30,6 +30,7 @@ import gzip
 import json
 import math
 import statistics
+import random
 import sys
 from pathlib import Path
 from typing import Any
@@ -200,6 +201,53 @@ def group_tests_from(path: Path | None) -> list[dict[str, Any]]:
     return tests
 
 
+BOOTSTRAP_DRAWS, BOOTSTRAP_SEED = 10000, 20261122
+
+
+def k3_robustness(runs: dict, ids: list[str], clusters: list[str], k2_p_refute: float | None,
+                  others: list[dict[str, Any]]) -> dict[str, Any]:
+    """Descriptive (README, Hypotheses): how K3's D = mean(d_i) depends on single problems. Each problem's
+    contribution is the sum of its d_i. Dropping the 1 to 6 problems with the largest contribution, D, its clustered SE
+    and z on what is left, with the Holm p of "refuted" (K2's and LiveCodeBench Pro's p unchanged) and the verdict;
+    a jackknife over problems (SE from the leave-one-problem-out means); a cluster bootstrap (problems drawn with
+    replacement, seeded) percentile 95% interval; a two-sided exact sign test over the problems' contributions."""
+    on, off, b = y(runs[LFM], ids), y(runs[NOTHINK], ids), y(runs[BIELIK], ids)
+    d = [o - a / 2 - c / 2 for o, a, c in zip(off, on, b)]
+    by: dict[str, list[float]] = {}
+    for v, c in zip(d, clusters):
+        by.setdefault(c, []).append(v)
+    order = sorted(by, key=lambda g: (-sum(by[g]), int(g)))
+    dropped = []
+    for k in range(1, 7):
+        keep = [(v, c) for v, c in zip(d, clusters) if c not in order[:k]]
+        s = mean_z([v for v, _ in keep], [c for _, c in keep])
+        p_ref = holm([k2_p_refute, None if s["z"] is None else 1 - phi(s["z"])] + [t["p_refute"] for t in others])[1]
+        dropped.append({"dropped": order[:k], "value": 100 * s["value"], "se": None if s["se"] is None else 100 * s["se"],
+                        "z": s["z"], "p_refute_holm": p_ref, "verdict_holm": verdict(1.0, p_ref)})
+    total, n, g = sum(d), len(d), len(by)
+    loo = [(total - sum(by[c])) / (n - len(by[c])) for c in by]
+    mean_loo = statistics.fmean(loo)
+    se_jk = math.sqrt((g - 1) / g * sum((x - mean_loo) ** 2 for x in loo))
+    rng = random.Random(BOOTSTRAP_SEED)
+    names = sorted(by, key=int)
+    draws = []
+    for _ in range(BOOTSTRAP_DRAWS):
+        pick = [rng.choice(names) for _ in names]
+        draws.append(sum(sum(by[c]) for c in pick) / sum(len(by[c]) for c in pick))
+    draws.sort()
+    pos = sum(1 for c in by if sum(by[c]) > 0)
+    neg = sum(1 for c in by if sum(by[c]) < 0)
+    tail = sum(math.comb(pos + neg, i) for i in range(min(pos, neg) + 1)) / 2 ** (pos + neg)
+    return {"note": "descriptive, added after the results; no verdict reads it",
+            "contribution_order": order[:6], "drop_top_problems": dropped,
+            "jackknife": {"se": 100 * se_jk, "z": (total / n) / se_jk},
+            "cluster_bootstrap": {"draws": BOOTSTRAP_DRAWS, "seed": BOOTSTRAP_SEED,
+                                  "ci95": [100 * draws[int(0.025 * BOOTSTRAP_DRAWS)],
+                                           100 * draws[int(0.975 * BOOTSTRAP_DRAWS) - 1]]},
+            "sign_test_problems": {"positive": pos, "negative": neg, "zero": g - pos - neg,
+                                   "p_one_sided": tail, "p_two_sided": min(1.0, 2 * tail)}}
+
+
 def k2_e1(row: dict[str, Any], e1: dict[str, Any], family: list[dict[str, Any]]) -> None:
     """PROTOCOL.md Amendment 1: K2's z under extraction E1, next to K2. Its Holm p comes from the same family with
     K2's official p replaced by the E1 one. When the raw outcome or the verdict after Holm differ between the two
@@ -253,6 +301,9 @@ def analyse(results: Path, group: Path | None = None) -> dict[str, Any]:
         row["read"] = k1["status"] == "passed"
     if primary is not None:
         k2_e1(rows[0], k2(runs, *primary, field="score_e1"), family)
+    robustness = None
+    if primary is not None and rows[1]["status"] == "computed":
+        robustness = k3_robustness(runs, *primary, rows[0]["p_refute"], others)
     t_check = None
     if primary is not None:
         df = len(set(primary[1])) - 1
@@ -279,7 +330,7 @@ def analyse(results: Path, group: Path | None = None) -> dict[str, Any]:
                      "other_benchmark_file": str(group) if group else None,
                      "other_benchmark_sha256": provenance.sha256_file(group) if group else None,
                      "missing_counted_as_p_1": GROUP_M - len(family) + sum(1 for t in family if t["p_support"] is None)},
-            "descriptive": descriptive, "t_check": t_check}
+            "descriptive": descriptive, "t_check": t_check, "k3_robustness": robustness}
 
 
 def fmt(x: float | None, spec: str) -> str:

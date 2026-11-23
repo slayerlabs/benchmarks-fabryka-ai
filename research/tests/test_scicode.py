@@ -784,7 +784,7 @@ def test_raw_outputs_reads_after_the_last_think_end():
     assert x["reasoning"] == {"answers": 5, "closing_think": 2,
                               "median_share_before_last_think_end": round(
                                   statistics.median([out1.rindex("</think>") / len(out1), 5 / 13]), 4),
-                              "passed": 1, "passed_closing_think": 1}
+                              "passed": 1, "passed_closing_think": 1, "passed_closing_think_steps": ["1.1"]}
     assert x["extraction"] == {"empty_official": 3, "empty_by_cause": {"other": ["1.3", "1.4"], "unfinished": ["1.5"]},
                                "answers_lone_fence": 1, "answers_without_fence_line": 2}
 
@@ -924,3 +924,14 @@ def test_reference_extraction_rescores_only_changed_files(tmp_path):
     assert (x["passed_after_think"], x["passed_whole_answer"]) == (1, 12)
     assert len(x["verdicts_changed"]) == 11 and x["verdicts_of_differing_files"]["77.3"] == ["fail", "pass"]
     assert r["inputs_sha256"]["graded.jsonl"] == provenance.sha256_file(out / "graded.jsonl")
+
+
+def test_readme_reference_lines_name_each_count():
+    """readme.py's deviation line on a synthetic record where every count differs (the real one has equal pass counts)."""
+    import readme
+    x = {"answers_with_think_end": 8, "answers_whose_code_differs": 6, "files_differing": 28, "passed_after_think": 7,
+         "passed_whole_answer": 9, "verdicts_changed": 2, "verdicts_of_differing_files": ["fail -> fail", "fail -> pass"]}
+    line = readme.reference_lines({"reference_extraction": {"m": {"with_background": x}}})[0]
+    assert ("with background: 8 answers contain `</think>`, 6 give other code, 28 step files differ (with the later "
+            "steps that include that code), passed 7 after the last `</think>` and 9 from the whole answer, 2 verdicts "
+            "change (the differing files: fail -> fail, fail -> pass)") in line

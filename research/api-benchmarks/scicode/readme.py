@@ -40,6 +40,7 @@ RUNS = {
 }
 NOT_RUN = ("Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`)", "slayer1b-1.09-k70000")
 STEPS, PROBLEMS = 288, 65
+REPRODUCTION_TOLERANCE_PT = 2  # the reporting rules' check against a published number (zasady raportowania, §4)
 
 
 def markers(name: str) -> tuple[str, str]:
@@ -173,6 +174,8 @@ def hypotheses_block(results: Path) -> str:
     tok = {m: read_json(results, f"{m}.json")["other_metrics"]["with_background"]["output_tokens"]["mean"]
            for m in ("lfm3-1.7b", "lfm3-1.7b-nothink")}
     k2, k3 = h["hypotheses"]
+    t = h["t_check"]
+    cf = read_json(results, "exploratory.json")["k3_without_reasoning_passes"]
     d = h["descriptive"]
     holm = h["holm"]
     group = json.loads((results / holm["other_benchmark_file"].split("results/", 1)[-1]).read_text(encoding="utf-8"))
@@ -186,8 +189,12 @@ def hypotheses_block(results: Path) -> str:
            f"| K2 form | {d['K2_form']['value']:+.2f} | {d['K2_form']['se']:.2f} | {d['K2_form']['z']:+.2f} |",
            f"| K3 form | {d['K3_form']['value']:+.2f} | {d['K3_form']['se']:.2f} | {d['K3_form']['z']:+.2f} |",
            "", "Reading:", "",
-           f"- **K1** {h['control']['status']}: LFM3-1.7B with background lands within 2 clustered SE of its card "
-           f"value (z = {h['control']['z']:+.2f}), so K2 and K3 are read.",
+           f"- **K1** {h['control']['status']} by PROTOCOL.md's rule: LFM3-1.7B with background lands within 2 "
+           f"clustered SE of its card value ({h['control']['score'] - h['control']['card']:+.2f} pt, z = "
+           f"{h['control']['z']:+.2f}), so K2 and K3 are read. The reporting rules' reproduction check (within "
+           f"±{REPRODUCTION_TOLERANCE_PT} pt of a published number) is not met: the gap is "
+           f"{abs(h['control']['score'] - h['control']['card']):.2f} pt; at n = {h['control']['n']} that check cannot be "
+           f"decided either way, since 2 clustered SE are {2 * h['control']['se_clustered']:.2f} pt.",
            f"- **K2** ({k2['verdict_holm']}) compares Bielik through the API with a number on the card, not with a "
            f"model run here: LFM2.5-2.6B's {100 * hypotheses.WEAKEST_CARD:.2f}, with the SE floor of PROTOCOL.md. "
            f"Under E1 (Amendment 1) z = {k2['e1']['z']:+.2f}, {k2['e1']['verdict_holm']}: "
@@ -195,17 +202,55 @@ def hypotheses_block(results: Path) -> str:
            f"- **K3** {k3['verdict_holm'].split(' ')[0]} under the pre-registered switch (`enable_thinking: false`): "
            f"with the switch off LFM3 keeps more than half of its lead over Bielik (D = {k3['value']:+.2f} ± "
            f"{k3['se']:.2f}, z = {k3['z']:+.2f}; the lead itself {k3['precondition']['lead_on_minus_bielik']:+.2f}, "
-           f"z = {k3['precondition']['z']:+.2f}). The switch removes reasoning only in part: with it off "
+           f"z = {k3['precondition']['z']:+.2f}). *Descriptive, from the raw outputs, added after the results "
+           f"(Amendment 2):* the switch removes reasoning only in part: with it off "
            f"{off['closing_think']} of {off['answers']} answers with background still reason and close a "
            f"`</think>` (median {100 * off['median_share_before_last_think_end']:.1f}% of an answer's characters "
            f"before it), against {on['closing_think']} of {on['answers']} with thinking on; {off['passed_closing_think']} "
            f"of its {off['passed']} passed steps come from such answers, and it writes {tok['lfm3-1.7b-nothink']:.0f} "
            f"output tokens per answer on average against {tok['lfm3-1.7b']:.0f}. How much of the lead thinking "
-           "itself buys is therefore undetermined by K3 (PROTOCOL.md, Amendment 2).",
+           "itself buys is therefore undetermined by K3.",
+           f"  - *Exploratory (explore.py):* counting those {cf['passes_removed']} passes as failed gives D = "
+           f"{cf['value']:+.2f} ± {cf['se']:.2f} (z = {cf['z']:+.2f}): the lead that survives the switch sits in "
+           "answers that still reason.",
+           *repeat_lines(results),
+           f"- **With Student's t instead of the normal** (descriptive, df = {t['df']}, our two tests; LiveCodeBench "
+           f"Pro's p as recorded) the verdicts are the same: K2 Holm p {t['K2']['p_support_holm']:.3g}, "
+           f"{t['K2']['verdict_holm']}; K3 Holm p {t['K3']['p_refute_holm']:.3g}, {t['K3']['verdict_holm']}, against "
+           f"{hypotheses.P_CLEAR:.3g} for \"clear\" (z = 3), a small margin.",
            f"- **Holm over the Coding group** (m = {holm['m']}) used LiveCodeBench Pro 25Q2's K2 and K3 from "
            f"`{holm['other_benchmark_file']}`, copied from branch `{group['source']['branch']}` at "
-           f"`{group['source']['commit'][:8]}`."]
+           f"`{group['source']['commit'][:8]}`.",
+           "", "K3 robustness (descriptive, added after the results; no verdict reads it): D without the problems "
+           "that contribute most to it, with the Holm p of \"refuted\" (the other three tests unchanged):", "",
+           "| problems left out | D (pp) | SE (pp) | z | Holm p | verdict after Holm |", "|---|---|---|---|---|---|"]
+    rob = h["k3_robustness"]
+    for x in rob["drop_top_problems"]:
+        out.append(f"| {', '.join(x['dropped'])} | {x['value']:+.2f} | {x['se']:.2f} | {x['z']:+.2f} | "
+                   f"{x['p_refute_holm']:.3g} | {x['verdict_holm']} |")
+    st, bs = rob["sign_test_problems"], rob["cluster_bootstrap"]
+    out += ["", f"Jackknife over problems: SE {rob['jackknife']['se']:.2f}, z = {rob['jackknife']['z']:+.2f}. Cluster "
+                f"bootstrap over problems ({bs['draws']} draws, seed {bs['seed']}): 95% interval of D "
+                f"[{bs['ci95'][0]:.2f}; {bs['ci95'][1]:.2f}] pp. Sign of each problem's contribution: {st['positive']} "
+                f"positive, {st['negative']} negative, {st['zero']} zero (exact sign test p = {st['p_one_sided']:.2g} "
+                f"one-sided, {st['p_two_sided']:.2g} two-sided). \"Clear\" rests on problem "
+                f"{rob['drop_top_problems'][0]['dropped'][0]}: without it K3 is "
+                f"{rob['drop_top_problems'][0]['verdict_holm']}."]
     return "\n".join(out)
+
+
+def repeat_lines(results: Path) -> list[str]:
+    """Repeated scoring of single steps whose tests are not deterministic (results/scoring-events.json)."""
+    ev = read_json(results, "scoring-events.json")
+    out = []
+    for r in ev["repeated_steps"]:
+        counts = ", ".join(f"{v} {n} times" for v, n in sorted(r["rescored"].items()))
+        out.append(f"  - *Descriptive:* `{r['model']}` {SETTING_LABEL[r['setting']]} step {r['step']} (officially "
+                   f"{r['kept']}; its test checks a simulation the step's code runs on random numbers without a "
+                   f"seed) re-scored {r['runs']} times with the same image: {counts}. The refuter reports SciCode-Verified "
+                   f"flagging problem {r['step'].split('.')[0]} (not checked here)."
+                   + (" A pass there would raise D, not lower it." if r["setting"] == hypotheses.PRIMARY else ""))
+    return out
 
 
 def exploratory_block(results: Path) -> str:
@@ -279,7 +324,27 @@ def scoring_block(results: Path) -> str:
         + "; ".join(f"{w['model']} {SETTING_LABEL[w['setting']]} ({t}): {w['same']} of {w['steps']} the same"
                     for t, w in windows.items()) + ".",
         f"- E1 identity reuse: {reuse}.",
+        *reference_lines(ev),
     ])
+
+
+def reference_lines(ev: dict[str, Any]) -> list[str]:
+    """Deviation: SciCode's gencode.py extracts from the whole answer; we cut after the last `</think>` (PROTOCOL.md)."""
+    out = []
+    for run, settings in ev["reference_extraction"].items():
+        parts = "; ".join(
+            f"{SETTING_LABEL[s]}: {x['answers_with_think_end']} answers contain `</think>`, "
+            f"{x['answers_whose_code_differs']} give other code, {x['files_differing']} step files differ (with the "
+            f"later steps that include that code), passed {x['passed_after_think']} after the last `</think>` and "
+            f"{x['passed_whole_answer']} from the whole answer, {x['verdicts_changed']} verdicts change"
+            + (f" (the differing files: {', '.join(x['verdicts_of_differing_files'])})" if x['files_differing'] else "")
+            for s, x in settings.items())
+        out.append(f"- **Extraction after the last `</think>` for a model without thinking.** SciCode @ "
+                   "`e3158ea0` hands the whole answer to `extract_python_script` (it knows no `</think>`); PROTOCOL.md "
+                   f"cuts after the last `</think>` for every model. Re-scored where it matters for `{run}` "
+                   f"(reference_extraction.py on the scoring VM): {parts}. For the LFM3-1.7B runs the reference "
+                   "extraction would read the reasoning too; its effect there is not measured.")
+    return out
 
 
 def blocks(results: Path) -> dict[str, str]:
