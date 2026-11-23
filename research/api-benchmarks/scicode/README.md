@@ -108,10 +108,27 @@ Without background (descriptive, not tested; PROTOCOL.md: the without-background
 
 Reading:
 
-- **K1** passed: LFM3-1.7B with background lands within 2 clustered SE of its card value (z = +1.15), so K2 and K3 are read.
+- **K1** passed by PROTOCOL.md's rule: LFM3-1.7B with background lands within 2 clustered SE of its card value (+4.17 pt, z = +1.15), so K2 and K3 are read. The reporting rules' reproduction check (within ±2 pt of a published number) is not met: the gap is 4.17 pt; at n = 288 that check cannot be decided either way, since 2 clustered SE are 7.26 pt.
 - **K2** (supported (clear)) compares Bielik through the API with a number on the card, not with a model run here: LFM2.5-2.6B's 16.32, with the SE floor of PROTOCOL.md. Under E1 (Amendment 1) z = -6.06, supported (clear): K2 does not depend on code extraction: official and E1 both supported (supported (clear) after Holm).
-- **K3** refuted under the pre-registered switch (`enable_thinking: false`): with the switch off LFM3 keeps more than half of its lead over Bielik (D = +7.12 ± 2.02, z = +3.52; the lead itself +30.21, z = +8.18). The switch removes reasoning only in part: with it off 147 of 288 answers with background still reason and close a `</think>` (median 93.3% of an answer's characters before it), against 288 of 288 with thinking on; 17 of its 71 passed steps come from such answers, and it writes 5203 output tokens per answer on average against 7708. How much of the lead thinking itself buys is therefore undetermined by K3 (PROTOCOL.md, Amendment 2).
+- **K3** refuted under the pre-registered switch (`enable_thinking: false`): with the switch off LFM3 keeps more than half of its lead over Bielik (D = +7.12 ± 2.02, z = +3.52; the lead itself +30.21, z = +8.18). *Descriptive, from the raw outputs, added after the results (Amendment 2):* the switch removes reasoning only in part: with it off 147 of 288 answers with background still reason and close a `</think>` (median 93.3% of an answer's characters before it), against 288 of 288 with thinking on; 17 of its 71 passed steps come from such answers, and it writes 5203 output tokens per answer on average against 7708. How much of the lead thinking itself buys is therefore undetermined by K3.
+  - *Exploratory (explore.py):* counting those 17 passes as failed gives D = +1.22 ± 1.99 (z = +0.61): the lead that survives the switch sits in answers that still reason.
+  - *Descriptive:* `lfm3-1.7b-nothink` with background step 14.2 (officially fail; its test checks a simulation the step's code runs on random numbers without a seed) re-scored with the same image: fail 1 of 10, pass 9 of 10. The refuter reports SciCode-Verified flagging problem 14 (not checked here). A pass there would raise D, not lower it.
+  - *Descriptive:* `lfm3-1.7b-nothink` without background step 14.2 (officially fail; its test checks a simulation the step's code runs on random numbers without a seed) re-scored with the same image: fail 10 of 10. The refuter reports SciCode-Verified flagging problem 14 (not checked here).
+- **With Student's t instead of the normal** (descriptive, df = 64, our two tests; LiveCodeBench Pro's p as recorded) the verdicts are the same: K2 Holm p 3.39e-08, supported (clear); K3 Holm p 0.00122, refuted (clear), against 0.00135 for "clear" (z = 3), a small margin.
 - **Holm over the Coding group** (m = 4) used LiveCodeBench Pro 25Q2's K2 and K3 from `results/group-tests-livecodebench-pro-25q2.json`, copied from branch `research/livecodebench-pro-25q2` at `f16b862b`.
+
+K3 robustness (descriptive, added after the results; no verdict reads it): D without the problems that contribute most to it, with the Holm p of "refuted" (the other three tests unchanged):
+
+| problems left out | D (pp) | SE (pp) | z | Holm p | verdict after Holm |
+|---|---|---|---|---|---|
+| 77 | +6.52 | 2.01 | +3.24 | 0.0018 | refuted (likely) |
+| 77, 42 | +5.86 | 1.91 | +3.07 | 0.00324 | refuted (likely) |
+| 77, 42, 15 | +5.35 | 1.85 | +2.90 | 0.00567 | refuted (likely) |
+| 77, 42, 15, 72 | +4.96 | 1.86 | +2.66 | 0.0116 | refuted (likely) |
+| 77, 42, 15, 72, 13 | +4.84 | 1.96 | +2.46 | 0.0206 | refuted (likely) |
+| 77, 42, 15, 72, 13, 21 | +4.49 | 1.95 | +2.30 | 0.0319 | undetermined |
+
+Jackknife over problems: SE 2.04, z = +3.50. Cluster bootstrap over problems (10000 draws, seed 20261122): 95% interval of D [3.18; 11.13] pp. Sign of each problem's contribution: 33 positive, 8 negative, 24 zero (exact sign test p = 5.6e-05 one-sided, 0.00011 two-sided). "Clear" rests on problem 77: without it K3 is refuted (likely).
 
 <!-- readme.py: end hypotheses -->
 
@@ -157,6 +174,7 @@ How the measurement ran (facts from results/scoring-events.json and the result f
 - Container memory limit 48g (run.sh --score, docker --memory); the official scorer has none. The kernel's OOM killer ended 3 test scripts: Nov 22 20:09:46 UTC (container `3eeaa55f5947`, 47.7 GiB resident); Nov 22 22:45:12 UTC (container `a7f34304de3a`, 47.7 GiB resident); Nov 22 23:50:55 UTC (container `a7f34304de3a`, 47.7 GiB resident). In the final scorer output the killed steps are: bielik-11b-v3.1 e1_without_background 53.4, bielik-11b-v3.1 without_background 53.4; each counts as a failed step, as the scorer grades it.
 - Disk full: the journal logged 250 "No space left on device" lines at Nov 22 20:17:04 UTC. Queue log, 2026-11-22T21:08:49Z: final: removed Bielik official without_background logs (disk-full window) for rescoring. Queue log, 2026-11-22T21:10:16Z: final: removed Bielik official without_background logs (disk-full window) for rescoring. The official LFM3 steps whose verdicts were written between 20:10 and 20:20 UTC, and the time-outs that ran through that window, were re-scored afterwards with the same image and compared with the kept verdicts: lfm3-1.7b without background (lfm3-63.6): 1 of 1 the same; lfm3-1.7b-nothink without background (nothink-64.6): 1 of 1 the same; lfm3-1.7b-nothink without background (nothink-window): 42 of 42 the same.
 - E1 identity reuse: lfm3-1.7b with background: 288 reused, 0 scored; lfm3-1.7b without background: 288 reused, 0 scored; lfm3-1.7b-nothink with background: 288 reused, 0 scored; lfm3-1.7b-nothink without background: 288 reused, 0 scored; bielik-11b-v3.1 with background: 84 reused, 204 scored; bielik-11b-v3.1 without background: 157 reused, 131 scored.
+- **Extraction after the last `</think>` for a model without thinking.** SciCode @ `e3158ea0` hands the whole answer to `extract_python_script` (it knows no `</think>`); PROTOCOL.md cuts after the last `</think>` for every model. Re-scored where it matters for `bielik-11b-v3.1` (reference_extraction.py on the scoring VM): with background: 8 answers contain `</think>`, 6 give other code, 28 step files differ (with the later steps that include that code), passed 7 after the last `</think>` and 7 from the whole answer, 0 verdicts change (the differing files: fail -> fail); without background: 0 answers contain `</think>`, 0 give other code, 0 step files differ (with the later steps that include that code), passed 5 after the last `</think>` and 5 from the whole answer, 0 verdicts change. For the LFM3-1.7B runs the reference extraction would read the reasoning too; its effect there is not measured.
 
 <!-- readme.py: end scoring -->
 

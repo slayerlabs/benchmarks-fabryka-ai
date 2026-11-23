@@ -157,3 +157,19 @@ in README.md (generated from `results/`) and in `results/scoring-events.json`.
 4. **Analyses added after the results, all descriptive; no verdict reads them:** answers closing `</think>`, the
    share of characters before it and the passed steps among them (raw_outputs.py), the causes of empty extractions,
    exact 95% intervals where a count is 0, and the without-background forms of K1 to K3 (readme.py).
+
+Added in the first verification round (2026-11-23), nothing above changed:
+
+5. **Correction to Amendment 1's header.** Amendment 1 was written and committed at 16:50:30 UTC (`e65c9c27`), not
+   16:55 UTC; its text is left as committed.
+6. **A deviation from the reference not named in "Settings".** SciCode @ `e3158ea0` hands the whole answer to
+   `extract_python_script` (gencode.py knows no `</think>`); "Settings" cuts after the last `</think>` for every
+   model, also for Bielik, which has no thinking. Its effect on Bielik was measured by re-scoring the step files that
+   differ (reference_extraction.py; README, Deviations); for the LFM3-1.7B runs the reference extraction would read
+   the reasoning, and its effect there is not measured.
+7. **More descriptive checks, no verdict reads them:** the group Holm with Student's t (df 64) for K2 and K3, and
+   K1 next to the reporting rules' ±2 pt reproduction check (README, Hypotheses); the disk-full window re-scoring of
+   3 (c) re-run with its inputs checked (window_rescore.py); K3's robustness to leaving out the problems that
+   contribute most, a jackknife and a cluster bootstrap over problems and a sign test (hypotheses.py); K3 with
+   nothink's passes from answers that still close `</think>` counted as failed (explore.py, exploratory); and step
+   14.2 of nothink, whose test is not deterministic, scored again 10 times in each setting (vm_repeat.sh).
