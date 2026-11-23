@@ -297,8 +297,13 @@ def test_k1_k2_k3_holm_and_reading():
     one = sum(math.comb(pos + neg, i) for i in range(min(pos, neg) + 1)) / 2 ** (pos + neg)
     assert (rob["sign_test_problems"]["positive"], rob["sign_test_problems"]["negative"]) == (pos, neg)
     assert math.isclose(rob["sign_test_problems"]["p_one_sided"], one)
-    assert (f"[{lo_hi[0]:.2f}; {lo_hi[1]:.2f}] pp" in flat and f"{pos} positive, {neg} negative" in flat
-            and f"z = {(total / N) / se_jk:+.2f}" in flat)
+    bs = rob["cluster_bootstrap"]
+    assert (f"Jackknife over problems: SE {100 * se_jk:.2f}, z = {(total / N) / se_jk:+.2f}. Cluster bootstrap over "
+            f"problems ({len(draws)} draws, seed {bs['seed']}): 95% interval of D [{lo_hi[0]:.2f}; {lo_hi[1]:.2f}] pp. "
+            f"Sign of each problem's contribution: {pos} positive, {neg} negative, {g - pos - neg} zero (exact sign test "
+            f"p = {one:.2g} one-sided, {min(1.0, 2 * one):.2g} two-sided). \"Clear\" rests on problem {order[0]}: "
+            f"without it K3 is {rob['drop_top_problems'][0]['verdict_holm']}.") in flat
+    assert math.isclose(rob["jackknife"]["se"], 100 * se_jk) and rob["drop_top_problems"][0]["dropped"] == [order[0]]
     # exploratory: nothink's passes from answers closing </think> counted as failed
     steps = {f"with_background/{s}" for s in rs["passed_closing_think_steps"]}
     assert len(steps) == rs["passed_closing_think"] and all(off[t]["score"] == 1 for t in steps)

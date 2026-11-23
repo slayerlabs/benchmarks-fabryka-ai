@@ -316,17 +316,25 @@ machine and sampling in effect, plus for scoring the image id, `test_data.h5` sh
 scorer loaded and the package versions; `manifest.json` holds the sha256 each step wrote, which the next step
 checks; `api-events.jsonl` every failed request attempt and each recovery.
 
-After scoring, on the machine with the raw outputs (stdlib only):
+After scoring, checks on the scoring VM (scoring image, no network; written for coding-judge-vm's paths):
+
+```bash
+bash vm_checks.sh   # window_rescore.py on the disk-full window steps, reference_extraction.py for Bielik
+bash vm_repeat.sh lfm3-1.7b-nothink with_background 14.2 10 /root/scicode/round1/repeat-14.2-wb   # a step re-scored N times
+```
+
+Their outputs and the VM's logs are copied into `results/scoring-vm/`: the queue log, the final scorer outputs, the
+kernel's OOM lines, the journal's disk-full lines, `window-*.json` (window_rescore.py), `reference-extraction-*.json`
+(reference_extraction.py) and `repeat-*-run*.json` (vm_repeat.sh). Then, on the machine with the raw outputs
+(stdlib only):
 
 ```bash
 python3 raw_outputs.py ~/Documents/GitHub/labaj-agency/out/coding-group/box/export.tgz   # results/raw-outputs.json
-python3 scoring_events.py   # results/scoring-events.json, from the logs copied into results/scoring-vm/
+python3 scoring_events.py   # results/scoring-events.json, from results/scoring-vm/
+python3 hypotheses.py results --group results/group-tests-livecodebench-pro-25q2.json   # results/hypotheses.json
+python3 explore.py          # results/exploratory.json
 python3 readme.py           # the generated blocks of this README; --check compares byte for byte
 ```
-
-`results/scoring-vm/` holds what was copied off the scoring VM: the queue log, the final scorer outputs, the kernel's
-OOM lines, the journal's disk-full lines, and the window re-scoring (`window_rescore.sh` / `.py`, run there, and its
-`window-*.json` comparisons).
 
 Tests: `.venv-gen/bin/python -m pytest ../../tests/test_scicode.py ../../tests/test_scicode_results.py -q` (no GPU,
 network or `test_data.h5`; the raw-output recount runs where the archive and `out/bielik-11b-v3.1/` are).
