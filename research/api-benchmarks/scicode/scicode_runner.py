@@ -169,9 +169,11 @@ class _Stub(types.ModuleType):
 
 def stub_model_clients() -> list[str]:
     """Stub modules for the API clients scicode/gen/models.py imports at load (and does not use on our path);
-    a `google` package is stubbed only when none is installed. Returns the names stubbed."""
+    a `google` package is stubbed only when none is installed, which a second call in the same process recognises by
+    its own stub (find_spec on a stub would fail). Returns the names stubbed."""
     names = list(STUBBED_MODULES)
-    if importlib.util.find_spec("google") is None:
+    google = sys.modules.get("google")
+    if isinstance(google, _Stub) or (google is None and importlib.util.find_spec("google") is None):
         names.insert(0, "google")
     for name in names:
         sys.modules[name] = _Stub(name)
@@ -767,10 +769,19 @@ def e1_extract(response: str, official: Callable[[str], str]) -> str:
 
 def build_e1_files(h: Any, rows: list[dict[str, Any]], answers: dict[tuple[str, str, int], dict[str, Any]],
                    settings: list[str], thinking: bool, model_id: str, code_dir: Path) -> dict[tuple, str]:
-    """The scored step files under E1, as save_response_with_steps writes them: Gencode's
-    `{dependencies}\\n{earlier steps' code}\\n` (here the earlier steps' E1 code, and the harness's code for 13.6,
-    62.1 and 76.3, loaded as generate_response_with_steps loads it), then this step's E1 code. Returns the E1 code
-    per step. Prompts are not rebuilt: the answers were generated with the official extraction."""
+    """The scored step files under E1 (PROTOCOL.md Amendment 1), from the text after the last `</think>`. Returns the
+    E1 code per step."""
+    return build_step_files(h, rows, answers, settings, model_id, code_dir,
+                            lambda a: e1_extract(answer_text(a, thinking), h.models.extract_python_script))
+
+
+def build_step_files(h: Any, rows: list[dict[str, Any]], answers: dict[tuple[str, str, int], dict[str, Any]],
+                     settings: list[str], model_id: str, code_dir: Path,
+                     code_of: Callable[[dict[str, Any]], str]) -> dict[tuple, str]:
+    """Step files as save_response_with_steps writes them, with each answer's code given by `code_of`: Gencode's
+    `{dependencies}\\n{earlier steps' code}\\n` (the earlier steps' `code_of` code, and the harness's code for 13.6,
+    62.1 and 76.3, loaded as generate_response_with_steps loads it), then this step's code. Returns the code per step.
+    Prompts are not rebuilt: the answers were generated with the official extraction."""
     g, parse = h.gencode, h.parse
     codes: dict[tuple, str] = {}
     for setting in settings:
@@ -788,7 +799,7 @@ def build_e1_files(h: Any, rows: list[dict[str, Any]], answers: dict[tuple[str, 
                     name = parse.extract_function_name(prob["sub_steps"][i]["function_header"])
                     gcode.previous_llm_code[i] = parse.get_function_from_code(supplied, name)
                     continue
-                code = e1_extract(answer_text(answers[(setting, pid, step)], thinking), h.models.extract_python_script)
+                code = code_of(answers[(setting, pid, step)])
                 _, previous_code = gcode.generate_prompt_with_steps(prob, step, template)
                 path = code_dir / model_id / setting / f"{pid}.{step}.py"
                 path.parent.mkdir(parents=True, exist_ok=True)
@@ -839,19 +850,26 @@ def check_answers(answers: dict[tuple[str, str, int], dict[str, Any]], expected:
     return settings
 
 
-def score(args: argparse.Namespace) -> None:
-    out = Path(args.out_dir).resolve()
-    hashes = provenance.verify(out, ["generations.jsonl"], "scicode_runner.py score")
+def scoring_environment(caller: str) -> tuple[str, dict[str, Any], list[str]]:
+    """The checks before any scorer run: the pinned clone, test_data.h5's sha256, a dataset cache holding only the
+    pinned revision; then offline mode for the scorer. Returns the clone's commit, the h5 record and the revisions."""
     head = (SCICODE_DIR / ".git" / "HEAD").read_text(encoding="utf-8").strip()
     if head != SCICODE_COMMIT:
-        sys.exit(f"scicode_runner.py: {SCICODE_DIR} is at {head}, expected {SCICODE_COMMIT}")
+        sys.exit(f"{caller}: {SCICODE_DIR} is at {head}, expected {SCICODE_COMMIT}")
     h5 = check_h5(H5_PATH)
     revisions = cached_revisions(HF_CACHE)
     if revisions != [DATA_REVISION]:
-        sys.exit(f"scicode_runner.py score: {HF_CACHE} holds revisions {revisions}; run prefetch (only "
-                 f"{DATA_REVISION} may be cached, as the offline scorer takes the latest cached one)")
+        sys.exit(f"{caller}: {HF_CACHE} holds revisions {revisions}; run prefetch (only {DATA_REVISION} may be "
+                 "cached, as the offline scorer takes the latest cached one)")
     os.environ["HF_HOME"] = str(HF_CACHE)
     os.environ["HF_HUB_OFFLINE"] = os.environ["HF_DATASETS_OFFLINE"] = "1"
+    return head, h5, revisions
+
+
+def score(args: argparse.Namespace) -> None:
+    out = Path(args.out_dir).resolve()
+    hashes = provenance.verify(out, ["generations.jsonl"], "scicode_runner.py score")
+    head, h5, revisions = scoring_environment("scicode_runner.py score")
     rows = load_split(args.split, args.limit)
     answers = latest(read_jsonl(out / "generations.jsonl"))
     expected = expected_steps(rows)

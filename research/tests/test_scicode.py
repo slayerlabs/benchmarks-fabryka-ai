@@ -36,7 +36,9 @@ import hypotheses  # noqa: E402
 import provenance  # noqa: E402
 import scicode_runner as sr  # noqa: E402
 import raw_outputs  # noqa: E402
+import reference_extraction  # noqa: E402
 import summarize  # noqa: E402
+import window_rescore  # noqa: E402
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -785,3 +787,140 @@ def test_raw_outputs_reads_after_the_last_think_end():
                               "passed": 1, "passed_closing_think": 1}
     assert x["extraction"] == {"empty_official": 3, "empty_by_cause": {"other": ["1.3", "1.4"], "unfinished": ["1.5"]},
                                "answers_lone_fence": 1, "answers_without_fence_line": 2}
+
+
+def test_the_request_holds_exactly_one_user_message():
+    """PROTOCOL.md: the prompt Gencode builds is the only message; no system message of ours, on vLLM and the API."""
+    ctx = {"setting": "with_background", "problem_id": "1", "step": 1}
+    with fake() as s:
+        sr.api_responder(vllm(s.base), thinking=True)("PROMPT", ctx)
+        sr.api_responder(api(s.base), thinking=False)("PROMPT", ctx)
+    assert [r["messages"] for r in s.requests] == [[{"role": "user", "content": "PROMPT"}]] * 2
+    assert s.tokenize[0]["messages"] == [{"role": "user", "content": "PROMPT"}]
+
+
+def test_k2_and_k3_thresholds_exactly():
+    # K2 and K3 raw outcome: supported at z <= -2, refuted at z >= 2 (PROTOCOL.md, Hypotheses)
+    assert hypotheses.raw_outcome(-2.0) == "supported" and hypotheses.raw_outcome(-2.5) == "supported"
+    assert hypotheses.raw_outcome(-1.999) == "undetermined" and hypotheses.raw_outcome(1.999) == "undetermined"
+    assert hypotheses.raw_outcome(2.0) == "refuted" and hypotheses.raw_outcome(2.5) == "refuted"
+    # K3 is read only if the lead is clear: positive, paired clustered z >= 3
+    assert hypotheses.lead_is_clear(0.01, 3.0) and not hypotheses.lead_is_clear(0.01, 2.999)
+    assert not hypotheses.lead_is_clear(0.01, 2.5) and not hypotheses.lead_is_clear(-0.01, 5.0)
+    assert not hypotheses.lead_is_clear(0.01, None)
+
+
+def test_t_cdf_against_known_values():
+    # Student's t: P(T <= 2.015) at df 5 is 0.95, P(T <= 1.669) at df 64 about 0.95; symmetric; large df -> normal
+    assert math.isclose(hypotheses.t_cdf(2.015048, 5), 0.95, abs_tol=1e-6)
+    assert math.isclose(hypotheses.t_cdf(-2.015048, 5), 0.05, abs_tol=1e-6)
+    assert math.isclose(hypotheses.t_cdf(1.669013, 64), 0.95, abs_tol=1e-5)
+    assert math.isclose(hypotheses.t_cdf(1.96, 10 ** 7), hypotheses.phi(1.96), abs_tol=1e-6)
+
+
+def test_harness_twice_without_an_installed_google(monkeypatch):
+    """In an environment without a `google` package (the scoring image) the second stub call must not ask find_spec
+    about the first call's stub."""
+    for name in [n for n in sys.modules if n == "google" or n.startswith("google.")]:
+        monkeypatch.delitem(sys.modules, name)
+    real = sr.importlib.util.find_spec
+
+    def find_spec(name, *args):  # no google installed: None, unless a module of that name is loaded (then the real one)
+        if name == "google" and "google" not in sys.modules:
+            return None
+        return real(name, *args)
+    monkeypatch.setattr(sr.importlib.util, "find_spec", find_spec)
+    for _ in range(2):
+        names = sr.stub_model_clients()
+        assert names[0] == "google" and isinstance(sys.modules["google"], sr._Stub)
+    for name in ["google", *sr.STUBBED_MODULES]:
+        monkeypatch.delitem(sys.modules, name, raising=False)
+
+
+def window_case(tmp_path, kept):
+    """out/<model>/ with graded.jsonl (verdicts `kept`, recorded in the manifest) and official files ending with each
+    step's code."""
+    out = tmp_path / "m"
+    code = out / "generated_code" / "m" / "without_background"
+    code.mkdir(parents=True)
+    lines = []
+    for i, verdict in enumerate(kept, 1):
+        (code / f"1.{i}.py").write_text(f"import numpy as np\nprev\n\ndef f{i}(): pass\n")
+        lines.append({"setting": "without_background", "problem_id": "1", "step": i, "verdict": verdict,
+                      "code": f"\ndef f{i}(): pass\n"})
+    (out / "graded.jsonl").write_text("".join(json.dumps(r) + "\n" for r in lines))
+    provenance.record(out, ["graded.jsonl"], "test")
+    return out
+
+
+def rescorer(verdicts):
+    """A scorer stub writing `verdicts` (step -> verdict) as the scorer's logs for the files it is given."""
+    def run(root, env, args, setting, code_dir, score_dir, logs_name, tag):
+        logs = score_dir / logs_name / args.model_id / setting
+        logs.mkdir(parents=True, exist_ok=True)
+        for p in (code_dir / args.model_id / setting).iterdir():
+            (logs / f"{p.stem}.txt").write_text(verdicts[p.stem])
+        return {"seconds": 0.0}
+    return run
+
+
+def test_window_rescore_compares_and_checks_its_inputs(tmp_path):
+    out = window_case(tmp_path, ["pass", "fail", "time out"])
+    r = window_rescore.compare(out, "m", "without_background", ["1.1", "1.2", "1.3"], tmp_path / "w1", None, {},
+                               rescorer({"1.1": "pass", "1.2": "pass", "1.3": "time out"}))
+    assert (r["steps"], r["same"]) == (3, 2)
+    assert r["differ"] == [{"step": "1.2", "kept": "fail", "rescored": "pass", "same": False}]
+    assert r["graded_sha256"] == provenance.sha256_file(out / "graded.jsonl") and len(r["files_sha256"]) == 3
+    # a step file that is not the one graded: refused before scoring
+    (out / "generated_code" / "m" / "without_background" / "1.1.py").write_text("other\n")
+    with pytest.raises(SystemExit, match="does not end with"):
+        window_rescore.compare(out, "m", "without_background", ["1.1"], tmp_path / "w2", None, {}, rescorer({}))
+    # graded.jsonl changed after scoring: refused
+    (out / "graded.jsonl").write_text((out / "graded.jsonl").read_text().replace('"fail"', '"pass"'))
+    with pytest.raises(SystemExit, match="sha256"):
+        window_rescore.compare(out, "m", "without_background", ["1.2"], tmp_path / "w3", None, {}, rescorer({}))
+
+
+def test_reference_extraction_rescores_only_changed_files(tmp_path):
+    """The whole-answer extraction on problem 77 (12 steps): step 2's answer has a draft before `</think>`, so its
+    file and every later file of the problem differ; only those reach the scorer, the rest keep the official verdict."""
+    h = harness_or_skip()
+    rows = load_problems()[:1]
+    expected = sr.expected_steps(rows)
+    out = tmp_path / "out" / "m"
+    answers, graded = [], []
+    for pid, step in expected:
+        name = h.parse.extract_function_name(rows[0]["sub_steps"][step - 1]["function_header"])
+        final = f"```python\ndef {name}(*a):\n    return {step}\n```"
+        output = (f"```python\ndef {name}(*a):\n    return 'draft'\n```\n</think>" if step == 2 else "") + final
+        answers.append({"setting": "with_background", "problem_id": pid, "step": step, "status": "ok",
+                        "output": output})
+        graded.append({"setting": "with_background", "problem_id": pid, "step": step,
+                       "verdict": "pass" if step == 1 else "fail",
+                       "code": h.models.extract_python_script(sr.after_think(output))})
+    out.mkdir(parents=True)
+    (out / "generations.jsonl").write_text("".join(json.dumps(a) + "\n" for a in answers))
+    (out / "graded.jsonl").write_text("".join(json.dumps(g) + "\n" for g in graded))
+    provenance.record(out, ["generations.jsonl", "graded.jsonl"], "test")
+    cwd = os.getcwd()
+    try:
+        os.chdir(sr.SCICODE_DIR)
+        sr.build_step_files(h, rows, {(a["setting"], a["problem_id"], a["step"]): a for a in answers},
+                            ["with_background"], "m", out / "generated_code",
+                            lambda a: h.models.extract_python_script(sr.after_think(a["output"])))
+        seen = []
+
+        def score_subset(setting, code_dir):
+            names = sorted(p.stem for p in (code_dir / "m" / setting).iterdir())
+            seen.append(names)
+            return {n: "pass" for n in names}
+        r = reference_extraction.compare(out, "m", tmp_path / "w", h, rows, score_subset)
+    finally:
+        os.chdir(cwd)
+    x = r["settings"]["with_background"]
+    later = [f"77.{s}" for s in range(2, 13)]
+    assert x["answers_with_think_end"] == ["77.2"] and x["answers_whose_code_differs"] == ["77.2"]
+    assert sorted(x["files_differing"]) == sorted(later) and sorted(seen[0]) == sorted(later)
+    assert (x["passed_after_think"], x["passed_whole_answer"]) == (1, 12)
+    assert len(x["verdicts_changed"]) == 11 and x["verdicts_of_differing_files"]["77.3"] == ["fail", "pass"]
+    assert r["inputs_sha256"]["graded.jsonl"] == provenance.sha256_file(out / "graded.jsonl")

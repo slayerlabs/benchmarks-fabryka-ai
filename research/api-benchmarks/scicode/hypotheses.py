@@ -54,6 +54,36 @@ def phi(z: float) -> float:
 P_CLEAR, P_LIKELY = phi(-3), phi(-2)
 
 
+def betainc(a: float, b: float, x: float) -> float:
+    """Regularized incomplete beta I_x(a, b), by its continued fraction (modified Lentz)."""
+    if x <= 0 or x >= 1:
+        return 0.0 if x <= 0 else 1.0
+    if x > (a + 1) / (a + b + 2):
+        return 1 - betainc(b, a, 1 - x)
+    front = math.exp(math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b) + a * math.log(x) + b * math.log(1 - x)) / a
+    tiny = 1e-300
+    c, d = 1.0, 1 - (a + b) * x / (a + 1)
+    d = 1 / (d if abs(d) > tiny else tiny)
+    f = d
+    for m in range(1, 500):
+        for num in (m * (b - m) * x / ((a + 2 * m - 1) * (a + 2 * m)),
+                    -(a + m) * (a + b + m) * x / ((a + 2 * m) * (a + 2 * m + 1))):
+            d = 1 + num * d
+            d = 1 / (d if abs(d) > tiny else tiny)
+            c = 1 + num / c
+            c = c if abs(c) > tiny else tiny
+            f *= c * d
+        if abs(c * d - 1) < 1e-15:
+            break
+    return front * f
+
+
+def t_cdf(t: float, df: int) -> float:
+    """P(T <= t) for Student's t with `df` degrees of freedom."""
+    tail = 0.5 * betainc(df / 2, 0.5, df / (df + t * t))
+    return 1 - tail if t > 0 else tail
+
+
 def load(results: Path, model: str) -> dict[str, dict[str, Any]] | None:
     path = results / f"{model}.jsonl.gz"
     if not path.is_file():
@@ -99,6 +129,11 @@ def raw_outcome(z: float | None) -> str:
     return "supported" if z <= -2 else "refuted" if z >= 2 else "undetermined"
 
 
+def lead_is_clear(value: float, z: float | None) -> bool:
+    """K3's precondition: LFM3-1.7B's lead over Bielik is positive with paired clustered z >= 3."""
+    return z is not None and value > 0 and z >= 3
+
+
 def one_sided(z: float | None) -> tuple[float | None, float | None]:
     return (None, None) if z is None else (phi(z), 1 - phi(z))
 
@@ -127,7 +162,7 @@ def k3(runs: dict, ids: list[str], clusters: list[str]) -> dict[str, Any]:
     on, off, b = y(runs[LFM], ids), y(runs[NOTHINK], ids), y(runs[BIELIK], ids)
     lead = mean_z([a - c for a, c in zip(on, b)], clusters)
     d = mean_z([o - a / 2 - c / 2 for o, a, c in zip(off, on, b)], clusters)
-    met = lead["z"] is not None and lead["value"] > 0 and lead["z"] >= 3
+    met = lead_is_clear(lead["value"], lead["z"])
     return {"measure": "D = (off - B) - (on - B) / 2, paired by subproblem",
             "value": 100 * d["value"], "se": None if d["se"] is None else 100 * d["se"],
             "z": d["z"] if met else None, "z_computed": d["z"], "n": d["n"],
@@ -218,6 +253,18 @@ def analyse(results: Path, group: Path | None = None) -> dict[str, Any]:
         row["read"] = k1["status"] == "passed"
     if primary is not None:
         k2_e1(rows[0], k2(runs, *primary, field="score_e1"), family)
+    t_check = None
+    if primary is not None:
+        df = len(set(primary[1])) - 1
+        ps_t = [None if r["z"] is None else t_cdf(r["z"], df) for r in rows]
+        sup_t = holm(ps_t + [t["p_support"] for t in others])
+        ref_t = holm([None if p is None else 1 - p for p in ps_t] + [t["p_refute"] for t in others])
+        t_check = {"note": "descriptive: our K2 and K3 with one-sided p from Student's t (df = problems - 1) instead "
+                           "of the normal; LiveCodeBench Pro's two p as recorded; Holm m = 4, the same thresholds",
+                   "df": df,
+                   **{r["id"]: {"z": r["z"], "p_support_holm": s, "p_refute_holm": f,
+                                "verdict_holm": r["status"] if r["status"] != "computed" else verdict(s, f)}
+                      for r, s, f in zip(rows, sup_t, ref_t)}}
     descriptive = None
     secondary = items(runs, SECONDARY)
     if secondary is not None:
@@ -232,7 +279,7 @@ def analyse(results: Path, group: Path | None = None) -> dict[str, Any]:
                      "other_benchmark_file": str(group) if group else None,
                      "other_benchmark_sha256": provenance.sha256_file(group) if group else None,
                      "missing_counted_as_p_1": GROUP_M - len(family) + sum(1 for t in family if t["p_support"] is None)},
-            "descriptive": descriptive}
+            "descriptive": descriptive, "t_check": t_check}
 
 
 def fmt(x: float | None, spec: str) -> str:

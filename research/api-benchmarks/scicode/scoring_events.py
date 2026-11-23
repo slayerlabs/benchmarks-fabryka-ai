@@ -9,7 +9,9 @@ Inputs (copied from coding-judge-vm after scoring; PROTOCOL.md Amendment 2):
 - `kernel-oom.txt`: the kernel's OOM-killer lines (`journalctl -k`, 2026-11-22 17:00 to 2026-11-23 01:00 UTC);
 - `disk-full-journal.txt`: the journal's "No space left on device" lines in that period, counted (`uniq -c`);
 - `window-<tag>.json`: the re-scoring of the steps whose official verdicts were written around the disk-full window
-  (/root/scicode/window_rescore.sh on the VM), each comparing the kept verdict with a fresh one.
+  (window_rescore.py, run on the VM by `window_rescore.sh`), each comparing the kept verdict with a fresh one;
+- `reference-extraction-<model-id>.json`: the same answers extracted from the whole answer, as SciCode's gencode.py
+  would, re-scored where the step files differ (reference_extraction.py, run on the VM).
 Writes, per run and pass, the step files the final scorer went through (`files`: it prints "Testing function" also
 for a step whose log it reuses), those it reports killed by SIGKILL (the container's 48 GB
 memory limit: the OOM killer), and its printed correct steps; the kernel's OOM kills (time, container, resident
@@ -59,13 +61,26 @@ def main(results: Path) -> None:
     queue = [{"time": t, "entry": e} for t, e in QUEUE.findall((folder / "score-scicode.log").read_text())]
     window = {p.stem[len("window-"):]: json.loads(p.read_text(encoding="utf-8"))
               for p in sorted(folder.glob("window-*.json"))}
+    reference = {p.stem[len("reference-extraction-"):]: json.loads(p.read_text(encoding="utf-8"))
+                 for p in sorted(folder.glob("reference-extraction-*.json"))}
     record = {
         "scorer_runs_final": scorer_runs(folder),
         "kernel_oom_kills": kills,
         "container_memory_limit": "48g (run.sh --score, docker --memory)",
         "disk_full_journal": disk,
         "queue_log": queue,
-        "window_rescore": {tag: {k: v for k, v in w.items() if k != "rows"} for tag, w in window.items()},
+        "window_rescore": {tag: {k: v for k, v in w.items() if k not in ("rows", "files_sha256")}
+                           for tag, w in window.items()},
+        "reference_extraction": {run: {s: {"answers_with_think_end": len(x["answers_with_think_end"]),
+                                           "answers_whose_code_differs": len(x["answers_whose_code_differs"]),
+                                           "files_differing": len(x["files_differing"]),
+                                           "passed_after_think": x["passed_after_think"],
+                                           "passed_whole_answer": x["passed_whole_answer"],
+                                           "verdicts_changed": len(x["verdicts_changed"]),
+                                           "verdicts_of_differing_files": sorted(
+                                               {f"{a} -> {b}" for a, b in x["verdicts_of_differing_files"].values()})}
+                                       for s, x in r["settings"].items()}
+                                 for run, r in reference.items()},
         "inputs_sha256": {p.name: provenance.sha256_file(p) for p in sorted(folder.iterdir()) if p.is_file()},
     }
     (results / "scoring-events.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
