@@ -270,8 +270,16 @@ def test_scoring_vm_facts_recounted_from_the_copied_logs():
     assert f"The kernel's OOM killer ended {len(kills)} test scripts" in dev
     for t in kills:
         assert f"{t} UTC" in dev
-    for tag, w in ev["window_rescore"].items():
-        assert f"{tag}: {w['same']} of {w['steps']} verdicts the same" in dev
+    windows = sorted(folder.glob("window-*.json"))
+    assert windows and len(windows) == len(ev["window_rescore"])
+    for path in windows:
+        w = json.loads(path.read_text(encoding="utf-8"))
+        tag = path.stem[len("window-"):]
+        kept = {f"{r['problem_id']}.{r['step']}": r["verdict"] for r in setting_rows(w["model"], w["setting"])}
+        assert all(kept[r["step"]] == r["kept"] for r in w["rows"])  # the kept verdicts are the committed ones
+        same = sum(1 for r in w["rows"] if r["kept"] == r["rescored"])
+        assert (same, len(w["rows"])) == (ev["window_rescore"][tag]["same"], ev["window_rescore"][tag]["steps"])
+        assert f"({tag}): {same} of {len(w['rows'])} the same" in dev
     for name in ev["inputs_sha256"]:
         assert hashlib.sha256((folder / name).read_bytes()).hexdigest() == ev["inputs_sha256"][name]
 

@@ -272,10 +272,12 @@ def scoring_block(results: Path) -> str:
             for k in kills) + f". In the final scorer output the killed steps are: {', '.join(killed) or 'none'}; "
         "each counts as a failed step, as the scorer grades it.",
         f"- Disk full: the journal logged {sum(d['lines'] for d in disk)} \"No space left on device\" lines at "
-        f"{', '.join(sorted({d['time_utc'] for d in disk}))} UTC. Steps whose official verdicts were written "
-        "between 20:10 and 20:20 UTC, and the time-outs that ran through that window, were re-scored afterwards with "
-        "the same image: " + "; ".join(f"{t}: {w['same']} of {w['steps']} verdicts the same" for t, w in windows.items())
-        + ".",
+        f"{', '.join(sorted({d['time_utc'] for d in disk}))} UTC. "
+        + " ".join(f"Queue log, {e['time']}: {e['entry']}." for e in ev["queue_log"] if "removed" in e["entry"])
+        + " The official LFM3 steps whose verdicts were written between 20:10 and 20:20 UTC, and the time-outs that "
+        "ran through that window, were re-scored afterwards with the same image and compared with the kept verdicts: "
+        + "; ".join(f"{w['model']} {SETTING_LABEL[w['setting']]} ({t}): {w['same']} of {w['steps']} the same"
+                    for t, w in windows.items()) + ".",
         f"- E1 identity reuse: {reuse}.",
     ])
 
