@@ -240,7 +240,9 @@ def analyse(results: Path, group_file: Path | None = None) -> dict[str, Any]:
                   if on is not None and off is not None and bielik is not None else None)
     return {"benchmark": BENCHMARK_ID, "protocol": "PROTOCOL.md", "control": c, "hypotheses": hypotheses,
             "group_tests": mine, "holm": {"m": GROUP_SIZE, "family": holm_rows}, "notes": notes,
-            "k3_robustness": robustness}
+            "k3_robustness": robustness,
+            "group_file": None if note else {"file": f"{group_file.parent.parent.name}/results/{group_file.name}",
+                                             "sha256": provenance.sha256_file(group_file)}}
 
 
 def fmt(x: float | None, spec: str) -> str:

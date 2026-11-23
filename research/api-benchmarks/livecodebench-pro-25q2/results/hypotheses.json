@@ -22,7 +22,7 @@
       "strength_raw": "clear",
       "p_support": 5.938895427580987e-09,
       "p_refute": 0.9999999940611046,
-      "p_support_holm": 2.3755581710323947e-08,
+      "p_support_holm": 1.781668628274296e-08,
       "p_refute_holm": 1.0,
       "verdict_holm": "supported (clear)",
       "read": true
@@ -80,7 +80,7 @@
         "p_support": 5.938895427580987e-09,
         "p_refute": 0.9999999940611046,
         "outcome_raw": "supported",
-        "p_support_holm": 2.3755581710323947e-08,
+        "p_support_holm": 1.781668628274296e-08,
         "p_refute_holm": 1.0,
         "verdict_holm": "supported (clear)"
       },
@@ -98,30 +98,29 @@
       {
         "benchmark": "scicode",
         "id": "K2",
-        "z": null,
-        "p_support": null,
-        "p_refute": null,
-        "outcome_raw": "not available",
-        "p_support_holm": null,
-        "p_refute_holm": null,
-        "verdict_holm": "undetermined"
+        "z": -6.378377306341475,
+        "p_support": 8.948707132506849e-11,
+        "p_refute": 0.9999999999105129,
+        "outcome_raw": "supported",
+        "z_e1": -6.059471197268764,
+        "p_support_holm": 3.5794828530027396e-10,
+        "p_refute_holm": 1.0,
+        "verdict_holm": "supported (clear)"
       },
       {
         "benchmark": "scicode",
         "id": "K3",
-        "z": null,
-        "p_support": null,
-        "p_refute": null,
-        "outcome_raw": "not available",
-        "p_support_holm": null,
-        "p_refute_holm": null,
-        "verdict_holm": "undetermined"
+        "z": 3.515238318123505,
+        "p_support": 0.9997803202400652,
+        "p_refute": 0.00021967975993475441,
+        "outcome_raw": "refuted",
+        "p_support_holm": 1.0,
+        "p_refute_holm": 0.0006590392798042632,
+        "verdict_holm": "refuted (clear)"
       }
     ]
   },
-  "notes": [
-    "the other benchmark's two tests count in Holm's m = 4 with p = 1"
-  ],
+  "notes": [],
   "k3_robustness": {
     "descriptive": true,
     "clustered_by_contest": {
@@ -170,5 +169,9 @@
         }
       }
     }
+  },
+  "group_file": {
+    "file": "scicode/results/hypotheses.json",
+    "sha256": "843eb6809a3446e18500516610465040afc47b5608e351fb2355322fb5f38f84"
   }
 }

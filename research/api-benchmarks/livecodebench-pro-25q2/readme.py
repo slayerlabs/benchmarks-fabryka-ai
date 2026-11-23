@@ -157,8 +157,11 @@ def hypotheses_block(results: Path) -> str:
         f"off the median answer has {100 * rs['median_share_before_last_think_end']:.0f}% of its characters before "
         f"its last `</think>`, {rs['accepted_closing_think']} of its {rs['accepted']} accepted answers close one, and "
         f"it writes {tok['mean']:.0f} output tokens per answer on average (PROTOCOL.md, Amendment 1).",
-        "- **Holm over the Coding group** needs SciCode's K2 and K3 (`python3 compare.py results --group "
-        "<SciCode hypotheses.json>`); until then they count with p = 1, which can only make the adjusted p larger.",
+        ("- **Holm over the Coding group** needs SciCode's K2 and K3 (`python3 compare.py results --group "
+         "<SciCode hypotheses.json>`); until then they count with p = 1, which can only make the adjusted p larger."
+         if not h.get("group_file") else
+         "- **Holm over the Coding group** (m = 4) uses SciCode's K2 and K3 from its "
+         f"`{h['group_file']['file']}` (sha256 `{h['group_file']['sha256']}`)."),
     ])
 
 

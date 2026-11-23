@@ -142,7 +142,7 @@ K1 control: passed: LFM3-1.7B 32.34 ± 3.62 vs card 31.74, z = +0.16
 
 | test | value ± SE (pp) | z | raw | Holm p (support / refute) | after Holm (m = 4) | read |
 |---|---|---|---|---|---|---|
-| K2 | +1.80 ± 3.05 | -5.70 | supported (clear) | 2.38e-08 / 1 | supported (clear) | yes |
+| K2 | +1.80 ± 3.05 | -5.70 | supported (clear) | 1.78e-08 / 1 | supported (clear) | yes |
 | K3 | +11.68 ± 2.36 | +4.94 | refuted (clear) | 1 / 1.54e-06 | refuted (clear) | yes |
 | K3 lead on − B (precondition z ≥ 3) | +30.54 ± 3.57 | +8.54 | | | | |
 
@@ -150,9 +150,8 @@ Holm family:
 
 - livecodebench-pro-25q2 K2: z -5.70, supported (clear)
 - livecodebench-pro-25q2 K3: z +4.94, refuted (clear)
-- scicode K2: not available (p = 1 in Holm)
-- scicode K3: not available (p = 1 in Holm)
-note: the other benchmark's two tests count in Holm's m = 4 with p = 1
+- scicode K2: z -6.38, supported (clear)
+- scicode K3: z +3.52, refuted (clear)
 
 K3 robustness (DESCRIPTIVE, added after the results; PROTOCOL.md Amendment 1):
 
@@ -169,7 +168,7 @@ Reading:
 
 - **K2** (supported (clear)) compares Bielik through the API with a number on the card, not with a model run here: LFM2.5-2.6B's 19.16, with the SE floor of PROTOCOL.md.
 - **K3** refuted under the pre-registered switch (`enable_thinking: false`): with the switch off LFM3 keeps most of its lead (D = +11.68 ± 2.36, z = +4.94); the switch does not remove reasoning (153/167 answers reason and close `</think>`), so how much of the lead thinking itself buys is undetermined. With the switch off the median answer has 93% of its characters before its last `</think>`, 46 of its 48 accepted answers close one, and it writes 24545 output tokens per answer on average (PROTOCOL.md, Amendment 1).
-- **Holm over the Coding group** needs SciCode's K2 and K3 (`python3 compare.py results --group <SciCode hypotheses.json>`); until then they count with p = 1, which can only make the adjusted p larger.
+- **Holm over the Coding group** (m = 4) uses SciCode's K2 and K3 from its `scicode/results/hypotheses.json` (sha256 `843eb6809a3446e18500516610465040afc47b5608e351fb2355322fb5f38f84`).
 
 <!-- readme.py: end hypotheses -->
 

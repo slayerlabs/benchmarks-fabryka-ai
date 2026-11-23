@@ -125,8 +125,14 @@ def test_k1_k2_k3_and_holm():
     assert cells(section, "| K2 |")[1:3] == [f"{100 * p_b:+.2f} ± {100 * se2:.2f}", f"{z2:+.2f}"]
     assert cells(section, "| K3 |")[1:3] == [f"{100 * d3:+.2f} ± {100 * se3:.2f}", f"{z3:+.2f}"]
     assert cells(section, "| K3 lead")[1:3] == [f"{100 * lead:+.2f} ± {100 * lead_se:.2f}", f"{lead_z:+.2f}"]
-    # Holm, m = 4, SciCode's two tests absent (p = 1): support and refute families separately
-    for key, ps in (("p_support", [phi(z2), phi(z3), 1.0, 1.0]), ("p_refute", [1 - phi(z2), 1 - phi(z3), 1.0, 1.0])):
+    # Holm, m = 4: our K2, K3 and SciCode's K2, K3 (its z from the family, p recomputed here; absent = p 1),
+    # support and refute families separately
+    other = [t for t in h["holm"]["family"] if t["benchmark"] != "livecodebench-pro-25q2"]
+    assert len(other) == 2 and len(h["holm"]["family"]) == 4
+    zo = [t["z"] for t in other]
+    sup = [phi(z2), phi(z3)] + [1.0 if z is None else phi(z) for z in zo]
+    ref = [1 - phi(z2), 1 - phi(z3)] + [1.0 if z is None else 1 - phi(z) for z in zo]
+    for key, ps in (("p_support", sup), ("p_refute", ref)):
         order = sorted(range(4), key=lambda i: ps[i])
         adj, running = [0.0] * 4, 0.0
         for rank, i in enumerate(order):
@@ -134,6 +140,7 @@ def test_k1_k2_k3_and_holm():
             adj[i] = running
         assert math.isclose(k2[f"{key}_holm"], adj[0], rel_tol=1e-9) and \
             math.isclose(k3[f"{key}_holm"], adj[1], rel_tol=1e-9), key
+        assert cells(section, "| K2 |")[4].split(" / ")[0 if key == "p_support" else 1] == f"{adj[0]:.3g}"
     for k, z in ((k2, z2), (k3, z3)):
         p_s = k["p_support_holm"]
         p_r = k["p_refute_holm"]
