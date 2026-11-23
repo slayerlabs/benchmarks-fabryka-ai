@@ -431,6 +431,7 @@ def main():
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--batch", action="store_true", help="Use the Message Batches API (50%% discount)")
     parser.add_argument("--poll-interval", type=int, default=30, help="Seconds between batch status polls")
+    parser.add_argument("--ids-file", type=str, default=None, help="Optional newline-delimited question IDs to judge")
     args = parser.parse_args()
     assert args.num_workers > 1, "num_workers must be 2 or greater"
 
@@ -446,6 +447,12 @@ def main():
     if os.path.exists(args.output):
         with open(args.output, "r", encoding="utf-8") as f:
             judged_predictions = json.load(f)
+
+    if args.ids_file:
+        with open(args.ids_file, "r", encoding="utf-8") as f:
+            wanted = {line.strip() for line in f if line.strip()}
+        predictions = {k: v for k, v in predictions.items() if k in wanted}
+        questions = [q for q in questions if q["id"] in wanted]
 
     if args.batch:
         run_batch(args, questions, predictions, judged_predictions)

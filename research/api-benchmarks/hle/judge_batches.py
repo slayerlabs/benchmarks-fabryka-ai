@@ -1,0 +1,313 @@
+"""Run HLE judging plan via Anthropic Message Batches API.
+
+Order: (1) Opus on all predictions, (2) Opus repeat on 100, (3) Sonnet on same 300.
+Cap: 15 USD (estimated before each batch, actual tracked from usage).
+"""
+from __future__ import annotations
+
+import argparse, json, math, os, random, time
+from pathlib import Path
+
+import anthropic
+import numpy as np
+from datasets import load_dataset
+
+import judge as J
+
+HERE = Path(__file__).resolve().parent
+OPUS = "claude-opus-4-6"
+SONNET = "claude-sonnet-4-6"
+# Batch pricing USD per MTok (50% off). Sources: Anthropic pricing pages.
+PRICES = {
+    OPUS: {"input": 2.5 / 1e6, "output": 12.5 / 1e6},
+    SONNET: {"input": 1.5 / 1e6, "output": 7.5 / 1e6},
+}
+CAP_USD = 15.0
+
+
+def load_env():
+    J.load_dotenv()
+    key = os.environ.get("ANTHROPIC_API_KEY")
+    if not key:
+        raise SystemExit("ANTHROPIC_API_KEY not set")
+    return anthropic.Anthropic(api_key=key, timeout=300.0, max_retries=0)
+
+
+def load_questions():
+    ds = load_dataset("cais/hle", split="test").to_dict()
+    qs = [dict(zip(ds.keys(), v)) for v in zip(*ds.values())]
+    return {q["id"]: q for q in qs}
+
+
+def build_requests(questions, predictions, ids, model):
+    reqs = []
+    for qid in ids:
+        if qid not in predictions or qid not in questions:
+            continue
+        q = questions[qid]
+        p = predictions[qid]
+        prompt = J.JUDGE_PROMPT.format(question=q["question"], correct_answer=q["answer"], response=p["response"])
+        reqs.append({
+            "custom_id": qid,
+            "params": {
+                "model": model,
+                "max_tokens": 4096,
+                "messages": [{"role": "user", "content": prompt}],
+                "tools": J.TOOLS,
+                "tool_choice": {"type": "auto"},
+            },
+        })
+    return reqs
+
+
+def estimate_usd(reqs, predictions, questions, model):
+    # rough char/3.5 for input, 150 output tokens
+    inp = 0
+    for r in reqs:
+        qid = r["custom_id"]
+        q, p = questions[qid], predictions[qid]
+        inp += (600 + len(q["question"]) + len(q["answer"]) + len(p.get("response", ""))) / 3.5
+    out = len(reqs) * 150
+    pr = PRICES[model]
+    return inp * pr["input"] + out * pr["output"], inp, out
+
+
+def submit_and_wait(client, reqs, poll=30):
+    batch = client.messages.batches.create(requests=reqs)
+    print(f"batch {batch.id} submitted n={len(reqs)}", flush=True)
+    while True:
+        b = client.messages.batches.retrieve(batch.id)
+        counts = getattr(b, "request_counts", None)
+        print(f"batch {batch.id} {b.processing_status} {counts}", flush=True)
+        if b.processing_status == "ended":
+            return batch.id
+        time.sleep(poll)
+
+
+def collect_results(client, batch_id, questions, predictions):
+    judged = {}
+    total_in = total_out = 0
+    failed = []
+    no_tool = 0
+    for entry in client.messages.batches.results(batch_id):
+        qid = entry.custom_id
+        result = entry.result
+        if result.type != "succeeded":
+            failed.append((qid, result.type))
+            continue
+        msg = result.message
+        usage = msg.usage
+        total_in += getattr(usage, "input_tokens", 0)
+        total_out += getattr(usage, "output_tokens", 0)
+        tool_use = None
+        for block in msg.content:
+            if getattr(block, "type", None) == "tool_use" and getattr(block, "name", None) == "judge":
+                tool_use = block
+                break
+        if tool_use is None:
+            no_tool += 1
+            failed.append((qid, "no_tool_call"))
+            continue
+        try:
+            parsed = J.ExtractedAnswer.model_validate(tool_use.input)
+        except Exception as e:
+            failed.append((qid, f"schema:{e}"))
+            continue
+        q = questions[qid]
+        pred = dict(predictions[qid])
+        pred["judge_response"] = {
+            "correct_answer": q["answer"],
+            "model_answer": parsed.extracted_final_answer,
+            "reasoning": parsed.reasoning,
+            "correct": parsed.correct,
+            "confidence": parsed.confidence,
+        }
+        pred["_judge_usage"] = {
+            "input_tokens": getattr(usage, "input_tokens", 0),
+            "output_tokens": getattr(usage, "output_tokens", 0),
+        }
+        judged[qid] = pred
+    return judged, total_in, total_out, failed, no_tool
+
+
+def save_judged(path, judged):
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(judged, f, indent=2, ensure_ascii=False)
+
+
+def cost_usd(model, inp, out):
+    pr = PRICES[model]
+    return inp * pr["input"] + out * pr["output"]
+
+
+def calib_err(confidence, correct, p="2", beta=100):
+    idxs = np.argsort(confidence)
+    confidence = confidence[idxs]
+    correct = correct[idxs]
+    bins = [[i * beta, (i + 1) * beta] for i in range(len(confidence) // beta)]
+    if bins:
+        bins[-1] = [bins[-1][0], len(confidence)]
+    cerr = 0
+    total_examples = len(confidence)
+    for i in range(len(bins) - 1):
+        bconf = confidence[bins[i][0]:bins[i][1]]
+        bcorr = correct[bins[i][0]:bins[i][1]]
+        nbin = len(bconf)
+        if nbin > 0:
+            diff = np.abs(np.nanmean(bconf) - np.nanmean(bcorr))
+            if p == "2":
+                cerr += nbin / total_examples * np.square(diff)
+            elif p == "1":
+                cerr += nbin / total_examples * diff
+            else:
+                cerr = np.maximum(cerr, diff)
+    if p == "2":
+        cerr = np.sqrt(cerr)
+    return float(cerr)
+
+
+def accuracy_stats(judged, n_total):
+    correct = []
+    confidence = []
+    for v in judged.values():
+        jr = v.get("judge_response")
+        if not jr:
+            continue
+        correct.append("yes" in jr.get("correct", ""))
+        confidence.append(jr.get("confidence", 100))
+    correct = np.array(correct)
+    confidence = np.array(confidence) / 100
+    n = len(correct)
+    acc = 100 * float(correct.sum()) / n_total if n_total else 0.0
+    stderr = 1.96 * math.sqrt(acc * (100 - acc) / n_total) if n_total else 0.0
+    cal = 100 * calib_err(confidence, correct, p="2", beta=100) if n else 0.0
+    return n, acc, stderr, cal
+
+
+def cohens_kappa(labels_a, labels_b):
+    # labels are 0/1
+    n = len(labels_a)
+    if n == 0:
+        return float("nan")
+    a = np.array(labels_a); b = np.array(labels_b)
+    po = float((a == b).mean())
+    p_yes_a = float(a.mean()); p_yes_b = float(b.mean())
+    pe = p_yes_a * p_yes_b + (1 - p_yes_a) * (1 - p_yes_b)
+    if pe == 1.0:
+        return 1.0
+    return (po - pe) / (1 - pe)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--predictions", default=str(HERE / "out/bielik-11b-v3.1/hle_bielik-11b-v3.1.json"))
+    ap.add_argument("--outdir", default=str(HERE / "out/bielik-11b-v3.1"))
+    ap.add_argument("--cap-usd", type=float, default=CAP_USD)
+    args = ap.parse_args()
+
+    client = load_env()
+    questions = load_questions()
+    predictions = json.load(open(args.predictions, encoding="utf-8"))
+    all_ids = sorted(predictions.keys())
+    ids_300 = all_ids[:300]
+    ids_100 = all_ids[:100]
+
+    outdir = Path(args.outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+    spent = 0.0
+    tokens_total = {"input": 0, "output": 0}
+    runs = []
+
+    plan = [
+        ("opus_all", OPUS, all_ids, outdir / "judged_opus_all.json"),
+        ("opus_repeat_100", OPUS, ids_100, outdir / "judged_opus_repeat_100.json"),
+        ("sonnet_300", SONNET, ids_300, outdir / "judged_sonnet_300.json"),
+    ]
+
+    for name, model, ids, outpath in plan:
+        # Resume: if already complete, load
+        existing = {}
+        if outpath.exists():
+            existing = json.load(open(outpath, encoding="utf-8"))
+        todo = [i for i in ids if i not in existing]
+        if not todo:
+            print(f"{name}: already complete n={len(existing)}", flush=True)
+            runs.append({"name": name, "model": model, "n": len(existing), "input_tokens": 0, "output_tokens": 0, "usd": 0.0, "skipped": "complete"})
+            continue
+
+        reqs = build_requests(questions, predictions, todo, model)
+        est, est_in, est_out = estimate_usd(reqs, predictions, questions, model)
+        print(f"{name}: todo={len(todo)} est_usd={est:.2f} spent={spent:.2f} cap={args.cap_usd:.2f}", flush=True)
+        if spent + est > args.cap_usd:
+            print(f"{name}: SKIPPED would exceed cap (est {spent+est:.2f} > {args.cap_usd:.2f})", flush=True)
+            runs.append({"name": name, "model": model, "n": 0, "skipped": "cap"})
+            continue
+
+        batch_id = submit_and_wait(client, reqs)
+        judged, tin, tout, failed, no_tool = collect_results(client, batch_id, questions, predictions)
+        # merge
+        existing.update(judged)
+        save_judged(str(outpath), existing)
+        usd = cost_usd(model, tin, tout)
+        spent += usd
+        tokens_total["input"] += tin
+        tokens_total["output"] += tout
+        run = {"name": name, "model": model, "batch_id": batch_id, "n_requested": len(todo), "n_judged": len(judged), "n_total_file": len(existing), "failed": len(failed), "no_tool": no_tool, "input_tokens": tin, "output_tokens": tout, "usd": round(usd, 4), "failed_ids": [f[0] for f in failed]}
+        runs.append(run)
+        print(f"{name}: judged={len(judged)} failed={len(failed)} tokens_in={tin} tokens_out={tout} usd={usd:.4f} spent_total={spent:.4f}", flush=True)
+        if failed:
+            print(f"{name} failed_ids={ [f for f in failed[:20]] }", flush=True)
+        if spent > args.cap_usd:
+            print(f"WARNING: spent {spent:.2f} > cap {args.cap_usd:.2f}", flush=True)
+
+    # Report
+    opus_all = json.load(open(outdir / "judged_opus_all.json", encoding="utf-8")) if (outdir / "judged_opus_all.json").exists() else {}
+    opus_rep = json.load(open(outdir / "judged_opus_repeat_100.json", encoding="utf-8")) if (outdir / "judged_opus_repeat_100.json").exists() else {}
+    son300 = json.load(open(outdir / "judged_sonnet_300.json", encoding="utf-8")) if (outdir / "judged_sonnet_300.json").exists() else {}
+
+    n_judged, acc, stderr, cal = accuracy_stats(opus_all, len(predictions))
+    # Agreement Opus-Sonnet on 300
+    common300 = [qid for qid in ids_300 if qid in opus_all and qid in son300]
+    agree_n = len(common300)
+    agree = sum(1 for qid in common300 if ("yes" in opus_all[qid]["judge_response"]["correct"]) == ("yes" in son300[qid]["judge_response"]["correct"]))
+    agree_pct = 100 * agree / agree_n if agree_n else float("nan")
+    labels_o = [1 if "yes" in opus_all[qid]["judge_response"]["correct"] else 0 for qid in common300]
+    labels_s = [1 if "yes" in son300[qid]["judge_response"]["correct"] else 0 for qid in common300]
+    kappa = cohens_kappa(labels_o, labels_s) if agree_n else float("nan")
+    disagreements = [qid for qid in common300 if ("yes" in opus_all[qid]["judge_response"]["correct"]) != ("yes" in son300[qid]["judge_response"]["correct"])]
+
+    # Self-agreement Opus 100
+    common100 = [qid for qid in ids_100 if qid in opus_all and qid in opus_rep]
+    self_n = len(common100)
+    self_agree = sum(1 for qid in common100 if ("yes" in opus_all[qid]["judge_response"]["correct"]) == ("yes" in opus_rep[qid]["judge_response"]["correct"]))
+    self_pct = 100 * self_agree / self_n if self_n else float("nan")
+
+    report = {
+        "model": "bielik-11b-v3.1",
+        "benchmark": "Humanity's Last Exam (no tools), text-only subset",
+        "n_total_predictions": len(predictions),
+        "n_judged_opus": n_judged,
+        "accuracy": round(acc, 2),
+        "stderr_95ci_half_width": round(stderr, 2),
+        "calibration_error": round(cal, 2),
+        "tokens": tokens_total,
+        "usd_spent": round(spent, 4),
+        "cap_usd": args.cap_usd,
+        "runs": runs,
+        "opus_sonnet_agreement_n": agree_n,
+        "opus_sonnet_agreement_pct": round(agree_pct, 2) if agree_n else None,
+        "opus_sonnet_cohens_kappa": round(kappa, 4) if agree_n else None,
+        "opus_self_agreement_n": self_n,
+        "opus_self_agreement_pct": round(self_pct, 2) if self_n else None,
+        "disagreement_ids_first_10": disagreements[:10],
+    }
+    report_path = outdir / "judge_report.json"
+    with open(report_path, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2, ensure_ascii=False)
+    print(json.dumps(report, indent=2, ensure_ascii=False), flush=True)
+    return report
+
+
+if __name__ == "__main__":
+    main()
