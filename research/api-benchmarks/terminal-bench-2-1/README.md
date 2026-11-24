@@ -78,7 +78,8 @@ the evidence instead:
 - **Standard error clustered by task.** [`research/METHODOLOGY.md`](../../METHODOLOGY.md) gives
   `sqrt(p(1-p)/n)` for pass/fail tasks, here 1.46 over the 445 trials (`other_metrics.stderr_per_trial`). With 5
   trials of each task the trials are not independent, so `stderr` is the standard error of the mean of the 89
-  per-task pass rates, 2.69. Against the per-trial value the gap to the card is 1.62 standard errors.
+  per-task pass rates, 2.69. With the per-trial SE of 1.46 the difference from the card, −2.36, gives
+  z = −1.62: noise.
 - **Provider package not pinned.** OpenCode installs `@ai-sdk/openai-compatible` itself and its config takes no
   version. The run did not record which release it got; the newest one before the run date is 3.0.94 (2026-11-20).
 - **The card's asterisk.** The card marks 12.92 with an asterisk that it does not explain.
