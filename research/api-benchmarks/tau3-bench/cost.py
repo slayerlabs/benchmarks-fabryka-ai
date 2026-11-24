@@ -9,6 +9,7 @@ import json
 import sys
 
 path, prefix, p_in, p_out = sys.argv[1], sys.argv[2], float(sys.argv[3]), float(sys.argv[4])
+prefix = prefix.split("/", 1)[-1]  # the usage log stores the bare model name (claude-haiku-5-5), not the litellm route
 n = tin = tout = 0
 try:
     lines = open(path).read().splitlines()
@@ -16,7 +17,7 @@ except FileNotFoundError:
     lines = []
 for line in lines:
     r = json.loads(line)
-    if (r["model"] or "").startswith(prefix):
+    if (r["model"] or "").split("/", 1)[-1].startswith(prefix):
         n += 1
         tin += r["prompt_tokens"]
         tout += r["completion_tokens"]

@@ -27,12 +27,13 @@ AGENT_ARGS='{"temperature":0.6,"top_p":0.95}'
 domain_ids() { "$PY" -c "import json,sys; print('\n'.join(json.load(open('$HERE/sample.json'))['domains']['$1']['ids']))"; }
 # run_domain <domain> <save-to> <user-llm> <max-tasks-or-0> ; the judge comes from NL_JUDGE_LLM
 run_domain() {
-  local domain="$1" save="$2" user="$3" n="$4" ids=() extra=()
+  local domain="$1" save="$2" user="$3" n="$4" uargs="${5:-}" ids=() extra=()
   while IFS= read -r id; do ids+=("$id"); done < <(domain_ids "$domain")
   [[ "$n" -gt 0 ]] && ids=("${ids[@]:0:$n}")
   [[ "$domain" == banking_knowledge ]] && extra=(--retrieval-config bm25)
+  [[ -n "$uargs" ]] && extra+=(--user-llm-args "$uargs")   # Claude 5.5 rejects temperature: pass {} for Claude simulators
   "$PY" "$HERE/tau3_run.py" run --domain "$domain" --agent-llm "$AGENT" --agent-llm-args "$AGENT_ARGS" \
-    --user-llm "$user" --task-ids "${ids[@]}" --num-trials 1 --max-concurrency 2 \
+    --user-llm "$user" --task-ids "${ids[@]}" --num-trials "${NUM_TRIALS:-1}" --max-concurrency 2 \
     --save-to "$save" "${extra[@]}"
 }
-DOMAINS=(airline retail telecom banking_knowledge)
+DOMAINS=(${TAU3_DOMAINS:-airline retail telecom banking_knowledge})

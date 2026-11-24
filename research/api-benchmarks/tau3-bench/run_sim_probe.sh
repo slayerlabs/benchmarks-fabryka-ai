@@ -19,7 +19,7 @@ for arm in haiku sonnet; do
   "$PY" -c "import litellm; litellm.completion(model='${MODEL[$arm]}', messages=[{'role':'user','content':'OK'}], max_tokens=5)" >/dev/null
   USAGE="$OUT/usage_$arm.jsonl"; export TAU3_USAGE_LOG="$USAGE"; : > "$USAGE"
   for d in "${DOMAINS[@]}"; do
-    run_domain "$d" "probe_${arm}_$d" "${MODEL[$arm]}" 0
+    run_domain "$d" "probe_${arm}_$d" "${MODEL[$arm]}" 0 '{}'
     c=$("$PY" "$HERE/cost.py" "$USAGE" "${MODEL[$arm]}" "${PIN[$arm]}" "${POUT[$arm]}" | tee -a "$OUT/cost.jsonl" | "$PY" -c "import json,sys; print(json.load(sys.stdin)['cost_usd'])")
     total=$("$PY" -c "print(round($base + $c, 4))")   # c = cost of this arm so far
     echo "$arm $d cost $c total $total USD"

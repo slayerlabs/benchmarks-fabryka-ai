@@ -24,6 +24,14 @@ J
 esac
 : "${USER_LLM:?set USER_LLM (user simulator, litellm model id)}"
 : "${NL_JUDGE_LLM:?set NL_JUDGE_LLM (litellm model id)}"; export NL_JUDGE_LLM
+# Claude 5.5 simulators reject temperature, so they get empty LLM args; others keep the harness default.
+UARGS=(); [[ "$USER_LLM" == anthropic/* ]] && UARGS=(--user-llm-args '{}')
+TAG="${SAVE_TAG:-}"   # e.g. haiku / sonnet, so runs with different simulators do not overwrite each other
+# Optional cost guard: USAGE log of every call (tau3_run.py) and a USD limit for the simulator calls.
+if [[ -n "${COST_LIMIT_USD:-}" ]]; then
+  : "${PRICE_IN:?set PRICE_IN (USD per Mtok)}" "${PRICE_OUT:?set PRICE_OUT}"
+  export TAU3_USAGE_LOG="${TAU3_USAGE_LOG:-$OUT/usage_${MODEL}${TAG:+_$TAG}.jsonl}"; touch "$TAU3_USAGE_LOG"
+fi
 for d in "${DOMAINS[@]}"; do
   ids=(); while IFS= read -r id; do ids+=("$id"); done < <("$PY" - "$d" "$LIMIT" <<'P'
 import json, sys
@@ -39,5 +47,10 @@ P
   )
   extra=(); [[ "$d" == banking_knowledge ]] && extra=(--retrieval-config bm25)
   "$PY" "$HERE/tau3_run.py" run --domain "$d" --agent-llm "$AGENT" --agent-llm-args "$AGENT_ARGS" --user-llm "$USER_LLM" \
-    --task-ids "${ids[@]}" --num-trials 1 --max-concurrency 2 --save-to "${MODEL}_$d" "${extra[@]}"
+    --task-ids "${ids[@]}" --num-trials 1 --max-concurrency 2 --save-to "${MODEL}${TAG:+_$TAG}_$d" "${extra[@]}" "${UARGS[@]}"
+  if [[ -n "${COST_LIMIT_USD:-}" ]]; then
+    c=$("$PY" "$HERE/cost.py" "$TAU3_USAGE_LOG" "$USER_LLM" "$PRICE_IN" "$PRICE_OUT" | "$PY" -c "import json,sys; print(json.load(sys.stdin)['cost_usd'])")
+    echo "$d done, simulator cost so far $c USD (limit $COST_LIMIT_USD)"
+    "$PY" -c "import sys; sys.exit(0 if $c <= $COST_LIMIT_USD else 1)" || { echo "cost limit passed, stopping" >&2; exit 3; }
+  fi
 done
