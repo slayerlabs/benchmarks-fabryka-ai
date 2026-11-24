@@ -1,7 +1,5 @@
 # BFCL V4
 
-Polish version: [README.pl.md](README.pl.md).
-
 Whether a model calls functions correctly: picks the right function (or none), fills its arguments, calls several in
 parallel or in sequence, and keeps state over multi-turn and memory tasks. Calls are checked against ground truth
 by the harness (AST match, executed state or memory answers), without a judge model.
@@ -46,6 +44,7 @@ the raw `output`.
   10% non-live + 10% live + 10% irrelevance + 30% multi-turn + 40% agentic, with agentic = mean(web search,
   memory) (`bfcl_eval/eval_checker/eval_runner_helper.py`), and a missing category counts as 0. Without web search
   Overall would lose half of the agentic weight, so we leave `score` null and report the group scores instead.
+  If these categories are run later, the search API key must be a team key, not a personal account.
 - **Self-hosted vLLM, not the fabryka.ai API.** Bielik 11B v3.1 Instruct
   ([speakleash/Bielik-11B-v3.1-Instruct](https://huggingface.co/speakleash/Bielik-11B-v3.1-Instruct) @
   `d6e755d356ad418d0f0e30b8c428db267415ddb9`, bfloat16) is served by vLLM 0.34.0 on a rented GPU (NVIDIA RTX 6000
@@ -73,8 +72,9 @@ the raw `output`.
   the 32768-token context and vLLM rejected the next request (HTTP 400, "maximum context length"). The harness
   scores them as failed, and so do we, in the full N; they are listed in `context_window_exceeded` of
   `results/bielik-11b-v3.1-vllm.json`. No other request failed.
-- **Slayer cannot run the benchmark.** Slayer 1B is a base model without a chat template or tool-calling format;
-  the serving endpoint rejects requests with tools (HTTP 400), so no syntactically valid call is possible.
+- **Slayer cannot run the benchmark; the Slayer path of `run.sh` was not run.** Slayer 1B is a base model without a
+  chat template or tool-calling format. Expected outcome: the Slayer server rejects requests with tools (HTTP 400),
+  as observed in AutomationBench (PR #326), so no syntactically valid call is possible.
   `results/slayer1b-60000.json` has `score: null` with that reason.
 
 ## Reproduce
