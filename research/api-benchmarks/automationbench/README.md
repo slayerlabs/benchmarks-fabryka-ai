@@ -48,6 +48,11 @@ without the system prompt (model messages, tool calls and tool results).
   `2bcd696d5f1d8bee0c4821e3b8c9c666c075ae09` (`vllm.sh`) and the chat template's defaults, including the provider
   system prompt, with the date pinned to 2026-11-18. This is the setup of the `-vllm` rows of the IFEval benchmark
   (#313), not the API row.
+- **The LFM3-1.7B card's sampling, not Bielik's own.** Bielik runs with the sampling the LFM3-1.7B card uses for
+  its evaluations unless it lists an exception (temperature 0.6, top_p 0.95), because the protocol, fixed before the
+  runs, compares every model with the card's table under the card's settings. The Bielik model card gives no
+  evaluation settings; it sets only temperature 0.3 for its hosted inference widget. A run with Bielik's own settings
+  would be a separate row with its own label.
 - **One seed for all requests.** Every request carries the same `seed` (20261119); no task ended with an empty
   reply.
 - **Tool calls left in the text.** In 10 of 600 tasks the model's last message holds a tool call written as text
