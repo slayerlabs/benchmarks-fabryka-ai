@@ -1,0 +1,24 @@
+{
+  "benchmark": "IFBench",
+  "model": "slayer1b-60000",
+  "metric": "prompt_level_strict_acc",
+  "score": 8.33,
+  "stderr": 1.6,
+  "n": 300,
+  "date": "2026-11-19",
+  "harness": "https://github.com/allenai/IFBench @ 488918665d53f867fa908a293769ec6e71e74aec (generate_responses.py, run_eval)",
+  "data": "https://huggingface.co/datasets/allenai/IFBench_test @ ed7c12452594b7028b15807b86d3938150b663ae",
+  "settings": {
+    "temperature": 0,
+    "max_tokens_per_turn": 1280,
+    "max_turns": 1,
+    "trials": 1,
+    "chat_template": false
+  },
+  "other_metrics": {
+    "inst_level_strict_acc": 10.47,
+    "prompt_level_loose_acc": 8.33,
+    "inst_level_loose_acc": 11.05
+  },
+  "deviations": "see README.md, Deviations"
+}
