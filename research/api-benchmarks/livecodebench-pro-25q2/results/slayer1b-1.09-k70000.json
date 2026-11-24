@@ -10,5 +10,5 @@
   "date": null,
   "settings": null,
   "deviations": "see README.md, Deviations",
-  "reason": "not run (PROTOCOL.md, Models): Slayer 1B is a base model with a 4096-token context that does not follow chat instructions; on 30 Python tasks in research/slayer-1b/rozmowy-1.08 it wrote no function that passed its tests, so olympiad problems in C++ are below its floor."
+  "reason": "not run, a cost decision (PROTOCOL.md, Models): on the 30 Python tasks of research/slayer-1b/rozmowy-1.08 (PAPER.md, H5.1) Slayer 1B wrote no function that passed its tests (0 of 30), so running 167 olympiad problems in C++ was judged not worth its cost. null here records that decision; Slayer 1B can run the benchmark (its 4096-token context holds these prompts)."
 }

@@ -4,9 +4,10 @@ No module of api-benchmarks/livecodebench-pro-25q2 is imported here. From result
 recounts the headline score and its stderr, accepted/n per difficulty, the judge categories, K1, K2 (with the SE
 floor), K3 (paired, with its lead precondition), the exploratory budget table and compile-error totals, and checks
 them against results/<model-id>.json, results/hypotheses.json, results/exploratory.json and the numbers printed in
-README.md (parsed from its tables and sentences here, not by the generator). Where the raw outputs are on this
-machine (LCBPRO_RAW_ARCHIVE, out/bielik-11b-v3.1), the reasoning counts of results/raw-outputs.json are recounted
-from them too.
+README.md (parsed from its tables and sentences here, not by the generator). README's reasoning counts and labels
+are checked against the committed results/raw-outputs.json; where the raw outputs are on this machine
+(LCBPRO_RAW_ARCHIVE, out/bielik-11b-v3.1), the counts in that file are recounted from them too (skipped otherwise).
+Needs only pytest and the standard library.
 Run: python3 -m pytest research/tests/test_livecodebench_pro_25q2_results.py
 """
 import gzip
@@ -99,7 +100,7 @@ def test_scores_and_breakdowns():
         assert c[7] == f"{sum(tokens) / len(tokens):.1f}", run
 
 
-def test_k1_k2_k3_and_holm():
+def test_k1_k2_k3_each_test_alone():
     on, off, b = accepted("lfm3-1.7b"), accepted("lfm3-1.7b-nothink"), accepted("bielik-11b-v3.1")
     assert set(on) == set(off) == set(b) and len(on) == N
     h = json.loads((RESULTS / "hypotheses.json").read_text(encoding="utf-8"))
@@ -125,51 +126,25 @@ def test_k1_k2_k3_and_holm():
     assert cells(section, "| K2 |")[1:3] == [f"{100 * p_b:+.2f} ± {100 * se2:.2f}", f"{z2:+.2f}"]
     assert cells(section, "| K3 |")[1:3] == [f"{100 * d3:+.2f} ± {100 * se3:.2f}", f"{z3:+.2f}"]
     assert cells(section, "| K3 lead")[1:3] == [f"{100 * lead:+.2f} ± {100 * lead_se:.2f}", f"{lead_z:+.2f}"]
-    # Holm, m = 4: our K2, K3 and SciCode's K2, K3 (its z from the family, p recomputed here; absent = p 1),
-    # support and refute families separately
-    other = [t for t in h["holm"]["family"] if t["benchmark"] != "livecodebench-pro-25q2"]
-    assert len(other) == 2 and len(h["holm"]["family"]) == 4
-    zo = [t["z"] for t in other]
-    sup = [phi(z2), phi(z3)] + [1.0 if z is None else phi(z) for z in zo]
-    ref = [1 - phi(z2), 1 - phi(z3)] + [1.0 if z is None else 1 - phi(z) for z in zo]
-    for key, ps in (("p_support", sup), ("p_refute", ref)):
-        order = sorted(range(4), key=lambda i: ps[i])
-        adj, running = [0.0] * 4, 0.0
-        for rank, i in enumerate(order):
-            running = max(running, min(1.0, (4 - rank) * ps[i]))
-            adj[i] = running
-        assert math.isclose(k2[f"{key}_holm"], adj[0], rel_tol=1e-9) and \
-            math.isclose(k3[f"{key}_holm"], adj[1], rel_tol=1e-9), key
-        assert cells(section, "| K2 |")[4].split(" / ")[0 if key == "p_support" else 1] == f"{adj[0]:.3g}"
+    # each test on its own: one-sided p from z and the verdict from the raw z (no Holm here; PROTOCOL.md, Amendment 2)
     for k, z in ((k2, z2), (k3, z3)):
-        p_s = k["p_support_holm"]
-        p_r = k["p_refute_holm"]
-        want = ("supported" if p_s <= phi(-2) else "refuted" if p_r <= phi(-2) else "undetermined")
-        assert k["verdict_holm"].split(" ")[0] == want and cells(section, f"| {k['id']} |")[5].split(" ")[0] == want
+        assert math.isclose(k["p_support"], phi(z)) and math.isclose(k["p_refute"], 1 - phi(z))
+        want = ("supported" if z <= -2 else "refuted" if z >= 2 else "undetermined")
+        assert k["verdict"].split(" ")[0] == want and cells(section, f"| {k['id']} |")[4].split(" ")[0] == want
+        assert cells(section, f"| {k['id']} |")[3] == f"{phi(z):.3g} / {1 - phi(z):.3g}"
 
 
-SCICODE_HYPOTHESES = Path(os.environ.get(
-    "LCBPRO_GROUP_FILE", BENCH.parents[3] / ".wt-scicode" / "research" / "api-benchmarks" / "scicode" / "results" /
-    "hypotheses.json"))
-
-
-def test_holm_family_includes_scicode():
-    """The committed hypotheses.json must come from `compare.py --group`: SciCode's K2 and K3 with their z in the
-    Holm family and the group file recorded; without --group they would count as p = 1."""
+def test_no_holm_over_another_benchmarks_file():
+    """The Coding group's Holm is computed once on main from both merged hypotheses.json files (PROTOCOL.md,
+    Amendment 2): nothing here pins or reads another benchmark's file."""
     h = json.loads((RESULTS / "hypotheses.json").read_text(encoding="utf-8"))
-    g = h["group_file"]
-    assert g is not None and re.fullmatch(r"[0-9a-f]{64}", g["sha256"]) and g["file"].startswith("scicode/")
-    family = {(t["benchmark"], t["id"]): t for t in h["holm"]["family"]}
-    assert set(family) == {("livecodebench-pro-25q2", "K2"), ("livecodebench-pro-25q2", "K3"),
-                           ("scicode", "K2"), ("scicode", "K3")}
-    assert all(family[("scicode", k)]["z"] is not None for k in ("K2", "K3"))
-    assert not any("p = 1" in n for n in h["notes"])
-    assert f"(sha256 `{g['sha256']}`)" in readme()
-    if SCICODE_HYPOTHESES.is_file():  # SciCode's file on this machine: the one Holm read
-        import hashlib
-        assert hashlib.sha256(SCICODE_HYPOTHESES.read_bytes()).hexdigest() == g["sha256"]
-        theirs = {t["id"]: t for t in json.loads(SCICODE_HYPOTHESES.read_text(encoding="utf-8"))["group_tests"]}
-        assert all(family[("scicode", k)]["z"] == theirs[k]["z"] for k in ("K2", "K3"))
+    assert "holm" not in h and "group_file" not in h
+    assert not any(k.endswith("_holm") for x in h["hypotheses"] for k in x)
+    assert {(t["benchmark"], t["id"]) for t in h["group_tests"]} == {("livecodebench-pro-25q2", "K2"),
+                                                                     ("livecodebench-pro-25q2", "K3")}
+    text = readme()
+    assert "scicode/results/hypotheses.json" not in text and not re.search(r"sha256 `[0-9a-f]{64}`\)\.", text)
+    assert "Amendment 2" in (BENCH / "PROTOCOL.md").read_text(encoding="utf-8")
 
 
 def test_k3_robustness_and_reading():
@@ -261,6 +236,33 @@ def test_no_code_causes_are_the_no_code_problems():
         assert raw["runs"][run]["sha256"] == result(run)["raw_outputs"]["sha256"] and raw["runs"][run]["matches_result"]
 
 
+def test_reasoning_labels_match_the_committed_raw_outputs_json():
+    """Without the raw archive: every reasoning count README prints (Bielik's label in the results table, the
+    reasoning table, K3's reading) is the one in the committed results/raw-outputs.json, and that file agrees with
+    the result files on answers and accepted problems."""
+    raw = json.loads((RESULTS / "raw-outputs.json").read_text(encoding="utf-8"))["runs"]
+    text = readme()
+    flat = " ".join(text.split())
+    for run in RUNS:
+        rs = raw[run]["reasoning"]
+        acc = sum(1 for r in rows(run).values() if r["accepted"])
+        assert rs["answers"] == N and rs["accepted"] == acc, run
+        assert 0 <= rs["accepted_closing_think"] <= min(rs["accepted"], rs["closing_think"]) <= rs["answers"], run
+        assert 0 <= rs["think_end_then_fence"] <= rs["closing_think"], run
+        c = cells(text, f"| {run} | {result(run)['other_metrics']['output_tokens']['mean']:.1f} / ")
+        share = rs["median_share_before_last_think_end"]
+        assert c[5:8] == [f"{rs['closing_think']} of {rs['answers']}",
+                          "" if share is None else f"{100 * share:.1f}%",
+                          f"{rs['accepted_closing_think']} of {rs['accepted']}"], run
+    b = raw["bielik-11b-v3.1"]["reasoning"]
+    label = cells(text, "| Bielik 11B v3.1 (`bielik-11b-v3.1`) |")[1]
+    assert label == (f"no reasoning switch through the API; {b['closing_think']}/{b['answers']} answers close a "
+                     "`</think>` draft")
+    off = raw["lfm3-1.7b-nothink"]["reasoning"]
+    assert (f"the switch does not remove reasoning ({off['closing_think']}/{off['answers']} answers reason and close "
+            "`</think>`)") in flat
+
+
 def test_files_fit_the_repo():
     for path in RESULTS.iterdir():
         assert path.stat().st_size <= 10 * 1024 * 1024, path
@@ -312,4 +314,4 @@ def test_reasoning_counts_recounted_from_the_raw_outputs():
                 f"{want['accepted_closing_think']} of {len(acc)} |" in text), run
     bielik = raw["bielik-11b-v3.1"]["reasoning"]
     assert (f"no reasoning switch through the API; {bielik['closing_think']}/{bielik['answers']} answers close a "
-            "short `</think>` draft") in text
+            "`</think>` draft") in text

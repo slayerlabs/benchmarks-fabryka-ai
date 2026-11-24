@@ -10,7 +10,8 @@ and the K1-K3 analysis, without GPU, Docker, network or the gated data.
 - Judging uses a fake of the harness's judge: verdict categories, compile errors apart from judge errors, one retry
   of judge errors, missing tests, and the pinned-tests guard.
 - summarize.py and compare.py on hand-made records: headline and secondary score, per difficulty, categories,
-  K1, K2 (SE floor), K3 (paired, precondition), Holm over the group of four with another benchmark's file.
+  K1, K2 (SE floor), K3 (paired, precondition), each test's own one-sided p and verdict (no Holm here: PROTOCOL.md,
+  Amendment 2).
 Run (from the repo root; the prompt test imports the harness, which needs openai):
     uv run --no-project --python 3.12 --with pytest --with huggingface_hub==0.35.0 --with openai==1.108.1 \
         --with certifi python -m pytest research/tests/test_livecodebench_pro_25q2.py
@@ -137,6 +138,7 @@ def harness_prompt_literal():
 
 def test_prompt_is_the_harness_string_plus_statement():
     need_harness()
+    pytest.importorskip("openai", reason="the harness's api_interface.py imports openai (run.sh's venv has it)")
     with kept_cwd():
         prompt = lcbpro.harness_prompt()
     literal = harness_prompt_literal()
@@ -194,6 +196,7 @@ def fake_datasets(rows, calls):
 
 
 def test_load_rows_pinned_sorted_and_counted():
+    pytest.importorskip("huggingface_hub")
     ids = [f"{2084 + i // 7}{'ABCDEFG'[i % 7]}" for i in range(PINNED["n"])]
     rows = [{"problem_id": p} for p in reversed(ids)]
     calls = []
@@ -207,7 +210,7 @@ def test_load_rows_pinned_sorted_and_counted():
 
 
 def test_local_count_uses_the_template_with_the_generation_prompt():
-    import huggingface_hub
+    huggingface_hub = pytest.importorskip("huggingface_hub")
     seen, loaded = [], []
 
     class Tokenizer:
@@ -403,7 +406,7 @@ def test_judge_errors_are_retried_once_compile_errors_not():
 
 
 def test_scoring_refuses_unpinned_tests():
-    from huggingface_hub import constants
+    constants = pytest.importorskip("huggingface_hub.constants")
     with tempfile.TemporaryDirectory() as tmp, patched(constants, HF_HUB_CACHE=tmp, HF_HUB_OFFLINE=False):
         record = {"revision": lcbpro.TESTS_REVISION}
         assert "HF_HUB_OFFLINE" in exit_message(lcbpro.check_pinned_tests, record)
@@ -419,7 +422,7 @@ def test_scoring_refuses_unpinned_tests():
 
 
 def test_tests_step_downloads_at_the_pin_and_points_main_there():
-    import huggingface_hub
+    huggingface_hub = pytest.importorskip("huggingface_hub")
     calls = []
 
     class Api:
@@ -765,7 +768,7 @@ def test_not_run_is_null_with_reason():
         assert (r["score"], r["stderr"], r["n"], r["reason"]) == (None, None, 0, "base model")
 
 
-# --- compare.py: K1, K2, K3 and Holm ---------------------------------------------------------------------------
+# --- compare.py: K1, K2, K3 ----------------------------------------------------------------------------------------
 
 def write_results(res, runs):
     res.mkdir(parents=True, exist_ok=True)
@@ -836,16 +839,7 @@ def test_k3_paired_formula_and_precondition():
         compare.k3(on, {**off, "extra": 1}, bielik)
 
 
-def test_holm_over_the_group_of_four():
-    assert compare.holm([0.01, 0.04, None, 0.03], 4) == [0.04, 0.09, None, 0.09]
-    assert compare.holm([0.001], 4) == [0.004]  # m stays 4 with three tests missing
-    assert compare.holm_verdict(phi(-3.5), None) == "supported (clear)"
-    assert compare.holm_verdict(0.02, 0.98) == "supported (likely)"
-    assert compare.holm_verdict(0.98, 0.02) == "refuted (likely)"
-    assert compare.holm_verdict(0.03, 0.97) == "undetermined"
-
-
-def test_analyse_with_and_without_the_other_benchmark():
+def test_analyse_reports_each_test_alone():
     n = 167
     on = [1] * 53 + [0] * (n - 53)
     bielik = [1] * 10 + [0] * (n - 10)
@@ -853,38 +847,23 @@ def test_analyse_with_and_without_the_other_benchmark():
     with tempfile.TemporaryDirectory() as tmp:
         res = Path(tmp) / "results"
         write_results(res, {compare.ON: on, compare.OFF: off, compare.BIELIK: bielik})
-        alone = compare.analyse(res)
-        assert alone["control"]["status"] == "passed"
-        assert len(alone["holm"]["family"]) == 4 and alone["holm"]["m"] == 4
-        k2 = alone["hypotheses"][0]
+        a = compare.analyse(res)
+        assert a["control"]["status"] == "passed"
+        k2, k3 = a["hypotheses"]
         z = (10 / n - 0.1916) / math.sqrt(0.1916 * 0.8084 / n)
         assert math.isclose(k2["z"], z) and math.isclose(k2["p_support"], phi(z))
-        # alone: K2 and K3 with the other two at p = 1; Holm multiplier 4 for the smallest p
-        ps = sorted(x for x in (k2["p_support"], alone["hypotheses"][1]["p_support"]) if x is not None)
-        assert math.isclose(min(h["p_support_holm"] for h in alone["hypotheses"]), min(1.0, 4 * ps[0]))
-        assert [t["id"] for t in alone["group_tests"]] == ["K2", "K3"]
-        assert all(t["benchmark"] == "livecodebench-pro-25q2" for t in alone["group_tests"])
-        other = Path(tmp) / "scicode.json"
-        other.write_text(json.dumps({"group_tests": [
-            {"benchmark": "scicode", "id": "K2", "z": -5.0, "p_support": phi(-5.0), "p_refute": 1 - phi(-5.0)},
-            {"benchmark": "scicode", "id": "K3", "z": None, "p_support": None, "p_refute": None}]}))
-        grouped = compare.analyse(res, other)
-        family = {(t["benchmark"], t["id"]): t for t in grouped["holm"]["family"]}
-        # Holm over the four p_support, computed here step by step
-        tests = [family[k]["p_support"] for k in family]
-        filled = sorted((1.0 if p is None else p, k) for p, k in zip(tests, family))
-        expected, running = {}, 0.0
-        for rank, (p, k) in enumerate(filled):
-            running = max(running, min(1.0, (4 - rank) * p))
-            expected[k] = running
-        for k, t in family.items():
-            if t["p_support"] is not None:
-                assert math.isclose(t["p_support_holm"], expected[k])
-        assert family[("scicode", "K3")]["p_support_holm"] is None and len(family) == 4
-        assert grouped["hypotheses"][0]["read"] is True
+        assert math.isclose(k2["p_refute"], 1 - phi(z)) and k2["verdict"] == "supported (clear)"
+        assert k3["verdict"] == f"{compare.raw_outcome(k3['z'])} ({compare.strength(k3['z'])})"
+        assert all(h["read"] for h in a["hypotheses"])
+        # no Holm and no other benchmark's file: the group correction is computed once on main (Amendment 2)
+        assert not any(k.endswith("_holm") for h in a["hypotheses"] for k in h)
+        assert "holm" not in a and "group_file" not in a and a["group_holm"]["status"] == "not applied here"
+        assert [t["id"] for t in a["group_tests"]] == ["K2", "K3"]
+        assert all(t["benchmark"] == "livecodebench-pro-25q2" for t in a["group_tests"])
+        assert "Holm over the Coding group (m = 4" in compare.report(a)
         # a failed control marks every hypothesis as not read
         write_results(res, {compare.ON: [1] * 20 + [0] * (n - 20)})
-        failed = compare.analyse(res, other)
+        failed = compare.analyse(res)
         assert failed["control"]["status"] == "failed" and not any(h["read"] for h in failed["hypotheses"])
 
 

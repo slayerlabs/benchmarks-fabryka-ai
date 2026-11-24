@@ -128,3 +128,14 @@ threshold or control is altered, and no official verdict is re-judged.
    another job (rejudge.py); exact 95% intervals where no problem of a group was accepted (readme.py).
 4. **Provenance added to the results:** the test-zip manifest each run was judged on (`tests.json`: revision and
    sha256 of every zip), written into the result files by re-running `summarize.py` on the same `graded.jsonl`.
+
+## Amendment 2 (2026-11-24, after review)
+
+Written after review of the results; no hypothesis, metric, threshold or control changes, and nothing is re-run.
+
+1. **Where Holm over the Coding group is computed.** The Holm correction of "Hypotheses" (m = 4: K2 and K3 here
+   and in SciCode #297) is not computed in this benchmark. A copy here would have to pin the other benchmark's
+   `hypotheses.json` while both are still on branches. It is computed once, after both benchmarks are merged, from
+   their two `hypotheses.json` files on main (for example `research/api-benchmarks/coding-group/holm.json`), with
+   the thresholds stated in "Hypotheses". Until then this benchmark reports each test's own z, one-sided p and
+   verdict; Holm can only raise a p, so a verdict can weaken there but not strengthen.

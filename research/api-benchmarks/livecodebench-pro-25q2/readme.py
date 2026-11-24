@@ -4,10 +4,12 @@ Usage: python3 readme.py [results-dir] [--check]   (default: results/ next to th
 
 Blocks, each between `<!-- readme.py: NAME ... -->` and `<!-- readme.py: end NAME -->`:
 - `results`: one row per run from results/<model-id>.json (score, stderr, n, mean output tokens, date) with each
-  row's thinking mode, serving and output limit; the secondary score; accepted/n per difficulty; the judge
-  categories; output tokens, unfinished answers, length stops and answers containing `<think>`; baselines; the
-  judge machine; where the raw outputs are (results/raw-outputs.json) and why answers had no code;
-- `hypotheses`: compare.py's report of results/hypotheses.json, verbatim, and what K2 and K3 compare;
+  row's thinking mode, serving and output limit, and the Slayer 1B row's `null` with its reason; the
+  secondary score; accepted/n per difficulty; the judge categories; output tokens, unfinished answers, length
+  stops and answers containing `<think>`; baselines; the judge machine; where the raw outputs are
+  (results/raw-outputs.json) and why answers had no code;
+- `hypotheses`: compare.py's report of results/hypotheses.json, verbatim, what K2 and K3 compare and where the
+  Coding group's Holm is computed;
 - `exploratory`: results/exploratory.json (explore.py), labelled as added after the results were seen.
 Every file read must have the sha256 its writer recorded in results/manifest.json. `--check` writes nothing and
 exits 1 when README.md differs from what this would write; the tests make the same comparison byte for byte.
@@ -29,7 +31,7 @@ RUNS = {
     "lfm3-1.7b-nothink": ("LFM3-1.7B (`lfm3-1.7b-nothink`)", "off requested (`enable_thinking: false`)",
                           "the same vLLM server"),
     "bielik-11b-v3.1": ("Bielik 11B v3.1 (`bielik-11b-v3.1`)", "no reasoning switch through the API; "
-                        "{closing_think}/{answers} answers close a short `</think>` draft",
+                        "{closing_think}/{answers} answers close a `</think>` draft",
                         "Fabryka AI API, with the API's provider system prompt"),
 }
 NOT_RUN = ("Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`)", "slayer1b-1.09-k70000")
@@ -148,20 +150,19 @@ def hypotheses_block(results: Path) -> str:
     return "\n".join([
         compare.report(h), "",
         "Reading:", "",
-        f"- **K2** ({k2['verdict_holm']}) compares Bielik through the API with a number on the card, not with a model "
+        f"- **K2** ({k2['verdict']}) compares Bielik through the API with a number on the card, not with a model "
         f"run here: LFM2.5-2.6B's {100 * compare.CARD_WEAKEST:.2f}, with the SE floor of PROTOCOL.md.",
-        f"- **K3** {k3['verdict_holm'].split(' ')[0]} under the pre-registered switch (`enable_thinking: false`): "
+        f"- **K3** {k3['verdict'].split(' ')[0]} under the pre-registered switch (`enable_thinking: false`): "
         f"with the switch off LFM3 keeps most of its lead (D = {k3['value']:+.2f} ± {k3['se']:.2f}, "
         f"z = {k3['z']:+.2f}); the switch does not remove reasoning ({rs['closing_think']}/{rs['answers']} answers "
         "reason and close `</think>`), so how much of the lead thinking itself buys is undetermined. With the switch "
         f"off the median answer has {100 * rs['median_share_before_last_think_end']:.0f}% of its characters before "
         f"its last `</think>`, {rs['accepted_closing_think']} of its {rs['accepted']} accepted answers close one, and "
         f"it writes {tok['mean']:.0f} output tokens per answer on average (PROTOCOL.md, Amendment 1).",
-        ("- **Holm over the Coding group** needs SciCode's K2 and K3 (`python3 compare.py results --group "
-         "<SciCode hypotheses.json>`); until then they count with p = 1, which can only make the adjusted p larger."
-         if not h.get("group_file") else
-         "- **Holm over the Coding group** (m = 4) uses SciCode's K2 and K3 from its "
-         f"`{h['group_file']['file']}` (sha256 `{h['group_file']['sha256']}`)."),
+        "- **Holm over the Coding group** (PROTOCOL.md, Hypotheses) is not applied in this file, so each verdict above "
+        "is the test's own. It needs SciCode's K2 and K3 as merged on main and is computed once, after both "
+        "benchmarks are merged (PROTOCOL.md, Amendment 2). Holm can only raise a p, so a verdict there can weaken, "
+        "not strengthen.",
     ])
 
 

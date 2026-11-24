@@ -22,9 +22,7 @@
       "strength_raw": "clear",
       "p_support": 5.938895427580987e-09,
       "p_refute": 0.9999999940611046,
-      "p_support_holm": 1.781668628274296e-08,
-      "p_refute_holm": 1.0,
-      "verdict_holm": "supported (clear)",
+      "verdict": "supported (clear)",
       "read": true
     },
     {
@@ -46,9 +44,7 @@
       "strength_raw": "clear",
       "p_support": 0.9999996142681458,
       "p_refute": 3.857318542355159e-07,
-      "p_support_holm": 1.0,
-      "p_refute_holm": 1.5429274169420637e-06,
-      "verdict_holm": "refuted (clear)",
+      "verdict": "refuted (clear)",
       "read": true
     }
   ],
@@ -70,55 +66,10 @@
       "outcome_raw": "refuted"
     }
   ],
-  "holm": {
+  "group_holm": {
     "m": 4,
-    "family": [
-      {
-        "benchmark": "livecodebench-pro-25q2",
-        "id": "K2",
-        "z": -5.701471051997423,
-        "p_support": 5.938895427580987e-09,
-        "p_refute": 0.9999999940611046,
-        "outcome_raw": "supported",
-        "p_support_holm": 1.781668628274296e-08,
-        "p_refute_holm": 1.0,
-        "verdict_holm": "supported (clear)"
-      },
-      {
-        "benchmark": "livecodebench-pro-25q2",
-        "id": "K3",
-        "z": 4.942451322714204,
-        "p_support": 0.9999996142681458,
-        "p_refute": 3.857318542355159e-07,
-        "outcome_raw": "refuted",
-        "p_support_holm": 1.0,
-        "p_refute_holm": 1.5429274169420637e-06,
-        "verdict_holm": "refuted (clear)"
-      },
-      {
-        "benchmark": "scicode",
-        "id": "K2",
-        "z": -6.378377306341475,
-        "p_support": 8.948707132506849e-11,
-        "p_refute": 0.9999999999105129,
-        "outcome_raw": "supported",
-        "z_e1": -6.059471197268764,
-        "p_support_holm": 3.5794828530027396e-10,
-        "p_refute_holm": 1.0,
-        "verdict_holm": "supported (clear)"
-      },
-      {
-        "benchmark": "scicode",
-        "id": "K3",
-        "z": 3.515238318123504,
-        "p_support": 0.9997803202400652,
-        "p_refute": 0.00021967975993475441,
-        "outcome_raw": "refuted",
-        "p_support_holm": 1.0,
-        "p_refute_holm": 0.0006590392798042632,
-        "verdict_holm": "refuted (clear)"
-      }
-    ]
+    "status": "not applied here",
+    "where": "research/api-benchmarks/coding-group/holm.json, once, from this benchmark's and SciCode's hypotheses.json as merged on main (PROTOCOL.md, Amendment 2)"
   },
   "notes": [],
   "k3_robustness": {
@@ -169,9 +120,5 @@
         }
       }
     }
-  },
-  "group_file": {
-    "file": "scicode/results/hypotheses.json",
-    "sha256": "21a710a707ef062efea92dc111e46362225b314d4efa237bd6b5f3a6a17b5532"
   }
 }

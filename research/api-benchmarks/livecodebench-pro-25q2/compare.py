@@ -1,6 +1,6 @@
-"""PROTOCOL.md control K1 and hypotheses K2, K3, with Holm over the Coding group's four tests.
+"""PROTOCOL.md control K1 and hypotheses K2, K3, each test on its own; the Coding group's Holm is computed elsewhere.
 
-Usage: python3 compare.py [results-dir] [--group <other benchmark's hypotheses.json>]
+Usage: python3 compare.py [results-dir]
 Reads <results-dir>/<model-id>.jsonl.gz of lfm3-1.7b, lfm3-1.7b-nothink and bielik-11b-v3.1, prints a Markdown
 summary and writes <results-dir>/hypotheses.json. Every file read must have the sha256 summarize.py recorded in
 <results-dir>/manifest.json.
@@ -15,13 +15,12 @@ error counts as 0), over all n = 167 problems; the three runs must cover the sam
   otherwise "precondition not met" and no p.
 - Raw outcome: supported when z <= -2, refuted when z >= 2, otherwise undetermined; raw strength |z| >= 3 clear,
   2-3 likely, < 2 noise.
-- One-sided p from z: p_support = Phi(z) (toward supported), p_refute = 1 - Phi(z). Holm with m = 4 over the
-  group (K2 and K3 here and in SciCode, read from `--group`), separately for the p_support and the p_refute family;
-  a test without a p (not run, precondition not met, or the other benchmark's file absent) counts in m with p = 1.
-  After Holm: supported (clear when Holm p_support <= Phi(-3), likely when <= Phi(-2)), refuted the same way with
-  p_refute, else undetermined.
-`group_tests` in hypotheses.json carries this benchmark's K2 and K3 (z, p_support, p_refute, raw outcome) for the
-other benchmark's script.
+- One-sided p from z: p_support = Phi(z) (toward supported), p_refute = 1 - Phi(z). The verdict here is the test's
+  own (raw outcome and strength). PROTOCOL.md's Holm over the four tests of the Coding group (K2 and K3 here and in
+  SciCode) is not applied here: it is computed once, from both benchmarks' hypotheses.json as merged on main
+  (research/api-benchmarks/coding-group/holm.json; PROTOCOL.md, Amendment 2).
+`group_tests` in hypotheses.json carries this benchmark's K2 and K3 (z, p_support, p_refute, raw outcome) for that
+computation.
 """
 
 import gzip
@@ -41,13 +40,12 @@ ON, OFF, BIELIK = "lfm3-1.7b", "lfm3-1.7b-nothink", "bielik-11b-v3.1"
 CARD_LFM3 = 0.3174  # PROTOCOL.md, Sources: LFM3-1.7B card, 31.74
 CARD_WEAKEST = 0.1916  # LFM2.5-2.6B, the weakest model on the card, 19.16
 GROUP_SIZE = 4  # K2 and K3 here and in SciCode (#297)
+GROUP_HOLM = ("research/api-benchmarks/coding-group/holm.json, once, from this benchmark's and SciCode's "
+              "hypotheses.json as merged on main (PROTOCOL.md, Amendment 2)")
 
 
 def phi(z: float) -> float:
     return 0.5 * math.erfc(-z / math.sqrt(2))
-
-
-P_CLEAR, P_LIKELY = phi(-3), phi(-2)
 
 
 def load(results: Path, model: str) -> dict[str, int] | None:
@@ -171,26 +169,6 @@ def k3_robustness(on: dict[str, int], off: dict[str, int], bielik: dict[str, int
             "per_difficulty": levels}
 
 
-def holm(p: list[float | None], m: int) -> list[float | None]:
-    """Holm step-down adjusted p over a family of m; a missing p counts as p = 1 (ranked last)."""
-    filled = [1.0 if x is None else x for x in p] + [1.0] * (m - len(p))
-    if len(filled) != m:
-        raise ValueError(f"{len(p)} tests in a family of {m}")
-    order = sorted(range(m), key=lambda i: filled[i])
-    adjusted, running = [0.0] * m, 0.0
-    for rank, i in enumerate(order):
-        running = max(running, min(1.0, (m - rank) * filled[i]))
-        adjusted[i] = running
-    return [None if x is None else adjusted[i] for i, x in enumerate(p)]
-
-
-def holm_verdict(p_support: float | None, p_refute: float | None) -> str:
-    for p, word in ((p_support, "supported"), (p_refute, "refuted")):
-        if p is not None and p <= P_LIKELY:
-            return f"{word} ({'clear' if p <= P_CLEAR else 'likely'})"
-    return "undetermined"
-
-
 def group_test(h: dict[str, Any]) -> dict[str, Any]:
     p_support, p_refute = ps(h["z"])
     outcome = h["status"] if h["status"] != "ok" else raw_outcome(h["z"])
@@ -198,51 +176,26 @@ def group_test(h: dict[str, Any]) -> dict[str, Any]:
             "outcome_raw": outcome}
 
 
-def other_tests(group_file: Path | None) -> tuple[list[dict[str, Any]], str | None]:
-    """The other benchmark's K2 and K3 from its hypotheses.json (`group_tests`), or two placeholders with p = 1."""
-    if group_file is None or not group_file.is_file():
-        note = (f"{group_file} not found; " if group_file else "") + \
-            "the other benchmark's two tests count in Holm's m = 4 with p = 1"
-        return [{"benchmark": "scicode", "id": i, "z": None, "p_support": None, "p_refute": None,
-                 "outcome_raw": "not available"} for i in ("K2", "K3")], note
-    tests = [t for t in json.loads(group_file.read_text(encoding="utf-8"))["group_tests"]
-             if t["benchmark"] != BENCHMARK_ID]
-    if len(tests) != GROUP_SIZE - 2:
-        sys.exit(f"compare.py: {group_file} has {len(tests)} group tests of another benchmark, expected "
-                 f"{GROUP_SIZE - 2}")
-    return tests, None
-
-
-def analyse(results: Path, group_file: Path | None = None) -> dict[str, Any]:
+def analyse(results: Path) -> dict[str, Any]:
     on, off, bielik = load(results, ON), load(results, OFF), load(results, BIELIK)
     c = control(on)
     ours = [k2(bielik), k3(on, off, bielik)]
     mine = [group_test(h) for h in ours]
-    others, note = other_tests(group_file)
-    family = mine + others
-    adj_support = holm([t["p_support"] for t in family], GROUP_SIZE)
-    adj_refute = holm([t["p_refute"] for t in family], GROUP_SIZE)
-    holm_rows = [{**t, "p_support_holm": s, "p_refute_holm": r, "verdict_holm": holm_verdict(s, r)}
-                 for t, s, r in zip(family, adj_support, adj_refute)]
     readable = c["status"] == "passed"
     hypotheses = []
-    for h, row in zip(ours, holm_rows):
-        verdict = row["verdict_holm"] if h["status"] == "ok" else h["status"]
-        hypotheses.append({**h, "outcome_raw": row["outcome_raw"], "strength_raw": strength(h["z"]),
-                           "p_support": row["p_support"], "p_refute": row["p_refute"],
-                           "p_support_holm": row["p_support_holm"], "p_refute_holm": row["p_refute_holm"],
-                           "verdict_holm": verdict,
+    for h, t in zip(ours, mine):
+        verdict = f"{t['outcome_raw']} ({strength(h['z'])})" if h["status"] == "ok" else h["status"]
+        hypotheses.append({**h, "outcome_raw": t["outcome_raw"], "strength_raw": strength(h["z"]),
+                           "p_support": t["p_support"], "p_refute": t["p_refute"], "verdict": verdict,
                            "read": readable and h["status"] == "ok"})
-    notes = [note] if note else []
+    notes = []
     if not readable:
         notes.append(f"control K1 {c['status']}: no hypothesis is read until it passes (PROTOCOL.md, Control)")
     robustness = (k3_robustness(on, off, bielik, difficulties(results, ON))
                   if on is not None and off is not None and bielik is not None else None)
     return {"benchmark": BENCHMARK_ID, "protocol": "PROTOCOL.md", "control": c, "hypotheses": hypotheses,
-            "group_tests": mine, "holm": {"m": GROUP_SIZE, "family": holm_rows}, "notes": notes,
-            "k3_robustness": robustness,
-            "group_file": None if note else {"file": f"{group_file.parent.parent.name}/results/{group_file.name}",
-                                             "sha256": provenance.sha256_file(group_file)}}
+            "group_tests": mine, "group_holm": {"m": GROUP_SIZE, "status": "not applied here", "where": GROUP_HOLM},
+            "notes": notes, "k3_robustness": robustness}
 
 
 def fmt(x: float | None, spec: str) -> str:
@@ -253,21 +206,20 @@ def report(a: dict[str, Any]) -> str:
     c = a["control"]
     lines = [f"K1 control: {c['status']}" + ("" if "z" not in c or c["z"] is None else
              f": LFM3-1.7B {c['score']:.2f} ± {c['stderr']:.2f} vs card {c['card']:.2f}, z = {c['z']:+.2f}"), "",
-             "| test | value ± SE (pp) | z | raw | Holm p (support / refute) | after Holm (m = 4) | read |",
-             "|---|---|---|---|---|---|---|"]
+             "| test | value ± SE (pp) | z | one-sided p (support / refute) | verdict of this test alone | read |",
+             "|---|---|---|---|---|---|"]
     for h in a["hypotheses"]:
         value = "" if h.get("value") is None else f"{h['value']:+.2f} ± {h['se']:.2f}"
-        lines.append(f"| {h['id']} | {value} | {fmt(h['z'], '+.2f')} | {h['outcome_raw']} ({h['strength_raw']}) | "
-                     f"{fmt(h['p_support_holm'], '.3g')} / {fmt(h['p_refute_holm'], '.3g')} | {h['verdict_holm']} | "
+        lines.append(f"| {h['id']} | {value} | {fmt(h['z'], '+.2f')} | "
+                     f"{fmt(h['p_support'], '.3g')} / {fmt(h['p_refute'], '.3g')} | {h['verdict']} | "
                      f"{'yes' if h['read'] else 'no'} |")
         if h["id"] == "K3" and "lead" in h:
             lead = h["lead"]
             lines.append(f"| K3 lead on − B (precondition z ≥ 3) | {lead['value']:+.2f} ± {lead['se']:.2f} | "
-                         f"{fmt(lead['z'], '+.2f')} | | | | |")
-    lines += ["", "Holm family:", ""]
-    lines += [f"- {t['benchmark']} {t['id']}: " + (f"z {t['z']:+.2f}, {t['verdict_holm']}" if t["z"] is not None
-                                                   else f"{t['outcome_raw']} (p = 1 in Holm)")
-              for t in a["holm"]["family"]]
+                         f"{fmt(lead['z'], '+.2f')} | | | |")
+    g = a["group_holm"]
+    lines += ["", f"Holm over the Coding group (m = {g['m']}: K2 and K3 here and in SciCode): {g['status']}; "
+                  f"computed in {g['where']}."]
     lines += [f"note: {n}" for n in a["notes"]]
     r = a.get("k3_robustness")
     if r:
@@ -286,13 +238,8 @@ def report(a: dict[str, Any]) -> str:
 
 
 def main(argv: list[str]) -> None:
-    group = None
-    if "--group" in argv:
-        i = argv.index("--group")
-        group = Path(argv[i + 1])
-        del argv[i:i + 2]
     results = Path(argv[0]) if argv else HERE / "results"
-    a = analyse(results, group)
+    a = analyse(results)
     print(report(a))
     (results / "hypotheses.json").write_text(json.dumps(a, indent=2) + "\n", encoding="utf-8")
     provenance.record(results, ["hypotheses.json"], "compare.py")
