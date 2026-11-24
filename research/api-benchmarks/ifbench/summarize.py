@@ -65,7 +65,6 @@ def main(data, eval_dir, prefix, target, settings):
                 "instruction_id_list": s["instruction_id_list"],
                 "strict": s["follow_instruction_list"],
                 "loose": lo["follow_instruction_list"],
-                "prompt": d["prompt"],
                 "output": s["response"],
             }, ensure_ascii=False) + "\n")
     print(json.dumps(result, indent=2))
