@@ -7,24 +7,24 @@
   },
   "provenance": {
     "step": "extraction.py",
-    "at": "2026-11-22T17:20:54+00:00",
-    "code_commit": "6f0009fe6d3cf48bd14e1604828a0e2648802097",
+    "at": "2026-11-24T14:19:21+00:00",
+    "code_commit": "9cebb05c939891539283a4ed7c30b13ba777a0be",
     "dirty": false,
     "runner_sha256": {
-      "run.sh": "835eca201cc1443e3f7ceb3174f5dbc17268440a10bdabbbecb4e24d54db1423",
+      "run.sh": "d6b5402deeee2aac212661a2a0918bdfc0fe205a6fed51d4812a17f0f461affe",
       "lcb.py": "adc16bf1c78c8a967ae5c56eb7700f6bba25f8ae0e047956508239e74589ae49",
       "summarize.py": "eb593b7efef15f45e799aa39bc64ed03b4dc659d88a112dd18707ff8904fa132",
       "extraction.py": "324d942e733ed9912b63f6c833164015c836acde30ff7d9320f94847ecfce133",
-      "compare.py": "c22ee31c18a647e90203740414d70ceddeb56d46aadfc5ee493f010da2b63c07",
+      "compare.py": "515effa640ad06f5334302c035385be7de4af403b9db4e3937b1d5b3f539b52d",
       "ablation.py": "661cf488e175502507362bdf4d12a41a3d333435bf6e413a88cc1f7eccc79993",
-      "readme.py": "de521d46beb7cde12237d202640094136c40c26327e26f1b608c541f193cc5d7",
+      "readme.py": "12c3bd9bbf5feb657d10c82a3bb5808630355f5180f3c221890276e5497ea4ec",
       "provenance.py": "708cb108ff6bff97ecbed3553e24cd7eef56e70d2dacb6363a48687739bcbbec"
     },
-    "gpu": "NVIDIA GeForce RTX 3070",
-    "platform": "Linux-5.15.0-1067-kvm-x86_64-with-glibc2.35",
-    "cpu": "AMD EPYC 7302P 16-Core Processor",
-    "cpu_count": 30,
-    "python": "3.12.16"
+    "gpu": null,
+    "platform": "macOS-26.6-arm64-arm-64bit",
+    "cpu": "Apple M5 Pro",
+    "cpu_count": 18,
+    "python": "3.12.2"
   },
   "runs": {
     "lfm3-1.7b": {
@@ -34,7 +34,7 @@
       },
       "result": {
         "file": "results/lfm3-1.7b.jsonl.gz",
-        "sha256": "c722dac8871897739124ab70446bc24e91783669226775007aaa0da6699ae24a"
+        "sha256": "44434c8369103cf2695a5810346670f1b95848992b5868bb3a76b73dd7ae0ace"
       },
       "answered": 1055,
       "fence_lines": {
@@ -93,7 +93,7 @@
       },
       "result": {
         "file": "results/lfm3-1.7b-cardsampling.jsonl.gz",
-        "sha256": "2dede261cb85a771ae9ba8fdfdfed88ab16e7b65cb032a0a261d207a4fe2f521"
+        "sha256": "7088f47648ced581be4116d3e524b8b289dc0e4b428cd277942d9c2c32cd6ef2"
       },
       "answered": 1055,
       "fence_lines": {
@@ -137,7 +137,7 @@
       },
       "result": {
         "file": "results/bielik-11b-v3.1.jsonl.gz",
-        "sha256": "82d824c499c6b601f5079690c6a1704233147c1ca71d4034b797032af8b917a0"
+        "sha256": "cb9ddcfe3d8f7a341eae7f32b5d29067a52e50aab0821bd20180858cfa7a96f9"
       },
       "answered": 1055,
       "fence_lines": {
@@ -190,7 +190,7 @@
           "official_pass": false,
           "code": "\nclass Solution:\n    def sortVowels(self, s: str) -> str:\n        vowels = {'a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U'}\n        consonants = set(s) - vowels\n        sorted_vowels = sorted([c for c in s if c in vowels], key=lambda x: ord(x))\n        result = []\n        vowel_index = 0\n        for char in s:\n            if char in consonants:\n                result.append(char)\n            else:\n                result.append(sorted_vowels[vowel_index])\n                vowel_index += 1\n        return ''.join(result)\n\n# Example test cases\n# print(Solution().sortVowels(\"lEetcOde\"))  # Output: \"lEOtcede\"\n# print(Solution().sortVowels(\"lYmpH\"))     # Output: \"lYmpH\"",
           "eval_metadata": {
-            "execution time": 0.06126856803894043
+            "execution time": 0.03380465507507324
           }
         },
         "3150": {
@@ -222,7 +222,7 @@
           "official_pass": false,
           "code": "\ndef beautifulSubstrings(s: str, k: int) -> int:\n    vowels = {'a', 'e', 'i', 'o', 'u'}\n    count = 0\n    \n    # Precompute prefix sums of vowels and consonants\n    vowel_sum = [0] * (len(s) + 1)\n    consonant_sum = [0] * (len(s) + 1)\n    for i in range(len(s)):\n        vowel_sum[i+1] = vowel_sum[i] + (1 if s[i] in vowels else 0)\n        consonant_sum[i+1] = consonant_sum[i] + (1 if s[i] not in vowels else 0)\n    \n    # Iterate over all possible substrings\n    for i in range(len(s)):\n        for j in range(i + 1, len(s) + 1):\n            vowels_count = vowel_sum[j] - vowel_sum[i]\n            consonants_count = consonant_sum[j] - consonant_sum[i]\n            \n            if vowels_count == consonants_count and (vowels_count * consonants_count) % k == 0:\n                count += 1\n    \n    return count\n\n# Solution class structure as per the problem's starter code\nclass Solution:\n    def beautifulSubstrings(self, s: str, k: int) -> int:\n        return beautifulSubstrings(s, k)",
           "eval_metadata": {
-            "execution time": 0.22377634048461914
+            "execution time": 0.07717537879943848
           }
         },
         "3223": {
@@ -266,7 +266,7 @@
           "official_pass": false,
           "code": "\nclass Solution:\n    def resultArray(self, nums: List[int]) -> List[int]:\n        arr1 = []\n        arr2 = []\n        \n        # Perform the first two operations\n        arr1.append(nums[0])\n        arr2.append(nums[1])\n        \n        # Perform operations for the remaining elements\n        for i in range(2, len(nums)):\n            if arr1[-1] > arr2[-1]:\n                arr1.append(nums[i])\n            else:\n                arr2.append(nums[i])\n        \n        # Concatenate the two arrays to form the result\n        return arr1 + arr2\n\n# Example usage:\n# nums = [2, 1, 3]\n# print(Solution().resultArray(nums))  # Output: [2, 3, 1]\n# nums = [5, 4, 3, 8]\n# print(Solution().resultArray(nums))  # Output: [5, 3, 4, 8]",
           "eval_metadata": {
-            "execution time": 4.076957702636719e-05
+            "execution time": 2.2411346435546875e-05
           }
         },
         "3349": {
@@ -274,7 +274,7 @@
           "official_pass": false,
           "code": "\nclass Solution:\n    def maximumLengthSubstring(self, s: str) -> int:\n        from collections import defaultdict\n        char_count = defaultdict(int)\n        left = 0\n        max_length = 0\n        \n        for right in range(len(s)):\n            char_count[s[right]] += 1\n            \n            while char_count[s[right]] > 2:\n                char_count[s[left]] -= 1\n                left += 1\n            \n            max_length = max(max_length, right - left + 1)\n        \n        return max_length",
           "eval_metadata": {
-            "execution time": 0.0013489723205566406
+            "execution time": 0.0004138946533203125
           }
         },
         "3356": {
@@ -402,8 +402,8 @@
             "error": "TimeoutException()",
             "error_code": -3,
             "error_message": "Time Limit Exceeded",
-            "inputs": "[['aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...(truncated) ...aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa']",
-            "expected": "100"
+            "inputs": "[['ddbecaabacdbeebedeecdbdadeebdeacbbebbeee', 'e', 'e', 'e', 'd', 'e', 'aeaaedcedabadbdcaecbdddcdbabaeacaedbeccdadceaceeedeeeaeccdabcedcddbddaaeeabcec...(truncated) ...eaaacdddadcbecedbbdbdeabbdbbeddaabaeeceeeecccbebcccdcdecacceedcaddaaccdcecceecdbebdaeaeeadccabdaceaecaeeddeeaacdcabacdebbaadaebacdcadebeeeedcccddeed']",
+            "expected": "2038"
           }
         },
         "3567": {
@@ -411,7 +411,7 @@
           "official_pass": false,
           "code": "\nclass Solution:\n    def convertDateToBinary(self, date: str) -> str:\n        year, month, day = map(int, date.split('-'))\n        \n        def int_to_binary(n):\n            return bin(n)[2:]  # Convert integer to binary without '0b' prefix\n        \n        return f\"{int_to_binary(year)}-{int_to_binary(month)}-{int_to_binary(day)}\"\n\n# Example usage:\n# print(Solution().convertDateToBinary(\"2080-02-29\"))  # Output: \"100000100000-10-11101\"\n# print(Solution().convertDateToBinary(\"1900-01-01\"))  # Output: \"11101101100-1-1\"",
           "eval_metadata": {
-            "execution time": 0.0001571178436279297
+            "execution time": 3.2901763916015625e-05
           }
         },
         "3613": {
@@ -431,7 +431,7 @@
           "official_pass": false,
           "code": "\nclass Solution:\n    def smallestNumber(self, n: int, t: int) -> int:\n        current = n\n        while True:\n            product = 1\n            for digit in str(current):\n                product *= int(digit)\n            if product % t == 0:\n                return current\n            current += 1\n\n# Test case 1: n = 10, t = 2\n# Expected output: 10\n\n# Test case 2: n = 15, t = 3\n# Expected output: 16",
           "eval_metadata": {
-            "execution time": 9.560585021972656e-05
+            "execution time": 2.765655517578125e-05
           }
         },
         "3634": {
@@ -505,7 +505,7 @@
           "official_pass": false,
           "code": "\nclass Solution:\n    def hasSpecialSubstring(self, s: str, k: int) -> bool:\n        n = len(s)\n        if k == 0 or k > n:\n            return False\n        \n        for i in range(n - k + 1):\n            current_char = s[i]\n            if s[i:i+k] == current_char * k:\n                # Check characters before and after the substring\n                before = s[i-1] if i > 0 else None\n                after = s[i+k] if i + k < n else None\n                \n                if (before is None or before != current_char) and (after is None or after != current_char):\n                    return True\n        \n        return False\n",
           "eval_metadata": {
-            "execution time": 5.984306335449219e-05
+            "execution time": 2.5987625122070312e-05
           }
         },
         "3721": {
@@ -594,7 +594,7 @@
           "official_pass": false,
           "code": "\ndef is_palindrome(s):\n    return s == s[::-1]\n\ndef solve():\n    n = int(input())\n    strings = [input() for _ in range(n)]\n    \n    for i in range(n):\n        for j in range(n):\n            if i != j:\n                concat = strings[i] + strings[j]\n                if is_palindrome(concat):\n                    print(\"Yes\")\n                    return\n    \n    print(\"No\")\n\nsolve()",
           "eval_metadata": {
-            "execution time": 0.05393362045288086
+            "execution time": 0.028171539306640625
           }
         },
         "abc324_b": {
@@ -614,7 +614,7 @@
           "official_pass": false,
           "code": "\n# Read the input string and separate each character with a space\nS = input()\n\n# Split the string into individual characters\ncharacters = list(S)\n\n# Join the characters with spaces and print the result\nprint(' '.join(characters))",
           "eval_metadata": {
-            "execution time": 0.015487909317016602
+            "execution time": 0.005625486373901367
           }
         },
         "abc330_d": {
@@ -634,7 +634,7 @@
           "official_pass": false,
           "code": "\n# Read the integer N from standard input\nN = int(input())\n\n# Concatenate N copies of the digit N to form the result string\nresult = str(N) * N\n\n# Print the resulting string to standard output\nprint(result)",
           "eval_metadata": {
-            "execution time": 0.02058863639831543
+            "execution time": 0.007939815521240234
           }
         },
         "abc350_a": {
@@ -666,7 +666,7 @@
           "official_pass": false,
           "code": "\n# Read the input string S from standard input\nS = input().strip()\n\n# Remove all occurrences of '.' from the string S\nresult = S.replace('.', '')\n\n# Print the resulting string to standard output\nprint(result)",
           "eval_metadata": {
-            "execution time": 0.026122570037841797
+            "execution time": 0.010828733444213867
           }
         },
         "abc374_a": {
@@ -674,7 +674,7 @@
           "official_pass": false,
           "code": "\n# Read the input string from standard input\nS = input().strip()\n\n# Check if the string ends with 'san'\nif S.endswith('san'):\n    print('Yes')\nelse:\n    print('No')",
           "eval_metadata": {
-            "execution time": 0.028835773468017578
+            "execution time": 0.013677358627319336
           }
         },
         "abc397_c": {
@@ -682,7 +682,7 @@
           "official_pass": false,
           "code": "\ndef count_distinct(arr):\n    return len(set(arr))\n\ndef solve():\n    import sys\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    A = list(map(int, input[1:]))\n    \n    left_distinct = [0] * n\n    left_distinct[0] = 1\n    current_set = {A[0]}\n    \n    for i in range(1, n):\n        current_set.add(A[i])\n        left_distinct[i] = len(current_set)\n    \n    right_distinct = [0] * n\n    right_distinct[-1] = 1\n    current_set = {A[-1]}\n    \n    for i in range(n - 2, -1, -1):\n        current_set.add(A[i])\n        right_distinct[i] = len(current_set)\n    \n    max_sum = 0\n    for i in range(n - 1):\n        sum_distinct = left_distinct[i] + right_distinct[i + 1]\n        max_sum = max(max_sum, sum_distinct)\n    \n    print(max_sum)\n\nsolve()",
           "eval_metadata": {
-            "execution time": 0.06402063369750977
+            "execution time": 0.031764984130859375
           }
         }
       },

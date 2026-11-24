@@ -21,8 +21,8 @@
       "written_by": "summarize.py"
     },
     "extraction-f1.json": {
-      "at": "2026-11-22T17:20:55+00:00",
-      "sha256": "3dd0904889262e1cb4628488b781dd84b48999e6d65589418aad65b3a492e140",
+      "at": "2026-11-24T14:19:21+00:00",
+      "sha256": "14f80b9e86e065db484adb2706a4387ae211f24c8460b10319ca046dad36edf1",
       "written_by": "extraction.py"
     },
     "hypotheses.json": {
