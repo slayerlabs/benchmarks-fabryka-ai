@@ -1,7 +1,5 @@
 # Multi-IF
 
-Polish version: [README.pl.md](README.pl.md).
-
 Whether a model keeps following instructions over a three-turn conversation in eight languages: each turn adds
 IFEval-style instructions (length, format, keywords, language, ...) on top of the earlier ones, and every turn's
 answer is checked by the harness's rule-based verifiers, without a judge model.
