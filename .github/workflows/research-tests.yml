@@ -57,6 +57,8 @@ jobs:
           tests/test_race.py
           tests/test_record.py
           tests/test_rte.py
+          tests/test_ruler_128k.py
+          tests/test_ruler_128k_raw.py
           tests/test_snr_panelu.py
           tests/test_social_iqa.py
           tests/test_squad2.py

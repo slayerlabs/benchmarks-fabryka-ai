@@ -1,0 +1,171 @@
+{
+  "benchmark": "RULER",
+  "model": "slayer1b-1.09-k70000",
+  "metric": "mean of the 13 RULER task scores at 131072 tokens (percent)",
+  "score": null,
+  "stderr": null,
+  "n": null,
+  "date": "2026-11-22",
+  "harness": "https://github.com/NVIDIA/RULER @ db43f92ff634bbce1c33d1fb15858aec4bba509a (data: scripts/data/prepare.py, scoring: scripts/eval/evaluate.py)",
+  "data": "RULER synthetic tasks generated with the model's tokenizer, seed 20261122, 50 samples per task and length; source files sha256: PaulGrahamEssays.json 8d31e1b660e0f2180bcca6d238e18f77921df9d158611582b860da1762b6d3dd, english_words.json affcd6d45fdf3cc843d585c99c97ad615094e760e6c4756b654bab6c73bc2eca, hotpotqa.json e3da074df24e8369009918aa5cdbdd254dadcde4c63f7569d36afd6f2268caa8, squad.json 80a5225e94905956a6446d296ca1093975c4d3b3260f1d6c8f68bc2ab77182d8",
+  "settings": {
+    "weights": "SlayerLab/Slayer1B-1.09-checkpoints @ adfaf3fd5402bc7f3adbfe077798f20262979433 wagi_70000.pt (sha256 9ed73494fc139422f5314f72b4f970242454a7ab9d8caceee6b52fe5bdfc40c0), converted with research/tools/konwertuj.py against SlayerLab/Slayer1B-1.08 @ 5f854a0cc7160594d54d1788d37a44e8ebabe16c to model.safetensors sha256 b9e31fc953af44638fd64ca163dd8d5658cfe02928445fa9a412f11a618bb24e",
+    "context_window": 4096,
+    "seed": 20261122,
+    "serving": "research/common/slayer_lm.py, bfloat16",
+    "prompt": "RULER raw prompt (base template), BOS",
+    "temperature": 0.0,
+    "max_tokens": "RULER per-task answer budget",
+    "sampling": {
+      "sent": {
+        "max_tokens": "RULER per-task answer budget"
+      },
+      "effective": {
+        "decoding": "greedy (research/common/slayer_lm.py SlayerLM.generate, argmax)",
+        "max_tokens": "RULER per-task answer budget"
+      },
+      "recorded": "by summarize.py from the pinned revision, not at generation (no generation.jsonl)"
+    }
+  },
+  "other_metrics": {
+    "per_length": {
+      "4096": {
+        "score": 45.34,
+        "stderr": 1.03,
+        "n": 600,
+        "partial": true,
+        "skipped_tasks": {
+          "qa_2": "RULER's qa_2 generator cannot fit a sample into 4096 tokens with this tokenizer: no result within 1200 s (qa.py never exits; RULER db43f92 qa.py L196-206)"
+        }
+      },
+      "8192": {
+        "score": null,
+        "reason": "the 4096-token context window does not hold a 8192-token RULER sample"
+      },
+      "16384": {
+        "score": null,
+        "reason": "the 4096-token context window does not hold a 16384-token RULER sample"
+      },
+      "32768": {
+        "score": null,
+        "reason": "the 4096-token context window does not hold a 32768-token RULER sample"
+      },
+      "65536": {
+        "score": null,
+        "reason": "the 4096-token context window does not hold a 65536-token RULER sample"
+      },
+      "131072": {
+        "score": null,
+        "reason": "the 4096-token context window does not hold a 131072-token RULER sample"
+      }
+    },
+    "per_task": {
+      "4096": {
+        "niah_single_1": 100.0,
+        "niah_single_2": 100.0,
+        "niah_single_3": 90.0,
+        "niah_multikey_1": 80.0,
+        "niah_multikey_2": 6.0,
+        "niah_multikey_3": 0.0,
+        "niah_multivalue": 44.5,
+        "niah_multiquery": 46.5,
+        "vt": 11.6,
+        "cwe": 18.2,
+        "fwe": 17.33,
+        "qa_1": 30.0,
+        "qa_2": null
+      }
+    },
+    "per_category": {
+      "4096": {
+        "retrieval": 58.38,
+        "tracing": 11.6,
+        "aggregation": 17.77,
+        "qa": 30.0
+      }
+    },
+    "errors": {
+      "4096": {}
+    },
+    "unfinished": {
+      "4096": 539
+    },
+    "strict": {
+      "rule": "strict (Amendment 4): an output without `</think>` scores 0; errors stay out of the score",
+      "applies": false,
+      "reason": "raw prompt without a chat template: no reasoning block",
+      "reasoning": {
+        "opens": false,
+        "reason": "raw prompt without a chat template: no reasoning block",
+        "recorded": "by summarize.py, not at generation (generation.jsonl has no reasoning field)"
+      }
+    }
+  },
+  "deviations": "see README.md, Deviations",
+  "provenance": {
+    "generation": null,
+    "summarize": {
+      "time": "2026-11-22T19:01:51+00:00",
+      "code": {
+        "commit": "5ea36e09dd54d2c75b438818d9f2bbdb31dea6bb",
+        "dirty": true,
+        "uncommitted_runner_files": []
+      },
+      "runner_sha256": {
+        "run.sh": "61b6baa8360b4f3d4aade1cd3f9d45d9d4c07a605b519f8929dab809c48941b8",
+        "predict.py": "d6177879bc9f2d791ff596687de62eeaf0155db2b3ccf632e846258b8b4abd44",
+        "slayer_predict.py": "e75b03ea22b22c3827069e55e7b7f06b34c8e28dadf595939677db4d0da42422",
+        "prepare_limited.py": "8ca6e7451dce1851cf3beadd13ebf0c7f66dc62bd721bca750ad50c5a7f26974",
+        "ruler.py": "7491f1fbc3337240e151f564319cf591f3442ce6adc945dfff44f066bcbd5fc7",
+        "summarize.py": "158158316d102d0df5b20a59723663f4551aca2abdfbc706ee7a6e1b7ab09167",
+        "compare.py": "f6e297d9a2b527308ce7ac3cbc5d48347564881578a94d46c3b55944bf613d2b",
+        "provenance.py": "76f9366be7dec5d43da7e11fb321c872beb1d5d533e837a20b59f5263be10b50",
+        "diagnostics.py": "fa6e7b68bf564e2bf2f73b4c02a5323eb2ee670865043d3bb8480eb7d346a40e",
+        "report.py": "069a443e4ced2123fbd7ccf0d10856de1572e54c880aacbf8306d5dae30bd013",
+        "reproduction.py": "afac1456f07b1b6d5b6edbcb8dcd98e267fa7d1d0b93df62ed6239d6badffe62",
+        "declared_provenance.json": "efc9ee65f90e26b16537486c76a49d111e40e7f17b75cb5949c2e7fdbd0d9b6a",
+        "requirements.lock.txt": "734278c83bf2e15d209f8b38eb07b71df447f1478f82651de2ebc422423c60af",
+        "nemo_shim/nemo/collections/asr/parts/utils/manifest_utils.py": "1eee490503e415bc1d289baeb5b027593683287cc9d191003da9a415ab1a06ce",
+        "../../common/slayer_lm.py": "5ae131e1e46b36ff2091d313485a234a9bfc1609b2ba726ab1a73008e5a3a2fa",
+        "../../tools/statystyka.py": "ae7331ca606ee5856f7bf74f8f9699a6b96659c385fb2d2b0f805636763c46ff"
+      },
+      "hardware": {
+        "gpu": [
+          "NVIDIA GeForce RTX 3070"
+        ],
+        "platform": "Linux-5.15.0-1067-kvm-x86_64-with-glibc2.35",
+        "machine": "x86_64",
+        "processor": "x86_64",
+        "cpu_count": 30,
+        "python": "3.12.16"
+      }
+    },
+    "generation_reason": "no generation.jsonl: generated by a run.sh before it was recorded, so the code commit, runner sha256 and hardware of generation are unknown",
+    "generation_declared": {
+      "status": "declared, not recorded",
+      "code": {
+        "commit": "920787d4d023fbbed276147bd901a9a4df70373f",
+        "dirty": null
+      },
+      "source": "README.md Deviations at 6a1afea0: 'the Slayer run (920787d4)'",
+      "archives_sha256": {
+        "out/box/ruler-slayer-outputs.tgz": "13d1386c849528b4dd592b00b4428ca24bf24acbc920c496132eb318cfb66bb1"
+      },
+      "archives_note": "the rented machine's out dir (raw outputs) as packed after the run, kept outside the repo (CONTRIBUTING.md: no archives); its sha256 was taken on 2026-11-22 after the run, not at packing",
+      "unknown": "dirty flag, runner sha256, GPU and platform of generation"
+    },
+    "api_events": null,
+    "api_events_reason": "no HTTP requests: Slayer runs locally through research/common/slayer_lm.py"
+  },
+  "warnings": [
+    "no generation.jsonl: generated by a run.sh before it was recorded, so the code commit, runner sha256 and hardware of generation are unknown",
+    "generation provenance declared, not recorded: commit 920787d4 (README.md Deviations at 6a1afea0: 'the Slayer run (920787d4)'), archives out/box/ruler-slayer-outputs.tgz",
+    "no inputs.sha256.json from run.sh in this out dir (generated by a run.sh before this check): the sha256 of its 44 input files were recorded by summarize.py at its first run, not when they were written"
+  ],
+  "reason": "the 4096-token context window does not hold a 131072-token RULER sample",
+  "strict": {
+    "rule": "strict (Amendment 4): an output without `</think>` scores 0; errors stay out of the score",
+    "score": null,
+    "reason": "raw prompt without a chat template: no reasoning block"
+  }
+}
