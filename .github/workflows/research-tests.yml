@@ -44,6 +44,7 @@ jobs:
           tests/test_ifeval.py
           tests/test_klej_ner.py
           tests/test_liczby_raportow.py
+          tests/test_livecodebench_v6.py
           tests/test_mmlu.py
           tests/test_nq_open.py
           tests/test_paws_en.py
@@ -56,6 +57,8 @@ jobs:
           tests/test_race.py
           tests/test_record.py
           tests/test_rte.py
+          tests/test_ruler_128k.py
+          tests/test_ruler_128k_raw.py
           tests/test_scicode.py
           tests/test_scicode_results.py
           tests/test_snr_panelu.py
