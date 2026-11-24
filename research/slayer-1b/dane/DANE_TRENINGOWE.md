@@ -54,6 +54,9 @@ Status: `w budowie` (rezerwacja na [tablicy Dataset team](https://github.com/org
 
 | data | zbiór | kto | rezerwacja | status |
 |---|---|---|---|---|
+| 2026-11-24 | [FineMath-4+][finemath] | LoIlita | [#346](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/346) | w budowie |
+| 2026-11-24 | [CraneMath (Dolma 3 Dolmino)][cranemath] | LoIlita | [#346](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/346) | w budowie |
+| 2026-11-24 | [Stack-Edu Python (Common Pile)][stackedu] | LoIlita | [#346](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/346) | w budowie |
 | 2026-11-14 | [DCLM-baseline 1.0 EN][dclm] | LoIlita | [#197](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/197) | w budowie |
 | 2026-11-14 | [`SlayerLab/hutnictwo-gornictwo-spawalnictwo-preview`][hgs] | SlayerLab | bez rezerwacji | opublikowany |
 | 2026-11-09 | [`SlayerLab/polish-dynaword-pretraining-mix`][pdpm] | SlayerLab | bez rezerwacji | opublikowany |
@@ -171,6 +174,9 @@ wersja widziała które z nich.
 [d108b]: https://huggingface.co/datasets/SlayerLab/slayer-1.08b-pretrain/tree/0b5a12b7a19a27c549a11d13748fb7e113620bee
 [subm]: https://huggingface.co/datasets/SlayerLab/dataset-team-submissions
 [dclm]: https://huggingface.co/datasets/mlfoundations/dclm-baseline-1.0/tree/a3b142c183aebe5af344955ae20836eb34dcf69b
+[finemath]: https://huggingface.co/datasets/HuggingFaceTB/finemath/tree/e92b25a616738fe95dc186b64dfb19f9c8525594/finemath-4plus
+[cranemath]: https://huggingface.co/datasets/allenai/dolma3_dolmino_mix-100B-1125/tree/f23aa129fda8335ba9760057bcc1f0c02f3d068b/data/ingredient1-cranemath
+[stackedu]: https://huggingface.co/datasets/common-pile/stackv2_edu_filtered/tree/c354dbe88469a1153e97c6a63ac50591849654de
 [hgs]: https://huggingface.co/datasets/SlayerLab/hutnictwo-gornictwo-spawalnictwo-preview
 [pdpm]: https://huggingface.co/datasets/SlayerLab/polish-dynaword-pretraining-mix
 [tin]: https://huggingface.co/datasets/SlayerLab/technika-i-nauka
