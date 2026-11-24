@@ -108,13 +108,13 @@ def test_insufficient_information_and_sensitivity():
 
     def s(sub):
         m, _, se_c, n, k = stats([x["score"] for x in sub], [x["base_scenario"] for x in sub])
-        return f"{m:.2f} +- {se_c:.2f} (n = {n}, k = {k})"
+        return f"{m:.2f} ± {se_c:.2f} (n = {n}, k = {k})"
     text = " ".join(readme().split())
     for sub in ([x for x in r if x["base_scenario"] not in kept],
                 [x for x in r if x["base_scenario"] not in kept or kept[x["base_scenario"]]],
                 [x for x in r if "INSUFFICIENT_INFORMATION" not in x["categories"]]):
         m, _, se_c, n, k = stats([x["score"] for x in sub], [x["base_scenario"] for x in sub])
-        assert f"{m:.2f} +- {se_c:.2f} (n = {n}, k = {k})" in text, s(sub)
+        assert f"{m:.2f} ± {se_c:.2f} (n = {n}, k = {k})" in text, s(sub)
 
 
 def test_polish_and_rapid_counts_against_readme():

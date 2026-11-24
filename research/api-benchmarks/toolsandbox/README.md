@@ -25,11 +25,14 @@ Refs #289. Setup, measurement plan and post-result corrections: [PROTOCOL.md](PR
 
 ## Results
 
-| model | score | SE (clustered, 101 base scenarios) | SE (808 scenarios as independent) | n | date |
+| model | score | stderr (clustered by base scenario, k = 101) | stderr (808 scenarios as independent) | n | date |
 |---|---|---|---|---|---|
 | Bielik 11B v3.1 (API) | 45.18 | 3.72 | 1.49 | 808 | 2026-11-24 |
-| Slayer 1B 1.09, update 70 000 | null | - | - | 0 | - |
+| Slayer 1B 1.09, update 70 000 | null | - | - | 0 | 2026-11-24 |
 | LFM3-1.7B, model card (card only, not measured here) | 80.36 | not given | not given | not given | card |
+
+**The result is 45.18, stderr 3.72 (clustered), n = 808.** The scores in the section on INSUFFICIENT_INFORMATION below
+(39.16, 42.92, 28.96) are descriptive composition checks, not alternative headlines.
 
 Slayer 1B: `score: null`, `results/slayer1b-1.09-k70000.json`. The harness sends tools through the OpenAI `tools`
 parameter and returns results as `tool` messages. Slayer 1B is a base model without a chat template or tool-calling
@@ -56,7 +59,7 @@ A scenario has several categories, so the rows overlap and are not a partition. 
 category; for the eight categories that hold one variant per base scenario (`k` = 101) the clustered and the independent
 SE are equal. Descriptive, no tests between categories.
 
-| category | score | SE (clustered) | n | k |
+| category | score | stderr (clustered) | n | k |
 |---|---|---|---|---|
 | ALL_TOOLS_AVAILABLE | 40.42 | 4.23 | 101 | 101 |
 | ARG_DESCRIPTION_SCRAMBLED | 40.20 | 4.20 | 101 | 101 |
@@ -76,16 +79,24 @@ SE are equal. Descriptive, no tests between categories.
 
 ### What the INSUFFICIENT_INFORMATION scenarios add to the score
 
-INSUFFICIENT_INFORMATION has 224 scenarios (28 base scenarios) whose task is to not use a tool, or to ask the user.
-It scores 87.49, against 28.96 +- 3.31 (n = 584, k = 73) outside the category. Of these, 80 scenarios (10 base
+INSUFFICIENT_INFORMATION has 224 scenarios (28 base scenarios; unrelated to the 224 excluded RapidAPI scenarios) whose
+task is to not use a tool, or to ask the user.
+It scores 87.49, against 28.96 ± 3.31 (n = 584, k = 73) outside the category. Of these, 80 scenarios (10 base
 scenarios) keep a RapidAPI tool in their allow-list and stay in the evaluated set (Deviations); **Bielik scored exactly
-1.0 on all 80**, so they carry 9.9 percent of n at the maximum. Without them the score is 39.16 +- 3.61 (n = 728, k =
+1.0 on all 80**, so they carry 9.9 percent of n at the maximum. Without them the score is 39.16 ± 3.61 (n = 728, k =
 91). So the headline 45.18 depends on this part of the benchmark. `rapid_api_kept_bases.txt` lists the 10 base
 scenarios with the tool each minefield forbids: in 6 of them (48 scenarios) it is a RapidAPI tool itself (the
 attempted call is what is scored, so the missing key cannot change the score); in 4 (32 scenarios) it is another tool
 (`calculate_lat_lon_distance` or `unit_conversion`) and a RapidAPI tool is allowed, so with a key an agent could look
 a place up and then go on to the forbidden tool. For those 32 the score is not shown to be independent of the key;
-without them the score is 42.92 +- 3.70 (n = 776, k = 97).
+without them the score is 42.92 ± 3.70 (n = 776, k = 97).
+
+How much the missing key can have moved the score in the runs as they happened: the key error appeared in 3 scored
+scenarios only (none of the 48, 2 of the 32, and one outside the category; see below), so the other 805 trajectories
+never reached a failing RapidAPI call. If those 3 scenarios had scored anything between 0 and 1 with a key, the mean
+would move between -0.25 and +0.10 points (the two at 1.0 could fall to 0, the one at 0.18 could rise to 1). A trajectory
+that avoided a RapidAPI tool because of the missing key cannot be ruled out, since the tool list is the same with or
+without a key.
 
 ## Counts for the infrastructure and error cases
 
@@ -95,13 +106,13 @@ without them the score is 42.92 +- 3.70 (n = 776, k = 97).
 - **Scenarios scored 0 by an exception: 2**, both `KeyError` raised by the harness because Bielik called a tool that
   is not in the scenario (`get_contacts` in `remove_contact_by_phone_no_search_contacts_insufficient_information_alt_10_distraction_tools`;
   `datetime_to_timestamp` in `search_reminder_with_recency_upcoming_insufficient_information_implicit_3_distraction_tools_tool_description_scrambled`).
-  Both reached 30 messages. The harness writes no transcript when a scenario raises, so `output` is `null` for these
+  The harness writes no transcript when a scenario raises, so `output` is `null` for these
   two rows and the message is in `error_message`.
 - **RapidAPI key error in a scored scenario: 3 scenarios.** Bielik called a RapidAPI tool in 3 scored scenarios and
   got `PermissionError: Please provide 'RAPID_API_KEY'`: two `find_temperature_f_with_location_insufficient_information_alt`
   variants (score 1.0; their minefield is `unit_conversion`) and `search_relationship_with_phone_number_10_distraction_tools`
   (score 0.18, the call was a distraction tool; its score was not recomputed with a key). Listed in
-  `other_metrics.scenarios_with_rapid_api_key_error_text`. A brief mentioned 6; the committed transcripts show 3.
+  `other_metrics.scenarios_with_rapid_api_key_error_text`.
 - **Polish replies (limitation).** In the 806 scenarios with a transcript, 284 (35.2 percent) have at least one
   assistant text message with a Polish diacritic (277 with two or more in one message), and 1134 of the 3374 assistant
   text messages do, although the harness prompts and the simulator are English (no simulator message has a diacritic).
@@ -111,8 +122,11 @@ without them the score is 42.92 +- 3.70 (n = 776, k = 97).
 
 Each line of `results/bielik-11b-v3.1.jsonl.gz` is one scenario: `task_id`, `base_scenario`, `categories`, `score`,
 `milestone_similarity`, `minefield_similarity`, `turn_count`, `error_type`, `error_message`, `infrastructure_error`,
-`rerun_after_infra_error`, and `output` (the conversation, with the tool calls). Every number in this README is
-recomputed from it by `python summarize.py bielik-11b-v3.1 --check` and `tests/test_toolsandbox_results.py`.
+`rerun_after_infra_error`, and `output` (the conversation, with the tool calls). The scores, SEs, category and
+sensitivity tables, counts and Polish-reply numbers in this README are recomputed from it by
+`python summarize.py bielik-11b-v3.1 --check` and `tests/test_toolsandbox_results.py`. Not recomputable from committed
+files: the cost, token and time figures and the numbers about the discarded partial run, which come from logs in the
+git-ignored `out/`.
 
 ## Cost and time
 
@@ -134,7 +148,10 @@ scored (milestone and minefield matching, similarity, the 0 for an exception).
   base scenario whose tool allow-list contains `search_lat_lon`, `search_location_around_lat_lon`,
   `search_weather_around_lat_lon`, `search_stock` or `convert_currency` is excluded with its 8 variants, except the
   `*_insufficient_information*` scenarios (which have no milestones, only minefields), kept so that the agent's
-  behaviour of not acting is measured; that exception was written in the measurement amendment before the full run.
+  behaviour of not acting is measured. That exception existed before the partial run, but the first protocol text names 48 scenarios
+  (equal to the 6 base scenarios whose forbidden tool is a RapidAPI tool; how it was counted is not recorded); the 80
+  (10 base scenarios) come from the corrected rule and were fixed after the partial run was seen (5 of the 83 partial-run scenarios are among
+  them).
   **The list was corrected after a partial run:** a first list of 72 scenarios (found by searching milestone text for
   the tool names) was used for a first full run, stopped after about 80 scenarios (its progress file, not committed,
   holds 83) and discarded; comparing the harness's "necessary tool name" counts printed in its log showed that 152 more

@@ -122,11 +122,6 @@
       },
       "kept_80_scenarios_scoring_1": 80
     },
-    "scenarios_with_rapid_api_tool_call": [
-      "find_temperature_f_with_location_insufficient_information_alt",
-      "find_temperature_f_with_location_insufficient_information_alt_3_distraction_tools_arg_description_scrambled",
-      "search_relationship_with_phone_number_10_distraction_tools"
-    ],
     "scenarios_with_rapid_api_key_error_text": [
       "find_temperature_f_with_location_insufficient_information_alt",
       "find_temperature_f_with_location_insufficient_information_alt_3_distraction_tools_arg_description_scrambled",

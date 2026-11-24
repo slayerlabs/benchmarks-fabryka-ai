@@ -1,6 +1,6 @@
 # ToolSandbox: setup protocol
 
-Written and committed before the full run (see "Post-result note" at the end for two corrections). Refs #289. The first version of this protocol covered setup and a smoke test
+Written and committed before the full run (see "Post-result note" at the end for corrections). Refs #289. The first version of this protocol covered setup and a smoke test
 only; the amendment at the end ("Amendment 2026-11-24: measurement") authorizes the measurement and was committed
 before the full run started.
 
@@ -117,9 +117,10 @@ independent and the stderr is too small.
 
 **Slayer 1B:** `score: null` as in the setup (base model without a tool-calling format, not served by the API).
 
-## Post-result note (2026-11-25, after the result)
+## Post-result note (2026-11-24, after the result)
 
-Corrections to statements above; the original text is left as it was.
+Corrections to statements above. The original text is left as it was, except the first line (a pointer to this note)
+and the model id in the Slayer line (`run.sh` id renamed to `slayer1b-1.09-k70000`).
 
 1. **Timing.** "Written before any result" holds for the full run, not for every run: the one-scenario and 10-scenario
    checks (run directories `test1` 12:58 and `test10` 13:02 on 2026-11-24, not committed) ran before the amendment was
@@ -138,4 +139,7 @@ Corrections to statements above; the original text is left as it was.
 4. **The standard error.** The amendment's `stderr` (sample sd / sqrt(n)) treats the 808 scenarios as independent. The
    result files give the SE clustered by base scenario as `stderr` and the amendment's as
    `other_metrics.stderr_independent`.
+5. **When the kept scenarios were fixed.** The first version of the amendment (13:03) says 48 `insufficient_information`
+   scenarios stay in the set; the 80 come from the correction committed at 13:19, made after the partial run was seen.
+   5 of the 83 partial-run scenarios belong to the 80.
 

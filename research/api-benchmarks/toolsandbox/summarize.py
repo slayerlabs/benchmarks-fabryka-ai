@@ -34,8 +34,6 @@ USER_ENDPOINT = "https://api.anthropic.com/v1/"
 SUFFIXES = ["_3_distraction_tools_arg_description_scrambled", "_3_distraction_tools_arg_type_scrambled",
             "_3_distraction_tools_tool_description_scrambled", "_3_distraction_tools_tool_name_scrambled",
             "_10_distraction_tools", "_3_distraction_tools", "_all_tools"]
-RAPID_TOOLS = {"search_lat_lon", "search_location_around_lat_lon", "search_weather_around_lat_lon", "search_stock",
-               "convert_currency"}
 POLISH = re.compile("[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]")
 
 
@@ -108,8 +106,6 @@ def compute(rows):
             exc[r["error_type"]] = exc.get(r["error_type"], 0) + 1
     with_t = [r for r in scored if r["output"]]
     amsgs = [t for r in with_t for t in texts(r, "assistant")]
-    rapid_called = [r["task_id"] for r in scored for m in (r["output"] or [])
-                    if m.get("role") == "tool" and m.get("name") in RAPID_TOOLS]
     rapid_err = sorted({r["task_id"] for r in scored for m in (r["output"] or [])
                         if m.get("role") == "tool" and "RAPID_API_KEY" in str(m.get("content"))})
     return {
@@ -117,7 +113,6 @@ def compute(rows):
         "other_metrics": {
             "stderr_independent": r2(se_iid), "clusters": k, "scenarios_per_cluster": 8,
             "sensitivity_to_kept_rapid_api_scenarios": sens,
-            "scenarios_with_rapid_api_tool_call": sorted(set(rapid_called)),
             "scenarios_with_rapid_api_key_error_text": rapid_err,
             "polish_replies": {
                 "heuristic": "assistant text messages containing a Polish diacritic (ą ć ę ł ń ó ś ź ż)",
