@@ -1,0 +1,141 @@
+{
+  "what": "Usage: python reproduction.py <commit> <model-id> [<model-id> ...]",
+  "lfm3-1.7b": {
+    "published": {
+      "commit": "b1749896",
+      "summarize.py sha256": "d80f85f171e5153a3fecfd0366520191c411986e02a8f0333066324852e42f9b",
+      "code": {
+        "commit": "128f7735d99073fd6d94f5a1df5fe26c18437897",
+        "dirty": true
+      }
+    },
+    "rerun": {
+      "code": {
+        "commit": "5ea36e09dd54d2c75b438818d9f2bbdb31dea6bb",
+        "dirty": true,
+        "uncommitted_runner_files": []
+      },
+      "summarize.py sha256": "158158316d102d0df5b20a59723663f4551aca2abdfbc706ee7a6e1b7ab09167"
+    },
+    "fields_compared": "all except provenance, warnings",
+    "fields_differing": [],
+    "provenance_fields_differing": [
+      "provenance.generation_declared",
+      "provenance.summarize.code.commit",
+      "provenance.summarize.code.uncommitted_runner_files",
+      "provenance.summarize.hardware.cpu_count",
+      "provenance.summarize.hardware.gpu",
+      "provenance.summarize.hardware.machine",
+      "provenance.summarize.hardware.platform",
+      "provenance.summarize.hardware.processor",
+      "provenance.summarize.hardware.python",
+      "provenance.summarize.runner_sha256.../../tools/statystyka.py",
+      "provenance.summarize.runner_sha256.compare.py",
+      "provenance.summarize.runner_sha256.declared_provenance.json",
+      "provenance.summarize.runner_sha256.diagnostics.py",
+      "provenance.summarize.runner_sha256.predict.py",
+      "provenance.summarize.runner_sha256.provenance.py",
+      "provenance.summarize.runner_sha256.report.py",
+      "provenance.summarize.runner_sha256.reproduction.py",
+      "provenance.summarize.runner_sha256.summarize.py",
+      "provenance.summarize.time"
+    ],
+    "jsonl_rows": {
+      "published": 3900,
+      "rerun": 3900,
+      "identical": true
+    }
+  },
+  "slayer1b-1.09-k70000": {
+    "published": {
+      "commit": "b1749896",
+      "summarize.py sha256": "d80f85f171e5153a3fecfd0366520191c411986e02a8f0333066324852e42f9b",
+      "code": {
+        "commit": "128f7735d99073fd6d94f5a1df5fe26c18437897",
+        "dirty": true
+      }
+    },
+    "rerun": {
+      "code": {
+        "commit": "5ea36e09dd54d2c75b438818d9f2bbdb31dea6bb",
+        "dirty": true,
+        "uncommitted_runner_files": []
+      },
+      "summarize.py sha256": "158158316d102d0df5b20a59723663f4551aca2abdfbc706ee7a6e1b7ab09167"
+    },
+    "fields_compared": "all except provenance, warnings",
+    "fields_differing": [],
+    "provenance_fields_differing": [
+      "provenance.generation_declared",
+      "provenance.summarize.code.commit",
+      "provenance.summarize.code.uncommitted_runner_files",
+      "provenance.summarize.hardware.cpu_count",
+      "provenance.summarize.hardware.gpu",
+      "provenance.summarize.hardware.machine",
+      "provenance.summarize.hardware.platform",
+      "provenance.summarize.hardware.processor",
+      "provenance.summarize.hardware.python",
+      "provenance.summarize.runner_sha256.../../tools/statystyka.py",
+      "provenance.summarize.runner_sha256.compare.py",
+      "provenance.summarize.runner_sha256.declared_provenance.json",
+      "provenance.summarize.runner_sha256.diagnostics.py",
+      "provenance.summarize.runner_sha256.predict.py",
+      "provenance.summarize.runner_sha256.provenance.py",
+      "provenance.summarize.runner_sha256.report.py",
+      "provenance.summarize.runner_sha256.reproduction.py",
+      "provenance.summarize.runner_sha256.summarize.py",
+      "provenance.summarize.time"
+    ],
+    "jsonl_rows": {
+      "published": 600,
+      "rerun": 600,
+      "identical": true
+    }
+  },
+  "bielik-11b-v3.1": {
+    "published": {
+      "commit": "b1749896",
+      "summarize.py sha256": "d80f85f171e5153a3fecfd0366520191c411986e02a8f0333066324852e42f9b",
+      "code": {
+        "commit": "128f7735d99073fd6d94f5a1df5fe26c18437897",
+        "dirty": true
+      }
+    },
+    "rerun": {
+      "code": {
+        "commit": "5ea36e09dd54d2c75b438818d9f2bbdb31dea6bb",
+        "dirty": false,
+        "uncommitted_runner_files": []
+      },
+      "summarize.py sha256": "158158316d102d0df5b20a59723663f4551aca2abdfbc706ee7a6e1b7ab09167"
+    },
+    "fields_compared": "all except provenance, warnings",
+    "fields_differing": [],
+    "provenance_fields_differing": [
+      "provenance.summarize.code.commit",
+      "provenance.summarize.code.dirty",
+      "provenance.summarize.code.uncommitted_runner_files",
+      "provenance.summarize.hardware.cpu_count",
+      "provenance.summarize.hardware.gpu",
+      "provenance.summarize.hardware.machine",
+      "provenance.summarize.hardware.platform",
+      "provenance.summarize.hardware.processor",
+      "provenance.summarize.hardware.python",
+      "provenance.summarize.runner_sha256.../../tools/statystyka.py",
+      "provenance.summarize.runner_sha256.compare.py",
+      "provenance.summarize.runner_sha256.declared_provenance.json",
+      "provenance.summarize.runner_sha256.diagnostics.py",
+      "provenance.summarize.runner_sha256.predict.py",
+      "provenance.summarize.runner_sha256.provenance.py",
+      "provenance.summarize.runner_sha256.report.py",
+      "provenance.summarize.runner_sha256.reproduction.py",
+      "provenance.summarize.runner_sha256.summarize.py",
+      "provenance.summarize.time"
+    ],
+    "jsonl_rows": {
+      "published": 1900,
+      "rerun": 1900,
+      "identical": true
+    }
+  }
+}

@@ -1,0 +1,680 @@
+{
+  "control": {
+    "status": "FAIL, gap unexplained",
+    "measured": "FAIL",
+    "mean": 71.69238461538461,
+    "se": 0.9264390342655068,
+    "card": 65.56,
+    "z": 6.619307249123462,
+    "n": 650,
+    "reading": "R1-R3 are read under Amendment 4, against the protocol's rule that no hypothesis is read until the gap is explained (PROTOCOL.md, Control)",
+    "amendment_4": "Amendment 4 labels the card value `not comparable` because the card states no RULER setup (harness, samples, scoring of unfinished reasoning, output cap; card @ 1da06bec line 536 gives only serving and sampling defaults); the label was added after the control had failed. Amendment 4 also listed the thinking mode as unstated, which is wrong: the card says at line 201 that reasoning is enabled by default, as in this run (Amendment 8)",
+    "strict": {
+      "mean": 70.51289230769231,
+      "se": 0.9984519567197978,
+      "z": 4.960571487048798
+    }
+  },
+  "hypotheses": {
+    "R1": {
+      "measure": "LFM3 mean @ 131072 vs 85.6",
+      "value": 71.69238461538461,
+      "se": 0.9264390342655068,
+      "z": -15.01190566267701,
+      "p": 6.135918392841278e-51,
+      "n": 650,
+      "comparisons": [
+        {
+          "comparison": "LFM3 mean @ 131072 - 85.6",
+          "value": -13.907615384615383,
+          "se": 0.9264390342655068,
+          "z": -15.01190566267701,
+          "p": 6.135918392841278e-51,
+          "n": 650
+        }
+      ],
+      "refuted": false,
+      "confirmed_direction": true,
+      "sensitivity": {
+        "clustered": {
+          "value": -13.90761538461538,
+          "se": 10.78700602668432,
+          "t": -1.2892933729907503,
+          "df": 12,
+          "p": 0.2215938360337083,
+          "verdict": "noise"
+        },
+        "sign_test": {
+          "below": 5,
+          "tasks": 13,
+          "p": 0.5810546875,
+          "verdict": "noise"
+        },
+        "without_lowest": {
+          "tasks_dropped": [
+            "niah_multikey_3",
+            "cwe"
+          ],
+          "mean": 84.65463636363637,
+          "se": 1.0936491108472783,
+          "z": -0.8644122022201671,
+          "verdict": "noise"
+        }
+      },
+      "effective_length": {
+        "point": 16384,
+        "z": 1.8050490621886277,
+        "se": 0.9404389593046221,
+        "above_2_se": 8192,
+        "above_across_tasks": 4096,
+        "per_length": {
+          "4096": {
+            "mean": 93.35393846153846,
+            "se": 0.7969157406900167,
+            "z": 9.729935130688535,
+            "across_tasks": {
+              "se": 2.5952494319512707,
+              "t": 2.9877430531633222,
+              "df": 12,
+              "p": 0.011321665598475123
+            }
+          },
+          "8192": {
+            "mean": 92.41036923076923,
+            "se": 0.7770175944009616,
+            "z": 8.764755495684321,
+            "across_tasks": {
+              "se": 3.1210177223961493,
+              "t": 2.182098865347231,
+              "df": 12,
+              "p": 0.049706628536212265
+            }
+          },
+          "16384": {
+            "mean": 87.29753846153845,
+            "se": 0.9404389593046221,
+            "z": 1.8050490621886277,
+            "across_tasks": {
+              "se": 5.44195910308819,
+              "t": 0.31193517433366075,
+              "df": 12,
+              "p": 0.7604431641233186
+            }
+          },
+          "32768": {
+            "mean": 81.3411076923077,
+            "se": 0.9207231472445349,
+            "z": -4.625594914647207,
+            "across_tasks": {
+              "se": 8.509195484361891,
+              "t": -0.5005046970091648,
+              "df": 12,
+              "p": 0.6257725956526536
+            }
+          },
+          "65536": {
+            "mean": 76.88212307692308,
+            "se": 0.9106046147694797,
+            "z": -9.573723635569156,
+            "across_tasks": {
+              "se": 9.873975719407841,
+              "t": -0.8829145595265594,
+              "df": 12,
+              "p": 0.39462602050955353
+            }
+          },
+          "131072": {
+            "mean": 71.69238461538461,
+            "se": 0.9264390342655068,
+            "z": -15.01190566267701,
+            "across_tasks": {
+              "se": 10.78700602668432,
+              "t": -1.2892933729907503,
+              "df": 12,
+              "p": 0.2215938360337083
+            }
+          }
+        },
+        "tasks_below_at_shortest": [
+          "cwe",
+          "fwe",
+          "qa_1",
+          "qa_2"
+        ]
+      },
+      "p_holm": 1.8407755178523834e-50,
+      "verdict": "clear",
+      "outcome": "confirmed",
+      "strict": {
+        "value": 70.51289230769231,
+        "se": 0.9984519567197978,
+        "z": -15.110499399363366,
+        "p_holm": 4.1426764821982975e-51,
+        "verdict": "clear",
+        "outcome": "confirmed",
+        "n": 650,
+        "sensitivity": {
+          "clustered": {
+            "value": -15.087107692307685,
+            "se": 10.644905947064728,
+            "t": -1.4173077495783668,
+            "df": 12,
+            "p": 0.18183080577576038,
+            "verdict": "noise"
+          },
+          "sign_test": {
+            "below": 6,
+            "tasks": 13,
+            "p": 1.0,
+            "verdict": "noise"
+          },
+          "without_lowest": {
+            "tasks_dropped": [
+              "niah_multikey_3",
+              "cwe"
+            ],
+            "mean": 83.26069090909091,
+            "se": 1.1787336931019123,
+            "z": -1.9845950825016658,
+            "verdict": "noise"
+          }
+        },
+        "effective_length": {
+          "point": 16384,
+          "z": 0.47166949459464674,
+          "se": 0.9896108103628211,
+          "above_2_se": 8192,
+          "above_across_tasks": null,
+          "per_length": {
+            "4096": {
+              "mean": 92.2770153846154,
+              "se": 0.8507480891541804,
+              "z": 7.848404797774787,
+              "across_tasks": {
+                "se": 3.094152480825026,
+                "t": 2.157946457388237,
+                "df": 12,
+                "p": 0.05190140341632978
+              }
+            },
+            "8192": {
+              "mean": 89.94883076923078,
+              "se": 0.8452340249535157,
+              "z": 5.14512033453688,
+              "across_tasks": {
+                "se": 4.510404249654981,
+                "t": 0.9641776054914443,
+                "df": 12,
+                "p": 0.3539856443791032
+              }
+            },
+            "16384": {
+              "mean": 86.06676923076922,
+              "se": 0.9896108103628211,
+              "z": 0.47166949459464674,
+              "across_tasks": {
+                "se": 5.627530922529317,
+                "t": 0.08294387666544278,
+                "df": 12,
+                "p": 0.9352637004118732
+              }
+            },
+            "32768": {
+              "mean": 79.80264615384615,
+              "se": 0.99864799804734,
+              "z": -5.805202491257607,
+              "across_tasks": {
+                "se": 8.527819742831854,
+                "t": -0.6798166496221809,
+                "df": 12,
+                "p": 0.5095227646397811
+              }
+            },
+            "65536": {
+              "mean": 75.18981538461539,
+              "se": 0.981844666988751,
+              "z": -10.602679797927626,
+              "across_tasks": {
+                "se": 9.879235573730508,
+                "t": -1.053743939770596,
+                "df": 12,
+                "p": 0.31275572965815157
+              }
+            },
+            "131072": {
+              "mean": 70.51289230769231,
+              "se": 0.9984519567197978,
+              "z": -15.110499399363366,
+              "across_tasks": {
+                "se": 10.644905947064728,
+                "t": -1.4173077495783668,
+                "df": 12,
+                "p": 0.18183080577576038
+              }
+            }
+          },
+          "tasks_below_at_shortest": [
+            "cwe",
+            "fwe",
+            "qa_1",
+            "qa_2"
+          ]
+        }
+      }
+    },
+    "R2": {
+      "missing": [
+        "lfm3-1.7b vs bielik-11b-v3.1: complete lengths shared: [8192, 16384]"
+      ],
+      "status": "not decided (Amendment 6): fewer than 3 complete lengths shared",
+      "lengths": [
+        8192,
+        16384
+      ],
+      "descriptive": {
+        "4096": {
+          "lfm3-1.7b": {
+            "mean": 93.35,
+            "tasks": 13,
+            "mean_on_shared_tasks": 94.63,
+            "shared_tasks": 12
+          },
+          "bielik-11b-v3.1": {
+            "mean": 97.44,
+            "tasks": 12,
+            "skipped_tasks": [
+              "qa_2"
+            ]
+          },
+          "bielik_minus_lfm3": {
+            "value": 2.808366666666666,
+            "se": 0.8001381038195242,
+            "z": 3.509852428300439,
+            "tasks": 12,
+            "across_tasks": {
+              "t": 1.3014529902264298,
+              "df": 11,
+              "p": 0.21970092756494308
+            },
+            "without_largest_gap": {
+              "task": "qa_1",
+              "gap": 20.0,
+              "value": 1.2454909090909079,
+              "se": 0.6299456369964399,
+              "z": 1.9771403053593126,
+              "tasks": 11
+            }
+          }
+        },
+        "8192": {
+          "lfm3-1.7b": {
+            "mean": 92.41,
+            "tasks": 13
+          },
+          "bielik-11b-v3.1": {
+            "mean": 93.89,
+            "tasks": 13
+          },
+          "bielik_minus_lfm3": {
+            "value": 1.4769230769230772,
+            "se": 1.0179347619915613,
+            "z": 1.4509015037795918,
+            "tasks": 13,
+            "across_tasks": {
+              "t": 0.5829931145296632,
+              "df": 12,
+              "p": 0.570691704104004
+            },
+            "without_largest_gap": {
+              "task": "cwe",
+              "gap": 25.200000000000003,
+              "value": -0.5,
+              "se": 1.0470645081667531,
+              "z": -0.47752549733103083,
+              "tasks": 12
+            }
+          }
+        },
+        "16384": {
+          "lfm3-1.7b": {
+            "mean": 87.3,
+            "tasks": 13
+          },
+          "bielik-11b-v3.1": {
+            "mean": 91.7,
+            "tasks": 13
+          },
+          "bielik_minus_lfm3": {
+            "value": 4.402476923076924,
+            "se": 1.2044243681860536,
+            "z": 3.655253944842846,
+            "tasks": 13,
+            "across_tasks": {
+              "t": 0.9629366087204382,
+              "df": 12,
+              "p": 0.3545830937246942
+            },
+            "without_largest_gap": {
+              "task": "cwe",
+              "gap": 45.0,
+              "value": 1.0193500000000018,
+              "se": 1.2302287119123294,
+              "z": 0.8285857663128938,
+              "tasks": 12
+            }
+          }
+        }
+      },
+      "data_parity": {
+        "same": false,
+        "differs": {
+          "PaulGrahamEssays.json": {
+            "lfm3-1.7b": "8d31e1b660e0f2180bcca6d238e18f77921df9d158611582b860da1762b6d3dd",
+            "bielik-11b-v3.1": "58e352531a80cef2d22c205dbebfbfd64a8afe55a32434de845f200718756c65"
+          }
+        }
+      },
+      "caveats": [
+        "a comparison of modes, not of models: LFM3-1.7B reasons before it answers (its generation prompt opens `<think>`, output up to the rest of its window, vLLM), Bielik 11B v3.1 answers without reasoning (its template closes `<think></think>`) through the Fabryka AI API with a hidden provider system prompt",
+        "RULER counts each length with the model's own tokenizer, so one nominal length holds a different amount of text per model (diagnostics.json, input_text)",
+        "RULER source files differ: PaulGrahamEssays.json lfm3-1.7b 8d31e1b6, bielik-11b-v3.1 58e35253 (the files as downloaded; the essay text the samples use is compared in diagnostics.json, haystack)"
+      ],
+      "verdict": "not decided",
+      "outcome": "not decided",
+      "strict": {
+        "verdict": "not run",
+        "outcome": "not run",
+        "missing": [
+          "bielik-11b-v3.1"
+        ]
+      }
+    },
+    "R3": {
+      "measure": "LFM3 drop 4096->131072: tracing, aggregation - retrieval (weaker), SE clustered by task",
+      "value": -22.200000000000003,
+      "se": 14.511079510891964,
+      "z": null,
+      "t": -1.529865506100822,
+      "df": 7,
+      "p_t": 0.16990137864976584,
+      "p": null,
+      "n": 1300,
+      "comparisons": [
+        {
+          "comparison": "drop tracing - drop retrieval",
+          "value": -22.200000000000003,
+          "n": 1300,
+          "se_clustered": 14.511079510891964,
+          "t": -1.529865506100822,
+          "df": 7,
+          "p_t": 0.16990137864976584,
+          "tasks": [
+            1,
+            8
+          ],
+          "verdict_clustered": "undetermined",
+          "sample": {
+            "se": 1.1511993559308953,
+            "z": -19.284235945431362,
+            "p": 7.285850719083417e-83
+          }
+        },
+        {
+          "comparison": "drop aggregation - drop retrieval",
+          "value": 16.400100000000002,
+          "n": 1300,
+          "se_clustered": 45.76158594914984,
+          "t": 0.3583813729319555,
+          "df": 1,
+          "p_t": 0.7809251807028008,
+          "tasks": [
+            2,
+            8
+          ],
+          "verdict_clustered": "undetermined",
+          "sample": {
+            "se": 2.800912967666046,
+            "z": 5.855269402985389,
+            "p": 4.7623738880265995e-09
+          }
+        }
+      ],
+      "undetermined": true,
+      "undetermined_reason": "fewer than 3 tasks in tracing, aggregation: no clustered verdict (PROTOCOL.md R3: SE clustered by task; 3 clusters needed)",
+      "refuted": true,
+      "confirmed_direction": false,
+      "outcome_rule": "PROTOCOL.md R3, 'refuted: the retrieval drop is not smaller than the tracing and aggregation drops', as compare.py coded it before the results (e7858d51): refuted = not all(value > 0)",
+      "drops": {
+        "retrieval": {
+          "drop": 23.0,
+          "se_sample": 1.0247250380664874,
+          "z_sample": 22.445045398127267,
+          "tasks": 8,
+          "se_clustered": 14.511079510891964,
+          "t_clustered": 1.5849957946089595,
+          "df": 7,
+          "verdict_clustered": "noise"
+        },
+        "tracing": {
+          "drop": 0.7999999999999972,
+          "se_sample": 0.5552698605739418,
+          "z_sample": 1.4407409024021145,
+          "tasks": 1,
+          "se_clustered": null,
+          "t_clustered": null,
+          "df": 0,
+          "verdict_clustered": "undetermined"
+        },
+        "aggregation": {
+          "drop": 39.4001,
+          "se_sample": 2.611778790087401,
+          "z_sample": 15.085542523561696,
+          "tasks": 2,
+          "se_clustered": 43.399899999999995,
+          "t_clustered": 0.9078384973237267,
+          "df": 1,
+          "verdict_clustered": "undetermined"
+        },
+        "qa": {
+          "drop": 9.0,
+          "se_sample": 6.2588738396115655,
+          "z_sample": 1.437958366094587,
+          "tasks": 2,
+          "se_clustered": 5.0,
+          "t_clustered": 1.8,
+          "df": 1,
+          "verdict_clustered": "undetermined"
+        }
+      },
+      "without_largest_retrieval_drops": {
+        "tasks_dropped": [
+          "niah_multikey_3",
+          "niah_multikey_2"
+        ],
+        "of": 8,
+        "retrieval_drop": 1.0,
+        "share_of_retrieval_drop": 0.967391304347826,
+        "tracing_minus_retrieval": {
+          "value": -0.20000000000000284,
+          "se_sample": 1.094046636048312,
+          "z_sample": -0.18280756359930073
+        }
+      },
+      "descriptive_sample": {
+        "note": "sample-level bootstrap SE (tasks fixed), not the protocol's SE; descriptive, not Holm-adjusted",
+        "value": -22.200000000000003,
+        "se": 1.1511993559308953,
+        "z": -19.284235945431362,
+        "p": 7.285850719083417e-83,
+        "verdict": "clear",
+        "retrieval_drop_not_smaller": true
+      },
+      "p_holm": null,
+      "verdict": "undetermined",
+      "outcome": "refuted",
+      "strict": {
+        "value": -22.950000000000003,
+        "se": 14.36979719510931,
+        "z": null,
+        "t": -1.597099784248237,
+        "df": 7,
+        "p_holm": null,
+        "verdict": "undetermined",
+        "outcome": "refuted",
+        "n": 1300
+      }
+    }
+  },
+  "holm_m": 3,
+  "models": {
+    "lfm3-1.7b": {
+      "per_length": {
+        "4096": 93.35,
+        "8192": 92.41,
+        "16384": 87.3,
+        "32768": 81.34,
+        "65536": 76.88,
+        "131072": 71.69
+      },
+      "strict_per_length": {
+        "4096": 92.28,
+        "8192": 89.95,
+        "16384": 86.07,
+        "32768": 79.8,
+        "65536": 75.19,
+        "131072": 70.51
+      },
+      "excluded_lengths": {},
+      "partial_lengths": {},
+      "errors_excluded": {},
+      "data_sources": {
+        "PaulGrahamEssays.json": "8d31e1b660e0f2180bcca6d238e18f77921df9d158611582b860da1762b6d3dd",
+        "english_words.json": "affcd6d45fdf3cc843d585c99c97ad615094e760e6c4756b654bab6c73bc2eca",
+        "hotpotqa.json": "e3da074df24e8369009918aa5cdbdd254dadcde4c63f7569d36afd6f2268caa8",
+        "squad.json": "80a5225e94905956a6446d296ca1093975c4d3b3260f1d6c8f68bc2ab77182d8"
+      }
+    },
+    "bielik-11b-v3.1": {
+      "per_length": {
+        "4096": null,
+        "8192": 93.89,
+        "16384": 91.7,
+        "32768": null,
+        "65536": null,
+        "131072": null
+      },
+      "strict_per_length": null,
+      "excluded_lengths": {
+        "4096": "partial: RULER could not generate qa_2; not comparable (13-task mean undefined)",
+        "32768": "562 of 650 prompts do not fit: with the chat template the longest (vt #41) has 33790 tokens, which with a 256-token margin and RULER's answer budget of 30 exceeds the 32768-token context window",
+        "65536": "the 32768-token context window does not hold a 65536-token RULER sample",
+        "131072": "the 32768-token context window does not hold a 131072-token RULER sample"
+      },
+      "partial_lengths": {
+        "4096": {
+          "score": 97.44,
+          "skipped_tasks": [
+            "qa_2"
+          ]
+        }
+      },
+      "errors_excluded": {},
+      "data_sources": {
+        "PaulGrahamEssays.json": "58e352531a80cef2d22c205dbebfbfd64a8afe55a32434de845f200718756c65",
+        "english_words.json": "affcd6d45fdf3cc843d585c99c97ad615094e760e6c4756b654bab6c73bc2eca",
+        "hotpotqa.json": "e3da074df24e8369009918aa5cdbdd254dadcde4c63f7569d36afd6f2268caa8",
+        "squad.json": "80a5225e94905956a6446d296ca1093975c4d3b3260f1d6c8f68bc2ab77182d8"
+      }
+    },
+    "slayer1b-1.09-k70000": {
+      "per_length": {
+        "4096": null,
+        "8192": null,
+        "16384": null,
+        "32768": null,
+        "65536": null,
+        "131072": null
+      },
+      "strict_per_length": null,
+      "excluded_lengths": {
+        "4096": "partial: RULER could not generate qa_2; not comparable (13-task mean undefined)",
+        "8192": "the 4096-token context window does not hold a 8192-token RULER sample",
+        "16384": "the 4096-token context window does not hold a 16384-token RULER sample",
+        "32768": "the 4096-token context window does not hold a 32768-token RULER sample",
+        "65536": "the 4096-token context window does not hold a 65536-token RULER sample",
+        "131072": "the 4096-token context window does not hold a 131072-token RULER sample"
+      },
+      "partial_lengths": {
+        "4096": {
+          "score": 45.34,
+          "skipped_tasks": [
+            "qa_2"
+          ]
+        }
+      },
+      "errors_excluded": {},
+      "data_sources": {
+        "PaulGrahamEssays.json": "8d31e1b660e0f2180bcca6d238e18f77921df9d158611582b860da1762b6d3dd",
+        "english_words.json": "affcd6d45fdf3cc843d585c99c97ad615094e760e6c4756b654bab6c73bc2eca",
+        "hotpotqa.json": "e3da074df24e8369009918aa5cdbdd254dadcde4c63f7569d36afd6f2268caa8",
+        "squad.json": "80a5225e94905956a6446d296ca1093975c4d3b3260f1d6c8f68bc2ab77182d8"
+      }
+    }
+  },
+  "deviations": [
+    "control, R1-R3: a length where RULER's generator could not produce some task (partial length, the task is null) is not comparable: the control and R1 at 131072 are `not run` there, and R2 and R3 use only lengths complete for the compared models.",
+    "R3: outcome by the pre-registered point rule as coded before the results (e7858d51); its strength uses the SE clustered by task, as the protocol says. Tracing has 1 task and aggregation 2, under the 3 clusters a clustered verdict needs (a rule added after the results, Amendment 7), so the verdict is `undetermined` and R3 enters Holm without a p (m stays 3). Its t (the between-task SE of the categories that have one, df = tasks - 1) is reported next to it; the sample-level bootstrap comparison (tasks fixed) is descriptive only (Amendment 8).",
+    "R3: the hypothesis compares two categories against retrieval; its t is the weaker of the two comparisons (it holds only if both hold), so it enters Holm once and m stays 3.",
+    "control (Amendment 4, decided after the result and after the control failed): the control failed and the gap is unexplained; Amendment 4 labels the card value `not comparable` and R1-R3 are read under it, against the protocol's rule that no hypothesis is read until the gap is explained. Every score is also given under strict scoring (an output without `</think>` scores 0); verdicts stay on the pre-registered scoring with the strict verdict next to each."
+  ],
+  "bootstrap": {
+    "resamples": 10000,
+    "seed": "20261122:<model-id>"
+  },
+  "warnings": [
+    "lfm3-1.7b vs bielik-11b-v3.1: RULER source files differ: PaulGrahamEssays.json lfm3-1.7b 8d31e1b6, bielik-11b-v3.1 58e35253 (the files as downloaded; the essay text the samples use is compared in diagnostics.json, haystack)"
+  ],
+  "inputs_sha256": {
+    "lfm3-1.7b.json": "316fb5963465cc7a0de0ec521f72dd1c83fb162980b54ccb70882e3c991bdca3",
+    "lfm3-1.7b.jsonl.gz": "6fbcaaaa2efb9ab1befe1b173e597717211d2002f860f2014f3df4ef9b9097c0",
+    "bielik-11b-v3.1.json": "0f85c4fe93d56c823fb7712b5dfdc2bac99fa66d804228a88b4af2f3318038a3",
+    "bielik-11b-v3.1.jsonl.gz": "95feae39c605fe686f804f9b46ce1fd883a787330b453b06a94a52d56f42613e",
+    "slayer1b-1.09-k70000.json": "e7cefa0a5aca6e95e902b2b3d5bcfe3c0d336c729a9e8c31b61fc7c48d8e0ea2",
+    "slayer1b-1.09-k70000.jsonl.gz": "0907c04059e20157a43543e88c4934be5b38683d260f57c77cda4580483ec738"
+  },
+  "provenance": {
+    "time": "2026-11-24T14:20:35+00:00",
+    "code": {
+      "commit": "652a916f149602b995cd557b91e2df579ea1c2a4",
+      "dirty": true,
+      "uncommitted_runner_files": []
+    },
+    "runner_sha256": {
+      "run.sh": "7167ff605fafca9e16dff63ebab8e597721cb59c17ec7790ad5d086404b6d67c",
+      "predict.py": "75b4aa41d4bb1c5651a3590c4c72e9a2c80848c935ff036c0f9f3098e216ccf4",
+      "slayer_predict.py": "a0dc1b135baedf52868bf99215a062aec89a65a17c876ed5d4fe665875b6e409",
+      "prepare_limited.py": "8ca6e7451dce1851cf3beadd13ebf0c7f66dc62bd721bca750ad50c5a7f26974",
+      "ruler.py": "9d35a1edaf1be2add05e2b7967db5ee600b2598cb12c91aee202ae01b39e0b89",
+      "haystack.py": "f18368f82ef4ff5ab88cf8c5524f260342d60fd5686ac39293931e1b692ac447",
+      "summarize.py": "158158316d102d0df5b20a59723663f4551aca2abdfbc706ee7a6e1b7ab09167",
+      "compare.py": "4a6ba1094d5312eb741e553f427b91a0c1efa5208c1806fd71d33e4db1cf8e53",
+      "provenance.py": "801f9bd12e3c8820e6e6cb28468ecf42ab896fef3bf637426f5df015c4f68578",
+      "diagnostics.py": "fc4df9fff61fde142f5cdbb5138f4aec272dcdbef0bfd00a636388f75c100ccf",
+      "report.py": "63f87e424f64e7f86dcc109a20149e66118d8bd120140d3f2a492dce42819330",
+      "reproduction.py": "afac1456f07b1b6d5b6edbcb8dcd98e267fa7d1d0b93df62ed6239d6badffe62",
+      "declared_provenance.json": "efc9ee65f90e26b16537486c76a49d111e40e7f17b75cb5949c2e7fdbd0d9b6a",
+      "requirements.lock.txt": "734278c83bf2e15d209f8b38eb07b71df447f1478f82651de2ebc422423c60af",
+      "nemo_shim/nemo/collections/asr/parts/utils/manifest_utils.py": "1eee490503e415bc1d289baeb5b027593683287cc9d191003da9a415ab1a06ce",
+      "../../common/slayer_lm.py": "5ae131e1e46b36ff2091d313485a234a9bfc1609b2ba726ab1a73008e5a3a2fa",
+      "../../tools/statystyka.py": "ae7331ca606ee5856f7bf74f8f9699a6b96659c385fb2d2b0f805636763c46ff"
+    },
+    "hardware": {
+      "gpu": null,
+      "platform": "macOS-26.6-arm64-arm-64bit",
+      "machine": "arm64",
+      "processor": "arm",
+      "cpu_count": 18,
+      "python": "3.12.2"
+    }
+  }
+}
