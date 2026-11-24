@@ -36,21 +36,27 @@ and says so. The Space and the results page show what has been measured, not whi
 
 ## 2. Precision
 
-- **Native release precision.** Load the weights in the precision they were released in: `torch_dtype` in the
-  model's `config.json`. For almost every current model that is bfloat16. A model released with quantized layers is
-  run as released (gpt-oss-120b: MXFP4 MoE weights, bfloat16 elsewhere). This follows OLMES ("use the default model
-  precision") and the Open LLM Leaderboard, which runs in bfloat16.
-- **No quantization below the release precision** in a headline result. FP8 or INT4 is measured only as its own row,
+- **bfloat16 by default (our decision).** Every model runs in bfloat16, whatever precision its weights were saved in
+  (Slayer 1B's are float32, and its `config.json` has no `torch_dtype`). The Open LLM Leaderboard runs in bfloat16,
+  and bfloat16 is the release precision of almost every current model, which OLMES uses ("use the default model
+  precision"). Any other precision is a deviation: the result records its `dtype` and says why. A model released
+  with quantized layers runs as released (gpt-oss-120b: MXFP4 MoE weights, bfloat16 elsewhere) and says so.
+- **Joining or comparing with an existing table.** Before adding a row to someone's table or comparing with their
+  results, read the precision they used (`dtype` in the result file, the run manifest or the benchmark's README) and
+  run in that precision. When that is not possible, the row names both precisions and is compared only after the
+  control below shows the difference is within the standard errors.
+- **No quantization below bfloat16** in a headline result. FP8 or INT4 is measured only as its own row,
   labelled with its scheme. FP8 is close to lossless on Llama 3.1 (about 99.75% recovery in Red Hat's study), but it
   is still another configuration.
-- **A model that does not fit** the available hardware in its release precision is "not run" (section 7), or gets a
-  labelled quantized row. It is never quantized silently.
-- **Log-likelihood benchmarks.** The central lm-eval run of `research/benchmarks/` was measured in float32 (bfloat16
-  for Bielik 11B and the controls named in METODOLOGIA.md). That run stays a closed configuration. Before new
-  log-likelihood results in release precision are put in the same table as float32 ones, one control measures 2 to 3
-  models in both precisions on the same benchmarks. If the differences are within the standard errors, the tables
-  are merged with a `dtype` column; if not, they stay apart **(our decision)**. The control is
-  [#349](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/349); it also measures the speed-up.
+- **A model that does not fit** the available hardware in bfloat16 is "not run" (section 8), or gets a labelled
+  quantized row. It is never quantized silently.
+- **Log-likelihood benchmarks.** The lm-eval full run of November 2026 (`research/benchmarks/`) was measured in
+  float32 (bfloat16 for Bielik 11B and the controls named in METODOLOGIA.md) and stays a closed configuration. The
+  CodeSOTA runner keeps float32 as its default so that it reproduces that run; new runs pass `--dtype bfloat16`.
+  New bfloat16 rows join the float32 tables only after the control
+  [#349](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/349) (2 to 3 models in both precisions, same
+  benchmarks, which also measures the speed-up) shows the differences are within the standard errors; then the
+  tables are merged with a `dtype` column. Until then they stay apart **(our decision)**.
 
 ## 3. Decoding
 
@@ -145,7 +151,8 @@ A value that cannot be established is written as unknown with the reason, never 
 
 | rule | source |
 |---|---|
-| native release precision | OLMES; Open LLM Leaderboard (bfloat16) |
+| bfloat16 by default | Open LLM Leaderboard (bfloat16); OLMES (default model precision); our decision for models saved in float32 |
+| run in the precision of the table you join or compare with | our decision |
 | quantized only as its own row | Red Hat / Neural Magic quantization study |
 | lab recommendation first | Artificial Analysis; Qwen3, DeepSeek-R1, Nemotron cards |
 | greedy without reasoning | Artificial Analysis |
