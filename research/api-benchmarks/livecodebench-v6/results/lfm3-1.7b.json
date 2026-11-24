@@ -2,7 +2,7 @@
   "benchmark": "LiveCodeBench v6 (code generation, release_v6)",
   "model": "lfm3-1.7b",
   "metric": "pass@1",
-  "score": 72.23,
+  "score": 72.04,
   "stderr": 1.38,
   "n": 1055,
   "date": "2026-11-22",
@@ -35,8 +35,8 @@
   },
   "other_metrics": {
     "v6_only": {
-      "score": 57.14,
-      "stderr": 3.74,
+      "score": 56.57,
+      "stderr": 3.75,
       "n": 175
     },
     "per_difficulty": {
@@ -46,12 +46,12 @@
         "n": 322
       },
       "medium": {
-        "score": 79.63,
-        "stderr": 2.06,
+        "score": 79.37,
+        "stderr": 2.07,
         "n": 383
       },
       "hard": {
-        "score": 41.14,
+        "score": 40.86,
         "stderr": 2.63,
         "n": 350
       }
@@ -63,7 +63,7 @@
         "n": 1055
       },
       "16384": {
-        "score": 52.61,
+        "score": 52.51,
         "stderr": 1.54,
         "n": 1055
       }
@@ -81,7 +81,6 @@
   },
   "deviations": "see README.md, Deviations",
   "provenance": {
-    "recorded": "by hand on 2026-11-22, after the method verification, for a result produced before lcb.py recorded provenance; see README.md, Deviations",
     "generation": [
       {
         "step": "lcb.py generate",
@@ -97,28 +96,61 @@
         "platform": "unknown (vast.ai Linux instance, not captured)",
         "cpu": "unknown (not captured)",
         "model": "lfm3-1.7b",
-        "limit": null
+        "limit": null,
+        "recorded": "by hand on 2026-11-22, after the method verification, for a generation run before lcb.py recorded provenance (code commit inferred, hardware written by hand); copied into out/lfm3-1.7b/run.json on 2026-11-24 so that lcb.py score and summarize.py could run on these answers (PROTOCOL.md, Amendment 5); see README.md, Deviations"
       }
     ],
     "scoring": {
       "step": "lcb.py score",
-      "code_commit": "fc13b0bd (inferred: graded.jsonl lacks fields HEAD adds)",
-      "dirty": "unknown (not recorded)",
-      "gpu": "H100 80GB (vast.ai; the same instance as generation, scoring on its CPU)",
-      "platform": "unknown (vast.ai Linux instance, not captured)",
-      "cpu": "unknown (not captured)",
+      "at": "2026-11-24T14:17:17+00:00",
+      "code_commit": "4cdab27361fa8362f95b59507222e71f59b11ff8",
+      "dirty": false,
+      "runner_sha256": {
+        "run.sh": "835eca201cc1443e3f7ceb3174f5dbc17268440a10bdabbbecb4e24d54db1423",
+        "lcb.py": "adc16bf1c78c8a967ae5c56eb7700f6bba25f8ae0e047956508239e74589ae49",
+        "summarize.py": "eb593b7efef15f45e799aa39bc64ed03b4dc659d88a112dd18707ff8904fa132",
+        "extraction.py": "324d942e733ed9912b63f6c833164015c836acde30ff7d9320f94847ecfce133",
+        "compare.py": "7e5c5a317e30a1d8baf89624b1135b3c8b5a2a280bc8036e0e313b82a931534a",
+        "ablation.py": "661cf488e175502507362bdf4d12a41a3d333435bf6e413a88cc1f7eccc79993",
+        "readme.py": "de521d46beb7cde12237d202640094136c40c26327e26f1b608c541f193cc5d7",
+        "provenance.py": "708cb108ff6bff97ecbed3553e24cd7eef56e70d2dacb6363a48687739bcbbec"
+      },
+      "gpu": null,
+      "platform": "macOS-26.6-arm64-arm-64bit",
+      "cpu": "Apple M5 Pro",
+      "cpu_count": 18,
+      "python": "3.12.2",
       "limit": null
     },
     "summary": {
       "step": "summarize.py",
-      "code_commit": "unknown (not recorded; fc13b0bd's summarize.py writes this file's original fields)"
+      "at": "2026-11-24T14:17:45+00:00",
+      "code_commit": "1439c3e01a5f0666531c5b6b88562f3c0545c0c4",
+      "dirty": false,
+      "runner_sha256": {
+        "run.sh": "835eca201cc1443e3f7ceb3174f5dbc17268440a10bdabbbecb4e24d54db1423",
+        "lcb.py": "adc16bf1c78c8a967ae5c56eb7700f6bba25f8ae0e047956508239e74589ae49",
+        "summarize.py": "eb593b7efef15f45e799aa39bc64ed03b4dc659d88a112dd18707ff8904fa132",
+        "extraction.py": "324d942e733ed9912b63f6c833164015c836acde30ff7d9320f94847ecfce133",
+        "compare.py": "7e5c5a317e30a1d8baf89624b1135b3c8b5a2a280bc8036e0e313b82a931534a",
+        "ablation.py": "661cf488e175502507362bdf4d12a41a3d333435bf6e413a88cc1f7eccc79993",
+        "readme.py": "de521d46beb7cde12237d202640094136c40c26327e26f1b608c541f193cc5d7",
+        "provenance.py": "708cb108ff6bff97ecbed3553e24cd7eef56e70d2dacb6363a48687739bcbbec"
+      },
+      "gpu": null,
+      "platform": "macOS-26.6-arm64-arm-64bit",
+      "cpu": "Apple M5 Pro",
+      "cpu_count": 18,
+      "python": "3.12.2"
     },
     "inputs_sha256": {
-      "graded.jsonl": "53b63644ae80b70efef18a3b46de01fbf46f68b3f7982a2462a73e6d32938f46"
-    }
+      "graded.jsonl": "7656bfe87af3f47eed701a1efc4cebc5953bfa6ece5d10c8d56a0bdad2876694"
+    },
+    "api_events": null,
+    "api_events_reason": "no api-events.jsonl was recorded for this run (generated before lcb.py logged retries), so its retries, pauses and HTTP errors are unknown"
   },
   "raw_outputs": {
-    "file": "out/lfm3-1.7b/generations.jsonl (with thinking; not committed), kept gzipped as out/lfm3-1.7b/lfm3-lcb-generations.jsonl.gz (sha256 31ffd66d74e3e9f61cd770dede59023b56bb45be48829f7f3ca5c51ad797d0f4)",
+    "file": "out/lfm3-1.7b/generations.jsonl (with thinking; not committed)",
     "sha256": "f87135ab212a42d11b8921d20cc10f02cc9fe7672c607055e1edae98951c693a",
     "jsonl_gz_output": "the code LiveCodeBench extracted from the text after the last </think>"
   }

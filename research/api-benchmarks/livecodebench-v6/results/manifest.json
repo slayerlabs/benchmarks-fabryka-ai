@@ -41,14 +41,14 @@
       "written_by": "summarize.py"
     },
     "lfm3-1.7b.json": {
-      "at": "2026-11-22T05:33:39+00:00",
-      "sha256": "746a9d4a1cbb9785da9a1ce072ab6f3875fe135eb401e44d0f60ce68cecb55f4",
-      "written_by": "recorded after the run from the files' current hashes (2026-11-22, after method verification), not by the step that wrote them; see README.md, Deviations"
+      "at": "2026-11-24T14:17:45+00:00",
+      "sha256": "978b5c3c0c8c18c30f219d02aec58745bc856fa2eba15ec0cda0892f0f269578",
+      "written_by": "summarize.py"
     },
     "lfm3-1.7b.jsonl.gz": {
-      "at": "2026-11-22T05:33:39+00:00",
-      "sha256": "c722dac8871897739124ab70446bc24e91783669226775007aaa0da6699ae24a",
-      "written_by": "recorded after the run from the files' current hashes (2026-11-22, after method verification), not by the step that wrote them; see README.md, Deviations"
+      "at": "2026-11-24T14:17:45+00:00",
+      "sha256": "44434c8369103cf2695a5810346670f1b95848992b5868bb3a76b73dd7ae0ace",
+      "written_by": "summarize.py"
     }
   }
 }
