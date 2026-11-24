@@ -32,6 +32,7 @@ import diagnostics as G  # noqa: E402
 import summarize as S  # noqa: E402
 import predict as P  # noqa: E402
 import provenance as V  # noqa: E402
+import ruler as R  # noqa: E402
 from ruler import answer_text, latest_records  # noqa: E402
 
 BENCH = Path(__file__).resolve().parents[1] / "api-benchmarks" / "ruler-128k"
@@ -1045,6 +1046,22 @@ def test_one_prompt_over_the_window_skips_the_whole_length():
         assert not (length_dir / "skip.json").exists()
     assert sent == [(100, 1000 - 100 - 256), (200, 1000 - 200 - 256), (700, 1000 - 700 - 256)]
     assert records["vt"][0]["counted_prompt_tokens"] == 700 and len(records["niah_single_1"]) == 2
+
+
+def test_a_second_generator_on_the_same_length_stops_before_reading_raw():
+    """The cause of the 173 LFM3-1.7B samples with two records at 4096: a second predict.py on the same length read
+    raw/ while the first still had requests in flight, sent those samples again, and both appended a record. With
+    the first holding the length's lock, the second exits before it reads raw/ or sends anything (no raw/ appears);
+    the lock is free again when the first ends."""
+    with tempfile.TemporaryDirectory() as d:
+        length_dir = Path(d) / "out" / "m" / "4096"
+        with R.generation_lock(length_dir, "first"):
+            with pytest.raises(SystemExit) as stopped:
+                run_predict(Path(d), {"niah_single_1": [100, 200]}, window=1000)
+            assert not (length_dir / "raw").exists()
+        with R.generation_lock(length_dir, "after the first"):
+            pass
+    assert "another process is generating" in str(stopped.value.code)
 
 
 class TemplateTokenizer:

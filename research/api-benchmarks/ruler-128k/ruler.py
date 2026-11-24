@@ -7,6 +7,7 @@ metric functions (scripts/eval/synthetic/constants.py), so that each sample can 
 NeMo toolkit is not installed.
 """
 
+import contextlib
 import importlib.util
 import json
 import sys
@@ -14,6 +15,7 @@ from pathlib import Path
 
 SHIM = Path(__file__).resolve().parent / "nemo_shim"
 THINK_END = "</think>"
+LOCK = "generate.lock"
 
 
 def read_jsonl(path):
@@ -26,6 +28,24 @@ def read_jsonl(path):
 def latest_records(raw_file):
     """index -> the last record written for it (a rerun appends; the newest attempt wins)."""
     return {r["index"]: r for r in read_jsonl(raw_file)}
+
+
+@contextlib.contextmanager
+def generation_lock(length_dir, script):
+    """Hold <length-dir>/generate.lock while generating; a second generator on the same length stops before it reads
+    raw/. Without the lock two processes each read raw/, each send the samples the other still has in flight, and
+    both append a record: the 173 LFM3-1.7B samples with two records at 4096 (README, Deviations). flock is released
+    when the process ends, also when it is killed."""
+    import fcntl
+    length_dir = Path(length_dir)
+    length_dir.mkdir(parents=True, exist_ok=True)
+    with open(length_dir / LOCK, "a", encoding="utf-8") as f:
+        try:
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            sys.exit(f"{script}: another process is generating in {length_dir} (it holds {LOCK}); let it finish or "
+                     "stop it, then run again")
+        yield
 
 
 def answer_text(output):

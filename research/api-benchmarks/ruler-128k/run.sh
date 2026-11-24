@@ -262,6 +262,11 @@ elif [[ "$MODE" == api ]]; then
 else
   [[ -d "$VENV_VLLM" ]] || uv venv -q --python 3.12 "$VENV_VLLM"
   uv pip install -q --python "$VENV_VLLM/bin/python" "vllm==$VLLM_VERSION" "transformers==$VLLM_TRANSFORMERS"
+  # A server already on $PORT would pass the health check below and take this call's requests: on 2026-11-22 a second
+  # generating call sent 4096 to the first call's server while the first was still sending (README, Deviations).
+  if curl -sf "http://localhost:$PORT/health" >/dev/null; then
+    echo "a server already answers on port $PORT (another run.sh call?): stop it or set PORT" >&2; exit 1
+  fi
   "$VENV_VLLM/bin/vllm" serve "$REPO" --revision "$REVISION" --served-model-name "$MODEL" --dtype bfloat16 \
     --max-model-len "$CONTEXT" --seed "$SEED" --port "$PORT" > "$OUT/vllm.log" 2>&1 &
   VLLM_PID=$!

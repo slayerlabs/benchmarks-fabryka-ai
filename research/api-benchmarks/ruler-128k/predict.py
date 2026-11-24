@@ -28,8 +28,9 @@ broken connection), the first 300 characters of the error, the action (`retry` a
 
 Raw records go to <length-dir>/raw/<task>.jsonl, appended, one per finished attempt:
   {"index", "output", "finish_reason", "prompt_tokens" (server's usage), "counted_prompt_tokens", "output_tokens"}
-The last record of an index wins; a rerun skips indices with an output. The API key is read from the environment
-variable named by --api-key-env and is never printed.
+The last record of an index wins; a rerun skips indices with an output. One process per length: predict.py holds
+<length-dir>/generate.lock (ruler.generation_lock) from before it reads raw/ to its end, and a second one stops. The
+API key is read from the environment variable named by --api-key-env and is never printed.
 """
 
 import argparse
@@ -45,7 +46,7 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-from ruler import answer_budgets, latest_records, read_jsonl
+from ruler import answer_budgets, generation_lock, latest_records, read_jsonl
 
 RETRY_STATUS = {408, 429, 500, 502, 503, 504}
 PAUSE_MIN, PAUSE_MAX = 10.0, 300.0
@@ -216,7 +217,11 @@ def main():
     args = ap.parse_args()
     if args.tokenizer and not args.context:
         ap.error("--tokenizer needs --context")
+    with generation_lock(args.length_dir, "predict.py"):
+        generate_length(args)
 
+
+def generate_length(args):
     length = int(args.length_dir.name)
     budgets = answer_budgets(args.ruler_dir)
     api_key = None

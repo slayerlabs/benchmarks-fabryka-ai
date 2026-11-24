@@ -12,7 +12,8 @@ prompt is input + 1 tokens and the last generated token is never fed back, so th
 input + budget <= 4096 positions: every RULER sample at 4096 fits Slayer's block without truncation. The script
 checks this per sample and stops instead of truncating.
 
-Raw records: the same format as predict.py ("finish_reason" is "stop" at end of text, else "length").
+Raw records: the same format as predict.py ("finish_reason" is "stop" at end of text, else "length"). One process per
+length, as in predict.py (ruler.generation_lock).
 """
 
 import argparse
@@ -27,7 +28,7 @@ COMMON_DIR = HERE.parents[1] / "common"
 sys.path.insert(0, str(COMMON_DIR))
 
 import slayer_lm  # noqa: E402  research/common: loads Slayer weights and tokenizer, greedy generate
-from ruler import answer_budgets, latest_records, read_jsonl  # noqa: E402
+from ruler import answer_budgets, generation_lock, latest_records, read_jsonl  # noqa: E402
 
 
 def main():
@@ -39,7 +40,11 @@ def main():
     ap.add_argument("--ruler-dir", type=Path, required=True)
     ap.add_argument("--dtype", default="bfloat16")
     args = ap.parse_args()
+    with generation_lock(args.length_dir, "slayer_predict.py"):
+        generate_length(args)
 
+
+def generate_length(args):
     budgets = answer_budgets(args.ruler_dir)
     lm = slayer_lm.SlayerLM(pretrained=args.weights, dtype=args.dtype, device="cuda")
     tokenizer, model = lm.tokenizer, lm.model
