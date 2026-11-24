@@ -37,6 +37,11 @@ raw `output`; the prompts are not stored (get them from the dataset by key).
   Blackwell (`vllm.sh`), with the chat template's defaults, including the provider system prompt, and the date pinned to
   2026-11-18. This is the setup of the `-vllm` rows of the IFEval benchmark (#313), not the API row: on
   IFEval the two differed by about 5 points.
+- **The LFM3-1.7B card's sampling, not Bielik's own.** Bielik runs with the sampling the LFM3-1.7B card uses for
+  its evaluations unless it lists an exception (temperature 0.6, top_p 0.95), because the protocol, fixed before the
+  runs, compares every model with the card's table under the card's settings. The Bielik model card gives no
+  evaluation settings; it sets only temperature 0.3 for its hosted inference widget. A run with Bielik's own settings
+  would be a separate row with its own label.
 - **top_p is set on the server.** `generate_responses.py` sends only temperature, max_tokens and seed, so the card's
   top_p 0.95 is a server default (`--override-generation-config`), visible in vLLM's startup log.
 - **Output limit 31238 instead of "no limit".** The card gives no output limit; the served context is 32768
