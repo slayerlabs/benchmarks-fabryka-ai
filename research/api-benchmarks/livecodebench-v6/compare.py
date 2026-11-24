@@ -285,6 +285,34 @@ def control(results: Path) -> dict[str, Any]:
     return tested
 
 
+def result_provenance(results: Path, model: str) -> dict[str, Any]:
+    """`provenance` of results/<model>.json (sha256 checked); empty when the file or the field is absent."""
+    path = results / f"{model}.json"
+    if not path.is_file():
+        return {}
+    provenance.verify(results, [path.name], "compare.py")
+    return json.loads(path.read_text(encoding="utf-8")).get("provenance") or {}
+
+
+def generation_record(results: Path, model: str) -> str | None:
+    """`reconstructed` when a generation entry of the run's provenance was written by hand after the run (it
+    carries `recorded`), `recorded` when lcb.py wrote them all, None without a result file."""
+    gens = result_provenance(results, model).get("generation")
+    if not gens:
+        return None
+    return "reconstructed" if any("recorded" in g for g in gens) else "recorded"
+
+
+def scoring_machines(results: Path, models: list[str]) -> list[str]:
+    """The distinct machines (CPU, platform) of the runs' `provenance.scoring`."""
+    out = set()
+    for m in models:
+        s = result_provenance(results, m).get("scoring")
+        if s:
+            out.add(f"{s.get('cpu')}, {s.get('platform')}")
+    return sorted(out)
+
+
 def family(lfm: str, runs: dict) -> tuple[list[dict], dict | None, list[str]]:
     """L1-L3 of one LFM3-1.7B run against Bielik, with Holm over the three (m = 3)."""
     main = compare(lfm, BIELIK, runs[lfm], runs[BIELIK]) if runs[lfm] is not None and runs[BIELIK] is not None else None
@@ -357,9 +385,10 @@ def analyse(results: Path) -> dict[str, Any]:
         if other_main is not None:
             descriptive.append({"status": "ok", **other_main})
     f1 = load_f1(results, runs)
-    exploratory = exploratory_extraction(f1, runs)
+    exploratory = exploratory_extraction(f1, runs, scoring_machines(results, [m for m, r in runs.items() if r]))
     return {"benchmark": "LiveCodeBench v6", "protocol": "PROTOCOL.md", "difference": "LFM3-1.7B minus other, pp",
-            "control": control(results), "verdict_run": LFM, "hypotheses": rows, "other_run": other,
+            "control": control(results), "verdict_run": LFM,
+            "verdict_run_generation": generation_record(results, LFM), "hypotheses": rows, "other_run": other,
             "reading": reading(rows, other, exploratory), "descriptive": descriptive,
             "extraction": {m: empty_code(r) for m, r in runs.items() if r is not None},
             "exploratory_extraction": exploratory, "exploratory_cost": exploratory_cost(runs, f1),
@@ -393,9 +422,10 @@ def load_f1(results: Path, runs: dict) -> tuple[dict, str, dict] | None:
     return x, sha, regraded
 
 
-def exploratory_extraction(f1: tuple | None, runs: dict) -> dict[str, Any] | None:
+def exploratory_extraction(f1: tuple | None, runs: dict, scored_on: list[str] | None = None) -> dict[str, Any] | None:
     """Exploratory, after the results: L1 and L3 with every run's answers graded under extraction rule F1
-    (extraction.py, results/extraction-f1.json); None when that file is absent. The official numbers stand."""
+    (extraction.py, results/extraction-f1.json); None when that file is absent. The official numbers stand.
+    `scored_on`: the machines that scored the official runs, to say whether the regrade ran on the same one."""
     if f1 is None:
         return None
     x, sha, regraded = f1
@@ -409,10 +439,12 @@ def exploratory_extraction(f1: tuple | None, runs: dict) -> dict[str, Any] | Non
         rows.append({"run": lfm, "L1": {k: c["overall"][k] for k in keep},
                      "L3": {**{k: e[k] for k in keep}, "budget_a": e["budget_a"], "budget_b": e["budget_b"]}})
     counts = ("answered", "fence_lines", "empty_code", "changed", "passing_after_f1", "official_passes_lost")
+    machine = f"{x['provenance']['cpu']}, {x['provenance']['platform']}"
     return {"file": EXTRACTION, "sha256": sha, "rule": x["rule"], "status": x["exploratory"],
             "runs": {m: {k: v[k] for k in counts} for m, v in x["runs"].items()}, "hypotheses": rows,
             "machine": {"cpu": x["provenance"]["cpu"], "platform": x["provenance"]["platform"],
-                        "processes": x["evaluator"]["processes"]}}
+                        "processes": x["evaluator"]["processes"],
+                        "scored_official_runs": bool(scored_on) and scored_on == [machine]}}
 
 
 def mean_cost(run: str, rows: list[dict], budget: int | None, prompt: bool = False) -> float:
@@ -542,8 +574,9 @@ def extraction_section(a: dict) -> list[str]:
             f"{x['rule']}; "
             "the answers whose code changes are graded again with LiveCodeBench's evaluator on the machine that ran "
             f"extraction.py ({m['cpu']}, {m['platform']}, {m['processes']} processes, from the file's provenance), "
-            "not on the machines that scored the official runs (results/<model-id>.json, provenance.scoring); "
-            f"results/{x['file']}.", "",
+            + ("the machine that scored the official runs" if m.get("scored_official_runs")
+               else "not on the machines that scored the official runs")
+            + f" (results/<model-id>.json, provenance.scoring); results/{x['file']}.", "",
             "| run | answered | empty code | changed by F1 | of these passing | official passes lost |",
             "|---|---|---|---|---|---|"]
     out += [f"| {m} | {r['answered']} | {r['empty_code']} | {r['changed']} | {r['passing_after_f1']} | "
@@ -596,7 +629,10 @@ def report(a: dict) -> str:
     if d and d.get("z") is not None:
         out.append(f"descriptive, not tested: LFM3-1.7B ({d['run']}, the verdict run of L1-L3) {d['score']:.2f} ± "
                    f"{d['stderr']:.2f} vs card {d['card']}, z = {d['z']:+.2f}")
-    out += ["", f"L1-L3 on {a['verdict_run']}, the verdict run:", ""] + hypotheses_table(a["hypotheses"])
+    note = (" (its generation provenance is reconstructed: code commit inferred, hardware written by hand; the scores "
+            "reproduce from the committed answers; README, Deviations)"
+            if a.get("verdict_run_generation") == "reconstructed" else "")
+    out += ["", f"L1-L3 on {a['verdict_run']}, the verdict run{note}:", ""] + hypotheses_table(a["hypotheses"])
     out += clustered_table(a["hypotheses"])
     other = a["other_run"]
     if other:

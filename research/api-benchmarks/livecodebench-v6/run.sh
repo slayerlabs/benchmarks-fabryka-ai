@@ -60,9 +60,9 @@ case "$MODEL" in
     # difference from our local count (README, "Deviations").
     MARGIN=64 ;;
   slayer1b-1.09-k70000)
-    echo "slayer1b-1.09-k70000 is not run: research/common/slayer_lm.py decodes about 29 tokens/s whatever the" \
-         "batch, and the 1055 prompts leave about 2.87M output tokens under the 4096 context, about 27 h on one GPU" \
-         "(README, \"Deviations\")." >&2
+    echo "slayer1b-1.09-k70000 is not run, a cost decision (PROTOCOL.md, Amendment 5): Slayer 1B passed 0 of 30 Python" \
+         "tasks in research/slayer-1b/rozmowy-1.08 (PAPER.md, H5.1), and research/common/slayer_lm.py would need" \
+         "about 27 h on one GPU for the 1055 problems (README, \"Deviations\")." >&2
     exit 2 ;;
   *)
     echo "unknown model-id: $MODEL (lfm3-1.7b | lfm3-1.7b-cardsampling | bielik-11b-v3.1)" >&2; exit 2 ;;

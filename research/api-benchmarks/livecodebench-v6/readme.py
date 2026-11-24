@@ -37,10 +37,12 @@ RUNS = {
                                "thinks (template default)",
                                "vLLM 0.34.0, bf16; `repetition_penalty` 1.0 and `top_k` 0 in the request"),
     "bielik-11b-v3.1": ("Bielik 11B v3.1 (`bielik-11b-v3.1`)",
-                        "does not think (API default `reasoning_effort` none: empty `<think></think>`)",
+                        "does not think: API default, no reasoning; reasoning cannot be switched on through the API "
+                        "(`reasoning_effort` none: empty `<think></think>`)",
                         "Fabryka AI API, with the API's hidden provider system prompt"),
 }
-NOT_RUN = [("Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`)", "not run, see Deviations")]
+# `score: null` by a cost decision (PROTOCOL.md, Amendment 5), not because Slayer 1B cannot run the benchmark
+NOT_RUN = [("Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`)", "not run, a cost decision; see Deviations")]
 
 
 def markers(name: str) -> tuple[str, str]:
