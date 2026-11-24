@@ -188,6 +188,82 @@
       "32768": 0.8690542664324674
     }
   },
+  "haystack": {
+    "pinned_part": {
+      "source": "https://github.com/gkamradt/LLMTest_NeedleInAHaystack/raw/78774ab3e2ce64051713ca784d521ac4df5ac64e/needlehaystack/PaulGrahamEssays, 49 essays joined as RULER's downloader does",
+      "sha256": "b3a70ebc054f2eab5057baf3c4b7e857711472be8086240a516fd29b648ad857",
+      "characters": 643830,
+      "characters_without_whitespace": 527800
+    },
+    "essay_file_sha256": {
+      "lfm3-1.7b": "8d31e1b660e0f2180bcca6d238e18f77921df9d158611582b860da1762b6d3dd",
+      "bielik-11b-v3.1": "58e352531a80cef2d22c205dbebfbfd64a8afe55a32434de845f200718756c65",
+      "slayer1b-1.09-k70000": "8d31e1b660e0f2180bcca6d238e18f77921df9d158611582b860da1762b6d3dd"
+    },
+    "per_model": {
+      "lfm3-1.7b": {
+        "4096": {
+          "samples": 250,
+          "max_chars": 15237,
+          "outside": 0
+        },
+        "8192": {
+          "samples": 250,
+          "max_chars": 30920,
+          "outside": 0
+        },
+        "16384": {
+          "samples": 250,
+          "max_chars": 62333,
+          "outside": 0
+        },
+        "32768": {
+          "samples": 250,
+          "max_chars": 126356,
+          "outside": 0
+        },
+        "65536": {
+          "samples": 250,
+          "max_chars": 251557,
+          "outside": 0
+        },
+        "131072": {
+          "samples": 250,
+          "max_chars": 502539,
+          "outside": 0
+        }
+      },
+      "bielik-11b-v3.1": {
+        "4096": {
+          "samples": 250,
+          "max_chars": 13928,
+          "outside": 0
+        },
+        "8192": {
+          "samples": 250,
+          "max_chars": 28585,
+          "outside": 0
+        },
+        "16384": {
+          "samples": 250,
+          "max_chars": 57739,
+          "outside": 0
+        },
+        "32768": {
+          "samples": 250,
+          "max_chars": 117273,
+          "outside": 0
+        }
+      },
+      "slayer1b-1.09-k70000": {
+        "4096": {
+          "samples": 250,
+          "max_chars": 14170,
+          "outside": 0
+        }
+      }
+    }
+  },
   "inputs": {
     "lfm3-1.7b": {
       "out_dir": "out/_box/lfm3-1.7b",
@@ -196,26 +272,31 @@
     "bielik-11b-v3.1": {
       "out_dir": "out/bielik-11b-v3.1",
       "inputs.sha256.json": "d2a0e01404a738d1149bda93e732cdb2b25e541e6036c4a154cfc9737d5e96e7"
+    },
+    "slayer1b-1.09-k70000": {
+      "out_dir": "out/_box/slayer1b-1.09-k70000",
+      "inputs.sha256.json": "27f9d379e51e542b58fcedf81167356f8b6d89cb54ec245c049a460c94ed1017"
     }
   },
   "provenance": {
-    "time": "2026-11-22T19:02:17+00:00",
+    "time": "2026-11-24T14:20:16+00:00",
     "code": {
-      "commit": "5ea36e09dd54d2c75b438818d9f2bbdb31dea6bb",
-      "dirty": true,
+      "commit": "652a916f149602b995cd557b91e2df579ea1c2a4",
+      "dirty": false,
       "uncommitted_runner_files": []
     },
     "runner_sha256": {
-      "run.sh": "61b6baa8360b4f3d4aade1cd3f9d45d9d4c07a605b519f8929dab809c48941b8",
-      "predict.py": "d6177879bc9f2d791ff596687de62eeaf0155db2b3ccf632e846258b8b4abd44",
-      "slayer_predict.py": "e75b03ea22b22c3827069e55e7b7f06b34c8e28dadf595939677db4d0da42422",
+      "run.sh": "7167ff605fafca9e16dff63ebab8e597721cb59c17ec7790ad5d086404b6d67c",
+      "predict.py": "75b4aa41d4bb1c5651a3590c4c72e9a2c80848c935ff036c0f9f3098e216ccf4",
+      "slayer_predict.py": "a0dc1b135baedf52868bf99215a062aec89a65a17c876ed5d4fe665875b6e409",
       "prepare_limited.py": "8ca6e7451dce1851cf3beadd13ebf0c7f66dc62bd721bca750ad50c5a7f26974",
-      "ruler.py": "7491f1fbc3337240e151f564319cf591f3442ce6adc945dfff44f066bcbd5fc7",
+      "ruler.py": "9d35a1edaf1be2add05e2b7967db5ee600b2598cb12c91aee202ae01b39e0b89",
+      "haystack.py": "f18368f82ef4ff5ab88cf8c5524f260342d60fd5686ac39293931e1b692ac447",
       "summarize.py": "158158316d102d0df5b20a59723663f4551aca2abdfbc706ee7a6e1b7ab09167",
-      "compare.py": "f6e297d9a2b527308ce7ac3cbc5d48347564881578a94d46c3b55944bf613d2b",
-      "provenance.py": "76f9366be7dec5d43da7e11fb321c872beb1d5d533e837a20b59f5263be10b50",
-      "diagnostics.py": "fa6e7b68bf564e2bf2f73b4c02a5323eb2ee670865043d3bb8480eb7d346a40e",
-      "report.py": "069a443e4ced2123fbd7ccf0d10856de1572e54c880aacbf8306d5dae30bd013",
+      "compare.py": "4a6ba1094d5312eb741e553f427b91a0c1efa5208c1806fd71d33e4db1cf8e53",
+      "provenance.py": "801f9bd12e3c8820e6e6cb28468ecf42ab896fef3bf637426f5df015c4f68578",
+      "diagnostics.py": "fc4df9fff61fde142f5cdbb5138f4aec272dcdbef0bfd00a636388f75c100ccf",
+      "report.py": "63f87e424f64e7f86dcc109a20149e66118d8bd120140d3f2a492dce42819330",
       "reproduction.py": "afac1456f07b1b6d5b6edbcb8dcd98e267fa7d1d0b93df62ed6239d6badffe62",
       "declared_provenance.json": "efc9ee65f90e26b16537486c76a49d111e40e7f17b75cb5949c2e7fdbd0d9b6a",
       "requirements.lock.txt": "734278c83bf2e15d209f8b38eb07b71df447f1478f82651de2ebc422423c60af",
@@ -224,14 +305,12 @@
       "../../tools/statystyka.py": "ae7331ca606ee5856f7bf74f8f9699a6b96659c385fb2d2b0f805636763c46ff"
     },
     "hardware": {
-      "gpu": [
-        "NVIDIA GeForce RTX 3070"
-      ],
-      "platform": "Linux-5.15.0-1067-kvm-x86_64-with-glibc2.35",
-      "machine": "x86_64",
-      "processor": "x86_64",
-      "cpu_count": 30,
-      "python": "3.12.16"
+      "gpu": null,
+      "platform": "macOS-26.6-arm64-arm-64bit",
+      "machine": "arm64",
+      "processor": "arm",
+      "cpu_count": 18,
+      "python": "3.12.2"
     }
   }
 }
