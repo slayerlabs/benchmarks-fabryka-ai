@@ -18,6 +18,7 @@ Run: python3 tests/test_ruler_128k.py (or pytest).
 """
 import contextlib
 import gzip
+import hashlib
 import io
 import json
 import sys
@@ -29,6 +30,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "api-benchmarks" / "ruler-128k"))
 import compare as C  # noqa: E402
 import diagnostics as G  # noqa: E402
+import haystack as H  # noqa: E402
 import summarize as S  # noqa: E402
 import predict as P  # noqa: E402
 import provenance as V  # noqa: E402
@@ -1064,6 +1066,39 @@ def test_a_second_generator_on_the_same_length_stops_before_reading_raw():
     assert "another process is generating" in str(stopped.value.code)
 
 
+def test_essay_haystack_pinned_part_and_samples_inside_it():
+    """haystack.py: RULER's URL list gets the 49 GitHub essays at the pinned commit; an essay text that does not open
+    with the pinned part (sha256) is refused; an essay sample counts as inside when its haystack, needles and
+    whitespace left out, is a prefix of the pinned part (RULER's sentence split moves spaces: `good.[2]` ->
+    `good. [2]`); a sample from text past the part counts as outside. run.sh runs both checks."""
+    urls = "".join(f"{H.ESSAY_REPO}main/needlehaystack/PaulGrahamEssays/e{i}.txt\n" for i in range(49))
+    assert H.pinned_urls(urls + "http://www.paulgraham.com/a.html\n").count(f"/raw/{H.COMMIT}/") == 49
+    with pytest.raises(ValueError):
+        H.pinned_urls(urls.split("\n", 1)[1])
+    part = "July 2010 One essay, good.[2] More text here.\nSecond essay. Its end."
+    pinned = H.PART_CHARS, H.PART_SHA256
+    H.PART_CHARS, H.PART_SHA256 = len(part), hashlib.sha256(part.encode()).hexdigest()
+    try:
+        assert H.pinned_part(part + " Live essay from paulgraham.com.") == part
+        with pytest.raises(ValueError):
+            H.pinned_part("x" + part)
+    finally:
+        H.PART_CHARS, H.PART_SHA256 = pinned
+    needle = "One of the special magic numbers for adhoc-result is: 9471756."
+    inputs = ["July 2010 One essay, good. [2] " + needle + " More text",  # inside: needle, moved space
+              "July 2010 One essay, good.[2] More text here. Second essay.",  # inside, across two essays
+              "July 2010 One essay, good.[2] More text here. Second essay. Its end. Live essay"]  # past the part
+    with tempfile.TemporaryDirectory() as d:
+        data = Path(d) / "4096" / "data" / "niah_single_2"
+        data.mkdir(parents=True)
+        (data / "validation.jsonl").write_text("".join(json.dumps(
+            {"index": i, "input": f"A special magic number is hidden.\n{text}\nWhat is it?"}) + "\n"
+            for i, text in enumerate(inputs)))
+        assert H.reach(Path(d), part) == {"4096": {"samples": 3, "max_chars": len(H.squeeze(inputs[2])), "outside": 1}}
+    text = (BENCH / "run.sh").read_text(encoding="utf-8")
+    assert 'haystack.py" urls' in text and 'haystack.py" check-file' in text and 'haystack.py" check-out "$OUT"' in text
+
+
 class TemplateTokenizer:
     """Whitespace tokens and a chat template shaped like Bielik's: BOS, a provider system prompt, the user message,
     and a generation prompt that closes the reasoning block. transformers 5 returns a BatchEncoding when it
@@ -1120,7 +1155,11 @@ def test_bielik_prompt_count_with_its_own_bos_and_template():
     if path is None:
         print("test_bielik_prompt_count_with_its_own_bos_and_template: no Bielik tokenizer here, not run")
         return
-    tok = AutoTokenizer.from_pretrained(path)
+    try:
+        tok = AutoTokenizer.from_pretrained(path)
+    except (ImportError, ValueError) as e:  # e.g. .venv-eval: transformers 4.x without sentencepiece/protobuf
+        print(f"test_bielik_prompt_count_with_its_own_bos_and_template: tokenizer does not load here ({e}), not run")
+        return
     sample = {"input": "Find the special magic number hidden in the text. " * 20, "answer_prefix": " Answer:"}
     count, window = P.local_counter(path, 32768)(sample)
     rendered = tok.apply_chat_template(P.messages(sample), add_generation_prompt=True, tokenize=False)

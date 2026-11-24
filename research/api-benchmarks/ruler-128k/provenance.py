@@ -29,8 +29,8 @@ import subprocess
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-RUNNER_FILES = ["run.sh", "predict.py", "slayer_predict.py", "prepare_limited.py", "ruler.py", "summarize.py",
-                "compare.py", "provenance.py", "diagnostics.py", "report.py", "reproduction.py",
+RUNNER_FILES = ["run.sh", "predict.py", "slayer_predict.py", "prepare_limited.py", "ruler.py", "haystack.py",
+                "summarize.py", "compare.py", "provenance.py", "diagnostics.py", "report.py", "reproduction.py",
                 "declared_provenance.json",
                 "requirements.lock.txt", "nemo_shim/nemo/collections/asr/parts/utils/manifest_utils.py",
                 "../../common/slayer_lm.py", "../../tools/statystyka.py"]

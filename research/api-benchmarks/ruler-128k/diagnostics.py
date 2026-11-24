@@ -1,6 +1,6 @@
 """Exploratory checks of the published runs, from the raw outputs and RULER data in the out dirs -> diagnostics.json.
 
-Usage: python diagnostics.py --ruler-dir DIR --lfm3 OUT --bielik OUT [--target results/diagnostics.json]
+Usage: python diagnostics.py --ruler-dir DIR --lfm3 OUT --bielik OUT --slayer OUT [--target results/diagnostics.json]
 
 Nothing here is a verdict or a pre-registered number: each block was asked for by the verification of 2026-11-22
 (PROTOCOL.md, Amendment 7) after the results were seen, and README labels it exploratory.
@@ -16,6 +16,9 @@ Nothing here is a verdict or a pre-registered number: each block was asked for b
   are listed, since strict scoring gives them 0 although Amendment 4's reason was outputs looping to the limit.
 - echo_baseline: the score of a rule that answers with the whole input, per length (RULER's scorer is a substring
   match with no length cap, so the input, which holds every needle, scores near 100; Amendment 8).
+- haystack: for each model, the essay samples per length, the most characters (without whitespace) one of them uses
+  and how many are not a prefix of the pinned GitHub part of the essays (haystack.py), next to the sha256 of the
+  model's PaulGrahamEssays.json (asked by the review of 2026-11-24: the files differ between the models).
 
 Every out dir is checked against its inputs.sha256.json before it is read (provenance.verify_inputs). Scoring is
 RULER's own postprocess_pred and metric (ruler.scorer), as in summarize.py; the last record of a sample wins.
@@ -25,6 +28,7 @@ import json
 import statistics
 from pathlib import Path
 
+import haystack
 import provenance
 from ruler import THINK_END, answer_budgets, answer_text, read_jsonl, scorer
 from summarize import BOOTSTRAP_RESAMPLES, BOOTSTRAP_SEED, CATEGORIES, HEADLINE_LENGTH, LENGTHS, TASKS, bootstrap_se
@@ -197,18 +201,31 @@ def think_end(out_dir, postprocess, metrics):
     return {"without_think_end_by_finish_reason": per_length, "stopped_without_think_end": stopped}
 
 
+def haystack_check(out_dirs, ruler_dir):
+    """haystack.py on each out dir, against the pinned part of the RULER checkout's PaulGrahamEssays.json."""
+    part = haystack.pinned_part(haystack.read_text(Path(ruler_dir) / "scripts" / "data" / "synthetic" / "json" /
+                                                   "PaulGrahamEssays.json"))
+    return {"pinned_part": {"source": f"{haystack.ESSAY_REPO}{haystack.COMMIT}/needlehaystack/PaulGrahamEssays, 49 "
+                                      "essays joined as RULER's downloader does", "sha256": haystack.PART_SHA256,
+                            "characters": len(part), "characters_without_whitespace": len(haystack.squeeze(part))},
+            "essay_file_sha256": {model: json.loads((Path(d) / "run.json").read_text(encoding="utf-8"))
+                                  ["data_sources"]["PaulGrahamEssays.json"] for model, d in out_dirs.items()},
+            "per_model": {model: haystack.reach(d, part) for model, d in out_dirs.items()}}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ruler-dir", required=True)
     ap.add_argument("--lfm3", type=Path, required=True, help="LFM3-1.7B out dir (out/_box/lfm3-1.7b)")
     ap.add_argument("--bielik", type=Path, required=True, help="Bielik out dir (out/bielik-11b-v3.1)")
+    ap.add_argument("--slayer", type=Path, required=True, help="Slayer out dir (out/_box/slayer1b-1.09-k70000)")
     ap.add_argument("--target", type=Path, default=HERE / "results" / "diagnostics.json")
     args = ap.parse_args()
     if args.target.parent.resolve() == (HERE / "results").resolve():
         provenance.require_committed("diagnostics.py")
     dirs = {"lfm3-1.7b": args.lfm3, "bielik-11b-v3.1": args.bielik}
     inputs = {}
-    for model, out_dir in dirs.items():
+    for model, out_dir in {**dirs, "slayer1b-1.09-k70000": args.slayer}.items():
         provenance.verify_inputs(out_dir, "diagnostics.py")
         inputs[model] = {"out_dir": out_dir.as_posix(), provenance.INPUTS: provenance.sha256(out_dir / provenance.INPUTS)}
     postprocess, metrics = scorer(args.ruler_dir)
@@ -218,7 +235,9 @@ def main():
         "duplicates": duplicates(args.lfm3, postprocess, metrics),
         "think_end": think_end(args.lfm3, postprocess, metrics),
         "echo_baseline": echo_baseline(args.lfm3, postprocess, metrics)},
-        "input_text": input_text(dirs), "inputs": inputs, "provenance": provenance.machine()}
+        "input_text": input_text(dirs),
+        "haystack": haystack_check({**dirs, "slayer1b-1.09-k70000": args.slayer}, args.ruler_dir),
+        "inputs": inputs, "provenance": provenance.machine()}
     args.target.parent.mkdir(parents=True, exist_ok=True)
     args.target.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     provenance.write_manifest(args.target.parent, [args.target.name], provenance.RESULTS)

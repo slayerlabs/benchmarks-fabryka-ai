@@ -178,7 +178,7 @@ def parity_note(parity):
         return parity["reason"]
     return ("same RULER source files" if parity["same"] else "RULER source files differ: " + "; ".join(
         f"{f} " + ", ".join(f"{m} {sha[:8]}" for m, sha in by_model.items()) for f, by_model in parity["differs"].items())
-        + " (the haystack text is not the same)")
+        + " (the files as downloaded; the essay text the samples use is compared in diagnostics.json, haystack)")
 
 
 def length_mean(task_means):

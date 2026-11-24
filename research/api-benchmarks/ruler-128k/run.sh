@@ -108,11 +108,20 @@ if ! sha256_is "$ENGLISH_WORDS_SHA256" "$JSON_DIR/english_words.json"; then
   sha256_is "$ENGLISH_WORDS_SHA256" "$JSON_DIR/english_words.json" \
     || { echo "english_words.json does not match its git-lfs oid" >&2; exit 1; }
 fi
-# RULER's own download scripts. Essays come from paulgraham.com and GitHub as they are today, QA from SQuAD v2.0
-# dev and HotpotQA dev: the sha256 of each file goes into the result, and all models must share the same files.
+# RULER's own download scripts: QA from SQuAD v2.0 dev and HotpotQA dev; the sha256 of each file goes into the result.
+# Essays: RULER's downloader on RULER's URL list with the 49 GitHub essays at a pinned commit (haystack.py); the
+# paulgraham.com essays after them are fetched as they are today, so the file's sha256 can differ between runs. Only
+# the GitHub part may reach a sample: it is checked by sha256 here and against every essay haystack after the data.
 if [[ ! -s "$JSON_DIR/PaulGrahamEssays.json" ]]; then
-  (cd "$JSON_DIR" && "$PY" download_paulgraham_essay.py)
+  ESSAYS="$CACHE/essays"
+  rm -rf "$ESSAYS"
+  mkdir -p "$ESSAYS"
+  cp "$JSON_DIR/download_paulgraham_essay.py" "$ESSAYS/"
+  "$PY" "$HERE/haystack.py" urls "$JSON_DIR/PaulGrahamEssays_URLs.txt" "$ESSAYS/PaulGrahamEssays_URLs.txt"
+  (cd "$ESSAYS" && "$PY" download_paulgraham_essay.py)
+  mv "$ESSAYS/PaulGrahamEssays.json" "$JSON_DIR/PaulGrahamEssays.json"
 fi
+"$PY" "$HERE/haystack.py" check-file "$JSON_DIR/PaulGrahamEssays.json"
 if [[ ! -s "$JSON_DIR/squad.json" || ! -s "$JSON_DIR/hotpotqa.json" ]]; then
   QA_PATH="$PATH"
   if ! command -v wget >/dev/null; then
@@ -236,6 +245,8 @@ for L in "${LENGTHS[@]}"; do
     (( n == NUM )) || { echo "RULER data for $T @ $L has $n of $NUM samples" >&2; exit 1; }
   done
 done
+# Every essay haystack of the data must lie in the pinned GitHub part of the essays (haystack.py).
+"$PY" "$HERE/haystack.py" check-out "$OUT" "$JSON_DIR/PaulGrahamEssays.json"
 
 # --- generation ----------------------------------------------------------------------------------------------
 # generation.jsonl, one line per run.sh call that generates: commit of this repo and dirty flag, sha256 of the runner
