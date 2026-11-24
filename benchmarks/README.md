@@ -192,6 +192,8 @@ Contributions from researchers and developers are welcome. Work on the `codesota
 private infrastructure; running full evaluations on rented machines or the project's model API is coordinated with
 the maintainers ([`research/METHODOLOGY.md`](../research/METHODOLOGY.md)).
 
+- [`docs/methodology.md`](docs/methodology.md): how every model is configured for a run: precision, decoding,
+  repeats, output limit, standard errors, and what `null` and "not run" mean.
 - [`docs/contributing.md`](docs/contributing.md): how to set up, choose a task, find official sources, prepare
   reproducible evidence, and open a pull request.
 - [`AGENTS.md`](AGENTS.md): rules for coding agents and the people who supervise them.

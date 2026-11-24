@@ -411,6 +411,9 @@ Przebieg centralny liczy też modele kontrolne etapu B spoza listy, wskazane w k
 kontrolny etapu B”. Każdy liczy tylko swoje testy (`TESTY_MODELU` w `tools/przebieg_centralny.sh`), w ustawieniach
 wpisu zadania, i nie wchodzi ani do porównania z modelami odniesienia, ani do panelu SNR, ani do raportu przebiegu.
 Precyzja to float32, a bfloat16 tylko wtedy, gdy źródło wyniku liczyło w bf16 model od 6 mld parametrów.
+Te reguły precyzji dotyczą przebiegu centralnego, który jest zamkniętą konfiguracją. Nowe pomiary liczą model w
+precyzji jego wydania według [metodologii ewaluacji CodeSOTA](../benchmarks/docs/methodology.md), sekcja 2; wyniki
+float32 i bfloat16 stają w jednej tabeli dopiero po kontroli opisanej tam.
 
 | model | rewizja | testy | uwagi |
 |---|---|---|---|

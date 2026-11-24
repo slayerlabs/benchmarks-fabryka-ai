@@ -7,6 +7,7 @@ Which guide applies depends on where your change goes:
 | `benchmarks/`: the `codesota` package, its tests and docs | this guide and [`../AGENTS.md`](../AGENTS.md) |
 | `research/benchmarks/`: benchmarks evaluated with lm-eval, results, research code | the root [`CONTRIBUTING.md`](../../CONTRIBUTING.md) and [`research/METODOLOGIA.md`](../../research/METODOLOGIA.md) (Polish) |
 | a new benchmark run through a model API, in `research/api-benchmarks/<name>/` (the first such PR creates the directory) | [`research/METHODOLOGY.md`](../../research/METHODOLOGY.md) |
+| how a model is configured for any run (precision, decoding, repeats, output limit, standard errors) | [`methodology.md`](methodology.md) |
 
 If your change touches both, follow both. The `codesota` package runs the benchmarks of its catalog
 ([`BENCHMARKS.md`](../BENCHMARKS.md), [`running.md`](running.md)); most benchmarks there are not implemented yet.

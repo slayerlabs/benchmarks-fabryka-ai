@@ -28,6 +28,9 @@ które sprawdzają (bramka liczb, SE i werdykt przy każdym porównaniu), opisuj
 
 ## Zasady
 
+- Model configuration (precision, decoding, repeats, output limit, standard errors, `null` and "not run") follows
+  [`benchmarks/docs/methodology.md`](benchmarks/docs/methodology.md) for every new measurement, in `research/`
+  too. A benchmark's README names every deviation with its reason.
 - Everything is written in English: documents, code, comments, issues, PRs and commit messages.
 - Czego nie commitujesz (wagi, zbiory, pliki powyżej 10 MB) i kiedy wolno `.jsonl.gz`:
   [`CONTRIBUTING.md`, „Pliki w repo”](CONTRIBUTING.md#pliki-w-repo).
