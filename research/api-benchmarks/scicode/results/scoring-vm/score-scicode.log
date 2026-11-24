@@ -1,0 +1,19 @@
+2026-11-22T17:43:37Z code 2ade850c2c7ff4d5ebd6f41eae0caacfa50c4eb2
+2026-11-22T17:43:37Z start lfm3-1.7b generations=576 load=0.23 0.87 1.73
+2026-11-22T18:31:32Z parallel: bielik and nothink start next to lfm3-1.7b (deviation: models scored side by side)
+2026-11-22T18:31:32Z code 2ade850c2c7ff4d5ebd6f41eae0caacfa50c4eb2
+2026-11-22T18:31:32Z start bielik-11b-v3.1 generations=576 load=1.00 1.02 1.41
+2026-11-22T18:31:32Z code 2ade850c2c7ff4d5ebd6f41eae0caacfa50c4eb2
+2026-11-22T18:31:32Z start lfm3-1.7b-nothink generations=576 load=1.00 1.02 1.41
+2026-11-22T21:08:49Z final: stopped 2ade850c scoring, code 2ade850c2c7ff4d5ebd6f41eae0caacfa50c4eb2
+2026-11-22T21:08:49Z final: removed Bielik official without_background logs (disk-full window) for rescoring
+2026-11-22T21:08:49Z final start lfm3-1.7b load=3.56 3.70 3.71
+2026-11-22T21:10:16Z final: stopped 2ade850c scoring, code 3b731440030a178e73f660c632c2df68fd2fce29
+2026-11-22T21:10:16Z final: removed Bielik official without_background logs (disk-full window) for rescoring
+2026-11-22T21:10:16Z final start lfm3-1.7b load=1.84 3.11 3.50
+2026-11-22T21:10:24Z final end lfm3-1.7b exit=0 load=1.77 3.07 3.49
+2026-11-22T21:10:24Z final start lfm3-1.7b-nothink load=1.77 3.07 3.49
+2026-11-22T21:10:32Z final end lfm3-1.7b-nothink exit=0 load=1.81 3.04 3.47
+2026-11-22T21:10:32Z final start bielik-11b-v3.1 load=1.81 3.04 3.47
+2026-11-22T23:51:41Z final end bielik-11b-v3.1 exit=0 load=1.00 1.00 1.00
+2026-11-22T23:51:41Z final: scoring done
