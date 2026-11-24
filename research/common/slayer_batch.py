@@ -91,8 +91,8 @@ def generate_batch(model, prompt_ids_list: list[list[int]], max_total: int = 409
     max_new = int((max_total - lengths).clamp(min=0).max().item())
     if max_new == 0:
         return [[] for _ in range(B)]
-    if int(lengths.max()) + max_new - 1 > m.blok:
-        raise ValueError(f"Slayer: {int(lengths.max()) + max_new - 1} positions, but block = {m.blok}")
+    if max_total > m.blok:
+        raise ValueError(f"Slayer: max_total {max_total} exceeds block = {m.blok} (highest position {max_total - 1})")
     size = width + max_new
     shape = (B, m.n_head, size, m.hd)
     kcache = [torch.empty(shape, dtype=m.dtype, device=device) for _ in range(m.n_layer)]
@@ -115,10 +115,10 @@ def generate_batch(model, prompt_ids_list: list[list[int]], max_total: int = 409
             if not bool(finished[i]):
                 out[i].append(int(next_tokens[i].item()))
         finished = finished | (next_tokens == stop)
-        generated = end - width + 1  # tokens generated so far including this one
+        generated = end - width  # tokens generated so far including this one
         finished = finished | (lengths + generated >= max_total)
         if bool(finished.all()):
             break
         pending, start = next_tokens[:, None], end
-        step_pos = (lengths + generated)[:, None]
+        step_pos = (lengths + generated - 1)[:, None].clamp(max=max_total - 1)
     return out
