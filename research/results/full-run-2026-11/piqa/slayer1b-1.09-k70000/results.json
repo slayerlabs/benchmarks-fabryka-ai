@@ -1,0 +1,70 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-SlayerLab_Slayer1B-1.09-checkpoints-adfaf3fd-20261121T193606Z",
+ "models": [
+  {
+   "model_id": "SlayerLab/Slayer1B-1.09-checkpoints",
+   "repo": "SlayerLab/Slayer1B-1.09-checkpoints",
+   "revision": "adfaf3fd5402bc7f3adbfe077798f20262979433",
+   "weights_sha256": "b9e31fc953af44638fd64ca163dd8d5658cfe02928445fa9a412f11a618bb24e"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T06",
+   "task": "piqa",
+   "family": "piqa",
+   "language": "EN",
+   "split": "validation"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T06",
+   "model_id": "SlayerLab/Slayer1B-1.09-checkpoints",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc_norm,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 1838,
+   "n_selected": 1838,
+   "n_scored": 1838,
+   "state": "ok",
+   "value": 0.7274211099020674,
+   "ci95": {
+    "lower": 0.7067464635473341,
+    "upper": 0.7480957562568009,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "98d8ca1d7ff33dfb7b5893c9ca1c48e9d87736b58196cd6ad941f7520fd660b8",
+   "results_sha256": "1195486a24e44afbc3cb1b584df85b1ab82ba8e560d3c27087ec02acd2097369",
+   "runner_sha256": "7a40b11ec940e3cd44002a40806c6e30c4e3febb57baf5017079ef7a2cb11375",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.5,
+    "majority_value": 0.5048966267682263,
+    "majority_prediction_share": 0.5054406964091404,
+    "constant_prediction": false
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "6b8fb528fccf7dd0e0fdd3b06465b4af95507ec8",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-SlayerLab_Slayer1B-1.09-checkpoints-adfaf3fd-20261121T193606Z",
+    "results_sha256": "1195486a24e44afbc3cb1b584df85b1ab82ba8e560d3c27087ec02acd2097369"
+   }
+  ],
+  "qualification_sha256": "325279683f06153fe541f435f0638c1a4fc5785f85ee2b9da8f62bfa6a3ddce6",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "f9e497fc0ab8d5c2a458084bf9e573d46f2c448209466c9c05ffc699d842cf5c"
+ }
+}

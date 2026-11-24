@@ -1,0 +1,693 @@
+{
+  "exploratory": "added after the results; not a protocol test, the official results stand",
+  "rule": "F1: with exactly one line containing three backticks, the lines before it (after it when only whitespace precedes it); with none, the whole text; otherwise LiveCodeBench's extraction (the last two such lines)",
+  "evaluator": {
+    "timeout_s": 6,
+    "processes": 8
+  },
+  "provenance": {
+    "step": "extraction.py",
+    "at": "2026-11-24T14:19:21+00:00",
+    "code_commit": "9cebb05c939891539283a4ed7c30b13ba777a0be",
+    "dirty": false,
+    "runner_sha256": {
+      "run.sh": "d6b5402deeee2aac212661a2a0918bdfc0fe205a6fed51d4812a17f0f461affe",
+      "lcb.py": "adc16bf1c78c8a967ae5c56eb7700f6bba25f8ae0e047956508239e74589ae49",
+      "summarize.py": "eb593b7efef15f45e799aa39bc64ed03b4dc659d88a112dd18707ff8904fa132",
+      "extraction.py": "324d942e733ed9912b63f6c833164015c836acde30ff7d9320f94847ecfce133",
+      "compare.py": "515effa640ad06f5334302c035385be7de4af403b9db4e3937b1d5b3f539b52d",
+      "ablation.py": "661cf488e175502507362bdf4d12a41a3d333435bf6e413a88cc1f7eccc79993",
+      "readme.py": "12c3bd9bbf5feb657d10c82a3bb5808630355f5180f3c221890276e5497ea4ec",
+      "provenance.py": "708cb108ff6bff97ecbed3553e24cd7eef56e70d2dacb6363a48687739bcbbec"
+    },
+    "gpu": null,
+    "platform": "macOS-26.6-arm64-arm-64bit",
+    "cpu": "Apple M5 Pro",
+    "cpu_count": 18,
+    "python": "3.12.2"
+  },
+  "runs": {
+    "lfm3-1.7b": {
+      "raw": {
+        "file": "out/lfm3-1.7b/lfm3-lcb-generations.jsonl.gz",
+        "sha256": "31ffd66d74e3e9f61cd770dede59023b56bb45be48829f7f3ca5c51ad797d0f4"
+      },
+      "result": {
+        "file": "results/lfm3-1.7b.jsonl.gz",
+        "sha256": "44434c8369103cf2695a5810346670f1b95848992b5868bb3a76b73dd7ae0ace"
+      },
+      "answered": 1055,
+      "fence_lines": {
+        "0": 1,
+        "2": 45,
+        "4": 162,
+        "5": 1,
+        "6": 170,
+        "7": 1,
+        "8": 125,
+        "10": 109,
+        "11": 2,
+        "12": 76,
+        "14": 65,
+        "16": 67,
+        "18": 50,
+        "20": 21,
+        "22": 35,
+        "24": 20,
+        "26": 21,
+        "28": 19,
+        "29": 1,
+        "30": 19,
+        "32": 8,
+        "34": 6,
+        "36": 10,
+        "38": 8,
+        "42": 3,
+        "44": 2,
+        "46": 2,
+        "48": 2,
+        "50": 2,
+        "56": 1,
+        "80": 1
+      },
+      "empty_code": 1,
+      "changed": 1,
+      "regraded": {
+        "abc333_a": {
+          "pass": false,
+          "official_pass": false,
+          "code": "<tool_call>\n<function=bash>\n<parameter=command>\nPython3 -c \"\nn = int(input().strip())\nprint(str(n) * n)\n\"\n</parameter>\n</function>\n</tool_call>",
+          "eval_metadata": {
+            "error_code": -4,
+            "error_message": "Error during testing: unterminated string literal (detected at line 4) (<string>, line 4)"
+          }
+        }
+      },
+      "passing_after_f1": 0,
+      "official_passes_lost": 0
+    },
+    "lfm3-1.7b-cardsampling": {
+      "raw": {
+        "file": "out/lfm3-1.7b-cardsampling/generations.jsonl",
+        "sha256": "bd7e6137c051d56f43de29c8debc2a836cc66fe351778ef30adb1913f3678c15"
+      },
+      "result": {
+        "file": "results/lfm3-1.7b-cardsampling.jsonl.gz",
+        "sha256": "7088f47648ced581be4116d3e524b8b289dc0e4b428cd277942d9c2c32cd6ef2"
+      },
+      "answered": 1055,
+      "fence_lines": {
+        "2": 91,
+        "4": 215,
+        "6": 156,
+        "8": 122,
+        "10": 92,
+        "12": 64,
+        "14": 68,
+        "16": 45,
+        "18": 36,
+        "20": 28,
+        "22": 34,
+        "24": 12,
+        "26": 14,
+        "28": 14,
+        "30": 15,
+        "32": 14,
+        "34": 7,
+        "36": 4,
+        "38": 9,
+        "40": 3,
+        "42": 3,
+        "44": 5,
+        "46": 1,
+        "48": 1,
+        "50": 1,
+        "64": 1
+      },
+      "empty_code": 0,
+      "changed": 0,
+      "regraded": {},
+      "passing_after_f1": 0,
+      "official_passes_lost": 0
+    },
+    "bielik-11b-v3.1": {
+      "raw": {
+        "file": "out/bielik-11b-v3.1/generations.jsonl",
+        "sha256": "c63578bf800952f10045cca51059b600f6f5701e755f1933cb81b712d79ee088"
+      },
+      "result": {
+        "file": "results/bielik-11b-v3.1.jsonl.gz",
+        "sha256": "cb9ddcfe3d8f7a341eae7f32b5d29067a52e50aab0821bd20180858cfa7a96f9"
+      },
+      "answered": 1055,
+      "fence_lines": {
+        "1": 50,
+        "2": 975,
+        "3": 4,
+        "4": 26
+      },
+      "empty_code": 51,
+      "changed": 50,
+      "regraded": {
+        "1873_A": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\ndef can_rearrange_to_abc(s):\n    if s == 'abc':\n        return 'YES'\n    if s == 'acb':\n        return 'YES'\n    if s == 'bac':\n        return 'YES'\n    if s == 'cab':\n        return 'YES'\n    if s == 'cba':\n        return 'YES'\n    return 'NO'\n\nt = int(input())\nfor _ in range(t):\n    s = input().strip()\n    print(can_rearrange_to_abc(s))",
+          "eval_metadata": {
+            "output": "YES\nYES\nYES\nNO\nYES\nYES\n",
+            "inputs": "6\nabc\nacb\nbac\nbca\ncab\ncba\n",
+            "expected": "YES\nYES\nYES\nNO\nNO\nYES\n",
+            "error_code": -2,
+            "error_message": "Wrong answer at output_line_idx=4: YES != NO"
+          }
+        },
+        "2816": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def makeSmallestPalindrome(self, s: str) -> str:\n        n = len(s)\n        left, right = 0, n - 1\n        operations = 0\n        \n        while left < right:\n            if s[left] != s[right]:\n                # Find the smallest character that can be used to make both positions match\n                # and also exists in the string\n                target = 'a'\n                while s[left] != target and s[right] != target:\n                    target += 1\n                \n                # Update the characters at both positions to the target character\n                s[left] = target\n                s[right] = target\n                operations += 1\n                \n            left += 1\n            right -= 1\n        \n        return ''.join(s)\n\n# Example usage:\n# s = \"egcfe\"\n# print(Solution().makeSmallestPalindrome(s))  # Output: \"efcfe\"\n# s = \"abcd\"\n# print(Solution().makeSmallestPalindrome(s))  # Output: \"abba\"\n# s = \"seven\"\n# print(Solution().makeSmallestPalindrome(s))  # Output: \"neven\"",
+          "eval_metadata": {
+            "error": "TypeError('can only concatenate str (not \"int\") to str')",
+            "error_code": -4,
+            "error_message": "Runtime Error",
+            "inputs": "['egcfe']",
+            "expected": "efcfe"
+          }
+        },
+        "2870": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def alternatingSubarray(self, nums: List[int]) -> int:\n        max_length = 2\n        n = len(nums)\n        \n        for i in range(n - 1):\n            if nums[i+1] == nums[i] + 1:\n                current_length = 2\n                while i + current_length < n and nums[i + current_length] == nums[i + current_length - 1] + 1:\n                    current_length += 1\n                max_length = max(max_length, current_length)\n        \n        return max_length\n\n# Example usage:\n# nums = [2,3,4,3,4]\n# print(Solution().alternatingSubarray(nums))  # Output: 4\n# nums = [4,5,6]\n# print(Solution().alternatingSubarray(nums))  # Output: 2",
+          "eval_metadata": {
+            "output": "3",
+            "inputs": "[[2, 3, 4, 3, 4]]",
+            "expected": "4",
+            "error_code": -2,
+            "error_message": "Wrong Answer"
+          }
+        },
+        "2887": {
+          "pass": true,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def sortVowels(self, s: str) -> str:\n        vowels = {'a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U'}\n        consonants = set(s) - vowels\n        sorted_vowels = sorted([c for c in s if c in vowels], key=lambda x: ord(x))\n        result = []\n        vowel_index = 0\n        for char in s:\n            if char in consonants:\n                result.append(char)\n            else:\n                result.append(sorted_vowels[vowel_index])\n                vowel_index += 1\n        return ''.join(result)\n\n# Example test cases\n# print(Solution().sortVowels(\"lEetcOde\"))  # Output: \"lEOtcede\"\n# print(Solution().sortVowels(\"lYmpH\"))     # Output: \"lYmpH\"",
+          "eval_metadata": {
+            "execution time": 0.03380465507507324
+          }
+        },
+        "3150": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\ndef shortestBeautifulSubstring(s: str, k: int) -> str:\n    def find_min_length_substring(s: str, k: int) -> int:\n        min_length = float('inf')\n        current_sum = 0\n        for i, char in enumerate(s):\n            current_sum += 1 if char == '1' else 0\n            while current_sum >= k and i >= 1:\n                current_sum -= 1 if s[i - 1] == '1' else 0\n                i -= 1\n                min_length = min(min_length, i + 1)\n        return min_length if min_length != float('inf') else 0\n\n    min_length = find_min_length_substring(s, k)\n    if min_length == 0:\n        return \"\"\n    \n    current_sum = 0\n    best_substring = \"\"\n    for i in range(len(s)):\n        current_sum += 1 if s[i] == '1' else 0\n        while current_sum >= k and i >= 0:\n            if s[i] == '1':\n                current_sum -= 1\n            else:\n                break\n            if current_sum < k:\n                break\n            best_substring = s[i - (current_sum - 1) : i + 1]\n            i -= 1\n        if current_sum == k:\n            return best_substring\n\n    return \"\"\n\n# Solution class\nclass Solution:\n    def shortestBeautifulSubstring(self, s: str, k: int) -> str:\n        return shortestBeautifulSubstring(s, k)",
+          "eval_metadata": {
+            "output": "",
+            "inputs": "['100011001', 3]",
+            "expected": "11001",
+            "error_code": -2,
+            "error_message": "Wrong Answer"
+          }
+        },
+        "3164": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def lastVisitedIntegers(self, words: List[str]) -> List[int]:\n        visited_integers = []\n        prev_count = 0\n        \n        for word in words:\n            if word == \"prev\":\n                prev_count += 1\n                if prev_count <= len(visited_integers):\n                    last_visited = visited_integers[-prev_count]\n                else:\n                    last_visited = -1\n                visited_integers.append(last_visited)\n            else:\n                visited_integers.append(int(word))\n        \n        return visited_integers",
+          "eval_metadata": {
+            "output": "[1, 2, 2, 2, 2]",
+            "inputs": "[['1', '2', 'prev', 'prev', 'prev']]",
+            "expected": "[2, 1, -1]",
+            "error_code": -2,
+            "error_message": "Wrong Answer"
+          }
+        },
+        "3210": {
+          "pass": true,
+          "official_pass": false,
+          "code": "\ndef beautifulSubstrings(s: str, k: int) -> int:\n    vowels = {'a', 'e', 'i', 'o', 'u'}\n    count = 0\n    \n    # Precompute prefix sums of vowels and consonants\n    vowel_sum = [0] * (len(s) + 1)\n    consonant_sum = [0] * (len(s) + 1)\n    for i in range(len(s)):\n        vowel_sum[i+1] = vowel_sum[i] + (1 if s[i] in vowels else 0)\n        consonant_sum[i+1] = consonant_sum[i] + (1 if s[i] not in vowels else 0)\n    \n    # Iterate over all possible substrings\n    for i in range(len(s)):\n        for j in range(i + 1, len(s) + 1):\n            vowels_count = vowel_sum[j] - vowel_sum[i]\n            consonants_count = consonant_sum[j] - consonant_sum[i]\n            \n            if vowels_count == consonants_count and (vowels_count * consonants_count) % k == 0:\n                count += 1\n    \n    return count\n\n# Solution class structure as per the problem's starter code\nclass Solution:\n    def beautifulSubstrings(self, s: str, k: int) -> int:\n        return beautifulSubstrings(s, k)",
+          "eval_metadata": {
+            "execution time": 0.07717537879943848
+          }
+        },
+        "3223": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def countCompleteSubstrings(self, word: str, k: int) -> int:\n        from collections import defaultdict\n        char_count = defaultdict(int)\n        left = 0\n        result = 0\n        valid = True\n        \n        for right in range(len(word)):\n            char_count[word[right]] += 1\n            \n            # Check if current character count exceeds k\n            if char_count[word[right]] > k:\n                valid = False\n                while char_count[word[left]] > 0:\n                    char_count[word[left]] -= 1\n                    left += 1\n                valid = True\n            \n            # Check adjacent characters difference condition\n            if right > left and abs(ord(word[right]) - ord(word[right - 1])) > 2:\n                valid = False\n                while char_count[word[left]] > 0:\n                    char_count[word[left]] -= 1\n                    left += 1\n                valid = True\n            \n            # Check if current window is valid and has exactly k counts\n            while left <= right and not valid:\n                char_count[word[left]] -= 1\n                left += 1\n                valid = True\n            \n            if valid and char_count[word[right]] == k:\n                result += 1\n        \n        return result\n\n# Example usage:\n# print(Solution().countCompleteSubstrings(\"igigee\", 2))  # Output: 3\n# print(Solution().countCompleteSubstrings(\"aaabbbccc\", 3))  # Output: 6",
+          "eval_metadata": {
+            "output": "3",
+            "inputs": "['aaabbbccc', 3]",
+            "expected": "6",
+            "error_code": -2,
+            "error_message": "Wrong Answer"
+          }
+        },
+        "3235": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def minimumCost(self, source: str, target: str, original: List[str], changed: List[str], cost: List[int]) -> int:\n        n = len(source)\n        if source == target:\n            return 0\n        \n        # Create a mapping from original character to its corresponding changed character\n        char_map = {original[i]: changed[i] for i in range(len(original))}\n        \n        # Initialize a matrix to store the minimum cost to convert each prefix of source to prefix of target\n        dp = [[float('inf')] * (n + 1) for _ in range(n + 1)]\n        \n        # Base case: convert empty string to empty string costs 0\n        dp[0][0] = 0\n        \n        for i in range(1, n + 1):\n            for j in range(1, n + 1):\n                if source[i - 1] == target[j - 1]:\n                    dp[i][j] = dp[i - 1][j - 1]\n                else:\n                    # Find all possible operations to convert source[i-1] to target[j-1]\n                    possible_costs = []\n                    for k in range(len(original)):\n                        if original[k] == source[i - 1] and char_map[original[k]] == target[j - 1]:\n                            possible_costs.append(cost[k])\n                    \n                    if possible_costs:\n                        dp[i][j] = min(dp[i - 1][j] + min(possible_costs), dp[i][j - 1] + min(possible_costs))\n                    else:\n                        dp[i][j] = float('inf')\n        \n        return dp[n][n] if dp[n][n] != float('inf') else -1\n\n# Example usage:\n# source = \"abcd\"\n# target = \"acbe\"\n# original = [\"a\",\"b\",\"c\",\"c\",\"e\",\"d\"]\n# changed = [\"b\",\"c\",\"b\",\"e\",\"b\",\"e\"]\n# cost = [2,5,5,1,2,20]\n# print(Solution().minimumCost(source, target, original, changed, cost))  # Output: 28",
+          "eval_metadata": {
+            "output": "-1",
+            "inputs": "['abcd', 'acbe', ['a', 'b', 'c', 'c', 'e', 'd'], ['b', 'c', 'b', 'e', 'b', 'e'], [2, 5, 5, 1, 2, 20]]",
+            "expected": "28",
+            "error_code": -2,
+            "error_message": "Wrong Answer"
+          }
+        },
+        "3346": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def getSmallestString(self, s: str, k: int) -> str:\n        n = len(s)\n        # Initialize distance array\n        dist = [0] * n\n        for i in range(n):\n            for j in range(n):\n                # Calculate minimum cyclic distance between s[i] and s[j]\n                min_dist = min(abs(ord(s[i]) - ord(s[j])), 26 - abs(ord(s[i]) - ord(s[j])))\n                dist[i] += min_dist\n        \n        # Check if current distance is already <= k\n        if dist[0] <= k:\n            return s\n        \n        # Calculate remaining distance to be reduced\n        remaining_k = k - dist[0]\n        \n        # Iterate over each position in the string\n        for i in range(n):\n            # Calculate the minimum distance between the current character and the target character 'a'\n            min_dist = min(abs(ord(s[i]) - ord('a')), 26 - abs(ord(s[i]) - ord('a')))\n            if remaining_k >= min_dist:\n                # Change the current character to 'a'\n                s[i] = 'a'\n                remaining_k -= min_dist\n                \n        # Ensure the resulting string is lexicographically smallest\n        s.sort()\n        return ''.join(s)\n\n# Example usage:\n# s = \"zbbz\"\n# k = 3\n# print(Solution().getSmallestString(s, k))  # Output: \"aaaz\"",
+          "eval_metadata": {
+            "error": "AttributeError(\"'str' object has no attribute 'sort'\")",
+            "error_code": -4,
+            "error_message": "Runtime Error",
+            "inputs": "['zbbz', 3]",
+            "expected": "aaaz"
+          }
+        },
+        "3347": {
+          "pass": true,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def resultArray(self, nums: List[int]) -> List[int]:\n        arr1 = []\n        arr2 = []\n        \n        # Perform the first two operations\n        arr1.append(nums[0])\n        arr2.append(nums[1])\n        \n        # Perform operations for the remaining elements\n        for i in range(2, len(nums)):\n            if arr1[-1] > arr2[-1]:\n                arr1.append(nums[i])\n            else:\n                arr2.append(nums[i])\n        \n        # Concatenate the two arrays to form the result\n        return arr1 + arr2\n\n# Example usage:\n# nums = [2, 1, 3]\n# print(Solution().resultArray(nums))  # Output: [2, 3, 1]\n# nums = [5, 4, 3, 8]\n# print(Solution().resultArray(nums))  # Output: [5, 3, 4, 8]",
+          "eval_metadata": {
+            "execution time": 2.2411346435546875e-05
+          }
+        },
+        "3349": {
+          "pass": true,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def maximumLengthSubstring(self, s: str) -> int:\n        from collections import defaultdict\n        char_count = defaultdict(int)\n        left = 0\n        max_length = 0\n        \n        for right in range(len(s)):\n            char_count[s[right]] += 1\n            \n            while char_count[s[right]] > 2:\n                char_count[s[left]] -= 1\n                left += 1\n            \n            max_length = max(max_length, right - left + 1)\n        \n        return max_length",
+          "eval_metadata": {
+            "execution time": 0.0004138946533203125
+          }
+        },
+        "3356": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def shortestSubstrings(self, arr: List[str]) -> List[str]:\n        from collections import defaultdict\n\n        # Create a dictionary to store all substrings encountered so far\n        substrings = defaultdict(set)\n\n        answer = []\n\n        # Iterate through each string in the array\n        for s in arr:\n            min_len = float('inf')\n            candidate = ''\n\n            # Generate all possible substrings of the current string\n            for i in range(len(s)):\n                for j in range(i + 1, len(s) + 1):\n                    substr = s[i:j]\n                    # Check if the substring occurs in any other string in arr\n                    if not any(substr in t for t in arr if t != s):\n                        # Update the shortest unique substring found so far\n                        if len(substr) < min_len or (len(substr) == min_len and substr < candidate):\n                            min_len = len(substr)\n                            candidate = substr\n\n            answer.append(candidate)\n\n        return answer\n\n# Example usage:\n# arr = [\"cab\", \"ad\", \"bad\", \"c\"]\n# print(Solution().shortestSubstrings(arr))  # Output: [\"ab\", \"\", \"ba\", \"\"]",
+          "eval_metadata": {
+            "output": "['a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a',...(truncated) ... 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a']",
+            "inputs": "[['aaaaaaaaaaaaaaaaaab', 'aaaaaaaaaaaaaaaaaab', 'aaaaaaaaaaaaaaaaaab', 'aaaaaaaaaaaaaaaaaab', 'aaaaaaaaaaaaaaaaaab', 'aaaaaaaaaaaaaaaaaab', 'aaaaaaaaa...(truncated) ...aaaaaaaab', 'aaaaaaaaaaaaaaaaaab', 'aaaaaaaaaaaaaaaaaab', 'aaaaaaaaaaaaaaaaaab', 'aaaaaaaaaaaaaaaaaab', 'aaaaaaaaaaaaaaaaaab', 'aaaaaaaaaaaaaaaaaab']]",
+            "expected": "['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '...(truncated) ...', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']",
+            "error_code": -2,
+            "error_message": "Wrong Answer"
+          }
+        },
+        "3361": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def findLatestTime(self, s: str) -> str:\n        hours = list(s[:2])\n        minutes = list(s[3:5])\n        \n        # Replace '?' with the latest possible digit for hours (0-11)\n        hours[0] = max(int(c) if c != '?' else 11, 0)\n        hours[1] = max(int(c) if c != '?' else 11, 0)\n        \n        # Replace '?' with the latest possible digit for minutes (0-59)\n        minutes[0] = max(int(c) if c != '?' else 5, 0)\n        minutes[1] = max(int(c) if c != '?' else 5, 0)\n        \n        # Ensure hour is within 00-11 and minute within 00-59\n        hours[0] = min(hours[0], 11)\n        hours[1] = min(hours[1], 9)\n        minutes[0] = min(minutes[0], 5)\n        minutes[1] = min(minutes[1], 9)\n        \n        return ':'.join(hours) + ':'.join(minutes)\n\n# Example test cases\ns1 = \"1?:?4\"\ns2 = \"0?:5?\"\n\nprint(Solution().findLatestTime(s1))  # Output: \"11:54\"\nprint(Solution().findLatestTime(s2))  # Output: \"09:59\"",
+          "eval_metadata": {
+            "error_code": -4,
+            "error_message": "Error during testing: name 'c' is not defined"
+          }
+        },
+        "3398": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def canMakeSquare(self, grid: List[List[str]]) -> bool:\n        # Check if the grid already contains a 2x2 square of the same color\n        for i in range(2):\n            for j in range(2):\n                if grid[i][j] == grid[i][j+1] == grid[i+1][j] == grid[i+1][j+1]:\n                    return True\n        \n        # If not, check if flipping one cell can create a 2x2 square of the same color\n        for i in range(2):\n            for j in range(2):\n                original = grid[i][j]\n                # Flip the cell (i, j) to 'W'\n                grid[i][j] = 'W'\n                # Check if the flipped cell forms a 2x2 square of the same color\n                if grid[i][j] == grid[i][j+1] == grid[i+1][j] == grid[i+1][j+1]:\n                    return True\n                # Flip the cell back to original color\n                grid[i][j] = original\n                \n                # Flip the cell (i, j) to 'B'\n                grid[i][j] = 'B'\n                if grid[i][j] == grid[i][j+1] == grid[i+1][j] == grid[i+1][j+1]:\n                    return True\n                # Flip the cell back to original color\n                grid[i][j] = original\n        \n        return False\n\n# Example usage:\n# grid = [[\"B\",\"W\",\"B\"],[\"B\",\"W\",\"W\"],[\"B\",\"W\",\"B\"]]\n# print(Solution().canMakeSquare(grid))  # Output: True\n# grid = [[\"B\",\"W\",\"B\"],[\"W\",\"B\",\"W\"],[\"B\",\"W\",\"B\"]]\n# print(Solution().canMakeSquare(grid))  # Output: False\n# grid = [[\"B\",\"W\",\"B\"],[\"B\",\"W\",\"W\"],[\"B\",\"W\",\"W\"]]\n# print(Solution().canMakeSquare(grid))  # Output: True",
+          "eval_metadata": {
+            "output": "False",
+            "inputs": "[[['B', 'W', 'B'], ['B', 'W', 'W'], ['B', 'W', 'B']]]",
+            "expected": "True",
+            "error_code": -2,
+            "error_message": "Wrong Answer"
+          }
+        },
+        "3447": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def clearDigits(self, s: str) -> str:\n        stack = []\n        for char in s:\n            if char.isdigit():\n                while stack and stack[-1] != ' ':\n                    stack.pop()\n                stack.append(char)\n            else:\n                stack.append(char)\n        \n        while stack:\n            if stack[-1].isdigit():\n                stack.pop()\n            else:\n                break\n        \n        return ''.join(stack)\n\n# Example test cases\nprint(Solution().clearDigits(\"abc\"))  # Output: \"abc\"\nprint(Solution().clearDigits(\"cb34\")) # Output: \"\"",
+          "eval_metadata": {
+            "output": "8r",
+            "inputs": "['lp6xrhwevshrdrgwsh82c8r']",
+            "expected": "lxrhwevshrdrgwr",
+            "error_code": -2,
+            "error_message": "Wrong Answer"
+          }
+        },
+        "3451": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def compressedString(self, word: str) -> str:\n        comp = \"\"\n        while word:\n            c = word[0]\n            count = 1\n            while word and word[len(word) - 1] == c:\n                count += 1\n                word = word[:-1]\n            comp += f\"{count}{c}\"\n        return comp\n\n# Example usage:\n# word = \"abcde\"\n# print(Solution().compressedString(word))  # Output: \"1a1b1c1d1e\"\n# word = \"aaaaaaaaaaaaaabb\"\n# print(Solution().compressedString(word))  # Output: \"9a5a2b\"",
+          "eval_metadata": {
+            "error": "TimeoutException()",
+            "error_code": -3,
+            "error_message": "Time Limit Exceeded",
+            "inputs": "['abcde']",
+            "expected": "1a1b1c1d1e"
+          }
+        },
+        "3463": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def numberOfAlternatingGroups(self, colors: List[int]) -> int:\n        n = len(colors)\n        count = 0\n        \n        # Check each possible group of 3 tiles\n        for i in range(n):\n            # Check if current tile differs from both neighbors\n            if colors[i] != colors[(i + 1) % n] and colors[i] != colors[(i + 2) % n]:\n                count += 1\n        \n        return count\n\n# Example usage:\n# colors = [0, 1, 0, 0, 1]\n# print(Solution().numberOfAlternatingGroups(colors))  # Output: 3",
+          "eval_metadata": {
+            "output": "1",
+            "inputs": "[[0, 1, 0, 0, 1]]",
+            "expected": "3",
+            "error_code": -2,
+            "error_message": "Wrong Answer"
+          }
+        },
+        "3482": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\ndef minimumCost(target, words, costs):\n    n = len(target)\n    dp = [[float('inf')] * (n + 1) for _ in range(len(words) + 1)]\n    dp[0][0] = 0\n\n    for i in range(1, len(words) + 1):\n        for j in range(n + 1):\n            if words[i - 1] == '':\n                dp[i][j + 1] = min(dp[i][j + 1], dp[i - 1][j])\n            else:\n                k = j\n                while k >= 0 and words[i - 1][k] == target[k]:\n                    k -= 1\n                if k >= 0:\n                    dp[i][j + 1] = min(dp[i][j + 1], dp[i - 1][j - k] + costs[i - 1])\n                dp[i][j + 1] = min(dp[i][j + 1], dp[i][j])\n\n    return dp[len(words)][n] if dp[len(words)][n] != float('inf') else -1\n\n# Starter code\nclass Solution:\n    def minimumCost(self, target: str, words: List[str], costs: List[int]) -> int:\n        return minimumCost(target, words, costs)",
+          "eval_metadata": {
+            "error": "IndexError('string index out of range')",
+            "error_code": -4,
+            "error_message": "Runtime Error",
+            "inputs": "['abcdef', ['abdef', 'abc', 'd', 'def', 'ef'], [100, 1, 1, 10, 5]]",
+            "expected": "7"
+          }
+        },
+        "3502": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def numberOfSubstrings(self, s: str, k: int) -> int:\n        n = len(s)\n        count = 0\n        for i in range(n):\n            freq = {}\n            for j in range(i, n):\n                char = s[j]\n                freq[char] = freq.get(char, 0) + 1\n                if freq[char] >= k:\n                    count += (j - i + 1)\n        return count\n\n# Example test cases\n# s = \"abacb\", k = 2, expected_output = 4\n# s = \"abcde\", k = 1, expected_output = 15",
+          "eval_metadata": {
+            "output": "12",
+            "inputs": "['abacb', 2]",
+            "expected": "4",
+            "error_code": -2,
+            "error_message": "Wrong Answer"
+          }
+        },
+        "3519": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\ndef winningPlayerCount(self, n: int, pick: List[List[int]]) -> int:\n    color_counts = defaultdict(int)\n    count_of_wins = 0\n\n    for player, color in pick:\n        color_counts[player] += 1\n\n    for player in range(n):\n        if color_counts.get(player, 0) > player:\n            count_of_wins += 1\n\n    return count_of_wins\n\n# Example usage:\n# n = 4\n# pick = [[0,0],[1,0],[1,0],[2,1],[2,1],[2,0]]\n# print(winningPlayerCount().winningPlayerCount(n, pick))  # Output: 2",
+          "eval_metadata": {
+            "error": "TypeError(\"winningPlayerCount() missing 1 required positional argument: 'pick'\")",
+            "error_code": -4,
+            "error_message": "Runtime Error",
+            "inputs": "[4, [[0, 0], [1, 0], [1, 0], [2, 1], [2, 1], [2, 0]]]",
+            "expected": "2"
+          }
+        },
+        "3527": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def numberOfAlternatingGroups(self, colors: List[int], queries: List[List[int]]) -> List[int]:\n        def count_alternating_groups(colors, k):\n            count = 0\n            n = len(colors)\n            for i in range(n):\n                valid = True\n                for j in range(k):\n                    if (colors[(i + j) % n] == colors[(i + j + 1) % n]):\n                        valid = False\n                        break\n                if valid:\n                    count += 1\n            return count\n\n        result = []\n        for query in queries:\n            if query[0] == 1:\n                size = query[1]\n                result.append(count_alternating_groups(colors, size))\n            else:\n                index, color = query[1], query[2]\n                colors[index] = color\n        return result\n\n# Starter code provided",
+          "eval_metadata": {
+            "output": "[1]",
+            "inputs": "[[0, 0, 1, 0, 1], [[2, 1, 0], [1, 4]]]",
+            "expected": "[2]",
+            "error_code": -2,
+            "error_message": "Wrong Answer"
+          }
+        },
+        "3559": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def minValidStrings(self, words: List[str], target: str) -> int:\n        n = len(target)\n        dp = [float('inf')] * (n + 1)\n        dp[0] = 0  # Base case: empty string requires 0 strings\n\n        # Preprocess words to create a prefix map\n        prefix_map = {}\n        for word in words:\n            for i in range(1, len(word) + 1):\n                prefix = word[:i]\n                if prefix not in prefix_map:\n                    prefix_map[prefix] = []\n                prefix_map[prefix].append(i)  # Store lengths of valid prefixes\n\n        # Fill the DP array\n        for i in range(1, n + 1):\n            for j in range(i):\n                if target[j:i] in prefix_map:\n                    # Update dp[i] with the minimum number of strings needed\n                    dp[i] = min(dp[i], dp[j] + 1)\n\n        return dp[n] if dp[n] != float('inf') else -1\n\n# Example usage:\nwords = [\"abc\", \"aaaaa\", \"bcdef\"]\ntarget = \"aabcdabc\"\nprint(Solution().minValidStrings(words, target))  # Output: 3\n\nwords = [\"abababab\", \"ab\"]\ntarget = \"ababaababa\"\nprint(Solution().minValidStrings(words, target))  # Output: 2\n\nwords = [\"abcdef\"]\ntarget = \"xyz\"\nprint(Solution().minValidStrings(words, target))  # Output: -1",
+          "eval_metadata": {
+            "error": "TimeoutException()",
+            "error_code": -3,
+            "error_message": "Time Limit Exceeded",
+            "inputs": "[['ddbecaabacdbeebedeecdbdadeebdeacbbebbeee', 'e', 'e', 'e', 'd', 'e', 'aeaaedcedabadbdcaecbdddcdbabaeacaedbeccdadceaceeedeeeaeccdabcedcddbddaaeeabcec...(truncated) ...eaaacdddadcbecedbbdbdeabbdbbeddaabaeeceeeecccbebcccdcdecacceedcaddaaccdcecceecdbebdaeaeeadccabdaceaecaeeddeeaacdcabacdebbaadaebacdcadebeeeedcccddeed']",
+            "expected": "2038"
+          }
+        },
+        "3567": {
+          "pass": true,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def convertDateToBinary(self, date: str) -> str:\n        year, month, day = map(int, date.split('-'))\n        \n        def int_to_binary(n):\n            return bin(n)[2:]  # Convert integer to binary without '0b' prefix\n        \n        return f\"{int_to_binary(year)}-{int_to_binary(month)}-{int_to_binary(day)}\"\n\n# Example usage:\n# print(Solution().convertDateToBinary(\"2080-02-29\"))  # Output: \"100000100000-10-11101\"\n# print(Solution().convertDateToBinary(\"1900-01-01\"))  # Output: \"11101101100-1-1\"",
+          "eval_metadata": {
+            "execution time": 3.2901763916015625e-05
+          }
+        },
+        "3613": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def maxAmount(self, initialCurrency: str, pairs1: List[List[str]], rates1: List[float], pairs2: List[List[str]], rates2: List[float]) -> float:\n        from collections import defaultdict\n\n        # Build day 1 conversion graph\n        graph1 = defaultdict(lambda: defaultdict(float))\n        for start, target in pairs1:\n            graph1[start][target] = rates1[pairs1.index(start, target)]\n\n        # Build day 2 conversion graph\n        graph2 = defaultdict(lambda: defaultdict(float))\n        for start, target in pairs2:\n            graph2[start][target] = rates2[pairs2.index(start, target)]\n\n        def dfs(currency: str, graph: defaultdict[str, defaultdict[str, float]], max_amount: float) -> float:\n            if currency == initialCurrency:\n                return max_amount\n            current_max = max_amount\n            for target in list(graph[currency].keys()):\n                if target in graph[currency]:\n                    current_max = max(current_max, graph[currency][target] * dfs(target, graph, current_max))\n            return current_max\n\n        # Day 1: convert initialCurrency to any other currency using rates1\n        max_amount = 1.0\n        for start in list(graph1[initialCurrency].keys()):\n            max_amount = max(max_amount, graph1[initialCurrency][start] * dfs(start, graph1, max_amount))\n\n        # Day 2: convert the current currency to initialCurrency using rates2\n        for start in list(graph2.keys()):\n            if graph2[start].get(initialCurrency, 0) > 0:\n                max_amount = max(max_amount, dfs(start, graph2, 1.0) * graph2[start][initialCurrency])\n\n        return round(max_amount, 6)\n\n# Example usage:\n# initialCurrency = \"EUR\"\n# pairs1 = [[\"EUR\",\"USD\"],[\"USD\",\"JPY\"]]\n# rates1 = [2.0,3.0]\n# pairs2 = [[\"JPY\",\"USD\"],[\"USD\",\"CHF\"],[\"CHF\",\"EUR\"]]\n# rates2 = [4.0,5.0,6.0]\n# print(Solution().maxAmount(initialCurrency, pairs1, rates1, pairs2, rates2))  # Output: 720.0",
+          "eval_metadata": {
+            "error": "TypeError('slice indices must be integers or have an __index__ method')",
+            "error_code": -4,
+            "error_message": "Runtime Error",
+            "inputs": "['EUR', [['EUR', 'USD'], ['USD', 'JPY']], [2.0, 3.0], [['JPY', 'USD'], ['USD', 'CHF'], ['CHF', 'EUR']], [4.0, 5.0, 6.0]]",
+            "expected": "720.0"
+          }
+        },
+        "3626": {
+          "pass": true,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def smallestNumber(self, n: int, t: int) -> int:\n        current = n\n        while True:\n            product = 1\n            for digit in str(current):\n                product *= int(digit)\n            if product % t == 0:\n                return current\n            current += 1\n\n# Test case 1: n = 10, t = 2\n# Expected output: 10\n\n# Test case 2: n = 15, t = 3\n# Expected output: 16",
+          "eval_metadata": {
+            "execution time": 2.765655517578125e-05
+          }
+        },
+        "3634": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def calculateScore(self, s: str) -> int:\n        mirror = {c: 'z'[25 - (ord(c) - ord('a'))] for c in 'abcdefghijklmnopqrstuvwxyz'}\n        marked = [False] * len(s)\n        score = 0\n        \n        for i in range(len(s)):\n            if marked[i]:\n                continue\n            j = -1\n            for j_candidate in range(i - 1, -1, -1):\n                if not marked[j_candidate] and s[j_candidate] == mirror[s[i]]:\n                    j = j_candidate\n                    break\n            if j != -1:\n                marked[i] = True\n                marked[j] = True\n                score += i - j\n        \n        return score\n\n# Example test case\ns = \"aczzx\"\nprint(Solution().calculateScore(s))  # Output: 5",
+          "eval_metadata": {
+            "error_code": -4,
+            "error_message": "Error during testing: string index out of range"
+          }
+        },
+        "3651": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def constructTransformedArray(self, nums: List[int]) -> List[int]:\n        n = len(nums)\n        result = [0] * n\n        \n        for i in range(n):\n            if nums[i] > 0:\n                steps = nums[i]\n                current_index = i + steps\n                \n                # Wrap around if index exceeds array bounds\n                current_index = current_index % n\n                result[i] = current_index\n            elif nums[i] < 0:\n                steps = abs(nums[i])\n                current_index = (i - steps) % n\n                result[i] = current_index\n            else:\n                result[i] = nums[i]\n        \n        return result\n\n# Example usage:\n# nums = [3, -2, 1, 1]\n# print(Solution().constructTransformedArray(nums))  # Output: [1, 1, 1, 3]",
+          "eval_metadata": {
+            "output": "[3, 3, 3, 0]",
+            "inputs": "[[3, -2, 1, 1]]",
+            "expected": "[1, 1, 1, 3]",
+            "error_code": -2,
+            "error_message": "Wrong Answer"
+          }
+        },
+        "3677": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def maximumAmount(self, coins: List[List[int]]) -> int:\n        m, n = len(coins), len(coins[0])\n        dp = [[0] * n for _ in range(m)]\n        \n        for i in range(m):\n            dp[i][0] = coins[i][0]\n        for j in range(n):\n            dp[0][j] = coins[0][j]\n        \n        for i in range(1, m):\n            for j in range(1, n):\n                dp[i][j] = max(dp[i-1][j], dp[i][j-1]) + coins[i][j]\n        \n        max_profit = dp[m-1][n-1]\n        \n        # Calculate maximum profit with neutralization\n        neutralize_count = 0\n        for i in range(m-1, 0, -1):\n            for j in range(n-1, 0, -1):\n                if dp[i][j] < 0:\n                    dp[i][j] += abs(coins[i][j])\n                    neutralize_count += 1\n                    if neutralize_count > 2:\n                        break\n                dp[i][j] = max(dp[i-1][j], dp[i][j-1]) + coins[i][j]\n        \n        return max_profit\n\n# Example test case\ncoins = [[0,1,-1],[1,-2,3],[2,-3,4]]\nprint(Solution().maximumAmount(coins))  # Output: 8\n\ncoins = [[10,10,10],[10,10,10]]\nprint(Solution().maximumAmount(coins))  # Output: 40",
+          "eval_metadata": {
+            "output": "6",
+            "inputs": "[[[0, 1, -1], [1, -2, 3], [2, -3, 4]]]",
+            "expected": "8",
+            "error_code": -2,
+            "error_message": "Wrong Answer"
+          }
+        },
+        "3684": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def hasMatch(self, s: str, p: str) -> bool:\n        start = 0\n        end = 0\n        i = 0\n        while i < len(p):\n            if p[i] == '*':\n                i += 1\n                continue\n            if i >= len(p):\n                break\n            if p[i] == s[start + end]:\n                end += 1\n            else:\n                start = i\n                end = 1\n        return end > 0\n\n# Example usage:\n# s = \"leetcode\"\n# p = \"ee*e\"\n# print(Solution().hasMatch(s, p))  # Output: True\n# s = \"car\"\n# p = \"c*v\"\n# print(Solution().hasMatch(s, p))  # Output: False\n# s = \"luck\"\n# p = \"u*\"\n# print(Solution().hasMatch(s, p))  # Output: True",
+          "eval_metadata": {
+            "error": "TimeoutException()",
+            "error_code": -3,
+            "error_message": "Time Limit Exceeded",
+            "inputs": "['leetcode', 'ee*e']",
+            "expected": "True"
+          }
+        },
+        "3687": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\ndef longestSpecialPath(self, edges, nums):\n    from collections import defaultdict\n    import heapq\n\n    n = len(nums)\n    graph = defaultdict(list)\n    for u, v, _ in edges:\n        graph[u].append(v)\n        graph[v].append(u)\n\n    def dfs(node, parent, current_path, max_length, min_nodes):\n        if node in current_path:\n            return (0, float('inf'))\n        current_path.append(node)\n        children = []\n        for neighbor in graph[node]:\n            if neighbor != parent:\n                child_length, child_min_nodes = dfs(neighbor, node, current_path, max_length, min_nodes)\n                children.append((child_length, child_min_nodes))\n\n        current_length = 1\n        current_min_nodes = 1\n        for child_length, child_min_nodes in children:\n            current_length += child_length\n            current_min_nodes += child_min_nodes\n\n        current_path.pop()\n\n        return (current_length, current_min_nodes)\n\n    result = (0, float('inf'))\n    for node in nums:\n        result = max(result, dfs(node, -1, [], 0, 0))\n\n    return [result[0], result[1]]\n\n# Example usage:\nedges = [[0,1,2],[1,2,3],[1,3,5],[1,4,4],[2,5,6]]\nnums = [2,1,2,1,3,1]\nprint(longestSpecialPath(edges, nums))  # Output: [6, 2]\n\nedges = [[1,0,8]]\nnums = [2,2]\nprint(longestSpecialPath(edges, nums))  # Output: [0, 1]",
+          "eval_metadata": {
+            "error_code": -4,
+            "error_message": "Error during testing: longestSpecialPath() missing 1 required positional argument: 'nums'"
+          }
+        },
+        "3701": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def minCostGoodCaption(self, caption: str) -> str:\n        n = len(caption)\n        if n < 3:\n            return \"\"\n        \n        # Check if it's possible to form a good caption\n        # A good caption requires every character to appear in groups of at least 3 consecutive occurrences\n        # This means all characters must be the same\n        unique_chars = len(set(caption))\n        if unique_chars > 1:\n            return \"\"\n        \n        # If all characters are the same, return the caption\n        if all(c == caption[0] for c in caption):\n            return caption\n        \n        # Convert caption into the lexicographically smallest good caption\n        # Since all characters must be the same, choose the lexicographically smallest character\n        target_char = min(caption)\n        \n        # Count the number of operations needed to convert each character to the target character\n        operations = sum(abs(ord(c) - ord(target_char)) for c in caption)\n        \n        # Convert each character to the target character\n        result = [chr(ord(c) + (ord(target_char) - ord(c)) if c < target_char else ord(target_char) - ord(c)) for c in caption]\n        \n        return ''.join(result)\n\n# Example test cases\nprint(Solution().minCostGoodCaption(\"cdcd\"))  # Output: \"cccc\"\nprint(Solution().minCostGoodCaption(\"aca\"))   # Output: \"aaa\"\nprint(Solution().minCostGoodCaption(\"bc\"))   # Output: \"\"",
+          "eval_metadata": {
+            "output": "",
+            "inputs": "['cdcd']",
+            "expected": "cccc",
+            "error_code": -2,
+            "error_message": "Wrong Answer"
+          }
+        },
+        "3709": {
+          "pass": true,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def hasSpecialSubstring(self, s: str, k: int) -> bool:\n        n = len(s)\n        if k == 0 or k > n:\n            return False\n        \n        for i in range(n - k + 1):\n            current_char = s[i]\n            if s[i:i+k] == current_char * k:\n                # Check characters before and after the substring\n                before = s[i-1] if i > 0 else None\n                after = s[i+k] if i + k < n else None\n                \n                if (before is None or before != current_char) and (after is None or after != current_char):\n                    return True\n        \n        return False\n",
+          "eval_metadata": {
+            "execution time": 2.5987625122070312e-05
+          }
+        },
+        "3721": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def countMentions(self, numberOfUsers: int, events: List[List[str]]) -> List[int]:\n        online_users = set(range(numberOfUsers))  # Initialize all users as online\n        mentions = [0] * numberOfUsers\n        \n        for event in events:\n            if event[0] == \"MESSAGE\":\n                timestamp, mentions_str = event[1], event[2]\n                users_mentioned = set()\n                for user_mention in mentions_str.split():\n                    if user_mention.startswith(\"id\"):\n                        user_id = int(user_mention[3:])\n                        if user_id < numberOfUsers and user_id >= 0:\n                            users_mentioned.add(user_id)\n                    elif user_mention == \"ALL\":\n                        users_mentioned.update(online_users)\n                    elif user_mention == \"HERE\":\n                        users_mentioned.update(online_users)\n                for user_id in users_mentioned:\n                    if user_id in online_users:\n                        mentions[user_id] += 1\n            else:  # OFFLINE event\n                timestamp, user_id = event[1], event[2]\n                online_users.remove(int(user_id))\n                # The user will come back online after 60 time units, but this doesn't affect current message events at the same timestamp\n        \n        return mentions",
+          "eval_metadata": {
+            "error": "ValueError(\"invalid literal for int() with base 10: ''\")",
+            "error_code": -4,
+            "error_message": "Runtime Error",
+            "inputs": "[2, [['MESSAGE', '10', 'id1 id0'], ['OFFLINE', '11', '0'], ['MESSAGE', '71', 'HERE']]]",
+            "expected": "[2, 2]"
+          }
+        },
+        "3770": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def generateString(self, str1: str, str2: str) -> str:\n        n = len(str1)\n        m = len(str2)\n        result = [''] * (n + m - 1)\n        \n        # Initialize the first window\n        for i in range(n):\n            if str1[i] == 'T':\n                result[i:i+m] = list(str2)\n            else:\n                result[i:i+m] = list(str2)  # Temporarily set to str2 for 'F' check later\n        \n        # Fill the remaining positions\n        for i in range(n, n + m - 1):\n            if str1[i - m:i] == str2:\n                result[i] = str2[0]\n            else:\n                result[i] = 'a'  # Choose the lexicographically smallest character\n        \n        # Check if all 'F' conditions are satisfied\n        for i in range(n):\n            if str1[i] == 'F' and result[i:i+m] == str2:\n                return \"\"\n        \n        return ''.join(result)\n\n# Example test cases\nprint(Solution().generateString(\"TFTF\", \"ab\"))  # Output: \"ababa\"\nprint(Solution().generateString(\"TFTF\", \"abc\"))  # Output: \"\"\nprint(Solution().generateString(\"F\", \"d\"))        # Output: \"a\"",
+          "eval_metadata": {
+            "output": "aaaaa",
+            "inputs": "['TFTF', 'ab']",
+            "expected": "ababa",
+            "error_code": -2,
+            "error_message": "Wrong Answer"
+          }
+        },
+        "3773": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def minimumPairRemoval(self, nums: List[int]) -> int:\n        from collections import deque\n\n        def is_non_decreasing(arr):\n            for i in range(len(arr) - 1):\n                if arr[i] > arr[i + 1]:\n                    return False\n            return True\n\n        q = deque([(i, i + 1) for i in range(len(nums) - 1)])\n        count = 0\n\n        while q:\n            min_sum = float('inf')\n            leftmost = None\n            for _ in range(len(q)):\n                current_sum, start = q.popleft()\n                if current_sum < min_sum:\n                    min_sum = current_sum\n                    leftmost = start\n\n            nums[leftmost:leftmost + 2] = [sum(nums[leftmost:leftmost + 2])]\n            count += 1\n\n            if leftmost + 1 < len(nums):\n                q.append((leftmost + 1, leftmost + 2))\n\n        while not is_non_decreasing(nums):\n            min_sum = float('inf')\n            leftmost = None\n            for _ in range(len(q)):\n                current_sum, start = q.popleft()\n                if current_sum < min_sum:\n                    min_sum = current_sum\n                    leftmost = start\n\n            nums[leftmost:leftmost + 2] = [sum(nums[leftmost:leftmost + 2])]\n            count += 1\n\n            if leftmost + 1 < len(nums):\n                q.append((leftmost + 1, leftmost + 2))\n\n        return count",
+          "eval_metadata": {
+            "error": "TypeError(\"unsupported operand type(s) for +: 'NoneType' and 'int'\")",
+            "error_code": -4,
+            "error_message": "Runtime Error",
+            "inputs": "[[5, 5, 1, 0]]",
+            "expected": "2"
+          }
+        },
+        "3801": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\ndef product_of_digits(n):\n    product = 1\n    for digit in str(n):\n        product *= int(digit)\n    return product\n\ndef sum_of_digits(n):\n    sum = 0\n    for digit in str(n):\n        sum += int(digit)\n    return sum\n\nclass Solution:\n    def beautifulNumbers(self, l: int, r: int) -> int:\n        count = 0\n        for num in range(l, r + 1):\n            if product_of_digits(num) % sum_of_digits(num) == 0:\n                count += 1\n        return count",
+          "eval_metadata": {
+            "error": "TimeoutException()",
+            "error_code": -3,
+            "error_message": "Time Limit Exceeded",
+            "inputs": "[8160, 560222044]",
+            "expected": "374578664"
+          }
+        },
+        "3832": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\nclass Solution:\n    def minCosts(self, cost: List[int]) -> List[int]:\n        n = len(cost)\n        answer = [float('inf')] * n\n        answer[n] = 0  # Starting position at the end of the line\n        \n        for i in range(n - 1, -1, -1):\n            # Swap with person in front of you: pay cost[i]\n            # Swap with person behind you: free\n            answer[i] = min(cost[i] + answer[i + 1], answer[i + 1])\n        \n        return answer\n\n# Example test case\n# cost = [5,3,4,1,3,2]\n# print(Solution().minCosts(cost))  # Output: [5, 3, 3, 1, 1, 1]",
+          "eval_metadata": {
+            "error": "IndexError('list assignment index out of range')",
+            "error_code": -4,
+            "error_message": "Runtime Error",
+            "inputs": "[[5, 3, 4, 1, 3, 2]]",
+            "expected": "[5, 3, 3, 1, 1, 1]"
+          }
+        },
+        "abc302_b": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\ndef find_snuke(H, W, grid):\n    s = 'snuk'\n    e = 'e'\n    directions = [(0, 1), (1, 0), (1, 1), (1, -1), (0, 1)]  # Right, Down, Down-Right, Down-Left, Right-Down\n\n    def is_contiguous(pos, steps):\n        current = pos\n        for _ in range(steps):\n            next_pos = [current[0] + dx, current[1] + dy for dx, dy in directions]\n            if grid[next_pos[0]][next_pos[1]] == '' or next_pos[0] < 0 or next_pos[0] >= H or next_pos[1] < 0 or next_pos[1] >= W:\n                return False\n            current = next_pos\n        return True\n\n    def check_line(pos1, pos2, pos3, pos4, pos5):\n        x1, y1 = pos1\n        x2, y2 = pos2\n        x3, y3 = pos3\n        x4, y4 = pos4\n        x5, y5 = pos5\n\n        # Check if points are collinear\n        det = (x2 - x1) * (y4 - y5) - (y2 - y1) * (x4 - x5)\n        if det == 0:\n            return False\n\n        # Calculate distances from point 1 to each point\n        d1 = ((x2 - x1) ** 2 + (y2 - y1) ** 2)**0.5\n        d2 = ((x3 - x1) ** 2 + (y3 - y1) ** 2)**0.5\n        d3 = ((x4 - x1) ** 2 + (y4 - y1) ** 2)**0.5\n        d4 = ((x5 - x1) ** 2 + (y5 - y1) ** 2)**0.5\n\n        return abs(d1 - d2) < 1e-5 and abs(d2 - d3) < 1e-5 and abs(d3 - d4) < 1e-5\n\n    for i in range(H):\n        for j in range(W):\n            if grid[i][j] == s[0]:\n                # Find 'n' adjacent to 's'\n                found_n = False\n                for dx, dy in directions:\n                    ni, nj = i + dx, j + dy\n                    if 0 <= ni < H and 0 <= nj < W and grid[ni][nj] == s[1]:\n                        found_n = True\n                        break\n                if not found_n:\n                    continue\n\n                # Find 'u' adjacent to 'n'\n                found_u = False\n                for dx, dy in directions:\n                    ni, nj = i + dx, j + dy\n                    if 0 <= ni < H and 0 <= nj < W and grid[ni][nj] == s[2]:\n                        found_u = True\n                        break\n                if not found_u:\n                    continue\n\n                # Find 'k' adjacent to 'u'\n                found_k = False\n                for dx, dy in directions:\n                    ni, nj = i + dx, j + dy\n                    if 0 <= ni < H and 0 <= nj < W and grid[ni][nj] == s[3]:\n                        found_k = True\n                        break\n                if not found_k:\n                    continue\n\n                # Find 'e' adjacent to 'k'\n                found_e = False\n                for dx, dy in directions:\n                    ni, nj = i + dx, j + dy\n                    if 0 <= ni < H and 0 <= nj < W and grid[ni][nj] == e:\n                        found_e = True\n                        break\n                if not found_e:\n                    continue\n\n                # Check if all points are contiguous and collinear\n                if is_contiguous((i, j), 4) and is_contiguous((i, j), 1) and check_line((i, j), (i+dx, j+dy), (ni, nj), (ni+dx2, nj+dy2), (ni+dx3, nj+dy3)):\n                    # Found the sequence\n                    print(f\"{i+dx} {j+dy}\")\n                    print(f\"{i+dx2} {j+dy2}\")\n                    print(f\"{ni+dx3} {nj+dy3}\")\n                    print(f\"{ni} {nj}\")\n                    print(f\"{ni+dx} {nj+dy}\")\n                    exit()\n\n# Read input and run the algorithm\nH, W = map(int, input().split())\ngrid = [input() for _ in range(H)]\n\n# YOUR CODE HERE",
+          "eval_metadata": {
+            "error_code": -4,
+            "error_message": "Error during testing: did you forget parentheses around the comprehension target? (<string>, line 10)"
+          }
+        },
+        "abc304_b": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\ndef truncate_number(n):\n    thresholds = [1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000]\n    for i in range(len(thresholds)):\n        if n >= thresholds[i] and n < thresholds[i+1]:\n            return int(str(n)[:-i-1])\n    return n\n\n# Read input from stdin\nN = int(input())\n\n# Truncate the number according to the rules\nresult = truncate_number(N)\n\n# Print the result to stdout\nprint(result)",
+          "eval_metadata": {
+            "output": "202\n",
+            "inputs": "20230603\n",
+            "expected": "20200000\n",
+            "error_code": -2,
+            "error_message": "Wrong answer at output_line_idx=0: 202 != 20200000"
+          }
+        },
+        "abc307_b": {
+          "pass": true,
+          "official_pass": false,
+          "code": "\ndef is_palindrome(s):\n    return s == s[::-1]\n\ndef solve():\n    n = int(input())\n    strings = [input() for _ in range(n)]\n    \n    for i in range(n):\n        for j in range(n):\n            if i != j:\n                concat = strings[i] + strings[j]\n                if is_palindrome(concat):\n                    print(\"Yes\")\n                    return\n    \n    print(\"No\")\n\nsolve()",
+          "eval_metadata": {
+            "execution time": 0.028171539306640625
+          }
+        },
+        "abc324_b": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\ndef solve_problem():\n    N = int(input())\n    factors = {}\n    temp = N\n    while temp > 1:\n        p = 2\n        while temp % p == 0:\n            factors[p] = factors.get(p, 0) + 1\n            temp //= p\n        p = 3\n        while temp % p == 0:\n            factors[p] = factors.get(p, 0) + 1\n            temp //= p\n    \n    if all(factors.get(p, 0) >= 0 for p in factors):\n        print(\"Yes\")\n    else:\n        print(\"No\")\n\nsolve_problem()",
+          "eval_metadata": {
+            "error": "TimeoutException()",
+            "error_code": -3,
+            "error_message": "Time Limit Exceeded",
+            "inputs": "5\n",
+            "expected": "No\n"
+          }
+        },
+        "abc329_a": {
+          "pass": true,
+          "official_pass": false,
+          "code": "\n# Read the input string and separate each character with a space\nS = input()\n\n# Split the string into individual characters\ncharacters = list(S)\n\n# Join the characters with spaces and print the result\nprint(' '.join(characters))",
+          "eval_metadata": {
+            "execution time": 0.005625486373901367
+          }
+        },
+        "abc330_d": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\ndef count_triples(N, grid):\n    o_counts = [sum(cell == 'o' for cell in row) for row in grid]\n    same_row_pairs = sum(o_counts) * (o_counts.count(o_counts.max()) - 1) // 2\n    same_col_pairs = sum(o_counts) * (o_counts.count(o_counts.max()) - 1) // 2\n    total_o_cells = sum(o_counts)\n    cross_pairs = total_o_cells * (total_o_cells - 1) // 2 - same_row_pairs - same_col_pairs\n    return cross_pairs\n\n# Read input\nN = int(input())\ngrid = [input() for _ in range(N)]\n\n# Calculate and print the result\nresult = count_triples(N, grid)\nprint(result)",
+          "eval_metadata": {
+            "error": "AttributeError(\"'list' object has no attribute 'max'\")",
+            "error_code": -4,
+            "error_message": "Runtime Error",
+            "inputs": "3\nooo\noxx\nxxo\n",
+            "expected": "4\n"
+          }
+        },
+        "abc333_a": {
+          "pass": true,
+          "official_pass": false,
+          "code": "\n# Read the integer N from standard input\nN = int(input())\n\n# Concatenate N copies of the digit N to form the result string\nresult = str(N) * N\n\n# Print the resulting string to standard output\nprint(result)",
+          "eval_metadata": {
+            "execution time": 0.007939815521240234
+          }
+        },
+        "abc350_a": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\ndef is_valid_abbreviation(S):\n    digits = list(map(int, S[3:]))\n    return (0 <= digits[0] <= 314 and (digits[0] != 316 or (digits[0] >= 317 and digits[0] <= 349)))\n\nS = input().strip()\nprint(\"Yes\" if is_valid_abbreviation(S) else \"No\")",
+          "eval_metadata": {
+            "output": "Yes\n",
+            "inputs": "ABC350\n",
+            "expected": "No\n",
+            "error_code": -2,
+            "error_message": "Wrong answer at output_line_idx=0: Yes != No"
+          }
+        },
+        "abc361_a": {
+          "pass": false,
+          "official_pass": false,
+          "code": "\ndef insert_x(A, K, X):\n    B = A[:]  # Create a copy of the original list\n    B.insert(K - 1, X)  # Insert X after the K-th element (0-based index)\n    return B\n\n# Read inputs from stdin\nN, K, X = map(int, input().split())\nA = list(map(int, input().split()))\n\n# Insert X after the K-th element\nB = insert_x(A, K, X)\n\n# Print the resulting sequence B\nprint(*B)",
+          "eval_metadata": {
+            "output": "2 3 7 5 11\n",
+            "inputs": "4 3 7\n2 3 5 11\n",
+            "expected": "2 3 5 7 11\n",
+            "error_code": -2,
+            "error_message": "Wrong answer at output_line_idx=0: 2 3 7 5 11 != 2 3 5 7 11"
+          }
+        },
+        "abc372_a": {
+          "pass": true,
+          "official_pass": false,
+          "code": "\n# Read the input string S from standard input\nS = input().strip()\n\n# Remove all occurrences of '.' from the string S\nresult = S.replace('.', '')\n\n# Print the resulting string to standard output\nprint(result)",
+          "eval_metadata": {
+            "execution time": 0.010828733444213867
+          }
+        },
+        "abc374_a": {
+          "pass": true,
+          "official_pass": false,
+          "code": "\n# Read the input string from standard input\nS = input().strip()\n\n# Check if the string ends with 'san'\nif S.endswith('san'):\n    print('Yes')\nelse:\n    print('No')",
+          "eval_metadata": {
+            "execution time": 0.013677358627319336
+          }
+        },
+        "abc397_c": {
+          "pass": true,
+          "official_pass": false,
+          "code": "\ndef count_distinct(arr):\n    return len(set(arr))\n\ndef solve():\n    import sys\n    input = sys.stdin.read().split()\n    n = int(input[0])\n    A = list(map(int, input[1:]))\n    \n    left_distinct = [0] * n\n    left_distinct[0] = 1\n    current_set = {A[0]}\n    \n    for i in range(1, n):\n        current_set.add(A[i])\n        left_distinct[i] = len(current_set)\n    \n    right_distinct = [0] * n\n    right_distinct[-1] = 1\n    current_set = {A[-1]}\n    \n    for i in range(n - 2, -1, -1):\n        current_set.add(A[i])\n        right_distinct[i] = len(current_set)\n    \n    max_sum = 0\n    for i in range(n - 1):\n        sum_distinct = left_distinct[i] + right_distinct[i + 1]\n        max_sum = max(max_sum, sum_distinct)\n    \n    print(max_sum)\n\nsolve()",
+          "eval_metadata": {
+            "execution time": 0.031764984130859375
+          }
+        }
+      },
+      "passing_after_f1": 13,
+      "official_passes_lost": 0
+    }
+  }
+}

@@ -1,0 +1,316 @@
+{
+  "exploratory": true,
+  "lfm3-1.7b": {
+    "control_variants": {
+      "length": 131072,
+      "card": 65.56,
+      "variants_tried": 7,
+      "note": "exploratory: tried after the control had failed; not a fix of the control",
+      "variants": {
+        "pre-registered": {
+          "mean": 71.69238461538461,
+          "se": 0.9332232400944868,
+          "z_vs_card": 6.571187205714807,
+          "within_2_se": false
+        },
+        "strict": {
+          "mean": 70.51289230769231,
+          "se": 1.0060890193011987,
+          "z_vs_card": 4.922916573657121,
+          "within_2_se": false
+        },
+        "answer cut to RULER's answer budget (about 0.75 words per token)": {
+          "mean": 67.20007692307692,
+          "se": 0.9960476336028047,
+          "z_vs_card": 1.6465848296276706,
+          "within_2_se": true
+        },
+        "output limit 8192 tokens (a longer output scores 0)": {
+          "mean": 66.51289230769231,
+          "se": 1.164288948395187,
+          "z_vs_card": 0.818432837489131,
+          "within_2_se": true
+        },
+        "output limit 16384 tokens (a longer output scores 0)": {
+          "mean": 69.43596923076923,
+          "se": 1.0534411503933456,
+          "z_vs_card": 3.679341014276855,
+          "within_2_se": false
+        },
+        "output limit 32768 tokens (a longer output scores 0)": {
+          "mean": 70.35904615384615,
+          "se": 1.0120205217197484,
+          "z_vs_card": 4.742044307254783,
+          "within_2_se": false
+        },
+        "output limit 65536 tokens (a longer output scores 0)": {
+          "mean": 70.51289230769231,
+          "se": 1.0060890193011987,
+          "z_vs_card": 4.922916573657121,
+          "within_2_se": false
+        },
+        "strict and answer cut": {
+          "mean": 66.94366153846154,
+          "se": 1.017859060226452,
+          "z_vs_card": 1.3593842139143542,
+          "within_2_se": true
+        }
+      }
+    },
+    "duplicates": {
+      "rule": "the last record of a sample is scored (ruler.latest_records); a rerun appends",
+      "per_length": {
+        "4096": {
+          "samples_with_more_than_one_record": {
+            "niah_multikey_3": 1,
+            "cwe": 29,
+            "fwe": 43,
+            "qa_1": 50,
+            "qa_2": 50
+          },
+          "records_per_sample": [
+            2
+          ],
+          "finish_reason_of_replaced": {
+            "stop": 173
+          },
+          "identical_outputs": 22,
+          "output_tokens_median": {
+            "first": 1546,
+            "last": 1203
+          },
+          "last_longer_than_first": 83,
+          "mean": {
+            "last (scored)": 93.35393846153846,
+            "first": 93.29243076923078
+          },
+          "strict_mean": {
+            "last (scored)": 92.2770153846154,
+            "first": 93.13858461538462
+          }
+        }
+      },
+      "r3_comparisons_at_4096": {
+        "last (scored)": {
+          "drop tracing - drop retrieval": -22.200000000000003,
+          "drop aggregation - drop retrieval": 16.400100000000002
+        },
+        "first": {
+          "drop tracing - drop retrieval": -22.450000000000003,
+          "drop aggregation - drop retrieval": 14.750300000000003
+        }
+      }
+    },
+    "think_end": {
+      "without_think_end_by_finish_reason": {
+        "4096": {
+          "length": 7
+        },
+        "8192": {
+          "length": 16
+        },
+        "16384": {
+          "length": 8
+        },
+        "32768": {
+          "length": 13,
+          "stop": 1
+        },
+        "65536": {
+          "length": 13
+        },
+        "131072": {
+          "length": 10
+        }
+      },
+      "stopped_without_think_end": [
+        {
+          "length": 32768,
+          "task": "niah_multikey_3",
+          "index": 27,
+          "output_tokens": 19482,
+          "pre_registered_score": 0.0,
+          "strict_score": 0.0
+        }
+      ]
+    },
+    "echo_baseline": {
+      "rule": "the output is the sample's whole input",
+      "per_length": {
+        "4096": {
+          "mean": 99.53846153846153,
+          "tasks": 13
+        },
+        "8192": {
+          "mean": 99.38461538461539,
+          "tasks": 13
+        },
+        "16384": {
+          "mean": 99.6923076923077,
+          "tasks": 13
+        },
+        "32768": {
+          "mean": 100.0,
+          "tasks": 13
+        },
+        "65536": {
+          "mean": 100.0,
+          "tasks": 13
+        },
+        "131072": {
+          "mean": 100.0,
+          "tasks": 13
+        }
+      }
+    }
+  },
+  "input_text": {
+    "median_chars": {
+      "lfm3-1.7b": {
+        "4096": 14997.0,
+        "8192": 30297.0,
+        "16384": 64541.0,
+        "32768": 135212.5,
+        "65536": 271095.0,
+        "131072": 544903.0
+      },
+      "bielik-11b-v3.1": {
+        "4096": 14137.0,
+        "8192": 29037.0,
+        "16384": 58467.0,
+        "32768": 117507.0
+      }
+    },
+    "bielik_over_lfm3": {
+      "4096": 0.9426551977062079,
+      "8192": 0.9584117239330627,
+      "16384": 0.9058892796826823,
+      "32768": 0.8690542664324674
+    }
+  },
+  "haystack": {
+    "pinned_part": {
+      "source": "https://github.com/gkamradt/LLMTest_NeedleInAHaystack/raw/78774ab3e2ce64051713ca784d521ac4df5ac64e/needlehaystack/PaulGrahamEssays, 49 essays joined as RULER's downloader does",
+      "sha256": "b3a70ebc054f2eab5057baf3c4b7e857711472be8086240a516fd29b648ad857",
+      "characters": 643830,
+      "characters_without_whitespace": 527800
+    },
+    "essay_file_sha256": {
+      "lfm3-1.7b": "8d31e1b660e0f2180bcca6d238e18f77921df9d158611582b860da1762b6d3dd",
+      "bielik-11b-v3.1": "58e352531a80cef2d22c205dbebfbfd64a8afe55a32434de845f200718756c65",
+      "slayer1b-1.09-k70000": "8d31e1b660e0f2180bcca6d238e18f77921df9d158611582b860da1762b6d3dd"
+    },
+    "per_model": {
+      "lfm3-1.7b": {
+        "4096": {
+          "samples": 250,
+          "max_chars": 15237,
+          "outside": 0
+        },
+        "8192": {
+          "samples": 250,
+          "max_chars": 30920,
+          "outside": 0
+        },
+        "16384": {
+          "samples": 250,
+          "max_chars": 62333,
+          "outside": 0
+        },
+        "32768": {
+          "samples": 250,
+          "max_chars": 126356,
+          "outside": 0
+        },
+        "65536": {
+          "samples": 250,
+          "max_chars": 251557,
+          "outside": 0
+        },
+        "131072": {
+          "samples": 250,
+          "max_chars": 502539,
+          "outside": 0
+        }
+      },
+      "bielik-11b-v3.1": {
+        "4096": {
+          "samples": 250,
+          "max_chars": 13928,
+          "outside": 0
+        },
+        "8192": {
+          "samples": 250,
+          "max_chars": 28585,
+          "outside": 0
+        },
+        "16384": {
+          "samples": 250,
+          "max_chars": 57739,
+          "outside": 0
+        },
+        "32768": {
+          "samples": 250,
+          "max_chars": 117273,
+          "outside": 0
+        }
+      },
+      "slayer1b-1.09-k70000": {
+        "4096": {
+          "samples": 250,
+          "max_chars": 14170,
+          "outside": 0
+        }
+      }
+    }
+  },
+  "inputs": {
+    "lfm3-1.7b": {
+      "out_dir": "out/_box/lfm3-1.7b",
+      "inputs.sha256.json": "91f8f3bac7b8ab401c7db673c4c8319cb61f14780766ee5bd47f6c4c36fb22b1"
+    },
+    "bielik-11b-v3.1": {
+      "out_dir": "out/bielik-11b-v3.1",
+      "inputs.sha256.json": "d2a0e01404a738d1149bda93e732cdb2b25e541e6036c4a154cfc9737d5e96e7"
+    },
+    "slayer1b-1.09-k70000": {
+      "out_dir": "out/_box/slayer1b-1.09-k70000",
+      "inputs.sha256.json": "27f9d379e51e542b58fcedf81167356f8b6d89cb54ec245c049a460c94ed1017"
+    }
+  },
+  "provenance": {
+    "time": "2026-11-24T14:20:16+00:00",
+    "code": {
+      "commit": "652a916f149602b995cd557b91e2df579ea1c2a4",
+      "dirty": false,
+      "uncommitted_runner_files": []
+    },
+    "runner_sha256": {
+      "run.sh": "7167ff605fafca9e16dff63ebab8e597721cb59c17ec7790ad5d086404b6d67c",
+      "predict.py": "75b4aa41d4bb1c5651a3590c4c72e9a2c80848c935ff036c0f9f3098e216ccf4",
+      "slayer_predict.py": "a0dc1b135baedf52868bf99215a062aec89a65a17c876ed5d4fe665875b6e409",
+      "prepare_limited.py": "8ca6e7451dce1851cf3beadd13ebf0c7f66dc62bd721bca750ad50c5a7f26974",
+      "ruler.py": "9d35a1edaf1be2add05e2b7967db5ee600b2598cb12c91aee202ae01b39e0b89",
+      "haystack.py": "f18368f82ef4ff5ab88cf8c5524f260342d60fd5686ac39293931e1b692ac447",
+      "summarize.py": "158158316d102d0df5b20a59723663f4551aca2abdfbc706ee7a6e1b7ab09167",
+      "compare.py": "4a6ba1094d5312eb741e553f427b91a0c1efa5208c1806fd71d33e4db1cf8e53",
+      "provenance.py": "801f9bd12e3c8820e6e6cb28468ecf42ab896fef3bf637426f5df015c4f68578",
+      "diagnostics.py": "fc4df9fff61fde142f5cdbb5138f4aec272dcdbef0bfd00a636388f75c100ccf",
+      "report.py": "63f87e424f64e7f86dcc109a20149e66118d8bd120140d3f2a492dce42819330",
+      "reproduction.py": "afac1456f07b1b6d5b6edbcb8dcd98e267fa7d1d0b93df62ed6239d6badffe62",
+      "declared_provenance.json": "efc9ee65f90e26b16537486c76a49d111e40e7f17b75cb5949c2e7fdbd0d9b6a",
+      "requirements.lock.txt": "734278c83bf2e15d209f8b38eb07b71df447f1478f82651de2ebc422423c60af",
+      "nemo_shim/nemo/collections/asr/parts/utils/manifest_utils.py": "1eee490503e415bc1d289baeb5b027593683287cc9d191003da9a415ab1a06ce",
+      "../../common/slayer_lm.py": "5ae131e1e46b36ff2091d313485a234a9bfc1609b2ba726ab1a73008e5a3a2fa",
+      "../../tools/statystyka.py": "ae7331ca606ee5856f7bf74f8f9699a6b96659c385fb2d2b0f805636763c46ff"
+    },
+    "hardware": {
+      "gpu": null,
+      "platform": "macOS-26.6-arm64-arm-64bit",
+      "machine": "arm64",
+      "processor": "arm",
+      "cpu_count": 18,
+      "python": "3.12.2"
+    }
+  }
+}

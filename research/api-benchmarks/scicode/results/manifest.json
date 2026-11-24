@@ -1,0 +1,59 @@
+{
+  "files": {
+    "bielik-11b-v3.1.json": {
+      "at": "2026-11-22T23:51:41+00:00",
+      "sha256": "e7ee60c5a7a43d4ee153029a57f58a13b59ef9ca452ec84b7d06972fd4a9a8fb",
+      "written_by": "summarize.py"
+    },
+    "bielik-11b-v3.1.jsonl.gz": {
+      "at": "2026-11-22T23:51:41+00:00",
+      "sha256": "6a0669d7968396fc56022d4c897466f4628ba0e88c8e81ca5a4d76c9d1cc47d2",
+      "written_by": "summarize.py"
+    },
+    "exploratory.json": {
+      "at": "2026-11-23T07:30:57+00:00",
+      "sha256": "e961a4a2ce2bc53d64c8aed0d4d528b9950cfdfc70b650ff58d47c76f3e665db",
+      "written_by": "explore.py"
+    },
+    "hypotheses.json": {
+      "at": "2026-11-24T14:10:57+00:00",
+      "sha256": "10bd82cf8db272fe13d3a9dd3b022e76ad88b2ce351adbed28e2e1066acc7768",
+      "written_by": "hypotheses.py"
+    },
+    "lfm3-1.7b-nothink.json": {
+      "at": "2026-11-22T21:10:32+00:00",
+      "sha256": "030c94624d0aa11d7b164f5e36e443fdb8e771ad4d2dc9b4099b6eae3d68d749",
+      "written_by": "summarize.py"
+    },
+    "lfm3-1.7b-nothink.jsonl.gz": {
+      "at": "2026-11-22T21:10:32+00:00",
+      "sha256": "7929d7d85e7dade98230286996c7575430af5d06b26a390b9aa1637b2eed5c0f",
+      "written_by": "summarize.py"
+    },
+    "lfm3-1.7b.json": {
+      "at": "2026-11-22T21:10:24+00:00",
+      "sha256": "c1f31cbd457127ab7935ad9c0dca247d3281765b3d484661a97caf7a6c52e9b6",
+      "written_by": "summarize.py"
+    },
+    "lfm3-1.7b.jsonl.gz": {
+      "at": "2026-11-22T21:10:24+00:00",
+      "sha256": "bf8df2e498c3549851157a085281f634cd4d38ddeea86176b9ccc72341e556a8",
+      "written_by": "summarize.py"
+    },
+    "raw-outputs.json": {
+      "at": "2026-11-23T07:30:57+00:00",
+      "sha256": "4237792aca197c47132b9bb5228df16e0be5f00b69870b2d4f2c66c5825c794c",
+      "written_by": "raw_outputs.py"
+    },
+    "scoring-events.json": {
+      "at": "2026-11-23T07:30:57+00:00",
+      "sha256": "4aa43f952bfb18ae52abbb501a4cd5273b3b8d75d483c86354af051f2c3682e0",
+      "written_by": "scoring_events.py"
+    },
+    "slayer1b-1.09-k70000.json": {
+      "at": "2026-11-24T14:09:36+00:00",
+      "sha256": "9e49516c05a2bdeab0dd6e3cb7cc3537a481a6d1648b6dd3ae5aad3090adc0fa",
+      "written_by": "summarize.py"
+    }
+  }
+}
