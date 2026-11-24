@@ -144,7 +144,7 @@ def test_scores_se_main_problems_and_verdicts():
         c = cells(results, start)
         assert c[4:10] == [f"{100 * p:.2f}", f"{100 * math.sqrt(p * (1 - p) / N):.2f}", f"{100 * se_cl:.2f}", str(N),
                            problems_cell(*solved(rs)), f"{sum(tokens) / len(tokens):.1f}"], run
-    assert "null (" in cells(results, "| Slayer 1B 1.09")[4]
+    assert cells(results, "| Slayer 1B 1.09")[4] == "0.00"
 
 
 def test_e1_numbers_and_reuse():

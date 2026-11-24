@@ -38,10 +38,10 @@ subproblems, with numerical tests.
 | `lfm3-1.7b` | `LiquidAI/LFM3-1.7B` @ `1da06bec6a819da10b54c67e5c90972b46d81871`, thinking on (template default) | vLLM 0.34.0, bf16, context 262144 |
 | `lfm3-1.7b-nothink` | the same weights, `chat_template_kwargs: {"enable_thinking": false}` | the same server |
 | `bielik-11b-v3.1` | Bielik 11B v3.1 through the Fabryka AI API (`https://fabryka.ai/v1`), with the API's hidden provider system prompt and no reasoning switch | API, context 32768 |
-| `slayer1b-1.09-k70000` | not run: `null` | — |
+| `slayer1b-1.09-k70000` | `SlayerLab/Slayer1B-1.09-checkpoints` @ `adfaf3fd5402bc7f3adbfe077798f20262979433`, file `wagi_70000.pt`, 1.08 template `SlayerLab/Slayer1B-1.08` @ `5f854a0cc7160594d54d1788d37a44e8ebabe16c` | local, `research/common/slayer_lm.py`, bf16, greedy, context 4096 |
 
 Slayer 1B is a base model with a 4096-token context and does not follow chat instructions; on 30 Python tasks in
-`research/slayer-1b/rozmowy-1.08` it wrote no function that passed its tests. Its row is `null` with that reason.
+`research/slayer-1b/rozmowy-1.08` it wrote no function that passed its tests. It was run after the Amendment 2 cost decision; the measured result is 0.00 and confirms that decision (see Amendment 3).
 
 ## Settings
 

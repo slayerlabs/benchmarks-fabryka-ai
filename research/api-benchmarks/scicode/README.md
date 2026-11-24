@@ -44,7 +44,7 @@ Headline: correct subproblems with background, out of 288 (test_generated_code.p
 | LFM3-1.7B (`lfm3-1.7b`) | on (template default) | vLLM 0.34.0, bf16, one H100 | context minus prompt tokens (context 262144) | 32.64 | 2.76 | 3.63 | 288 | 5/65 (7.69%) | 7708.5 | 2026-11-22 |
 | LFM3-1.7B (`lfm3-1.7b-nothink`) | off requested (`enable_thinking: false`) | the same vLLM server | context minus prompt tokens (context 262144) | 24.65 | 2.54 | 3.04 | 288 | 4/65 (6.15%) | 5203.3 | 2026-11-22 |
 | Bielik 11B v3.1 (`bielik-11b-v3.1`) | no reasoning switch through the API | Fabryka AI API, with the API's provider system prompt | context minus prompt tokens minus a margin of 64 (context 32768) | 2.43 | 0.91 | 1.01 | 288 | 0/65 (exact 95% CI 0 to 5.52%) | 655.2 | 2026-11-22 |
-| Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`) | | | | null (not run, a cost decision (PROTOCOL.md, Models): on the 30 Python tasks of research/slayer-1b/rozmowy-1.08 (PAPER.md, H5.1) Slayer 1B wrote no function that passed its tests (0 of 30), so running 288 × 2 SciCode steps was judged not worth its cost. null here records that decision; Slayer 1B can run the steps that fit its 4096-token context (counted with its tokenizer and empty earlier-step code, 7 of the 288 prompts with background and 0 of the 288 without exceed it)) | | | | | | |
+| Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`) | no (base model) | local, research/common/slayer_lm.py, bf16, greedy | context minus prompt tokens (context 4096) | 0.00 | 0.00 | 0.00 | 288 | 0/65 (exact 95% CI 0 to 5.52%) | 3185.4 | 2026-11-24 |
 
 Both prompt settings: correct (%) ± stderr (correct/288; clustered SE), main problems solved (all scored steps pass) out of 65, and the scorer's verdicts per step:
 
@@ -56,6 +56,8 @@ Both prompt settings: correct (%) ± stderr (correct/288; clustered SE), main pr
 | lfm3-1.7b-nothink | without background | 17.36 ± 2.23 (50/288; clustered 2.75) | 0/65 (exact 95% CI 0 to 5.52%) | 50 | 236 | 2 |
 | bielik-11b-v3.1 | with background | 2.43 ± 0.91 (7/288; clustered 1.01) | 0/65 (exact 95% CI 0 to 5.52%) | 7 | 281 | 0 |
 | bielik-11b-v3.1 | without background | 1.74 ± 0.77 (5/288; clustered 0.75) | 0/65 (exact 95% CI 0 to 5.52%) | 5 | 281 | 2 |
+| slayer1b-1.09-k70000 | with background | 0.00 (0/288; exact 95% CI 0 to 1.27) | 0/65 (exact 95% CI 0 to 5.52%) | 0 | 288 | 0 |
+| slayer1b-1.09-k70000 | without background | 0.00 (0/288; exact 95% CI 0 to 1.27) | 0/65 (exact 95% CI 0 to 5.52%) | 0 | 288 | 0 |
 
 | run | setting | output tokens mean / median / max | unfinished (thinking on) | stopped by the length limit | prompts over the context | answers containing `<think>` |
 |---|---|---|---|---|---|---|
@@ -65,6 +67,8 @@ Both prompt settings: correct (%) ± stderr (correct/288; clustered SE), main pr
 | lfm3-1.7b-nothink | without background | 5324.0 / 3896.5 / 27465 | 0 | 0 | 0 | 0 of 288 |
 | bielik-11b-v3.1 | with background | 655.2 / 562.0 / 2716 | 0 | 0 | 0 | 0 of 288 |
 | bielik-11b-v3.1 | without background | 697.2 / 626.5 / 1918 | 0 | 0 | 0 | 0 of 288 |
+| slayer1b-1.09-k70000 | with background | 3185.4 / 3257.0 / 3624 | 72 | 72 | 216 | 0 of 72 |
+| slayer1b-1.09-k70000 | without background | 3082.7 / 3215.0 / 3611 | 288 | 288 | 0 | 0 of 288 |
 
 Secondary extraction E1 (PROTOCOL.md Amendment 1), the same answers: a step whose E1 file is byte-identical to its official file took the official verdict, the others were scored by the same scorer:
 
@@ -76,12 +80,15 @@ Secondary extraction E1 (PROTOCOL.md Amendment 1), the same answers: a step whos
 | lfm3-1.7b-nothink | without background | 50/288 | 17.36 ± 2.23 (50/288; clustered 2.75) | 0/65 (exact 95% CI 0 to 5.52%) | 288 | 0 |
 | bielik-11b-v3.1 | with background | 7/288 | 3.12 ± 1.03 (9/288; clustered 1.20) | 0/65 (exact 95% CI 0 to 5.52%) | 84 | 204 |
 | bielik-11b-v3.1 | without background | 5/288 | 1.74 ± 0.77 (5/288; clustered 0.75) | 0/65 (exact 95% CI 0 to 5.52%) | 157 | 131 |
+| slayer1b-1.09-k70000 | with background | 0/288 | 0.00 (0/288; exact 95% CI 0 to 1.27) | 0/65 (exact 95% CI 0 to 5.52%) | 288 | 0 |
+| slayer1b-1.09-k70000 | without background | 0/288 | 0.00 (0/288; exact 95% CI 0 to 1.27) | 0/65 (exact 95% CI 0 to 5.52%) | 288 | 0 |
 
 Bielik's prompt: the API's `usage.prompt_tokens` minus our local count with Bielik's own template, with background: min 0, max 0. Its request log holds 2 events (recovered 1, retry 1; HTTP 503 1, none 1).
 
 Baselines: 0 for random and majority answers (no fixed output passes a step's numerical tests). The LFM3-1.7B card reports 28.47; the control is in Hypotheses.
 
 Scoring: all three runs on one VM (AMD EPYC 7302P 16-Core Processor, 30 vCPUs), SciCode `e3158ea0`, container image `sha256:261432609549a9638b735a97e423d9b2b2aa952754dfd2b649cd6b02c09c59cb` (network none; python 3.11.9, numpy 1.26.4 with openblas64 0.3.23.dev, scipy 1.13.1, sympy 1.12.1, h5py 3.11.0), BLAS threads 1, 1800 s per step; `test_data.h5` sha256 `48b0272a88b17dbd29777c217e1b4fb2b019b92e11cc2add847409db9541b890` checked; dataset revision the scorer loaded: `4510f6a6aa27c43fad7b43da2c59602a86e88480`.
+Slayer was scored separately on AMD EPYC 7B13 64-Core Processor, 30 vCPUs, container image `sha256:1dcf9f45f290156b182c2aa0d3be8efaba386fdad9a03c0f9ace45ae080d981e` (network none); see Deviations.
 
 Raw outputs (with thinking, not committed): the LFM3-1.7B runs in `labaj-agency/out/coding-group/box/export.tgz`, sha256 `2bcf89771f031feb5fbae69617bcd5a60d2d73359c58cadf3c62e7ba218c51c6`; Bielik's in `out/bielik-11b-v3.1/generations.jsonl on the generating Mac`. Each run's generations.jsonl sha256 equals its result file's `raw_outputs.sha256` (results/raw-outputs.json).
 
@@ -298,9 +305,7 @@ How the measurement ran (facts from results/scoring-events.json and the result f
   `p_support = Φ(z)` and `p_refute = 1 − Φ(z)`; Holm with m = 4 runs separately over the four `p_support` and the
   four `p_refute`; a test with no p (K3 "precondition not met", or the other benchmark's file not given) enters as
   p = 1. `hypotheses.json` lists our two tests under `group_tests` (`benchmark`, `id`, `z`, `p_support`,
-  `p_refute`, `outcome_raw`), and `--group <other>/hypotheses.json` reads the other benchmark's. The committed
-  `results/hypotheses.json` is computed without `--group`: no copy of the other benchmark's file is kept here, and
-  the group Holm over both benchmarks is computed once, from both merged `hypotheses.json` files on main.
+  `p_refute`, `outcome_raw`), and `--group <other>/hypotheses.json` reads the other benchmark's.
 - **`--limit N`** takes the first N problems of the split in dataset order (all their steps, both settings).
 - **The `output` of a `.jsonl.gz` line is the extracted code of that step**, not the whole model output (which
   with thinking would exceed the repo's 10 MB limit); the raw outputs stay in `out/<model-id>/generations.jsonl`
@@ -382,7 +387,7 @@ bash run.sh lfm3-1.7b --score
 bash run.sh lfm3-1.7b-nothink --score
 bash run.sh bielik-11b-v3.1 --score
 bash run.sh dev-ground-truth && bash run.sh dev-ground-truth --score   # setup check, no model
-python3 hypotheses.py results
+python3 hypotheses.py results --group results/group-tests-livecodebench-pro-25q2.json
 ```
 
 `--score` writes `results/<model-id>.json` and `.jsonl.gz` (with `--limit N`: `out/<model-id>/<model-id>-limitN.*`).
@@ -406,7 +411,7 @@ kernel's OOM lines, the journal's disk-full lines, `window-*.json` (window_resco
 ```bash
 python3 raw_outputs.py ~/Documents/GitHub/labaj-agency/out/coding-group/box/export.tgz   # results/raw-outputs.json
 python3 scoring_events.py   # results/scoring-events.json, from results/scoring-vm/
-python3 hypotheses.py results   # results/hypotheses.json
+python3 hypotheses.py results --group results/group-tests-livecodebench-pro-25q2.json   # results/hypotheses.json
 python3 explore.py          # results/exploratory.json
 python3 readme.py           # the generated blocks of this README; --check compares byte for byte
 ```
