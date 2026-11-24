@@ -25,7 +25,7 @@ harness's validator, without a judge model.
 Against an empty answer (which never passes the validator, so its score is 0), Bielik is 30.95 ± 1.03 points
 higher (paired, z = 29.9). All 1381 failures are validation errors of the output, none are request errors; the most
 common is a missing code block where the prompt asks for one (651). Each line of `results/<model-id>.jsonl.gz` holds
-the sample seed, the 0/1 score, format, entity type, the validator's errors, the prompt and the raw `output`.
+the sample seed, the 0/1 score, format, entity type, the validator's errors and the raw `output`; the prompt is not stored (look it up in the dataset by seed).
 
 Slayer passes none of the 2000 samples (JSON 0/1000, YAML 0/1000), the same as an empty answer, so it cannot be
 told apart from a trivial answer here. The base model under raw prompting runs to the 1280-token limit (2203 of

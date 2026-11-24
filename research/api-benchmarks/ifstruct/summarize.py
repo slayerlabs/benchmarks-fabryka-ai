@@ -59,7 +59,7 @@ def main(results_file, data, target, settings, limit):
         for s in seeds:
             x = samples[s]
             f.write(json.dumps({"task_id": s, "score": int(bool(x["passed"])), "output_format": x["output_format"],
-                                "entity_type": x["entity_type"], "errors": x["errors"], "prompt": x["prompt"],
+                                "entity_type": x["entity_type"], "errors": x["errors"],
                                 "output": x["response"]}, ensure_ascii=False) + "\n")
     print(json.dumps(result, indent=2))
 
