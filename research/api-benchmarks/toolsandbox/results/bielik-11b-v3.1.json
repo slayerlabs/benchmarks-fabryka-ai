@@ -1,26 +1,31 @@
 {
   "benchmark": "ToolSandbox",
   "model": "bielik-11b-v3.1",
-  "metric": "mean_similarity",
+  "metric": "mean similarity x 100, SE clustered by base scenario",
   "score": 45.18,
-  "stderr": 1.49,
+  "stderr": 3.72,
   "n": 808,
   "date": "2026-11-24",
   "harness": "https://github.com/apple/ToolSandbox @ c8571d7854316d2e1c5f288e59fe1e34e53f6dd1",
   "data": "scenarios of the harness (code), default tool backend: 1032 in total, 224 needing RAPID_API_KEY excluded",
   "settings": {
+    "agent": "bielik-11b-v3.1 via https://fabryka.ai/v1 (OpenAI-compatible, native `tools` parameter)",
+    "user_simulator": "claude-haiku-5-5 via https://api.anthropic.com/v1/ (OpenAI-compatible), no temperature or top_p sent",
     "temperature": 0,
     "max_tokens_per_turn": 1024,
     "max_messages_per_scenario": 30,
     "trials": 1,
     "parallel_scenarios": 2,
-    "user_simulator": "claude-haiku-5-5 via https://api.anthropic.com/v1/ (OpenAI-compatible), no temperature or top_p sent"
+    "tool_backend": "DEFAULT"
   },
   "scenarios_total": 1032,
   "scenarios_excluded_rapid_api": 224,
   "scenarios_run": 808,
   "infrastructure_errors": 0,
   "infrastructure_error_scenarios": [],
+  "scenarios_rerun_after_infra_error": [
+    "update_contact_relationship_with_relationship_alt"
+  ],
   "scored_exceptions_by_type": {
     "KeyError": 2
   },
@@ -40,6 +45,102 @@
     "THREE_DISTRACTION_TOOLS": 45.45,
     "TOOL_DESCRIPTION_SCRAMBLED": 43.79,
     "TOOL_NAME_SCRAMBLED": 47.03
+  },
+  "category_stderr_clustered": {
+    "ALL_TOOLS_AVAILABLE": 4.23,
+    "ARG_DESCRIPTION_SCRAMBLED": 4.2,
+    "ARG_TYPE_SCRAMBLED": 4.25,
+    "CANONICALIZATION": 3.67,
+    "INSUFFICIENT_INFORMATION": 4.19,
+    "MULTIPLE_TOOL_CALL": 3.03,
+    "MULTIPLE_USER_TURN": 4.9,
+    "NO_DISTRACTION_TOOLS": 4.27,
+    "SINGLE_TOOL_CALL": 8.07,
+    "SINGLE_USER_TURN": 4.0,
+    "STATE_DEPENDENCY": 5.5,
+    "TEN_DISTRACTION_TOOLS": 4.2,
+    "THREE_DISTRACTION_TOOLS": 3.79,
+    "TOOL_DESCRIPTION_SCRAMBLED": 4.27,
+    "TOOL_NAME_SCRAMBLED": 4.21
+  },
+  "category_n": {
+    "ALL_TOOLS_AVAILABLE": 101,
+    "ARG_DESCRIPTION_SCRAMBLED": 101,
+    "ARG_TYPE_SCRAMBLED": 101,
+    "CANONICALIZATION": 288,
+    "INSUFFICIENT_INFORMATION": 224,
+    "MULTIPLE_TOOL_CALL": 480,
+    "MULTIPLE_USER_TURN": 160,
+    "NO_DISTRACTION_TOOLS": 101,
+    "SINGLE_TOOL_CALL": 104,
+    "SINGLE_USER_TURN": 424,
+    "STATE_DEPENDENCY": 104,
+    "TEN_DISTRACTION_TOOLS": 101,
+    "THREE_DISTRACTION_TOOLS": 505,
+    "TOOL_DESCRIPTION_SCRAMBLED": 101,
+    "TOOL_NAME_SCRAMBLED": 101
+  },
+  "category_clusters": {
+    "ALL_TOOLS_AVAILABLE": 101,
+    "ARG_DESCRIPTION_SCRAMBLED": 101,
+    "ARG_TYPE_SCRAMBLED": 101,
+    "CANONICALIZATION": 36,
+    "INSUFFICIENT_INFORMATION": 28,
+    "MULTIPLE_TOOL_CALL": 60,
+    "MULTIPLE_USER_TURN": 20,
+    "NO_DISTRACTION_TOOLS": 101,
+    "SINGLE_TOOL_CALL": 13,
+    "SINGLE_USER_TURN": 53,
+    "STATE_DEPENDENCY": 13,
+    "TEN_DISTRACTION_TOOLS": 101,
+    "THREE_DISTRACTION_TOOLS": 101,
+    "TOOL_DESCRIPTION_SCRAMBLED": 101,
+    "TOOL_NAME_SCRAMBLED": 101
+  },
+  "other_metrics": {
+    "stderr_independent": 1.49,
+    "clusters": 101,
+    "scenarios_per_cluster": 8,
+    "sensitivity_to_kept_rapid_api_scenarios": {
+      "without_80_kept_insufficient_information_scenarios": {
+        "score": 39.16,
+        "stderr": 3.61,
+        "n": 728,
+        "clusters": 91
+      },
+      "without_32_kept_where_minefield_is_not_a_rapid_tool": {
+        "score": 42.92,
+        "stderr": 3.7,
+        "n": 776,
+        "clusters": 97
+      },
+      "outside_the_insufficient_information_category": {
+        "score": 28.96,
+        "stderr": 3.31,
+        "n": 584,
+        "clusters": 73
+      },
+      "kept_80_scenarios_scoring_1": 80
+    },
+    "scenarios_with_rapid_api_tool_call": [
+      "find_temperature_f_with_location_insufficient_information_alt",
+      "find_temperature_f_with_location_insufficient_information_alt_3_distraction_tools_arg_description_scrambled",
+      "search_relationship_with_phone_number_10_distraction_tools"
+    ],
+    "scenarios_with_rapid_api_key_error_text": [
+      "find_temperature_f_with_location_insufficient_information_alt",
+      "find_temperature_f_with_location_insufficient_information_alt_3_distraction_tools_arg_description_scrambled",
+      "search_relationship_with_phone_number_10_distraction_tools"
+    ],
+    "polish_replies": {
+      "heuristic": "assistant text messages containing a Polish diacritic (ą ć ę ł ń ó ś ź ż)",
+      "scenarios_with_transcript": 806,
+      "scenarios_with_a_polish_diacritic_in_an_assistant_message": 284,
+      "scenarios_with_two_or_more_diacritics_in_one_assistant_message": 277,
+      "assistant_text_messages": 3374,
+      "assistant_text_messages_with_a_diacritic": 1134,
+      "scenarios_with_a_diacritic_in_a_simulator_message": 0
+    }
   },
   "cost": {
     "simulator_calls": 3386,
