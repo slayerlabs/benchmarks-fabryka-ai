@@ -1,0 +1,412 @@
+{
+  "arms": {
+    "haiku": [
+      {
+        "domain": "airline",
+        "task_id": "18",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "airline",
+        "task_id": "8",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "airline",
+        "task_id": "41",
+        "reward": 1.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "airline",
+        "task_id": "37",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "airline",
+        "task_id": "46",
+        "reward": 1.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "retail",
+        "task_id": "59",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "retail",
+        "task_id": "16",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "retail",
+        "task_id": "90",
+        "reward": 1.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "retail",
+        "task_id": "60",
+        "reward": null,
+        "termination": "infrastructure_error",
+        "error": "judge_json"
+      },
+      {
+        "domain": "retail",
+        "task_id": "108",
+        "reward": null,
+        "termination": "infrastructure_error",
+        "error": "judge_json"
+      },
+      {
+        "domain": "telecom",
+        "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference[PERSONA:Hard]",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "telecom",
+        "task_id": "[service_issue]airplane_mode_on|break_apn_settings|overdue_bill_suspension|unseat_sim_card[PERSONA:None]",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "telecom",
+        "task_id": "[mms_issue]break_app_storage_permission|unseat_sim_card|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "telecom",
+        "task_id": "[mms_issue]airplane_mode_on|break_app_both_permissions|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:None]",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "telecom",
+        "task_id": "[service_issue]break_apn_settings|overdue_bill_suspension|unseat_sim_card[PERSONA:Hard]",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "banking_knowledge",
+        "task_id": "task_012",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "banking_knowledge",
+        "task_id": "task_004",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "banking_knowledge",
+        "task_id": "task_060",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "banking_knowledge",
+        "task_id": "task_016",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "banking_knowledge",
+        "task_id": "task_089",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      }
+    ],
+    "sonnet": [
+      {
+        "domain": "airline",
+        "task_id": "8",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "airline",
+        "task_id": "18",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "airline",
+        "task_id": "37",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "airline",
+        "task_id": "41",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "airline",
+        "task_id": "46",
+        "reward": 1.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "retail",
+        "task_id": "16",
+        "reward": 0.0,
+        "termination": "too_many_errors",
+        "error": null
+      },
+      {
+        "domain": "retail",
+        "task_id": "60",
+        "reward": 1.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "retail",
+        "task_id": "90",
+        "reward": 0.0,
+        "termination": "too_many_errors",
+        "error": null
+      },
+      {
+        "domain": "retail",
+        "task_id": "108",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "retail",
+        "task_id": "59",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "telecom",
+        "task_id": "[mobile_data_issue]airplane_mode_on|bad_network_preference[PERSONA:Hard]",
+        "reward": 1.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "telecom",
+        "task_id": "[service_issue]airplane_mode_on|break_apn_settings|overdue_bill_suspension|unseat_sim_card[PERSONA:None]",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "telecom",
+        "task_id": "[service_issue]break_apn_settings|overdue_bill_suspension|unseat_sim_card[PERSONA:Hard]",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "telecom",
+        "task_id": "[mms_issue]airplane_mode_on|break_app_both_permissions|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:None]",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "telecom",
+        "task_id": "[mms_issue]break_app_storage_permission|unseat_sim_card|user_abroad_roaming_disabled_on[PERSONA:Easy]",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "banking_knowledge",
+        "task_id": "task_012",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "banking_knowledge",
+        "task_id": "task_004",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "banking_knowledge",
+        "task_id": "task_016",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "banking_knowledge",
+        "task_id": "task_060",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      },
+      {
+        "domain": "banking_knowledge",
+        "task_id": "task_089",
+        "reward": 0.0,
+        "termination": "user_stop",
+        "error": null
+      }
+    ]
+  },
+  "fault_readings": {
+    "haiku": {
+      "assessable": 18,
+      "faults": 4,
+      "reader1": 3,
+      "reader2": 5,
+      "not_assessable": 2
+    },
+    "sonnet": {
+      "assessable": 20,
+      "faults": 4,
+      "reader1": 2,
+      "reader2": 8,
+      "not_assessable": 0
+    }
+  },
+  "repeats": {
+    "tasks": 20,
+    "tasks_with_3_rewards": 17,
+    "tasks_same_in_all_3": 15,
+    "tasks_mixed": 2,
+    "per_task": {
+      "airline/18": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "airline/37": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "airline/41": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "airline/46": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "airline/8": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "banking_knowledge/task_004": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "banking_knowledge/task_012": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "banking_knowledge/task_016": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "banking_knowledge/task_060": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "banking_knowledge/task_089": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "retail/108": [
+        0.0,
+        1.0,
+        null
+      ],
+      "retail/16": [
+        null,
+        null,
+        0.0
+      ],
+      "retail/59": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "retail/60": [
+        0.0,
+        0.0,
+        null
+      ],
+      "retail/90": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "telecom/[mms_issue]airplane_mode_on|break_app_both_permissions|data_usage_exceeded|user_abroad_roaming_disabled_off[PERSONA:None]": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "telecom/[mms_issue]break_app_storage_permission|unseat_sim_card|user_abroad_roaming_disabled_on[PERSONA:Easy]": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "telecom/[mobile_data_issue]airplane_mode_on|bad_network_preference[PERSONA:Hard]": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "telecom/[service_issue]airplane_mode_on|break_apn_settings|overdue_bill_suspension|unseat_sim_card[PERSONA:None]": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "telecom/[service_issue]break_apn_settings|overdue_bill_suspension|unseat_sim_card[PERSONA:Hard]": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  }
+}

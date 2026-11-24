@@ -1,0 +1,165 @@
+{
+  "benchmark": "tau3-bench",
+  "model": "bielik-11b-v3.1",
+  "metric": "paired difference of the per-task reward (fraction), Sonnet 5.5 simulator minus Haiku 5.5 simulator, same agent and judge",
+  "date": "2026-11-24",
+  "harness": "https://github.com/sierra-research/tau2-bench @ fc0055dc4e0a316c3f83133267fbd6faaa770992 (tag v1.0.1, the tau3-bench release line)",
+  "settings": {
+    "family": "3 tests (airline, retail, telecom), Holm over the 3; not pre-registered, see the PROTOCOL.md amendment",
+    "se_method": "sd of the per-task differences / sqrt(n); z = difference / SE",
+    "verdict_rule": "research/tools/statystyka.py: |z| >= 3 clear, 2-3 borderline, < 2 noise",
+    "banking_knowledge": "not run with the Sonnet simulator (cost); planned"
+  },
+  "tasks": {
+    "airline": 50,
+    "retail": 114,
+    "telecom": 114
+  },
+  "paired_final": [
+    {
+      "domain": "airline",
+      "n": 50,
+      "haiku": 0.4,
+      "sonnet": 0.4,
+      "diff": 0.0,
+      "se": 0.057142857142857134,
+      "z": 0.0,
+      "p": 1.0,
+      "verdict": "noise",
+      "sonnet_only": 4,
+      "haiku_only": 4,
+      "p_holm": 1.0,
+      "verdict_holm": "noise",
+      "after_holm": "no"
+    },
+    {
+      "domain": "retail",
+      "n": 97,
+      "haiku": 0.2268041237113402,
+      "sonnet": 0.36082474226804123,
+      "diff": 0.13402061855670103,
+      "se": 0.05410325255612986,
+      "z": 2.4771268311024413,
+      "p": 0.01324448276231337,
+      "verdict": "borderline",
+      "sonnet_only": 21,
+      "haiku_only": 8,
+      "p_holm": 0.039733448286940115,
+      "verdict_holm": "borderline",
+      "after_holm": "yes"
+    },
+    {
+      "domain": "telecom",
+      "n": 113,
+      "haiku": 0.19469026548672566,
+      "sonnet": 0.25663716814159293,
+      "diff": 0.061946902654867256,
+      "se": 0.03151060323796338,
+      "z": 1.9659065929983464,
+      "p": 0.04930940135565401,
+      "verdict": "noise",
+      "sonnet_only": 10,
+      "haiku_only": 3,
+      "p_holm": 0.09861880271130802,
+      "verdict_holm": "noise",
+      "after_holm": "no"
+    }
+  ],
+  "paired_first_attempt_only": [
+    {
+      "domain": "airline",
+      "n": 50,
+      "haiku": 0.4,
+      "sonnet": 0.4,
+      "diff": 0.0,
+      "se": 0.057142857142857134,
+      "z": 0.0,
+      "p": 1.0,
+      "verdict": "noise",
+      "sonnet_only": 4,
+      "haiku_only": 4,
+      "p_holm": 1.0,
+      "verdict_holm": "noise",
+      "after_holm": "no"
+    },
+    {
+      "domain": "retail",
+      "n": 90,
+      "haiku": 0.23333333333333334,
+      "sonnet": 0.35555555555555557,
+      "diff": 0.12222222222222222,
+      "se": 0.056594529492556424,
+      "z": 2.159611950450042,
+      "p": 0.03080272251654982,
+      "verdict": "borderline",
+      "sonnet_only": 19,
+      "haiku_only": 8,
+      "p_holm": 0.09240816754964946,
+      "verdict_holm": "noise",
+      "after_holm": "no"
+    },
+    {
+      "domain": "telecom",
+      "n": 55,
+      "haiku": 0.16363636363636364,
+      "sonnet": 0.2727272727272727,
+      "diff": 0.10909090909090909,
+      "se": 0.05609472071480735,
+      "z": 1.9447624963771732,
+      "p": 0.05180356982467878,
+      "verdict": "noise",
+      "sonnet_only": 8,
+      "haiku_only": 2,
+      "p_holm": 0.10360713964935755,
+      "verdict_holm": "noise",
+      "after_holm": "no"
+    }
+  ],
+  "sonnet_arm": {
+    "airline": {
+      "assessed": 50,
+      "unassessed_by_error": {},
+      "pass_rate": 0.4
+    },
+    "retail": {
+      "assessed": 100,
+      "unassessed_by_error": {
+        "judge_json": 5,
+        "503": 9
+      },
+      "pass_rate": 0.36
+    },
+    "telecom": {
+      "assessed": 114,
+      "unassessed_by_error": {},
+      "pass_rate": 0.2543859649122807
+    }
+  },
+  "style": {
+    "haiku": {
+      "simulations": 273,
+      "customer_messages_per_simulation": 14.527472527472527,
+      "words_per_customer_message": 52.16944024205749,
+      "customer_messages_with_bold": 184,
+      "customer_messages": 3966,
+      "simulations_with_polish_agent_message": 46,
+      "agent_messages": 3853,
+      "agent_messages_polish": 664,
+      "agent_replies_of_5_words_or_less": 155,
+      "simulations_with_short_agent_reply": 36
+    },
+    "sonnet": {
+      "simulations": 264,
+      "customer_messages_per_simulation": 12.06439393939394,
+      "words_per_customer_message": 46.11742543171115,
+      "customer_messages_with_bold": 70,
+      "customer_messages": 3185,
+      "simulations_with_polish_agent_message": 29,
+      "agent_messages": 3144,
+      "agent_messages_polish": 248,
+      "agent_replies_of_5_words_or_less": 52,
+      "simulations_with_short_agent_reply": 13
+    }
+  },
+  "deviations": "none from the main run except the simulator; the Sonnet arm was not retried after infrastructure errors"
+}

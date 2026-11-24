@@ -140,3 +140,35 @@ probe), then the rest. The running Claude cost is checked after every domain, an
 
 The full 375-task tau3-bench for any model, other simulators, the agent's score as a headline, ToolSandbox (own
 directory and protocol).
+
+## Amendment 2026-11-24: the full run, written after its results
+
+Everything above was written on 2026-11-23 before any Claude simulator output. This amendment was written on
+2026-11-24 **after** the full runs and the retries below, from the run scripts and logs. Nothing in it was committed
+before the results existed, so none of it is "pre-specified"; it records what was done and in which order.
+
+What differs from the text above:
+
+- **The full run is in scope.** After the probe, the person who owns the key approved a full run with the Haiku simulator (2026-11-23) and,
+  after it, a full run with the Sonnet simulator (2026-11-24). `banking_knowledge` with Sonnet was started and
+  stopped after 3 simulations because of the cost limit; those 3 are not used, and the domain is planned for when
+  credits are renewed.
+- **Simulator temperature.** The Claude 5.5 simulators were run with empty LLM arguments (`--user-llm-args '{}'`),
+  because the API rejects `temperature`. The "temperature 0.0, harness default" in the model table above was not
+  what ran.
+- **Choice of Haiku for the main result.** PROTOCOL.md defines what the probe measures but no decision rule. After
+  the probe (simulator faults 4 of 18 assessable simulations for Haiku against 4 of 20 for Sonnet, readers disagree
+  on 8 of 38; reward 3 of 18 against 3 of 20) Haiku was chosen as the simulator of the main result because the fault
+  rates were not distinguishable at n = 20 and its cost was about 7.5 times lower (0.35 against 2.60 USD for the 20
+  tasks). The decision was made by reading the probe, not by a rule written before it.
+- **Retry of tasks without a reward.** The harness marks a simulation `infrastructure_error` and gives it no reward.
+  After the Haiku full run, the tasks without a reward (74) were run once more with the same parameters, in the
+  directories `*_haiku_retry_*` (`retry_infra.sh`). The rule is "no reward", never "low reward", so it cannot select
+  on the outcome; it was decided after the main run and before any retry result existed, which the file times of the
+  chain script (24.11 12:52, the start of the first retry) and of the main run (23.11, last simulation 20:03) are
+  consistent with, but no committed note shows. The retry was run once per task. The Sonnet arm was **not** retried
+  (cost limit): its retail has 14 simulations without a reward.
+- **Reading of the results.** The headline is the mean of the 4 domain pass rates, tasks without a reward after the
+  retry are outside n and bounded (0 and 1), and the simulator comparison is a paired difference per task with Holm over the
+  3 domains (`summarize.py`). These were chosen after seeing the main results; they are not pre-registered tests.
+- **The repeated empty completion** of `tau3_run.py` (up to 5 repeats) was already in the protocol text above.
