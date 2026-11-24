@@ -74,6 +74,11 @@ and loose verdicts per instruction, whether the turn was scored as failed becaus
   `d6e755d356ad418d0f0e30b8c428db267415ddb9`, bfloat16) is served by vLLM 0.34.0 on a rented NVIDIA RTX PRO 5000
   Blackwell (`vllm.sh`), with the chat template's defaults, including the provider system prompt, and the date pinned to
   2026-11-18. This is the setup of the `-vllm` rows of the IFEval benchmark (#313), not the API row.
+- **The LFM3-1.7B card's sampling, not Bielik's own.** Bielik runs with the sampling the LFM3-1.7B card uses for
+  its evaluations unless it lists an exception (temperature 0.6, top_p 0.95), because the protocol, fixed before the
+  runs, compares every model with the card's table under the card's settings. The Bielik model card gives no
+  evaluation settings; it sets only temperature 0.3 for its hosted inference widget. A run with Bielik's own settings
+  would be a separate row with its own label.
 - **Output limit 8192 per turn instead of "no limit".** The harness sends one fixed `max_new_tokens` for every
   turn; the card gives no limit. With 8192, three answers take at most 24576 of the 32768-token context.
 - **Patched API client.** `patch_api_client.py` makes two edits to the harness's `api_client.py`: the Anthropic,
