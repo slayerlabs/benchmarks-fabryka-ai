@@ -56,15 +56,15 @@ Source: [`research/api-benchmarks/multi-if/`](../../research/api-benchmarks/mult
 
 ### GPQA Diamond
 
-Source: [`research/api-benchmarks/gpqa-diamond/`](../../research/api-benchmarks/gpqa-diamond/README.md) (in review, PR #335). LFM3-1.7B card: 63.37.
+Source: [`research/api-benchmarks/gpqa-diamond/`](../../research/api-benchmarks/gpqa-diamond/README.md) (merged). LFM3-1.7B card: 63.37.
 
-**Requires verification:** PR #335 in review; exploratory: both models ran locally with lm-eval at an 8192-token budget on different GPUs and batch sizes, and the main row (API, the card's settings) is not computed.
+**Note:** the pre-registered row caps answers at 8192 tokens, and 74 of LFM3's 198 answers are cut there (a cut answer scores 0). With a larger cap LFM3 reaches 58.59 at 16384 and 62.63 to 64.65 at 32768 (two compositions), within noise of the card's 63.37. The row with the card's settings (no cap, temperature 0.6) is not computed. Bielik is not limited by the cap (36.36 at 2048). Both models ran locally with lm-eval, on different GPUs.
 
 | model | how it ran | value | n |
 |---|---|---:|---:|
 | Slayer 1B 1.09 (step 70 000, training in progress) | not run | null: not run yet, an open item of the README (no result file) | |
-| Bielik 11B v3.1 Instruct | local lm-eval, CoT, greedy, 8192 tokens | 37.9 ± 3.5* | 198 |
-| LFM3-1.7B | local lm-eval, CoT, greedy, 8192 tokens | 53.5 ± 3.5* | 198 |
+| Bielik 11B v3.1 Instruct | local lm-eval, CoT, greedy, 8192 tokens | 37.9 ± 3.5 | 198 |
+| LFM3-1.7B | local lm-eval, CoT, greedy, 8192 tokens | 53.5 ± 3.5 | 198 |
 
 ### AA-Omniscience
 
@@ -82,53 +82,65 @@ Source: [`research/api-benchmarks/aa-omniscience/`](../../research/api-benchmark
 
 ### LiveCodeBench v6
 
-Source: [`research/api-benchmarks/livecodebench-v6/`](../../research/api-benchmarks/livecodebench-v6/README.md) (in review, PR #336). LFM3-1.7B card: 73.46.
+Source: [`research/api-benchmarks/livecodebench-v6/`](../../research/api-benchmarks/livecodebench-v6/README.md) (merged). LFM3-1.7B card: 73.46.
 
-**Requires verification:** PR #336 in review: Bielik's answers were scored on a different CPU than LFM3's; Bielik without reasoning (the API default). LFM3 with the card's sampling: 72.89 ± 1.37.
+**Note:** Bielik without reasoning (the API default; reasoning cannot be switched on through the API). LFM3 with the card's sampling: 73.08 ± 1.37. Slayer's null is a cost decision of the benchmark's authors.
 
 | model | how it ran | value | n |
 |---|---|---:|---:|
 | Slayer 1B 1.09 (step 70 000, training in progress) | not run | null: not run: about 27 h with the single-stream decoder (README, Deviations; no result file) | |
-| Bielik 11B v3.1 Instruct | Fabryka API, chat template, no reasoning (API default) | 16.7 ± 1.1* | 1055 |
-| LFM3-1.7B | own vLLM, thinking | 72.2 ± 1.4* | 1055 |
+| Bielik 11B v3.1 Instruct | Fabryka API, chat template, no reasoning (API default) | 16.7 ± 1.1 | 1055 |
+| LFM3-1.7B | own vLLM, thinking | 72.0 ± 1.4 | 1055 |
 
 ### LiveCodeBench Pro 25Q2
 
-Source: [`research/api-benchmarks/livecodebench-pro-25q2/`](../../research/api-benchmarks/livecodebench-pro-25q2/README.md) (in review, PR #338). LFM3-1.7B card: 31.74.
+Source: [`research/api-benchmarks/livecodebench-pro-25q2/`](../../research/api-benchmarks/livecodebench-pro-25q2/README.md) (merged). LFM3-1.7B card: 31.74.
 
-**Requires verification:** PR #338 in review: the coding-group Holm correction pins files that have changed since; Slayer was not run by judgement, not because it cannot run. LFM3 without thinking: 28.74 ± 3.50.
+**Note:** LFM3 without thinking: 28.74 ± 3.50. Slayer's null is a cost decision of the benchmark's authors.
 
 | model | how it ran | value | n |
 |---|---|---:|---:|
-| Slayer 1B 1.09 (step 70 000, training in progress) | not run | null: not run (PROTOCOL.md, Models): Slayer 1B is a base model with a 4096-token context that does not follow chat instructions; on 30 Python tasks in research/slayer-1b/rozmowy-1.08 it wrote no function that passed its tests, so olympiad problems in C++ are below its floor. | |
-| Bielik 11B v3.1 Instruct | Fabryka API, chat template | 1.8 ± 1.0* | 167 |
-| LFM3-1.7B | own vLLM, thinking | 32.3 ± 3.6* | 167 |
+| Slayer 1B 1.09 (step 70 000, training in progress) | not run | null: not run, a cost decision (PROTOCOL.md, Models): on the 30 Python tasks of research/slayer-1b/rozmowy-1.08 (PAPER.md, H5.1) Slayer 1B wrote no function that passed its tests (0 of 30), so running 167 olympiad problems in C++ was judged not worth its cost. null here records that decision; Slayer 1B can run the benchmark (its 4096-token context holds these prompts). | |
+| Bielik 11B v3.1 Instruct | Fabryka API, chat template | 1.8 ± 1.0 | 167 |
+| LFM3-1.7B | own vLLM, thinking | 32.3 ± 3.6 | 167 |
 
 ### SciCode
 
-Source: [`research/api-benchmarks/scicode/`](../../research/api-benchmarks/scicode/README.md) (in review, PR #339). LFM3-1.7B card: 28.47.
+Source: [`research/api-benchmarks/scicode/`](../../research/api-benchmarks/scicode/README.md) (merged). LFM3-1.7B card: 28.47.
 
-**Requires verification:** PR #339 in review: the control against the card passes with and without background, so it cannot confirm the setup; Slayer was not run by judgement. LFM3 without thinking: 24.65 ± 2.54.
+**Note:** the control against the card passes both with and without background (22.92), so it cannot confirm the card's setup. LFM3 without thinking: 24.65 ± 2.54. Slayer's null is a cost decision of the benchmark's authors.
 
 | model | how it ran | value | n |
 |---|---|---:|---:|
-| Slayer 1B 1.09 (step 70 000, training in progress) | not run | null: a base model with a 4096-token context that does not follow chat instructions; on 30 Python tasks in research/slayer-1b/rozmowy-1.08 it wrote no function that passed its tests (PROTOCOL.md, Models) | |
-| Bielik 11B v3.1 Instruct | Fabryka API, chat template | 2.4 ± 0.9* | 288 |
-| LFM3-1.7B | own vLLM, thinking, with background | 32.6 ± 2.8* | 288 |
+| Slayer 1B 1.09 (step 70 000, training in progress) | not run | null: not run, a cost decision (PROTOCOL.md, Models): on the 30 Python tasks of research/slayer-1b/rozmowy-1.08 (PAPER.md, H5.1) Slayer 1B wrote no function that passed its tests (0 of 30), so running 288 × 2 SciCode steps was judged not worth its cost. null here records that decision; Slayer 1B can run the steps that fit its 4096-token context (counted with its tokenizer and empty earlier-step code, 7 of the 288 prompts with background and 0 of the 288 without exceed it) | |
+| Bielik 11B v3.1 Instruct | Fabryka API, chat template | 2.4 ± 0.9 | 288 |
+| LFM3-1.7B | own vLLM, thinking, with background | 32.6 ± 2.8 | 288 |
 
 ## Long context
 
 ### RULER 128K
 
-Source: [`research/api-benchmarks/ruler-128k/`](../../research/api-benchmarks/ruler-128k/README.md) (in review, PR #337). LFM3-1.7B card: 65.56.
+Source: [`research/api-benchmarks/ruler-128k/`](../../research/api-benchmarks/ruler-128k/README.md) (merged). LFM3-1.7B card: 65.56.
 
-**Requires verification:** PR #337 in review: the haystack text differs between models, the substring scorer has no answer cap (capped to RULER's answer budget: 67.20 ± 1.00), 173 samples have two records, and the control against the card failed.
+**Note:** RULER's substring scorer has no answer cap here, so 71.69 is not comparable to RULER numbers in the literature; capped to RULER's answer budget: 67.20 ± 1.00. The control against the card failed.
 
 | model | how it ran | value | n |
 |---|---|---:|---:|
 | Slayer 1B 1.09 (step 70 000, training in progress) | 4096-token context | null: the 4096-token context window does not hold a 131072-token RULER sample | |
 | Bielik 11B v3.1 Instruct | Fabryka API, chat template, 32768-token context | null: the 32768-token context window does not hold a 131072-token RULER sample | |
-| LFM3-1.7B | own vLLM, 262144 tokens | 71.7 ± 0.9* | 650 |
+| LFM3-1.7B | own vLLM, 262144 tokens | 71.7 ± 0.9 | 650 |
+
+### AA-LCR
+
+Source: [`research/api-benchmarks/aa-lcr/`](../../research/api-benchmarks/aa-lcr/README.md) (in review, PR #340). LFM3-1.7B card: 52.83.
+
+**Requires verification:** draft PR #340, not merged yet.
+
+| model | how it ran | value | n |
+|---|---|---:|---:|
+| Slayer 1B 1.09 (step 70 000, training in progress) | 4096-token context | null: the 4096-token window holds no AA-LCR prompt (shortest 85211 tokens) | |
+| Bielik 11B v3.1 Instruct | Fabryka API, chat template, 32768-token context | null: the 32768-token window holds no AA-LCR prompt (shortest 100913 tokens) | |
+| LFM3 | not run | | |
 
 ## Tool use
 

@@ -271,7 +271,8 @@ class ApiBenchmark:
     """One generative or agentic benchmark of `research/api-benchmarks/<directory>/`, with the result file of each
     column (its model label; the file is `results/<label>.json` unless `files` names another stem) and the value the
     LFM3-1.7B card reports. `pr` is the open pull request the results come from (None once merged), and `caveat` why
-    they need verification; both mark every value of the benchmark with *."""
+    they need verification; both mark every value of the benchmark with *. `note` is what a reader needs to read a
+    merged result right; it is shown next to the values, without *."""
 
     id: str
     name: str
@@ -285,6 +286,7 @@ class ApiBenchmark:
     caveat: str
     files: Mapping[str, str] = field(default_factory=dict)
     null_reasons: Mapping[str, str] = field(default_factory=dict)
+    note: str = ""
 
     def path(self, column: str) -> str:
         label = self.labels[column]
@@ -359,10 +361,14 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
             "lfm3": "local lm-eval, CoT, greedy, 8192 tokens",
         },
         63.37,
-        335,
-        "PR #335 in review; exploratory: both models ran locally with lm-eval at an 8192-token budget on different "
-        "GPUs and batch sizes, and the main row (API, the card's settings) is not computed",
+        None,
+        "",
         null_reasons={"slayer": "not run yet, an open item of the README (no result file)"},
+        note="the pre-registered row caps answers at 8192 tokens, and 74 of LFM3's 198 answers are cut there "
+        "(a cut answer scores 0). With a larger cap LFM3 reaches 58.59 at 16384 and 62.63 to 64.65 at 32768 (two "
+        "compositions), within noise of the card's 63.37. The row with the card's settings (no cap, temperature "
+        "0.6) is not computed. Bielik is not limited by the cap (36.36 at 2048). Both models ran locally with "
+        "lm-eval, on different GPUs",
     ),
     ApiBenchmark(
         "aa-omniscience",
@@ -385,9 +391,10 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         {"slayer": LATEST_SLAYER, "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
         {"slayer": "not run", "bielik": f"{API}, no reasoning (API default)", "lfm3": "own vLLM, thinking"},
         73.46,
-        336,
-        "PR #336 in review: Bielik's answers were scored on a different CPU than LFM3's; Bielik without reasoning "
-        "(the API default). LFM3 with the card's sampling: 72.89 ± 1.37",
+        None,
+        "",
+        note="Bielik without reasoning (the API default; reasoning cannot be switched on through the API). LFM3 "
+        "with the card's sampling: 73.08 ± 1.37. Slayer's null is a cost decision of the benchmark's authors",
         null_reasons={
             "slayer": "not run: about 27 h with the single-stream decoder (README, Deviations; no result file)"
         },
@@ -401,9 +408,9 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         {"slayer": "slayer1b-1.09-k70000", "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
         {"slayer": "not run", "bielik": API, "lfm3": "own vLLM, thinking"},
         31.74,
-        338,
-        "PR #338 in review: the coding-group Holm correction pins files that have changed since; Slayer was not run "
-        "by judgement, not because it cannot run. LFM3 without thinking: 28.74 ± 3.50",
+        None,
+        "",
+        note="LFM3 without thinking: 28.74 ± 3.50. Slayer's null is a cost decision of the benchmark's authors",
     ),
     ApiBenchmark(
         "scicode",
@@ -414,9 +421,11 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         {"slayer": "slayer1b-1.09-k70000", "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
         {"slayer": "not run", "bielik": API, "lfm3": "own vLLM, thinking, with background"},
         28.47,
-        339,
-        "PR #339 in review: the control against the card passes with and without background, so it cannot confirm "
-        "the setup; Slayer was not run by judgement. LFM3 without thinking: 24.65 ± 2.54",
+        None,
+        "",
+        note="the control against the card passes both with and without background (22.92), so it cannot confirm "
+        "the card's setup. LFM3 without thinking: 24.65 ± 2.54. Slayer's null is a cost decision of the benchmark's "
+        "authors",
     ),
     ApiBenchmark(
         "ruler-128k",
@@ -427,10 +436,26 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         {"slayer": "slayer1b-1.09-k70000", "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
         {"slayer": "4096-token context", "bielik": f"{API}, 32768-token context", "lfm3": "own vLLM, 262144 tokens"},
         65.56,
-        337,
-        "PR #337 in review: the haystack text differs between models, the substring scorer has no answer cap "
-        "(capped to RULER's answer budget: 67.20 ± 1.00), 173 samples have two records, and the control against "
-        "the card failed",
+        None,
+        "",
+        note="RULER's substring scorer has no answer cap here, so 71.69 is not comparable to RULER numbers in the "
+        "literature; capped to RULER's answer budget: 67.20 ± 1.00. The control against the card failed",
+    ),
+    ApiBenchmark(
+        "aa-lcr",
+        "AA-LCR",
+        "Long context",
+        "aa-lcr",
+        "percent",
+        {"slayer": LATEST_SLAYER, "bielik": "bielik-11b-v3.1"},
+        {"slayer": "4096-token context", "bielik": f"{API}, 32768-token context"},
+        52.83,
+        340,
+        "draft PR #340, not merged yet",
+        null_reasons={
+            "slayer": "the 4096-token window holds no AA-LCR prompt (shortest 85211 tokens)",
+            "bielik": "the 32768-token window holds no AA-LCR prompt (shortest 100913 tokens)",
+        },
     ),
     ApiBenchmark(
         "bfcl-v4",
@@ -968,6 +993,8 @@ def api_benchmarks_page(rows: Sequence[Result], repo: Path = REPO) -> str:
             lines += [f"### {b.name}", "", f"Source: {source} ({status}). LFM3-1.7B card: {b.card:.2f}.", ""]
             if b.caveat:
                 lines += [f"**Requires verification:** {b.caveat}.", ""]
+            if b.note:
+                lines += [f"**Note:** {b.note}.", ""]
             lines += ["| model | how it ran | value | n |", "|---|---|---:|---:|"]
             for column, c in zip(API_COLUMNS, cells, strict=True):
                 label = b.labels.get(column)
@@ -1023,7 +1050,7 @@ def readme(rows: Sequence[Result], chance: Mapping[str, float | None]) -> str:
         "",
         "**\\* requires verification:** the result comes from a pull request that is still in review, or the review "
         "found an open problem; the reason for each benchmark is on [Generative and agentic benchmarks]"
-        "(api-benchmarks.md). Only IFEval is merged and reviewed.",
+        f"(api-benchmarks.md). Merged and reviewed: {', '.join(b.name for b in API_BENCHMARKS if not b.pr)}.",
         "",
         '- **Incomplete by design:** "null" is a result: the benchmark gave the model no score, for the reason in '
         'the Generative values table (it cannot run, or its authors did not run it). "not run" means the benchmark '
@@ -1035,6 +1062,7 @@ def readme(rows: Sequence[Result], chance: Mapping[str, float | None]) -> str:
         "- **Bielik 11B v3.1** ran through the Fabryka API or our own vLLM depending on the benchmark; both with its "
         "chat template. **LFM3-1.7B** is the instruction-tuned model, with reasoning on; **LFM3 card** is the value "
         "Liquid AI reports for it, not measured by us.",
+        *(f"- **{b.name}:** {b.note}." for b in API_BENCHMARKS if b.note),
         "",
         "[Slayer versions](slayer-versions.md) · [All models](all-models.md) · "
         "[Instruction following](instruction-following.md) · [Generative and agentic benchmarks](api-benchmarks.md) · "
