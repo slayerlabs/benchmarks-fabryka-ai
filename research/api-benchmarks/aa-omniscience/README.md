@@ -70,6 +70,11 @@ calling the judge again.
   Ada Generation)
   (`vllm.sh`), with the chat template's defaults, including the provider system prompt, and the date pinned to
   2026-11-18. This is the setup of the `-vllm` rows of the IFEval benchmark (#313), not the API row.
+- **The LFM3-1.7B card's sampling, not Bielik's own.** Bielik runs with the sampling the LFM3-1.7B card uses for
+  its evaluations unless it lists an exception (temperature 0.6, top_p 0.95), because the protocol, fixed before the
+  runs, compares every model with the card's table under the card's settings. The Bielik model card gives no
+  evaluation settings; it sets only temperature 0.3 for its hosted inference widget. A run with Bielik's own settings
+  would be a separate row with its own label.
 - **Per-question seeds.** Bielik requests carry seed 20261119 + question index.
 - **Slayer is a base model** without a chat template: `slayer_server.py` turns the system prompt and the question
   into raw text (system + blank line + question) and decodes greedily up to 1280 tokens, as in the IFEval benchmark
