@@ -24,6 +24,8 @@ import sys
 import tempfile
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "api-benchmarks" / "ruler-128k"))
 import compare as C  # noqa: E402
 import diagnostics as G  # noqa: E402
@@ -1025,6 +1027,7 @@ def test_fit_check_counts_margin_and_answer_budget():
 def test_one_prompt_over_the_window_skips_the_whole_length():
     """PROTOCOL.md: a length that does not fit is `score: null` with the reason, not cut down to the samples that
     fit; nothing is sent. When every prompt fits, max_tokens = window - counted prompt - margin."""
+    pytest.importorskip("yaml")  # ruler.answer_budgets reads RULER's synthetic.yaml; CI's light job has no PyYAML
     with tempfile.TemporaryDirectory() as d:
         api, length_dir = run_predict(Path(d), {"niah_single_1": [100, 200], "vt": [800]}, window=1000)
         skip = json.loads((length_dir / "skip.json").read_text())
@@ -1234,6 +1237,10 @@ def test_summary_carries_api_events_or_null_with_reason():
 
 if __name__ == "__main__":
     tests = [f for name, f in sorted(globals().items()) if name.startswith("test_")]
+    skipped = []
     for test in tests:
-        test()
-    print(f"{len(tests)} passed")
+        try:
+            test()
+        except pytest.skip.Exception as e:
+            skipped.append(f"{test.__name__} ({e})")
+    print(f"{len(tests) - len(skipped)} passed" + "".join(f"\nskipped: {s}" for s in skipped))
