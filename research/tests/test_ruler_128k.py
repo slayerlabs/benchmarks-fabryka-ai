@@ -27,7 +27,12 @@ from pathlib import Path
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "api-benchmarks" / "ruler-128k"))
+BENCH_DIR = Path(__file__).resolve().parents[1] / "api-benchmarks" / "ruler-128k"
+# Other benchmarks have modules of the same names (summarize, provenance, ...); in one pytest run the one imported
+# first would be reused here, so drop them from the module cache before importing this benchmark's.
+for _module in BENCH_DIR.glob("*.py"):
+    sys.modules.pop(_module.stem, None)
+sys.path.insert(0, str(BENCH_DIR))
 import compare as C  # noqa: E402
 import diagnostics as G  # noqa: E402
 import haystack as H  # noqa: E402
@@ -36,6 +41,22 @@ import predict as P  # noqa: E402
 import provenance as V  # noqa: E402
 import ruler as R  # noqa: E402
 from ruler import answer_text, latest_records  # noqa: E402
+
+
+# Each test runs with this benchmark's modules under their plain names: other benchmarks' tests in the same pytest
+# run import modules of the same names, and modules here import some of theirs (provenance, compare) only when a test
+# calls them. monkeypatch puts back the previous entries after each test.
+_OWN = {p.stem: sys.modules[p.stem] for p in BENCH_DIR.glob("*.py") if p.stem in sys.modules}
+
+
+@pytest.fixture(autouse=True)
+def _this_benchmarks_modules(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.syspath_prepend(str(BENCH_DIR))
+    for p in BENCH_DIR.glob("*.py"):
+        if p.stem in _OWN:
+            monkeypatch.setitem(sys.modules, p.stem, _OWN[p.stem])
+        else:
+            monkeypatch.delitem(sys.modules, p.stem, raising=False)
 
 BENCH = Path(__file__).resolve().parents[1] / "api-benchmarks" / "ruler-128k"
 
