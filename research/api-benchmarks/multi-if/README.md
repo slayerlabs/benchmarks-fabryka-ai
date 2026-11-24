@@ -40,10 +40,12 @@ the model's own answers shuffled across conversations of the same language 10.89
 Bielik's 56.39 is above all three (McNemar against the shuffled answers: p below 1e-160 in each of the three turns).
 
 Slayer has no score: the run was stopped after 2 of 3 turns for compute budget (turn 3 ran at about 10 conversations
-per minute), so `results/slayer1b-60000.json` has `score: null` and no `.jsonl.gz`. Its `other_metrics` copy the
-all-languages and per-language overall of turns 1 and 2 from the metric files the harness wrote during the run (turn 1:
-23.65, turn 2: 15.82). They are harness values, not re-scored: the one failed request in turn 2 is scored as the harness
-does, not as an empty answer. There is no trivial-answer comparison for the stopped run.
+per minute), so `results/slayer1b-60000.json` has `score: null` and no `.jsonl.gz`. Its `other_metrics` hold the
+all-languages and per-language overall of turns 1 and 2, re-scored by `summarize.py --stopped` with the harness's
+`metrics.py` from the answers the harness wrote during the run (turn 1: 23.67 over 4501 conversations, turn 2: 15.82
+over 4500). One turn-2 request (a Hindi conversation) did not fit in Slayer's context window and was rejected; it is
+counted in `turn_2_context_exceeded` (1) and is not in turn 2's N or accuracy (see Deviations). There is no
+trivial-answer comparison for the stopped run.
 
 Each line of `results/<model-id>.jsonl.gz` holds one scored turn: the conversation key, turn, language, the strict
 and loose verdicts per instruction, whether the turn was scored as failed because a request failed, and the raw
@@ -64,7 +66,9 @@ and loose verdicts per instruction, whether the turn was scored as failed becaus
 - **Scoring is not fully deterministic.** The harness's language checks call `langdetect.detect`, and nothing in
   the harness at the pinned commit sets `DetectorFactory.seed`, which langdetect needs for repeatable results.
   Re-scoring the same answers with the harness's `metrics.py` moved turn scores by up to 0.013 points against the
-  metric files the harness wrote during the run (Bielik: 62.212 / 46.307 / 37.432).
+  metric files the harness wrote during the run (Bielik: 62.212 / 46.307 / 37.432). For Slayer's turn 1, where no
+  turn is excluded, re-scoring gives 23.67 against the harness's 23.65 (by language up to 0.09 points: Chinese
+  26.29 against 26.20).
 - **Self-hosted vLLM, not the fabryka.ai API.** Bielik 11B v3.1 Instruct
   ([speakleash/Bielik-11B-v3.1-Instruct](https://huggingface.co/speakleash/Bielik-11B-v3.1-Instruct) @
   `d6e755d356ad418d0f0e30b8c428db267415ddb9`, bfloat16) is served by vLLM 0.34.0 on a rented NVIDIA RTX PRO 5000
@@ -76,11 +80,15 @@ and loose verdicts per instruction, whether the turn was scored as failed becaus
   Gemini and Mistral libraries are imported inside their own backends (the Gemini and Mistral packages conflict with
   the vLLM environment), and `bielik` and `slayer` are added to the model names of the OpenAI-compatible backend.
   No backend's behaviour changes. `run.sh` points that backend at the local server (`OPENAI_BASE_URL`,
-  `OPENAI_API_KEY=EMPTY`).
+  `OPENAI_API_KEY=EMPTY`). The `harness` field of the results files names the patched upstream file
+  (`api_client.py` @ `1cdb53ed18499ad729e0766e5d3099dd5344406f`).
 - **Slayer is a base model** without a chat template and a 4096-token window: `slayer_server.py` joins the
   conversation as "User: ... Assistant: ..." text and decodes greedily up to 1280 tokens per turn. A turn whose
-  input plus 1280 tokens does not fit in 4096 is rejected (HTTP 400) and scored as failed, with the later turns of
-  the conversation. Weights: [SlayerLab/Slayer1B-1.09-checkpoints](https://huggingface.co/SlayerLab/Slayer1B-1.09-checkpoints)
+  input plus 1280 tokens does not fit in 4096 is rejected (HTTP 400). A context limit is not a wrong answer
+  (research/METHODOLOGY.md): `summarize.py --stopped` counts such a turn, with the later turns of the same
+  conversation, as `turn_<t>_context_exceeded` and leaves it out of the turn's N (`turn_<t>_prompts_number`) and
+  accuracy, instead of scoring it as failed. In the Slayer run the only failed request (turn 2) was this rejection
+  (input 2875 + 1280 > 4096 tokens in the harness log). Weights: [SlayerLab/Slayer1B-1.09-checkpoints](https://huggingface.co/SlayerLab/Slayer1B-1.09-checkpoints)
   @ `dc3b6a9b0f87305da7ceca39ca27a79fa60b34cd`, `wagi_60000.pt`, loaded by `slayer_package.py` into the GPT class of
   the public trainer `train_gpt_ref_r24_2.py`; rebuilding the package with `slayer_package.py` gives
   bitwise-identical weights (202/202 tensors) and identical logits (max |Δ| = 0.0 on 3 prompts) to the package

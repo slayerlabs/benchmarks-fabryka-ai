@@ -63,7 +63,7 @@ case "$MODEL" in
     PKG="$OUT/slayer1b-60000-package"
     [[ -d "$PKG" ]] || "$SVENV/bin/python" "$HERE/slayer_package.py" --out "$PKG"
     # Base model: earlier turns joined as "User: ... Assistant: ..." text, greedy, up to 1280 tokens (limit mode fixed);
-    # a turn whose input + 1280 does not fit in 4096 tokens is answered with 400 and scored as failed.
+    # a turn whose input + 1280 does not fit in 4096 tokens is answered with 400 (context exceeded, see README).
     (cd "$HERE" && "$SVENV/bin/python" slayer_server.py --pkg "$PKG" --port 8001 --log "$OUT/server-log" \
        --limit-mode fixed --batch 32 > "$OUT/server.log" 2>&1) &
     SERVER_PID=$!

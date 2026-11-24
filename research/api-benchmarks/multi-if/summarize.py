@@ -11,6 +11,8 @@ prompt-level loose and instruction-level loose over all languages; the score is 
 whose request failed (status != success) has no model answer, and the harness would score the failure text; that
 turn and the later turns of the same conversation are scored with an empty answer, i.e. as failed, in the full N.
 The stderr comes from a cluster bootstrap by conversation (all three turns together), 1000 resamples, fixed seed.
+
+A run stopped before turn 3 (--stopped) gets score null; see stopped() for how its finished turns are scored.
 """
 
 import datetime
@@ -22,10 +24,11 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-if "--stopped" not in sys.argv:  # the stopped-run record below reads only the harness's own metric files
-    from metrics import MultiTurnInstructionFollowingPromptSolution as M, parse_result
+from metrics import MultiTurnInstructionFollowingPromptSolution as M, parse_result
 
 MULTIIF_COMMIT = "1cdb53ed18499ad729e0766e5d3099dd5344406f"
+HARNESS = (f"https://github.com/facebookresearch/Multi-IF @ {MULTIIF_COMMIT}; api_client.py @ {MULTIIF_COMMIT} "
+           "patched by patch_api_client.py")
 DATA_REVISION = "0ab97ce0b45c7f57772e8ba2ac1616f4b00bd3aa"
 EXPECTED_ROWS = {1: 4501, 2: 4501, 3: 4445}
 BOOTSTRAP, SEED = 1000, 20261119
@@ -97,7 +100,7 @@ def main(results_dir, target, settings, limit):
         "n": sum(len(turns[t]["keys"]) for t in (1, 2, 3)),  # scored turns
         "n_conversations": len(convs),  # the bootstrap unit
         "date": datetime.date.today().isoformat(),
-        "harness": f"https://github.com/facebookresearch/Multi-IF @ {MULTIIF_COMMIT}",
+        "harness": HARNESS,
         "data": f"https://huggingface.co/datasets/facebook/Multi-IF @ {DATA_REVISION} (multiIF_20241018.csv)",
         "settings": json.loads(settings),
         "other_metrics": {
@@ -119,20 +122,28 @@ def main(results_dir, target, settings, limit):
 
 
 def stopped(results_dir, target, settings, reason):
-    """Record of a run stopped before turn 3: score null; the turns that finished are copied from the metric files the
-    harness wrote during the run (eval_result_step_<t>_metric.csv), not re-scored."""
-    other = {}
+    """Record of a run stopped before turn 3: score null; the turns that finished (eval_result_step_<t>.csv) are scored
+    with the harness's metrics.py. In such a run (Slayer) a request fails only when slayer_server.py rejects it because
+    the turn's input plus the output limit does not fit in the model's window (HTTP 400; the harness marks the row
+    `failed` after its retries). A model whose window is too short cannot run that turn, which is not a wrong answer
+    (research/METHODOLOGY.md): that turn and the later turns of the same conversation are counted as
+    turn_<t>_context_exceeded and left out of the turn's N and accuracy."""
+    exceeded, other = set(), {}
     for t in (1, 2, 3):
-        path = Path(results_dir, f"eval_result_step_{t}_metric.csv")
+        path = Path(results_dir, f"eval_result_step_{t}.csv")
         if not path.exists():
             continue
-        rows = dict(line.split(",", 1) for line in path.read_text(encoding="utf-8").splitlines()[1:] if "," in line)
-        other[f"turn_{t}_prompts_number"] = int(rows[f"turn_{t}_prompts_number"])
-        for key, value in rows.items():
+        df = pd.read_csv(path, keep_default_na=False)
+        exceeded |= {str(k) for k, s in zip(df["key"], df["status"]) if s == "failed"}
+        out = df["key"].astype(str).isin(exceeded)
+        metrics = M.metrics_gen(df[~out].reset_index(drop=True))
+        other[f"turn_{t}_prompts_number"] = int(metrics[f"turn_{t}_prompts_number"])
+        other[f"turn_{t}_context_exceeded"] = int(out.sum())
+        for key, value in metrics.items():
             if key.startswith(f"turn_{t}_") and key.endswith("_overall"):
                 other[key] = round(100 * float(value), 2)
     if not other:
-        sys.exit("summarize.py: no eval_result_step_<t>_metric.csv in " + str(results_dir))
+        sys.exit("summarize.py: no eval_result_step_<t>.csv in " + str(results_dir))
     result = {
         "benchmark": "Multi-IF",
         "model": Path(target).name,
@@ -141,12 +152,14 @@ def stopped(results_dir, target, settings, reason):
         "stderr": None,
         "n": 0,
         "date": datetime.date.today().isoformat(),
-        "harness": f"https://github.com/facebookresearch/Multi-IF @ {MULTIIF_COMMIT}",
+        "harness": HARNESS,
         "data": f"https://huggingface.co/datasets/facebook/Multi-IF @ {DATA_REVISION} (multiIF_20241018.csv)",
         "settings": json.loads(settings),
         "score_null_reason": reason,
         "other_metrics": other,
-        "other_metrics_note": "turns that finished, computed by the harness during the run, not re-scored",
+        "other_metrics_note": "turns that finished, re-scored with the harness's metrics.py; turns rejected for the "
+                              "context window (turn_<t>_context_exceeded) and the later turns of their conversations "
+                              "are not in turn_<t>_prompts_number",
         "deviations": "see README.md, Deviations",
     }
     Path(target).parent.mkdir(parents=True, exist_ok=True)

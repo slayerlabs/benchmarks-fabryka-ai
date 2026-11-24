@@ -7,7 +7,7 @@
   "n": 13447,
   "n_conversations": 4501,
   "date": "2026-11-19",
-  "harness": "https://github.com/facebookresearch/Multi-IF @ 1cdb53ed18499ad729e0766e5d3099dd5344406f",
+  "harness": "https://github.com/facebookresearch/Multi-IF @ 1cdb53ed18499ad729e0766e5d3099dd5344406f; api_client.py @ 1cdb53ed18499ad729e0766e5d3099dd5344406f patched by patch_api_client.py",
   "data": "https://huggingface.co/datasets/facebook/Multi-IF @ 0ab97ce0b45c7f57772e8ba2ac1616f4b00bd3aa (multiIF_20241018.csv)",
   "settings": {
     "temperature": 0.6,
