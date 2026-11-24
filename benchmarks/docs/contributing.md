@@ -5,8 +5,10 @@ Which guide applies depends on where your change goes:
 | You are changing | Follow |
 |---|---|
 | `benchmarks/`: the `codesota` package, its tests and docs | this guide and [`../AGENTS.md`](../AGENTS.md) |
-| `research/benchmarks/`: benchmarks evaluated with lm-eval, results, research code | the root [`CONTRIBUTING.md`](../../CONTRIBUTING.md) and [`research/METODOLOGIA.md`](../../research/METODOLOGIA.md) (Polish) |
-| a new benchmark run through a model API, in `research/api-benchmarks/<name>/` (the first such PR creates the directory) | [`research/METHODOLOGY.md`](../../research/METHODOLOGY.md) |
+| a new log-likelihood benchmark | this guide, [section 5](#5-writing-an-integration): an entry in the runner's catalog |
+| a new benchmark run through a model API, in `research/api-benchmarks/<name>/` | [`research/METHODOLOGY.md`](../../research/METHODOLOGY.md) |
+| `research/benchmarks/`: cards and results of the frozen November 2026 lm-eval full run | only fixes of errors in that run, by [`research/METODOLOGIA.md`](../../research/METODOLOGIA.md) (Polish) |
+| team process: contact, board, review paths | the root [`CONTRIBUTING.md`](../../CONTRIBUTING.md) |
 | how a model is configured for any run (precision, decoding, repeats, output limit, standard errors) | [`methodology.md`](methodology.md) |
 
 If your change touches both, follow both. The `codesota` package runs the benchmarks of its catalog

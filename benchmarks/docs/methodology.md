@@ -14,10 +14,11 @@ disagree or say nothing, the rule is our own decision and is marked **(our decis
 - **Existing results** keep the protocol they were measured with. Where that protocol differs from this document,
   the result is labelled as a different configuration, not as an error. Example: the Bielik 11B v3.1 rows that use
   the LFM3-1.7B card's sampling.
-- Benchmark-specific protocols (prompt format, few-shot examples, scorer, subsets) stay in the benchmark's directory:
-  [`research/METHODOLOGY.md`](../../research/METHODOLOGY.md) for `research/api-benchmarks/`,
-  [`research/METODOLOGIA.md`](../../research/METODOLOGIA.md) for the lm-eval benchmarks in `research/benchmarks/`.
-  This document sets the model side, which is the same across benchmarks.
+- Benchmark-specific protocols (prompt format, few-shot examples, scorer, subsets) stay in the benchmark's directory
+  and in [`research/METHODOLOGY.md`](../../research/METHODOLOGY.md) for `research/api-benchmarks/`. The lm-eval
+  benchmarks of the November 2026 full run keep their frozen protocol,
+  [`research/METODOLOGIA.md`](../../research/METODOLOGIA.md). This document sets the model side, which is the same
+  across benchmarks.
 
 ## 1. One configuration per model
 
@@ -25,6 +26,13 @@ Each model is measured with one configuration, written down once and used on eve
 precision, serving stack, chat template, system prompt, reasoning mode, and decoding. A model is not run with another
 model's settings. Comparing two models means comparing each in its own configuration, under the same benchmark
 protocol.
+
+**A model still in training** (Slayer 1B) is measured at the latest checkpoint published in its Hugging Face
+repository of checkpoints (`SlayerLab/Slayer1B-<version>-checkpoints`) when the run starts, pinned as repository @
+revision and file, with the training step in the model ID (for example `slayer1b-1.09-k70000`). A later checkpoint
+is a new row, not a replacement of the old one. A result meant to sit next to existing ones uses their checkpoint
+and says so. The Space and the results page show what has been measured, not which checkpoint is the latest
+**(our decision)**.
 
 ## 2. Precision
 
@@ -41,7 +49,8 @@ protocol.
   for Bielik 11B and the controls named in METODOLOGIA.md). That run stays a closed configuration. Before new
   log-likelihood results in release precision are put in the same table as float32 ones, one control measures 2 to 3
   models in both precisions on the same benchmarks. If the differences are within the standard errors, the tables
-  are merged with a `dtype` column; if not, they stay apart **(our decision)**.
+  are merged with a `dtype` column; if not, they stay apart **(our decision)**. The control is
+  [#349](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/349); it also measures the speed-up.
 
 ## 3. Decoding
 
@@ -150,6 +159,7 @@ A value that cannot be established is written as unknown with the reason, never 
 | standard errors, clustering | Miller 2024; Epoch |
 | retries, infrastructure failures not scored | Artificial Analysis |
 | bfloat16 against float32 control before merging tables | our decision |
+| latest published checkpoint for a model in training | our decision |
 
 Meta's Llama 3.1 evaluation details and the Gemma 3 report give no temperature and no evaluation precision, so they
 are not used for those rules.

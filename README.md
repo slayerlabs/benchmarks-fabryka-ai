@@ -1,73 +1,46 @@
-## Aktualizacja — 19.11.2026
+# benchmarks-fabryka-ai
 
-Rozwijamy **[CodeSOTA](benchmarks/README.md)** jako wspólną infrastrukturę do wykonywania benchmarków, zapisywania wyników i ich weryfikacji.
+This repository is **[CodeSOTA](benchmarks/README.md)**: reproducible evaluation of open language models and AI
+agents, run by the Benchmark Team of [Fabryka AI](https://fabryka.ai). We measure Slayer 1B, Bielik 11B v3.1 and
+reference models with the same protocol, and publish every score with its standard error and settings.
 
-**`research/` pozostaje głównym miejscem zgłaszania benchmarków, wyników i prac badawczych.** Dotychczasowa metodologia i zasady współpracy nadal obowiązują. Równolegle rozwijamy wspólne narzędzia i standardy w `benchmarks/`, z których będziemy stopniowo korzystać w kolejnych ewaluacjach.
+**[Results](benchmarks/results/README.md)**: every published result in one place. The
+[Space on Hugging Face](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks) is a copy of these results.
 
-Przed rozpoczęciem nowych prac warto zapoznać się z:
+## Start here
 
-- [CodeSOTA — dokumentacja i metodologia](benchmarks/README.md)
-- [Zasady współpracy](benchmarks/docs/contributing.md)
-- [Instrukcje dla agentów AI](benchmarks/AGENTS.md)
+1. **Join.** Write in **#bench-team** on [Discord](https://discord.gg/HnTkVR4c5T) with your GitHub login
+   ([`CONTRIBUTING.md`](CONTRIBUTING.md)).
+2. **Pick a task** from the Ready column of the [board](https://github.com/orgs/slayerlabs/projects/10). The
+   benchmarks to work on first are in [research priorities](benchmarks/docs/research-priorities.md).
+3. **Read the methodology** before you run anything: [`benchmarks/docs/methodology.md`](benchmarks/docs/methodology.md)
+   says how a model is configured (precision, decoding, repeats, output limit, standard errors, `null` and "not run").
+4. **Run and deliver** the benchmark:
+   - a benchmark through a model API, generative or agentic: a directory in `research/api-benchmarks/<name>/`, as
+     [`research/METHODOLOGY.md`](research/METHODOLOGY.md) describes;
+   - a log-likelihood benchmark: the CodeSOTA runner and its catalog
+     ([`benchmarks/docs/running.md`](benchmarks/docs/running.md)).
+5. **Open a PR** to `main` by [`benchmarks/docs/contributing.md`](benchmarks/docs/contributing.md#7-open-the-pull-request),
+   with `Refs #N` of the task.
 
-**[Pełna lista 25 benchmarków i wymagania infrastrukturalne](benchmarks/docs/research-priorities.md)**
+Do not use your own GPU or paid accounts. Model APIs go through the [Fabryka AI Platform](https://fabryka.ai/platform);
+for a machine or another API, write in #bench-team.
 
-Priorytetem pozostają rzeczywiste, powtarzalne wyniki, szczególnie dla **Bielik 11B v3.1 i Slayer 1B**. Do testów przez API korzystamy z [Fabryka AI Platform](https://fabryka.ai/platform). Nie wykorzystujcie prywatnych zasobów GPU ani płatnych kont; problemy z API i potrzeby infrastrukturalne zgłaszajcie zespołowi na `#bench-team`.
+## Which Slayer to measure
 
----
+Slayer 1B is still in training. Measure the latest checkpoint published in its Hugging Face repository
+(`SlayerLab/Slayer1B-<version>-checkpoints`, today [`Slayer1B-1.09-checkpoints`](https://huggingface.co/SlayerLab/Slayer1B-1.09-checkpoints/tree/main)),
+pinned as repository @ revision and file, and say which step it is. The Space and older result pages are not where
+the latest version is announced. Details: [methodology, section 1](benchmarks/docs/methodology.md#1-one-configuration-per-model).
 
-Mierzymy otwarte modele językowe, dziś polsko-angielskiego **Slayer 1B**, na benchmarkach odtworzonych zgodnie z
-oryginałem, i budujemy polskie benchmarki.
+## Where things are
 
-<a href="research/STATUS.md"><img src="docs/img/stan-benchmarkow.svg" alt="Stan benchmarków" height="36"></a>
-
-## Aktualne wyniki
-
-<p align="center"><img src="research/results/full-run-2026-11/charts/przemiana-wersji.svg" alt="Animacja: Slayer 1B od wersji 1.00 do 1.09 (krok 40 000, w toku) na tle modeli odniesienia" width="100%"></p>
-
-<a href="research/results/full-run-2026-11/README.md"><img src="docs/img/wszystkie-wyniki.svg" alt="Wszystkie wyniki" height="36"></a>
-
-## Pierwsze kroki
-
-1. **Dołącz.** Napisz na Discordzie na kanale #bench-team i podaj swój login GitHub. Zasady pracy są w „Jak dołączyć”.
-
-   <a href="https://discord.gg/HnTkVR4c5T"><img src="docs/img/discord.svg" alt="Discord" height="36"></a>
-   <a href="CONTRIBUTING.md"><img src="docs/img/jak-dolaczyc.svg" alt="Jak dołączyć" height="36"></a>
-
-2. **Weź zadanie** z kolumny Ready na tablicy albo z etykietą `good first issue`. Przypisz się i przestaw je na In
-   Progress.
-
-   <a href="https://github.com/orgs/slayerlabs/projects/10"><img src="docs/img/tablica.svg" alt="Tablica" height="36"></a>
-   <a href="https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22"><img src="docs/img/zadania-na-start.svg" alt="Zadania na start" height="36"></a>
-
-3. **Przygotuj środowisko.**
-
-   <a href="research/README.md#przygotowanie-raz"><img src="docs/img/przygotowanie.svg" alt="Przygotowanie" height="36"></a>
-
-4. **Uruchom jeden test** w katalogu `research/`. Kod 0 znaczy, że środowisko działa:
-
-   ```bash
-   .venv-eval/bin/python tests/test_statystyka.py
-   ```
-
-5. **Otwórz PR do `main`** z `Refs #N` w opisie, według [`CONTRIBUTING.md`, „PR”](CONTRIBUTING.md#pr).
-
-How to run a benchmark through the API, which files to add and in what format: [METHODOLOGY.md](research/METHODOLOGY.md).
-
-<a name="definicja-zrobione"></a>Kiedy test jest skończony: [METODOLOGIA, „Definicja „zrobione””](research/METODOLOGIA.md#definicja-zrobione).
-
-<a name="przed-pr"></a>Przed PR: [CONTRIBUTING, „Przed PR”](CONTRIBUTING.md#przed-pr).
-
-## Gdzie co jest
-
-| gdzie | co tam jest |
+| path | what it holds |
 |---|---|
-| <a href="research/STATUS.md"><img src="docs/img/stan-benchmarkow.svg" alt="Stan benchmarków" height="36"></a> | co gotowe, czego brakuje, co do sprawdzenia |
-| <a href="research/METHODOLOGY.md"><img src="docs/img/metodologia.svg" alt="Methodology" height="36"></a> | how to run a benchmark through the API, which files to add and in what format |
-| <a href="research/benchmarks/_template"><img src="docs/img/nowy-test.svg" alt="Nowy test" height="36"></a> | wzór nowego benchmarku; każdy benchmark ma katalog w `research/benchmarks/` |
-| <a href="https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks"><img src="docs/img/wyniki-na-hf.svg" alt="Wyniki na HF" height="36"></a> | wyniki Slayera 1B w Space |
-| <a href="research/slayer-1b/dane/DANE_TRENINGOWE.md"><img src="docs/img/dane-treningowe.svg" alt="Dane treningowe" height="36"></a> | na czym trenowano każdą wersję Slayera 1B (1.00–1.09) i znane przecieki testów do danych |
-| `research/common/`, `research/tools/`, `research/tests/` | kod wspólny, bramka liczb i przebieg centralny, testy bez sieci i bez wag |
-| `research/slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami |
-
-Pełny układ: [`research/README.md`, „Układ”](research/README.md#układ).
+| [`benchmarks/`](benchmarks/README.md) | the `codesota` package: runner, result validation, results page, methodology and contributor docs |
+| [`research/api-benchmarks/`](research/api-benchmarks/) | benchmarks run through a model API or our own serving, one directory each |
+| `research/benchmarks/`, `research/results/`, `research/tools/` | the lm-eval pipeline of the November 2026 full run: benchmark cards, results and tools. Source of the log-likelihood rows on the results page and the evidence behind the runner's catalog. Its protocol, [`research/METODOLOGIA.md`](research/METODOLOGIA.md) (Polish), is frozen |
+| `research/common/` | code shared by `research/` benchmarks, including the Slayer serving code |
+| `research/slayer-1b/` | work on Slayer 1B itself (data, training, analyses) |
+| [`research/archive/`](research/archive/README.md) | retired documents, kept to go back to |
+| `frontend-beta/` | the results front end, in development |

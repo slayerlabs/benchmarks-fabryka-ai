@@ -71,9 +71,8 @@ verified are in [`docs/running.md`](docs/running.md). On a GPU, install the CUDA
 ## Evaluation domains
 
 The table lists the benchmarks that have a directory in the repository, grouped by area. A listed benchmark is not
-necessarily a completed, reproducible integration: [`research/STATUS.md`](../research/STATUS.md) (written in Polish,
-last updated 16 Nov 2026) counts 23 as complete (documented, prepared, and in the central run), 30 as in the central
-run without full documentation, and 2 as documented but outside the run.
+necessarily a completed, reproducible integration: the status of each log-likelihood benchmark is in
+[`BENCHMARKS.md`](BENCHMARKS.md), and each API benchmark's README states its own results and deviations.
 
 | Domain | Benchmarks with a directory in the repository |
 |---|---|
@@ -81,19 +80,23 @@ run without full documentation, and 2 as documented but outside the run.
 | Knowledge and question answering | MMLU, TriviaQA, Natural Questions, SciQ, OpenBookQA, MedMCQA, PubMedQA, TruthfulQA |
 | Reading comprehension | SQuAD 2.0, CoQA, DROP, RACE, ReCoRD, BoolQ |
 | Commonsense and world knowledge | HellaSwag, PIQA, WinoGrande, Social IQa, COPA, WSC273, EWoK |
-| Instruction following | IFEval |
+| Instruction following | IFEval, IFBench, IFStruct, Multi-IF |
 | Language modeling and linguistics | WikiText-2, LAMBADA, BLiMP, CoLA, UncheatableEval |
 | Polish language | Belebele (PL), PolEmo 2.0, PolQA, PoQuAD, KLEJ NER, LLMzSzL, 8TAGS, CBD, PSC, PPC, DYK, MultiBLiMP (PL), EWoK (PL) |
-| Coding, tool use, and agentic tasks | planned; no integrations in the repository yet |
+| Science and long context | GPQA Diamond, SciCode, AA-Omniscience, AA-LCR, RULER 128K |
+| Coding, tool use, and agentic tasks | LiveCodeBench v6, LiveCodeBench Pro 25Q2, BFCL V4, AutomationBench |
 
-Each benchmark lives in [`research/benchmarks/<name>/`](../research/benchmarks/) with its card, recipe, any
-benchmark-specific code, and, where done, a reproduction report.
+Log-likelihood benchmarks live in [`research/benchmarks/<name>/`](../research/benchmarks/) with their card, recipe,
+any benchmark-specific code, and, where done, a reproduction report. Benchmarks run through a model API or our own
+serving live in [`research/api-benchmarks/<name>/`](../research/api-benchmarks/), as
+[`research/METHODOLOGY.md`](../research/METHODOLOGY.md) describes.
 
 ## Methodology and reproducibility
 
-- [`research/METODOLOGIA.md`](../research/METODOLOGIA.md): the full protocol behind the benchmarks in
-  `research/benchmarks/`: reproduction against references, test types, baselines, standard errors and verdicts, and
-  the central run that evaluates every model with the same settings. Written in Polish.
+- [`docs/methodology.md`](docs/methodology.md): how every model is configured for a run, for every benchmark.
+- [`research/METODOLOGIA.md`](../research/METODOLOGIA.md): the frozen protocol of the November 2026 lm-eval full
+  run behind `research/benchmarks/`: reproduction against references, test types, baselines, standard errors and
+  verdicts. Written in Polish; the runner ports it ([`docs/running.md`](docs/running.md)).
 - [`research/METHODOLOGY.md`](../research/METHODOLOGY.md): how a benchmark run through a model API is documented:
   sources, settings, machine-readable results, per-question outputs, deviations, and when it counts as done.
 - [`research/common/README.md`](../research/common/README.md): the machine-readable results format, with schema

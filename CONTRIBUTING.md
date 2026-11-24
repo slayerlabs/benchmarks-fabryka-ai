@@ -1,130 +1,118 @@
-# Jak współtworzyć
+# Contributing
 
-> Work in `benchmarks/` (the `codesota` package) follows [`benchmarks/docs/contributing.md`](benchmarks/docs/contributing.md)
-> instead of this file. This file covers `research/`.
+How the Benchmark Team works: contact, tasks, the board, and review. How to write and open a pull request is in
+[`benchmarks/docs/contributing.md`](benchmarks/docs/contributing.md); how to configure a model for a run is in
+[`benchmarks/docs/methodology.md`](benchmarks/docs/methodology.md).
 
-## Kontakt
+<a name="kontakt"></a>
 
-Rozmawiamy na Discordzie, na kanale **#bench-team**: https://discord.gg/HnTkVR4c5T. Na start napisz tam do LoIlita
-albo Elwenora i podaj swój login GitHub. Dodadzą Cię do zespołu Benchmark Team. Wtedy możesz brać zadania, przesuwać
-karty na tablicy i pushować gałęzie.
+## Contact
 
-Tam też pytaj, gdy coś nie działa albo czegoś nie ma w dokumentacji. Napisz, na którym kroku utknąłeś.
+We talk on Discord, in **#bench-team**: https://discord.gg/HnTkVR4c5T. To start, write there to LoIlita or Elwenor
+with your GitHub login. They add you to the Benchmark Team, which lets you take tasks, move cards on the board and
+push branches. Ask there too when something does not work or is missing from the docs, and say at which step you
+are stuck.
 
-### Kto jest kim
+### Who is who
 
-- **LoIlita i Elwenor** koordynują zespół. Dodają nowe osoby do zespołu Benchmark Team, co daje dostęp do zadań,
-  tablicy i repo.
-- **Arek** jest właścicielem modelu Slayer i [Space z wynikami](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks).
-  Wgrywa wyniki do Space.
+- **LoIlita and Elwenor** coordinate the team and add new people to it.
+- **Arek** owns the Slayer model and the [Space](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks), the
+  copy of the [results page](benchmarks/results/README.md) on Hugging Face.
 
-## Pierwsze zadanie
+<a name="pierwsze-zadanie"></a>
 
-Wybierz zadanie, przypisz się do niego (Assignees → Assign yourself) i przestaw je na tablicy na In Progress.
-Bierzesz jedno zadanie naraz. Jeśli zaczynasz, weź
-[good first issue](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22).
+## Taking a task
 
-<a href="https://github.com/slayerlabs/benchmarks-fabryka-ai/issues"><img src="docs/img/wszystkie-zadania.svg" alt="Wszystkie zadania" height="36"></a>
-<a href="https://github.com/orgs/slayerlabs/projects/10"><img src="docs/img/tablica.svg" alt="Tablica" height="36"></a>
-<a href="research/README.md#przygotowanie-raz"><img src="docs/img/przygotowanie.svg" alt="Przygotowanie komputera" height="36"></a>
-<a href="research/METODOLOGIA.md"><img src="docs/img/metodologia.svg" alt="Metodologia" height="36"></a>
+Pick a task from the Ready column of the [board](https://github.com/orgs/slayerlabs/projects/10) or one labelled
+[`good first issue`](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22),
+assign yourself (Assignees → Assign yourself) and move it to In Progress. One task at a time. Which benchmarks come
+first: [research priorities](benchmarks/docs/research-priorities.md).
 
-## PR
+<a name="pr"></a>
 
-1. Załóż gałąź od `main`. Nazwij ją `research/<name>` (benchmark) albo `docs/<temat>`. Możesz też otworzyć PR z
-   forka. Wtedy nie potrzebujesz prawa zapisu w repo.
-2. Uruchom komendy z sekcji [„Przed PR”](#przed-pr) niżej. CI katalogu `research/` puszcza tylko testy bez
-   torch i lm-eval, więc resztę robisz sam, a każda komenda musi zakończyć się kodem 0.
+## Pull requests
 
-3. Otwórz PR do `main` i wypełnij checklistę z szablonu. W opisie wpisz `Refs #N` z numerem zadania z tego repo.
-   Dopóki pracujesz, PR jest w trybie **Draft** (`gh pr create --draft`), a zadanie stoi w In Progress. Gdy
-   komendy z punktu 2 kończą się kodem 0 i ktoś inny może PR przejąć, kliknij **Ready for review** (`gh pr ready`)
-   i przestaw zadanie na Review.
-   Piszesz `Refs`, a nie `Closes`, bo issue zamyka przestawienie zadania na Done na tablicy. Na Done przestawia je
-   recenzent, a przy ścieżce „bez recenzji” autor po scaleniu PR.
-4. Recenzja (ścieżki „recenzja” i „recenzja i przeliczenie”, akapit „Ścieżka sprawdzenia” niżej) ma dwa kroki. Najpierw recenzent sprawdza, że komendy z punktu 2 kończą się kodem 0. Potem osoba, która
-   zna ten kod, odtwarza co najmniej jeden wynik z `RECIPE.md`. Wynik z etykietą `needs-recheck` liczy od zera druga
-   osoba, na innym sprzęcie.
+1. Branch from `main`, or open the PR from a fork, which needs no write access.
+2. Follow [`benchmarks/docs/contributing.md`](benchmarks/docs/contributing.md): Conventional Commits title, every
+   section of the PR template, `Refs #N` of the task. Write `Refs`, not `Closes`: the issue closes when its card
+   reaches Done on the board.
+3. Open the PR as a **Draft** while you work. When the checks below exit 0 and someone else can take the PR over,
+   mark it **Ready for review** and move the task to Review.
 
-## Przed PR
+<a name="przed-pr"></a>
 
-Przed otwarciem PR uruchom w katalogu `research/` komendy niżej. To testy zmienionego benchmarku,
-`tests/test_liczby_raportow.py` i bramka liczb. Każda komenda musi zakończyć się kodem 0. CI katalogu `research/`
-([`research-tests.yml`](.github/workflows/research-tests.yml)) puszcza tylko testy bez torch i lm-eval, więc te
-komendy uruchamiasz sam.
+### Checks before a PR in `research/`
+
+CI for `research/` ([`research-tests.yml`](.github/workflows/research-tests.yml)) runs only the tests without torch
+and lm-eval, so run these yourself in `research/`. Each must exit 0:
 
 ```bash
 .venv-eval/bin/python tools/liczby.py && .venv-eval/bin/python tools/sprawdz_raporty.py
 .venv-eval/bin/python tests/test_<name>.py
-.venv-eval/bin/python tests/test_<name>_zgodnosc.py   # tylko gdy benchmark ma własną implementację
 .venv-eval/bin/python tests/test_liczby_raportow.py
 ```
 
-**Sama karta.** PR z samą kartą oryginału (etap A) wymaga tylko bramki liczb z kodem 0, bez testów benchmarku:
+The first line is the number gate: every number in a report must match the generated `results/LICZBY.json`. The
+environment is set up as in [`research/README.md`](research/README.md#przygotowanie-raz). Checks for `benchmarks/`
+are in [`benchmarks/docs/contributing.md`](benchmarks/docs/contributing.md#2-run-the-checks).
 
-```bash
-.venv-eval/bin/python tools/liczby.py && .venv-eval/bin/python tools/sprawdz_raporty.py
-```
+<a name="tablica"></a>
 
-Recenzent takiego PR nie odtwarza `RECIPE.md`. Sprawdza u źródła prompt, ocenę, wynik referencyjny i bazy, a przy
-„brak” albo „nieustalone” listę przeszukanych miejsc.
+## Board
 
-## Etykiety
+The board is at https://github.com/orgs/slayerlabs/projects/10. A task moves through these Status columns:
 
-- `good first issue`: tylko zadania „Karta oryginału: <benchmark>” (etap A, około 2 h).
-- `research`: zadanie badawcze, np. benchmark, pomiar albo analiza.
-- `dev`: zadanie techniczne, np. kod wspólny, narzędzia albo CI.
-- `needs-recheck`: wynik trafi dalej, do Space albo do decyzji o treningu. Dlatego musi przejść niezależne
-  sprawdzenie.
+1. **Backlog**: waiting, not to be taken yet.
+2. **Ready**: can be taken.
+3. **In Progress**: someone is doing it. You move it here yourself when you assign yourself.
+4. **Review**: first check.
+5. **Independent Check**: second, independent check.
+6. **Done**: finished. Done closes the issue.
 
-## Tablica
+When a task moves from In Progress to Review or Independent Check,
+[`board-unassign.yml`](.github/workflows/board-unassign.yml) removes its assignees within a few minutes. In Review
+and Independent Check a task can be taken only as a review; a reviewer who assigns themselves stays assigned.
 
-Tablica zadań jest pod adresem https://github.com/orgs/slayerlabs/projects/10. Zadanie przechodzi przez kolumny
-Status w tej kolejności:
+Task fields:
 
-1. **Backlog**: zadanie czeka i jeszcze nie można go brać.
-2. **Ready**: zadanie można brać.
-3. **In Progress**: ktoś je robi. Przestawiasz je tu sam, gdy się do niego przypiszesz.
-4. **Review**: pierwsze sprawdzenie.
-5. **Independent Check**: drugie, niezależne sprawdzenie.
-6. **Done**: zrobione.
+- **Time**: up to 2 h, up to 1 day, or several days.
+- **Kind**: "steps given" (follow the listed steps) or "to investigate" (find the way first).
+- **Area**: Data, Architecture and learning, Training systems, Infrastructure, or Evaluation and measurement.
 
-Gdy przestawiasz zadanie z In Progress na Review albo Independent Check, automat
-[`board-unassign.yml`](.github/workflows/board-unassign.yml) w ciągu kilkunastu minut zdejmuje przypisanie z issue.
-W Review i Independent Check zadanie można wziąć tylko jako recenzję, bo praca autora już leży w PR. Recenzent,
-który przypisze się sam już w Review, zostaje przypisany. Status Done zamyka issue.
+### Review path
 
-Pola zadania:
+Each task names its review path in a line "Review path:". The strength of the check follows the cost of a wrong
+result:
 
-- **Czas**: ile pracy zajmie zadanie. Wartości to „do 2 h”, „do 1 dnia” albo „kilka dni”.
-- **Rodzaj**: „Kroki podane” albo „Do zbadania”. „Kroki podane” znaczy, że wystarczy wykonać rozpisane kroki. „Do
-  zbadania” znaczy, że sposób wykonania trzeba najpierw ustalić samemu.
-- **Obszar**: Dane, Architektura i uczenie, Systemy treningu, Infrastruktura albo Ewaluacja i pomiar.
+- **no review**: In Progress → Done after merge, with the checks above at exit 0. Only when the task names this path
+  and the change touches no number, for example a link or typo fix.
+- **review** (default): In Progress → Review → Done. One person checks the PR and reruns at least one result from
+  its recipe or `run.sh --limit 5`.
+- **review and recheck** (label `needs-recheck`): In Progress → Review → Independent Check → Done. A second person
+  computes the result from scratch, on other hardware. For a result that goes to the results page or into a
+  training decision.
 
-**Ścieżkę sprawdzenia** podaje każde zadanie w linii „Sprawdzenie:”. Siłę sprawdzenia dobiera się do kosztu błędu
-(METODOLOGIA, sekcja „Siła dowodu”):
+## Labels
 
-- **bez recenzji**: In Progress → Done po scaleniu PR. Automaty z „Przed PR” kończą się kodem 0. Tylko gdy zadanie
-  podaje tę ścieżkę wprost i zmiana nie dotyka żadnej liczby. Przykład: poprawka linku albo literówki w dokumentacji.
-- **recenzja**: In Progress → Review → Done. Jedna osoba sprawdza. To domyślna ścieżka, także gdy zadanie jej nie
-  podaje. Przykład: karta oryginału.
-- **recenzja i przeliczenie** (etykieta `needs-recheck`): In Progress → Review → Independent Check → Done. Druga osoba
-  liczy wynik od zera. Dla wyniku, który idzie do Space albo do decyzji o treningu.
+- `good first issue`: a task for a first contribution.
+- `research`: a benchmark, measurement or analysis.
+- `dev`: shared code, tools or CI.
+- `needs-recheck`: the result needs the independent check above.
 
 ## How we write tasks
 
 A benchmark task is short. Title: the benchmark name. Body: which models to run, a link to the reference with
-published scores and settings when there is one, links to the [Fabryka AI API](https://fabryka.ai/platform) and
-[METHODOLOGY.md](research/METHODOLOGY.md), a note that a machine is available on request, and an empty result table
-with one row per model. How to run the benchmark and what to deliver belongs to the methodology, not the task.
+published scores and settings when there is one, links to the [Fabryka AI API](https://fabryka.ai/platform),
+[`research/METHODOLOGY.md`](research/METHODOLOGY.md) and the [evaluation methodology](benchmarks/docs/methodology.md),
+a note that a machine is available on request, an empty result table with one row per model, and the review path.
+How to run the benchmark and what to deliver belongs to the methodology, not the task.
 
-## Pliki w repo
+<a name="pliki-w-repo"></a>
 
-Układ katalogów opisuje [`research/README.md`, „Układ”](research/README.md#układ).
+## Files in the repository
 
 - Everything is written in English: documents, code, comments, issues, PRs and commit messages.
-- Nie commitujesz wag modeli (`*.safetensors`, `*.bin`, `*.pt`, katalog `models/`), zbiorów danych (`*.parquet`,
-  `*.arrow`), archiwów `*.zip` ani żadnego pliku powyżej 10 MB. Listę wykluczeń ma `research/.gitignore`.
-- Wyniki per pytanie wolno commitować skompresowane, jako `results/<model>/<zadanie>.jsonl.gz`, do około 10 MB na
-  plik. Potrzebuje ich test zgodności i recenzent, który odtwarza wynik. Surowe `*.jsonl` zostają na Twoim
-  komputerze, bo wyklucza je `.gitignore`.
+- Do not commit model weights (`*.safetensors`, `*.bin`, `*.pt`, `models/`), datasets (`*.parquet`, `*.arrow`),
+  `*.zip` archives, API keys, or any file over 10 MB. `research/.gitignore` lists the exclusions.
+- Per-question results may be committed compressed, as `results/<model-id>.jsonl.gz`, up to about 10 MB per file.
+  Raw `*.jsonl` stays on your machine.

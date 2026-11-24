@@ -1,5 +1,9 @@
-> Rules of the earlier lm-eval run for the benchmarks in `benchmarks/`. New benchmarks follow
-> [METHODOLOGY.md](METHODOLOGY.md).
+> **Frozen.** The protocol of the November 2026 lm-eval full run and the benchmark cards in `benchmarks/`, kept as the
+> evidence for those results. It is not the current methodology: model configuration follows
+> [`benchmarks/docs/methodology.md`](../benchmarks/docs/methodology.md), API benchmarks
+> [METHODOLOGY.md](METHODOLOGY.md), log-likelihood benchmarks the CodeSOTA runner
+> ([`benchmarks/docs/running.md`](../benchmarks/docs/running.md)). The section on the next Slayer version
+> describes the 1.07 run; the current checkpoint is named in the [root README](../README.md#which-slayer-to-measure).
 
 # Metodologia: wspólny rdzeń i typy testów
 
@@ -218,7 +222,7 @@ kryterium ma sens: bez jednego z 3 modeli rozrzut liczyłby się z 2.
 **Panel a ranking.** Modele odniesienia są w panelu i w rankingu, a panel rozdzielony od rankingu potrzebowałby co
 najmniej 4 modeli spoza rankingu (przebieg liczy jeden, Pythię). Dobór testów na tych samych wynikach szkodzi, gdy
 test wchodzi dzięki szumowi pytań albo dzięki jednemu odstającemu modelowi, bo wtedy ranking zawyża różnice albo
-wyróżnia ten model. Dlatego warunek SNR w [LEADERBOARD, „Który test wchodzi”](LEADERBOARD.md#który-test-wchodzi)
+wyróżnia ten model. Dlatego warunek SNR w [LEADERBOARD, „Który test wchodzi”](archive/LEADERBOARD.md#który-test-wchodzi)
 spełnia test, u którego próg przekraczają dolna granica przedziału 95% i najmniejszy SNR bez jednego modelu panelu.
 Wtedy decyzja o teście nie zależy ani od szumu pytań, ani od żadnego pojedynczego modelu rankingu.
 
@@ -303,7 +307,7 @@ większość zbioru, cały zbiór piszesz od zera jako benchmark bez oryginału.
 tylko metodę: format, metrykę, agregację i liczbę przykładów, która daje SE nie gorsze niż w oryginale na wiążącym
 poziomie. Testu kulturowego ani językowego nie tłumaczysz, nie parafrazujesz i nie szukasz „polskiego odpowiednika”
 konkretnego pytania, bo pytania mają sprawdzać polski teren. Zacznij od testów do tłumaczenia; podział testów Space
-jest w [BENCHMARKI_PL.md](BENCHMARKI_PL.md).
+jest w [BENCHMARKI_PL.md](archive/BENCHMARKI_PL.md).
 
 ### D2. Mapowanie metody
 
@@ -675,7 +679,7 @@ próbek na pytanie i SE ze średnich per pytanie. Źródło: [Miller 2024, §3.1
 
 Meta-ocena to jedna ocena modelu w każdym języku, liczona wyłącznie z wyników per pytanie z przebiegów repo. Skalę
 i b każdego testu bierze z tabeli typów, a `ppl` i `sedzia` stoją poza średnią. Zasady pliku zestawu, doboru testów,
-skali, SE i miejsca w rankingu: [LEADERBOARD.md](LEADERBOARD.md).
+skali, SE i miejsca w rankingu: [LEADERBOARD.md](archive/LEADERBOARD.md).
 
 ## Słowniczek
 
