@@ -35,7 +35,7 @@ protocol.
 - **No quantization below the release precision** in a headline result. FP8 or INT4 is measured only as its own row,
   labelled with its scheme. FP8 is close to lossless on Llama 3.1 (about 99.75% recovery in Red Hat's study), but it
   is still another configuration.
-- **A model that does not fit** the available hardware in its release precision is "not run" (section 7), or gets a
+- **A model that does not fit** the available hardware in its release precision is "not run" (section 8), or gets a
   labelled quantized row. It is never quantized silently.
 - **Log-likelihood benchmarks.** The central lm-eval run of `research/benchmarks/` was measured in float32 (bfloat16
   for Bielik 11B and the controls named in METODOLOGIA.md). That run stays a closed configuration. Before new
