@@ -58,6 +58,9 @@ error after retries, none outside the model's 4096-token window: the longest pro
   bitwise-identical weights (202/202 tensors) and identical logits (max |Δ| = 0.0 on 3 prompts) to the package
   used for these results. It ran on a rented NVIDIA GeForce RTX 4090
   in fp32 (TF32 off) with a KV cache, 32 requests per batch (`slayer_batch.py`), 32 harness threads.
+- **Slayer serving code** (`slayer_server.py`, `slayer_batch.py`, `slayer_kv_lm.py`, `slayer_package.py`) lives in
+  [`research/common/slayer_serving/`](../../common/slayer_serving/). The results were produced with byte-identical
+  copies kept in this directory before the move; the shared README lists their hashes.
 - **Slayer client timeouts.** At 32 threads a 1280-token answer takes about 85 s on average; 216 requests hit the
   harness's 120 s read timeout and 1 a reset connection, and each was retried once and answered. The server decodes
   greedily, and for each of the 216 prompts it generated twice, both generations have the same length and stop

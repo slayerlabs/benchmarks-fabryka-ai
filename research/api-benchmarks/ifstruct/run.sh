@@ -2,7 +2,8 @@
 # IFStruct for one model: bash run.sh <model-id> [--limit N]
 #   bielik-11b-v3.1-vllm  Bielik 11B v3.1 Instruct served by vLLM (start it with vllm.sh) at BASE_URL
 #                         (default http://127.0.0.1:8000/v1, served model name "bielik")
-#   slayer1b-60000        Slayer 1B, training step 60000, served locally by slayer_server.py on a CUDA GPU
+#   slayer1b-60000        Slayer 1B, training step 60000, served locally by slayer_server.py
+#                         (research/common/slayer_serving) on a CUDA GPU
 # Installs IFStruct at the pinned commit (uv sync --frozen), takes the test set from Hugging Face at the pinned
 # revision, runs the harness's ifstruct-eval and writes results/<model-id>.json and results/<model-id>.jsonl.gz.
 # --limit N runs only the first N samples and writes to out/.
@@ -15,6 +16,7 @@ LIMIT=()
 if [[ "${1:-}" == "--limit" ]]; then LIMIT=(--limit "${2:?--limit needs N}"); fi
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
+COMMON="$HERE/../../common/slayer_serving"
 OUT="${OUT_DIR:-$HERE/out}"
 BASE_URL="${BASE_URL:-http://127.0.0.1:8000/v1}"
 
@@ -38,10 +40,11 @@ case "$MODEL" in
       "lm-eval @ git+https://github.com/EleutherAI/lm-evaluation-harness@ddd67220430a2470529f25fd5c05a576ca1057a0" \
       tokenizers safetensors numpy huggingface_hub
     mkdir -p "$OUT"
+    OUT="$(cd "$OUT" && pwd)"  # absolute: the server runs from $COMMON
     PKG="$OUT/slayer1b-60000-package"
-    [[ -d "$PKG" ]] || "$SVENV/bin/python" "$HERE/slayer_package.py" --out "$PKG"
+    [[ -d "$PKG" ]] || "$SVENV/bin/python" "$COMMON/slayer_package.py" --out "$PKG"
     # Base model: the prompt as raw text, greedy, up to 1280 tokens whatever max_tokens asks (limit mode fixed).
-    (cd "$HERE" && "$SVENV/bin/python" slayer_server.py --pkg "$PKG" --port 8001 --log "$OUT/server-log" \
+    (cd "$COMMON" && "$SVENV/bin/python" slayer_server.py --pkg "$PKG" --port 8001 --log "$OUT/server-log" \
        --limit-mode fixed --batch 32 > "$OUT/server.log" 2>&1) &
     SERVER_PID=$!
     trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
