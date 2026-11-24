@@ -53,7 +53,9 @@ uv sync -q --frozen --no-dev
 # LFM3-1.7B card: temperature 0.6, top_p 0.95, up to 50 turns, no output limit other than the context. The chat
 # template's defaults (provider system prompt, date pinned to the run) are sent explicitly, as vllm.sh sets them.
 EXTRA='{"temperature": 0.6, "top_p": 0.95, "seed": 20261119, "chat_template_kwargs": {"provider_system_prompt": true, "current_date": "2026-11-18", "current_day_of_week": "Wednesday"}}'
-SETTINGS='{"temperature": 0.6, "top_p": 0.95, "seed": 20261119, "max_tokens_per_turn": null, "max_concurrent": 16}'
+# SHARED_SERVER records whether the vLLM server also served other benchmarks during the run (affects timeouts
+# and step limits, not decoding); the committed Bielik run: "the same vLLM server also served other benchmarks during the run".
+SETTINGS=$(SHARED_SERVER="${SHARED_SERVER:-no}" python3 -c 'import json, os; print(json.dumps({"temperature": 0.6, "top_p": 0.95, "seed": 20261119, "max_tokens_per_turn": None, "max_concurrent": 16, "shared_server": os.environ["SHARED_SERVER"]}))')
 mkdir -p results
 uv run -q --frozen auto-bench --model bielik --base-url "$BASE_URL" --api-key EMPTY --api chat_completions \
   --toolset api --domains "$DOMAINS" --max-steps 50 --max-concurrent "${CONCURRENCY:-16}" "${LIMIT[@]}" \

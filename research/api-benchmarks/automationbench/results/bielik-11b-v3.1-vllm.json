@@ -14,6 +14,7 @@
     "seed": 20261119,
     "max_tokens_per_turn": null,
     "max_concurrent": 16,
+    "shared_server": "the same vLLM server also served other benchmarks during the run",
     "toolset": "api",
     "max_steps": 50,
     "trials": 1

@@ -1,7 +1,5 @@
 # AutomationBench (public)
 
-Polish version: [README.pl.md](README.pl.md).
-
 Whether an agent completes multi-step business workflows across simulated services (CRM, email, Slack, sheets,
 calendars, ticketing): it finds the right API endpoints with a search tool, calls them over HTTP, and is scored on
 the final state of the services by assertions, without a judge model.
