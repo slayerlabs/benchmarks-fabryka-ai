@@ -409,6 +409,8 @@ def test_generation_and_scoring_commits():
     git = lambda *a: subprocess.run(["git", "-C", str(BENCH), *a], capture_output=True)  # noqa: E731
     if git("rev-parse", "HEAD").returncode != 0:
         pytest.skip("no git checkout")
+    if git("rev-parse", "--is-shallow-repository").stdout.strip() == b"true":
+        pytest.skip("shallow clone (CI checkout) lacks the recorded code commits")
     for run in RUNS:
         p = result(run)["provenance"]
         for step in [*p["generation"], p["scoring"]]:
