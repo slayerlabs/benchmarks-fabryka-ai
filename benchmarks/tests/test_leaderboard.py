@@ -27,6 +27,22 @@ def ifeval_files() -> list[Path]:
     return sorted((REPO / leaderboard.IFEVAL_API).glob("*.json"))
 
 
+def api_file(b: leaderboard.ApiBenchmark, column: str) -> dict[str, Any] | None:
+    path = REPO / b.path(column)
+    return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else None
+
+
+def scored_api_files() -> list[str]:
+    """The generative result files with a score, IFEval excepted (its rows come from every IFEval file)."""
+    return [
+        b.path(c)
+        for b in leaderboard.API_BENCHMARKS
+        if b.id != "ifeval"
+        for c in b.labels
+        if (f := api_file(b, c)) is not None and f["score"] is not None
+    ]
+
+
 def test_results_files_are_up_to_date() -> None:
     assert leaderboard.main(["--check"]) == 0
 
@@ -34,7 +50,7 @@ def test_results_files_are_up_to_date() -> None:
 def test_every_published_result_is_written_once() -> None:
     rows = written()
     ok = [r for r in published() if r["stan"] == "ok"]
-    assert len(rows) == len(ok) + len(ifeval_files())
+    assert len(rows) == len(ok) + len(ifeval_files()) + len(scored_api_files())
     keys = [(r["benchmark"], r["model"], r["metric"]) for r in rows]
     assert len(keys) == len(set(keys))
     assert {r["source"] for r in rows if r["benchmark"] == "ifeval"} == {
@@ -104,7 +120,7 @@ def test_values_tables_show_each_model_s_own_source_value_and_the_chance_level()
     src = {(r["benchmark"], r["model"]): r for r in published()}
     names = {leaderboard.benchmark_name(b): b for b in leaderboard.CATEGORY_OF}
     for page, _, models in TABLES:
-        text = (leaderboard.OUT / page).read_text(encoding="utf-8")
+        text = (leaderboard.OUT / page).read_text(encoding="utf-8").split("## Generative values")[0]
         checked = 0
         for name, html in re.findall(r"<tr><td>(.*?)</td>(.*?)</tr>", text):
             benchmark = names[name.removesuffix(" ↓")]
@@ -163,7 +179,7 @@ def test_the_headline_has_no_flagged_result() -> None:
 
 
 def test_flagged_results_are_marked_in_the_full_tables() -> None:
-    flagged = [r for r in leaderboard.collect() if r.review_flag != "ok"]
+    flagged = [r for r in leaderboard.collect() if r.review_flag != "ok" and r.protocol == "full-run-2026-11"]
     assert flagged
     text = (leaderboard.OUT / "all-models.md").read_text(encoding="utf-8")
     for r in flagged:
@@ -176,7 +192,7 @@ def test_slayer_comes_first_and_every_headline_model_has_results() -> None:
 
 
 def test_every_result_benchmark_has_a_category() -> None:
-    assert {r.benchmark for r in leaderboard.collect()} <= set(leaderboard.CATEGORY_OF)
+    assert {r.benchmark for r in leaderboard.collect()} <= set(leaderboard.CATEGORY_OF) | set(leaderboard.API_BY_ID)
 
 
 def test_bielik_versions_are_named_where_they_differ() -> None:
@@ -192,3 +208,58 @@ def test_bos_follows_the_benchmark() -> None:
     assert rows[("arc-easy", leaderboard.LATEST_SLAYER)].variant.endswith("one BOS")
     assert rows[("arc-easy", "qwen3.5-0.8b-base")].variant.endswith("no BOS")
     assert rows[("ewok", "qwen3.5-0.8b-base")].harness.startswith("own code")
+
+
+def test_generative_values_table_shows_each_source_file() -> None:
+    """Every cell of the Generative values table, from its result file: value ± SE with * when the benchmark is in
+    review, the null's reason, or "not run" where the model has no file; the last column is the card's value."""
+    text = (leaderboard.OUT / "README.md").read_text(encoding="utf-8").split("## Generative values")[1]
+    rows = dict(re.findall(r"<tr><td>(.*?)</td>(.*?)</tr>", text))
+    assert set(rows) == {b.name for b in leaderboard.API_BENCHMARKS}
+    scored = 0
+    for b in leaderboard.API_BENCHMARKS:
+        cells = re.findall(r'<td align="right">(.*?)</td>', rows[b.name])
+        assert len(cells) == len(leaderboard.API_COLUMNS) + 1, b.id
+        assert cells[-1] == f"{b.card:.2f}", b.id
+        for column, cell in zip(leaderboard.API_COLUMNS, cells, strict=False):
+            src = api_file(b, column) if column in b.labels else None
+            if src is None:
+                assert cell == "not run", (b.id, column)
+            elif src["score"] is None:
+                assert cell.startswith(leaderboard.DASH + " <sub>") and len(cell) > 12, (b.id, column)
+            else:
+                star = "*" if b.pr else ""
+                assert cell == f"{src['score']:.1f} ± {src['stderr']:.1f}{star}", (b.id, column)
+                scored += 1
+    assert scored >= 20
+
+
+def test_generative_table_images_show_source_values_and_stars() -> None:
+    for name in ("api-benchmarks-table.svg", "api-benchmarks-table-dark.svg"):
+        svg = (leaderboard.OUT / "charts" / name).read_text(encoding="utf-8")
+        cells = re.findall(r'data-benchmark="(.*?)" data-model="(.*?)" data-rank="(\d+)">(.*?)</text>', svg)
+        assert len(cells) == len(leaderboard.API_BENCHMARKS) * len(leaderboard.API_COLUMNS)
+        for benchmark, model, _, text in cells:
+            b = leaderboard.API_BY_ID[benchmark]
+            column = next((c for c, label in b.labels.items() if label == model), None)
+            src = api_file(b, column) if column else None
+            if src is None:
+                assert text == "not run", (name, benchmark, model)
+            elif src["score"] is None:
+                assert text == leaderboard.DASH, (name, benchmark, model)
+            else:
+                assert text == f"{src['score']:.1f}" + ("*" if b.pr else ""), (name, benchmark, model)
+        cards = dict(re.findall(r'data-card="(.*?)">(.*?)</text>', svg))
+        assert cards == {b.id: f"{b.card:.1f}" for b in leaderboard.API_BENCHMARKS}
+
+
+def test_every_benchmark_in_review_has_a_reason_and_only_merged_ones_have_none() -> None:
+    for b in leaderboard.API_BENCHMARKS:
+        assert bool(b.pr) == bool(b.caveat), b.id
+        if b.pr:
+            assert f"#{b.pr}" in b.caveat, b.id
+    page = (leaderboard.OUT / "api-benchmarks.md").read_text(encoding="utf-8")
+    for b in leaderboard.API_BENCHMARKS:
+        assert f"### {b.name}" in page
+        if b.caveat:
+            assert f"**Requires verification:** {b.caveat}." in page

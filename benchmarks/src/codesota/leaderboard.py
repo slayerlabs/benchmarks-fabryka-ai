@@ -17,9 +17,9 @@ import argparse
 import json
 import sys
 from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Final
+from typing import Any, Final
 
 from codesota import catalog
 
@@ -57,6 +57,7 @@ MODELS: Final[dict[str, Model]] = {
     m.label: m
     for m in (
         Model(LATEST_SLAYER, "Slayer 1B 1.09 (step 70 000, training in progress)", "base", "Slayer"),
+        Model("slayer1b-60000", "Slayer 1B 1.09 (step 60 000)", "base", "Slayer"),
         Model("slayer1b-1.09-k40000", "Slayer 1B 1.09 (step 40 000)", "base", "Slayer"),
         Model("bielik-11b-v3-instruct", "Bielik 11B v3.0 Instruct", "instruct", "Bielik"),
         Model("lfm3-1.7b-base", "LFM3-1.7B-Base", "base", "Liquid"),
@@ -251,10 +252,274 @@ def ifeval(repo: Path = REPO) -> list[Result]:
     return out
 
 
+# --- generative and agentic benchmarks (research/api-benchmarks/) ---
+
+API_DIR = "research/api-benchmarks"
+DASH: Final = "\u2013"  # en dash: a cell that cannot be scored
+MINUS: Final = "\u2212"
+# The three models of the generative table: the column key, its header, and its family.
+API_COLUMNS: Final = ("slayer", "bielik", "lfm3")
+API_HEADER: Final[dict[str, tuple[str, str]]] = {
+    "slayer": ("Slayer 1B", "1.09 / 1.08"),
+    "bielik": ("Bielik 11B", "v3.1 Instruct"),
+    "lfm3": ("LFM3", "1.7B Instruct"),
+}
+DRAFT_CAVEAT: Final = "draft PR {pr}, not reviewed yet; Slayer is the 1.09 checkpoint at step 60 000"
+
+
+@dataclass(frozen=True)
+class ApiBenchmark:
+    """One generative or agentic benchmark of `research/api-benchmarks/<directory>/`, with the result file of each
+    column (its model label; the file is `results/<label>.json` unless `files` names another stem) and the value the
+    LFM3-1.7B card reports. `pr` is the open pull request the results come from (None once merged), and `caveat` why
+    they need verification; both mark every value of the benchmark with *."""
+
+    id: str
+    name: str
+    section: str
+    directory: str
+    unit: str
+    labels: Mapping[str, str]
+    how: Mapping[str, str]
+    card: float | None
+    pr: int | None
+    caveat: str
+    files: Mapping[str, str] = field(default_factory=dict)
+    null_reasons: Mapping[str, str] = field(default_factory=dict)
+
+    def path(self, column: str) -> str:
+        label = self.labels[column]
+        return f"{API_DIR}/{self.directory}/results/{self.files.get(column, label)}.json"
+
+
+NO_TOOL_CALLS: Final = "base model without a chat template or a tool-call format, so the agent cannot drive it"
+OWN_VLLM: Final = "own vLLM, chat template"
+API: Final = "Fabryka API, chat template"
+SLAYER_RAW: Final = "raw prompt, no chat template"
+API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
+    ApiBenchmark(
+        "ifeval",
+        "IFEval",
+        "Instruction following",
+        "ifeval",
+        "percent",
+        {"slayer": "slayer1b-1.08", "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b-ifeval"},
+        {"slayer": "1.08, local GPU, raw prompt, greedy", "bielik": API, "lfm3": "own vLLM, card settings"},
+        96.66,
+        None,
+        "",
+        files={"lfm3": "lfm3-1.7b"},
+    ),
+    ApiBenchmark(
+        "ifbench",
+        "IFBench",
+        "Instruction following",
+        "ifbench",
+        "percent",
+        {"slayer": "slayer1b-60000", "bielik": "bielik-11b-v3.1-vllm"},
+        {"slayer": f"step 60 000, {SLAYER_RAW}", "bielik": OWN_VLLM},
+        73.03,
+        324,
+        DRAFT_CAVEAT.format(pr="#324"),
+    ),
+    ApiBenchmark(
+        "ifstruct",
+        "IFStruct",
+        "Instruction following",
+        "ifstruct",
+        "percent",
+        {"slayer": "slayer1b-60000", "bielik": "bielik-11b-v3.1-vllm"},
+        {"slayer": f"step 60 000, {SLAYER_RAW}", "bielik": OWN_VLLM},
+        93.72,
+        325,
+        DRAFT_CAVEAT.format(pr="#325"),
+    ),
+    ApiBenchmark(
+        "multi-if",
+        "Multi-IF",
+        "Instruction following",
+        "multi-if",
+        "percent",
+        {"slayer": "slayer1b-60000", "bielik": "bielik-11b-v3.1-vllm"},
+        {"slayer": f"step 60 000, {SLAYER_RAW}", "bielik": OWN_VLLM},
+        89.10,
+        329,
+        DRAFT_CAVEAT.format(pr="#329"),
+        null_reasons={"slayer": "run stopped after 2 of 3 turns for compute budget"},
+    ),
+    ApiBenchmark(
+        "gpqa-diamond",
+        "GPQA Diamond",
+        "Knowledge",
+        "gpqa-diamond",
+        "percent",
+        {"bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
+        {"bielik": "local lm-eval, CoT, greedy, 8192 tokens", "lfm3": "local lm-eval, CoT, greedy, 8192 tokens"},
+        63.37,
+        335,
+        "PR #335 in review; exploratory: both models ran locally with lm-eval at an 8192-token budget on different "
+        "GPUs and batch sizes, and the main row (API, the card's settings) is not computed",
+    ),
+    ApiBenchmark(
+        "aa-omniscience",
+        "AA-Omniscience",
+        "Knowledge",
+        "aa-omniscience",
+        "index",
+        {"slayer": "slayer1b-60000", "bielik": "bielik-11b-v3.1-vllm"},
+        {"slayer": f"step 60 000, {SLAYER_RAW}", "bielik": OWN_VLLM},
+        0.50,
+        327,
+        DRAFT_CAVEAT.format(pr="#327"),
+    ),
+    ApiBenchmark(
+        "livecodebench-v6",
+        "LiveCodeBench v6",
+        "Coding",
+        "livecodebench-v6",
+        "percent",
+        {"bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
+        {"bielik": f"{API}, no reasoning (API default)", "lfm3": "own vLLM, thinking"},
+        73.46,
+        336,
+        "PR #336 in review: Bielik's answers were scored on a different CPU than LFM3's; Bielik without reasoning "
+        "(the API default). LFM3 with the card's sampling: 72.89 ± 1.37",
+    ),
+    ApiBenchmark(
+        "livecodebench-pro-25q2",
+        "LiveCodeBench Pro 25Q2",
+        "Coding",
+        "livecodebench-pro-25q2",
+        "percent",
+        {"slayer": "slayer1b-1.09-k70000", "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
+        {"slayer": "not run", "bielik": API, "lfm3": "own vLLM, thinking"},
+        31.74,
+        338,
+        "PR #338 in review: the coding-group Holm correction pins files that have changed since; Slayer was not run "
+        "by judgement, not because it cannot run. LFM3 without thinking: 28.74 ± 3.50",
+    ),
+    ApiBenchmark(
+        "scicode",
+        "SciCode",
+        "Coding",
+        "scicode",
+        "percent",
+        {"slayer": "slayer1b-1.09-k70000", "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
+        {"slayer": "not run", "bielik": API, "lfm3": "own vLLM, thinking, with background"},
+        28.47,
+        339,
+        "PR #339 in review: the control against the card passes with and without background, so it cannot confirm "
+        "the setup; Slayer was not run by judgement. LFM3 without thinking: 24.65 ± 2.54",
+    ),
+    ApiBenchmark(
+        "ruler-128k",
+        "RULER 128K",
+        "Long context",
+        "ruler-128k",
+        "percent",
+        {"slayer": "slayer1b-1.09-k70000", "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
+        {"slayer": "4096-token context", "bielik": f"{API}, 32768-token context", "lfm3": "own vLLM, 262144 tokens"},
+        65.56,
+        337,
+        "PR #337 in review: the haystack text differs between models, the substring scorer has no answer cap "
+        "(capped to RULER's answer budget: 67.20 ± 1.00), 173 samples have two records, and the control against "
+        "the card failed",
+    ),
+    ApiBenchmark(
+        "bfcl-v4",
+        "BFCL V4",
+        "Tool use",
+        "bfcl-v4",
+        "percent",
+        {"slayer": "slayer1b-60000", "bielik": "bielik-11b-v3.1-vllm"},
+        {"slayer": "step 60 000", "bielik": OWN_VLLM},
+        71.39,
+        328,
+        DRAFT_CAVEAT.format(pr="#328"),
+        null_reasons={
+            "slayer": NO_TOOL_CALLS,
+            "bielik": "Overall needs the web_search category, which was not run; lower bound 28.41",
+        },
+    ),
+    ApiBenchmark(
+        "terminal-bench-2-1",
+        "Terminal-Bench 2.1",
+        "Agentic coding",
+        "terminal-bench-2-1",
+        "percent",
+        {"slayer": LATEST_SLAYER, "lfm3": "lfm3-1.7b"},
+        {"slayer": "step 70 000", "lfm3": "own vLLM, OpenCode, 5 trials per task"},
+        12.92,
+        341,
+        "PR #341 in review; Bielik not run yet",
+        null_reasons={"slayer": NO_TOOL_CALLS},
+    ),
+    ApiBenchmark(
+        "automationbench",
+        "AutomationBench",
+        "Agents",
+        "automationbench",
+        "percent",
+        {"slayer": "slayer1b-60000", "bielik": "bielik-11b-v3.1-vllm"},
+        {"slayer": "step 60 000", "bielik": OWN_VLLM},
+        41.29,
+        326,
+        DRAFT_CAVEAT.format(pr="#326"),
+        null_reasons={"slayer": NO_TOOL_CALLS},
+    ),
+)
+API_BY_ID: Final = {b.id: b for b in API_BENCHMARKS}
+
+
+def _api_file(repo: Path, b: ApiBenchmark, column: str) -> dict[str, Any] | None:
+    path = repo / b.path(column)
+    return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else None
+
+
+def api_results(repo: Path = REPO) -> list[Result]:
+    """Every scored result of the generative table, except IFEval (read by `ifeval`)."""
+    out = []
+    for b in API_BENCHMARKS:
+        if b.id == "ifeval":
+            continue
+        for column, label in b.labels.items():
+            row = _api_file(repo, b, column)
+            if row is None or row["score"] is None:
+                continue
+            model = MODELS[label]
+            out.append(
+                Result(
+                    benchmark=b.id,
+                    legacy_id=None,
+                    category=b.section,
+                    language="EN" if b.id != "multi-if" else "multi",
+                    metric=str(row["metric"]),
+                    unit=b.unit,
+                    higher_is_better=True,
+                    model=label,
+                    model_name=model.name,
+                    repo=None,
+                    revision=None,
+                    value=float(row["score"]),
+                    se=None if row["stderr"] is None else float(row["stderr"]),
+                    n=int(row["n"]),
+                    protocol="api-benchmarks",
+                    variant=b.how[column],
+                    harness=str(row["harness"]),
+                    codesota_status=_status(b.id),
+                    source=b.path(column),
+                    se_source=b.path(column),
+                    review_flag="in_review" if b.pr else "ok",
+                    review_notes=(b.caveat,) if b.caveat else (),
+                )
+            )
+    return out
+
+
 def collect(repo: Path = REPO) -> list[Result]:
     order = {label: i for i, label in enumerate(MODELS)}
-    bench_order = {b: i for i, b in enumerate(CATEGORY_OF)}
-    rows = full_run(repo) + ifeval(repo)
+    bench_order = {b: i for i, b in enumerate([*CATEGORY_OF, *(x.id for x in API_BENCHMARKS if x.id != "ifeval")])}
+    rows = full_run(repo) + ifeval(repo) + api_results(repo)
     return sorted(rows, key=lambda r: (bench_order[r.benchmark], order[r.model], r.metric))
 
 
@@ -265,7 +530,7 @@ def shown(r: Result) -> str:
     """Accuracies as percent with one decimal (66.6 ± 1.0); perplexity as is (1.702 ± 0.011)."""
     if r.unit == "byte_ppl":
         return f"{r.value:.3f}" + (f" ± {r.se:.3f}" if r.se is not None else "")
-    scale = 1.0 if r.unit == "percent" else 100.0
+    scale = 1.0 if r.unit in ("percent", "index") else 100.0
     return f"{r.value * scale:.1f}" + (f" ± {r.se * scale:.1f}" if r.se is not None else "")
 
 
@@ -375,7 +640,7 @@ def value_text(r: Result) -> str:
     """The value alone, as the headline shows it: accuracy in percent with one decimal, perplexity with three."""
     if r.unit == "byte_ppl":
         return f"{r.value:.3f}"
-    return f"{r.value * (1.0 if r.unit == 'percent' else 100.0):.1f}"
+    return f"{r.value * (1.0 if r.unit in ('percent', 'index') else 100.0):.1f}"
 
 
 def ranks(cells: Sequence[Result | None]) -> list[int | None]:
@@ -524,6 +789,194 @@ def values_table(
     return out
 
 
+@dataclass(frozen=True)
+class ApiCell:
+    """One cell of the generative table: a result, a null with its reason, or nothing run."""
+
+    result: Result | None
+    null_reason: str | None
+    starred: bool
+
+    def text(self) -> str:
+        if self.result is not None:
+            return value_text(self.result) + ("*" if self.starred else "")
+        return DASH if self.null_reason is not None else "not run"
+
+
+API_SECTIONS: Final = tuple(dict.fromkeys(b.section for b in API_BENCHMARKS))
+API_LEGEND: Final = (
+    f"Score in % (AA-Omniscience: index from {MINUS}100 to 100) · * requires verification · {DASH} cannot be scored",
+    "Best of the scored models highlighted, second underlined (rows with two or more scores) · LFM3 card: not ours",
+)
+
+
+def api_cells(rows: Sequence[Result], repo: Path = REPO) -> list[tuple[str, list[tuple[ApiBenchmark, list[ApiCell]]]]]:
+    """Row groups of the generative table: per section, per benchmark one cell per column of API_COLUMNS."""
+    by = {(r.benchmark, r.model): r for r in rows if r.protocol in ("api-benchmarks", "ifeval-api")}
+    out = []
+    for section in API_SECTIONS:
+        lines = []
+        for b in (x for x in API_BENCHMARKS if x.section == section):
+            cells = []
+            for column in API_COLUMNS:
+                label = b.labels.get(column)
+                result = by.get((b.id, label)) if label else None
+                reason = None
+                if result is None and label is not None:
+                    row = _api_file(repo, b, column)
+                    if row is not None:
+                        reason = str(row.get("reason") or b.null_reasons.get(column) or "see the benchmark's README")
+                cells.append(ApiCell(result, reason, b.pr is not None))
+            lines.append((b, cells))
+        out.append((section, lines))
+    return out
+
+
+def api_ranks(cells: Sequence[ApiCell]) -> list[int | None]:
+    """Rank of each scored cell, as in the headline table; no ranks in a row with fewer than two scores."""
+    scored = [c.result for c in cells if c.result is not None]
+    if len(scored) < 2:
+        return [None] * len(cells)
+    values = sorted({float(value_text(r)) for r in scored}, reverse=True)
+    return [None if c.result is None else values.index(float(value_text(c.result))) + 1 for c in cells]
+
+
+def api_svg(rows: Sequence[Result], t: Theme, repo: Path = REPO, col: int = 110) -> str:
+    """The generative table as an image, styled as the headline table, with the LFM3 card's value last."""
+    name_width, pad, row_h = 220, 20, 34
+    width = pad * 2 + name_width + col * (len(API_COLUMNS) + 1)
+
+    def center(i: int) -> float:
+        return pad + name_width + col * i + col / 2
+
+    body: list[str] = []
+    for i, (top, sub) in enumerate([*(API_HEADER[c] for c in API_COLUMNS), ("LFM3 card", "reported")]):
+        weight = "600" if i < len(API_COLUMNS) else "400"
+        body.append(f'<text x="{center(i)}" y="38" text-anchor="middle" font-weight="{weight}">{_esc(top)}</text>')
+        body.append(
+            f'<text x="{center(i)}" y="56" text-anchor="middle" font-size="12" fill="{t.muted}">{_esc(sub)}</text>'
+        )
+    body.append(f'<text x="{pad}" y="56" font-size="12" fill="{t.muted}">Benchmark</text>')
+    y = 70
+    body.append(f'<line x1="{pad}" x2="{width - pad}" y1="{y}" y2="{y}" stroke="{t.rule}"/>')
+    for section, lines in api_cells(rows, repo):
+        y += row_h
+        body.append(
+            f'<text x="{pad}" y="{y - 10}" font-size="13" font-weight="600" fill="{t.muted}">{_esc(section)}</text>'
+        )
+        for b, cells in lines:
+            body.append(f'<line x1="{pad}" x2="{width - pad}" y1="{y}" y2="{y}" stroke="{t.row_rule}"/>')
+            y += row_h
+            base = y - 11
+            body.append(f'<text x="{pad}" y="{base}">{_esc(b.name)}</text>')
+            for i, (c, k) in enumerate(zip(cells, api_ranks(cells), strict=True)):
+                if k == 1:
+                    body.append(
+                        f'<rect x="{center(i) - 38}" y="{base - 16}" width="76" height="22" rx="5" '
+                        f'fill="{t.best_fill}"/>'
+                    )
+                elif k == 2:
+                    body.append(
+                        f'<line x1="{center(i) - 20}" x2="{center(i) + 20}" y1="{base + 3}" y2="{base + 3}" '
+                        f'stroke="{t.text}"/>'
+                    )
+                style = (
+                    f' font-weight="700" fill="{t.accent}"'
+                    if k == 1
+                    else f' fill="{t.muted}"'
+                    if c.result is None
+                    else ""
+                )
+                size = ' font-size="12"' if c.result is None and c.null_reason is None else ""
+                body.append(
+                    f'<text x="{center(i)}" y="{base}" text-anchor="middle"{style}{size} data-benchmark="{b.id}" '
+                    f'data-model="{b.labels.get(API_COLUMNS[i], "")}" data-rank="{k or 0}">{_esc(c.text())}</text>'
+                )
+            card = "n/a" if b.card is None else f"{b.card:.1f}"
+            body.append(
+                f'<text x="{center(len(API_COLUMNS))}" y="{base}" text-anchor="middle" fill="{t.muted}" '
+                f'data-card="{b.id}">{card}</text>'
+            )
+    y += 8
+    body.append(f'<line x1="{pad}" x2="{width - pad}" y1="{y}" y2="{y}" stroke="{t.rule}"/>')
+    for text in API_LEGEND:
+        y += 20
+        body.append(f'<text x="{pad}" y="{y}" font-size="12" fill="{t.muted}">{_esc(text)}</text>')
+    height = y + 16
+    return "\n".join(
+        [
+            f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+            f'viewBox="0 0 {width} {height}" font-family="{FONT}" font-size="14" fill="{t.text}">',
+            f'<rect width="{width}" height="{height}" rx="8" fill="{t.background}"/>',
+            *body,
+            "</svg>",
+            "",
+        ]
+    )
+
+
+def api_values_table(rows: Sequence[Result], repo: Path = REPO) -> list[str]:
+    """The generative table's values with standard errors, nulls with their reason, and the card's value."""
+    head = "".join(f"<th>{API_HEADER[c][0]}<br><sub>{API_HEADER[c][1]}</sub></th>" for c in API_COLUMNS)
+    out = ["<table>", f'<tr><th align="left">Benchmark</th>{head}<th>LFM3 card<br><sub>reported</sub></th></tr>']
+    for section, lines in api_cells(rows, repo):
+        out.append(f'<tr><td colspan="{2 + len(API_COLUMNS)}"><b>{section}</b></td></tr>')
+        for b, cells in lines:
+            tds = ""
+            for c in cells:
+                if c.result is not None:
+                    text = shown(c.result) + ("*" if c.starred else "")
+                elif c.null_reason is not None:
+                    text = f"{DASH} <sub>{_esc(c.null_reason)}</sub>"
+                else:
+                    text = "not run"
+                tds += f'<td align="right">{text}</td>'
+            tds += f'<td align="right">{"n/a" if b.card is None else f"{b.card:.2f}"}</td>'
+            out.append(f"<tr><td>{b.name}</td>{tds}</tr>")
+    out.append("</table>")
+    return out
+
+
+def api_benchmarks_page(rows: Sequence[Result], repo: Path = REPO) -> str:
+    """Per benchmark: its source, how each model ran, and why its results need verification."""
+    lines = [
+        "# Generative and agentic benchmarks",
+        "",
+        "Generated by `python -m codesota.leaderboard`. [Back to the results](README.md).",
+        "",
+        "Each benchmark has its own protocol, harness and settings, written down in its directory under "
+        f"[`{API_DIR}/`](../../{API_DIR}/). Values are copied from its `results/<model>.json`, not recomputed. "
+        "Results marked * require verification: they come from a pull request that is still in review, for the "
+        "reason given below.",
+        "",
+    ]
+    for section, benchmark_lines in api_cells(rows, repo):
+        lines += [f"## {section}", ""]
+        for b, cells in benchmark_lines:
+            source = f"[`{API_DIR}/{b.directory}/`](../../{API_DIR}/{b.directory}/README.md)"
+            status = f"in review, PR #{b.pr}" if b.pr else "merged"
+            lines += [f"### {b.name}", "", f"Source: {source} ({status}). LFM3-1.7B card: {b.card:.2f}.", ""]
+            if b.caveat:
+                lines += [f"**Requires verification:** {b.caveat}.", ""]
+            lines += ["| model | how it ran | value | n |", "|---|---|---:|---:|"]
+            for column, c in zip(API_COLUMNS, cells, strict=True):
+                label = b.labels.get(column)
+                if label is None:
+                    lines.append(f"| {API_HEADER[column][0]} | not run | | |")
+                elif c.result is not None:
+                    star = "*" if c.starred else ""
+                    lines.append(
+                        f"| {c.result.model_name} | {b.how[column]} | {shown(c.result)}{star} | {c.result.n} |"
+                    )
+                else:
+                    reason = c.null_reason or "no result file"
+                    lines.append(
+                        f"| {MODELS[label].name if label in MODELS else label} | {b.how[column]} | null: {reason} | |"
+                    )
+            lines.append("")
+    return "\n".join(lines)
+
+
 K70_PROTOCOL: Final = f"../../{FULL_RUN}/slayer-1.09-k70000/PROTOKOL.md"
 K70_NOTE: Final = (
     "Step 70 000 was measured in its own run, on 8 x RTX 4090 with the same code and settings "
@@ -532,12 +985,15 @@ K70_NOTE: Final = (
 
 
 def readme(rows: Sequence[Result], chance: Mapping[str, float | None]) -> str:
-    ifeval_rows = {r.model: r for r in rows if r.benchmark == "ifeval"}
-    slayer_if, bielik_if = ifeval_rows["slayer1b-1.08"], ifeval_rows["bielik-11b-v3.1"]
+    n_api = len(API_BENCHMARKS)
     lines = [
         "# Results",
         "",
-        "Slayer 1B next to its reference models, on the same benchmarks with the same settings.",
+        "Slayer 1B next to its reference models. Two tables: the log-likelihood benchmarks, measured for every model "
+        "with the same code and settings, and the generative and agentic benchmarks, where each model answers in "
+        "its own format and each benchmark has its own protocol.",
+        "",
+        "## Log-likelihood benchmarks",
         "",
         "<picture>",
         '  <source media="(prefers-color-scheme: dark)" srcset="charts/headline-table-dark.svg">',
@@ -546,15 +1002,35 @@ def readme(rows: Sequence[Result], chance: Mapping[str, float | None]) -> str:
         'width="100%">',
         "</picture>",
         "",
-        f"**Instruction following (IFEval):** Bielik 11B v3.1 Instruct {value_text(bielik_if)}, "
-        f"Slayer 1B 1.08 {value_text(slayer_if)}. Slayer is a base model without a chat template, so its score "
-        "mostly reflects broken output, not instruction following. [Details](instruction-following.md).",
+        "## Generative and agentic benchmarks",
+        "",
+        "<picture>",
+        '  <source media="(prefers-color-scheme: dark)" srcset="charts/api-benchmarks-table-dark.svg">',
+        '  <img src="charts/api-benchmarks-table.svg" alt="Results table: Slayer 1B, Bielik 11B v3.1 and LFM3-1.7B '
+        f"on {n_api} generative and agentic benchmarks, with the values of the LFM3-1.7B card; the same values are in "
+        'the Generative values table below" width="100%">',
+        "</picture>",
+        "",
+        "**\\* requires verification:** the result comes from a pull request that is still in review, or the review "
+        "found an open problem; the reason for each benchmark is on [Generative and agentic benchmarks]"
+        "(api-benchmarks.md). Only IFEval is merged and reviewed.",
+        "",
+        '- **Incomplete by design:** a cell is empty where a model has not been run yet ("not run") or cannot be '
+        f'scored ("{DASH}", reason in the Generative values table). A missing value is never a zero.',
+        "- **Slayer 1B is a base model** without a chat template or a tool-call format: on the agentic benchmarks it "
+        "cannot run, and where it is scored its output is mostly degenerate. Its column mixes versions: IFEval is "
+        "1.08, the instruction-following, knowledge, tool and agent rows step 60 000 of 1.09, the others step "
+        "70 000.",
+        "- **Bielik 11B v3.1** ran through the Fabryka API or our own vLLM depending on the benchmark; both with its "
+        "chat template. **LFM3-1.7B** is the instruction-tuned model, with reasoning on; **LFM3 card** is the value "
+        "Liquid AI reports for it, not measured by us.",
         "",
         "[Slayer versions](slayer-versions.md) · [All models](all-models.md) · "
-        "[Instruction following](instruction-following.md) · [All results as JSONL](results.jsonl) · "
+        "[Instruction following](instruction-following.md) · [Generative and agentic benchmarks](api-benchmarks.md) · "
+        "[All results as JSONL](results.jsonl) · "
         "[Benchmark status](../BENCHMARKS.md)",
         "",
-        "## Notes",
+        "## Notes on the log-likelihood benchmarks",
         "",
         f"- **Slayer 1B 1.09 is a training checkpoint** (step 70 000), not a release. {K70_NOTE} Earlier versions "
         "and step 40 000: [Slayer versions](slayer-versions.md).",
@@ -577,11 +1053,20 @@ def readme(rows: Sequence[Result], chance: Mapping[str, float | None]) -> str:
         "",
         *values_table(rows, chance),
         "",
+        "## Generative values",
+        "",
+        "Value ± standard error, in % (AA-Omniscience: index). Each benchmark's standard error is the one its "
+        "directory reports (over tasks, questions, or problems; see its README).",
+        "",
+        *api_values_table(rows),
+        "",
         "## Sources",
         "",
         f"- Log-likelihood benchmarks: [`{FULL_RUN}/`](../../{FULL_RUN}/README.md), manifest "
         f"[`manifest.jsonl`](../../{FULL_RUN}/manifest.jsonl) (commands, revisions, weight checksums).",
         f"- IFEval: [`{IFEVAL_API}/`](../../{IFEVAL_API}/), per-prompt outputs in `*.jsonl.gz`.",
+        f"- Generative and agentic benchmarks: [`{API_DIR}/<benchmark>/results/`](../../{API_DIR}/), one directory "
+        "per benchmark with its README, `run.sh`, and per-task outputs.",
         "- Every row of [`results.jsonl`](results.jsonl) names its source file.",
         "",
     ]
@@ -731,6 +1216,9 @@ def text_files(repo: Path = REPO) -> dict[str, str]:
         "slayer-versions.md": slayer_versions(rows, chance),
         "all-models.md": all_models(rows),
         "instruction-following.md": instruction_following(rows),
+        "api-benchmarks.md": api_benchmarks_page(rows),
+        "charts/api-benchmarks-table.svg": api_svg(rows, LIGHT),
+        "charts/api-benchmarks-table-dark.svg": api_svg(rows, DARK),
         "results.jsonl": jsonl(rows),
         "charts/headline-table.svg": headline_svg(rows, LIGHT, chance),
         "charts/headline-table-dark.svg": headline_svg(rows, DARK, chance),

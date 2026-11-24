@@ -24,7 +24,7 @@ TRIGGER_PREFIXES = (
     "research/benchmarks/",
     "research/tools/statystyka.py",
     "research/results/full-run-2026-11/",
-    "research/api-benchmarks/ifeval/results/",
+    "research/api-benchmarks/",
 )
 TRIGGER_FILES = frozenset({".github/workflows/codesota.yml", ".github/scripts/codesota_changes.py"})
 
