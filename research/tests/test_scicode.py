@@ -69,6 +69,8 @@ def test_after_think_and_answer_text():
 def harness_or_skip():
     if not (sr.SCICODE_DIR / ".git").exists():
         pytest.skip("no SciCode clone in .cache/ (run.sh makes it)")
+    for module in ("h5py", "sympy", "datasets", "rich"):  # what SciCode's parse.py and log.py import
+        pytest.importorskip(module, reason=f"SciCode's harness needs {module} (requirements-generate.lock)")
     cwd = os.getcwd()
     try:
         return sr.harness()
