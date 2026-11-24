@@ -42,12 +42,16 @@ BENCH = Path(os.environ.get("LCBPRO_BENCH", Path(__file__).resolve().parents[1] 
 HARNESS = Path(__file__).resolve().parents[1] / "api-benchmarks" / "livecodebench-pro-25q2" / ".cache" / \
     "LiveCodeBench-Pro"
 os.environ.setdefault("LCBPRO_DIR", str(HARNESS))
-for name in ("provenance", "lcbpro", "summarize", "compare"):  # other benchmarks have modules with these names
-    sys.modules.pop(name, None)
+for name in ("compare", "explore", "lcbpro", "provenance", "raw_outputs", "readme", "rejudge", "summarize"):
+    sys.modules.pop(name, None)  # other benchmarks have modules with these names; CI runs them in one process
 sys.path.insert(0, str(BENCH))
 import compare  # noqa: E402
+import explore  # noqa: E402
 import lcbpro  # noqa: E402
 import provenance  # noqa: E402
+import raw_outputs  # noqa: E402
+import readme  # noqa: E402
+import rejudge  # noqa: E402
 import summarize  # noqa: E402
 
 sys.path.remove(str(BENCH))
@@ -171,14 +175,6 @@ def test_extraction_reads_the_text_after_the_last_think():
     assert lcbpro.prejudge(answer_record("</think>Sorry, no code."), "on", extract) == ("no_code", None)
 
 
-def bench_module(name):
-    sys.path.insert(0, str(BENCH))
-    try:
-        return __import__(name)
-    finally:
-        sys.path.remove(str(BENCH))
-
-
 def test_pins_are_the_protocol_s():
     assert (lcbpro.HARNESS_COMMIT, lcbpro.VERIFIER_COMMIT, lcbpro.DATA_REVISION, lcbpro.TESTS_REVISION,
             lcbpro.SPLIT, lcbpro.N_PROBLEMS) == \
@@ -247,7 +243,6 @@ def test_a_problems_dir_from_another_revision_is_emptied():
 
 
 def test_raw_outputs_checks_every_run_and_stops_on_a_mismatch():
-    raw_outputs = bench_module("raw_outputs")
     output = "r</think>```python\nx\n```"
     with tempfile.TemporaryDirectory() as tmp:
         tmp = Path(tmp)
@@ -287,7 +282,6 @@ def test_raw_outputs_checks_every_run_and_stops_on_a_mismatch():
 
 
 def test_reasoning_counts_use_the_last_think_end_and_only_closing_accepted_answers():
-    raw_outputs = bench_module("raw_outputs")
     a = "x" * 10 + "</think>" + "y" * 80 + "</think>" + "zz"  # first and last `</think>` far apart
     c = "q</think>```cpp\n"
     last = {"A": {"problem_id": "A", "status": "ok", "output": a},
@@ -302,7 +296,6 @@ def test_reasoning_counts_use_the_last_think_end_and_only_closing_accepted_answe
 
 
 def test_rejudge_keeps_only_outcomes_the_extraction_does_not_decide():
-    rejudge = bench_module("rejudge")
     grades = {
         "CE": {"category": "compile_error", "code": "old", "accepted": False},  # judged again: the code changes
         "WA": {"category": "wrong_answer", "code": "old", "accepted": False},  # whole answer has no code
@@ -868,11 +861,6 @@ def test_analyse_reports_each_test_alone():
 
 
 def test_explore_budget_boundary_and_compile_error_causes():
-    sys.path.insert(0, str(BENCH))
-    try:
-        import explore
-    finally:
-        sys.path.remove(str(BENCH))
     rs = [{"accepted": True, "output_tokens": 4096}, {"accepted": True, "output_tokens": 4097},
           {"accepted": False, "output_tokens": 10}, {"accepted": True, "output_tokens": 32768},
           {"accepted": False, "output_tokens": None}]
@@ -887,11 +875,6 @@ def test_explore_budget_boundary_and_compile_error_causes():
 
 
 def test_readme_blocks_are_the_generator_output():
-    sys.path.insert(0, str(BENCH))
-    try:
-        import readme
-    finally:
-        sys.path.remove(str(BENCH))
     results = BENCH / "results"
     text = (BENCH / "README.md").read_text(encoding="utf-8")
     bodies = readme.blocks(results)
