@@ -11,13 +11,13 @@
       "written_by": "ablation.py"
     },
     "bielik-11b-v3.1.json": {
-      "at": "2026-11-22T13:54:36+00:00",
-      "sha256": "a75c5ca85e48ad4365f672fd9c3e57e6f200580d8740434fcb4b50cb8245ad63",
+      "at": "2026-11-24T14:17:29+00:00",
+      "sha256": "a09096e16dd39643004e4a163abbdedc53ac2f5f1e4e2eb6313bbc6b00a1ea33",
       "written_by": "summarize.py"
     },
     "bielik-11b-v3.1.jsonl.gz": {
-      "at": "2026-11-22T13:54:36+00:00",
-      "sha256": "82d824c499c6b601f5079690c6a1704233147c1ca71d4034b797032af8b917a0",
+      "at": "2026-11-24T14:17:29+00:00",
+      "sha256": "cb9ddcfe3d8f7a341eae7f32b5d29067a52e50aab0821bd20180858cfa7a96f9",
       "written_by": "summarize.py"
     },
     "extraction-f1.json": {

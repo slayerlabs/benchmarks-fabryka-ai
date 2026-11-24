@@ -129,16 +129,18 @@
     ],
     "scoring": {
       "step": "lcb.py score",
-      "at": "2026-11-22T13:33:57+00:00",
-      "code_commit": "b16e0c3c986c2fe9477a087726c04f80a458fffe",
+      "at": "2026-11-24T14:09:55+00:00",
+      "code_commit": "4cdab27361fa8362f95b59507222e71f59b11ff8",
       "dirty": false,
       "runner_sha256": {
         "run.sh": "835eca201cc1443e3f7ceb3174f5dbc17268440a10bdabbbecb4e24d54db1423",
-        "lcb.py": "4c4963609161d322a88e1ace1f0f2c28360d6bbb03749203db3bfe9231a5d6fc",
-        "summarize.py": "23d2cc2a3326f9e4c2f2ce117aa70b368d564197dcb663e20c8ff25f65ee6288",
-        "compare.py": "03e2b6e5eb9824ccbd655f22b68ac33ea7b2a9be2a9f4c6c2951fdad00cdc73c",
-        "ablation.py": "00f0f1091b097eea920da0a4bfe6ea7c13cd64f2deea876c758867191eb58cb4",
-        "provenance.py": "0a080f5503e58f24b0290ae61f5727b74fba662a0882050a7daee7694ec76080"
+        "lcb.py": "adc16bf1c78c8a967ae5c56eb7700f6bba25f8ae0e047956508239e74589ae49",
+        "summarize.py": "eb593b7efef15f45e799aa39bc64ed03b4dc659d88a112dd18707ff8904fa132",
+        "extraction.py": "324d942e733ed9912b63f6c833164015c836acde30ff7d9320f94847ecfce133",
+        "compare.py": "7e5c5a317e30a1d8baf89624b1135b3c8b5a2a280bc8036e0e313b82a931534a",
+        "ablation.py": "661cf488e175502507362bdf4d12a41a3d333435bf6e413a88cc1f7eccc79993",
+        "readme.py": "de521d46beb7cde12237d202640094136c40c26327e26f1b608c541f193cc5d7",
+        "provenance.py": "708cb108ff6bff97ecbed3553e24cd7eef56e70d2dacb6363a48687739bcbbec"
       },
       "gpu": null,
       "platform": "macOS-26.6-arm64-arm-64bit",
@@ -149,16 +151,18 @@
     },
     "summary": {
       "step": "summarize.py",
-      "at": "2026-11-22T13:54:36+00:00",
-      "code_commit": "7d931ba27fe822607596e06aa04a74a4eb304296",
+      "at": "2026-11-24T14:17:29+00:00",
+      "code_commit": "4cdab27361fa8362f95b59507222e71f59b11ff8",
       "dirty": false,
       "runner_sha256": {
         "run.sh": "835eca201cc1443e3f7ceb3174f5dbc17268440a10bdabbbecb4e24d54db1423",
         "lcb.py": "adc16bf1c78c8a967ae5c56eb7700f6bba25f8ae0e047956508239e74589ae49",
         "summarize.py": "eb593b7efef15f45e799aa39bc64ed03b4dc659d88a112dd18707ff8904fa132",
-        "compare.py": "8f04488e1904954e2b09da1fe189177165d46237c9edbf065da3a603b43af79f",
-        "ablation.py": "00f0f1091b097eea920da0a4bfe6ea7c13cd64f2deea876c758867191eb58cb4",
-        "provenance.py": "0a080f5503e58f24b0290ae61f5727b74fba662a0882050a7daee7694ec76080"
+        "extraction.py": "324d942e733ed9912b63f6c833164015c836acde30ff7d9320f94847ecfce133",
+        "compare.py": "7e5c5a317e30a1d8baf89624b1135b3c8b5a2a280bc8036e0e313b82a931534a",
+        "ablation.py": "661cf488e175502507362bdf4d12a41a3d333435bf6e413a88cc1f7eccc79993",
+        "readme.py": "de521d46beb7cde12237d202640094136c40c26327e26f1b608c541f193cc5d7",
+        "provenance.py": "708cb108ff6bff97ecbed3553e24cd7eef56e70d2dacb6363a48687739bcbbec"
       },
       "gpu": null,
       "platform": "macOS-26.6-arm64-arm-64bit",
@@ -167,7 +171,7 @@
       "python": "3.12.2"
     },
     "inputs_sha256": {
-      "graded.jsonl": "e4c7c88c43a1e58b27e268d5a554d55543da1897c1f4a8270df8798555c50b46"
+      "graded.jsonl": "aa957da9755fafe82b87cf58d077e6c8d3a90a920b7f9d63716e8a330045a6f1"
     },
     "api_events": null,
     "api_events_reason": "added by hand on 2026-11-22 after the run: generated at b16e0c3c, before lcb.py logged retries (7d931ba2), so its retries, pauses and HTTP errors were not recorded and 0 retries cannot be shown; see README.md, Deviations"
