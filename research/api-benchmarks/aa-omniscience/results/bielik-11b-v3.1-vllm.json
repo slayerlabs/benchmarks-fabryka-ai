@@ -1,0 +1,38 @@
+{
+  "benchmark": "AA-Omniscience (public)",
+  "model": "bielik-11b-v3.1-vllm",
+  "metric": "omniscience_index",
+  "score": -77.33,
+  "stderr": 2.58,
+  "n": 600,
+  "date": "2026-11-19",
+  "harness": "AA-Omniscience README prompts (answer and grader templates) with generate.py and judge.py",
+  "data": "https://huggingface.co/datasets/ArtificialAnalysis/AA-Omniscience-Public @ e4883edbb9f5ccf2b2a8fdc6fb65e01a58e99849",
+  "settings": {
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "seed": "20261119 + question index",
+    "max_tokens_per_turn": null,
+    "max_turns": 1,
+    "trials": 1,
+    "judge": {
+      "model": "openai-codex/gpt-6.1-sol (GPT-6.1 Sol), thinking high",
+      "served_via": "OMP coding-agent CLI (omp -p --no-tools), subscription login, no API key",
+      "date": "2026-11-19",
+      "official_grader": "Gemini 2.5 Flash Preview (09-2025); scores not comparable with Artificial Analysis",
+      "raw_replies": "results/bielik-11b-v3.1-vllm-judge.jsonl.gz"
+    }
+  },
+  "other_metrics": {
+    "accuracy": 11.17,
+    "accuracy_stderr": 1.29,
+    "hallucination_rate": 99.62,
+    "non_hallucination_rate": 0.38,
+    "correct": 67,
+    "incorrect": 531,
+    "partial": 2,
+    "not_attempted": 0,
+    "answers_cut_at_length": 0
+  },
+  "deviations": "see README.md, Deviations"
+}
