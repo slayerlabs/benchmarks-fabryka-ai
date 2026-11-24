@@ -1,0 +1,1037 @@
+{
+  "benchmark": "LiveCodeBench v6",
+  "protocol": "PROTOCOL.md",
+  "difference": "LFM3-1.7B minus other, pp",
+  "control": {
+    "run": "lfm3-1.7b-cardsampling",
+    "status": "passed",
+    "card": 73.46,
+    "score": 73.08,
+    "stderr": 1.37,
+    "z": -0.2773722627737193,
+    "descriptive": {
+      "run": "lfm3-1.7b",
+      "card": 73.46,
+      "score": 72.04,
+      "stderr": 1.38,
+      "z": -1.0289855072463678
+    }
+  },
+  "verdict_run": "lfm3-1.7b",
+  "verdict_run_generation": "reconstructed",
+  "hypotheses": [
+    {
+      "id": "L1",
+      "statement": "LFM3-1.7B's lead over Bielik 11B v3.1 is not larger than 3 SE of the paired difference",
+      "value": 55.35545023696683,
+      "se": 1.5312429848065683,
+      "z": 36.15066373281019,
+      "p": 3.6322127837395033e-286,
+      "verdict": "clear",
+      "n": 1055,
+      "clustered": {
+        "contest": {
+          "k": 250,
+          "value": 55.35545023696683,
+          "se": 1.6705542093287749,
+          "t": 33.135979621522445,
+          "df": 249,
+          "p": 2.93916462844707e-93,
+          "verdict": "clear"
+        },
+        "platform": {
+          "k": 3,
+          "value": 55.35545023696683,
+          "se": 3.756428646490085,
+          "t": 14.73619105974224,
+          "df": 2,
+          "p": 0.004573431871096279,
+          "verdict": "likely"
+        }
+      },
+      "measure": "pass@1 difference, all problems",
+      "outcome": "refuted",
+      "excluded": {
+        "not_scored_a": 0,
+        "not_scored_b": 0,
+        "missing_a": 0,
+        "missing_b": 0,
+        "total": 0
+      },
+      "p_holm": 1.089663835121851e-285,
+      "verdict_holm": "clear"
+    },
+    {
+      "id": "L2",
+      "statement": "LFM3-1.7B - Bielik 11B v3.1 is positive on easy and medium, negative on hard",
+      "measure": "sign pattern easy/medium/hard",
+      "value": null,
+      "se": null,
+      "z": 15.435660510150363,
+      "p": 9.423076032079747e-54,
+      "verdict": "clear",
+      "n": 1055,
+      "signs": "+++",
+      "sign_not_established": [],
+      "per_difficulty": {
+        "easy": {
+          "value": 50.621118012422365,
+          "se": 2.790512526989531,
+          "z": 18.140437472622132,
+          "p": 1.5280997295837795e-73,
+          "verdict": "clear",
+          "n": 322
+        },
+        "medium": {
+          "value": 72.84595300261097,
+          "se": 2.275560129769153,
+          "z": 32.01231734096208,
+          "p": 7.348745468779261e-225,
+          "verdict": "clear",
+          "n": 383
+        },
+        "hard": {
+          "value": 40.57142857142857,
+          "se": 2.6284219288671924,
+          "z": 15.435660510150363,
+          "p": 9.423076032079747e-54,
+          "verdict": "clear",
+          "n": 350
+        }
+      },
+      "outcome": "refuted",
+      "excluded": {
+        "not_scored_a": 0,
+        "not_scored_b": 0,
+        "missing_a": 0,
+        "missing_b": 0,
+        "total": 0
+      },
+      "p_holm": 1.8846152064159493e-53,
+      "verdict_holm": "clear"
+    },
+    {
+      "id": "L3",
+      "statement": "at an equal cost per answer, LFM3-1.7B's lead over Bielik 11B v3.1 disappears",
+      "value": 4.075829383886256,
+      "se": 1.0781131947497185,
+      "z": 3.780520824469132,
+      "p": 0.00015650062789564768,
+      "verdict": "clear",
+      "n": 1055,
+      "budget_a": 4096,
+      "budget_b": 4096,
+      "mean_cost_a": 12897528037732.217,
+      "mean_cost_b": 15824882740157.027,
+      "mean_prompt_tokens_a": 569.2246445497631,
+      "mean_prompt_tokens_b": 1720.4682464454977,
+      "mean_cost_with_prompt_a": 14865680917385.586,
+      "mean_cost_with_prompt_b": 54256002790521.33,
+      "clustered": {
+        "contest": {
+          "k": 250,
+          "value": 4.075829383886256,
+          "se": 1.0131261776238532,
+          "t": 4.023022476277879,
+          "df": 249,
+          "p": 7.624633574296245e-05,
+          "verdict": "clear"
+        },
+        "platform": {
+          "k": 3,
+          "value": 4.075829383886256,
+          "se": 1.3603882799896085,
+          "t": 2.996077990261272,
+          "df": 2,
+          "p": 0.09568131723205912,
+          "verdict": "noise"
+        }
+      },
+      "measure": "pass@budget difference at equal cost",
+      "outcome": "refuted",
+      "excluded": {
+        "not_scored_a": 0,
+        "not_scored_b": 0,
+        "missing_a": 0,
+        "missing_b": 0,
+        "total": 0
+      },
+      "p_holm": 0.00015650062789564768,
+      "verdict_holm": "clear"
+    }
+  ],
+  "other_run": {
+    "run": "lfm3-1.7b-cardsampling",
+    "role": "reported next to the verdict run (Amendment 4), not the verdict",
+    "hypotheses": [
+      {
+        "id": "L1",
+        "statement": "LFM3-1.7B's lead over Bielik 11B v3.1 is not larger than 3 SE of the paired difference",
+        "value": 56.39810426540285,
+        "se": 1.5274416673828,
+        "z": 36.92324588868809,
+        "p": 1.958050623986753e-298,
+        "verdict": "clear",
+        "n": 1055,
+        "clustered": {
+          "contest": {
+            "k": 250,
+            "value": 56.39810426540285,
+            "se": 1.678705575470238,
+            "t": 33.59618570969757,
+            "df": 249,
+            "p": 1.7710473222058846e-94,
+            "verdict": "clear"
+          },
+          "platform": {
+            "k": 3,
+            "value": 56.39810426540285,
+            "se": 3.481545685682743,
+            "t": 16.199156741596223,
+            "df": 2,
+            "p": 0.003789145710932906,
+            "verdict": "likely"
+          }
+        },
+        "measure": "pass@1 difference, all problems",
+        "outcome": "refuted",
+        "excluded": {
+          "not_scored_a": 0,
+          "not_scored_b": 0,
+          "missing_a": 0,
+          "missing_b": 0,
+          "total": 0
+        },
+        "p_holm": 5.8741518719602585e-298,
+        "verdict_holm": "clear"
+      },
+      {
+        "id": "L2",
+        "statement": "LFM3-1.7B - Bielik 11B v3.1 is positive on easy and medium, negative on hard",
+        "measure": "sign pattern easy/medium/hard",
+        "value": null,
+        "se": null,
+        "z": 15.89729970564292,
+        "p": 6.615545333055832e-57,
+        "verdict": "clear",
+        "n": 1055,
+        "signs": "+++",
+        "sign_not_established": [],
+        "per_difficulty": {
+          "easy": {
+            "value": 51.5527950310559,
+            "se": 2.7893817510775816,
+            "z": 18.48179977915904,
+            "p": 2.8936574337486133e-76,
+            "verdict": "clear",
+            "n": 322
+          },
+          "medium": {
+            "value": 73.62924281984334,
+            "se": 2.254523599135725,
+            "z": 32.65844848466844,
+            "p": 6.079683994642817e-234,
+            "verdict": "clear",
+            "n": 383
+          },
+          "hard": {
+            "value": 42.0,
+            "se": 2.6419581172701703,
+            "z": 15.89729970564292,
+            "p": 6.615545333055832e-57,
+            "verdict": "clear",
+            "n": 350
+          }
+        },
+        "outcome": "refuted",
+        "excluded": {
+          "not_scored_a": 0,
+          "not_scored_b": 0,
+          "missing_a": 0,
+          "missing_b": 0,
+          "total": 0
+        },
+        "p_holm": 1.3231090666111664e-56,
+        "verdict_holm": "clear"
+      },
+      {
+        "id": "L3",
+        "statement": "at an equal cost per answer, LFM3-1.7B's lead over Bielik 11B v3.1 disappears",
+        "value": 1.4218009478672986,
+        "se": 1.0678011026136107,
+        "z": 1.331522269818993,
+        "p": 0.1830172222885626,
+        "verdict": "noise",
+        "n": 1055,
+        "budget_a": 4096,
+        "budget_b": 4096,
+        "mean_cost_a": 12963291320426.768,
+        "mean_cost_b": 15824882740157.027,
+        "mean_prompt_tokens_a": 569.2246445497631,
+        "mean_prompt_tokens_b": 1720.4682464454977,
+        "mean_cost_with_prompt_a": 14931444200080.137,
+        "mean_cost_with_prompt_b": 54256002790521.33,
+        "clustered": {
+          "contest": {
+            "k": 250,
+            "value": 1.4218009478672986,
+            "se": 0.9944620582026445,
+            "t": 1.4297186465183107,
+            "df": 249,
+            "p": 0.15405126440462358,
+            "verdict": "noise"
+          },
+          "platform": {
+            "k": 3,
+            "value": 1.4218009478672986,
+            "se": 2.0320442009478517,
+            "t": 0.699689970918987,
+            "df": 2,
+            "p": 0.5565508548600668,
+            "verdict": "noise"
+          }
+        },
+        "measure": "pass@budget difference at equal cost",
+        "outcome": "confirmed",
+        "excluded": {
+          "not_scored_a": 0,
+          "not_scored_b": 0,
+          "missing_a": 0,
+          "missing_b": 0,
+          "total": 0
+        },
+        "p_holm": 0.1830172222885626,
+        "verdict_holm": "noise"
+      }
+    ]
+  },
+  "reading": [
+    {
+      "id": "L1",
+      "outcome": "refuted",
+      "outcome_other_run": "refuted",
+      "depends_on_sampling": false,
+      "text": "L1: refuted on both runs (lfm3-1.7b z = +36.15, lfm3-1.7b-cardsampling z = +36.92); descriptive, verdict with the SE clustered by contest (k = 250): clear on lfm3-1.7b, clear on lfm3-1.7b-cardsampling; by platform (k = 3): likely on lfm3-1.7b, likely on lfm3-1.7b-cardsampling; exploratory, after extraction rule F1: z = +35.13 (clear) on lfm3-1.7b, z = +36.01 (clear) on lfm3-1.7b-cardsampling"
+    },
+    {
+      "id": "L2",
+      "outcome": "refuted",
+      "outcome_other_run": "refuted",
+      "depends_on_sampling": false,
+      "text": "L2: refuted on both runs (lfm3-1.7b z = +15.44, lfm3-1.7b-cardsampling z = +15.90)"
+    },
+    {
+      "id": "L3",
+      "outcome": "refuted",
+      "outcome_other_run": "confirmed",
+      "depends_on_sampling": true,
+      "text": "L3: the protocol's rule gives `refuted` on lfm3-1.7b, the verdict run (z = +3.78, clear), but `confirmed` on lfm3-1.7b-cardsampling (z = +1.33, noise): L3 depends on the sampling settings, so the question it asks is unresolved; descriptive, verdict with the SE clustered by contest (k = 250): clear on lfm3-1.7b, noise on lfm3-1.7b-cardsampling; by platform (k = 3): noise on lfm3-1.7b, noise on lfm3-1.7b-cardsampling; exploratory, after extraction rule F1: z = +2.62 (likely) on lfm3-1.7b, z = +0.18 (noise) on lfm3-1.7b-cardsampling"
+    }
+  ],
+  "descriptive": [
+    {
+      "status": "ok",
+      "a": "lfm3-1.7b",
+      "b": "bielik-11b-v3.1",
+      "excluded": {
+        "not_scored_a": 0,
+        "not_scored_b": 0,
+        "missing_a": 0,
+        "missing_b": 0,
+        "total": 0
+      },
+      "overall": {
+        "value": 55.35545023696683,
+        "se": 1.5312429848065683,
+        "z": 36.15066373281019,
+        "p": 3.6322127837395033e-286,
+        "verdict": "clear",
+        "n": 1055,
+        "clustered": {
+          "contest": {
+            "k": 250,
+            "value": 55.35545023696683,
+            "se": 1.6705542093287749,
+            "t": 33.135979621522445,
+            "df": 249,
+            "p": 2.93916462844707e-93,
+            "verdict": "clear"
+          },
+          "platform": {
+            "k": 3,
+            "value": 55.35545023696683,
+            "se": 3.756428646490085,
+            "t": 14.73619105974224,
+            "df": 2,
+            "p": 0.004573431871096279,
+            "verdict": "likely"
+          }
+        }
+      },
+      "per_difficulty": {
+        "easy": {
+          "value": 50.621118012422365,
+          "se": 2.790512526989531,
+          "z": 18.140437472622132,
+          "p": 1.5280997295837795e-73,
+          "verdict": "clear",
+          "n": 322
+        },
+        "medium": {
+          "value": 72.84595300261097,
+          "se": 2.275560129769153,
+          "z": 32.01231734096208,
+          "p": 7.348745468779261e-225,
+          "verdict": "clear",
+          "n": 383
+        },
+        "hard": {
+          "value": 40.57142857142857,
+          "se": 2.6284219288671924,
+          "z": 15.435660510150363,
+          "p": 9.423076032079747e-54,
+          "verdict": "clear",
+          "n": 350
+        }
+      },
+      "equal_cost": {
+        "value": 4.075829383886256,
+        "se": 1.0781131947497185,
+        "z": 3.780520824469132,
+        "p": 0.00015650062789564768,
+        "verdict": "clear",
+        "n": 1055,
+        "budget_a": 4096,
+        "budget_b": 4096,
+        "mean_cost_a": 12897528037732.217,
+        "mean_cost_b": 15824882740157.027,
+        "mean_prompt_tokens_a": 569.2246445497631,
+        "mean_prompt_tokens_b": 1720.4682464454977,
+        "mean_cost_with_prompt_a": 14865680917385.586,
+        "mean_cost_with_prompt_b": 54256002790521.33,
+        "clustered": {
+          "contest": {
+            "k": 250,
+            "value": 4.075829383886256,
+            "se": 1.0131261776238532,
+            "t": 4.023022476277879,
+            "df": 249,
+            "p": 7.624633574296245e-05,
+            "verdict": "clear"
+          },
+          "platform": {
+            "k": 3,
+            "value": 4.075829383886256,
+            "se": 1.3603882799896085,
+            "t": 2.996077990261272,
+            "df": 2,
+            "p": 0.09568131723205912,
+            "verdict": "noise"
+          }
+        },
+        "pairs": [
+          {
+            "budget_a": 4096,
+            "budget_b": 4096,
+            "mean_cost_a": 12897528037732.217,
+            "mean_cost_b": 15824882740157.027
+          },
+          {
+            "budget_a": 4096,
+            "budget_b": 16384,
+            "mean_cost_a": 12897528037732.217,
+            "mean_cost_b": 15824882740157.027
+          },
+          {
+            "budget_a": 4096,
+            "budget_b": null,
+            "mean_cost_a": 12897528037732.217,
+            "mean_cost_b": 15824882740157.027
+          },
+          {
+            "budget_a": 16384,
+            "budget_b": 4096,
+            "mean_cost_a": 38009401074356.05,
+            "mean_cost_b": 15824882740157.027
+          },
+          {
+            "budget_a": 16384,
+            "budget_b": 16384,
+            "mean_cost_a": 38009401074356.05,
+            "mean_cost_b": 15824882740157.027
+          },
+          {
+            "budget_a": 16384,
+            "budget_b": null,
+            "mean_cost_a": 38009401074356.05,
+            "mean_cost_b": 15824882740157.027
+          },
+          {
+            "budget_a": null,
+            "budget_b": 4096,
+            "mean_cost_a": 56281663296324.67,
+            "mean_cost_b": 15824882740157.027
+          },
+          {
+            "budget_a": null,
+            "budget_b": 16384,
+            "mean_cost_a": 56281663296324.67,
+            "mean_cost_b": 15824882740157.027
+          },
+          {
+            "budget_a": null,
+            "budget_b": null,
+            "mean_cost_a": 56281663296324.67,
+            "mean_cost_b": 15824882740157.027
+          }
+        ]
+      },
+      "v6_only": {
+        "value": 41.14285714285714,
+        "se": 3.7305441811354063,
+        "z": 11.028647603453699,
+        "p": 2.7801419265734047e-28,
+        "verdict": "clear",
+        "n": 175
+      }
+    },
+    {
+      "status": "ok",
+      "a": "lfm3-1.7b-cardsampling",
+      "b": "bielik-11b-v3.1",
+      "excluded": {
+        "not_scored_a": 0,
+        "not_scored_b": 0,
+        "missing_a": 0,
+        "missing_b": 0,
+        "total": 0
+      },
+      "overall": {
+        "value": 56.39810426540285,
+        "se": 1.5274416673828,
+        "z": 36.92324588868809,
+        "p": 1.958050623986753e-298,
+        "verdict": "clear",
+        "n": 1055,
+        "clustered": {
+          "contest": {
+            "k": 250,
+            "value": 56.39810426540285,
+            "se": 1.678705575470238,
+            "t": 33.59618570969757,
+            "df": 249,
+            "p": 1.7710473222058846e-94,
+            "verdict": "clear"
+          },
+          "platform": {
+            "k": 3,
+            "value": 56.39810426540285,
+            "se": 3.481545685682743,
+            "t": 16.199156741596223,
+            "df": 2,
+            "p": 0.003789145710932906,
+            "verdict": "likely"
+          }
+        }
+      },
+      "per_difficulty": {
+        "easy": {
+          "value": 51.5527950310559,
+          "se": 2.7893817510775816,
+          "z": 18.48179977915904,
+          "p": 2.8936574337486133e-76,
+          "verdict": "clear",
+          "n": 322
+        },
+        "medium": {
+          "value": 73.62924281984334,
+          "se": 2.254523599135725,
+          "z": 32.65844848466844,
+          "p": 6.079683994642817e-234,
+          "verdict": "clear",
+          "n": 383
+        },
+        "hard": {
+          "value": 42.0,
+          "se": 2.6419581172701703,
+          "z": 15.89729970564292,
+          "p": 6.615545333055832e-57,
+          "verdict": "clear",
+          "n": 350
+        }
+      },
+      "equal_cost": {
+        "value": 1.4218009478672986,
+        "se": 1.0678011026136107,
+        "z": 1.331522269818993,
+        "p": 0.1830172222885626,
+        "verdict": "noise",
+        "n": 1055,
+        "budget_a": 4096,
+        "budget_b": 4096,
+        "mean_cost_a": 12963291320426.768,
+        "mean_cost_b": 15824882740157.027,
+        "mean_prompt_tokens_a": 569.2246445497631,
+        "mean_prompt_tokens_b": 1720.4682464454977,
+        "mean_cost_with_prompt_a": 14931444200080.137,
+        "mean_cost_with_prompt_b": 54256002790521.33,
+        "clustered": {
+          "contest": {
+            "k": 250,
+            "value": 1.4218009478672986,
+            "se": 0.9944620582026445,
+            "t": 1.4297186465183107,
+            "df": 249,
+            "p": 0.15405126440462358,
+            "verdict": "noise"
+          },
+          "platform": {
+            "k": 3,
+            "value": 1.4218009478672986,
+            "se": 2.0320442009478517,
+            "t": 0.699689970918987,
+            "df": 2,
+            "p": 0.5565508548600668,
+            "verdict": "noise"
+          }
+        },
+        "pairs": [
+          {
+            "budget_a": 4096,
+            "budget_b": 4096,
+            "mean_cost_a": 12963291320426.768,
+            "mean_cost_b": 15824882740157.027
+          },
+          {
+            "budget_a": 4096,
+            "budget_b": 16384,
+            "mean_cost_a": 12963291320426.768,
+            "mean_cost_b": 15824882740157.027
+          },
+          {
+            "budget_a": 4096,
+            "budget_b": null,
+            "mean_cost_a": 12963291320426.768,
+            "mean_cost_b": 15824882740157.027
+          },
+          {
+            "budget_a": 16384,
+            "budget_b": 4096,
+            "mean_cost_a": 40543827403480.93,
+            "mean_cost_b": 15824882740157.027
+          },
+          {
+            "budget_a": 16384,
+            "budget_b": 16384,
+            "mean_cost_a": 40543827403480.93,
+            "mean_cost_b": 15824882740157.027
+          },
+          {
+            "budget_a": 16384,
+            "budget_b": null,
+            "mean_cost_a": 40543827403480.93,
+            "mean_cost_b": 15824882740157.027
+          },
+          {
+            "budget_a": null,
+            "budget_b": 4096,
+            "mean_cost_a": 66299637226066.5,
+            "mean_cost_b": 15824882740157.027
+          },
+          {
+            "budget_a": null,
+            "budget_b": 16384,
+            "mean_cost_a": 66299637226066.5,
+            "mean_cost_b": 15824882740157.027
+          },
+          {
+            "budget_a": null,
+            "budget_b": null,
+            "mean_cost_a": 66299637226066.5,
+            "mean_cost_b": 15824882740157.027
+          }
+        ]
+      },
+      "v6_only": {
+        "value": 41.14285714285714,
+        "se": 3.7305441811354063,
+        "z": 11.028647603453699,
+        "p": 2.7801419265734047e-28,
+        "verdict": "clear",
+        "n": 175
+      }
+    }
+  ],
+  "extraction": {
+    "lfm3-1.7b": {
+      "answered": 1055,
+      "empty_code": 1
+    },
+    "lfm3-1.7b-cardsampling": {
+      "answered": 1055,
+      "empty_code": 0
+    },
+    "bielik-11b-v3.1": {
+      "answered": 1055,
+      "empty_code": 51
+    }
+  },
+  "exploratory_extraction": {
+    "file": "extraction-f1.json",
+    "sha256": "14f80b9e86e065db484adb2706a4387ae211f24c8460b10319ca046dad36edf1",
+    "rule": "F1: with exactly one line containing three backticks, the lines before it (after it when only whitespace precedes it); with none, the whole text; otherwise LiveCodeBench's extraction (the last two such lines)",
+    "status": "added after the results; not a protocol test, the official results stand",
+    "runs": {
+      "lfm3-1.7b": {
+        "answered": 1055,
+        "fence_lines": {
+          "0": 1,
+          "2": 45,
+          "4": 162,
+          "5": 1,
+          "6": 170,
+          "7": 1,
+          "8": 125,
+          "10": 109,
+          "11": 2,
+          "12": 76,
+          "14": 65,
+          "16": 67,
+          "18": 50,
+          "20": 21,
+          "22": 35,
+          "24": 20,
+          "26": 21,
+          "28": 19,
+          "29": 1,
+          "30": 19,
+          "32": 8,
+          "34": 6,
+          "36": 10,
+          "38": 8,
+          "42": 3,
+          "44": 2,
+          "46": 2,
+          "48": 2,
+          "50": 2,
+          "56": 1,
+          "80": 1
+        },
+        "empty_code": 1,
+        "changed": 1,
+        "passing_after_f1": 0,
+        "official_passes_lost": 0
+      },
+      "lfm3-1.7b-cardsampling": {
+        "answered": 1055,
+        "fence_lines": {
+          "2": 91,
+          "4": 215,
+          "6": 156,
+          "8": 122,
+          "10": 92,
+          "12": 64,
+          "14": 68,
+          "16": 45,
+          "18": 36,
+          "20": 28,
+          "22": 34,
+          "24": 12,
+          "26": 14,
+          "28": 14,
+          "30": 15,
+          "32": 14,
+          "34": 7,
+          "36": 4,
+          "38": 9,
+          "40": 3,
+          "42": 3,
+          "44": 5,
+          "46": 1,
+          "48": 1,
+          "50": 1,
+          "64": 1
+        },
+        "empty_code": 0,
+        "changed": 0,
+        "passing_after_f1": 0,
+        "official_passes_lost": 0
+      },
+      "bielik-11b-v3.1": {
+        "answered": 1055,
+        "fence_lines": {
+          "1": 50,
+          "2": 975,
+          "3": 4,
+          "4": 26
+        },
+        "empty_code": 51,
+        "changed": 50,
+        "passing_after_f1": 13,
+        "official_passes_lost": 0
+      }
+    },
+    "hypotheses": [
+      {
+        "run": "lfm3-1.7b",
+        "L1": {
+          "value": 54.12322274881517,
+          "se": 1.5407052465266609,
+          "z": 35.128862493867416,
+          "p": 2.4445520610500134e-270,
+          "verdict": "clear",
+          "n": 1055
+        },
+        "L3": {
+          "value": 2.843601895734597,
+          "se": 1.0860067175183883,
+          "z": 2.6184017555917642,
+          "p": 0.008834272616538753,
+          "verdict": "likely",
+          "n": 1055,
+          "budget_a": 4096,
+          "budget_b": 4096
+        }
+      },
+      {
+        "run": "lfm3-1.7b-cardsampling",
+        "L1": {
+          "value": 55.165876777251185,
+          "se": 1.5318607817211056,
+          "z": 36.01233051692215,
+          "p": 5.364319018312712e-284,
+          "verdict": "clear",
+          "n": 1055
+        },
+        "L3": {
+          "value": 0.18957345971563982,
+          "se": 1.0812317936978475,
+          "z": 0.1753310074866486,
+          "p": 0.8608195486733912,
+          "verdict": "noise",
+          "n": 1055,
+          "budget_a": 4096,
+          "budget_b": 4096
+        }
+      }
+    ],
+    "machine": {
+      "cpu": "Apple M5 Pro",
+      "platform": "macOS-26.6-arm64-arm-64bit",
+      "processes": 8,
+      "scored_official_runs": true
+    }
+  },
+  "exploratory_cost": [
+    {
+      "reading": "exact cost",
+      "run": "lfm3-1.7b",
+      "grades": "official",
+      "budget_a": 5201,
+      "budget_b": 4096,
+      "mean_cost_a": 15824820009558.385,
+      "mean_cost_b": 15824882740157.027,
+      "cost_ratio": 0.9999960359517557,
+      "value": 8.72037914691943,
+      "se": 1.1219724555931752,
+      "z": 7.772364734488118,
+      "p": 7.703424997853918e-15,
+      "verdict": "clear",
+      "n": 1055,
+      "platform": {
+        "k": 3,
+        "value": 8.72037914691943,
+        "se": 1.2498973156810678,
+        "t": 6.976876450180794,
+        "df": 2,
+        "p": 0.01993152645215536,
+        "verdict": "likely"
+      }
+    },
+    {
+      "reading": "exact cost",
+      "run": "lfm3-1.7b",
+      "grades": "after F1",
+      "budget_a": 5201,
+      "budget_b": 4096,
+      "mean_cost_a": 15824820009558.385,
+      "mean_cost_b": 15824882740157.027,
+      "cost_ratio": 0.9999960359517557,
+      "value": 7.488151658767772,
+      "se": 1.1264006729153957,
+      "z": 6.647857941514395,
+      "p": 2.9738911632557936e-11,
+      "verdict": "clear",
+      "n": 1055,
+      "platform": {
+        "k": 3,
+        "value": 7.488151658767772,
+        "se": 1.4921491228467378,
+        "t": 5.018366826823446,
+        "df": 2,
+        "p": 0.03748905182233695,
+        "verdict": "likely"
+      }
+    },
+    {
+      "reading": "prompt counted",
+      "run": "lfm3-1.7b",
+      "grades": "official",
+      "budget_a": null,
+      "budget_b": 4096,
+      "mean_cost_a": 58249816175978.04,
+      "mean_cost_b": 54256002790521.33,
+      "cost_ratio": 1.0736105348725475,
+      "value": 55.35545023696683,
+      "se": 1.5312429848065683,
+      "z": 36.15066373281019,
+      "p": 3.6322127837395033e-286,
+      "verdict": "clear",
+      "n": 1055,
+      "platform": {
+        "k": 3,
+        "value": 55.35545023696683,
+        "se": 3.756428646490085,
+        "t": 14.73619105974224,
+        "df": 2,
+        "p": 0.004573431871096279,
+        "verdict": "likely"
+      }
+    },
+    {
+      "reading": "prompt counted",
+      "run": "lfm3-1.7b",
+      "grades": "after F1",
+      "budget_a": null,
+      "budget_b": 4096,
+      "mean_cost_a": 58249816175978.04,
+      "mean_cost_b": 54256002790521.33,
+      "cost_ratio": 1.0736105348725475,
+      "value": 54.12322274881517,
+      "se": 1.5407052465266609,
+      "z": 35.128862493867416,
+      "p": 2.4445520610500134e-270,
+      "verdict": "clear",
+      "n": 1055,
+      "platform": {
+        "k": 3,
+        "value": 54.12322274881517,
+        "se": 3.5181738449832105,
+        "t": 15.383896627505472,
+        "df": 2,
+        "p": 0.00419880107914357,
+        "verdict": "likely"
+      }
+    },
+    {
+      "reading": "exact cost",
+      "run": "lfm3-1.7b-cardsampling",
+      "grades": "official",
+      "budget_a": 5136,
+      "budget_b": 4096,
+      "mean_cost_a": 15824839673651.686,
+      "mean_cost_b": 15824882740157.027,
+      "cost_ratio": 0.9999972785576962,
+      "value": 5.213270142180095,
+      "se": 1.0817992784590118,
+      "z": 4.819073414068301,
+      "p": 1.4422647961385453e-06,
+      "verdict": "clear",
+      "n": 1055,
+      "platform": {
+        "k": 3,
+        "value": 5.213270142180095,
+        "se": 1.8697558396791991,
+        "t": 2.788209043954399,
+        "df": 2,
+        "p": 0.10816045051665946,
+        "verdict": "noise"
+      }
+    },
+    {
+      "reading": "exact cost",
+      "run": "lfm3-1.7b-cardsampling",
+      "grades": "after F1",
+      "budget_a": 5136,
+      "budget_b": 4096,
+      "mean_cost_a": 15824839673651.686,
+      "mean_cost_b": 15824882740157.027,
+      "cost_ratio": 0.9999972785576962,
+      "value": 3.9810426540284363,
+      "se": 1.0826105797870353,
+      "z": 3.677261915186126,
+      "p": 0.00023575094347946015,
+      "verdict": "clear",
+      "n": 1055,
+      "platform": {
+        "k": 3,
+        "value": 3.9810426540284363,
+        "se": 2.1110860167515995,
+        "t": 1.8857794625318975,
+        "df": 2,
+        "p": 0.19997535373681613,
+        "verdict": "noise"
+      }
+    },
+    {
+      "reading": "prompt counted",
+      "run": "lfm3-1.7b-cardsampling",
+      "grades": "official",
+      "budget_a": null,
+      "budget_b": 4096,
+      "mean_cost_a": 68267790105719.87,
+      "mean_cost_b": 54256002790521.33,
+      "cost_ratio": 1.258253217976582,
+      "value": 56.39810426540285,
+      "se": 1.5274416673828,
+      "z": 36.92324588868809,
+      "p": 1.958050623986753e-298,
+      "verdict": "clear",
+      "n": 1055,
+      "platform": {
+        "k": 3,
+        "value": 56.39810426540285,
+        "se": 3.481545685682743,
+        "t": 16.199156741596223,
+        "df": 2,
+        "p": 0.003789145710932906,
+        "verdict": "likely"
+      }
+    },
+    {
+      "reading": "prompt counted",
+      "run": "lfm3-1.7b-cardsampling",
+      "grades": "after F1",
+      "budget_a": null,
+      "budget_b": 4096,
+      "mean_cost_a": 68267790105719.87,
+      "mean_cost_b": 54256002790521.33,
+      "cost_ratio": 1.258253217976582,
+      "value": 55.165876777251185,
+      "se": 1.5318607817211056,
+      "z": 36.01233051692215,
+      "p": 5.364319018312712e-284,
+      "verdict": "clear",
+      "n": 1055,
+      "platform": {
+        "k": 3,
+        "value": 55.165876777251185,
+        "se": 3.2435596838300427,
+        "t": 17.00781923399372,
+        "df": 2,
+        "p": 0.003439202843950417,
+        "verdict": "likely"
+      }
+    }
+  ],
+  "parameters": {
+    "lfm3-1.7b": 1728801536,
+    "bielik-11b-v3.1": 11168796672
+  },
+  "holm_m": 3,
+  "deviations": [
+    "L2 has no single test statistic in PROTOCOL.md; its p for Holm is the largest of the three per-level two-sided p values (intersection-union: the pattern holds only if every level's sign does), its z the level's with that p.",
+    "PROTOCOL.md gives only L2's refutation; L2 is `confirmed` only with signs (+, +, -) and |z| >= 2 on every level, `refuted` with the same sign on all three levels, otherwise `not established`.",
+    "'parameters' in the cost per answer is read as the language model's exact weight count from the safetensors headers, not the rounded card figures."
+  ]
+}

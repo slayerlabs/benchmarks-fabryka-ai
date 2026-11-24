@@ -1,0 +1,185 @@
+{
+ "model": "bielik-11b-v3.1",
+ "inputs_sha256": {
+  "generations.jsonl": "3917d2c8487b2f7be34d4f96bb8dd99d5112d8eafbbf1ecbe65ada5b665438b9",
+  "graded.jsonl": "cbc725a8501cd84bbc5635ed67f566046999bc251a87d3768c5b9ee053adf048"
+ },
+ "settings": {
+  "with_background": {
+   "answers_with_think_end": [
+    "11.3",
+    "26.1",
+    "27.3",
+    "36.2",
+    "39.3",
+    "52.4",
+    "72.1",
+    "73.7"
+   ],
+   "answers_whose_code_differs": [
+    "11.3",
+    "26.1",
+    "36.2",
+    "52.4",
+    "72.1",
+    "73.7"
+   ],
+   "files_differing": [
+    "11.3",
+    "11.4",
+    "11.5",
+    "11.6",
+    "11.7",
+    "11.8",
+    "11.9",
+    "11.10",
+    "11.11",
+    "11.12",
+    "26.1",
+    "26.2",
+    "26.3",
+    "36.2",
+    "36.3",
+    "52.4",
+    "72.1",
+    "72.2",
+    "72.3",
+    "72.4",
+    "72.5",
+    "72.6",
+    "72.7",
+    "72.8",
+    "72.9",
+    "73.7",
+    "73.8",
+    "73.9"
+   ],
+   "passed_after_think": 7,
+   "passed_whole_answer": 7,
+   "verdicts_changed": {},
+   "verdicts_of_differing_files": {
+    "11.3": [
+     "fail",
+     "fail"
+    ],
+    "11.4": [
+     "fail",
+     "fail"
+    ],
+    "11.5": [
+     "fail",
+     "fail"
+    ],
+    "11.6": [
+     "fail",
+     "fail"
+    ],
+    "11.7": [
+     "fail",
+     "fail"
+    ],
+    "11.8": [
+     "fail",
+     "fail"
+    ],
+    "11.9": [
+     "fail",
+     "fail"
+    ],
+    "11.10": [
+     "fail",
+     "fail"
+    ],
+    "11.11": [
+     "fail",
+     "fail"
+    ],
+    "11.12": [
+     "fail",
+     "fail"
+    ],
+    "26.1": [
+     "fail",
+     "fail"
+    ],
+    "26.2": [
+     "fail",
+     "fail"
+    ],
+    "26.3": [
+     "fail",
+     "fail"
+    ],
+    "36.2": [
+     "fail",
+     "fail"
+    ],
+    "36.3": [
+     "fail",
+     "fail"
+    ],
+    "52.4": [
+     "fail",
+     "fail"
+    ],
+    "72.1": [
+     "fail",
+     "fail"
+    ],
+    "72.2": [
+     "fail",
+     "fail"
+    ],
+    "72.3": [
+     "fail",
+     "fail"
+    ],
+    "72.4": [
+     "fail",
+     "fail"
+    ],
+    "72.5": [
+     "fail",
+     "fail"
+    ],
+    "72.6": [
+     "fail",
+     "fail"
+    ],
+    "72.7": [
+     "fail",
+     "fail"
+    ],
+    "72.8": [
+     "fail",
+     "fail"
+    ],
+    "72.9": [
+     "fail",
+     "fail"
+    ],
+    "73.7": [
+     "fail",
+     "fail"
+    ],
+    "73.8": [
+     "fail",
+     "fail"
+    ],
+    "73.9": [
+     "fail",
+     "fail"
+    ]
+   }
+  },
+  "without_background": {
+   "answers_with_think_end": [],
+   "answers_whose_code_differs": [],
+   "files_differing": [],
+   "passed_after_think": 5,
+   "passed_whole_answer": 5,
+   "verdicts_changed": {},
+   "verdicts_of_differing_files": {}
+  }
+ }
+}

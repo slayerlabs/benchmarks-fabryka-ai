@@ -1,0 +1,20 @@
+{
+ "model": "lfm3-1.7b-nothink",
+ "setting": "without_background",
+ "steps": 1,
+ "same": 1,
+ "differ": [],
+ "rows": [
+  {
+   "step": "14.2",
+   "kept": "fail",
+   "rescored": "fail",
+   "same": true
+  }
+ ],
+ "scorer_seconds": 1.7,
+ "graded_sha256": "4104a2c818613bd4ec4cf605a11500ce5078c05fe3b9a65a8d7316d2346325a7",
+ "files_sha256": {
+  "14.2": "1a071d3c85dda208f80dde8890cada1cbd4e9663699a8a928d3b5c88b7f8647d"
+ }
+}

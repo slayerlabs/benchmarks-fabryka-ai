@@ -1,0 +1,764 @@
+"""The results page: every published result in one place, normalized, with Slayer 1B first.
+
+`python -m codesota.leaderboard` reads the results the research pipeline published and writes `benchmarks/results/`:
+
+- `results.jsonl`: one line per benchmark, model, and metric, with its uncertainty, protocol, and source file;
+- `README.md`: the latest Slayer 1B next to the headline reference models, by category and language;
+- `all-models.md`: every model of every run, by category;
+- `instruction-following.md`: instruction-following benchmarks, which use a different protocol per model;
+- `charts/headline-table*.svg`: the headline table as an image, light and dark.
+
+The source files stay where they are: this module only reads them. Nothing here is recomputed; values, standard
+errors, and counts are those of the source. `python -m codesota.leaderboard --check` fails when the files differ from
+what the sources give (`tests/test_leaderboard.py` runs it).
+"""
+
+import argparse
+import json
+import sys
+from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import asdict, dataclass
+from pathlib import Path
+from typing import Final
+
+from codesota import catalog
+
+PACKAGE = Path(__file__).resolve().parent
+BENCHMARKS = PACKAGE.parent.parent
+REPO = BENCHMARKS.parent
+OUT = BENCHMARKS / "results"
+FULL_RUN = "research/results/full-run-2026-11"
+IFEVAL_API = "research/api-benchmarks/ifeval/results"
+
+# Benchmark categories, in display order, as in the README's "Evaluation domains".
+CATEGORIES: Final[dict[str, tuple[str, ...]]] = {
+    "Reasoning and science": ("arc-easy", "arc-challenge", "mathqa"),
+    "Commonsense": ("hellaswag", "piqa", "winogrande", "social-iqa", "wsc273", "ewok"),
+    "Knowledge (medical)": ("medmcqa", "pubmedqa"),
+    "Language modeling and linguistics": ("lambada", "wikitext-2", "blimp"),
+    "Polish": ("multiblimp-pl",),
+    "Instruction following": ("ifeval",),
+}
+CATEGORY_OF: Final = {b: c for c, bs in CATEGORIES.items() for b in bs}
+
+
+@dataclass(frozen=True)
+class Model:
+    label: str
+    name: str
+    kind: str  # "base" or "instruct"
+    family: str
+
+
+# The latest Slayer first, then the headline references (the maintainers' choice), then everything else.
+LATEST_SLAYER: Final = "slayer1b-1.09-k70000"
+HEADLINE: Final = (LATEST_SLAYER, "bielik-11b-v3-instruct", "lfm3-1.7b-base", "bielik-1.5b-v3", "qwen3.5-0.8b-base")
+MODELS: Final[dict[str, Model]] = {
+    m.label: m
+    for m in (
+        Model(LATEST_SLAYER, "Slayer 1B 1.09 (step 70 000, training in progress)", "base", "Slayer"),
+        Model("slayer1b-1.09-k40000", "Slayer 1B 1.09 (step 40 000)", "base", "Slayer"),
+        Model("bielik-11b-v3-instruct", "Bielik 11B v3.0 Instruct", "instruct", "Bielik"),
+        Model("lfm3-1.7b-base", "LFM3-1.7B-Base", "base", "Liquid"),
+        Model("bielik-1.5b-v3", "Bielik 1.5B v3", "base", "Bielik"),
+        Model("qwen3.5-0.8b-base", "Qwen3.5-0.8B-Base", "base", "Qwen"),
+        Model("lfm3-1.7b", "LFM3-1.7B", "instruct", "Liquid"),
+        Model("lfm2.5-1.2b-base", "LFM2.5-1.2B-Base", "base", "Liquid"),
+        Model("eurollm-1.7b", "EuroLLM-1.7B", "base", "EuroLLM"),
+        Model("pythia-1b-v0", "Pythia-1B v0", "base", "Pythia"),
+        *(
+            Model(f"slayer1b-{v}", f"Slayer 1B {v.removesuffix('-hf')}", "base", "Slayer")
+            for v in ("1.08", "1.07-hf", "1.06", "1.05", "1.04", "1.03", "1.02", "1.01", "1.00")
+        ),
+        Model("bielik-11b-v3.1", "Bielik 11B v3.1 Instruct", "instruct", "Bielik"),
+        Model("bielik-11b-v3.1-vllm", "Bielik 11B v3.1 Instruct", "instruct", "Bielik"),
+        Model("bielik-11b-v3.1-vllm-no-provider", "Bielik 11B v3.1 Instruct", "instruct", "Bielik"),
+        Model("lfm3-1.7b-ifeval", "LFM3-1.7B", "instruct", "Liquid"),
+        Model("slayer1b-1.08-modal", "Slayer 1B 1.08", "base", "Slayer"),
+    )
+}
+
+# Protocols of the sources, described once and referenced by every result.
+PROTOCOLS: Final[dict[str, str]] = {
+    "full-run-2026-11": (
+        "research central run of November 2026: 0-shot log-likelihood scoring through lm-eval, full test sets, "
+        "float32 (Bielik 11B: bfloat16), batch 1, no chat template. Slayer requests start with one BOS token, the "
+        "reference models' requests with none (measured on Pythia-1B v0 only: at most 0.0105 difference)."
+    ),
+    "ifeval-api": (
+        "IFEval (#313): lm-eval 0.4.9.1, 541 prompts. Slayer: local GPU, raw prompt, greedy, up to 1280 tokens. "
+        "Bielik: Fabryka API with its chat template, temperature 0.6, top_p 0.95. The protocols differ per model."
+    ),
+}
+
+
+@dataclass(frozen=True)
+class Result:
+    benchmark: str
+    legacy_id: str | None
+    category: str
+    language: str
+    metric: str
+    unit: str
+    higher_is_better: bool
+    model: str
+    model_name: str
+    repo: str | None
+    revision: str | None
+    value: float
+    se: float | None
+    n: int
+    protocol: str
+    variant: str
+    harness: str
+    codesota_status: str
+    source: str
+    se_source: str
+    review_flag: str
+    """The research review's flag of this result (`ok`, or `do_sprawdzenia`: to be checked), `ok` where the source
+    has no review."""
+    review_notes: tuple[str, ...]
+
+
+# Benchmarks whose requests have no context to put a BOS token before (empty context, rolling windows), and the one
+# whose own code applies the card's rule instead of the run's (research/results/full-run-2026-11/README.md).
+NO_BOS: Final = frozenset({"blimp", "wikitext-2"})
+CARD_BOS: Final = frozenset({"ewok"})
+
+
+def bos_variant(benchmark: str, family: str) -> str:
+    if benchmark in NO_BOS:
+        return "BOS not applicable (empty context or rolling windows)"
+    if benchmark in CARD_BOS:
+        return "BOS as the card's rule gives it (tokenizer-dependent)"
+    return "one BOS" if family == "Slayer" else "no BOS"
+
+
+def review(repo: Path = REPO) -> dict[tuple[str, str], tuple[str, tuple[str, ...]]]:
+    """The research review of the full run (`przeglad.jsonl`): flag and notes per benchmark and model."""
+    out = {}
+    for line in (repo / FULL_RUN / "przeglad.jsonl").read_text(encoding="utf-8").splitlines():
+        row = json.loads(line)
+        out[(row["benchmark"], row["model"])] = (row["flaga"], tuple(row["uwagi"]))
+    return out
+
+
+def _status(benchmark: str) -> str:
+    b = catalog.CATALOG.get(benchmark)
+    return b.status if b else "not-implemented"
+
+
+def _source(repo: Path, run_dir: str) -> str:
+    """The result file of one run: results.json, or results_rozszerzone.json where the benchmark's own code wrote
+    only that one (EWoK)."""
+    for name in ("results.json", "results_rozszerzone.json"):
+        if (repo / run_dir / name).is_file():
+            return f"{run_dir}/{name}"
+    raise FileNotFoundError(f"{run_dir}: no result file")
+
+
+def full_run(repo: Path = REPO) -> list[Result]:
+    """Every row of the full run's manifest: one benchmark on one model, with value, SE, and n as published."""
+    out = []
+    flags = review(repo)
+    for line in (repo / FULL_RUN / "manifest.jsonl").read_text(encoding="utf-8").splitlines():
+        row = json.loads(line)
+        if row["stan"] != "ok":
+            continue
+        flag, notes = flags.get((row["benchmark"], row["model"]), ("ok", ()))
+        b = catalog.CATALOG[row["benchmark"]]
+        metric = row["metryka"].split(",")[0]
+        unit = "byte_ppl" if metric == "byte_perplexity" else "percent" if metric == "accuracy" else "score"
+        model = MODELS[row["model"]]
+        out.append(
+            Result(
+                benchmark=b.id,
+                legacy_id=b.legacy_id,
+                category=CATEGORY_OF[b.id],
+                language=b.language,
+                metric=metric,
+                unit=unit,
+                higher_is_better=metric != "byte_perplexity",
+                model=model.label,
+                model_name=model.name,
+                repo=row["repo"],
+                revision=row["rewizja"],
+                value=float(row["wartosc"]),
+                se=None if row["se"] is None else float(row["se"]),
+                n=int(row["n"]),
+                protocol="full-run-2026-11",
+                variant=f"{row['dtype']}, {bos_variant(b.id, model.family)}",
+                harness=f"lm-eval {row['lm_eval']}" if row["lm_eval"] else f"own code ({b.definition})",
+                codesota_status=_status(b.id),
+                source=_source(repo, f"{FULL_RUN}/{row['benchmark']}/{row['model']}"),
+                se_source=f"{FULL_RUN}/manifest.jsonl",
+                review_flag=flag,
+                review_notes=notes,
+            )
+        )
+    return out
+
+
+# IFEval of #313: which committed result is which model, and how it ran.
+IFEVAL_ROWS: Final = (
+    ("slayer1b-1.08", "slayer1b-1.08", "local GPU, raw prompt, greedy"),
+    ("slayer1b-1.08-modal", "slayer1b-1.08-modal", "Modal A100, raw prompt, greedy"),
+    ("bielik-11b-v3.1", "bielik-11b-v3.1", "Fabryka API, chat template, sampled"),
+    ("bielik-11b-v3.1-vllm", "bielik-11b-v3.1-vllm", "own vLLM, chat template, sampled"),
+    ("bielik-11b-v3.1-vllm-no-provider", "bielik-11b-v3.1-vllm-no-provider", "own vLLM, no provider system prompt"),
+    ("lfm3-1.7b", "lfm3-1.7b-ifeval", "own vLLM, card settings, reasoning on"),
+)
+# The source README's reading of Slayer's score (research/api-benchmarks/ifeval/README.md, Deviations).
+SLAYER_IFEVAL_NOTE: Final = (
+    "Slayer 1B is a base model without a chat template; its source reads 18.11 as the score of mostly degenerate "
+    "output, not as instruction following."
+)
+
+
+def ifeval(repo: Path = REPO) -> list[Result]:
+    out = []
+    for file, label, variant in IFEVAL_ROWS:
+        path = f"{IFEVAL_API}/{file}.json"
+        row = json.loads((repo / path).read_text(encoding="utf-8"))
+        model = MODELS[label]
+        data = row["data"].split(" @ ")
+        out.append(
+            Result(
+                benchmark="ifeval",
+                legacy_id="T36",
+                category=CATEGORY_OF["ifeval"],
+                language="EN",
+                metric=row["metric"],
+                unit="percent",
+                higher_is_better=True,
+                model=label,
+                model_name=model.name,
+                repo=None,
+                revision=None,
+                value=float(row["score"]),
+                se=float(row["stderr"]),
+                n=int(row["n"]),
+                protocol="ifeval-api",
+                variant=variant,
+                harness=row["harness"].split("/")[-1] + f" (data {data[-1][:12] if len(data) > 1 else 'unknown'})",
+                codesota_status=_status("ifeval"),
+                source=path,
+                se_source=path,
+                review_flag="ok",
+                review_notes=(),
+            )
+        )
+    return out
+
+
+def collect(repo: Path = REPO) -> list[Result]:
+    order = {label: i for i, label in enumerate(MODELS)}
+    bench_order = {b: i for i, b in enumerate(CATEGORY_OF)}
+    rows = full_run(repo) + ifeval(repo)
+    return sorted(rows, key=lambda r: (bench_order[r.benchmark], order[r.model], r.metric))
+
+
+# --- formatting ---
+
+
+def shown(r: Result) -> str:
+    """Accuracies as percent with one decimal (66.6 ± 1.0); perplexity as is (1.702 ± 0.011)."""
+    if r.unit == "byte_ppl":
+        return f"{r.value:.3f}" + (f" ± {r.se:.3f}" if r.se is not None else "")
+    scale = 1.0 if r.unit == "percent" else 100.0
+    return f"{r.value * scale:.1f}" + (f" ± {r.se * scale:.1f}" if r.se is not None else "")
+
+
+def benchmark_name(benchmark: str) -> str:
+    b = catalog.CATALOG.get(benchmark)
+    return b.name if b else benchmark
+
+
+def table(rows: Sequence[Result], models: Sequence[str], benchmarks: Iterable[str]) -> list[str]:
+    by = {(r.benchmark, r.model): r for r in rows}
+    head = ["benchmark", "metric", *(f"{MODELS[m].name}" for m in models)]
+    lines = ["| " + " | ".join(head) + " |", "|" + "---|" * 2 + "---:|" * len(models)]
+    for b in benchmarks:
+        cells = [by.get((b, m)) for m in models]
+        first = next((c for c in cells if c is not None), None)
+        if first is None:
+            continue
+        arrow = "↑" if first.higher_is_better else "↓"
+        lines.append(f"| {benchmark_name(b)} | `{first.metric}` {arrow} | " + " | ".join(cell(c) for c in cells) + " |")
+    return lines
+
+
+FLAG_NOTE: Final = (
+    "† flagged `do_sprawdzenia` (to be checked) by the research review of this run "
+    f"([`przeglad.jsonl`](../../{FULL_RUN}/przeglad.jsonl), with the reasons); shown, but not checked."
+)
+SE_NOTE: Final = (
+    "Standard errors are over questions, except over minimal-pair paradigms for BLiMP, over item templates for "
+    "EWoK, over twin-sentence pairs for WinoGrande, and over schemas for WSC273."
+)
+
+
+def cell(r: Result | None) -> str:
+    if r is None:
+        return "n/a"
+    return shown(r) + (" †" if r.review_flag != "ok" else "")
+
+
+# The headline table: column headers (name and a second line) of the HEADLINE models, and its row groups, Polish
+# first, then English by category.
+HEADER: Final[dict[str, tuple[str, str]]] = {
+    LATEST_SLAYER: ("Slayer 1B", "1.09 step 70k"),
+    "bielik-11b-v3-instruct": ("Bielik 11B", "v3.0 Instruct"),
+    "lfm3-1.7b-base": ("LFM3", "1.7B Base"),
+    "bielik-1.5b-v3": ("Bielik", "1.5B v3"),
+    "qwen3.5-0.8b-base": ("Qwen3.5", "0.8B Base"),
+}
+SECTIONS: Final[tuple[tuple[str, tuple[str, ...]], ...]] = (
+    ("Polish", CATEGORIES["Polish"]),
+    ("English · reasoning and science", CATEGORIES["Reasoning and science"]),
+    ("English · commonsense", CATEGORIES["Commonsense"]),
+    ("English · medical knowledge", CATEGORIES["Knowledge (medical)"]),
+    ("English · language modeling and grammar", CATEGORIES["Language modeling and linguistics"]),
+)
+LEGEND: Final = (
+    "Accuracy in %, 0-shot · ↓ lower is better (WikiText-2: perplexity per byte) · best of the five highlighted, "
+    "second underlined · Random: chance level"
+)
+# The Slayer versions page: every Slayer of the full run, oldest first, with the same table.
+SLAYER_VERSIONS: Final = (
+    "slayer1b-1.00",
+    "slayer1b-1.01",
+    "slayer1b-1.02",
+    "slayer1b-1.03",
+    "slayer1b-1.04",
+    "slayer1b-1.05",
+    "slayer1b-1.06",
+    "slayer1b-1.07-hf",
+    "slayer1b-1.08",
+    "slayer1b-1.09-k40000",
+    LATEST_SLAYER,
+)
+SLAYER_HEADER: Final[dict[str, tuple[str, str]]] = {
+    **{m: (m.removeprefix("slayer1b-"), "") for m in SLAYER_VERSIONS[:7]},
+    "slayer1b-1.07-hf": ("1.07", "HF weights"),
+    "slayer1b-1.08": ("1.08", ""),
+    "slayer1b-1.09-k40000": ("1.09", "step 40k"),
+    LATEST_SLAYER: ("1.09", "step 70k"),
+}
+SLAYER_LEGEND: Final = (
+    "Accuracy in %, 0-shot · ↓ lower is better · best version highlighted, second underlined · Random: chance level"
+)
+
+
+def majority_level(benchmark: str, repo: Path = REPO) -> float:
+    """Score of always giving the most common answer of a test, in percent (`bazy.majority_value`)."""
+    path = repo / FULL_RUN / benchmark / LATEST_SLAYER / "results_rozszerzone.json"
+    o = json.loads(path.read_text(encoding="utf-8"))["observations"][0]
+    return 100 * float(o["dodatkowe"]["space"]["bazy"]["majority_value"])
+
+
+def chance_levels(repo: Path = REPO) -> dict[str, float | None]:
+    """Chance level of each benchmark of the tables, in percent, from its result file (`bazy.chance_value`: the mean
+    of 1 / number of options, a property of the test). None where there is none (WikiText-2)."""
+    out: dict[str, float | None] = {}
+    for _, benchmarks in SECTIONS:
+        for b in benchmarks:
+            path = repo / FULL_RUN / b / LATEST_SLAYER / "results_rozszerzone.json"
+            o = json.loads(path.read_text(encoding="utf-8"))["observations"][0]
+            space = (o.get("dodatkowe") or {}).get("space") or {}
+            c = (space.get("bazy") or {}).get("chance_value")
+            out[b] = None if c is None else 100 * c
+    return out
+
+
+def value_text(r: Result) -> str:
+    """The value alone, as the headline shows it: accuracy in percent with one decimal, perplexity with three."""
+    if r.unit == "byte_ppl":
+        return f"{r.value:.3f}"
+    return f"{r.value * (1.0 if r.unit == 'percent' else 100.0):.1f}"
+
+
+def ranks(cells: Sequence[Result | None]) -> list[int | None]:
+    """Rank of each cell among the others (1 = best), by the shown value, so equal shown values share a rank."""
+    present = [c for c in cells if c is not None]
+    values = sorted({float(value_text(c)) for c in present}, reverse=present[0].higher_is_better)
+    return [None if c is None else values.index(float(value_text(c))) + 1 for c in cells]
+
+
+Cell = tuple[str, Result | None, int | None]  # benchmark, result, rank
+
+
+def headline_rows(
+    rows: Sequence[Result], models: Sequence[str] = HEADLINE
+) -> list[tuple[str, list[tuple[str, list[Cell]]]]]:
+    """Row groups of a results table: per section, per benchmark its shown name and one cell per model."""
+    by = {(r.benchmark, r.model): r for r in rows if r.protocol == "full-run-2026-11"}
+    out = []
+    for section, benchmarks in SECTIONS:
+        lines = []
+        for b in benchmarks:
+            cells = [by.get((b, m)) for m in models]
+            if all(c is None for c in cells):
+                continue
+            first = next(c for c in cells if c is not None)
+            name = benchmark_name(b) + ("" if first.higher_is_better else " ↓")
+            lines.append((name, [(b, c, k) for c, k in zip(cells, ranks(cells), strict=True)]))
+        out.append((section, lines))
+    return out
+
+
+@dataclass(frozen=True)
+class Theme:
+    background: str
+    text: str
+    muted: str
+    rule: str
+    row_rule: str
+    best_fill: str
+    accent: str
+
+
+LIGHT: Final = Theme("#ffffff", "#1f2328", "#59636e", "#d1d9e0", "#eef1f4", "#fbe3e4", "#b3202e")
+DARK: Final = Theme("#0d1117", "#e6edf3", "#9198a1", "#3d444d", "#21262d", "#4a1d22", "#ff8a80")
+FONT: Final = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
+
+
+def _esc(text: str) -> str:
+    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def headline_svg(
+    rows: Sequence[Result],
+    t: Theme,
+    chance: Mapping[str, float | None],
+    models: Sequence[str] = HEADLINE,
+    header: Mapping[str, tuple[str, str]] = HEADER,
+    legend: str = LEGEND,
+    col: int = 100,
+) -> str:
+    """A results table as an SVG image, styled as GitHub cannot style a Markdown table: no grid, the best value of
+    each row highlighted in red, the second underlined, the chance level last. Each value carries its benchmark,
+    model, and rank; each chance level its benchmark."""
+    name_width, pad, row_h = 220, 20, 34
+    width = pad * 2 + name_width + col * (len(models) + 1)
+
+    def center(i: int) -> float:
+        return pad + name_width + col * i + col / 2
+
+    body: list[str] = []
+    for i, (top, sub) in enumerate([*(header[m] for m in models), ("Random", "chance")]):
+        weight = "600" if i < len(models) else "400"
+        body.append(f'<text x="{center(i)}" y="38" text-anchor="middle" font-weight="{weight}">{_esc(top)}</text>')
+        body.append(
+            f'<text x="{center(i)}" y="56" text-anchor="middle" font-size="12" fill="{t.muted}">{_esc(sub)}</text>'
+        )
+    body.append(f'<text x="{pad}" y="56" font-size="12" fill="{t.muted}">Benchmark</text>')
+    y = 70
+    body.append(f'<line x1="{pad}" x2="{width - pad}" y1="{y}" y2="{y}" stroke="{t.rule}"/>')
+    for section, lines in headline_rows(rows, models):
+        y += row_h
+        body.append(
+            f'<text x="{pad}" y="{y - 10}" font-size="13" font-weight="600" fill="{t.muted}">{_esc(section)}</text>'
+        )
+        for name, cells in lines:
+            body.append(f'<line x1="{pad}" x2="{width - pad}" y1="{y}" y2="{y}" stroke="{t.row_rule}"/>')
+            y += row_h
+            base = y - 11
+            body.append(f'<text x="{pad}" y="{base}">{_esc(name)}</text>')
+            for i, (b, c, k) in enumerate(cells):
+                if k == 1:
+                    body.append(
+                        f'<rect x="{center(i) - 34}" y="{base - 16}" width="68" height="22" rx="5" '
+                        f'fill="{t.best_fill}"/>'
+                    )
+                elif k == 2:
+                    body.append(
+                        f'<line x1="{center(i) - 18}" x2="{center(i) + 18}" y1="{base + 3}" y2="{base + 3}" '
+                        f'stroke="{t.text}"/>'
+                    )
+                style = f' font-weight="700" fill="{t.accent}"' if k == 1 else f' fill="{t.muted}"' if c is None else ""
+                body.append(
+                    f'<text x="{center(i)}" y="{base}" text-anchor="middle"{style} data-benchmark="{b}" '
+                    f'data-model="{models[i]}" data-rank="{k or 0}">{"n/a" if c is None else value_text(c)}</text>'
+                )
+            level = chance[cells[0][0]]
+            body.append(
+                f'<text x="{center(len(models))}" y="{base}" text-anchor="middle" fill="{t.muted}" '
+                f'data-chance="{cells[0][0]}">{"n/a" if level is None else f"{level:.1f}"}</text>'
+            )
+    y += 8
+    body.append(f'<line x1="{pad}" x2="{width - pad}" y1="{y}" y2="{y}" stroke="{t.rule}"/>')
+    y += 24
+    body.append(f'<text x="{pad}" y="{y}" font-size="12" fill="{t.muted}">{_esc(legend)}</text>')
+    height = y + 16
+    return "\n".join(
+        [
+            f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+            f'viewBox="0 0 {width} {height}" font-family="{FONT}" font-size="14" fill="{t.text}">',
+            f'<rect width="{width}" height="{height}" rx="8" fill="{t.background}"/>',
+            *body,
+            "</svg>",
+            "",
+        ]
+    )
+
+
+def values_table(
+    rows: Sequence[Result],
+    chance: Mapping[str, float | None],
+    models: Sequence[str] = HEADLINE,
+    header: Mapping[str, tuple[str, str]] = HEADER,
+) -> list[str]:
+    """A table's values with their standard errors and the chance level, as an HTML table (Markdown tables have no
+    group rows)."""
+    head = "".join(f"<th>{header[m][0]}<br><sub>{header[m][1]}</sub></th>" for m in models)
+    out = ["<table>", f'<tr><th align="left">Benchmark</th>{head}<th>Random<br><sub>chance</sub></th></tr>']
+    for section, lines in headline_rows(rows, models):
+        out.append(f'<tr><td colspan="{2 + len(models)}"><b>{section}</b></td></tr>')
+        for name, cells in lines:
+            tds = "".join(f'<td align="right">{"n/a" if c is None else shown(c)}</td>' for _, c, _ in cells)
+            level = chance[cells[0][0]]
+            tds += f'<td align="right">{"n/a" if level is None else f"{level:.1f}"}</td>'
+            out.append(f"<tr><td>{name}</td>{tds}</tr>")
+    out.append("</table>")
+    return out
+
+
+K70_PROTOCOL: Final = f"../../{FULL_RUN}/slayer-1.09-k70000/PROTOKOL.md"
+K70_NOTE: Final = (
+    "Step 70 000 was measured in its own run, on 8 x RTX 4090 with the same code and settings "
+    f"([protocol]({K70_PROTOCOL})); every other result of the full run on an RTX 5090."
+)
+
+
+def readme(rows: Sequence[Result], chance: Mapping[str, float | None]) -> str:
+    ifeval_rows = {r.model: r for r in rows if r.benchmark == "ifeval"}
+    slayer_if, bielik_if = ifeval_rows["slayer1b-1.08"], ifeval_rows["bielik-11b-v3.1"]
+    lines = [
+        "# Results",
+        "",
+        "Slayer 1B next to its reference models, on the same benchmarks with the same settings.",
+        "",
+        "<picture>",
+        '  <source media="(prefers-color-scheme: dark)" srcset="charts/headline-table-dark.svg">',
+        '  <img src="charts/headline-table.svg" alt="Results table: Slayer 1B 1.09, Bielik 11B, LFM3-1.7B-Base, '
+        'Bielik 1.5B v3 and Qwen3.5-0.8B-Base on 14 benchmarks; the same values are in the Values table below" '
+        'width="100%">',
+        "</picture>",
+        "",
+        f"**Instruction following (IFEval):** Bielik 11B v3.1 Instruct {value_text(bielik_if)}, "
+        f"Slayer 1B 1.08 {value_text(slayer_if)}. Slayer is a base model without a chat template, so its score "
+        "mostly reflects broken output, not instruction following. [Details](instruction-following.md).",
+        "",
+        "[Slayer versions](slayer-versions.md) · [All models](all-models.md) · "
+        "[Instruction following](instruction-following.md) · [All results as JSONL](results.jsonl) · "
+        "[Benchmark status](../BENCHMARKS.md)",
+        "",
+        "## Notes",
+        "",
+        f"- **Slayer 1B 1.09 is a training checkpoint** (step 70 000), not a release. {K70_NOTE} Earlier versions "
+        "and step 40 000: [Slayer versions](slayer-versions.md).",
+        "- **Random** is the chance level: the score of picking an answer at random (the mean of 1 / number of "
+        f"options). On PubMedQA, always giving its most common answer scores {majority_level('pubmedqa'):.1f}.",
+        "- **Bielik 11B is about ten times larger** than the others and instruction-tuned; it is the closest Polish "
+        "reference. LFM3-1.7B (in the full tables) is instruction-tuned too. All are scored on raw text.",
+        "- **How it was measured:** the full test set of each benchmark, 0-shot, each answer scored by the "
+        "model's probability of it (lm-eval; BLiMP and EWoK: their own code), float32 (Bielik 11B: bfloat16), "
+        "no chat template. Slayer's inputs start with one BOS token, the other models' with none.",
+        "- **Small differences are noise:** a difference of one or two points is often within the standard errors "
+        "below.",
+        "- Results flagged for checking by the research review are marked † in the [full tables](all-models.md); "
+        "none is on this page.",
+        "- Generated by `python -m codesota.leaderboard` from the result files below; do not edit by hand.",
+        "",
+        "## Values",
+        "",
+        f"Value ± standard error, accuracy in %. {SE_NOTE}",
+        "",
+        *values_table(rows, chance),
+        "",
+        "## Sources",
+        "",
+        f"- Log-likelihood benchmarks: [`{FULL_RUN}/`](../../{FULL_RUN}/README.md), manifest "
+        f"[`manifest.jsonl`](../../{FULL_RUN}/manifest.jsonl) (commands, revisions, weight checksums).",
+        f"- IFEval: [`{IFEVAL_API}/`](../../{IFEVAL_API}/), per-prompt outputs in `*.jsonl.gz`.",
+        "- Every row of [`results.jsonl`](results.jsonl) names its source file.",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def slayer_versions(rows: Sequence[Result], chance: Mapping[str, float | None]) -> str:
+    """Every Slayer 1B of the full run, oldest first, as the headline: table image, notes, values with SE."""
+    return "\n".join(
+        [
+            "# Slayer 1B versions",
+            "",
+            "Every Slayer 1B release and the 1.09 training checkpoints, on the same benchmarks with the same settings. "
+            "[Back to the results](README.md).",
+            "",
+            "<picture>",
+            '  <source media="(prefers-color-scheme: dark)" srcset="charts/slayer-versions-dark.svg">',
+            '  <img src="charts/slayer-versions.svg" alt="Results table: Slayer 1B 1.00 to 1.09 step 70 000 on 14 '
+            'benchmarks; the same values are in the Values table below" width="100%">',
+            "</picture>",
+            "",
+            "## Notes",
+            "",
+            "- **1.09 is still training:** steps 40 000 and 70 000 are checkpoints, not releases. 1.09 starts from the "
+            "weights of 1.08.",
+            f"- {K70_NOTE}",
+            "- **1.07** is scored from its weights on the Hugging Face Hub (`SlayerLab/Slayer1B-1.07`).",
+            "- **A version is not better on a test because its value is higher:** differences of one or two points "
+            "are often within the standard errors below. The paired comparisons of 1.09 step 40 000 with 1.08 are in "
+            f"[its report](../../{FULL_RUN}/slayer-1.09-k40000/RAPORT.md).",
+            "- Generated by `python -m codesota.leaderboard` from the result files; do not edit by hand.",
+            "",
+            "## Values",
+            "",
+            f"Value ± standard error, accuracy in %. {SE_NOTE}",
+            "",
+            *values_table(rows, chance, SLAYER_VERSIONS, SLAYER_HEADER),
+            "",
+        ]
+    )
+
+
+def _ifeval_table(rows: Sequence[Result], models: Sequence[str]) -> list[str]:
+    lines = ["| model | how it ran | prompt-level strict accuracy | n |", "|---|---|---:|---:|"]
+    by = {r.model: r for r in rows if r.benchmark == "ifeval"}
+    for m in models:
+        r = by[m]
+        lines.append(f"| {r.model_name} | {r.variant} | {shown(r)} | {r.n} |")
+    return lines
+
+
+def all_models(rows: Sequence[Result]) -> str:
+    log_lik = [r for r in rows if r.protocol == "full-run-2026-11"]
+    present = [m for m in MODELS if any(r.model == m for r in log_lik)]
+    references = [m for m in present if MODELS[m].family != "Slayer" or m == LATEST_SLAYER]
+    slayers = [m for m in present if MODELS[m].family == "Slayer"]
+    lines = [
+        "# All models",
+        "",
+        "Generated by `python -m codesota.leaderboard`. [Back to the results](README.md). "
+        f"Protocol: {PROTOCOLS['full-run-2026-11']} {SE_NOTE}",
+        "",
+        FLAG_NOTE,
+        "",
+        "## Reference models",
+        "",
+    ]
+    for category, benchmarks in CATEGORIES.items():
+        if category != "Instruction following":
+            lines += [f"### {category}", "", *table(log_lik, references, benchmarks), ""]
+    lines += ["## Slayer 1B versions", ""]
+    for category, benchmarks in CATEGORIES.items():
+        if category != "Instruction following":
+            lines += [f"### {category}", "", *table(log_lik, slayers, benchmarks), ""]
+    lines += [
+        "## Models",
+        "",
+        f"Parameters from [`sizes.json`](../../{FULL_RUN}/sizes.json); n/a where it has no entry.",
+        "",
+        "| model | parameters | type | revision |",
+        "|---|---:|---|---|",
+    ]
+    sizes = json.loads((REPO / FULL_RUN / "sizes.json").read_text(encoding="utf-8"))
+    for m in present:
+        r = next(x for x in log_lik if x.model == m)
+        revision = (r.revision or "")[:8]
+        params = f"{sizes[m]['params'] / 1e9:.2f}B" if m in sizes else "n/a"
+        lines.append(f"| {MODELS[m].name} | {params} | {MODELS[m].kind} | `{r.repo}` @ `{revision}` |")
+    return "\n".join(lines) + "\n"
+
+
+def instruction_following(rows: Sequence[Result]) -> str:
+    lines = [
+        "# Instruction following",
+        "",
+        "Generated by `python -m codesota.leaderboard`. [Back to the results](README.md).",
+        "",
+        "## IFEval",
+        "",
+        f"{PROTOCOLS['ifeval-api']} {SLAYER_IFEVAL_NOTE}",
+        "Rows with different setups are not interchangeable measurements.",
+        "",
+        *_ifeval_table(rows, [label for _, label, _ in IFEVAL_ROWS]),
+        "",
+        f"Source: [`{IFEVAL_API}/`](../../{IFEVAL_API}/) and its README (deviations, the LFM3 card comparison).",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def jsonl(rows: Sequence[Result]) -> str:
+    return "".join(json.dumps(asdict(r), ensure_ascii=False, sort_keys=True) + "\n" for r in rows)
+
+
+SNAPSHOT_START, SNAPSHOT_END = "<!-- results-snapshot:start -->", "<!-- results-snapshot:end -->"
+# The four benchmarks with a reproduced reference (`verified`), the largest English test (HellaSwag), and the Polish
+# one.
+SNAPSHOT_BENCHMARKS: Final = ("arc-easy", "piqa", "winogrande", "lambada", "hellaswag", "multiblimp-pl")
+
+
+def snapshot(rows: Sequence[Result]) -> str:
+    """The short table of benchmarks/README.md: the latest Slayer next to Bielik 11B on SNAPSHOT_BENCHMARKS, plus
+    IFEval."""
+    log_lik = [r for r in rows if r.protocol == "full-run-2026-11"]
+    lines = [
+        SNAPSHOT_START,
+        *table(log_lik, (LATEST_SLAYER, "bielik-11b-v3-instruct"), SNAPSHOT_BENCHMARKS),
+        "",
+        *_ifeval_table(rows, ("slayer1b-1.08", "bielik-11b-v3.1")),
+        SNAPSHOT_END,
+    ]
+    return "\n".join(lines)
+
+
+def with_snapshot(readme_text: str, rows: Sequence[Result]) -> str:
+    start, end = readme_text.index(SNAPSHOT_START), readme_text.index(SNAPSHOT_END) + len(SNAPSHOT_END)
+    return readme_text[:start] + snapshot(rows) + readme_text[end:]
+
+
+def text_files(repo: Path = REPO) -> dict[str, str]:
+    rows = collect(repo)
+    chance = chance_levels(repo)
+    package_readme = (BENCHMARKS / "README.md").read_text(encoding="utf-8")
+    return {
+        "../README.md": with_snapshot(package_readme, rows),
+        "README.md": readme(rows, chance),
+        "slayer-versions.md": slayer_versions(rows, chance),
+        "all-models.md": all_models(rows),
+        "instruction-following.md": instruction_following(rows),
+        "results.jsonl": jsonl(rows),
+        "charts/headline-table.svg": headline_svg(rows, LIGHT, chance),
+        "charts/headline-table-dark.svg": headline_svg(rows, DARK, chance),
+        "charts/slayer-versions.svg": headline_svg(
+            rows, LIGHT, chance, SLAYER_VERSIONS, SLAYER_HEADER, SLAYER_LEGEND, 72
+        ),
+        "charts/slayer-versions-dark.svg": headline_svg(
+            rows, DARK, chance, SLAYER_VERSIONS, SLAYER_HEADER, SLAYER_LEGEND, 72
+        ),
+    }
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    p = argparse.ArgumentParser(prog="python -m codesota.leaderboard", description=__doc__.split("\n")[0])
+    p.add_argument("--check", action="store_true", help="fail when the text files differ from the sources")
+    args = p.parse_args(argv)
+    files = text_files()
+    if args.check:
+        stale = [n for n, t in files.items() if not (OUT / n).is_file() or (OUT / n).read_text(encoding="utf-8") != t]
+        for n in stale:
+            print(f"benchmarks/results/{n} is out of date: run python -m codesota.leaderboard", file=sys.stderr)
+        return 1 if stale else 0
+    OUT.mkdir(parents=True, exist_ok=True)
+    for n, t in files.items():
+        (OUT / n).parent.mkdir(parents=True, exist_ok=True)
+        (OUT / n).write_text(t, encoding="utf-8", newline="\n")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
