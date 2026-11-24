@@ -310,6 +310,18 @@ def test_control_and_its_rescorings():
           + ("" if n == 8 else " (the answer-cut ones need out/_box/lfm3-1.7b/131072/data)"))
 
 
+def test_answer_cut_score_next_to_the_headline():
+    """The leaderboard row and the sentence under it carry the answer-cut rescoring, the same number as its row in the
+    rescorings table (recomputed from the raw outputs by test_control_and_its_rescorings where the RULER data is
+    here)."""
+    text = readme()
+    cut = table_row(section(text, "| scoring of LFM3-1.7B at 131072", "\n\n"), CUT)[1]
+    assert re.fullmatch(rf"{NUMBER} ± {NUMBER}", cut)
+    headline = table_row(text, f"LFM3-1.7B (`{LFM3}`)")[4]
+    assert headline.endswith(f"; answer cut to RULER's answer budget (exploratory): {cut}"), headline
+    assert f"answers cut to RULER's answer budget (about 0.75 words per token) score {cut}," in text
+
+
 def test_r3_aggregation_t():
     check_r3_aggregation(readme())
 

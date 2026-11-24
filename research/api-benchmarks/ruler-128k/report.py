@@ -15,6 +15,7 @@ import json
 import sys
 from pathlib import Path
 
+import haystack
 import provenance
 
 HERE = Path(__file__).resolve().parent
@@ -31,6 +32,7 @@ PROVIDER_PROMPT_TOKENS = 1057
 TASKS = 13
 FILES = [f"{m}{ext}" for m in MODELS for ext in (".json", ".jsonl.gz")] + [
     "hypotheses.json", "diagnostics.json", "reproduction.json"]
+ANSWER_CUT = "answer cut to RULER's answer budget (about 0.75 words per token)"  # diagnostics.py control variant
 
 
 def f2(x):
@@ -91,13 +93,22 @@ def results_section(data, rows):
     out = ["## Results", "",
            "| model | thinking mode | serving | output limit | score at 131072 | strict | n | lengths measured (tasks) "
            "| date |", "|---|---|---|---|---|---|---|---|---|"]
+    cut = data["diagnostics.json"]["lfm3-1.7b"]["control_variants"]["variants"][ANSWER_CUT]
     for m, label in MODELS.items():
         r = data[f"{m}.json"]
         score = f"{f2(r['score'])} ± {f2(r['stderr'])}" if r["score"] is not None else f"null: {r['reason']}"
+        if m == "lfm3-1.7b":
+            score += f"; answer cut to RULER's answer budget (exploratory): {f2(cut['mean'])} ± {f2(cut['se'])}"
         strict = f2(r["strict"]["score"]) if r["strict"]["score"] is not None else "null"
         out.append(f"| {label} (`{m}`) | {thinking(r)} | {serving(r)} | {r['settings']['max_tokens']} "
                    f"({r['settings']['context_window']}-token window) | {score} | {strict} | {r['n'] or '-'} | "
                    f"{lengths_measured(r)} | {r['date']} |")
+    out += ["", f"LFM3-1.7B's score at 131072 is not comparable to RULER scores in the literature: RULER caps the answer "
+                f"at its per-task answer budget (30 to 128 tokens), while here the output limit is the rest of the window "
+                f"and the scorer is a substring match with no length cap, so a longer answer can only gain (Baselines). "
+                f"Next to it, LFM3-1.7B's answers cut to RULER's answer budget (about 0.75 words per token) score "
+                f"{f2(cut['mean'])} ± {f2(cut['se'])}, an exploratory rescoring made after the control failed "
+                f"(Hypotheses, Control). The next RULER run of this repo has the answer cap in its protocol."]
     echo = data["diagnostics.json"]["lfm3-1.7b"]["echo_baseline"]["per_length"]
     out += ["", "Baselines: random and majority 0 (RULER is generative: free-text answers scored by string match against "
                 "the references, with no options to guess from). A rule baseline scores high: an output that echoes the "
@@ -223,6 +234,16 @@ def r2_block(h, diag):
                    f"without {w['task']} ({f2(w['gap'])}): {f2(w['value'])} ± {f2(w['se'])}, z = {f2(w['z'])} | "
                    f"{diag['input_text']['median_chars'][bielik][length]:.0f} ({f2(ratio[length])}) |")
     out += [""] + [f"- {c[0].upper()}{c[1:]}." for c in r2["caveats"]]
+    hay = diag["haystack"]
+    part, reach = hay["pinned_part"], hay["per_model"]
+    longest = max(v["max_chars"] for per_length in reach.values() for v in per_length.values())
+    out.append(f"- The essay text the models were asked about is the same: every essay haystack of "
+               + ", ".join(f"{MODELS[m]} ({sum(v['samples'] for v in x.values())} samples, "
+                           f"{sum(v['outside'] for v in x.values())} outside)" for m, x in reach.items())
+               + f" is a prefix of the 49 GitHub essays at `{haystack.COMMIT[:8]}` (sha256 `{part['sha256'][:8]}`) that "
+               f"RULER's downloader puts first in the file; the longest uses {longest} of their "
+               f"{part['characters_without_whitespace']} characters without whitespace. Where the files differ lies past "
+               f"the text any sample uses (`diagnostics.json`, haystack; `haystack.py`).")
     return out
 
 
@@ -270,9 +291,9 @@ def notes_block(diag):
             f"samples have {', '.join(map(str, x['records_per_sample']))} records ("
             + ", ".join(f"{t} {n}" for t, n in x["samples_with_more_than_one_record"].items())
             + f"); every replaced record ended `{', '.join(x['finish_reason_of_replaced'])}`, "
-            f"{x['identical_outputs']} are identical to the last. Why they got a second record is not known: predict.py "
-            f"sends again only samples whose last record has no output, and each of these had one (Amendment 8). The "
-            f"last record is scored (`ruler.latest_records`). With "
+            f"{x['identical_outputs']} are identical to the last. Both records answer the same request: a second "
+            f"generating call on the same length sent these samples again while the first was still sending them "
+            f"(README, Deviations; Amendment 9). The last record is scored (`ruler.latest_records`). With "
             f"the first record instead the mean at {length} is {f2(x['mean']['first'])} (scored: "
             f"{f2(x['mean']['last (scored)'])}), strict {f2(x['strict_mean']['first'])} "
             f"({f2(x['strict_mean']['last (scored)'])}); R3's tracing - retrieval "
@@ -332,6 +353,10 @@ def render(results_dir=RESULTS):
              "`python3 compare.py` evaluates PROTOCOL.md as amended and writes `results/hypotheses.json`; "
              "`python3 diagnostics.py` the exploratory checks in `results/diagnostics.json`. Holm runs over the three "
              "hypotheses (m = 3) whether or not they could be decided.", "",
+             "R1-R3 are read as descriptive in this PR, not as confirmatory verdicts: 50 samples per task instead of "
+             "RULER's 500, generation provenance of LFM3-1.7B and Slayer inferred or declared after the run "
+             "(Provenance), and a failed control. The verdict and outcome columns say what the pre-registered rules "
+             "give on these data.", "",
              *control_block(h, diag), "", *hypotheses_table(h), "", *r1_block(h), "", *r2_block(h, diag), "",
              *r3_block(h), "", *notes_block(diag), "", *provenance_block(data), "", *manifest_block(Path(results_dir)),
              END]

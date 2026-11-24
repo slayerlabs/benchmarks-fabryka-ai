@@ -242,3 +242,25 @@ No pre-registered wording or threshold changes; Amendments 4 and 7 stay as writt
   Its requests to vLLM were the same, so no number moves.
 - **Two records for one sample.** Amendment 7 called them a rerun's records. `predict.py` sends again only samples
   whose last record has no output, and each of the 173 had one, so why they got a second record is not known.
+
+## Amendment 9 (2026-11-24)
+
+**Written after the external review of the PR** (four points: essay files, answer cap, duplicate records, the
+strength of R1-R3). Seen: everything in Amendment 8, the review, the run's vLLM log and the out dirs' RULER data. No
+pre-registered wording, threshold or number changes.
+
+- **Essays.** The models' `PaulGrahamEssays.json` differ (sha256 above). RULER's file is 49 essays from
+  `gkamradt/LLMTest_NeedleInAHaystack` followed by essays fetched live from paulgraham.com; the needle tasks take
+  the beginning of it. Every essay haystack of the three runs is a prefix of the GitHub part (`diagnostics.json`,
+  haystack), so the models were asked about the same essay text. From now on `run.sh` fetches the GitHub essays at
+  commit `78774ab3`, checks them by sha256 and stops when an essay haystack leaves them (`haystack.py`).
+- **Two records for one sample: cause found.** Correction of Amendment 8. The vLLM log shows a second generating
+  call on 4096 while the first was still sending (README, Deviations). From now on `predict.py` and
+  `slayer_predict.py` hold a lock per length, and `run.sh` stops when a server already answers on its port. The last
+  record stays the scored one.
+- **Answer cap.** The scores here are not comparable to RULER scores in the literature, which cap the answer at
+  RULER's per-task budget. The answer-capped rescoring (exploratory, `diagnostics.json`) is shown next to the
+  headline. The next RULER protocol of this repo caps the scored answer at RULER's per-task budget.
+- **R1-R3 are read as descriptive**, not as confirmatory verdicts: 50 samples per task, generation provenance of
+  LFM3-1.7B and Slayer inferred or declared, and a failed control. The verdict columns keep what the pre-registered
+  rules give.
