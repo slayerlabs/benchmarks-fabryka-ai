@@ -1,0 +1,3 @@
+{"benchmark": "ToolSandbox", "model": "slayer1b", "metric": "mean_similarity", "score": null, "stderr": null, "n": 0,
+ "date": "2026-11-24", "harness": "apple/ToolSandbox @ c8571d7854316d2e1c5f288e59fe1e34e53f6dd1", "settings": {}, "deviations": "see README.md",
+ "score_null_reason": "Slayer 1B is a base model without a chat template or tool-calling format, and it is not served by the Fabryka AI API (/v1/models lists no Slayer; a request returns HTTP 400 'Input should be a published model ID', with or without tools), so no tool call can be made."}

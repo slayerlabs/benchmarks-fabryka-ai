@@ -14,7 +14,7 @@ before the full run started.
 
 ## What the card states and what it does not
 
-States: ToolSandbox "greedy decoding, up to 1,024 tokens per turn". Does **not** state: the user simulator, the metric
+States: ToolSandbox "greedy decoding, up to 1024 tokens per turn". Does **not** state: the user simulator, the metric
 (the harness reports mean `similarity`, 0 to 1, from milestone and minefield matching, no judge model), the tool
 backend, the subset, whether scenarios with `RAPID_API_KEY` tools were run. Our assumptions: all 1032 scenarios,
 `--preferred_tool_backend DEFAULT`, score = mean similarity x 100.
