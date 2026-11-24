@@ -24,6 +24,10 @@ correct answers and penalizes incorrect ones, so abstaining scores better than a
 | Slayer 1B, step 60000 (`slayer1b-60000`) | -59.33 | 2.14 | 600 | 2026-11-19 |
 | LFM3-1.7B, model card | 0.50 | | | |
 
+**The judge is not the official grader.** AA-Omniscience is graded by Gemini 2.5 Flash Preview (09-2025); our grades
+come from GPT-6.1 Sol (see Deviations). The Bielik and Slayer scores therefore cannot be compared with the numbers
+published by Artificial Analysis or with the LFM3-1.7B card value 0.50 in this table.
+
 Bielik answers 67 of 600 questions correctly (accuracy 11.17 ± 1.29), 531 incorrectly and 2 partially, and
 answers "I don't know" to none of them (hallucination rate 99.62). Against the constant answer "I don't know." its
 OI is 77.33 ± 2.58 points lower (paired, z = -30.0), while its accuracy is above that constant's 0 (z = +8.7). None
@@ -40,12 +44,20 @@ limit, and the judge grades the whole text.
 
 To limit contamination, each line of `results/<model-id>.jsonl.gz` holds only the question id, domain, grade and
 score (+1 / 0 / -1), with `output` set to null. No question text or model answer is in this directory.
+`results/<model-id>-judge.jsonl.gz` holds the 612 raw judge replies of each run (12 controls, then the 600 answers
+in call order), one line per call with the question id, `kind` (`control` with its `expected` letter, or `answer`)
+and the judge's reply text, which is one letter each time. Mapping the replies with A correct, B incorrect,
+C partial, D not attempted reproduces every grade in `results/<model-id>.jsonl.gz` and the scores above without
+calling the judge again.
 
 ## Deviations
 
 - **Judge model.** The AA-Omniscience README names Gemini 2.5 Flash Preview (09-2025) as the grader. Our grades come
-  from GPT-6.1 Sol (thinking high), called through a command-line client, with the official grader template as the
-  only message and a reply of exactly one letter. `judge.py` sends the same prompt to any OpenAI-compatible
+  from GPT-6.1 Sol (`openai-codex/gpt-6.1-sol`, thinking high), served through the OMP coding-agent command-line
+  client (`omp -p`, no tools, no session, offline mode) on a subscription login, not an API key, with the official
+  grader template as the only message and a reply of exactly one letter. Every one of the 612 replies of each run
+  reports that model id. Slayer was graded on 2026-11-19 from 14:34 to 14:46 UTC, Bielik on 2026-11-19 from 15:38
+  to 15:48 UTC. `judge.py` sends the same prompt to any OpenAI-compatible
   endpoint (`JUDGE_BASE_URL`, `JUDGE_MODEL`, `JUDGE_API_KEY`), so a rerun with another judge can differ.
   Before grading, 12 controls (4 questions x {gold answer -> A, another question's gold answer -> B, "I don't
   know." -> D}) must all pass; they did (12/12). Each answer is graded once, in a single judge pass with no

@@ -14,7 +14,13 @@
     "max_turns": 1,
     "trials": 1,
     "chat_template": false,
-    "judge": "GPT-6.1 Sol (thinking high), see README"
+    "judge": {
+      "model": "openai-codex/gpt-6.1-sol (GPT-6.1 Sol), thinking high",
+      "served_via": "OMP coding-agent CLI (omp -p --no-tools), subscription login, no API key",
+      "date": "2026-11-19",
+      "official_grader": "Gemini 2.5 Flash Preview (09-2025); scores not comparable with Artificial Analysis",
+      "raw_replies": "results/slayer1b-60000-judge.jsonl.gz"
+    }
   },
   "other_metrics": {
     "accuracy": 1.67,

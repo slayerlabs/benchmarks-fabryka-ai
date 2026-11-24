@@ -45,7 +45,7 @@ def main(prep, grades_path, answers_path, target, settings, judge, limit=False):
         "date": datetime.date.today().isoformat(),
         "harness": "AA-Omniscience README prompts (answer and grader templates) with generate.py and judge.py",
         "data": "https://huggingface.co/datasets/ArtificialAnalysis/AA-Omniscience-Public @ e4883edbb9f5ccf2b2a8fdc6fb65e01a58e99849",
-        "settings": {**json.loads(settings), "judge": judge},
+        "settings": {**json.loads(settings), "judge": {"model": judge}},
         "other_metrics": {
             "accuracy": round(100 * acc, 2),
             "accuracy_stderr": round(100 * math.sqrt(acc * (1 - acc) / n), 2),
