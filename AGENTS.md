@@ -1,64 +1,53 @@
 # AGENTS.md
 
-> Work in `benchmarks/` (the `codesota` package) follows [`benchmarks/AGENTS.md`](benchmarks/AGENTS.md) instead of this
-> file. This file covers `research/`.
+Rules for coding agents and the people who supervise them. Work in `benchmarks/` (the `codesota` package) follows
+[`benchmarks/AGENTS.md`](benchmarks/AGENTS.md); this file adds what is specific to `research/`.
 
-Krótki opis repo dla każdego, kto pisze tu kod. Szczegóły są w [`README.md`](README.md),
-[`research/README.md`](research/README.md) i [`research/METHODOLOGY.md`](research/METHODOLOGY.md).
+## Where things go
 
-## Układ
+- Layout: [`README.md`, "Where things are"](README.md#where-things-are).
+- A benchmark run through a model API or our own serving: `research/api-benchmarks/<name>/`, with the files and
+  formats of [`research/METHODOLOGY.md`](research/METHODOLOGY.md).
+- A log-likelihood benchmark: the CodeSOTA runner's catalog
+  ([`benchmarks/docs/contributing.md`, "Writing an integration"](benchmarks/docs/contributing.md#5-writing-an-integration)).
+- `research/benchmarks/`, `research/results/` and `research/tools/` are the lm-eval pipeline of the November 2026 full
+  run. Its protocol, [`research/METODOLOGIA.md`](research/METODOLOGIA.md), is frozen: change that pipeline only to
+  fix an error in it.
+- An analysis across several benchmarks: `research/analyses/<name>/`.
+- Code goes to `research/common/` only when more than one benchmark uses it; otherwise it stays in the benchmark's
+  directory. Tests: `research/tests/test_<name>.py`, sample data in `research/common/tests/data/`.
+- `research/slayer-1b/` and `frontend-beta/` are not touched in benchmark work.
 
-Układ katalogów opisuje [`research/README.md`, „Układ”](research/README.md#układ). `research/slayer-1b/` i
-`frontend-beta/` nie ruszasz przy pracy nad benchmarkami.
-
-## Gdzie co dodać
-
-- New benchmark: directory `research/api-benchmarks/<name>/` with the files and formats from
-  `research/METHODOLOGY.md`. Benchmarks in `research/benchmarks/` (evaluated with lm-eval) follow `research/METODOLOGIA.md`.
-- Analiza na wielu benchmarkach: `research/analyses/<name>/`.
-- Kod trafia do `research/common/` tylko wtedy, gdy używa go więcej niż jeden benchmark. Inaczej zostaje w katalogu
-  benchmarku.
-- Test: `research/tests/test_<name>.py`. Dane próbki: `research/common/tests/data/<name>.jsonl`.
-
-## Przed PR
-
-Komendy z sekcji [„Przed PR”](CONTRIBUTING.md#przed-pr) w CONTRIBUTING kończą się kodem 0; CI katalogu `research/` (`research-tests.yml`) puszcza tylko testy bez torch i lm-eval. Reguły,
-które sprawdzają (bramka liczb, SE i werdykt przy każdym porównaniu), opisuje
-[`research/METODOLOGIA.md`](research/METODOLOGIA.md), „Wspólny rdzeń”.
-
-## Zasady
+## Rules
 
 - Model configuration (precision, decoding, repeats, output limit, standard errors, `null` and "not run") follows
   [`benchmarks/docs/methodology.md`](benchmarks/docs/methodology.md) for every new measurement, in `research/`
   too. A benchmark's README names every deviation with its reason.
 - Everything is written in English: documents, code, comments, issues, PRs and commit messages.
-- Czego nie commitujesz (wagi, zbiory, pliki powyżej 10 MB) i kiedy wolno `.jsonl.gz`:
-  [`CONTRIBUTING.md`, „Pliki w repo”](CONTRIBUTING.md#pliki-w-repo).
-- Pytania benchmarku nie trafiają do danych treningowych (`research/METODOLOGIA.md`, sekcja „Czystość benchmarku”).
-- Siła dowodu rośnie z kosztem błędnej decyzji i jej odwrócenia, ponad minimum z bramki liczb (liczba w
-  `LICZBY.json`, SE i werdykt). Sekcja „Siła dowodu” w `research/METODOLOGIA.md`.
-- PR otwierasz do `main`, z `Refs #N` zadania z tego repo w opisie.
-- Checkpoint wczytujesz przez `torch.load(..., weights_only=True)`. Inne formy deserializują pickle i mogą wykonać
-  obcy kod.
+- What is never committed (weights, datasets, files over 10 MB, keys) and when `.jsonl.gz` is allowed:
+  [`CONTRIBUTING.md`, "Files in the repository"](CONTRIBUTING.md#files-in-the-repository).
+- Benchmark questions never go into training data.
+- Before a PR in `research/`, the checks of [`CONTRIBUTING.md`](CONTRIBUTING.md#checks-before-a-pr-in-research)
+  exit 0. The PR goes to `main` with `Refs #N` of the task.
+- Load a checkpoint with `torch.load(..., weights_only=True)`. Other forms unpickle and can run foreign code.
 
-## Trening przechodzi bramkę, zanim pójdzie pełny przebieg
+## Training passes a gate before a full run
 
-Przebieg, który żyje i zapisuje pliki, wygląda z zewnątrz na działający trening, nawet gdy niczego się nie uczy.
-Dlatego przed pełnym przebiegiem:
+A run that is alive and writes files looks like working training even when it learns nothing. Before a full run:
 
-1. **Tokenizacja:** wypisz tokeny 2 przykładów i sprawdź, że polskie słowa dzielą się sensownie.
-2. **Test przeuczenia:** 64 przykłady, 100 kroków. Strata ma spaść blisko 0. Jeśli nie spada, w kodzie jest błąd
-   i pełnego treningu nie odpalasz.
-3. **Przerwanie:** pełny trening sam się zatrzymuje, gdy strata po 20% kroków nie spadła o co najmniej 10% od
-   startu.
+1. **Tokenization:** print the tokens of 2 examples and check that Polish words split sensibly.
+2. **Overfit test:** 64 examples, 100 steps. The loss must fall close to 0. If it does not, the code has a bug and
+   the full run does not start.
+3. **Stop rule:** the full run stops itself when the loss after 20% of the steps has not fallen by at least 10% from
+   the start.
 
-Na pytanie „czy trening działa” podajesz ostatnie wartości straty (train i val) i to, czy spada. „Proces żyje”
-nie jest odpowiedzią.
+To "is training working", answer with the latest loss values (train and val) and whether they fall. "The process is
+alive" is not an answer.
 
-## Ciężkie procesy na własnym komputerze
+## Heavy processes on your own computer
 
-- Trening dłuższy niż godzina idzie na wynajętą kartę, nie na laptopa.
-- Lokalnie najwyżej jeden ciężki proces naraz (trening, ewaluacja modelu, pobieranie wag). Przed startem sprawdź
-  `pgrep -fl python` i wolną pamięć.
-- Bez łańcuchów „poczekaj i odpal” (`while … sleep; done; python train.py`, kolejki nocne). Następny ciężki proces
-  startuje ręcznie, po sprawdzeniu punktu wyżej.
+- Training longer than an hour goes to a rented GPU, not a laptop.
+- At most one heavy process at a time locally (training, model evaluation, weight download). Before starting, check
+  `pgrep -fl python` and free memory.
+- No "wait and run" chains (`while … sleep; done; python train.py`, overnight queues). The next heavy process starts
+  by hand, after the check above.
