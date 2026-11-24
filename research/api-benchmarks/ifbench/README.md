@@ -1,7 +1,5 @@
 # IFBench
 
-Polish version: [README.pl.md](README.pl.md).
-
 Whether a model follows new, harder verifiable output constraints ("use exactly 3 palindromes", "end every
 sentence with a different punctuation mark") on real user prompts, checked by rules, without a judge model.
 
@@ -28,8 +26,8 @@ Against an empty answer (which follows no constraint here, so its score is 0), B
 higher (paired, z = 8.2). Slayer also passes that test (z = 5.2), but it does not beat other trivial answers:
 repeating the prompt scores 13.00 (39/300), and Slayer's own outputs shuffled across prompts score the same 25/300
 (McNemar p = 1.0). Read Slayer's 8.33 as a floor for degenerate output, not as instruction following. Each line of
-`results/<model-id>.jsonl.gz` holds the task key, the 0/1 score, the per-instruction strict and loose flags, the
-prompt and the raw `output`.
+`results/<model-id>.jsonl.gz` holds the task key, the 0/1 score, the per-instruction strict and loose flags and the
+raw `output`; the prompts are not stored (get them from the dataset by key).
 
 ## Deviations
 
