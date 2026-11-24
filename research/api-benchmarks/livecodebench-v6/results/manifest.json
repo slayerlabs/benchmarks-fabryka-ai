@@ -31,13 +31,13 @@
       "written_by": "compare.py"
     },
     "lfm3-1.7b-cardsampling.json": {
-      "at": "2026-11-22T08:27:45+00:00",
-      "sha256": "4d0aba4808b85ecdbb17b234b025aa019d64e30fc3887577e193876dcb4416d9",
+      "at": "2026-11-24T14:17:45+00:00",
+      "sha256": "2955b6354c1a2552afae7bfee39cb783b64b8ea155707922c80258a170eed4ef",
       "written_by": "summarize.py"
     },
     "lfm3-1.7b-cardsampling.jsonl.gz": {
-      "at": "2026-11-22T08:27:45+00:00",
-      "sha256": "2dede261cb85a771ae9ba8fdfdfed88ab16e7b65cb032a0a261d207a4fe2f521",
+      "at": "2026-11-24T14:17:45+00:00",
+      "sha256": "7088f47648ced581be4116d3e524b8b289dc0e4b428cd277942d9c2c32cd6ef2",
       "written_by": "summarize.py"
     },
     "lfm3-1.7b.json": {
