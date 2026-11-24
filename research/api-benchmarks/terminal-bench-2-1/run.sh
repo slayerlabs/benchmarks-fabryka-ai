@@ -5,7 +5,8 @@
 #   slayer1b-<step>  writes the null result (base model, no tool calls; see README)
 # The model server (vllm.sh) runs first. Every task runs in its own Docker container on this machine, so the
 # server must be reachable from the containers: BASE_URL (default http://host.docker.internal:8000/v1).
-# TRIALS (default 5) attempts per task, CONCURRENCY (default 4) tasks at a time.
+# TRIALS (default 5) attempts per task, CONCURRENCY tasks at a time (default 8, as in the LFM3 main job; the LFM3
+# re-runs used 4). Concurrency is part of the setup: tasks have wall-clock limits (README, Deviations).
 # --limit N runs the first N tasks (by name) once each and writes to out/limit/.
 # TASKS="a b" runs only those tasks, as job JOB_NAME (default <model-id>-rerun); used to re-run trials that have no
 # test result (see README, "Re-runs").
@@ -25,7 +26,7 @@ DATASET_REPO="https://github.com/harbor-framework/terminal-bench-2-1.git"
 DATASET_COMMIT="12b7565679ce5006230b820666353673a133db93"
 BASE_URL="${BASE_URL:-http://host.docker.internal:8000/v1}"
 TRIALS="${TRIALS:-5}"
-CONCURRENCY="${CONCURRENCY:-4}"
+CONCURRENCY="${CONCURRENCY:-8}"
 # LFM3-1.7B card: temperature 0.6, top_p 0.95, no output limit other than the context; OpenCode, up to 100 turns.
 TEMPERATURE="0.6"
 TOP_P="0.95"
@@ -83,6 +84,7 @@ agents:
       opencode_config:
         provider:
           local:
+            # OpenCode installs this package itself and takes no version here (README, Deviations).
             npm: "@ai-sdk/openai-compatible"
             options:
               baseURL: "$BASE_URL"

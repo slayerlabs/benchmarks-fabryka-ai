@@ -11,7 +11,7 @@ and file tools, and the task's own tests decide pass or fail afterwards. No judg
   `12b7565679ce5006230b820666353673a133db93`, all 89 tasks (the task images are prebuilt and pinned by tag)
 - Metric: pass rate. A trial passes when the task's tests give reward 1. Score = the mean over tasks of the per-task
   pass rate over the trials; `stderr` = the standard error of that mean over the 89 tasks (trials of one task are
-  not independent, so the per-trial formula would understate it)
+  not independent, so the per-trial formula would understate it; see Deviations)
 - Settings (LFM3-1.7B card): OpenCode agent, up to 100 turns (OpenCode `steps: 100`), temperature 0.6, top_p 0.95,
   no output limit other than the context (OpenCode caps one answer at 32000 tokens; for Bielik's 32768-token window
   the cap is 8192, see Deviations); 5 trials per task (the leaderboard's minimum; the card does not say)
@@ -27,7 +27,8 @@ and file tools, and the task's own tests decide pass or fail afterwards. No judg
 | Slayer 1B (`slayer1b-1.09-k70000`) | not run | null | | 0 | 2026-11-24 |
 
 LFM3-1.7B passes 47 of 445 trials. Its score is 2.36 points below the card's 12.92, inside one standard error of
-ours (the card gives none), so this run does not show a difference from the card. The passes concentrate on few
+ours (the card gives none), so this run does not show a difference from the card. This check has little power:
+with two standard errors (5.4 points) anything from about 7.5 to 18.3 would agree with the card as well. The passes concentrate on few
 tasks: 18 of 89 tasks have at least one pass. 4 tasks pass in all 5 trials (`constraints-scheduling`,
 `git-leak-recovery`, `modernize-scientific-stack`, `multi-source-data-merger`), and 2 in 4 of 5
 (`hf-model-inference`, `largest-eigenval`).
@@ -46,8 +47,9 @@ weights. Its row is "not run yet", not `null`: nothing stops it from running.
 
 Harbor's exception label is a pattern match over the agent's output and is not used. For LFM3, 309 of 445 counted
 trials end with OpenCode's exit code 1, and Harbor labels them "non-zero exit", "rate limit", "network" and so on.
-In all of them the agent had already finished: OpenCode writes its last JSON event and then fails with `EPIPE`
-writing to the `tee` that Harbor puts on its stdout. The task's tests ran in every one. `summarize.py` decides from
+In all of them the agent's run had already ended: OpenCode writes its last JSON event and then fails with `EPIPE`
+writing to the `tee` that Harbor puts on its stdout. In 307 of them the last event is `step_finish/stop`, the
+answer finished; in 2 it is `step_finish/length`, the last answer was cut at the output limit. The task's tests ran in every one. `summarize.py` decides from
 the evidence instead:
 
 - a trial with a test result counts with it. That includes 14 trials where the task's own container memory limit
@@ -73,6 +75,12 @@ the evidence instead:
 
   The task containers run on the same VM, and the agent reaches the server on the VM's own address.
 - **Number of trials.** The card does not say how many trials it averages. This run uses 5 per task.
+- **Standard error clustered by task.** [`research/METHODOLOGY.md`](../../METHODOLOGY.md) gives
+  `sqrt(p(1-p)/n)` for pass/fail tasks, here 1.46 over the 445 trials (`other_metrics.stderr_per_trial`). With 5
+  trials of each task the trials are not independent, so `stderr` is the standard error of the mean of the 89
+  per-task pass rates, 2.69. Against the per-trial value the gap to the card is 1.62 standard errors.
+- **Provider package not pinned.** OpenCode installs `@ai-sdk/openai-compatible` itself and its config takes no
+  version. The run did not record which release it got; the newest one before the run date is 3.0.94 (2026-11-20).
 - **The card's asterisk.** The card marks 12.92 with an asterisk that it does not explain.
 - **Bielik's output cap.** vLLM rejects a request whose prompt plus `max_tokens` exceeds the context, and
   OpenCode's own cap of 32000 output tokens alone fills Bielik's 32768. Bielik's cap is set to 8192, which leaves the
@@ -85,7 +93,9 @@ the evidence instead:
   stock agent; the re-runs and every later run use the fallback, which changes nothing where the stock install works.
 - **Wall-clock limits.** Each task has its own agent time limit (15 minutes to over 3 hours). A slower server can
   turn a slow success into a timeout, so the speed of our GPU and the number of tasks run at once (8 in the main job, 4 in
-  the re-runs) are part of the setup. The VM has 15 CPUs and 98 GB RAM, and the GPU was never the bottleneck (2-3
+  the re-runs; `run.sh` defaults to 8, `CONCURRENCY` sets it) are part of the setup. `settings.jobs` in the result
+  file records both; they were added from the run log, because the committed `trial_config_example` is the config
+  of one trial and holds neither. The VM has 15 CPUs and 98 GB RAM, and the GPU was never the bottleneck (2-3
   requests at a time, KV cache under 1% used).
 - **Disk.** The VM's 126 GB disk does not hold every task image at once, so a loop removes unused images
   (`docker image prune -a`) when the disk is over 70% full. Images are pulled again by tag, so this changes no
@@ -100,7 +110,7 @@ On a Linux machine with Docker and an NVIDIA GPU (48 GB for Bielik):
 
 ```bash
 bash vllm.sh lfm3-1.7b                       # serves on 127.0.0.1:8000; HOST=0.0.0.0 to reach it from containers
-BASE_URL=http://<host-ip>:8000/v1 bash run.sh lfm3-1.7b
+BASE_URL=http://<host-ip>:8000/v1 bash run.sh lfm3-1.7b              # 8 tasks at a time
 HF_TOKEN=hf_... RUN_DATE=YYYY-MM-DD bash vllm.sh bielik-11b-v3.1
 BASE_URL=http://<host-ip>:8000/v1 bash run.sh bielik-11b-v3.1
 bash run.sh slayer1b-1.09-k70000                   # writes the null result
@@ -108,7 +118,7 @@ python3 summarize.py out/jobs/<model-id> --model <model-id>
 ```
 
 If some trials have no test result, `summarize.py` lists them and writes nothing. Re-run them with
-`TASKS="<task> ..." TRIALS=<k> JOB_NAME=<model-id>-rerun-a bash run.sh <model-id>` (one job per number of missing
-trials) and pass each job with `--rerun out/jobs/<job>`.
+`CONCURRENCY=4 TASKS="<task> ..." TRIALS=<k> JOB_NAME=<model-id>-rerun-a bash run.sh <model-id>` (one job per number
+of missing trials; the LFM3 re-runs used 4 at a time) and pass each job with `--rerun out/jobs/<job>`.
 
 `--limit N` runs the first N tasks once each and writes to `out/limit/`.

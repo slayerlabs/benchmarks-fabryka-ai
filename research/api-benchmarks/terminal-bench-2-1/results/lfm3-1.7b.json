@@ -10,7 +10,38 @@
   "data": "https://github.com/harbor-framework/terminal-bench-2-1 @ 12b7565679ce5006230b820666353673a133db93, 89 tasks",
   "settings": {
     "trials_per_task": 5,
-    "job_config": {
+    "serving": {
+      "server": "vllm 0.34.0, bf16",
+      "weights": "LiquidAI/LFM3-1.7B @ 1da06bec6a819da10b54c67e5c90972b46d81871"
+    },
+    "jobs": [
+      {
+        "job": "lfm3-1.7b",
+        "n_concurrent_trials": 8,
+        "n_attempts": 5,
+        "agent_import_path": null
+      },
+      {
+        "job": "lfm3-1.7b-rerun-a",
+        "n_concurrent_trials": 4,
+        "n_attempts": null,
+        "agent_import_path": "opencode_agent:OpenCodeAptFallback"
+      },
+      {
+        "job": "lfm3-1.7b-rerun-b",
+        "n_concurrent_trials": 4,
+        "n_attempts": null,
+        "agent_import_path": "opencode_agent:OpenCodeAptFallback"
+      },
+      {
+        "job": "lfm3-1.7b-rerun-c",
+        "n_concurrent_trials": 4,
+        "n_attempts": null,
+        "agent_import_path": "opencode_agent:OpenCodeAptFallback"
+      }
+    ],
+    "jobs_note": "serving and jobs were added from the run log after the run; n_attempts of the re-run jobs differs per job (see README, Reproduce)",
+    "trial_config_example": {
       "schema_version": 1,
       "task": {
         "path": "/root/tb/terminal-bench-2-1/out/terminal-bench-2-1/tasks/password-recovery",
@@ -120,6 +151,7 @@
   "other_metrics": {
     "trials": 445,
     "trials_passed": 47,
+    "stderr_per_trial": 1.46,
     "trials_rerun": 15,
     "rerun_counted_as_failure": 2,
     "agent_end": {

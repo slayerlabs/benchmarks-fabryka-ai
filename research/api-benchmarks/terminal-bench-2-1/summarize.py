@@ -4,7 +4,8 @@ or the null result of a model that cannot run the benchmark: python3 summarize.p
 Score: the pass rate over all counted trials (a trial passes when the task's tests give reward 1). Every task has the
 same number of counted trials, so this is also the mean of the per-task pass rates. stderr: the standard error of
 that mean over tasks (sd of the per-task pass rates / sqrt(number of tasks)), because trials of one task are not
-independent.
+independent. The per-trial formula of research/METHODOLOGY.md (sqrt(p(1-p)/n) over all trials) is written as
+other_metrics.stderr_per_trial, for comparison.
 
 Harbor's exception label is not used to decide anything: it is a pattern match over the agent's output, and here it
 mostly labels OpenCode's exit code 1 after a finished run (EPIPE on stdout, see README) as "rate limit" or
@@ -34,6 +35,14 @@ BENCHMARK = "Terminal-Bench 2.1"
 HARNESS = "https://github.com/harbor-framework/harbor v0.27.0, agent opencode (opencode-ai 1.19.6)"
 DATA = "https://github.com/harbor-framework/terminal-bench-2-1 @ 12b7565679ce5006230b820666353673a133db93, 89 tasks"
 METRIC = "pass rate (task tests pass, reward 1), mean over tasks and trials"
+# What vllm.sh serves for each model (kept in step with vllm.sh): written to the result, because the Harbor job
+# config does not record the model server.
+SERVING = {
+    "lfm3-1.7b": {"server": "vllm 0.34.0, bf16",
+                  "weights": "LiquidAI/LFM3-1.7B @ 1da06bec6a819da10b54c67e5c90972b46d81871"},
+    "bielik-11b-v3.1": {"server": "vllm 0.34.0, bf16",
+                        "weights": "speakleash/Bielik-11B-v3.1-Instruct @ d6e755d356ad418d0f0e30b8c428db267415ddb9"},
+}
 
 
 # The full trajectories of one model are about 17 MB compressed, over the repo's 10 MB per file. In the committed
@@ -160,7 +169,18 @@ def tally(rows: list[dict], key: str) -> dict:
     return dict(sorted(out.items()))
 
 
-def main() -> int:
+def job_settings(job: Path) -> dict | None:
+    """The job-level part of Harbor's config (concurrency and the agent), which the trial configs do not hold."""
+    path = job / "config.json"
+    if not path.exists():
+        return None
+    config = json.loads(path.read_text(encoding="utf-8"))
+    agents = config.get("agents") or [{}]
+    return {"job": job.name, "n_concurrent_trials": config.get("n_concurrent_trials"),
+            "n_attempts": config.get("n_attempts"), "agent_import_path": agents[0].get("import_path")}
+
+
+def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser()
     p.add_argument("job", nargs="?", type=Path)
     p.add_argument("--model")
@@ -168,7 +188,7 @@ def main() -> int:
     p.add_argument("--null")
     p.add_argument("--out", type=Path)
     p.add_argument("--rerun", type=Path, action="append", default=[], help="a job that re-runs missing trials")
-    a = p.parse_args()
+    a = p.parse_args(argv)
 
     if a.null:
         result = {
@@ -215,6 +235,7 @@ def main() -> int:
     config = json.loads(next(a.job.glob("*/config.json")).read_text(encoding="utf-8")) if any(
         a.job.glob("*/config.json")
     ) else None
+    p_trial = sum(r["score"] for r in counted) / len(counted)
 
     result = {
         "benchmark": BENCHMARK,
@@ -226,13 +247,20 @@ def main() -> int:
         "date": date.today().isoformat(),
         "harness": HARNESS,
         "data": DATA,
-        "settings": {"trials_per_task": trials.pop(), "job_config": config, "rerun_jobs": [j.name for j in a.rerun]},
+        "settings": {
+            "trials_per_task": trials.pop(),
+            "serving": SERVING.get(a.model),
+            "jobs": [job_settings(j) for j in [a.job, *a.rerun]],
+            "trial_config_example": config,
+            "rerun_jobs": [j.name for j in a.rerun],
+        },
         "deviations": "see README.md, Deviations",
         "output_field": f"Harbor trajectory; tool outputs over {OBSERVATION_CHARS} and reasoning over "
         f"{REASONING_CHARS} characters keep their start and end; timestamps and per-step metrics dropped",
         "other_metrics": {
             "trials": len(counted),
             "trials_passed": sum(r["score"] == 1.0 for r in counted),
+            "stderr_per_trial": round(100 * math.sqrt(p_trial * (1 - p_trial) / len(counted)), 2),
             "trials_rerun": sum(1 for r in counted if r.get("replaces")),
             "rerun_counted_as_failure": sum(1 for r in counted if r.get("counted_as_failure")),
             "agent_end": tally(counted, "agent_end"),
