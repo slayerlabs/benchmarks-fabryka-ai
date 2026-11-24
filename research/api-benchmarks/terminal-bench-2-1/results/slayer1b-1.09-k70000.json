@@ -1,6 +1,6 @@
 {
   "benchmark": "Terminal-Bench 2.1",
-  "model": "slayer1b-70000",
+  "model": "slayer1b-1.09-k70000",
   "metric": "pass rate (task tests pass, reward 1), mean over tasks and trials",
   "score": null,
   "stderr": null,

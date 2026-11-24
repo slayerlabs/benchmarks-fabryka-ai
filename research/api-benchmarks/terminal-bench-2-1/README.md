@@ -24,7 +24,7 @@ and file tools, and the task's own tests decide pass or fail afterwards. No judg
 | LFM3-1.7B, model card | Liquid AI, OpenCode, up to 100 turns | 12.92 | | | |
 | LFM3-1.7B (`lfm3-1.7b`) | own vLLM, bf16, 262144 context | 10.56 | 2.69 | 89 | 2026-11-23 |
 | Bielik 11B v3.1 (`bielik-11b-v3.1`) | own vLLM, bf16, 32768 context | not run yet | | | |
-| Slayer 1B (`slayer1b-70000`) | not run | null | | 0 | 2026-11-24 |
+| Slayer 1B (`slayer1b-1.09-k70000`) | not run | null | | 0 | 2026-11-24 |
 
 LFM3-1.7B passes 47 of 445 trials. Its score is 2.36 points below the card's 12.92, inside one standard error of
 ours (the card gives none), so this run does not show a difference from the card. The passes concentrate on few
@@ -103,7 +103,7 @@ bash vllm.sh lfm3-1.7b                       # serves on 127.0.0.1:8000; HOST=0.
 BASE_URL=http://<host-ip>:8000/v1 bash run.sh lfm3-1.7b
 HF_TOKEN=hf_... RUN_DATE=YYYY-MM-DD bash vllm.sh bielik-11b-v3.1
 BASE_URL=http://<host-ip>:8000/v1 bash run.sh bielik-11b-v3.1
-bash run.sh slayer1b-70000                   # writes the null result
+bash run.sh slayer1b-1.09-k70000                   # writes the null result
 python3 summarize.py out/jobs/<model-id> --model <model-id>
 ```
 
