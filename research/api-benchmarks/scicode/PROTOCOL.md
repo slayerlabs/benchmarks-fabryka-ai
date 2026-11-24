@@ -173,3 +173,13 @@ Added in the first verification round (2026-11-23), nothing above changed:
    contribute most, a jackknife and a cluster bootstrap over problems and a sign test (hypotheses.py); K3 with
    nothink's passes from answers that still close `</think>` counted as failed (explore.py, exploratory); and step
    14.2 of nothink, whose test is not deterministic, scored again 10 times in each setting (vm_repeat.sh).
+
+Added after review (2026-11-24), no verdict rule changed:
+
+8. **Slayer 1B's `null` is a cost decision.** "Models" gives the facts it rests on; the reason in its result file now
+   says so in the words used across the Coding group: not run because Slayer 1B wrote no passing function on the 30
+   Python tasks of `research/slayer-1b/rozmowy-1.08` (PAPER.md, H5.1), not because it cannot run the steps.
+9. **Holm over the Coding group without a copy of the other benchmark's file.** The committed `hypotheses.json` is
+   computed without `--group`, so LiveCodeBench Pro 25Q2's K2 and K3 enter with p = 1, as "Hypotheses" and
+   hypotheses.py already allow when that file is not given; the group Holm over both benchmarks is computed once,
+   from both merged files on main.

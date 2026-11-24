@@ -73,7 +73,7 @@ case "$MODEL" in
     SERVING=oracle; SPLIT=validation ;;
   slayer1b-1.09-k70000)
     python3 "$HERE/summarize.py" --null "$RESULTS/$MODEL" \
-      "a base model with a 4096-token context that does not follow chat instructions; on 30 Python tasks in research/slayer-1b/rozmowy-1.08 it wrote no function that passed its tests (PROTOCOL.md, Models)"
+      "not run, a cost decision (PROTOCOL.md, Models): on the 30 Python tasks of research/slayer-1b/rozmowy-1.08 (PAPER.md, H5.1) Slayer 1B wrote no function that passed its tests (0 of 30), so running 288 × 2 SciCode steps was judged not worth its cost. null here records that decision; Slayer 1B can run the steps that fit its 4096-token context (counted with its tokenizer and empty earlier-step code, 7 of the 288 prompts with background and 0 of the 288 without exceed it)"
     exit 0 ;;
   *)
     echo "unknown model-id: $MODEL (lfm3-1.7b | lfm3-1.7b-nothink | bielik-11b-v3.1 | dev-ground-truth | slayer1b-1.09-k70000)" >&2

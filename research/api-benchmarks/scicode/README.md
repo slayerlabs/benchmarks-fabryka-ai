@@ -40,7 +40,7 @@ Headline: correct subproblems with background, out of 288 (test_generated_code.p
 | LFM3-1.7B (`lfm3-1.7b`) | on (template default) | vLLM 0.34.0, bf16, one H100 | context minus prompt tokens (context 262144) | 32.64 | 2.76 | 3.63 | 288 | 5/65 (7.69%) | 7708.5 | 2026-11-22 |
 | LFM3-1.7B (`lfm3-1.7b-nothink`) | off requested (`enable_thinking: false`) | the same vLLM server | context minus prompt tokens (context 262144) | 24.65 | 2.54 | 3.04 | 288 | 4/65 (6.15%) | 5203.3 | 2026-11-22 |
 | Bielik 11B v3.1 (`bielik-11b-v3.1`) | no reasoning switch through the API | Fabryka AI API, with the API's provider system prompt | context minus prompt tokens minus a margin of 64 (context 32768) | 2.43 | 0.91 | 1.01 | 288 | 0/65 (exact 95% CI 0 to 5.52%) | 655.2 | 2026-11-22 |
-| Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`) | | | | null (a base model with a 4096-token context that does not follow chat instructions; on 30 Python tasks in research/slayer-1b/rozmowy-1.08 it wrote no function that passed its tests (PROTOCOL.md, Models)) | | | | | | |
+| Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`) | | | | null (not run, a cost decision (PROTOCOL.md, Models): on the 30 Python tasks of research/slayer-1b/rozmowy-1.08 (PAPER.md, H5.1) Slayer 1B wrote no function that passed its tests (0 of 30), so running 288 × 2 SciCode steps was judged not worth its cost. null here records that decision; Slayer 1B can run the steps that fit its 4096-token context (counted with its tokenizer and empty earlier-step code, 7 of the 288 prompts with background and 0 of the 288 without exceed it)) | | | | | | |
 
 Both prompt settings: correct (%) ± stderr (correct/288; clustered SE), main problems solved (all scored steps pass) out of 65, and the scorer's verdicts per step:
 
@@ -95,8 +95,8 @@ K1 control: LFM3-1.7B 32.64 ± 3.63 (clustered) vs card 28.47, z = +1.15: passed
 |---|---|---|---|---|---|---|---|---|
 | K2 | -13.89 | 2.18 | -6.38 | 3.58e-10 | 1 | supported | supported (clear) | True |
 | K2 under E1 (Amendment 1) | -13.20 | 2.18 | -6.06 | 2.73e-09 | 1 | supported | supported (clear) | True |
-| K3 | +7.12 | 2.02 | +3.52 | 1 | 0.000659 | refuted | refuted (clear) | True |
-Holm m = 4, family: scicode K2, scicode K3, livecodebench-pro-25q2 K2, livecodebench-pro-25q2 K3
+| K3 | +7.12 | 2.02 | +3.52 | 1 | 0.000879 | refuted | refuted (clear) | True |
+Holm m = 4, family: scicode K2, scicode K3; 2 of the 4 without a p here, counted as p = 1
 
 Without background (descriptive, not tested; PROTOCOL.md: the without-background run is no second chance at the control):
 
@@ -108,25 +108,25 @@ Without background (descriptive, not tested; PROTOCOL.md: the without-background
 
 Reading:
 
-- **K1** passed by PROTOCOL.md's rule: LFM3-1.7B with background lands within 2 clustered SE of its card value (+4.17 pt, z = +1.15), so K2 and K3 are read. The reporting rules' reproduction check (within ±2 pt of a published number) is not met: the gap is 4.17 pt; at n = 288 that check cannot be decided either way, since 2 clustered SE are 7.26 pt.
+- **K1** passed by PROTOCOL.md's rule: LFM3-1.7B with background lands within 2 clustered SE of its card value (+4.17 pt, z = +1.15), so K2 and K3 are read. This does not confirm that our setup is the card's: the card does not say whether the background was given, and without background LFM3-1.7B (22.92, -5.55 pt, z = -1.84) lands within 2 clustered SE of the card's 28.47 too, so the control cannot tell the two settings apart. The reporting rules' reproduction check (within ±2 pt of a published number) is not met: the gap is 4.17 pt; at n = 288 that check cannot be decided either way, since 2 clustered SE are 7.26 pt.
 - **K2** (supported (clear)) compares Bielik through the API with a number on the card, not with a model run here: LFM2.5-2.6B's 16.32, with the SE floor of PROTOCOL.md. Under E1 (Amendment 1) z = -6.06, supported (clear): K2 does not depend on code extraction: official and E1 both supported (supported (clear) after Holm).
 - **K3** refuted under the pre-registered switch (`enable_thinking: false`): with the switch off LFM3 keeps more than half of its lead over Bielik (D = +7.12 ± 2.02, z = +3.52; the lead itself +30.21, z = +8.18). *Descriptive, from the raw outputs, added after the results (Amendment 2):* the switch removes reasoning only in part: with it off 147 of 288 answers with background still reason and close a `</think>` (median 93.3% of an answer's characters before it), against 288 of 288 with thinking on; 17 of its 71 passed steps come from such answers, and it writes 5203 output tokens per answer on average against 7708. How much of the lead thinking itself buys is therefore undetermined by K3.
   - *Exploratory (explore.py):* counting those 17 passes as failed gives D = +1.22 ± 1.99 (z = +0.61): the lead that survives the switch sits in answers that still reason.
   - *Descriptive:* `lfm3-1.7b-nothink` with background step 14.2 (officially fail; its test checks a simulation the step's code runs on random numbers without a seed) re-scored with the same image: fail 1 of 10, pass 9 of 10. The refuter reports SciCode-Verified flagging problem 14 (not checked here). A pass there would raise D, not lower it.
   - *Descriptive:* `lfm3-1.7b-nothink` without background step 14.2 (officially fail; its test checks a simulation the step's code runs on random numbers without a seed) re-scored with the same image: fail 10 of 10. The refuter reports SciCode-Verified flagging problem 14 (not checked here).
-- **With Student's t instead of the normal** (descriptive, df = 64, our two tests; LiveCodeBench Pro's p as recorded) the verdicts are the same: K2 Holm p 3.39e-08, supported (clear); K3 Holm p 0.00122, refuted (clear), against 0.00135 for "clear" (z = 3), a small margin.
-- **Holm over the Coding group** (m = 4) used LiveCodeBench Pro 25Q2's K2 and K3 from `results/group-tests-livecodebench-pro-25q2.json`, copied from branch `research/livecodebench-pro-25q2` at `f16b862b`.
+- **With Student's t instead of the normal** (descriptive, df = 64, our two tests; the other benchmark's two tests at p = 1 as above): K2 Holm p 4.52e-08, supported (clear); K3 Holm p 0.00163, refuted (likely), against 0.00135, the Holm p that "clear" needs: with the t a verdict changes at this bound, so a "clear" here rests on the normal approximation or on the other benchmark's p.
+- **Holm over the Coding group** (m = 4): this file holds only SciCode's K2 and K3; the two tests of LiveCodeBench Pro 25Q2 enter with p = 1 (2 of 4). A Holm-adjusted p cannot fall when another test's p rises, so the Holm p and verdicts above are conservative bounds of the group's. The group Holm over both benchmarks is computed once, from both merged `hypotheses.json` files on main.
 
-K3 robustness (descriptive, added after the results; no verdict reads it): D without the problems that contribute most to it, with the Holm p of "refuted" (the other three tests unchanged):
+K3 robustness (descriptive, added after the results; no verdict reads it): D without the problems that contribute most to it, with the Holm p of "refuted" (K2's p unchanged, LiveCodeBench Pro's at p = 1):
 
 | problems left out | D (pp) | SE (pp) | z | Holm p | verdict after Holm |
 |---|---|---|---|---|---|
-| 77 | +6.52 | 2.01 | +3.24 | 0.0018 | refuted (likely) |
-| 77, 42 | +5.86 | 1.91 | +3.07 | 0.00324 | refuted (likely) |
-| 77, 42, 15 | +5.35 | 1.85 | +2.90 | 0.00567 | refuted (likely) |
-| 77, 42, 15, 72 | +4.96 | 1.86 | +2.66 | 0.0116 | refuted (likely) |
-| 77, 42, 15, 72, 13 | +4.84 | 1.96 | +2.46 | 0.0206 | refuted (likely) |
-| 77, 42, 15, 72, 13, 21 | +4.49 | 1.95 | +2.30 | 0.0319 | undetermined |
+| 77 | +6.52 | 2.01 | +3.24 | 0.0024 | refuted (likely) |
+| 77, 42 | +5.86 | 1.91 | +3.07 | 0.00432 | refuted (likely) |
+| 77, 42, 15 | +5.35 | 1.85 | +2.90 | 0.00756 | refuted (likely) |
+| 77, 42, 15, 72 | +4.96 | 1.86 | +2.66 | 0.0155 | refuted (likely) |
+| 77, 42, 15, 72, 13 | +4.84 | 1.96 | +2.46 | 0.0274 | undetermined |
+| 77, 42, 15, 72, 13, 21 | +4.49 | 1.95 | +2.30 | 0.0426 | undetermined |
 
 Jackknife over problems: SE 2.04, z = +3.50. Cluster bootstrap over problems (10000 draws, seed 20261122): 95% interval of D [3.18; 11.13] pp. Sign of each problem's contribution: 33 positive, 8 negative, 24 zero (exact sign test p = 5.6e-05 one-sided, 0.00011 two-sided). "Clear" rests on problem 77: without it K3 is refuted (likely).
 
@@ -174,7 +174,7 @@ How the measurement ran (facts from results/scoring-events.json and the result f
 - Container memory limit 48g (run.sh --score, docker --memory); the official scorer has none. The kernel's OOM killer ended 3 test scripts: Nov 22 20:09:46 UTC (container `3eeaa55f5947`, 47.7 GiB resident); Nov 22 22:45:12 UTC (container `a7f34304de3a`, 47.7 GiB resident); Nov 22 23:50:55 UTC (container `a7f34304de3a`, 47.7 GiB resident). In the final scorer output the killed steps are: bielik-11b-v3.1 e1_without_background 53.4, bielik-11b-v3.1 without_background 53.4; each counts as a failed step, as the scorer grades it.
 - Disk full: the journal logged 250 "No space left on device" lines at Nov 22 20:17:04 UTC. Queue log, 2026-11-22T21:08:49Z: final: removed Bielik official without_background logs (disk-full window) for rescoring. Queue log, 2026-11-22T21:10:16Z: final: removed Bielik official without_background logs (disk-full window) for rescoring. The official LFM3 steps whose verdicts were written between 20:10 and 20:20 UTC, and the time-outs that ran through that window, were re-scored afterwards with the same image and compared with the kept verdicts: lfm3-1.7b without background (lfm3-63.6): 1 of 1 the same; lfm3-1.7b-nothink without background (nothink-64.6): 1 of 1 the same; lfm3-1.7b-nothink without background (nothink-window): 42 of 42 the same.
 - E1 identity reuse: lfm3-1.7b with background: 288 reused, 0 scored; lfm3-1.7b without background: 288 reused, 0 scored; lfm3-1.7b-nothink with background: 288 reused, 0 scored; lfm3-1.7b-nothink without background: 288 reused, 0 scored; bielik-11b-v3.1 with background: 84 reused, 204 scored; bielik-11b-v3.1 without background: 157 reused, 131 scored.
-- **Extraction after the last `</think>` for a model without thinking.** SciCode @ `e3158ea0` hands the whole answer to `extract_python_script` (it knows no `</think>`); PROTOCOL.md cuts after the last `</think>` for every model. Re-scored where it matters for `bielik-11b-v3.1` (reference_extraction.py on the scoring VM): with background: 8 answers contain `</think>`, 6 give other code, 28 step files differ (with the later steps that include that code), passed 7 after the last `</think>` and 7 from the whole answer, 0 verdicts change (the differing files: fail -> fail); without background: 0 answers contain `</think>`, 0 give other code, 0 step files differ (with the later steps that include that code), passed 5 after the last `</think>` and 5 from the whole answer, 0 verdicts change. For the LFM3-1.7B runs the reference extraction would read the reasoning too; its effect there is not measured.
+- **Extraction after the last `</think>` for a model without thinking.** SciCode @ `e3158ea0` hands the whole answer to `extract_python_script` (it knows no `</think>`); PROTOCOL.md cuts after the last `</think>` for every model. Re-scored where it matters for `bielik-11b-v3.1` (reference_extraction.py on the scoring VM): with background: 8 answers contain `</think>`, 6 give other code, 28 step files differ (with the later steps that include that code), passed 7 after the last `</think>` and 7 from the whole answer, 0 verdicts change (the differing files: fail -> fail); without background: 0 answers contain `</think>`, 0 give other code, 0 step files differ (with the later steps that include that code), passed 5 after the last `</think>` and 5 from the whole answer, 0 verdicts change. For the LFM3-1.7B runs the reference extraction would read the reasoning too; its effect there is not measured (an open limitation): it needs reference_extraction.py on the scoring VM for each step file whose answer closes `</think>` (Exploratory, first table) and the later steps built on it, in the scoring image.
 
 <!-- readme.py: end scoring -->
 
@@ -269,7 +269,9 @@ How the measurement ran (facts from results/scoring-events.json and the result f
   `p_support = Φ(z)` and `p_refute = 1 − Φ(z)`; Holm with m = 4 runs separately over the four `p_support` and the
   four `p_refute`; a test with no p (K3 "precondition not met", or the other benchmark's file not given) enters as
   p = 1. `hypotheses.json` lists our two tests under `group_tests` (`benchmark`, `id`, `z`, `p_support`,
-  `p_refute`, `outcome_raw`), and `--group <other>/hypotheses.json` reads the other benchmark's.
+  `p_refute`, `outcome_raw`), and `--group <other>/hypotheses.json` reads the other benchmark's. The committed
+  `results/hypotheses.json` is computed without `--group`: no copy of the other benchmark's file is kept here, and
+  the group Holm over both benchmarks is computed once, from both merged `hypotheses.json` files on main.
 - **`--limit N`** takes the first N problems of the split in dataset order (all their steps, both settings).
 - **The `output` of a `.jsonl.gz` line is the extracted code of that step**, not the whole model output (which
   with thinking would exceed the repo's 10 MB limit); the raw outputs stay in `out/<model-id>/generations.jsonl`
@@ -307,7 +309,7 @@ bash run.sh lfm3-1.7b --score
 bash run.sh lfm3-1.7b-nothink --score
 bash run.sh bielik-11b-v3.1 --score
 bash run.sh dev-ground-truth && bash run.sh dev-ground-truth --score   # setup check, no model
-python3 hypotheses.py results --group results/group-tests-livecodebench-pro-25q2.json
+python3 hypotheses.py results
 ```
 
 `--score` writes `results/<model-id>.json` and `.jsonl.gz` (with `--limit N`: `out/<model-id>/<model-id>-limitN.*`).
@@ -331,7 +333,7 @@ kernel's OOM lines, the journal's disk-full lines, `window-*.json` (window_resco
 ```bash
 python3 raw_outputs.py ~/Documents/GitHub/labaj-agency/out/coding-group/box/export.tgz   # results/raw-outputs.json
 python3 scoring_events.py   # results/scoring-events.json, from results/scoring-vm/
-python3 hypotheses.py results --group results/group-tests-livecodebench-pro-25q2.json   # results/hypotheses.json
+python3 hypotheses.py results   # results/hypotheses.json
 python3 explore.py          # results/exploratory.json
 python3 readme.py           # the generated blocks of this README; --check compares byte for byte
 ```

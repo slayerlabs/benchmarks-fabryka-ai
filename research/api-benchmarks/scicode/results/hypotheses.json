@@ -70,7 +70,7 @@
       "p_refute": 0.00021967975993475441,
       "outcome_raw": "refuted",
       "p_support_holm": 1.0,
-      "p_refute_holm": 0.0006590392798042632,
+      "p_refute_holm": 0.0008787190397390177,
       "verdict_holm": "refuted (clear)",
       "read": true
     }
@@ -108,23 +108,11 @@
         "id": "K3",
         "p_support": 0.9997803202400652,
         "p_refute": 0.00021967975993475441
-      },
-      {
-        "benchmark": "livecodebench-pro-25q2",
-        "id": "K2",
-        "p_support": 5.938895427580987e-09,
-        "p_refute": 0.9999999940611046
-      },
-      {
-        "benchmark": "livecodebench-pro-25q2",
-        "id": "K3",
-        "p_support": 0.9999996142681458,
-        "p_refute": 3.857318542355159e-07
       }
     ],
-    "other_benchmark_file": "results/group-tests-livecodebench-pro-25q2.json",
-    "other_benchmark_sha256": "041c9075766c50e641183ac06050120692cf302558a565b7d8edabbbdd8cd024",
-    "missing_counted_as_p_1": 0
+    "other_benchmark_file": null,
+    "other_benchmark_sha256": null,
+    "missing_counted_as_p_1": 2
   },
   "descriptive": {
     "setting": "without_background",
@@ -164,19 +152,19 @@
     }
   },
   "t_check": {
-    "note": "descriptive: our K2 and K3 with one-sided p from Student's t (df = problems - 1) instead of the normal; LiveCodeBench Pro's two p as recorded; Holm m = 4, the same thresholds",
+    "note": "descriptive: our K2 and K3 with one-sided p from Student's t (df = problems - 1) instead of the normal; the other benchmark's two p as given (p = 1 without --group); Holm m = 4, the same thresholds",
     "df": 64,
     "K2": {
       "z": -6.378377306341475,
-      "p_support_holm": 3.390708061991607e-08,
+      "p_support_holm": 4.520944082655476e-08,
       "p_refute_holm": 1.0,
       "verdict_holm": "supported (clear)"
     },
     "K3": {
       "z": 3.515238318123504,
       "p_support_holm": 1.0,
-      "p_refute_holm": 0.00121928887279521,
-      "verdict_holm": "refuted (clear)"
+      "p_refute_holm": 0.00162571849706028,
+      "verdict_holm": "refuted (likely)"
     }
   },
   "k3_robustness": {
@@ -197,7 +185,7 @@
         "value": 6.521739130434782,
         "se": 2.013255092675921,
         "z": 3.2394002896902663,
-        "p_refute_holm": 0.0017967200850771414,
+        "p_refute_holm": 0.0023956267801028552,
         "verdict_holm": "refuted (likely)"
       },
       {
@@ -208,7 +196,7 @@
         "value": 5.86080586080586,
         "se": 1.9107924661136497,
         "z": 3.067212146134384,
-        "p_refute_holm": 0.003240981776195251,
+        "p_refute_holm": 0.004321309034927001,
         "verdict_holm": "refuted (likely)"
       },
       {
@@ -220,7 +208,7 @@
         "value": 5.350553505535055,
         "se": 1.8474919884688457,
         "z": 2.896117297899331,
-        "p_refute_holm": 0.005667167279578611,
+        "p_refute_holm": 0.007556223039438148,
         "verdict_holm": "refuted (likely)"
       },
       {
@@ -233,7 +221,7 @@
         "value": 4.961832061068702,
         "se": 1.863844292597753,
         "z": 2.6621494514185495,
-        "p_refute_holm": 0.011646509435433328,
+        "p_refute_holm": 0.015528679247244437,
         "verdict_holm": "refuted (likely)"
       },
       {
@@ -247,8 +235,8 @@
         "value": 4.838709677419355,
         "se": 1.9631148680297794,
         "z": 2.4648123022345496,
-        "p_refute_holm": 0.020562756236130797,
-        "verdict_holm": "refuted (likely)"
+        "p_refute_holm": 0.027417008314841063,
+        "verdict_holm": "undetermined"
       },
       {
         "dropped": [
@@ -262,7 +250,7 @@
         "value": 4.489795918367347,
         "se": 1.9495225446870792,
         "z": 2.303023337997874,
-        "p_refute_holm": 0.03191629505117022,
+        "p_refute_holm": 0.04255506006822696,
         "verdict_holm": "undetermined"
       }
     ],

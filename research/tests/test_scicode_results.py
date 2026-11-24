@@ -4,7 +4,8 @@ No module of api-benchmarks/scicode is imported here. From results/<model-id>.js
 and prompt setting, the correct steps, the binomial and the problem-clustered (CR1) SE, main problems solved, the
 scorer's verdict counts and the E1 numbers with the steps that took the official verdict; K1, K2 (with its SE floor,
 and under E1), K3 (paired, with its lead precondition) and Holm over the Coding group with LiveCodeBench Pro's two
-tests; and checks them against results/<model-id>.json, results/hypotheses.json and the numbers printed in README.md
+tests at p = 1 (no copy of its file); and checks them against results/<model-id>.json, results/hypotheses.json and
+the numbers printed in README.md
 (parsed from its tables and sentences here, not by the generator). The README's generated blocks must equal what
 readme.py writes, byte for byte (`readme.py --check`, run as a separate process). The scoring-VM facts are recounted
 from the copied logs in results/scoring-vm/, and where the raw outputs are on this machine (SCICODE_RAW_ARCHIVE,
@@ -192,9 +193,11 @@ def test_k1_k2_k3_holm_and_reading():
     met = lead > 0 and lead / lead_se >= 3
     assert k3["precondition"]["met"] == met and (not met or math.isclose(k3["z"], z3))
     assert math.isclose(k3["value"], 100 * d) and math.isclose(k3["se"], 100 * d_se)
-    # Holm, m = 4, the other two tests from the committed group file; support and refute families separately
-    group = json.loads((RESULTS / "group-tests-livecodebench-pro-25q2.json").read_text(encoding="utf-8"))["group_tests"]
-    assert [t["benchmark"] for t in group] == ["livecodebench-pro-25q2"] * 2
+    # Holm, m = 4: no copy of LiveCodeBench Pro's file here, its two tests enter with p = 1 (the group Holm is computed
+    # on main from both merged files); support and refute families separately
+    assert not (RESULTS / "group-tests-livecodebench-pro-25q2.json").exists()
+    assert h["holm"]["other_benchmark_file"] is None and h["holm"]["missing_counted_as_p_1"] == 2
+    group = [{"p_support": 1.0, "p_refute": 1.0}] * 2
 
     def holm(ps):
         order = sorted(range(4), key=lambda i: ps[i])
@@ -231,8 +234,7 @@ def test_k1_k2_k3_holm_and_reading():
                                                 f"{z2e:+.2f}"]
     assert cells(hyp, "| K3 |")[1:4] == [f"{100 * d:+.2f}", f"{100 * d_se:.2f}", f"{z3:+.2f}"]
     assert cells(hyp, "| K2 |")[7] == k2["verdict_holm"] and cells(hyp, "| K3 |")[7] == k3["verdict_holm"]
-    assert (f"Holm m = {2 + len(group)}, family: scicode K2, scicode K3, "
-            + ", ".join(f"{t['benchmark']} {t['id']}" for t in group)) in hyp
+    assert "Holm m = 4, family: scicode K2, scicode K3; 2 of the 4 without a p here, counted as p = 1" in hyp
     flat = " ".join(hyp.split())
     gap = 100 * (p_on - CARD_LFM3)
     assert (f"({gap:+.2f} pt, z = {z1:+.2f})" in flat and f"the gap is {abs(gap):.2f} pt" in flat
@@ -256,6 +258,13 @@ def test_k1_k2_k3_holm_and_reading():
     assert (tc["K2"]["verdict_holm"], tc["K3"]["verdict_holm"]) == (verdict(sup_t[0], ref_t[0]), verdict(sup_t[1], ref_t[1]))
     assert (f"K2 Holm p {sup_t[0]:.3g}, {tc['K2']['verdict_holm']}; K3 Holm p {ref_t[1]:.3g}, "
             f"{tc['K3']['verdict_holm']}") in flat
+    gap_wb = 100 * (sum(float(r["score"]) for r in setting_rows("lfm3-1.7b", "without_background")) / N - CARD_LFM3)
+    _, se_wb = clustered([float(r["score"]) for r in setting_rows("lfm3-1.7b", "without_background")],
+                         [r["problem_id"] for r in setting_rows("lfm3-1.7b", "without_background")])
+    assert abs(gap_wb) <= 200 * se_wb and abs(gap) <= 200 * se1  # both settings pass the control's rule
+    assert (f"without background LFM3-1.7B ({100 * CARD_LFM3 + gap_wb:.2f}, {gap_wb:+.2f} pt, "
+            f"z = {gap_wb / (100 * se_wb):+.2f}) lands within 2 clustered SE") in flat
+    assert "the control cannot tell the two settings apart" in flat
     raw = json.loads((RESULTS / "raw-outputs.json").read_text(encoding="utf-8"))["runs"]
     rs = raw["lfm3-1.7b-nothink"]["settings"]["with_background"]["reasoning"]
     assert (f"**K3** {k3['verdict_holm'].split(' ')[0]} under the pre-registered switch (`enable_thinking: false`): "

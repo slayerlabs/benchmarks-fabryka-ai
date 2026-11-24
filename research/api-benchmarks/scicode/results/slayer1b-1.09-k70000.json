@@ -6,7 +6,7 @@
   "stderr": null,
   "n": 0,
   "date": null,
-  "reason": "a base model with a 4096-token context that does not follow chat instructions; on 30 Python tasks in research/slayer-1b/rozmowy-1.08 it wrote no function that passed its tests (PROTOCOL.md, Models)",
+  "reason": "not run, a cost decision (PROTOCOL.md, Models): on the 30 Python tasks of research/slayer-1b/rozmowy-1.08 (PAPER.md, H5.1) Slayer 1B wrote no function that passed its tests (0 of 30), so running 288 \u00d7 2 SciCode steps was judged not worth its cost. null here records that decision; Slayer 1B can run the steps that fit its 4096-token context (counted with its tokenizer and empty earlier-step code, 7 of the 288 prompts with background and 0 of the 288 without exceed it)",
   "harness": "https://github.com/scicode-bench/SciCode @ e3158ea011d4235245a547460d3688d7ccbf9900",
   "data": "https://huggingface.co/datasets/SciCode1/SciCode @ 4510f6a6aa27c43fad7b43da2c59602a86e88480, test",
   "settings": null,

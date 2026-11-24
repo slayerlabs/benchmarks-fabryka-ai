@@ -178,7 +178,6 @@ def hypotheses_block(results: Path) -> str:
     cf = read_json(results, "exploratory.json")["k3_without_reasoning_passes"]
     d = h["descriptive"]
     holm = h["holm"]
-    group = json.loads((results / holm["other_benchmark_file"].split("results/", 1)[-1]).read_text(encoding="utf-8"))
     out = [hypotheses.report(h), "",
            "Without background (descriptive, not tested; PROTOCOL.md: the without-background run is no second "
            "chance at the control):", "",
@@ -191,7 +190,11 @@ def hypotheses_block(results: Path) -> str:
            "", "Reading:", "",
            f"- **K1** {h['control']['status']} by PROTOCOL.md's rule: LFM3-1.7B with background lands within 2 "
            f"clustered SE of its card value ({h['control']['score'] - h['control']['card']:+.2f} pt, z = "
-           f"{h['control']['z']:+.2f}), so K2 and K3 are read. The reporting rules' reproduction check (within "
+           f"{h['control']['z']:+.2f}), so K2 and K3 are read. This does not confirm that our setup is the card's: "
+           f"the card does not say whether the background was given, and without background LFM3-1.7B "
+           f"({d['K1_form']['score']:.2f}, {d['K1_form']['score'] - d['K1_form']['card']:+.2f} pt, z = "
+           f"{d['K1_form']['z']:+.2f}) lands within 2 clustered SE of the card's {h['control']['card']:.2f} too, so "
+           f"the control cannot tell the two settings apart. The reporting rules' reproduction check (within "
            f"±{REPRODUCTION_TOLERANCE_PT} pt of a published number) is not met: the gap is "
            f"{abs(h['control']['score'] - h['control']['card']):.2f} pt; at n = {h['control']['n']} that check cannot be "
            f"decided either way, since 2 clustered SE are {2 * h['control']['se_clustered']:.2f} pt.",
@@ -214,15 +217,21 @@ def hypotheses_block(results: Path) -> str:
            f"{cf['value']:+.2f} ± {cf['se']:.2f} (z = {cf['z']:+.2f}): the lead that survives the switch sits in "
            "answers that still reason.",
            *repeat_lines(results),
-           f"- **With Student's t instead of the normal** (descriptive, df = {t['df']}, our two tests; LiveCodeBench "
-           f"Pro's p as recorded) the verdicts are the same: K2 Holm p {t['K2']['p_support_holm']:.3g}, "
+           f"- **With Student's t instead of the normal** (descriptive, df = {t['df']}, our two tests; the other "
+           f"benchmark's two tests at p = 1 as above): K2 Holm p {t['K2']['p_support_holm']:.3g}, "
            f"{t['K2']['verdict_holm']}; K3 Holm p {t['K3']['p_refute_holm']:.3g}, {t['K3']['verdict_holm']}, against "
-           f"{hypotheses.P_CLEAR:.3g} for \"clear\" (z = 3), a small margin.",
-           f"- **Holm over the Coding group** (m = {holm['m']}) used LiveCodeBench Pro 25Q2's K2 and K3 from "
-           f"`{holm['other_benchmark_file']}`, copied from branch `{group['source']['branch']}` at "
-           f"`{group['source']['commit'][:8]}`.",
+           f"{hypotheses.P_CLEAR:.3g}, the Holm p that \"clear\" needs"
+           + (", the same verdicts." if (t['K2']['verdict_holm'], t['K3']['verdict_holm']) ==
+              (k2['verdict_holm'], k3['verdict_holm']) else ": with the t a verdict changes at this bound, so a "
+              "\"clear\" here rests on the normal approximation or on the other benchmark's p."),
+           f"- **Holm over the Coding group** (m = {holm['m']}): this file holds only SciCode's K2 and K3; the two "
+           f"tests of LiveCodeBench Pro 25Q2 enter with p = 1 ({holm['missing_counted_as_p_1']} of {holm['m']}). A "
+           "Holm-adjusted p cannot fall when another test's p rises, so the Holm p and verdicts above are "
+           "conservative bounds of the group's. The group Holm over both benchmarks is computed once, from both "
+           "merged `hypotheses.json` files on main.",
            "", "K3 robustness (descriptive, added after the results; no verdict reads it): D without the problems "
-           "that contribute most to it, with the Holm p of \"refuted\" (the other three tests unchanged):", "",
+           "that contribute most to it, with the Holm p of \"refuted\" (K2's p unchanged, LiveCodeBench Pro's at "
+           "p = 1):", "",
            "| problems left out | D (pp) | SE (pp) | z | Holm p | verdict after Holm |", "|---|---|---|---|---|---|"]
     rob = h["k3_robustness"]
     for x in rob["drop_top_problems"]:
@@ -343,7 +352,9 @@ def reference_lines(ev: dict[str, Any]) -> list[str]:
                    "`e3158ea0` hands the whole answer to `extract_python_script` (it knows no `</think>`); PROTOCOL.md "
                    f"cuts after the last `</think>` for every model. Re-scored where it matters for `{run}` "
                    f"(reference_extraction.py on the scoring VM): {parts}. For the LFM3-1.7B runs the reference "
-                   "extraction would read the reasoning too; its effect there is not measured.")
+                   "extraction would read the reasoning too; its effect there is not measured (an open limitation): "
+                   "it needs reference_extraction.py on the scoring VM for each step file whose answer closes "
+                   "`</think>` (Exploratory, first table) and the later steps built on it, in the scoring image.")
     return out
 
 

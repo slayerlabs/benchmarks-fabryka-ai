@@ -311,7 +311,8 @@ def analyse(results: Path, group: Path | None = None) -> dict[str, Any]:
         sup_t = holm(ps_t + [t["p_support"] for t in others])
         ref_t = holm([None if p is None else 1 - p for p in ps_t] + [t["p_refute"] for t in others])
         t_check = {"note": "descriptive: our K2 and K3 with one-sided p from Student's t (df = problems - 1) instead "
-                           "of the normal; LiveCodeBench Pro's two p as recorded; Holm m = 4, the same thresholds",
+                           "of the normal; the other benchmark's two p as given (p = 1 without --group); Holm m = 4, "
+                           "the same thresholds",
                    "df": df,
                    **{r["id"]: {"z": r["z"], "p_support_holm": s, "p_refute_holm": f,
                                 "verdict_holm": r["status"] if r["status"] != "computed" else verdict(s, f)}
@@ -355,8 +356,10 @@ def report(a: dict) -> str:
     k2row = a["hypotheses"][0]
     if k2row.get("depends_on_extraction"):
         out.append(k2row["extraction_note"])
+    missing = a["holm"]["missing_counted_as_p_1"]
     out.append(f"Holm m = {a['holm']['m']}, family: " + ", ".join(f"{t['benchmark']} {t['id']}"
-                                                                    for t in a["holm"]["family"]))
+                                                                    for t in a["holm"]["family"])
+               + (f"; {missing} of the {a['holm']['m']} without a p here, counted as p = 1" if missing else ""))
     return "\n".join(out)
 
 
