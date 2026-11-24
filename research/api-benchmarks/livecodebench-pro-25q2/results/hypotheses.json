@@ -1,0 +1,124 @@
+{
+  "benchmark": "livecodebench-pro-25q2",
+  "protocol": "PROTOCOL.md",
+  "control": {
+    "status": "passed",
+    "card": 31.740000000000002,
+    "score": 32.33532934131736,
+    "stderr": 3.619606795828636,
+    "z": 0.16447348424791391,
+    "n": 167
+  },
+  "hypotheses": [
+    {
+      "id": "K2",
+      "status": "ok",
+      "value": 1.7964071856287425,
+      "reference": 19.16,
+      "se": 3.0454583836373574,
+      "z": -5.701471051997423,
+      "n": 167,
+      "outcome_raw": "supported",
+      "strength_raw": "clear",
+      "p_support": 5.938895427580987e-09,
+      "p_refute": 0.9999999940611046,
+      "verdict": "supported (clear)",
+      "read": true
+    },
+    {
+      "id": "K3",
+      "value": 11.676646706586826,
+      "se": 2.362521336917176,
+      "n": 167,
+      "lead": {
+        "value": 30.538922155688624,
+        "se": 3.5747326542025495,
+        "z": 8.542994710327852
+      },
+      "on": 32.33532934131736,
+      "off": 28.74251497005988,
+      "bielik": 1.7964071856287425,
+      "status": "ok",
+      "z": 4.942451322714204,
+      "outcome_raw": "refuted",
+      "strength_raw": "clear",
+      "p_support": 0.9999996142681458,
+      "p_refute": 3.857318542355159e-07,
+      "verdict": "refuted (clear)",
+      "read": true
+    }
+  ],
+  "group_tests": [
+    {
+      "benchmark": "livecodebench-pro-25q2",
+      "id": "K2",
+      "z": -5.701471051997423,
+      "p_support": 5.938895427580987e-09,
+      "p_refute": 0.9999999940611046,
+      "outcome_raw": "supported"
+    },
+    {
+      "benchmark": "livecodebench-pro-25q2",
+      "id": "K3",
+      "z": 4.942451322714204,
+      "p_support": 0.9999996142681458,
+      "p_refute": 3.857318542355159e-07,
+      "outcome_raw": "refuted"
+    }
+  ],
+  "group_holm": {
+    "m": 4,
+    "status": "not applied here",
+    "where": "research/api-benchmarks/coding-group/holm.json, once, from this benchmark's and SciCode's hypotheses.json as merged on main (PROTOCOL.md, Amendment 2)"
+  },
+  "notes": [],
+  "k3_robustness": {
+    "descriptive": true,
+    "clustered_by_contest": {
+      "contests": 26,
+      "se": 2.6287519130033603,
+      "z": 4.441897559380644
+    },
+    "sign_test_contests": {
+      "positive": 17,
+      "negative": 2,
+      "zero": 7,
+      "p_one_sided": 0.0003643035888671875
+    },
+    "per_difficulty": {
+      "easy": {
+        "value": 21.1340206185567,
+        "se": 3.724501767516386,
+        "z": 5.674321543589849,
+        "n": 97,
+        "accepted": {
+          "on": 52,
+          "off": 48,
+          "bielik": 3
+        }
+      },
+      "medium": {
+        "value": -1.7543859649122806,
+        "se": 1.2294120846083072,
+        "z": -1.4270121360253514,
+        "n": 57,
+        "accepted": {
+          "on": 2,
+          "off": 0,
+          "bielik": 0
+        }
+      },
+      "hard": {
+        "value": 0.0,
+        "se": 0.0,
+        "z": null,
+        "n": 13,
+        "accepted": {
+          "on": 0,
+          "off": 0,
+          "bielik": 0
+        }
+      }
+    }
+  }
+}

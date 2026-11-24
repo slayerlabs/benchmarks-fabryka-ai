@@ -1,0 +1,59 @@
+{
+  "files": {
+    "bielik-11b-v3.1.json": {
+      "at": "2026-11-22T20:28:56+00:00",
+      "sha256": "484dc385d153039a056c132e1bdb508afaa2e5ccc87bf7dee7ae42bc031b79ea",
+      "written_by": "summarize.py"
+    },
+    "bielik-11b-v3.1.jsonl.gz": {
+      "at": "2026-11-22T20:28:56+00:00",
+      "sha256": "eddaaa66b15246a4a4d36ea97509a5469ffae044b4e9afb562d7e845d5f26f58",
+      "written_by": "summarize.py"
+    },
+    "exploratory.json": {
+      "at": "2026-11-22T20:35:35+00:00",
+      "sha256": "dab63b07f527f5535b5bf0dba709580ee0bd9e37fb4d9c2798aeb51657d6d946",
+      "written_by": "explore.py"
+    },
+    "hypotheses.json": {
+      "at": "2026-11-24T14:07:24+00:00",
+      "sha256": "2c83a09cdb51c53d4cf793698d6e6fa2645b9fecd101019a6dfbc97b69c30d86",
+      "written_by": "compare.py"
+    },
+    "lfm3-1.7b-nothink.json": {
+      "at": "2026-11-22T20:28:55+00:00",
+      "sha256": "d7283ed28f562617726a2ee1673d143a60a7b1b97387c774ff8c92e87629b7a5",
+      "written_by": "summarize.py"
+    },
+    "lfm3-1.7b-nothink.jsonl.gz": {
+      "at": "2026-11-22T20:28:55+00:00",
+      "sha256": "dbe0a4bba9242d13d9428f84aca174a612c68d1f9164022e166bd8770a7428fc",
+      "written_by": "summarize.py"
+    },
+    "lfm3-1.7b.json": {
+      "at": "2026-11-22T20:28:54+00:00",
+      "sha256": "541399467976dd8be407bc8a002ffdd66cfafde05a9d5657171a03b68fbddf0d",
+      "written_by": "summarize.py"
+    },
+    "lfm3-1.7b.jsonl.gz": {
+      "at": "2026-11-22T20:28:54+00:00",
+      "sha256": "764afd99ea5e71bac9a62fa7473b311324040e054e3dcf7cac2501f70819a568",
+      "written_by": "summarize.py"
+    },
+    "raw-outputs.json": {
+      "at": "2026-11-22T20:35:36+00:00",
+      "sha256": "53d6d196fee438f4712c63711dc5534b38a2caa66e8eec67d1605cbdaa66b794",
+      "written_by": "raw_outputs.py"
+    },
+    "rejudge.json": {
+      "at": "2026-11-22T20:33:12+00:00",
+      "sha256": "6e2f4551f47f869186c486ef8eac14a8f0a324d1caea607e62302d794103f6b9",
+      "written_by": "rejudge.py"
+    },
+    "slayer1b-1.09-k70000.json": {
+      "at": "2026-11-24T14:09:13+00:00",
+      "sha256": "5e4c1677a888a3e4874bb1142aa2fcd47938fc40280b63cd3d8e35dd592a0031",
+      "written_by": "summarize.py"
+    }
+  }
+}

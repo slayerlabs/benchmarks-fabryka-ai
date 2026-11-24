@@ -1,0 +1,2747 @@
+{
+  "benchmark": "SciCode",
+  "model": "lfm3-1.7b-nothink",
+  "metric": "subproblem pass rate, with background (correct steps / 288 x 100, test_generated_code.py)",
+  "score": 24.65,
+  "stderr": 2.54,
+  "stderr_clustered": 3.04,
+  "n": 288,
+  "date": "2026-11-22",
+  "harness": "https://github.com/scicode-bench/SciCode @ e3158ea011d4235245a547460d3688d7ccbf9900",
+  "data": "https://huggingface.co/datasets/SciCode1/SciCode @ 4510f6a6aa27c43fad7b43da2c59602a86e88480, test; test_data.h5 sha256 48b0272a88b17dbd29777c217e1b4fb2b019b92e11cc2add847409db9541b890",
+  "settings": {
+    "prompt": "SciCode Gencode (eval/scripts/gencode.py), one user message per subproblem, no system message",
+    "settings_run": [
+      "with_background",
+      "without_background"
+    ],
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "seed": 20261122,
+    "thinking": false,
+    "max_tokens": "context minus prompt tokens",
+    "context": 262144,
+    "trials": 1,
+    "scored_text": "extract_python_script of the text after the last </think> (empty when unfinished with thinking on)",
+    "scorer_timeout_s": 1800,
+    "blas_threads": 1,
+    "request_sampling": {
+      "n": 1,
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "seed": 20261122,
+      "top_k": 0,
+      "repetition_penalty": 1.0,
+      "frequency_penalty": 0,
+      "presence_penalty": 0
+    },
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    },
+    "server_defaults": {},
+    "server_defaults_source": "vLLM generation_config=auto: LiquidAI/LFM3-1.7B@1da06bec6a819da10b54c67e5c90972b46d81871 generation_config.json",
+    "effective": {
+      "n": 1,
+      "temperature": 0.6,
+      "top_p": 0.95,
+      "seed": 20261122,
+      "top_k": 0,
+      "repetition_penalty": 1.0,
+      "frequency_penalty": 0,
+      "presence_penalty": 0
+    }
+  },
+  "other_metrics": {
+    "with_background": {
+      "stderr_clustered": 3.04,
+      "correct": 71,
+      "clusters": 65,
+      "main_problems": {
+        "solved": 4,
+        "of": 65,
+        "solved_ids": [
+          "9",
+          "15",
+          "42",
+          "74"
+        ]
+      },
+      "verdicts": {
+        "fail": 216,
+        "pass": 71,
+        "time out": 1
+      },
+      "timeouts": 1,
+      "output_tokens": {
+        "mean": 5203.3,
+        "median": 3710.0,
+        "max": 31765
+      },
+      "unfinished": 0,
+      "length_stops": 0,
+      "unsupported": 0,
+      "answers_with_think_open": {
+        "count": 0,
+        "of": 288,
+        "share": 0.0
+      }
+    },
+    "without_background": {
+      "score": 17.36,
+      "stderr": 2.23,
+      "stderr_clustered": 2.75,
+      "n": 288,
+      "correct": 50,
+      "clusters": 65,
+      "main_problems": {
+        "solved": 0,
+        "of": 65,
+        "solved_ids": []
+      },
+      "verdicts": {
+        "fail": 236,
+        "pass": 50,
+        "time out": 2
+      },
+      "timeouts": 2,
+      "output_tokens": {
+        "mean": 5324.0,
+        "median": 3896.5,
+        "max": 27465
+      },
+      "unfinished": 0,
+      "length_stops": 0,
+      "unsupported": 0,
+      "answers_with_think_open": {
+        "count": 0,
+        "of": 288,
+        "share": 0.0
+      }
+    },
+    "extraction_e1": {
+      "note": "PROTOCOL.md Amendment 1, secondary: the same answers with extraction E1, scored by the same scorer; never the headline",
+      "with_background": {
+        "score": 24.65,
+        "stderr": 2.54,
+        "stderr_clustered": 3.04,
+        "n": 288,
+        "correct": 71,
+        "clusters": 65,
+        "main_problems": {
+          "solved": 4,
+          "of": 65,
+          "solved_ids": [
+            "9",
+            "15",
+            "42",
+            "74"
+          ]
+        },
+        "verdicts": {
+          "fail": 216,
+          "pass": 71,
+          "time out": 1
+        },
+        "reused_identical": 288,
+        "scored": 0
+      },
+      "without_background": {
+        "score": 17.36,
+        "stderr": 2.23,
+        "stderr_clustered": 2.75,
+        "n": 288,
+        "correct": 50,
+        "clusters": 65,
+        "main_problems": {
+          "solved": 0,
+          "of": 65,
+          "solved_ids": []
+        },
+        "verdicts": {
+          "fail": 236,
+          "pass": 50,
+          "time out": 2
+        },
+        "reused_identical": 288,
+        "scored": 0
+      }
+    }
+  },
+  "deviations": "see README.md, Deviations",
+  "provenance": {
+    "generation": [
+      {
+        "step": "scicode_runner.py generate",
+        "at": "2026-11-22T16:51:26+00:00",
+        "code_commit": "e65c9c272b2500327dc2030017980275ad6015be",
+        "code_commit_source": "git",
+        "dirty": false,
+        "runner_sha256": {
+          "run.sh": "6474912e862d2f50955fc0fb0c654d3d9158fb763b5439e76217f5d4bee1ecc6",
+          "scicode_runner.py": "63384b278a938c672c9939d7cc93121b2109f9b1037f49a2b913ee2c39cd9ed8",
+          "summarize.py": "cf48975affc387ce7eb7bbdcd2a842802da29418cf53a3b41d4da8ef70719fb9",
+          "hypotheses.py": "49d7caf5855f0085f464c29a6b4b698f5dba0378e39f6ad5e3cf09535d19b354",
+          "provenance.py": "0564193ded8b1365017eab60a148b94f4c648e762513ee9925aa588c5c0ba3ab",
+          "Dockerfile.scoring": "5996d6efd23d18e42619b051ff17f77c55c9bc4244874b3963290d57807b9ab5",
+          "requirements-scoring.lock": "96ed3a5704cdb6fac21f6a2728ff24044a6dee180c57a0407f5499aa93754076",
+          "requirements-generate.lock": "14231797536cdc3d5cc4d94223137c26909e28e1786d6ac4c9cdecb2e0d8e37f",
+          "setup_scoring_vm.sh": "945d67385a6e3f98ffc4821f003b4108c8dcad1ccb9450c3152d79efbfa690e9"
+        },
+        "gpu": "NVIDIA H100 80GB HBM3",
+        "platform": "Linux-6.8.0-147-generic-x86_64-with-glibc2.35",
+        "cpu": "AMD EPYC 9684X 96-Core Processor",
+        "cpu_count": 384,
+        "python": "3.11.13",
+        "model": "lfm3-1.7b",
+        "model_id": "lfm3-1.7b-nothink",
+        "split": "test",
+        "limit": null,
+        "settings": [
+          "with_background",
+          "without_background"
+        ],
+        "thinking": false,
+        "server": {
+          "base_url": "http://localhost:8000",
+          "version": {
+            "version": "0.34.0"
+          },
+          "models": {
+            "object": "list",
+            "data": [
+              {
+                "id": "lfm3-1.7b",
+                "object": "model",
+                "created": 1795366286,
+                "owned_by": "vllm",
+                "root": "LiquidAI/LFM3-1.7B",
+                "parent": null,
+                "max_model_len": 262144,
+                "permission": [
+                  {
+                    "id": "modelperm-b0941a0972202a43",
+                    "object": "model_permission",
+                    "created": 1795366286,
+                    "allow_create_engine": false,
+                    "allow_sampling": true,
+                    "allow_logprobs": true,
+                    "allow_search_indices": false,
+                    "allow_view": true,
+                    "allow_fine_tuning": false,
+                    "organization": "*",
+                    "group": null,
+                    "is_blocking": false
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "stubbed_modules": [
+          "openai",
+          "anthropic",
+          "google.generativeai",
+          "config",
+          "litellm",
+          "litellm.utils"
+        ],
+        "api_events": {
+          "events": 0,
+          "by_action": {},
+          "by_status": {},
+          "steps": 0
+        }
+      }
+    ],
+    "scoring": {
+      "step": "scicode_runner.py score",
+      "at": "2026-11-22T21:10:30+00:00",
+      "code_commit": "3b731440030a178e73f660c632c2df68fd2fce29",
+      "code_commit_source": "host",
+      "dirty": true,
+      "runner_sha256": {
+        "run.sh": "6474912e862d2f50955fc0fb0c654d3d9158fb763b5439e76217f5d4bee1ecc6",
+        "scicode_runner.py": "749571c4765135a956d519b8c1c166f56faff7960977de3d5bb8708decb0f173",
+        "summarize.py": "c70fea92dd52eb1024a86219a85f6a40769b60527d7e1745428b173e5f10d26b",
+        "hypotheses.py": "f8843aaf3ee9b100e4f1e86547152869c9e44f04e12b94b0e109c259a00fc0ca",
+        "provenance.py": "0564193ded8b1365017eab60a148b94f4c648e762513ee9925aa588c5c0ba3ab",
+        "Dockerfile.scoring": "5996d6efd23d18e42619b051ff17f77c55c9bc4244874b3963290d57807b9ab5",
+        "requirements-scoring.lock": "565303cad3e49ff4f49e6af28386e8cb60bc8412682d44f07504677bcd57df10",
+        "requirements-generate.lock": "14231797536cdc3d5cc4d94223137c26909e28e1786d6ac4c9cdecb2e0d8e37f",
+        "setup_scoring_vm.sh": "945d67385a6e3f98ffc4821f003b4108c8dcad1ccb9450c3152d79efbfa690e9"
+      },
+      "gpu": null,
+      "platform": "Linux-5.15.0-1067-kvm-x86_64-with-glibc2.36",
+      "cpu": "AMD EPYC 7302P 16-Core Processor",
+      "cpu_count": 30,
+      "python": "3.11.9",
+      "split": "test",
+      "limit": null,
+      "scicode_commit": "e3158ea011d4235245a547460d3688d7ccbf9900",
+      "test_data_h5": {
+        "path": "/root/scicode/repo/research/api-benchmarks/scicode/.cache/test_data.h5",
+        "bytes": 1049345865,
+        "sha256": "48b0272a88b17dbd29777c217e1b4fb2b019b92e11cc2add847409db9541b890",
+        "sha256_ok": true
+      },
+      "dataset_cache_revisions": [
+        "4510f6a6aa27c43fad7b43da2c59602a86e88480"
+      ],
+      "dataset_prefetch": {
+        "at": "2026-11-22T16:25:07+00:00",
+        "revision": "4510f6a6aa27c43fad7b43da2c59602a86e88480",
+        "files_sha256": {
+          "problems_test.jsonl": "38797fef78f434720be6d053b4f3a86839d6f8ea5fb9115450677cd3a6edf81d",
+          "problems_dev.jsonl": "193968aff23b7ed931c8f6d196b611e2f6694adb49e6cc085444a60ad2fc4f7b"
+        },
+        "main_at_prefetch": "4510f6a6aa27c43fad7b43da2c59602a86e88480"
+      },
+      "blas_threads": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1"
+      },
+      "packages": {
+        "numpy": "1.26.4",
+        "scipy": "1.13.1",
+        "sympy": "1.12.1",
+        "h5py": "3.11.0",
+        "matplotlib": "3.9.0",
+        "datasets": "3.6.0",
+        "huggingface-hub": "0.36.2",
+        "pyarrow": "17.0.0",
+        "numpy_blas": {
+          "name": "openblas64",
+          "found": true,
+          "version": "0.3.23.dev",
+          "detection method": "pkgconfig",
+          "include directory": "/usr/local/include",
+          "lib directory": "/usr/local/lib",
+          "openblas configuration": "USE_64BITINT=1 DYNAMIC_ARCH=1 DYNAMIC_OLDER= NO_CBLAS= NO_LAPACK= NO_LAPACKE= NO_AFFINITY=1 USE_OPENMP= HASWELL MAX_THREADS=2",
+          "pc file directory": "/usr/local/lib/pkgconfig"
+        }
+      },
+      "scorer_timeout_s": 1800,
+      "container": {
+        "image_id": "sha256:261432609549a9638b735a97e423d9b2b2aa952754dfd2b649cd6b02c09c59cb",
+        "network": "none"
+      },
+      "runs": {
+        "with_background": {
+          "command": [
+            "python",
+            "eval/scripts/test_generated_code.py",
+            "--model",
+            "lfm3-1.7b-nothink",
+            "--split",
+            "test",
+            "--code-dir",
+            "/root/scicode/repo/research/api-benchmarks/scicode/out/lfm3-1.7b-nothink/generated_code",
+            "--log-dir",
+            "/root/scicode/repo/research/api-benchmarks/scicode/out/lfm3-1.7b-nothink/score/logs",
+            "--output-dir",
+            "/root/scicode/repo/research/api-benchmarks/scicode/out/lfm3-1.7b-nothink/score/results_logs",
+            "--with-background"
+          ],
+          "seconds": 1.6,
+          "printed": {
+            "correct_problems": 4,
+            "problems_denominator": 65,
+            "correct_steps": 71,
+            "steps_denominator": 288,
+            "dataset_revision_seen": "4510f6a6aa27c43fad7b43da2c59602a86e88480"
+          }
+        },
+        "without_background": {
+          "command": [
+            "python",
+            "eval/scripts/test_generated_code.py",
+            "--model",
+            "lfm3-1.7b-nothink",
+            "--split",
+            "test",
+            "--code-dir",
+            "/root/scicode/repo/research/api-benchmarks/scicode/out/lfm3-1.7b-nothink/generated_code",
+            "--log-dir",
+            "/root/scicode/repo/research/api-benchmarks/scicode/out/lfm3-1.7b-nothink/score/logs",
+            "--output-dir",
+            "/root/scicode/repo/research/api-benchmarks/scicode/out/lfm3-1.7b-nothink/score/results_logs"
+          ],
+          "seconds": 1.6,
+          "printed": {
+            "correct_problems": 0,
+            "problems_denominator": 65,
+            "correct_steps": 50,
+            "steps_denominator": 288,
+            "dataset_revision_seen": "4510f6a6aa27c43fad7b43da2c59602a86e88480"
+          }
+        },
+        "e1/with_background": {
+          "reused_identical": 288,
+          "scored": 0,
+          "reused_passes": 71,
+          "reused_steps": [
+            [
+              "77",
+              1
+            ],
+            [
+              "77",
+              2
+            ],
+            [
+              "77",
+              3
+            ],
+            [
+              "77",
+              4
+            ],
+            [
+              "77",
+              5
+            ],
+            [
+              "77",
+              6
+            ],
+            [
+              "77",
+              7
+            ],
+            [
+              "77",
+              8
+            ],
+            [
+              "77",
+              9
+            ],
+            [
+              "77",
+              10
+            ],
+            [
+              "77",
+              11
+            ],
+            [
+              "77",
+              12
+            ],
+            [
+              "11",
+              1
+            ],
+            [
+              "11",
+              2
+            ],
+            [
+              "11",
+              3
+            ],
+            [
+              "11",
+              4
+            ],
+            [
+              "11",
+              5
+            ],
+            [
+              "11",
+              6
+            ],
+            [
+              "11",
+              7
+            ],
+            [
+              "11",
+              8
+            ],
+            [
+              "11",
+              9
+            ],
+            [
+              "11",
+              10
+            ],
+            [
+              "11",
+              11
+            ],
+            [
+              "11",
+              12
+            ],
+            [
+              "12",
+              1
+            ],
+            [
+              "12",
+              2
+            ],
+            [
+              "12",
+              3
+            ],
+            [
+              "12",
+              4
+            ],
+            [
+              "12",
+              5
+            ],
+            [
+              "12",
+              6
+            ],
+            [
+              "12",
+              7
+            ],
+            [
+              "12",
+              8
+            ],
+            [
+              "12",
+              9
+            ],
+            [
+              "12",
+              10
+            ],
+            [
+              "12",
+              11
+            ],
+            [
+              "12",
+              12
+            ],
+            [
+              "12",
+              13
+            ],
+            [
+              "12",
+              14
+            ],
+            [
+              "13",
+              1
+            ],
+            [
+              "13",
+              2
+            ],
+            [
+              "13",
+              3
+            ],
+            [
+              "13",
+              4
+            ],
+            [
+              "13",
+              5
+            ],
+            [
+              "13",
+              7
+            ],
+            [
+              "13",
+              8
+            ],
+            [
+              "13",
+              9
+            ],
+            [
+              "13",
+              10
+            ],
+            [
+              "13",
+              11
+            ],
+            [
+              "13",
+              12
+            ],
+            [
+              "13",
+              13
+            ],
+            [
+              "13",
+              14
+            ],
+            [
+              "13",
+              15
+            ],
+            [
+              "2",
+              1
+            ],
+            [
+              "74",
+              1
+            ],
+            [
+              "5",
+              1
+            ],
+            [
+              "8",
+              1
+            ],
+            [
+              "9",
+              1
+            ],
+            [
+              "14",
+              1
+            ],
+            [
+              "14",
+              2
+            ],
+            [
+              "15",
+              1
+            ],
+            [
+              "15",
+              2
+            ],
+            [
+              "16",
+              1
+            ],
+            [
+              "16",
+              2
+            ],
+            [
+              "17",
+              1
+            ],
+            [
+              "17",
+              2
+            ],
+            [
+              "18",
+              1
+            ],
+            [
+              "18",
+              2
+            ],
+            [
+              "20",
+              1
+            ],
+            [
+              "20",
+              2
+            ],
+            [
+              "21",
+              1
+            ],
+            [
+              "21",
+              2
+            ],
+            [
+              "21",
+              3
+            ],
+            [
+              "22",
+              1
+            ],
+            [
+              "22",
+              2
+            ],
+            [
+              "22",
+              3
+            ],
+            [
+              "23",
+              1
+            ],
+            [
+              "23",
+              2
+            ],
+            [
+              "23",
+              3
+            ],
+            [
+              "24",
+              1
+            ],
+            [
+              "24",
+              2
+            ],
+            [
+              "24",
+              3
+            ],
+            [
+              "25",
+              1
+            ],
+            [
+              "25",
+              2
+            ],
+            [
+              "25",
+              3
+            ],
+            [
+              "26",
+              1
+            ],
+            [
+              "26",
+              2
+            ],
+            [
+              "26",
+              3
+            ],
+            [
+              "27",
+              1
+            ],
+            [
+              "27",
+              2
+            ],
+            [
+              "27",
+              3
+            ],
+            [
+              "28",
+              1
+            ],
+            [
+              "28",
+              2
+            ],
+            [
+              "28",
+              3
+            ],
+            [
+              "75",
+              1
+            ],
+            [
+              "75",
+              2
+            ],
+            [
+              "75",
+              3
+            ],
+            [
+              "30",
+              1
+            ],
+            [
+              "30",
+              2
+            ],
+            [
+              "30",
+              3
+            ],
+            [
+              "31",
+              1
+            ],
+            [
+              "31",
+              2
+            ],
+            [
+              "31",
+              3
+            ],
+            [
+              "32",
+              1
+            ],
+            [
+              "32",
+              2
+            ],
+            [
+              "32",
+              3
+            ],
+            [
+              "33",
+              1
+            ],
+            [
+              "33",
+              2
+            ],
+            [
+              "33",
+              3
+            ],
+            [
+              "34",
+              1
+            ],
+            [
+              "34",
+              2
+            ],
+            [
+              "34",
+              3
+            ],
+            [
+              "35",
+              1
+            ],
+            [
+              "35",
+              2
+            ],
+            [
+              "35",
+              3
+            ],
+            [
+              "36",
+              1
+            ],
+            [
+              "36",
+              2
+            ],
+            [
+              "36",
+              3
+            ],
+            [
+              "37",
+              1
+            ],
+            [
+              "37",
+              2
+            ],
+            [
+              "37",
+              3
+            ],
+            [
+              "39",
+              1
+            ],
+            [
+              "39",
+              2
+            ],
+            [
+              "39",
+              3
+            ],
+            [
+              "40",
+              1
+            ],
+            [
+              "40",
+              2
+            ],
+            [
+              "40",
+              3
+            ],
+            [
+              "41",
+              1
+            ],
+            [
+              "41",
+              2
+            ],
+            [
+              "41",
+              3
+            ],
+            [
+              "42",
+              1
+            ],
+            [
+              "42",
+              2
+            ],
+            [
+              "42",
+              3
+            ],
+            [
+              "43",
+              1
+            ],
+            [
+              "43",
+              2
+            ],
+            [
+              "43",
+              3
+            ],
+            [
+              "45",
+              1
+            ],
+            [
+              "45",
+              2
+            ],
+            [
+              "45",
+              3
+            ],
+            [
+              "45",
+              4
+            ],
+            [
+              "46",
+              1
+            ],
+            [
+              "46",
+              2
+            ],
+            [
+              "46",
+              3
+            ],
+            [
+              "46",
+              4
+            ],
+            [
+              "48",
+              1
+            ],
+            [
+              "48",
+              2
+            ],
+            [
+              "48",
+              3
+            ],
+            [
+              "48",
+              4
+            ],
+            [
+              "79",
+              1
+            ],
+            [
+              "79",
+              2
+            ],
+            [
+              "79",
+              3
+            ],
+            [
+              "79",
+              4
+            ],
+            [
+              "76",
+              1
+            ],
+            [
+              "76",
+              2
+            ],
+            [
+              "76",
+              4
+            ],
+            [
+              "50",
+              1
+            ],
+            [
+              "50",
+              2
+            ],
+            [
+              "50",
+              3
+            ],
+            [
+              "50",
+              4
+            ],
+            [
+              "52",
+              1
+            ],
+            [
+              "52",
+              2
+            ],
+            [
+              "52",
+              3
+            ],
+            [
+              "52",
+              4
+            ],
+            [
+              "53",
+              1
+            ],
+            [
+              "53",
+              2
+            ],
+            [
+              "53",
+              3
+            ],
+            [
+              "53",
+              4
+            ],
+            [
+              "54",
+              1
+            ],
+            [
+              "54",
+              2
+            ],
+            [
+              "54",
+              3
+            ],
+            [
+              "54",
+              4
+            ],
+            [
+              "55",
+              1
+            ],
+            [
+              "55",
+              2
+            ],
+            [
+              "55",
+              3
+            ],
+            [
+              "55",
+              4
+            ],
+            [
+              "56",
+              1
+            ],
+            [
+              "56",
+              2
+            ],
+            [
+              "56",
+              3
+            ],
+            [
+              "56",
+              4
+            ],
+            [
+              "57",
+              1
+            ],
+            [
+              "57",
+              2
+            ],
+            [
+              "57",
+              3
+            ],
+            [
+              "57",
+              4
+            ],
+            [
+              "57",
+              5
+            ],
+            [
+              "58",
+              1
+            ],
+            [
+              "58",
+              2
+            ],
+            [
+              "58",
+              3
+            ],
+            [
+              "58",
+              4
+            ],
+            [
+              "58",
+              5
+            ],
+            [
+              "59",
+              1
+            ],
+            [
+              "59",
+              2
+            ],
+            [
+              "59",
+              3
+            ],
+            [
+              "59",
+              4
+            ],
+            [
+              "59",
+              5
+            ],
+            [
+              "60",
+              1
+            ],
+            [
+              "60",
+              2
+            ],
+            [
+              "60",
+              3
+            ],
+            [
+              "60",
+              4
+            ],
+            [
+              "60",
+              5
+            ],
+            [
+              "61",
+              1
+            ],
+            [
+              "61",
+              2
+            ],
+            [
+              "61",
+              3
+            ],
+            [
+              "61",
+              4
+            ],
+            [
+              "61",
+              5
+            ],
+            [
+              "62",
+              2
+            ],
+            [
+              "62",
+              3
+            ],
+            [
+              "62",
+              4
+            ],
+            [
+              "62",
+              5
+            ],
+            [
+              "62",
+              6
+            ],
+            [
+              "63",
+              1
+            ],
+            [
+              "63",
+              2
+            ],
+            [
+              "63",
+              3
+            ],
+            [
+              "63",
+              4
+            ],
+            [
+              "63",
+              5
+            ],
+            [
+              "63",
+              6
+            ],
+            [
+              "64",
+              1
+            ],
+            [
+              "64",
+              2
+            ],
+            [
+              "64",
+              3
+            ],
+            [
+              "64",
+              4
+            ],
+            [
+              "64",
+              5
+            ],
+            [
+              "64",
+              6
+            ],
+            [
+              "65",
+              1
+            ],
+            [
+              "65",
+              2
+            ],
+            [
+              "65",
+              3
+            ],
+            [
+              "65",
+              4
+            ],
+            [
+              "65",
+              5
+            ],
+            [
+              "65",
+              6
+            ],
+            [
+              "66",
+              1
+            ],
+            [
+              "66",
+              2
+            ],
+            [
+              "66",
+              3
+            ],
+            [
+              "66",
+              4
+            ],
+            [
+              "66",
+              5
+            ],
+            [
+              "66",
+              6
+            ],
+            [
+              "67",
+              1
+            ],
+            [
+              "67",
+              2
+            ],
+            [
+              "67",
+              3
+            ],
+            [
+              "67",
+              4
+            ],
+            [
+              "67",
+              5
+            ],
+            [
+              "67",
+              6
+            ],
+            [
+              "80",
+              1
+            ],
+            [
+              "80",
+              2
+            ],
+            [
+              "80",
+              3
+            ],
+            [
+              "80",
+              4
+            ],
+            [
+              "80",
+              5
+            ],
+            [
+              "80",
+              6
+            ],
+            [
+              "80",
+              7
+            ],
+            [
+              "68",
+              1
+            ],
+            [
+              "68",
+              2
+            ],
+            [
+              "68",
+              3
+            ],
+            [
+              "68",
+              4
+            ],
+            [
+              "68",
+              5
+            ],
+            [
+              "68",
+              6
+            ],
+            [
+              "68",
+              7
+            ],
+            [
+              "68",
+              8
+            ],
+            [
+              "69",
+              1
+            ],
+            [
+              "69",
+              2
+            ],
+            [
+              "69",
+              3
+            ],
+            [
+              "69",
+              4
+            ],
+            [
+              "69",
+              5
+            ],
+            [
+              "69",
+              6
+            ],
+            [
+              "69",
+              7
+            ],
+            [
+              "69",
+              8
+            ],
+            [
+              "71",
+              1
+            ],
+            [
+              "71",
+              2
+            ],
+            [
+              "71",
+              3
+            ],
+            [
+              "71",
+              4
+            ],
+            [
+              "71",
+              5
+            ],
+            [
+              "71",
+              6
+            ],
+            [
+              "71",
+              7
+            ],
+            [
+              "71",
+              8
+            ],
+            [
+              "71",
+              9
+            ],
+            [
+              "72",
+              1
+            ],
+            [
+              "72",
+              2
+            ],
+            [
+              "72",
+              3
+            ],
+            [
+              "72",
+              4
+            ],
+            [
+              "72",
+              5
+            ],
+            [
+              "72",
+              6
+            ],
+            [
+              "72",
+              7
+            ],
+            [
+              "72",
+              8
+            ],
+            [
+              "72",
+              9
+            ],
+            [
+              "73",
+              1
+            ],
+            [
+              "73",
+              2
+            ],
+            [
+              "73",
+              3
+            ],
+            [
+              "73",
+              4
+            ],
+            [
+              "73",
+              5
+            ],
+            [
+              "73",
+              6
+            ],
+            [
+              "73",
+              7
+            ],
+            [
+              "73",
+              8
+            ],
+            [
+              "73",
+              9
+            ]
+          ],
+          "printed": null,
+          "command": null,
+          "seconds": 0.0
+        },
+        "e1/without_background": {
+          "reused_identical": 288,
+          "scored": 0,
+          "reused_passes": 50,
+          "reused_steps": [
+            [
+              "77",
+              1
+            ],
+            [
+              "77",
+              2
+            ],
+            [
+              "77",
+              3
+            ],
+            [
+              "77",
+              4
+            ],
+            [
+              "77",
+              5
+            ],
+            [
+              "77",
+              6
+            ],
+            [
+              "77",
+              7
+            ],
+            [
+              "77",
+              8
+            ],
+            [
+              "77",
+              9
+            ],
+            [
+              "77",
+              10
+            ],
+            [
+              "77",
+              11
+            ],
+            [
+              "77",
+              12
+            ],
+            [
+              "11",
+              1
+            ],
+            [
+              "11",
+              2
+            ],
+            [
+              "11",
+              3
+            ],
+            [
+              "11",
+              4
+            ],
+            [
+              "11",
+              5
+            ],
+            [
+              "11",
+              6
+            ],
+            [
+              "11",
+              7
+            ],
+            [
+              "11",
+              8
+            ],
+            [
+              "11",
+              9
+            ],
+            [
+              "11",
+              10
+            ],
+            [
+              "11",
+              11
+            ],
+            [
+              "11",
+              12
+            ],
+            [
+              "12",
+              1
+            ],
+            [
+              "12",
+              2
+            ],
+            [
+              "12",
+              3
+            ],
+            [
+              "12",
+              4
+            ],
+            [
+              "12",
+              5
+            ],
+            [
+              "12",
+              6
+            ],
+            [
+              "12",
+              7
+            ],
+            [
+              "12",
+              8
+            ],
+            [
+              "12",
+              9
+            ],
+            [
+              "12",
+              10
+            ],
+            [
+              "12",
+              11
+            ],
+            [
+              "12",
+              12
+            ],
+            [
+              "12",
+              13
+            ],
+            [
+              "12",
+              14
+            ],
+            [
+              "13",
+              1
+            ],
+            [
+              "13",
+              2
+            ],
+            [
+              "13",
+              3
+            ],
+            [
+              "13",
+              4
+            ],
+            [
+              "13",
+              5
+            ],
+            [
+              "13",
+              7
+            ],
+            [
+              "13",
+              8
+            ],
+            [
+              "13",
+              9
+            ],
+            [
+              "13",
+              10
+            ],
+            [
+              "13",
+              11
+            ],
+            [
+              "13",
+              12
+            ],
+            [
+              "13",
+              13
+            ],
+            [
+              "13",
+              14
+            ],
+            [
+              "13",
+              15
+            ],
+            [
+              "2",
+              1
+            ],
+            [
+              "74",
+              1
+            ],
+            [
+              "5",
+              1
+            ],
+            [
+              "8",
+              1
+            ],
+            [
+              "9",
+              1
+            ],
+            [
+              "14",
+              1
+            ],
+            [
+              "14",
+              2
+            ],
+            [
+              "15",
+              1
+            ],
+            [
+              "15",
+              2
+            ],
+            [
+              "16",
+              1
+            ],
+            [
+              "16",
+              2
+            ],
+            [
+              "17",
+              1
+            ],
+            [
+              "17",
+              2
+            ],
+            [
+              "18",
+              1
+            ],
+            [
+              "18",
+              2
+            ],
+            [
+              "20",
+              1
+            ],
+            [
+              "20",
+              2
+            ],
+            [
+              "21",
+              1
+            ],
+            [
+              "21",
+              2
+            ],
+            [
+              "21",
+              3
+            ],
+            [
+              "22",
+              1
+            ],
+            [
+              "22",
+              2
+            ],
+            [
+              "22",
+              3
+            ],
+            [
+              "23",
+              1
+            ],
+            [
+              "23",
+              2
+            ],
+            [
+              "23",
+              3
+            ],
+            [
+              "24",
+              1
+            ],
+            [
+              "24",
+              2
+            ],
+            [
+              "24",
+              3
+            ],
+            [
+              "25",
+              1
+            ],
+            [
+              "25",
+              2
+            ],
+            [
+              "25",
+              3
+            ],
+            [
+              "26",
+              1
+            ],
+            [
+              "26",
+              2
+            ],
+            [
+              "26",
+              3
+            ],
+            [
+              "27",
+              1
+            ],
+            [
+              "27",
+              2
+            ],
+            [
+              "27",
+              3
+            ],
+            [
+              "28",
+              1
+            ],
+            [
+              "28",
+              2
+            ],
+            [
+              "28",
+              3
+            ],
+            [
+              "75",
+              1
+            ],
+            [
+              "75",
+              2
+            ],
+            [
+              "75",
+              3
+            ],
+            [
+              "30",
+              1
+            ],
+            [
+              "30",
+              2
+            ],
+            [
+              "30",
+              3
+            ],
+            [
+              "31",
+              1
+            ],
+            [
+              "31",
+              2
+            ],
+            [
+              "31",
+              3
+            ],
+            [
+              "32",
+              1
+            ],
+            [
+              "32",
+              2
+            ],
+            [
+              "32",
+              3
+            ],
+            [
+              "33",
+              1
+            ],
+            [
+              "33",
+              2
+            ],
+            [
+              "33",
+              3
+            ],
+            [
+              "34",
+              1
+            ],
+            [
+              "34",
+              2
+            ],
+            [
+              "34",
+              3
+            ],
+            [
+              "35",
+              1
+            ],
+            [
+              "35",
+              2
+            ],
+            [
+              "35",
+              3
+            ],
+            [
+              "36",
+              1
+            ],
+            [
+              "36",
+              2
+            ],
+            [
+              "36",
+              3
+            ],
+            [
+              "37",
+              1
+            ],
+            [
+              "37",
+              2
+            ],
+            [
+              "37",
+              3
+            ],
+            [
+              "39",
+              1
+            ],
+            [
+              "39",
+              2
+            ],
+            [
+              "39",
+              3
+            ],
+            [
+              "40",
+              1
+            ],
+            [
+              "40",
+              2
+            ],
+            [
+              "40",
+              3
+            ],
+            [
+              "41",
+              1
+            ],
+            [
+              "41",
+              2
+            ],
+            [
+              "41",
+              3
+            ],
+            [
+              "42",
+              1
+            ],
+            [
+              "42",
+              2
+            ],
+            [
+              "42",
+              3
+            ],
+            [
+              "43",
+              1
+            ],
+            [
+              "43",
+              2
+            ],
+            [
+              "43",
+              3
+            ],
+            [
+              "45",
+              1
+            ],
+            [
+              "45",
+              2
+            ],
+            [
+              "45",
+              3
+            ],
+            [
+              "45",
+              4
+            ],
+            [
+              "46",
+              1
+            ],
+            [
+              "46",
+              2
+            ],
+            [
+              "46",
+              3
+            ],
+            [
+              "46",
+              4
+            ],
+            [
+              "48",
+              1
+            ],
+            [
+              "48",
+              2
+            ],
+            [
+              "48",
+              3
+            ],
+            [
+              "48",
+              4
+            ],
+            [
+              "79",
+              1
+            ],
+            [
+              "79",
+              2
+            ],
+            [
+              "79",
+              3
+            ],
+            [
+              "79",
+              4
+            ],
+            [
+              "76",
+              1
+            ],
+            [
+              "76",
+              2
+            ],
+            [
+              "76",
+              4
+            ],
+            [
+              "50",
+              1
+            ],
+            [
+              "50",
+              2
+            ],
+            [
+              "50",
+              3
+            ],
+            [
+              "50",
+              4
+            ],
+            [
+              "52",
+              1
+            ],
+            [
+              "52",
+              2
+            ],
+            [
+              "52",
+              3
+            ],
+            [
+              "52",
+              4
+            ],
+            [
+              "53",
+              1
+            ],
+            [
+              "53",
+              2
+            ],
+            [
+              "53",
+              3
+            ],
+            [
+              "53",
+              4
+            ],
+            [
+              "54",
+              1
+            ],
+            [
+              "54",
+              2
+            ],
+            [
+              "54",
+              3
+            ],
+            [
+              "54",
+              4
+            ],
+            [
+              "55",
+              1
+            ],
+            [
+              "55",
+              2
+            ],
+            [
+              "55",
+              3
+            ],
+            [
+              "55",
+              4
+            ],
+            [
+              "56",
+              1
+            ],
+            [
+              "56",
+              2
+            ],
+            [
+              "56",
+              3
+            ],
+            [
+              "56",
+              4
+            ],
+            [
+              "57",
+              1
+            ],
+            [
+              "57",
+              2
+            ],
+            [
+              "57",
+              3
+            ],
+            [
+              "57",
+              4
+            ],
+            [
+              "57",
+              5
+            ],
+            [
+              "58",
+              1
+            ],
+            [
+              "58",
+              2
+            ],
+            [
+              "58",
+              3
+            ],
+            [
+              "58",
+              4
+            ],
+            [
+              "58",
+              5
+            ],
+            [
+              "59",
+              1
+            ],
+            [
+              "59",
+              2
+            ],
+            [
+              "59",
+              3
+            ],
+            [
+              "59",
+              4
+            ],
+            [
+              "59",
+              5
+            ],
+            [
+              "60",
+              1
+            ],
+            [
+              "60",
+              2
+            ],
+            [
+              "60",
+              3
+            ],
+            [
+              "60",
+              4
+            ],
+            [
+              "60",
+              5
+            ],
+            [
+              "61",
+              1
+            ],
+            [
+              "61",
+              2
+            ],
+            [
+              "61",
+              3
+            ],
+            [
+              "61",
+              4
+            ],
+            [
+              "61",
+              5
+            ],
+            [
+              "62",
+              2
+            ],
+            [
+              "62",
+              3
+            ],
+            [
+              "62",
+              4
+            ],
+            [
+              "62",
+              5
+            ],
+            [
+              "62",
+              6
+            ],
+            [
+              "63",
+              1
+            ],
+            [
+              "63",
+              2
+            ],
+            [
+              "63",
+              3
+            ],
+            [
+              "63",
+              4
+            ],
+            [
+              "63",
+              5
+            ],
+            [
+              "63",
+              6
+            ],
+            [
+              "64",
+              1
+            ],
+            [
+              "64",
+              2
+            ],
+            [
+              "64",
+              3
+            ],
+            [
+              "64",
+              4
+            ],
+            [
+              "64",
+              5
+            ],
+            [
+              "64",
+              6
+            ],
+            [
+              "65",
+              1
+            ],
+            [
+              "65",
+              2
+            ],
+            [
+              "65",
+              3
+            ],
+            [
+              "65",
+              4
+            ],
+            [
+              "65",
+              5
+            ],
+            [
+              "65",
+              6
+            ],
+            [
+              "66",
+              1
+            ],
+            [
+              "66",
+              2
+            ],
+            [
+              "66",
+              3
+            ],
+            [
+              "66",
+              4
+            ],
+            [
+              "66",
+              5
+            ],
+            [
+              "66",
+              6
+            ],
+            [
+              "67",
+              1
+            ],
+            [
+              "67",
+              2
+            ],
+            [
+              "67",
+              3
+            ],
+            [
+              "67",
+              4
+            ],
+            [
+              "67",
+              5
+            ],
+            [
+              "67",
+              6
+            ],
+            [
+              "80",
+              1
+            ],
+            [
+              "80",
+              2
+            ],
+            [
+              "80",
+              3
+            ],
+            [
+              "80",
+              4
+            ],
+            [
+              "80",
+              5
+            ],
+            [
+              "80",
+              6
+            ],
+            [
+              "80",
+              7
+            ],
+            [
+              "68",
+              1
+            ],
+            [
+              "68",
+              2
+            ],
+            [
+              "68",
+              3
+            ],
+            [
+              "68",
+              4
+            ],
+            [
+              "68",
+              5
+            ],
+            [
+              "68",
+              6
+            ],
+            [
+              "68",
+              7
+            ],
+            [
+              "68",
+              8
+            ],
+            [
+              "69",
+              1
+            ],
+            [
+              "69",
+              2
+            ],
+            [
+              "69",
+              3
+            ],
+            [
+              "69",
+              4
+            ],
+            [
+              "69",
+              5
+            ],
+            [
+              "69",
+              6
+            ],
+            [
+              "69",
+              7
+            ],
+            [
+              "69",
+              8
+            ],
+            [
+              "71",
+              1
+            ],
+            [
+              "71",
+              2
+            ],
+            [
+              "71",
+              3
+            ],
+            [
+              "71",
+              4
+            ],
+            [
+              "71",
+              5
+            ],
+            [
+              "71",
+              6
+            ],
+            [
+              "71",
+              7
+            ],
+            [
+              "71",
+              8
+            ],
+            [
+              "71",
+              9
+            ],
+            [
+              "72",
+              1
+            ],
+            [
+              "72",
+              2
+            ],
+            [
+              "72",
+              3
+            ],
+            [
+              "72",
+              4
+            ],
+            [
+              "72",
+              5
+            ],
+            [
+              "72",
+              6
+            ],
+            [
+              "72",
+              7
+            ],
+            [
+              "72",
+              8
+            ],
+            [
+              "72",
+              9
+            ],
+            [
+              "73",
+              1
+            ],
+            [
+              "73",
+              2
+            ],
+            [
+              "73",
+              3
+            ],
+            [
+              "73",
+              4
+            ],
+            [
+              "73",
+              5
+            ],
+            [
+              "73",
+              6
+            ],
+            [
+              "73",
+              7
+            ],
+            [
+              "73",
+              8
+            ],
+            [
+              "73",
+              9
+            ]
+          ],
+          "printed": null,
+          "command": null,
+          "seconds": 0.0
+        }
+      }
+    },
+    "summary": {
+      "step": "summarize.py",
+      "at": "2026-11-22T21:10:31+00:00",
+      "code_commit": "3b731440030a178e73f660c632c2df68fd2fce29",
+      "code_commit_source": "git",
+      "dirty": true,
+      "runner_sha256": {
+        "run.sh": "6474912e862d2f50955fc0fb0c654d3d9158fb763b5439e76217f5d4bee1ecc6",
+        "scicode_runner.py": "749571c4765135a956d519b8c1c166f56faff7960977de3d5bb8708decb0f173",
+        "summarize.py": "c70fea92dd52eb1024a86219a85f6a40769b60527d7e1745428b173e5f10d26b",
+        "hypotheses.py": "f8843aaf3ee9b100e4f1e86547152869c9e44f04e12b94b0e109c259a00fc0ca",
+        "provenance.py": "0564193ded8b1365017eab60a148b94f4c648e762513ee9925aa588c5c0ba3ab",
+        "Dockerfile.scoring": "5996d6efd23d18e42619b051ff17f77c55c9bc4244874b3963290d57807b9ab5",
+        "requirements-scoring.lock": "565303cad3e49ff4f49e6af28386e8cb60bc8412682d44f07504677bcd57df10",
+        "requirements-generate.lock": "14231797536cdc3d5cc4d94223137c26909e28e1786d6ac4c9cdecb2e0d8e37f",
+        "setup_scoring_vm.sh": "945d67385a6e3f98ffc4821f003b4108c8dcad1ccb9450c3152d79efbfa690e9"
+      },
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "platform": "Linux-5.15.0-1067-kvm-x86_64-with-glibc2.35",
+      "cpu": "AMD EPYC 7302P 16-Core Processor",
+      "cpu_count": 30,
+      "python": "3.10.12"
+    },
+    "inputs_sha256": {
+      "graded.jsonl": "4104a2c818613bd4ec4cf605a11500ce5078c05fe3b9a65a8d7316d2346325a7"
+    },
+    "api_events": {
+      "file": "out/lfm3-1.7b-nothink/api-events.jsonl (not committed)",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "events": 0,
+      "by_action": {},
+      "by_status": {},
+      "steps": 0
+    }
+  },
+  "raw_outputs": {
+    "file": "out/lfm3-1.7b-nothink/generations.jsonl (with thinking; not committed)",
+    "sha256": "a6d8160b47a9daa816d9e64ea5f6d0d66b80112639aef93b578dbfd06f35734a",
+    "jsonl_gz_output": "the code extract_python_script took from the text after the last </think>"
+  }
+}

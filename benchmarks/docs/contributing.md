@@ -8,9 +8,8 @@ Which guide applies depends on where your change goes:
 | `research/benchmarks/`: benchmarks evaluated with lm-eval, results, research code | the root [`CONTRIBUTING.md`](../../CONTRIBUTING.md) and [`research/METODOLOGIA.md`](../../research/METODOLOGIA.md) (Polish) |
 | a new benchmark run through a model API, in `research/api-benchmarks/<name>/` (the first such PR creates the directory) | [`research/METHODOLOGY.md`](../../research/METHODOLOGY.md) |
 
-If your change touches both, follow both. The `codesota` package does not run evaluations yet (see
-[Getting started](../README.md#getting-started)), so most useful contributions to it right now are small: improving
-the package foundation and these documents, or proposing its first evaluation integration through an issue.
+If your change touches both, follow both. The `codesota` package runs the benchmarks of its catalog
+([`BENCHMARKS.md`](../BENCHMARKS.md), [`running.md`](running.md)); most benchmarks there are not implemented yet.
 
 ## 1. Fork, clone, and set up
 
@@ -60,8 +59,11 @@ Prefer primary sources. If a source is inaccessible, say so; do not reconstruct 
 
 ## 5. Writing an integration
 
-The `codesota` package has no evaluation integrations yet, so there is no template to copy. The first integration
-will define the layout, and is expected to:
+Benchmarks scored from log-likelihoods through lm-eval are added to the runner: an entry in
+`src/codesota/catalog.py` (pinned data, scoring, status with its evidence), its lm-eval configuration in
+`src/codesota/runner/tasks.py`, and its documents and expected requests in `tests/test_runner.py`. A benchmark of
+another kind (generation, an external scorer) extends the runner first, in its own PR. Either way, an integration is
+expected to:
 
 - run through the official implementation and scorer where one exists, pinned;
 - record failures as failures: an infrastructure error, a timeout of our own machinery, or a model that cannot run the
@@ -70,7 +72,7 @@ will define the layout, and is expected to:
   [`research/common/README.md`](../../research/common/README.md) where it fits, and say where it deviates;
 - come with deterministic tests that need no network, GPU, weights, or keys (fixed inputs and expected scores).
 
-Propose the layout in the issue before building it.
+Propose a new kind of integration in an issue before building it.
 
 ## 6. Prepare reproducible evidence
 

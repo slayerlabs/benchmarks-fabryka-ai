@@ -1,0 +1,51 @@
+{
+  "protokol": "bench50-v0.3.1-fullB",
+  "zbior": {"repo": "google/IFEval", "rewizja": "966cd89545d6b6acfd7638bc708b98261ca58e84", "split": "train", "n": 541},
+  "srodowisko": {"lm_eval": "0.4.9.1", "transformers": "4.57.6", "torch": "2.8.0+cu128", "sprzet": "RTX 5090", "batch": 1, "dekodowanie": "zachlannie, 0-shot, bez szablonu czatu"},
+  "bielik": {
+    "model": "speakleash/Bielik-11B-v3.1-Instruct",
+    "rewizja": "d6e755d356ad418d0f0e30b8c428db267415ddb9",
+    "wariant": "A", "dtype": "bf16", "bos": 1,
+    "prompt_level_strict_acc": 0.3715, "correct_strict": 201,
+    "prompt_level_loose_acc": 0.3919, "correct_loose": 212,
+    "ci95_strict": [0.3309, 0.4122], "ci95_metoda": "paired bootstrap, 10000, seed 20261028",
+    "n": 541
+  },
+  "pythia_1bos": {
+    "model": "EleutherAI/pythia-1b", "rewizja": "f73d7dcc545c8bd326d8559c8ef84ffe92fea6b2",
+    "dtype": "float32", "bos": 1, "silnik": "CUDA",
+    "prompt_level_strict_acc": 0.2033, "correct": 110,
+    "ci95": [0.1701, 0.2384], "ci95_metoda": "paired bootstrap, 10000, seed 20261028",
+    "se_a": 0.017304, "n": 541
+  },
+  "pythia_0bos": {
+    "model": "EleutherAI/pythia-1b", "rewizja": "f73d7dcc545c8bd326d8559c8ef84ffe92fea6b2",
+    "dtype": "float32", "bos": 0, "silnik": "CUDA", "zadanie": "ifeval_pin",
+    "status": "eksploracyjny/kontrolny",
+    "prompt_level_strict_acc": 0.1701, "correct": 92,
+    "ci95": [0.1384, 0.2017], "ci95_metoda": "przyblizenie normalne (inna metoda niz 1 BOS)",
+    "n": 541
+  },
+  "pythia_mlx": {
+    "silnik": "MLX", "status": "eksploracyjny",
+    "bos1": {"acc": 0.2107, "correct": 114},
+    "bos0": {"acc": 0.1793, "correct": 97}
+  },
+  "bazy": {"losowa": 0.0, "wiekszosciowa": 0.0, "b": "pusta odpowiedz", "echo_promptu_info": 0.249538, "echo_promptu_correct": 135},
+  "prog": {
+    "opublikowane": 0.168207, "opublikowane_correct": 91,
+    "zrodlo": "OLL v2, 2025-01-27, float16, harness a781a6b, task version 2.0, dataset wis-k",
+    "se_zrodla": 0.016082, "dwa_se": 0.032163,
+    "okno_dol": 0.136, "okno_gora": 0.200
+  },
+  "pythia_wobec_b": {"roznica": 0.2033, "se_a": 0.017304, "z": 11.75, "werdykt": "pewne"},
+  "pythia_wobec_opublikowanego": {"roznica": 0.035120, "se_niezalezne": 0.023623, "z": 1.487, "werdykt": "szum", "parowane": false},
+  "bos_mcnemar": {
+    "uwaga": "te same 541 promptow i te same wagi na obu silnikach: nie sa niezaleznymi powtorzeniami",
+    "poprawka_ciaglosci": true,
+    "cuda": {"pomogl": 43, "zaszkodzil": 25, "niezgodne": 68, "netto": 18, "chi2": 4.250, "p": 0.039},
+    "mlx": {"pomogl": 46, "zaszkodzil": 29, "niezgodne": 75, "netto": 17, "chi2": 3.413, "p": 0.065}
+  },
+  "werdykt": null,
+  "zrodlo_per_prompt": "results/<model>/ifeval.jsonl.gz (doc_id, key, instruction_id_list, strict, loose, inst_strict, inst_loose; bez odpowiedzi modelu)"
+}

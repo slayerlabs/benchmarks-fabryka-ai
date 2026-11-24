@@ -1,0 +1,71 @@
+{
+  "archive": {
+    "file": "labaj-agency/out/coding-group/box/export.tgz",
+    "committed": false,
+    "sha256": "2bcf89771f031feb5fbae69617bcd5a60d2d73359c58cadf3c62e7ba218c51c6"
+  },
+  "runs": {
+    "lfm3-1.7b": {
+      "file": "labaj-agency/out/coding-group/box/export.tgz : lcbpro/research/api-benchmarks/livecodebench-pro-25q2/out/lfm3-1.7b/generations.jsonl",
+      "sha256": "9b6d2b3ed6b9c71f4563611e846e23927786c32a3c7edbfb69578bcfbd9c0d4e",
+      "matches_result": true,
+      "no_code": {
+        "python_fence": [
+          "2096F",
+          "2106F",
+          "2113C",
+          "2113E"
+        ]
+      },
+      "reasoning": {
+        "answers": 167,
+        "closing_think": 167,
+        "median_share_before_last_think_end": 0.9354,
+        "accepted": 54,
+        "accepted_closing_think": 54,
+        "think_end_then_fence": 8
+      }
+    },
+    "lfm3-1.7b-nothink": {
+      "file": "labaj-agency/out/coding-group/box/export.tgz : lcbpro/research/api-benchmarks/livecodebench-pro-25q2/out/lfm3-1.7b-nothink/generations.jsonl",
+      "sha256": "aa3c179864c926c2825465f37cd5918f8b042f28ba6bb6ea408f75130f06ecc2",
+      "matches_result": true,
+      "no_code": {
+        "tool_call": [
+          "2097D",
+          "2115C",
+          "2118B"
+        ],
+        "python_fence": [
+          "2098A",
+          "2118E"
+        ],
+        "length_stop": [
+          "2118D1"
+        ]
+      },
+      "reasoning": {
+        "answers": 167,
+        "closing_think": 153,
+        "median_share_before_last_think_end": 0.9313,
+        "accepted": 48,
+        "accepted_closing_think": 46,
+        "think_end_then_fence": 28
+      }
+    },
+    "bielik-11b-v3.1": {
+      "file": "out/bielik-11b-v3.1/generations.jsonl on the generating Mac",
+      "sha256": "1ae76fa50536149930e4a90263c64b1a1639936cbb3cc1d57168af226be71d34",
+      "matches_result": true,
+      "no_code": {},
+      "reasoning": {
+        "answers": 167,
+        "closing_think": 34,
+        "median_share_before_last_think_end": 0.7561,
+        "accepted": 3,
+        "accepted_closing_think": 2,
+        "think_end_then_fence": 0
+      }
+    }
+  }
+}

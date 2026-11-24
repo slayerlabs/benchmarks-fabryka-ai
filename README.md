@@ -10,7 +10,7 @@ Przed rozpoczęciem nowych prac warto zapoznać się z:
 - [Zasady współpracy](benchmarks/docs/contributing.md)
 - [Instrukcje dla agentów AI](benchmarks/AGENTS.md)
 
-**Pełna lista 25 benchmarków i wymagania infrastrukturalne](benchmarks/docs/research-priorities.md)**
+**[Pełna lista 25 benchmarków i wymagania infrastrukturalne](benchmarks/docs/research-priorities.md)**
 
 Priorytetem pozostają rzeczywiste, powtarzalne wyniki, szczególnie dla **Bielik 11B v3.1 i Slayer 1B**. Do testów przez API korzystamy z [Fabryka AI Platform](https://fabryka.ai/platform). Nie wykorzystujcie prywatnych zasobów GPU ani płatnych kont; problemy z API i potrzeby infrastrukturalne zgłaszajcie zespołowi na `#bench-team`.
 
