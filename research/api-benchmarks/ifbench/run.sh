@@ -2,9 +2,10 @@
 # IFBench for one model: bash run.sh <model-id> [--limit N]
 #   bielik-11b-v3.1-vllm  Bielik 11B v3.1 Instruct served by vLLM (start it with vllm.sh) at BASE_URL
 #                         (default http://127.0.0.1:8000/v1, served model name "bielik")
-#   slayer1b-60000        Slayer 1B, training step 60000, on a local CUDA GPU (slayer_package.py + slayer_lm.py)
+#   slayer1b-60000        Slayer 1B, training step 60000, on a local CUDA GPU (slayer_package.py + slayer_kv_lm.py
+#                         from research/common/slayer_serving)
 # Installs IFBench at the pinned commit (uv sync --frozen), takes the test set from Hugging Face at the pinned
-# revision, generates (Bielik: IFBench's generate_responses.py; Slayer: slayer_lm.py, raw prompt, greedy), scores
+# revision, generates (Bielik: IFBench's generate_responses.py; Slayer: slayer_kv_lm.py, raw prompt, greedy), scores
 # with IFBench's run_eval and writes results/<model-id>.json and results/<model-id>.jsonl.gz.
 # --limit N scores only the first N prompts, in out/.
 set -euo pipefail
@@ -16,6 +17,7 @@ LIMIT=""
 if [[ "${1:-}" == "--limit" ]]; then LIMIT="${2:?--limit needs N}"; fi
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
+COMMON="$HERE/../../common/slayer_serving"
 OUT="${OUT_DIR:-$HERE/out}"
 BASE_URL="${BASE_URL:-http://127.0.0.1:8000/v1}"
 
@@ -59,14 +61,14 @@ fi
 
 if [[ "$MODEL" == slayer1b-60000 ]]; then
   VENV="${SLAYER_VENV:-$HERE/.venv-slayer}"
-  LM_EVAL_COMMIT="ddd67220430a2470529f25fd5c05a576ca1057a0"  # lm-evaluation-harness; slayer_lm.py subclasses its LM
+  LM_EVAL_COMMIT="ddd67220430a2470529f25fd5c05a576ca1057a0"  # lm-evaluation-harness; slayer_kv_lm.py subclasses its LM
   [[ -d "$VENV" ]] || uv venv --python 3.12 "$VENV"
   uv pip install --python "$VENV/bin/python" "torch==2.8.0" --index-url https://download.pytorch.org/whl/cu128
   uv pip install --python "$VENV/bin/python" "lm-eval @ git+https://github.com/EleutherAI/lm-evaluation-harness@$LM_EVAL_COMMIT" \
     tokenizers safetensors numpy huggingface_hub
   PKG="$OUT/slayer1b-60000-package"
-  [[ -d "$PKG" ]] || "$VENV/bin/python" "$HERE/slayer_package.py" --out "$PKG"
-  "$VENV/bin/python" "$HERE/slayer_lm.py" --pkg "$PKG" --prompts "$INPUT" --responses "data/$MODEL-responses.jsonl" \
+  [[ -d "$PKG" ]] || "$VENV/bin/python" "$COMMON/slayer_package.py" --out "$PKG"
+  "$VENV/bin/python" "$COMMON/slayer_kv_lm.py" --pkg "$PKG" --prompts "$INPUT" --responses "data/$MODEL-responses.jsonl" \
     --max-gen-toks 1280 --out "$OUT/$MODEL-generation.json"
 else
   uv run -q python generate_responses.py --api-base "$BASE_URL" --input-file "$INPUT" \

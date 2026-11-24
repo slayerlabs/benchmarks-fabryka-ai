@@ -51,7 +51,7 @@ raw `output`; the prompts are not stored (get them from the dataset by key).
   tokens, as in the IFEval benchmark (#313). Its context is 4096 tokens. Weights:
   [SlayerLab/Slayer1B-1.09-checkpoints](https://huggingface.co/SlayerLab/Slayer1B-1.09-checkpoints) @
   `dc3b6a9b0f87305da7ceca39ca27a79fa60b34cd`, `wagi_60000.pt` (training step 60000). It ran on a rented NVIDIA
-  GeForce RTX 4090 in fp32 (TF32 off) with a KV cache, one prompt at a time (`slayer_lm.py`). 280 of 300 outputs
+  GeForce RTX 4090 in fp32 (TF32 off) with a KV cache, one prompt at a time (`slayer_kv_lm.py`). 280 of 300 outputs
   stop at the 1280-token limit and 1 is empty. Its outputs were scored with the same `run_eval`.
 - **Slayer model code.** `slayer_package.py` loads the checkpoint into the GPT class of the public trainer
   `train_gpt_ref_r24_2.py` (SlayerLab/Slayer1B-1.09 @ `58d8f359c1fdd887f1b7344ec52c5511c111f790`), with the
@@ -59,6 +59,9 @@ raw `output`; the prompts are not stored (get them from the dataset by key).
   earlier trainer revision whose model classes are identical in source; rebuilding the package with
   `slayer_package.py` gives bitwise-identical weights (202/202 tensors) and identical logits (max |Δ| = 0.0 on 3
   prompts) to the package used for these results.
+- **Slayer serving code** (`slayer_package.py`, `slayer_kv_lm.py`) lives in
+  [`research/common/slayer_serving/`](../../common/slayer_serving/). The results were produced with byte-identical
+  copies kept in this directory before the move; the shared README lists their hashes.
 - **Sample files in the harness.** The IFBench repo ships `eval/eval_results_{strict,loose}.jsonl` (294 rows, not
   ours); `run_eval` writes ours as `eval/<model-id>-eval_results_*.jsonl`, and only those are read.
 
