@@ -30,14 +30,10 @@ import types
 from pathlib import Path
 
 BENCH = Path(__file__).resolve().parents[1] / "api-benchmarks" / "livecodebench-v6"
-for name in ("ablation", "compare", "extraction", "lcb", "provenance", "readme", "summarize"):
-    sys.modules.pop(name, None)  # other benchmarks have modules with these names; CI runs them in one process
 sys.path.insert(0, str(BENCH))
 import ablation  # noqa: E402
-import extraction  # noqa: E402
 import lcb  # noqa: E402
 import provenance  # noqa: E402
-import readme  # noqa: E402
 import summarize  # noqa: E402
 
 
@@ -1066,6 +1062,7 @@ def lcb_extract_code(text, style):
 
 
 def test_extraction_rule_f1():
+    import extraction
     assert extraction.f1("solve()\n```", "") == "solve()"  # closing fence only: the code before it
     assert extraction.f1("  \n```python\nsolve()", "") == "solve()"  # opening fence only: the code after it
     assert extraction.f1("solve()", "") == "solve()"  # no fence: the whole text
@@ -1101,6 +1098,7 @@ def write_f1_fixture(root):
 
 
 def extraction_raw_name(run):
+    import extraction
     return extraction.RAW.get(run, "generations.jsonl")
 
 
@@ -1119,6 +1117,7 @@ def f1_modules(calls):
 
 
 def test_extraction_regrade_file_and_compare_exploratory_rows():
+    import extraction
     rows = [{"question_id": q, "passes": None} for q in ("q1", "q2", "q3")]
     calls = []
     with tempfile.TemporaryDirectory() as tmp, patched(lcb, load_rows=lambda limit: [dict(r) for r in rows]):
@@ -1372,6 +1371,7 @@ def test_exact_budget_and_prompt_counted_pair_on_fakes():
 
 
 def test_readme_blocks_are_the_generator_output():
+    import readme
     text = (BENCH / "README.md").read_text(encoding="utf-8")
     bodies = readme.blocks(RESULTS)
     assert readme.render(text, bodies) == text  # byte for byte: no number edited by hand, none stale
