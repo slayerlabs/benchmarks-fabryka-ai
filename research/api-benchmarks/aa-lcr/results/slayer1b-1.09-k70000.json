@@ -1,0 +1,31 @@
+{
+  "benchmark": "AA-LCR",
+  "model": "slayer1b-1.09-k70000",
+  "metric": "accuracy over the 100 AA-LCR questions, judged by an LLM equality checker (percent)",
+  "score": null,
+  "stderr": null,
+  "n": null,
+  "date": "2026-11-23",
+  "harness": "AA-LCR dataset card prompt template and judge prompts, ArtificialAnalysis/AA-LCR @ 9a77ef56b717057ade24ceab4d273712a0b4f19e (v1.1); no official harness repository",
+  "data": "ArtificialAnalysis/AA-LCR @ 9a77ef56b717057ade24ceab4d273712a0b4f19e: AA-LCR_Dataset.csv and extracted_text/AA-LCR_extracted-text.zip",
+  "settings": {
+    "weights": "SlayerLab/Slayer1B-1.09-checkpoints @ adfaf3fd5402bc7f3adbfe077798f20262979433 wagi_70000.pt, tokenizer of SlayerLab/Slayer1B-1.08 @ 5f854a0cc7160594d54d1788d37a44e8ebabe16c (sha256 0640d3bd3674d7a6e59c540d945a2ad275a12e1bcaeb6007c37a90751f9815dd)",
+    "context_window": 4096,
+    "window_source": "block 4096 in the config.json of SlayerLab/Slayer1B-1.08 (RoPE, trained at 4096; the same window ruler-128k uses)",
+    "serving": "research/common/slayer_lm.py (not run: nothing fits)",
+    "prompt": "dataset card template, documents in the order of data_source_filenames, raw prompt without a chat template, BOS",
+    "judge": "GPT-5.6 Luna (medium) with the v1.1 system and user prompts: required by AA-LCR, paid API, not run",
+    "generation": "none: no request was sent for scoring"
+  },
+  "other_metrics": {
+    "prompts_counted": 100,
+    "prompts_total": 100,
+    "prompts_that_fit": 0,
+    "tokens_min": 85211,
+    "tokens_median": 115685.0,
+    "tokens_max": 135882,
+    "reason": "the 4096-token context window does not hold any AA-LCR prompt: the shortest of 100 prompts has 85211 tokens, the longest 135882; the benchmark is not cut down (no truncation, chunking or retrieval)",
+    "full_set": true
+  },
+  "deviations": "none (not run: the 4096-token context window does not hold any AA-LCR prompt: the shortest of 100 prompts has 85211 tokens, the longest 135882; the benchmark is not cut down (no truncation, chunking or retrieval))"
+}

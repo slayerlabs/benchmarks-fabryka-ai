@@ -1,0 +1,31 @@
+{
+  "benchmark": "AA-LCR",
+  "model": "bielik-11b-v3.1",
+  "metric": "accuracy over the 100 AA-LCR questions, judged by an LLM equality checker (percent)",
+  "score": null,
+  "stderr": null,
+  "n": null,
+  "date": "2026-11-23",
+  "harness": "AA-LCR dataset card prompt template and judge prompts, ArtificialAnalysis/AA-LCR @ 9a77ef56b717057ade24ceab4d273712a0b4f19e (v1.1); no official harness repository",
+  "data": "ArtificialAnalysis/AA-LCR @ 9a77ef56b717057ade24ceab4d273712a0b4f19e: AA-LCR_Dataset.csv and extracted_text/AA-LCR_extracted-text.zip",
+  "settings": {
+    "weights": "speakleash/Bielik-11B-v3.1-Instruct @ d6e755d356ad418d0f0e30b8c428db267415ddb9",
+    "context_window": 32768,
+    "window_source": "GET /v1/models lists context_length 32768; probe_window.py: a templated prompt of 32767 tokens plus 1 output token is accepted, 32768 is rejected (results/api-window.json)",
+    "serving": "Fabryka AI API, https://fabryka.ai/v1/chat/completions, model bielik-11b-v3.1",
+    "prompt": "dataset card template, documents in the order of data_source_filenames, one user message through the chat template with its defaults",
+    "judge": "GPT-5.6 Luna (medium) with the v1.1 system and user prompts: required by AA-LCR, paid API, not run",
+    "generation": "none: no request was sent for scoring"
+  },
+  "other_metrics": {
+    "prompts_counted": 100,
+    "prompts_total": 100,
+    "prompts_that_fit": 0,
+    "tokens_min": 100913,
+    "tokens_median": 122277.5,
+    "tokens_max": 141519,
+    "reason": "the 32768-token context window does not hold any AA-LCR prompt: the shortest of 100 prompts has 100913 tokens, the longest 141519; the benchmark is not cut down (no truncation, chunking or retrieval)",
+    "full_set": true
+  },
+  "deviations": "none (not run: the 32768-token context window does not hold any AA-LCR prompt: the shortest of 100 prompts has 100913 tokens, the longest 141519; the benchmark is not cut down (no truncation, chunking or retrieval))"
+}

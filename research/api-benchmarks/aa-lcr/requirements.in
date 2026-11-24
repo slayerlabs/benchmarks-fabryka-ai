@@ -1,0 +1,4 @@
+transformers==5.22.2
+huggingface_hub
+tiktoken
+jinja2
