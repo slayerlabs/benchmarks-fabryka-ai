@@ -51,8 +51,13 @@
       "written_by": "scoring_events.py"
     },
     "slayer1b-1.09-k70000.json": {
-      "at": "2026-11-22T16:37:21+00:00",
-      "sha256": "3bd7ed951f7f733d3c5ba9b83fad9136cacb749489b2adea8c14f84b425b9154",
+      "at": "2026-11-24T23:12:28+00:00",
+      "sha256": "9dd79a6d0892ec6742acf6947edd1b01067e54101c6603adbc3c4eabdfa739d9",
+      "written_by": "summarize.py"
+    },
+    "slayer1b-1.09-k70000.jsonl.gz": {
+      "at": "2026-11-24T23:12:28+00:00",
+      "sha256": "c12ee1f77183bf11e86b02e96b212b781ea95078c89b972cb62f8cfd16ef529b",
       "written_by": "summarize.py"
     }
   }
