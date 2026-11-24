@@ -1,0 +1,13 @@
+{
+  "benchmark": "Terminal-Bench 2.1",
+  "model": "slayer1b-70000",
+  "metric": "pass rate (task tests pass, reward 1), mean over tasks and trials",
+  "score": null,
+  "stderr": null,
+  "n": 0,
+  "date": "2026-11-24",
+  "harness": "https://github.com/harbor-framework/harbor v0.27.0, agent opencode (opencode-ai 1.19.6)",
+  "data": "https://github.com/harbor-framework/terminal-bench-2-1 @ 12b7565679ce5006230b820666353673a133db93, 89 tasks",
+  "settings": null,
+  "deviations": "not run: a base model without a chat template or a tool-call format, so OpenCode cannot drive it (see README)"
+}

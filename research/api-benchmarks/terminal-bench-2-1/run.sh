@@ -7,6 +7,8 @@
 # server must be reachable from the containers: BASE_URL (default http://host.docker.internal:8000/v1).
 # TRIALS (default 5) attempts per task, CONCURRENCY (default 4) tasks at a time.
 # --limit N runs the first N tasks (by name) once each and writes to out/limit/.
+# TASKS="a b" runs only those tasks, as job JOB_NAME (default <model-id>-rerun); used to re-run trials that have no
+# test result (see README, "Re-runs").
 # Needs: Docker, git, uv. No API key: the server is ours.
 set -euo pipefail
 
@@ -30,8 +32,10 @@ TOP_P="0.95"
 STEPS="100"
 
 case "$MODEL" in
-  lfm3-1.7b) SERVED="lfm3"; CONTEXT="${MAX_MODEL_LEN:-262144}" ;;
-  bielik-11b-v3.1) SERVED="bielik"; CONTEXT="${MAX_MODEL_LEN:-32768}" ;;
+  lfm3-1.7b) SERVED="lfm3"; CONTEXT="${MAX_MODEL_LEN:-262144}"; OUTPUT="$CONTEXT" ;;
+  # vLLM rejects a request whose prompt plus max_tokens exceeds the context, and OpenCode asks for up to 32000
+  # output tokens, which alone fills Bielik's 32768. 8192 leaves the rest of the window to the conversation.
+  bielik-11b-v3.1) SERVED="bielik"; CONTEXT="${MAX_MODEL_LEN:-32768}"; OUTPUT="${MAX_OUTPUT:-8192}" ;;
   slayer1b-*)
     mkdir -p "$HERE/results"
     exec python3 "$HERE/summarize.py" --null "$MODEL" --out "$HERE/results/$MODEL.json" ;;
@@ -49,6 +53,10 @@ fi
 JOBS="$OUT/jobs"
 NAME="$MODEL"
 TASKS_YAML=""
+if [[ -n "${TASKS:-}" ]]; then
+  NAME="${JOB_NAME:-$MODEL-rerun}"
+  TASKS_YAML="    task_names: [$(printf '"%s",' $TASKS | sed 's/,$//')]"
+fi
 if [[ -n "$LIMIT" ]]; then
   JOBS="$OUT/limit"
   NAME="$MODEL-limit-$LIMIT"
@@ -68,7 +76,7 @@ environment:
   type: docker
   delete: true
 agents:
-  - name: opencode
+  - import_path: opencode_agent:OpenCodeAptFallback
     model_name: local/$SERVED
     kwargs:
       version: "$OPENCODE_VERSION"
@@ -83,7 +91,7 @@ agents:
               $SERVED:
                 limit:
                   context: $CONTEXT
-                  output: $CONTEXT
+                  output: $OUTPUT
         agent:
           build:
             temperature: $TEMPERATURE
@@ -94,5 +102,5 @@ datasets:
 $TASKS_YAML
 EOF
 
-uvx --from "harbor==$HARBOR_VERSION" harbor run -c "$CONFIG"
+PYTHONPATH="$HERE${PYTHONPATH:+:$PYTHONPATH}" uvx --from "harbor==$HARBOR_VERSION" harbor run -c "$CONFIG"
 echo "Harbor job in $JOBS/$NAME. Results: python3 $HERE/summarize.py $JOBS/$NAME --model $MODEL"
