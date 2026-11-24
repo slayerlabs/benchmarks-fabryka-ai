@@ -1,7 +1,5 @@
 # IFStruct
 
-Polish version: [README.pl.md](README.pl.md).
-
 Whether a model produces valid JSON or YAML that matches a target schema: the right format and fences, no extra
 commentary, the asked top-level shape and item count, and every field valid against the schema. Checked by the
 harness's validator, without a judge model.
