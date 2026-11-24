@@ -27,6 +27,8 @@ from pathlib import Path
 
 import pytest
 
+for name in ("compare", "diagnostics", "haystack", "predict", "provenance", "report", "ruler", "summarize"):
+    sys.modules.pop(name, None)  # other benchmarks have modules with these names; CI runs them in one process
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "api-benchmarks" / "ruler-128k"))
 import compare as C  # noqa: E402
 import diagnostics as G  # noqa: E402
@@ -35,6 +37,7 @@ import summarize as S  # noqa: E402
 import predict as P  # noqa: E402
 import provenance as V  # noqa: E402
 import ruler as R  # noqa: E402
+import report as Rp  # noqa: E402
 from ruler import answer_text, latest_records  # noqa: E402
 
 BENCH = Path(__file__).resolve().parents[1] / "api-benchmarks" / "ruler-128k"
@@ -781,7 +784,6 @@ def test_summarize_new_out_dir_carries_generation_provenance_and_checks_inputs()
 def test_readme_block_is_generated_from_the_results_files():
     """README.md's Results and Hypotheses block is byte for byte what report.py renders from results/ (whose sha256
     it checks first); a number swapped by hand in it makes the block differ (report.py --check exits 1)."""
-    import report as Rp
     text = (BENCH / "README.md").read_text(encoding="utf-8")
     block = Rp.render()
     assert Rp.block_of(text) == block
