@@ -1,0 +1,24 @@
+{
+  "benchmark": "IFEval",
+  "model": "lfm3-1.7b",
+  "metric": "prompt_level_strict_acc",
+  "score": 94.64,
+  "stderr": 0.97,
+  "n": 541,
+  "date": "2026-11-19",
+  "harness": "https://github.com/EleutherAI/lm-evaluation-harness v0.4.9.1",
+  "data": "https://huggingface.co/datasets/google/IFEval @ 966cd89545d6b6acfd7638bc708b98261ca58e84",
+  "settings": {
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "max_tokens_per_turn": 32768,
+    "max_turns": 1,
+    "trials": 1
+  },
+  "other_metrics": {
+    "inst_level_strict_acc": 96.4,
+    "prompt_level_loose_acc": 96.49,
+    "inst_level_loose_acc": 97.72
+  },
+  "deviations": "see README.md, Deviations"
+}

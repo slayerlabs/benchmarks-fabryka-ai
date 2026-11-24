@@ -1,0 +1,12 @@
+# The scoring environment: SciCode's scorer runs the models' code here, never on the host (run.sh --score).
+# Python 3.11.9 on Debian bookworm, pinned by digest; packages from requirements-scoring.lock, with hashes.
+# SciCode itself is not installed: run.sh mounts the pinned clone and scicode_runner.py puts its src/ on PYTHONPATH.
+FROM python:3.11.9-slim-bookworm@sha256:8fb099199b9f2d70342674bd9dbccd3ed03a258f26bbd1d556822c6dfc60c317
+
+COPY requirements-scoring.lock /tmp/requirements-scoring.lock
+RUN pip install --no-cache-dir --require-hashes --no-deps -r /tmp/requirements-scoring.lock \
+    && pip check
+
+# BLAS threads 1 (PROTOCOL.md, "Settings"); scicode_runner.py sets the same for the scorer and the tests it runs.
+ENV OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 NUMEXPR_NUM_THREADS=1 \
+    PYTHONDONTWRITEBYTECODE=1 MPLBACKEND=Agg

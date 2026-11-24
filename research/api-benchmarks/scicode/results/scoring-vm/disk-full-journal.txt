@@ -1,0 +1,2 @@
+      7 Nov 22 20:17:04 ubuntu rsyslogd: file '/var/log/auth.log'[9] write error - see https://www.rsyslog.com/solving-rsyslog-write-errors/ for help OS error: No space left on device [v8.2112.0 try https://www.rsyslog.com/e/2027 ]
+    243 Nov 22 20:17:04 ubuntu rsyslogd: file '/var/log/syslog'[7] write error - see https://www.rsyslog.com/solving-rsyslog-write-errors/ for help OS error: No space left on device [v8.2112.0 try https://www.rsyslog.com/e/2027 ]

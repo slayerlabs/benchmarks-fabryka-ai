@@ -15,7 +15,17 @@ import sys
 MAX_LISTED = 3000
 """GitHub's "list pull request files" endpoint returns at most 3000 files."""
 
-TRIGGER_PREFIXES = ("benchmarks/",)
+# benchmarks/, plus the research code the runner's tests compare against (tests/test_runner.py), the benchmark
+# directories its catalog must list (tests/test_catalog.py), and the result files the results page is generated from
+# (tests/test_leaderboard.py): a change there can break the package's tests.
+TRIGGER_PREFIXES = (
+    "benchmarks/",
+    "research/common/",
+    "research/benchmarks/",
+    "research/tools/statystyka.py",
+    "research/results/full-run-2026-11/",
+    "research/api-benchmarks/ifeval/results/",
+)
 TRIGGER_FILES = frozenset({".github/workflows/codesota.yml", ".github/scripts/codesota_changes.py"})
 
 

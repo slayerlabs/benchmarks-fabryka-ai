@@ -7,11 +7,12 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 REPO = ROOT.parent
-DOCS = sorted([*ROOT.glob("*.md"), *ROOT.glob("docs/*.md")])
+DOCS = sorted([*ROOT.glob("*.md"), *ROOT.glob("docs/*.md"), *ROOT.glob("results/*.md")])
 LINK = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
 # Polish diacritics: documents in benchmarks/ are English-only (benchmarks/AGENTS.md). Proper nouns with diacritics
-# would need an explicit allowance here, in a reviewed change.
+# need an explicit allowance here, in a reviewed change: a person's name is written as the person writes it.
 POLISH = re.compile(r"[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]")
+PROPER_NOUNS = ("Wikieł",)  # docs/research-priorities.md: Kacper Wikieł
 
 
 def relative_links(path: Path) -> list[str]:
@@ -58,7 +59,12 @@ def test_anchor_matches_github_for_headings_used_here() -> None:
 
 @pytest.mark.parametrize("doc", DOCS, ids=lambda p: str(p.relative_to(ROOT)))
 def test_document_is_english(doc: Path) -> None:
-    lines = [i for i, line in enumerate(doc.read_text(encoding="utf-8").splitlines(), 1) if POLISH.search(line)]
+    def polish(line: str) -> bool:
+        for name in PROPER_NOUNS:
+            line = line.replace(name, "")
+        return bool(POLISH.search(line))
+
+    lines = [i for i, line in enumerate(doc.read_text(encoding="utf-8").splitlines(), 1) if polish(line)]
     assert lines == []
 
 

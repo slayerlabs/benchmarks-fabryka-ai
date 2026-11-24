@@ -1,0 +1,155 @@
+{
+ "schema_version": 2,
+ "protocol_id": "bench50-v0.3.1-fullB",
+ "run_id": "niezalezny-SlayerLab_Slayer1B-1.09-checkpoints-adfaf3fd-20261121T193442Z",
+ "models": [
+  {
+   "model_id": "SlayerLab/Slayer1B-1.09-checkpoints",
+   "repo": "SlayerLab/Slayer1B-1.09-checkpoints",
+   "revision": "adfaf3fd5402bc7f3adbfe077798f20262979433",
+   "weights_sha256": "b9e31fc953af44638fd64ca163dd8d5658cfe02928445fa9a412f11a618bb24e"
+  }
+ ],
+ "tasks": [
+  {
+   "task_id": "T07",
+   "task": "winogrande",
+   "family": "winogrande",
+   "language": "EN",
+   "split": "validation"
+  }
+ ],
+ "observations": [
+  {
+   "task_id": "T07",
+   "model_id": "SlayerLab/Slayer1B-1.09-checkpoints",
+   "protocol_id": "bench50-v0.3.1-fullB",
+   "metric": "acc,none",
+   "unit": "score",
+   "higher_is_better": true,
+   "n_population": 1267,
+   "n_selected": 1267,
+   "n_scored": 1267,
+   "state": "ok",
+   "value": 0.5737963693764798,
+   "ci95": {
+    "lower": 0.5488482922954726,
+    "upper": 0.5989014185969189,
+    "level": 0.95,
+    "method": "paired_bootstrap",
+    "replicates": 10000,
+    "seed": 20261028
+   },
+   "source_id_digest": "51090e4bd363c098f6fba50bd8901ee1ffd5bc39a7ca7723d9f077664a6dbe5d",
+   "results_sha256": "1cf02d3da7cbd8da90673872b603b1f57562bfbf3e4794562d0a0ce6cbb6c906",
+   "runner_sha256": "7a40b11ec940e3cd44002a40806c6e30c4e3febb57baf5017079ef7a2cb11375",
+   "contamination": "unscanned",
+   "contamination_receipt_sha256": null,
+   "reference": {
+    "chance_value": 0.5,
+    "majority_value": 0.5043409629044988,
+    "majority_prediction_share": 0.5035516969218626,
+    "constant_prediction": false
+   },
+   "dodatkowe": {
+    "space": {
+     "acc": {
+      "value": 0.5737963693764798,
+      "n": 1267,
+      "se": 0.012876476638838954,
+      "ci95": [
+       0.5488482922954726,
+       0.5989014185969189
+      ],
+      "se_a": 0.013898585965412248,
+      "k": 983,
+      "df": 982,
+      "metoda_se": "K"
+     },
+     "acc_norm": {
+      "value": 0.5737963693764798,
+      "n": 1267,
+      "se": 0.012876476638838954,
+      "ci95": [
+       0.5488482922954726,
+       0.5989014185969189
+      ],
+      "se_a": 0.013898585965412248,
+      "k": 983,
+      "df": 982,
+      "metoda_se": "K"
+     },
+     "bpb_poprawnej": {
+      "value": 1.2158525540909573,
+      "n": 1267,
+      "se": 0.026546475519043235,
+      "ci95": [
+       1.16496423435153,
+       1.2701971647815724
+      ],
+      "se_a": 0.02254076226411145,
+      "k": 983,
+      "df": 982,
+      "metoda_se": "K"
+     },
+     "bazy": {
+      "chance_value": 0.5,
+      "majority_value": 0.5043409629044988,
+      "majority_prediction_share": 0.5035516969218626,
+      "constant_prediction": false
+     },
+     "udzial_najczestszej_predykcji": 0.5035516969218626,
+     "wobec_b": {
+      "b": 0.5043409629044988,
+      "baza": "stala odpowiedz",
+      "roznica": 0.06945540647198106,
+      "se": 0.016656798613265515,
+      "z": null,
+      "t": 4.1697932528683275,
+      "df": 982,
+      "werdykt": "pewne",
+      "metoda": "K"
+     }
+    }
+   },
+   "zrodlo_danych": {
+    "repo": "allenai/winogrande",
+    "rewizja": "01e74176c63542e6b0bcb004dcdea22d94fb67b5",
+    "tryb": "hf"
+   }
+  }
+ ],
+ "contrasts": [],
+ "provenance": {
+  "inventory_commit": "6b8fb528fccf7dd0e0fdd3b06465b4af95507ec8",
+  "kind": "measurement",
+  "sources": [
+   {
+    "run_id": "niezalezny-SlayerLab_Slayer1B-1.09-checkpoints-adfaf3fd-20261121T193442Z",
+    "results_sha256": "1cf02d3da7cbd8da90673872b603b1f57562bfbf3e4794562d0a0ce6cbb6c906"
+   }
+  ],
+  "qualification_sha256": "325279683f06153fe541f435f0638c1a4fc5785f85ee2b9da8f62bfa6a3ddce6",
+  "contamination_sha256": "7e66366226c2db7d3b6fc436fdb043047ae3429869b98b58b8efca9cb9cd7b6d",
+  "references_sha256": "5eba3398aaa85dc152f6ffb523941cbb410ac17d2f41530a4e7540c15cce5b0c"
+ },
+ "ewaluator": "niezależny (slayer_eval)",
+ "lm_eval": "0.4.9.1",
+ "dane": "hf",
+ "probka": "pelna",
+ "eval_gpu": "NVIDIA_GeForce_RTX_4090",
+ "sprzet": "NVIDIA GeForce RTX 4090",
+ "max_length": 4096,
+ "dtype": "float32",
+ "bos": {
+  "bos_token": "<|endoftext|>",
+  "bos_token_id": 0,
+  "prefix_token_id": 0,
+  "wiodace_bos": {
+   "loglik": 1,
+   "generacja": 1,
+   "pusty_kontekst": 1
+  },
+  "regula": "jeden BOS"
+ }
+}

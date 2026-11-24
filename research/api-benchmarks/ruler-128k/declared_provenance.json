@@ -1,0 +1,26 @@
+{
+  "_about": "What is known about the generation of runs that predate generation.jsonl, not recorded by run.sh at generation: declared by the person who ran them, or inferred from the out dir. summarize.py copies the entry of the model into provenance.generation_declared when the out dir has no generation.jsonl.",
+  "lfm3-1.7b": {
+    "status": "inferred, not recorded",
+    "code": {"commit": "e7858d5148d20b5a63548360953ecfa239b8ca98", "relation": "this commit or an earlier one (ca6e0254, 364fac66): the three carry the same run.sh and predict.py", "dirty": null,
+             "runner_sha256": {"run.sh": "99ceb343a5f7e1566cb86e279cad843bc3f71448cc72b314888e4f979702b53d", "predict.py": "b9d407cb732c7b17736026fdef820e419bddd055040ac37a9311d60d4d1b779e"}},
+    "source": "inferred from the record schema and run.json time (Amendment 8): none of the 78 raw files has `counted_prompt_tokens`, which predict.py writes on every record from d45c3509 on (predict.py b9d407cb, at ca6e0254-e7858d51, does not); run.json has `chat_template_kwargs`, written by run.sh 99ceb343 (ca6e0254-e7858d51) and not by d45c3509's; run.json is from 04:32:18 UTC, 8 minutes before d45c3509 (04:40:26 UTC). README at 6a1afea0 declared d45c3509, which the data contradict",
+    "requests": "the same as at d45c3509 for vLLM: model, messages, temperature, top_p, seed and the output limit window minus counted prompt (sent as `max_completion_tokens`, which vLLM reads as `max_tokens`; the margin is 0 on vLLM in both), so no number moves",
+    "archives_sha256": {
+      "out/box/ruler-lfm3-1.7b-outputs.tgz": "704d8c6659a7a3f54e0bde32857ff4e3b62e5e681dc2cfa43815e3c581a84036",
+      "out/box/ruler-lfm3-1.7b-data.tar.zst": "7df06b025aa8a9b31fde5911cb8b7e1b9782108867a06c8f26a570b3b104609d"
+    },
+    "archives_note": "the rented machine's out dir (raw outputs; RULER data) as packed after the run, kept outside the repo (CONTRIBUTING.md: no archives); their sha256 were taken on 2026-11-22 after the run, not at packing",
+    "unknown": "dirty flag, runner sha256, GPU and platform of generation"
+  },
+  "slayer1b-1.09-k70000": {
+    "status": "declared, not recorded",
+    "code": {"commit": "920787d4d023fbbed276147bd901a9a4df70373f", "dirty": null},
+    "source": "README.md Deviations at 6a1afea0: 'the Slayer run (920787d4)'",
+    "archives_sha256": {
+      "out/box/ruler-slayer-outputs.tgz": "13d1386c849528b4dd592b00b4428ca24bf24acbc920c496132eb318cfb66bb1"
+    },
+    "archives_note": "the rented machine's out dir (raw outputs) as packed after the run, kept outside the repo (CONTRIBUTING.md: no archives); its sha256 was taken on 2026-11-22 after the run, not at packing",
+    "unknown": "dirty flag, runner sha256, GPU and platform of generation"
+  }
+}

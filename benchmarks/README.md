@@ -8,7 +8,7 @@
 [![Research tests](https://github.com/slayerlabs/benchmarks-fabryka-ai/actions/workflows/research-tests.yml/badge.svg?branch=main)](https://github.com/slayerlabs/benchmarks-fabryka-ai/actions/workflows/research-tests.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](pyproject.toml)
 
-[Overview](#overview) · [Evaluations](#evaluation-domains) · [Methodology](#methodology-and-reproducibility) ·
+[Overview](#overview) · [Run](#run) · [Evaluations](#evaluation-domains) · [Methodology](#methodology-and-reproducibility) ·
 [Results](#results) · [Getting started](#getting-started) · [Contributing](docs/contributing.md) ·
 [Security](docs/security-and-governance.md)
 
@@ -50,6 +50,24 @@ updated work, not a claim that every benchmark already meets all of them; the ne
   standard error, and comparisons have a statistical verdict.
 - Per-question outputs are stored in the repository for some benchmarks and runs, not yet for all.
 
+## Run
+
+Run benchmarks on any Hugging Face model, from the Hub or a local directory. Each benchmark writes its own result
+directory, checked by the validator before it is reported:
+
+```bash
+cd "$(git rev-parse --show-toplevel)/benchmarks"
+uv sync --extra eval --python 3.12
+uv run python -m codesota.runner --list
+uv run python -m codesota.runner --benchmarks @verified --model EleutherAI/pythia-1b-v0 \
+  --revision f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0 --out runs/
+```
+
+Select benchmarks by name (`arc-easy`), alias, pack (`@verified`, `@small`, `@pl`), or `all`. The list of
+benchmarks and their status is in [`BENCHMARKS.md`](BENCHMARKS.md); options, output, and how the results were
+verified are in [`docs/running.md`](docs/running.md). On a GPU, install the CUDA build of torch 2.8.0 first
+(`docs/running.md`, "Install").
+
 ## Evaluation domains
 
 The table lists the benchmarks that have a directory in the repository, grouped by area. A listed benchmark is not
@@ -86,6 +104,31 @@ benchmark-specific code, and, where done, a reproduction report.
 
 ## Results
 
+**[All results](results/README.md)**: every published result in one place, Slayer 1B first, by category and
+language, with charts and a [JSONL of all results](results/results.jsonl). A short view, value ± standard error, on the
+four benchmarks with a reproduced reference, the largest English test, and the Polish one:
+
+<!-- results-snapshot:start -->
+| benchmark | metric | Slayer 1B 1.09 (step 70 000, training in progress) | Bielik 11B v3.0 Instruct |
+|---|---|---:|---:|
+| ARC-Easy | `acc` ↑ | 66.2 ± 1.0 | 81.9 ± 0.8 |
+| PIQA | `acc_norm` ↑ | 72.7 ± 1.0 | 78.9 ± 1.0 |
+| WinoGrande | `acc` ↑ | 57.4 ± 1.3 | 73.0 ± 1.2 |
+| LAMBADA (OpenAI) | `acc` ↑ | 45.8 ± 0.7 | 71.4 ± 0.6 |
+| HellaSwag | `acc_norm` ↑ | 55.3 ± 0.5 | 79.4 ± 0.4 |
+| MultiBLiMP (Polish) | `accuracy` ↑ | 98.2 ± 0.2 | 99.6 ± 0.1 |
+
+| model | how it ran | prompt-level strict accuracy | n |
+|---|---|---:|---:|
+| Slayer 1B 1.08 | local GPU, raw prompt, greedy | 18.1 ± 1.7 | 541 |
+| Bielik 11B v3.1 Instruct | Fabryka API, chat template, sampled | 55.3 ± 2.1 | 541 |
+<!-- results-snapshot:end -->
+
+Bielik 11B is v3.0 in the log-likelihood rows (the version the full run measured) and v3.1 in IFEval; the two
+IFEval rows use different setups, and Slayer's IFEval score is mostly degenerate output from a base model. Caveats and the protocol are on the [results page](results/README.md).
+
+Sources:
+
 - [Full run, November 2026](../research/results/full-run-2026-11/README.md): 15 benchmarks on full test sets for
   8 open reference models and 9 development checkpoints of one 1B model under development, with standard errors,
   statistical verdicts, and the settings of every run. Report written in Polish; an interactive view of the same
@@ -118,8 +161,10 @@ Running full evaluations needs model weights and the pinned environment describe
 [`research/README.md`](../research/README.md) (written in Polish).
 
 **Develop the `codesota` Python package** in `benchmarks/`. It is the home of new shared tooling. Today it
-validates result artifacts (`python -m codesota.results`, see [`docs/result-artifacts.md`](docs/result-artifacts.md));
-it does not run evaluations yet. It needs Python 3.11+ and [uv](https://docs.astral.sh/uv/):
+runs the benchmarks of its catalog on a model (`python -m codesota.runner`, see [`docs/running.md`](docs/running.md)
+and [`BENCHMARKS.md`](BENCHMARKS.md)) and validates result artifacts (`python -m codesota.results`, see
+[`docs/result-artifacts.md`](docs/result-artifacts.md)). It needs Python 3.11+ and [uv](https://docs.astral.sh/uv/);
+running benchmarks also needs the `eval` extra (`uv sync --extra eval`):
 
 ```bash
 cd "$(git rev-parse --show-toplevel)/benchmarks"
@@ -135,7 +180,8 @@ uv build
 benchmarks/
 ├── src/codesota/   the package
 ├── tests/          deterministic tests; no network, GPU, or weights
-├── docs/           result artifacts, contributor, security, and governance documentation
+├── docs/           running benchmarks, result artifacts, contributor, security, and governance documentation
+├── BENCHMARKS.md   every benchmark and its status, generated from the catalog
 ├── AGENTS.md       engineering rules for contributors and coding agents
 └── pyproject.toml  package metadata and tool configuration; uv.lock pins the environment
 ```
