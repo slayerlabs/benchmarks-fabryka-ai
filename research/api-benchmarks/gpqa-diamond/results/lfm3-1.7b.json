@@ -1,0 +1,29 @@
+{
+  "benchmark": "GPQA Diamond (exploratory, CoT zero-shot)",
+  "model": "lfm3-1.7b",
+  "metric": "exact_match (flexible-extract)",
+  "score": 53.54,
+  "stderr": 3.54,
+  "n": 198,
+  "date": "2026-11-19",
+  "harness": "https://github.com/EleutherAI/lm-evaluation-harness v0.4.13, task gpqa_diamond_cot_zeroshot (task version 2.2); repo pin is 0.4.9.1 (unreconciled)",
+  "data": "https://huggingface.co/datasets/Idavidrein/gpqa, config gpqa_diamond @ 83022cefff930aea54f654c0b282e74b9eeda5c6 (gated), 198 questions",
+  "settings": {
+    "model_weights": "LiquidAI/LFM3-1.7B @ 1da06bec6a819da10b54c67e5c90972b46d81871",
+    "dtype": "bfloat16",
+    "decoding": "greedy (do_sample=false, temperature=0.0)",
+    "stop": [
+      "</s>"
+    ],
+    "shots": 0,
+    "cot": true,
+    "chat_template": true,
+    "max_gen_toks": 8192,
+    "hardware": "RTX A4000, batch 22",
+    "transformers": "5.22.1",
+    "torch": "2.8.0+cu128",
+    "trials": 1,
+    "trust_remote_code": true
+  },
+  "deviations": "see README.md, Deviations"
+}
