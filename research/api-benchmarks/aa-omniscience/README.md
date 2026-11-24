@@ -81,6 +81,9 @@ calling the judge again.
   fp32 (TF32 off) with a KV cache, 32 requests per batch (`slayer_batch.py`). The server's command-line flags are
   in English (`--limit-mode fixed`, `--batch`, `--default-seed`); no other change from the code that produced the
   result.
+- **Slayer serving code** (`slayer_server.py`, `slayer_batch.py`, `slayer_kv_lm.py`, `slayer_package.py`) lives in
+  [`research/common/slayer_serving/`](../../common/slayer_serving/). The results were produced with byte-identical
+  copies kept in this directory before the move; the shared README lists their hashes.
 
 ## Reproduce
 

@@ -2,7 +2,8 @@
 # AA-Omniscience (public) for one model: bash run.sh <model-id> [--limit N]
 #   bielik-11b-v3.1-vllm  Bielik 11B v3.1 Instruct served by vLLM (start it with vllm.sh) at BASE_URL
 #                         (default http://127.0.0.1:8000/v1, served model name "bielik")
-#   slayer1b-60000        Slayer 1B, training step 60000, served locally by slayer_server.py on a CUDA GPU
+#   slayer1b-60000        Slayer 1B, training step 60000, served locally by slayer_server.py
+#                         (research/common/slayer_serving) on a CUDA GPU
 # Needs a judge on an OpenAI-compatible endpoint: JUDGE_BASE_URL, JUDGE_MODEL, JUDGE_API_KEY (see README, Deviations).
 # prepare.py -> generate.py -> judge.py -> summarize.py; writes results/<model-id>.json and .jsonl.gz (ids and grades
 # only: the question set is closed). --limit N asks only the first N questions and writes to out/limit/ (the 12 judge
@@ -17,9 +18,11 @@ if [[ "${1:-}" == "--limit" ]]; then LIMIT="${2:?--limit needs N}"; fi
 : "${JUDGE_BASE_URL:?set JUDGE_BASE_URL, JUDGE_MODEL and JUDGE_API_KEY}" "${JUDGE_MODEL:?}"
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
+COMMON="$HERE/../../common/slayer_serving"
 OUT="${OUT_DIR:-$HERE/out}"
 VENV="${VENV:-$HERE/.venv}"
 mkdir -p "$OUT"
+OUT="$(cd "$OUT" && pwd)"  # absolute: the Slayer server runs from $COMMON
 [[ -d "$VENV" ]] || uv venv --python 3.12 "$VENV"
 PY="$VENV/bin/python"
 uv pip install --python "$PY" httpx huggingface_hub
@@ -42,9 +45,9 @@ case "$MODEL" in
       "lm-eval @ git+https://github.com/EleutherAI/lm-evaluation-harness@ddd67220430a2470529f25fd5c05a576ca1057a0" \
       tokenizers safetensors numpy huggingface_hub
     PKG="$OUT/slayer1b-60000-package"
-    [[ -d "$PKG" ]] || "$SVENV/bin/python" "$HERE/slayer_package.py" --out "$PKG"
+    [[ -d "$PKG" ]] || "$SVENV/bin/python" "$COMMON/slayer_package.py" --out "$PKG"
     # Base model: the system prompt and the question as raw text, greedy, up to 1280 tokens (limit mode fixed).
-    (cd "$HERE" && "$SVENV/bin/python" slayer_server.py --pkg "$PKG" --port 8001 --log "$OUT/server-log" \
+    (cd "$COMMON" && "$SVENV/bin/python" slayer_server.py --pkg "$PKG" --port 8001 --log "$OUT/server-log" \
        --limit-mode fixed --batch 32 > "$OUT/server.log" 2>&1) &
     SERVER_PID=$!
     trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
