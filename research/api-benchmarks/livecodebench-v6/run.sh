@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # LiveCodeBench v6 (code generation, release_v6) for one model: bash run.sh <model-id> [--limit N]
-# Settings are fixed in PROTOCOL.md (with Amendments 1 to 4).
+# Settings are fixed in PROTOCOL.md (with Amendments 1 to 5).
 #
 #   lfm3-1.7b              vLLM 0.34.0, bf16, context 262144. Linux with one NVIDIA GPU (written for an H100 80 GB),
 #                          CUDA drivers, python3, git, curl.

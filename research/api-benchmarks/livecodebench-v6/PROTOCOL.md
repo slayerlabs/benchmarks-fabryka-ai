@@ -155,3 +155,29 @@ method verification (Amendment 3). Nothing above is changed.
 - **Consequence, fixed before computing.** If A1 holds (equivalent), the original 72.23 stands and the gap named in
   Amendment 3 is closed. If not, both numbers are reported, and the card-sampling one is the headline for
   comparisons with the card's 73.46. <!-- ocena-bez-se: consequence fixed before computing, not a result -->
+
+## Amendment 5 (2026-11-24)
+
+Written after every result above was seen and after review of the PR. Nothing above is changed; no hypothesis,
+threshold or verdict rule moves.
+
+- **One scoring machine.** The answers were scored on the machines that generated them: LFM3-1.7B's on the CPU of
+  the GPU instances, Bielik's on an Apple M5 Pro. LiveCodeBench's 6 s per test depends on the CPU, so a program
+  near the limit can pass on one machine and time out on another. All three runs are now scored again from their
+  saved raw outputs (`lcb.py score`, unchanged code and evaluator settings) on one machine, the Apple M5 Pro
+  recorded in each result's `provenance.scoring`, and these grades are the official ones. The extracted code is
+  identical to the earlier scoring for every problem. Grades that changed: `bielik-11b-v3.1` none; `lfm3-1.7b` 10
+  (4 passed only now, 6 only before); `lfm3-1.7b-cardsampling` 8 (6 only now, 2 only before); each a time limit on
+  one of the two scorings, except 3 runtime errors. pass@1 moved from 72.23 to 72.04 (`lfm3-1.7b`) and from 72.89
+  to 73.08 (`lfm3-1.7b-cardsampling`). The machine was shared with other work while scoring, so these borderline
+  grades also depend on its load; the outcome of the control, L1, L2, L3 and A1 is the same as before.
+- **The verdict run stays `lfm3-1.7b`.** Its generation provenance is reconstructed (code commit inferred,
+  hardware written by hand: README, Deviations), while `lfm3-1.7b-cardsampling` has full provenance. Making the
+  card-sampling run the verdict run now, after seeing that L3 has a different outcome on the two runs, would choose
+  the verdict by its result; Amendment 4 fixed before that run that it is the headline only for comparisons with
+  the card. The hypotheses table says that the verdict run's provenance is reconstructed.
+- **Slayer's `null` is a cost decision.** `slayer1b-1.09-k70000` is not run, a cost decision: on the 30 Python
+  tasks of `research/slayer-1b/rozmowy-1.08` (PAPER.md, H5.1) Slayer 1B wrote no function that passed its tests (0
+  of 30), so running the 1055 problems of LiveCodeBench v6 (about 27 h with `research/common/slayer_lm.py`) was
+  judged not worth its cost. `null` here records that decision; Slayer 1B can run the benchmark ("Settings" fixes
+  its prompt and greedy decoding, and the prompts fit its 4096-token context: README, Deviations).

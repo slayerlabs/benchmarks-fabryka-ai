@@ -2,7 +2,7 @@
 
 Whether a model writes a Python program that passes the hidden tests of a competitive-programming problem
 (LeetCode, AtCoder, Codeforces). The pre-registered question, hypotheses and verdict rules are in
-[PROTOCOL.md](PROTOCOL.md) (with Amendments 1 to 4); this file says how the run is done. Refs #295.
+[PROTOCOL.md](PROTOCOL.md) (with Amendments 1 to 5); this file says how the run is done. Refs #295.
 
 - Paper: [Jain et al. 2024, LiveCodeBench: Holistic and Contamination Free Evaluation of Large Language Models for
   Code](https://arxiv.org/abs/2403.07974)
@@ -40,22 +40,22 @@ output (PROTOCOL.md, Amendment 1).
 
 | model | thinking | serving | output limit | pass@1 (%) | stderr | n | mean output tokens | date |
 |---|---|---|---|---|---|---|---|---|
-| LFM3-1.7B (`lfm3-1.7b`, the verdict run of L1-L3) | thinks (template default) | vLLM 0.34.0, bf16; `repetition_penalty` 1.1 and `top_k` 50 from `generation_config.json` (Amendment 3) | context minus prompt tokens (context 262144) | 72.23 | 1.38 | 1055 | 16277.7 | 2026-11-22 |
-| LFM3-1.7B with the card's sampling (`lfm3-1.7b-cardsampling`, Amendment 4) | thinks (template default) | vLLM 0.34.0, bf16; `repetition_penalty` 1.0 and `top_k` 0 in the request | context minus prompt tokens (context 262144) | 72.89 | 1.37 | 1055 | 19175.0 | 2026-11-22 |
-| Bielik 11B v3.1 (`bielik-11b-v3.1`) | does not think (API default `reasoning_effort` none: empty `<think></think>`) | Fabryka AI API, with the API's hidden provider system prompt | context minus prompt tokens minus a margin of 64 (context 32768) | 16.68 | 1.15 | 1055 | 708.4 | 2026-11-22 |
-| Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`) | | | | null (not run, see Deviations) | | | | |
+| LFM3-1.7B (`lfm3-1.7b`, the verdict run of L1-L3) | thinks (template default) | vLLM 0.34.0, bf16; `repetition_penalty` 1.1 and `top_k` 50 from `generation_config.json` (Amendment 3) | context minus prompt tokens (context 262144) | 72.04 | 1.38 | 1055 | 16277.7 | 2026-11-22 |
+| LFM3-1.7B with the card's sampling (`lfm3-1.7b-cardsampling`, Amendment 4) | thinks (template default) | vLLM 0.34.0, bf16; `repetition_penalty` 1.0 and `top_k` 0 in the request | context minus prompt tokens (context 262144) | 73.08 | 1.37 | 1055 | 19175.0 | 2026-11-22 |
+| Bielik 11B v3.1 (`bielik-11b-v3.1`) | does not think: API default, no reasoning; reasoning cannot be switched on through the API (`reasoning_effort` none: empty `<think></think>`) | Fabryka AI API, with the API's hidden provider system prompt | context minus prompt tokens minus a margin of 64 (context 32768) | 16.68 | 1.15 | 1055 | 708.4 | 2026-11-22 |
+| Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`) | | | | null (not run, a cost decision; see Deviations) | | | | |
 
 pass@1 (%) ± stderr (n) by difficulty, on the v6-only problems, and within an output budget (an answer counts only if it passed, finished, and used at most that many tokens):
 
 | run | easy | medium | hard | v6-only | within 4096 tokens | within 16384 tokens |
 |---|---|---|---|---|---|---|
-| lfm3-1.7b | 97.20 ± 0.92 (322) | 79.63 ± 2.06 (383) | 41.14 ± 2.63 (350) | 57.14 ± 3.74 (175) | 20.76 ± 1.25 (1055) | 52.61 ± 1.54 (1055) |
-| lfm3-1.7b-cardsampling | 98.14 ± 0.75 (322) | 79.90 ± 2.05 (383) | 42.00 ± 2.64 (350) | 56.57 ± 3.75 (175) | 18.10 ± 1.19 (1055) | 44.93 ± 1.53 (1055) |
+| lfm3-1.7b | 97.20 ± 0.92 (322) | 79.37 ± 2.07 (383) | 40.86 ± 2.63 (350) | 56.57 ± 3.75 (175) | 20.76 ± 1.25 (1055) | 52.51 ± 1.54 (1055) |
+| lfm3-1.7b-cardsampling | 98.14 ± 0.75 (322) | 80.16 ± 2.04 (383) | 42.29 ± 2.64 (350) | 56.57 ± 3.75 (175) | 18.10 ± 1.19 (1055) | 45.12 ± 1.53 (1055) |
 | bielik-11b-v3.1 | 46.58 ± 2.78 (322) | 6.53 ± 1.26 (383) | 0.29 ± 0.29 (350) | 15.43 ± 2.73 (175) | 16.68 ± 1.15 (1055) | 16.68 ± 1.15 (1055) |
 
 Baselines: 0 for random and majority answers (no fixed output passes a problem's hidden tests). The LFM3-1.7B card reports 73.46; the control is in Hypotheses.
 
-Amendment 4: A1 not shown equivalent: both numbers are reported (lfm3-1.7b 72.23, lfm3-1.7b-cardsampling 72.89); the card-sampling one is the headline for comparisons with the card's 73.46 (Ablation below).
+Amendment 4: A1 not shown equivalent: both numbers are reported (lfm3-1.7b 72.04, lfm3-1.7b-cardsampling 73.08); the card-sampling one is the headline for comparisons with the card's 73.46 (Ablation below).
 
 <!-- readme.py: end results -->
 
@@ -92,9 +92,13 @@ Amendment 4: A1 not shown equivalent: both numbers are reported (lfm3-1.7b 72.23
   the largest prompt plus output the API billed, to check the margin. The count needs `transformers` 4.57.6 (as
   for Bielik in `ifeval/vllm.sh`; LiveCodeBench's lock pins 4.51.3, which cannot load this tokenizer) with
   `sentencepiece`, `protobuf` and `jinja2` in the LiveCodeBench venv; the evaluator does not import them.
-- **Bielik's answers are scored on the machine that runs the API requests** (a Mac or a Linux CPU box), LFM3-1.7B's
-  on the GPU box. LiveCodeBench's per-test time limit (6 s) depends on the CPU, so a program near the limit can pass
-  on one machine and time out on the other.
+- **All three runs are scored on one machine** (PROTOCOL.md, Amendment 5). LiveCodeBench's per-test time limit
+  (6 s) depends on the CPU, so a program near the limit can pass on one machine and time out on another. The
+  answers were first scored where they were generated (LFM3-1.7B on the GPU box, Bielik on a Mac); all three runs
+  were then scored again from their raw outputs with `lcb.py score` on one machine, named in each result's
+  `provenance.scoring` (Apple M5 Pro), and these are the grades reported. The amendment lists the grades that
+  changed; that machine was shared with other work while scoring, so a grade near the time limit can still depend
+  on its load.
 - **One sample per problem.** LiveCodeBench's runner defaults to 10 samples per problem (`--n 10`); PROTOCOL.md
   fixes one sample with a fixed seed. The stderr is the binomial one over problems.
 - **vLLM applies LFM3-1.7B's `generation_config.json` as default sampling.** Parameters the request does not set
@@ -104,14 +108,16 @@ Amendment 4: A1 not shown equivalent: both numbers are reported (lfm3-1.7b 72.23
   Amendment 3). Their effect on the score is not estimated. Each result file now records the sampling in effect:
   `settings.request_sampling` (sent) and `settings.server_defaults` (filled by the server: on vLLM read by lcb.py
   from `generation_config.json` at the pinned revision, on the Fabryka API `unknown (Fabryka API)`).
-- **The LFM3-1.7B result's provenance was recorded by hand, after the run.** It was produced before lcb.py
-  recorded provenance, so `results/lfm3-1.7b.json` got its `provenance`, `raw_outputs` and sampling fields added
-  by hand and nothing was regenerated: the code commit is fc13b0bd, inferred (its `graded.jsonl` lacks the fields
-  later code adds; the request and scoring path did not change after it), with the sha256 of the runner files at
-  that commit; the hardware is a vast.ai H100 80 GB instance, written by hand (no `nvidia-smi` output was kept),
-  which also scored the answers on its CPU; platform, CPU model and `dirty` were not captured. The
-  `manifest.json` files in `out/lfm3-1.7b/` and `results/` hold the hashes those files had when they were written
-  after the fact, not hashes recorded by the steps that wrote them.
+- **The LFM3-1.7B generation's provenance was recorded by hand, after the run.** It was generated before lcb.py
+  recorded provenance, so its generation record was written by hand: the code commit is fc13b0bd, inferred (its
+  first `graded.jsonl` lacks the fields later code adds; the request path did not change after it), with the sha256
+  of the runner files at that commit; the hardware is a vast.ai H100 80 GB instance, written by hand (no
+  `nvidia-smi` output was kept); platform, CPU model and `dirty` were not captured. The record carries `recorded`
+  in `provenance.generation` of `results/lfm3-1.7b.json`, and the hypotheses table names it next to the verdict
+  run. The raw output was kept gzipped; decompressed it has the sha256 recorded by hand, and the manifest entry of
+  `out/lfm3-1.7b/generations.jsonl` says it was recorded after the fact. Scoring and summary of this run were
+  recorded by lcb.py and summarize.py at the re-scoring (Amendment 5). The verdict run stays `lfm3-1.7b`; the
+  amendment says why.
 - **The `output` of a `.jsonl.gz` line is the extracted code, not the whole model output.** METHODOLOGY.md asks
   for the model output per task; the raw output with its thinking is about 16 MB for LFM3-1.7B, over the repo's
   10 MB limit, so it stays in `out/<model-id>/` (not committed). Its sha256 is in the result file
@@ -132,15 +138,17 @@ Amendment 4: A1 not shown equivalent: both numbers are reported (lfm3-1.7b 72.23
   whether any request was retried, paused or got an HTTP error is not known, and "0 retries" cannot be shown for it;
   only its outcome is known (1055 answers with `status: ok`, 0 errors). Its `run.json` and result file say
   `api_events: null` with this reason. Runs from now on log every failed attempt.
-- **Slayer 1B 1.09 at update 70 000 is not run** (`slayer1b-1.09-k70000`, PROTOCOL.md, Amendment 2). PROTOCOL.md
-  sets LiveCodeBench's base-model prompt (`GenericBase`: one solved example, then the problem), greedy, output up to
+- **Slayer 1B 1.09 at update 70 000 is not run, a cost decision** (`slayer1b-1.09-k70000`, PROTOCOL.md,
+  Amendments 2 and 5). On the 30 Python tasks of `research/slayer-1b/rozmowy-1.08` (PAPER.md, H5.1) Slayer 1B
+  wrote no function that passed its tests (0 of 30), so running the 1055 problems of LiveCodeBench v6 was judged
+  not worth its cost. `null` here records that decision; Slayer 1B can run the benchmark. PROTOCOL.md sets
+  LiveCodeBench's base-model prompt (`GenericBase`: one solved example, then the problem), greedy, output up to
   4096 minus the prompt. With the Slayer 1B 1.08 tokenizer these prompts are 1373 tokens on average (median 1484,
   max 2709), which leaves 2.87M output tokens for the 1055 problems (not recounted with the 1.09 checkpoint).
   `research/common/slayer_lm.py` decodes about 29 tokens per second whatever the batch (IFEval README,
   "Deviations": 1280 tokens in about 45 s), so the set takes about 27 h if the outputs run to the limit, as Slayer's
-  IFEval outputs mostly do. Under about 3 h it would need fewer than about 300 output tokens per problem on average.
-  The batched decoder in `ifeval/lm_eval_slayer.py` belongs to that benchmark; using it here would first need it
-  moved to `research/common/`. Until then the row stays empty.
+  IFEval outputs mostly do. METHODOLOGY.md reserves `score: null` for a model that cannot run the benchmark; this
+  row uses it for a decision not to run.
 - **Contamination cannot be ruled out.** LiveCodeBench stopped adding problems in 2025, so `release_v6` is older
   than the training data of LFM3-1.7B and Bielik 11B v3.1 (whose template states a knowledge cutoff of 2026-03)
   (PROTOCOL.md, "Limits stated in advance"). The results are not contamination-free.
@@ -207,6 +215,12 @@ the problem set's order and v6-only flag, the recorded sampling and provenance, 
 input, that README.md's generated blocks are what readme.py writes, and, without importing this directory's code,
 pass@1, the L1 and L3 differences and the README's numbers against a count from `results/*.jsonl.gz`.
 
+run.sh scores each run on the machine that generated it. The reported grades come from one machine for all runs
+(PROTOCOL.md, Amendment 5): with every run's `out/<model-id>/` (`generations.jsonl`, `run.json`, `manifest.json`)
+on that machine, `.venv-lcb/bin/python lcb.py score out/<model-id>` and then
+`.venv-lcb/bin/python summarize.py out/<model-id> results/<model-id>` for each run. CPU time is a few minutes per
+run on an 18-core Mac.
+
 After any result changes, regenerate in this order: `python3 extraction.py` (in `.venv-lcb`; it records its machine
 in the file's `provenance`), `python3 compare.py`, `python3 ablation.py`, `python3 readme.py`.
 
@@ -234,34 +248,34 @@ fence lines of the answer; with fewer than two the code is empty and graded as a
 run. `extraction.py` re-extracts every answered problem of every run with rule F1, fixed by the method refutation
 before it regraded anything (one fence line: the lines before it, or after it when only whitespace precedes it; no
 fence line: the whole text), grades the answers whose code changes with LiveCodeBench's evaluator on the machine
-that runs it (named below from the file's `provenance`, not one of the machines that scored the official runs) and
-writes `results/extraction-f1.json`; compare.py then prints L1 and L3 after F1 next to the official
+that runs it (named below from the file's `provenance`, with whether it is the machine that scored the official
+runs) and writes `results/extraction-f1.json`; compare.py then prints L1 and L3 after F1 next to the official
 numbers. This was not fixed in PROTOCOL.md and does not replace any official number; it shows how much of L1 and L3
 rests on answers that LiveCodeBench's extraction leaves without code.
 
 <!-- readme.py: hypotheses (generated from results/ by readme.py; edit readme.py, not this block) -->
 
-control: LFM3-1.7B (lfm3-1.7b-cardsampling) 72.89 ± 1.37 vs card 73.46, z = -0.42: passed
-descriptive, not tested: LFM3-1.7B (lfm3-1.7b, the verdict run of L1-L3) 72.23 ± 1.38 vs card 73.46, z = -0.89
+control: LFM3-1.7B (lfm3-1.7b-cardsampling) 73.08 ± 1.37 vs card 73.46, z = -0.28: passed
+descriptive, not tested: LFM3-1.7B (lfm3-1.7b, the verdict run of L1-L3) 72.04 ± 1.38 vs card 73.46, z = -1.03
 
-L1-L3 on lfm3-1.7b, the verdict run:
+L1-L3 on lfm3-1.7b, the verdict run (its generation provenance is reconstructed: code commit inferred, hardware written by hand; the scores reproduce from the committed answers; README, Deviations):
 
 | hypothesis | measure | value ± SE (pp) | z | Holm p | verdict | after Holm | outcome | n |
 |---|---|---|---|---|---|---|---|---|
-| L1 | pass@1 difference, all problems | +55.55 ± 1.53 | +36.29 | 7.07e-288 | clear | clear | refuted | 1055 (excluded 0) |
-| L2 | sign pattern easy/medium/hard: +++ |  | +15.53 | 4.54e-54 | clear | clear | refuted | 1055 (excluded 0) |
+| L1 | pass@1 difference, all problems | +55.36 ± 1.53 | +36.15 | 1.09e-285 | clear | clear | refuted | 1055 (excluded 0) |
+| L2 | sign pattern easy/medium/hard: +++ |  | +15.44 | 1.88e-53 | clear | clear | refuted | 1055 (excluded 0) |
 | L2 easy | pass@1 difference, easy | +50.62 ± 2.79 | +18.14 | | clear | | | 322 |
-| L2 medium | pass@1 difference, medium | +73.11 ± 2.27 | +32.22 | | clear | | | 383 |
-| L2 hard | pass@1 difference, hard | +40.86 ± 2.63 | +15.53 | | clear | | | 350 |
+| L2 medium | pass@1 difference, medium | +72.85 ± 2.28 | +32.01 | | clear | | | 383 |
+| L2 hard | pass@1 difference, hard | +40.57 ± 2.63 | +15.44 | | clear | | | 350 |
 | L3 | pass@budget difference at equal cost (LFM3 B = 4096, Bielik B = 4096; mean cost 1.29e+13 vs 1.58e+13 FLOPs) | +4.08 ± 1.08 | +3.78 | 0.000157 | clear | clear | refuted | 1055 (excluded 0) |
 
 Clustered SE (descriptive): the same difference, SE from the spread between clusters, t read at df = k − 1:
 
 | hypothesis | SE from | k (clusters) or n | value ± SE (pp) | z or t | df | p | verdict |
 |---|---|---|---|---|---|---|---|
-| L1 | problems (paired) | 1055 | +55.55 ± 1.53 | z = +36.29 | | 2.36e-288 | clear |
-| L1 | contest | 250 | +55.55 ± 1.69 | t = +32.84 | 249 | 1.8e-92 | clear |
-| L1 | platform | 3 | +55.55 ± 4.27 | t = +13.01 | 2 | 0.00586 | likely |
+| L1 | problems (paired) | 1055 | +55.36 ± 1.53 | z = +36.15 | | 3.63e-286 | clear |
+| L1 | contest | 250 | +55.36 ± 1.67 | t = +33.14 | 249 | 2.94e-93 | clear |
+| L1 | platform | 3 | +55.36 ± 3.76 | t = +14.74 | 2 | 0.00457 | likely |
 | L3 | problems (paired) | 1055 | +4.08 ± 1.08 | z = +3.78 | | 0.000157 | clear |
 | L3 | contest | 250 | +4.08 ± 1.01 | t = +4.02 | 249 | 7.62e-05 | clear |
 | L3 | platform | 3 | +4.08 ± 1.36 | t = +3.00 | 2 | 0.0957 | noise |
@@ -270,44 +284,44 @@ L1-L3 on lfm3-1.7b-cardsampling, reported next to the verdict run (Amendment 4),
 
 | hypothesis | measure | value ± SE (pp) | z | Holm p | verdict | after Holm | outcome | n |
 |---|---|---|---|---|---|---|---|---|
-| L1 | pass@1 difference, all problems | +56.21 ± 1.53 | +36.78 | 1.1e-295 | clear | clear | refuted | 1055 (excluded 0) |
-| L2 | sign pattern easy/medium/hard: +++ |  | +15.80 | 5.82e-56 | clear | clear | refuted | 1055 (excluded 0) |
+| L1 | pass@1 difference, all problems | +56.40 ± 1.53 | +36.92 | 5.87e-298 | clear | clear | refuted | 1055 (excluded 0) |
+| L2 | sign pattern easy/medium/hard: +++ |  | +15.90 | 1.32e-56 | clear | clear | refuted | 1055 (excluded 0) |
 | L2 easy | pass@1 difference, easy | +51.55 ± 2.79 | +18.48 | | clear | | | 322 |
-| L2 medium | pass@1 difference, medium | +73.37 ± 2.26 | +32.44 | | clear | | | 383 |
-| L2 hard | pass@1 difference, hard | +41.71 ± 2.64 | +15.80 | | clear | | | 350 |
+| L2 medium | pass@1 difference, medium | +73.63 ± 2.25 | +32.66 | | clear | | | 383 |
+| L2 hard | pass@1 difference, hard | +42.00 ± 2.64 | +15.90 | | clear | | | 350 |
 | L3 | pass@budget difference at equal cost (LFM3 B = 4096, Bielik B = 4096; mean cost 1.3e+13 vs 1.58e+13 FLOPs) | +1.42 ± 1.07 | +1.33 | 0.183 | noise | noise | confirmed | 1055 (excluded 0) |
 
 Clustered SE (descriptive): the same difference, SE from the spread between clusters, t read at df = k − 1:
 
 | hypothesis | SE from | k (clusters) or n | value ± SE (pp) | z or t | df | p | verdict |
 |---|---|---|---|---|---|---|---|
-| L1 | problems (paired) | 1055 | +56.21 ± 1.53 | z = +36.78 | | 3.68e-296 | clear |
-| L1 | contest | 250 | +56.21 ± 1.69 | t = +33.27 | 249 | 1.28e-93 | clear |
-| L1 | platform | 3 | +56.21 ± 3.46 | t = +16.26 | 2 | 0.00376 | likely |
+| L1 | problems (paired) | 1055 | +56.40 ± 1.53 | z = +36.92 | | 1.96e-298 | clear |
+| L1 | contest | 250 | +56.40 ± 1.68 | t = +33.60 | 249 | 1.77e-94 | clear |
+| L1 | platform | 3 | +56.40 ± 3.48 | t = +16.20 | 2 | 0.00379 | likely |
 | L3 | problems (paired) | 1055 | +1.42 ± 1.07 | z = +1.33 | | 0.183 | noise |
 | L3 | contest | 250 | +1.42 ± 0.99 | t = +1.43 | 249 | 0.154 | noise |
 | L3 | platform | 3 | +1.42 ± 2.03 | t = +0.70 | 2 | 0.557 | noise |
 
 Reading:
 
-- L1: refuted on both runs (lfm3-1.7b z = +36.29, lfm3-1.7b-cardsampling z = +36.78); descriptive, verdict with the SE clustered by contest (k = 250): clear on lfm3-1.7b, clear on lfm3-1.7b-cardsampling; by platform (k = 3): likely on lfm3-1.7b, likely on lfm3-1.7b-cardsampling; exploratory, after extraction rule F1: z = +35.26 (clear) on lfm3-1.7b, z = +35.87 (clear) on lfm3-1.7b-cardsampling
-- L2: refuted on both runs (lfm3-1.7b z = +15.53, lfm3-1.7b-cardsampling z = +15.80)
+- L1: refuted on both runs (lfm3-1.7b z = +36.15, lfm3-1.7b-cardsampling z = +36.92); descriptive, verdict with the SE clustered by contest (k = 250): clear on lfm3-1.7b, clear on lfm3-1.7b-cardsampling; by platform (k = 3): likely on lfm3-1.7b, likely on lfm3-1.7b-cardsampling; exploratory, after extraction rule F1: z = +35.13 (clear) on lfm3-1.7b, z = +36.01 (clear) on lfm3-1.7b-cardsampling
+- L2: refuted on both runs (lfm3-1.7b z = +15.44, lfm3-1.7b-cardsampling z = +15.90)
 - L3: the protocol's rule gives `refuted` on lfm3-1.7b, the verdict run (z = +3.78, clear), but `confirmed` on lfm3-1.7b-cardsampling (z = +1.33, noise): L3 depends on the sampling settings, so the question it asks is unresolved; descriptive, verdict with the SE clustered by contest (k = 250): clear on lfm3-1.7b, noise on lfm3-1.7b-cardsampling; by platform (k = 3): noise on lfm3-1.7b, noise on lfm3-1.7b-cardsampling; exploratory, after extraction rule F1: z = +2.62 (likely) on lfm3-1.7b, z = +0.18 (noise) on lfm3-1.7b-cardsampling
 
 Descriptive (not tested), each LFM3-1.7B run minus each model:
 
 | run | model | measure | value ± SE (pp) | z | verdict | n | excluded |
 |---|---|---|---|---|---|---|---|
-| lfm3-1.7b | bielik-11b-v3.1 | all problems | +55.55 ± 1.53 | +36.29 | clear | 1055 | 0 |
+| lfm3-1.7b | bielik-11b-v3.1 | all problems | +55.36 ± 1.53 | +36.15 | clear | 1055 | 0 |
 | lfm3-1.7b | bielik-11b-v3.1 | easy | +50.62 ± 2.79 | +18.14 | clear | 322 | 0 |
-| lfm3-1.7b | bielik-11b-v3.1 | medium | +73.11 ± 2.27 | +32.22 | clear | 383 | 0 |
-| lfm3-1.7b | bielik-11b-v3.1 | hard | +40.86 ± 2.63 | +15.53 | clear | 350 | 0 |
+| lfm3-1.7b | bielik-11b-v3.1 | medium | +72.85 ± 2.28 | +32.01 | clear | 383 | 0 |
+| lfm3-1.7b | bielik-11b-v3.1 | hard | +40.57 ± 2.63 | +15.44 | clear | 350 | 0 |
 | lfm3-1.7b | bielik-11b-v3.1 | equal cost (B = 4096 / 4096; 1.29e+13 vs 1.58e+13 FLOPs) | +4.08 ± 1.08 | +3.78 | clear | 1055 | 0 |
-| lfm3-1.7b | bielik-11b-v3.1 | v6-only problems | +41.71 ± 3.74 | +11.16 | clear | 175 | 0 |
-| lfm3-1.7b-cardsampling | bielik-11b-v3.1 | all problems | +56.21 ± 1.53 | +36.78 | clear | 1055 | 0 |
+| lfm3-1.7b | bielik-11b-v3.1 | v6-only problems | +41.14 ± 3.73 | +11.03 | clear | 175 | 0 |
+| lfm3-1.7b-cardsampling | bielik-11b-v3.1 | all problems | +56.40 ± 1.53 | +36.92 | clear | 1055 | 0 |
 | lfm3-1.7b-cardsampling | bielik-11b-v3.1 | easy | +51.55 ± 2.79 | +18.48 | clear | 322 | 0 |
-| lfm3-1.7b-cardsampling | bielik-11b-v3.1 | medium | +73.37 ± 2.26 | +32.44 | clear | 383 | 0 |
-| lfm3-1.7b-cardsampling | bielik-11b-v3.1 | hard | +41.71 ± 2.64 | +15.80 | clear | 350 | 0 |
+| lfm3-1.7b-cardsampling | bielik-11b-v3.1 | medium | +73.63 ± 2.25 | +32.66 | clear | 383 | 0 |
+| lfm3-1.7b-cardsampling | bielik-11b-v3.1 | hard | +42.00 ± 2.64 | +15.90 | clear | 350 | 0 |
 | lfm3-1.7b-cardsampling | bielik-11b-v3.1 | equal cost (B = 4096 / 4096; 1.3e+13 vs 1.58e+13 FLOPs) | +1.42 ± 1.07 | +1.33 | noise | 1055 | 0 |
 | lfm3-1.7b-cardsampling | bielik-11b-v3.1 | v6-only problems | +41.14 ± 3.73 | +11.03 | clear | 175 | 0 |
 
@@ -319,7 +333,7 @@ Code extraction: answered problems whose extracted code is empty (LiveCodeBench 
 | lfm3-1.7b-cardsampling | 1055 | 0 |
 | bielik-11b-v3.1 | 1055 | 51 |
 
-Exploratory (added after the results; not a protocol test, the official results stand): every answer re-extracted with rule F1: with exactly one line containing three backticks, the lines before it (after it when only whitespace precedes it); with none, the whole text; otherwise LiveCodeBench's extraction (the last two such lines); the answers whose code changes are graded again with LiveCodeBench's evaluator on the machine that ran extraction.py (AMD EPYC 7302P 16-Core Processor, Linux-5.15.0-1067-kvm-x86_64-with-glibc2.35, 8 processes, from the file's provenance), not on the machines that scored the official runs (results/<model-id>.json, provenance.scoring); results/extraction-f1.json.
+Exploratory (added after the results; not a protocol test, the official results stand): every answer re-extracted with rule F1: with exactly one line containing three backticks, the lines before it (after it when only whitespace precedes it); with none, the whole text; otherwise LiveCodeBench's extraction (the last two such lines); the answers whose code changes are graded again with LiveCodeBench's evaluator on the machine that ran extraction.py (Apple M5 Pro, macOS-26.6-arm64-arm-64bit, 8 processes, from the file's provenance), the machine that scored the official runs (results/<model-id>.json, provenance.scoring); results/extraction-f1.json.
 
 | run | answered | empty code | changed by F1 | of these passing | official passes lost |
 |---|---|---|---|---|---|
@@ -329,9 +343,9 @@ Exploratory (added after the results; not a protocol test, the official results 
 
 | hypothesis | LFM3-1.7B run | official value ± SE (pp) | z | verdict | after F1 value ± SE (pp) | z | verdict | n |
 |---|---|---|---|---|---|---|---|---|
-| L1 | lfm3-1.7b | +55.55 ± 1.53 | +36.29 | clear | +54.31 ± 1.54 | +35.26 | clear | 1055 |
+| L1 | lfm3-1.7b | +55.36 ± 1.53 | +36.15 | clear | +54.12 ± 1.54 | +35.13 | clear | 1055 |
 | L3 | lfm3-1.7b | +4.08 ± 1.08 | +3.78 | clear | +2.84 ± 1.09 | +2.62 | likely | 1055 |
-| L1 | lfm3-1.7b-cardsampling | +56.21 ± 1.53 | +36.78 | clear | +54.98 ± 1.53 | +35.87 | clear | 1055 |
+| L1 | lfm3-1.7b-cardsampling | +56.40 ± 1.53 | +36.92 | clear | +55.17 ± 1.53 | +36.01 | clear | 1055 |
 | L3 | lfm3-1.7b-cardsampling | +1.42 ± 1.07 | +1.33 | noise | +0.19 ± 1.08 | +0.18 | noise | 1055 |
 
 Exploratory, added after the results (the method refutation's readings of L3; not a protocol test): `exact cost` sets LFM3-1.7B's budget to the integer whose mean cost (output tokens) is nearest Bielik's at its L3 budget, instead of the nearest of the protocol's three budgets; `prompt counted` applies the protocol's nearest-pair rule with the prompt tokens in the cost. L3 under PROTOCOL.md stays as in the reading line above; these rows do not change it.
@@ -340,12 +354,12 @@ Exploratory, added after the results (the method refutation's readings of L3; no
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | exact cost | lfm3-1.7b | official | 5201 | 4096 | 1.58e+13 vs 1.58e+13 | 1.000 | +8.72 ± 1.12 | +7.77 | clear | +6.98 | 2 | 0.0199 | likely | 1055 |
 | exact cost | lfm3-1.7b | after F1 | 5201 | 4096 | 1.58e+13 vs 1.58e+13 | 1.000 | +7.49 ± 1.13 | +6.65 | clear | +5.02 | 2 | 0.0375 | likely | 1055 |
-| prompt counted | lfm3-1.7b | official | none | 4096 | 5.82e+13 vs 5.43e+13 | 1.074 | +55.55 ± 1.53 | +36.29 | clear | +13.01 | 2 | 0.00586 | likely | 1055 |
-| prompt counted | lfm3-1.7b | after F1 | none | 4096 | 5.82e+13 vs 5.43e+13 | 1.074 | +54.31 ± 1.54 | +35.26 | clear | +13.47 | 2 | 0.00546 | likely | 1055 |
+| prompt counted | lfm3-1.7b | official | none | 4096 | 5.82e+13 vs 5.43e+13 | 1.074 | +55.36 ± 1.53 | +36.15 | clear | +14.74 | 2 | 0.00457 | likely | 1055 |
+| prompt counted | lfm3-1.7b | after F1 | none | 4096 | 5.82e+13 vs 5.43e+13 | 1.074 | +54.12 ± 1.54 | +35.13 | clear | +15.38 | 2 | 0.0042 | likely | 1055 |
 | exact cost | lfm3-1.7b-cardsampling | official | 5136 | 4096 | 1.58e+13 vs 1.58e+13 | 1.000 | +5.21 ± 1.08 | +4.82 | clear | +2.79 | 2 | 0.108 | noise | 1055 |
 | exact cost | lfm3-1.7b-cardsampling | after F1 | 5136 | 4096 | 1.58e+13 vs 1.58e+13 | 1.000 | +3.98 ± 1.08 | +3.68 | clear | +1.89 | 2 | 0.2 | noise | 1055 |
-| prompt counted | lfm3-1.7b-cardsampling | official | none | 4096 | 6.83e+13 vs 5.43e+13 | 1.258 | +56.21 ± 1.53 | +36.78 | clear | +16.26 | 2 | 0.00376 | likely | 1055 |
-| prompt counted | lfm3-1.7b-cardsampling | after F1 | none | 4096 | 6.83e+13 vs 5.43e+13 | 1.258 | +54.98 ± 1.53 | +35.87 | clear | +17.08 | 2 | 0.00341 | likely | 1055 |
+| prompt counted | lfm3-1.7b-cardsampling | official | none | 4096 | 6.83e+13 vs 5.43e+13 | 1.258 | +56.40 ± 1.53 | +36.92 | clear | +16.20 | 2 | 0.00379 | likely | 1055 |
+| prompt counted | lfm3-1.7b-cardsampling | after F1 | none | 4096 | 6.83e+13 vs 5.43e+13 | 1.258 | +55.17 ± 1.53 | +36.01 | clear | +17.01 | 2 | 0.00344 | likely | 1055 |
 
 deviation: L2 has no single test statistic in PROTOCOL.md; its p for Holm is the largest of the three per-level two-sided p values (intersection-union: the pattern holds only if every level's sign does), its z the level's with that p.
 deviation: PROTOCOL.md gives only L2's refutation; L2 is `confirmed` only with signs (+, +, -) and |z| >= 2 on every level, `refuted` with the same sign on all three levels, otherwise `not established`.
@@ -374,15 +388,15 @@ and `results/ablation-a1.md` with the consequence fixed in the amendment.
 
 | run | repetition_penalty | top_k | pass@1 (file) | pass@1 (paired) |
 |---|---|---|---|---|
-| lfm3-1.7b | 1.1 | 50 | 72.23 | 72.23 |
-| lfm3-1.7b-cardsampling | 1.0 | 0 | 72.89 | 72.89 |
+| lfm3-1.7b | 1.1 | 50 | 72.04 | 72.04 |
+| lfm3-1.7b-cardsampling | 1.0 | 0 | 73.08 | 73.08 |
 
 | Δ (original − ablation), pp | paired SE | 90% CI | TOST p | verdict | n | excluded |
 |---|---|---|---|---|---|---|
-| -0.66 | 0.93 | [-2.20, +0.87] | 0.0762 | not shown equivalent (margin ±2 pt) | 1055 | 0 |
+| -1.04 | 0.94 | [-2.59, +0.51] | 0.155 | not shown equivalent (margin ±2 pt) | 1055 | 0 |
 
-McNemar (descriptive): passed only with repetition_penalty 1.1 / top_k 50: 45; only with the card's sampling: 52; exact two-sided p = 0.543
+McNemar (descriptive): passed only with repetition_penalty 1.1 / top_k 50: 44; only with the card's sampling: 55; exact two-sided p = 0.315
 
-A1 not shown equivalent: both numbers are reported (lfm3-1.7b 72.23, lfm3-1.7b-cardsampling 72.89); the card-sampling one is the headline for comparisons with the card's 73.46
+A1 not shown equivalent: both numbers are reported (lfm3-1.7b 72.04, lfm3-1.7b-cardsampling 73.08); the card-sampling one is the headline for comparisons with the card's 73.46
 
 <!-- readme.py: end ablation -->
