@@ -171,6 +171,9 @@ threshold or verdict rule moves.
   one of the two scorings, except 3 runtime errors. pass@1 moved from 72.23 to 72.04 (`lfm3-1.7b`) and from 72.89
   to 73.08 (`lfm3-1.7b-cardsampling`). The machine was shared with other work while scoring, so these borderline
   grades also depend on its load; the outcome of the control, L1, L2, L3 and A1 is the same as before.
+  A second scoring on the same machine and commit with 4 evaluator processes instead of 12 (a check, not reported)
+  gave other grades on 0 (`bielik-11b-v3.1`), 5 (`lfm3-1.7b`) and 2 (`lfm3-1.7b-cardsampling`) problems, all at the
+  time limit and all on answers longer than 4096 tokens, so L3 does not change and no verdict moves.
 - **The verdict run stays `lfm3-1.7b`.** Its generation provenance is reconstructed (code commit inferred,
   hardware written by hand: README, Deviations), while `lfm3-1.7b-cardsampling` has full provenance. Making the
   card-sampling run the verdict run now, after seeing that L3 has a different outcome on the two runs, would choose
