@@ -1,7 +1,5 @@
 # AA-Omniscience (public)
 
-Polish version: [README.pl.md](README.pl.md).
-
 Whether a model knows facts across six domains and, when it does not, says so instead of guessing. A judge model
 grades each short answer as correct, partially correct, incorrect or not attempted; the Omniscience Index rewards
 correct answers and penalizes incorrect ones, so abstaining scores better than a wrong guess.
