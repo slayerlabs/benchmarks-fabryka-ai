@@ -1,0 +1,10 @@
+# GPU model tests: one runner per GPU, its lines run in order. The 15 tests balanced on the seconds of the k40000
+# run (eksport/manifest.jsonl of slayer-1.09-k40000, RTX 5090), longest first; every test exactly once.
+0 slayer1b-1.09-k70000 T01
+1 slayer1b-1.09-k70000 T05
+2 slayer1b-1.09-k70000 T45
+3 slayer1b-1.09-k70000 T53
+4 slayer1b-1.09-k70000 T19,T07,T03
+5 slayer1b-1.09-k70000 T51,T04
+6 slayer1b-1.09-k70000 T46,T17,T14
+7 slayer1b-1.09-k70000 T02,T06,T44
