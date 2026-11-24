@@ -210,9 +210,27 @@ def test_bos_follows_the_benchmark() -> None:
     assert rows[("ewok", "qwen3.5-0.8b-base")].harness.startswith("own code")
 
 
+def esc(text: str) -> str:
+    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def expected_cell(b: leaderboard.ApiBenchmark, column: str) -> tuple[str, str | None, dict[str, Any] | None]:
+    """What a cell must show, read from the result file: its kind ("score", "null" or "not run"), the reason of a
+    missing score, and the file. The file's own reason wins over the generator's fallback text."""
+    src = api_file(b, column) if column in b.labels else None
+    if src is not None and src["score"] is not None:
+        return "score", None, src
+    own = (src.get("reason") or src.get("score_null_reason")) if src is not None else None
+    if column in b.not_run:
+        return "not run", own or b.not_run[column], src
+    if src is not None or column in b.null_reasons:
+        return "null", own or b.null_reasons.get(column) or "see the benchmark's README", src
+    return "not run", None, src
+
+
 def test_generative_values_table_shows_each_source_file() -> None:
-    """Every cell of the Generative values table, from its result file: value ± SE with * when the benchmark is in
-    review, the null's reason, or "not run" where the model has no file; the last column is the card's value."""
+    """Every cell of the Generative values table, from its result file: value ± SE (the benchmark's SE field) with *
+    when the benchmark requires verification, or null / not run with the file's reason; last, the card's value."""
     text = (leaderboard.OUT / "README.md").read_text(encoding="utf-8").split("## Generative values")[1]
     rows = dict(re.findall(r"<tr><td>(.*?)</td>(.*?)</tr>", text))
     assert set(rows) == {b.name for b in leaderboard.API_BENCHMARKS}
@@ -221,18 +239,16 @@ def test_generative_values_table_shows_each_source_file() -> None:
         cells = re.findall(r'<td align="right">(.*?)</td>', rows[b.name])
         assert len(cells) == len(leaderboard.API_COLUMNS) + 1, b.id
         assert cells[-1] == f"{b.card:.2f}", b.id
+        star = "*" if b.pr or b.caveat else ""
         for column, cell in zip(leaderboard.API_COLUMNS, cells, strict=False):
-            src = api_file(b, column) if column in b.labels else None
-            if src is None and column in b.null_reasons:
-                assert cell == f"null <sub>{b.null_reasons[column]}</sub>", (b.id, column)
-            elif src is None:
-                assert cell == "not run", (b.id, column)
-            elif src["score"] is None:
-                assert cell.startswith("null <sub>") and len(cell) > 12, (b.id, column)
-            else:
-                star = "*" if b.pr else ""
-                assert cell == f"{src['score']:.1f} ± {src['stderr']:.1f}{star}", (b.id, column)
+            kind, reason, src = expected_cell(b, column)
+            if kind == "score":
+                assert src is not None
+                se = float(src[b.se_field])
+                assert cell == f"{src['score']:.1f} ± {se:.1f}{star}", (b.id, column)
                 scored += 1
+            else:
+                assert cell == (f"{kind} <sub>{esc(reason)}</sub>" if reason else kind), (b.id, column)
     assert scored >= 20
 
 
@@ -244,25 +260,60 @@ def test_generative_table_images_show_source_values_and_stars() -> None:
         for benchmark, model, _, text in cells:
             b = leaderboard.API_BY_ID[benchmark]
             column = next((c for c, label in b.labels.items() if label == model), None)
-            src = api_file(b, column) if column else None
-            if src is None:
-                expected = "null" if column in b.null_reasons else "not run"
-                assert text == expected, (name, benchmark, model)
-            elif src["score"] is None:
-                assert text == "null", (name, benchmark, model)
+            if column is None:
+                assert text == "not run", (name, benchmark, model)
+                continue
+            kind, _, src = expected_cell(b, column)
+            if kind == "score":
+                assert src is not None
+                assert text == f"{src['score']:.1f}" + ("*" if b.pr or b.caveat else ""), (name, benchmark, model)
             else:
-                assert text == f"{src['score']:.1f}" + ("*" if b.pr else ""), (name, benchmark, model)
+                assert text == kind, (name, benchmark, model)
         cards = dict(re.findall(r'data-card="(.*?)">(.*?)</text>', svg))
         assert cards == {b.id: f"{b.card:.1f}" for b in leaderboard.API_BENCHMARKS}
 
 
-def test_every_benchmark_in_review_has_a_reason_and_only_merged_ones_have_none() -> None:
+def test_each_result_file_belongs_to_its_column() -> None:
+    """The model a result file names is the column's model, so swapped labels or files fail."""
+    checked = 0
     for b in leaderboard.API_BENCHMARKS:
-        assert bool(b.pr) == bool(b.caveat), b.id
+        for column, label in b.labels.items():
+            assert label.startswith(column), (b.id, column, label)
+            src = api_file(b, column)
+            if src is not None:
+                assert str(src["model"]).startswith(column), (b.id, column, src["model"])
+                checked += 1
+    assert checked >= 30
+
+
+def test_card_values_are_the_readmes() -> None:
+    """The card value of each benchmark is written in that benchmark's README, a source outside the generator."""
+    for b in leaderboard.API_BENCHMARKS:
+        readme = (REPO / leaderboard.API_DIR / b.directory / "README.md").read_text(encoding="utf-8")
+        assert f"{b.card:.2f}" in readme, b.id
+
+
+def test_a_decision_not_to_run_is_never_shown_as_null() -> None:
+    """research/METHODOLOGY.md keeps null for a model that cannot run the benchmark. A result file whose reason says
+    it was not run (a cost decision, a budget stop) is shown as "not run"."""
+    for b in leaderboard.API_BENCHMARKS:
+        for column in b.labels:
+            kind, reason, src = expected_cell(b, column)
+            own = str((src or {}).get("reason") or (src or {}).get("score_null_reason") or "").lower()
+            if own.startswith("not run") or "decision" in own or "budget" in own:
+                assert kind == "not run", (b.id, column, reason)
+
+
+def test_every_starred_benchmark_has_a_reason() -> None:
+    for b in leaderboard.API_BENCHMARKS:
         if b.pr:
             assert f"#{b.pr}" in b.caveat, b.id
+        assert b.starred == bool(b.pr or b.caveat), b.id
     page = (leaderboard.OUT / "api-benchmarks.md").read_text(encoding="utf-8")
+    readme = (leaderboard.OUT / "README.md").read_text(encoding="utf-8")
+    merged = readme.split("Merged and reviewed: ")[1].splitlines()[0].removesuffix(".")
     for b in leaderboard.API_BENCHMARKS:
         assert f"### {b.name}" in page
         if b.caveat:
             assert f"**Requires verification:** {b.caveat}." in page
+        assert (b.name in merged.split(", ")) == (not b.starred), b.id

@@ -263,16 +263,23 @@ API_HEADER: Final[dict[str, tuple[str, str]]] = {
     "bielik": ("Bielik 11B", "v3.1 Instruct"),
     "lfm3": ("LFM3", "1.7B Instruct"),
 }
-DRAFT_CAVEAT: Final = "draft PR {pr}, not reviewed yet; Slayer is the 1.09 checkpoint at step 60 000"
 
 
 @dataclass(frozen=True)
 class ApiBenchmark:
     """One generative or agentic benchmark of `research/api-benchmarks/<directory>/`, with the result file of each
     column (its model label; the file is `results/<label>.json` unless `files` names another stem) and the value the
-    LFM3-1.7B card reports. `pr` is the open pull request the results come from (None once merged), and `caveat` why
-    they need verification; both mark every value of the benchmark with *. `note` is what a reader needs to read a
-    merged result right; it is shown next to the values, without *."""
+    LFM3-1.7B card reports.
+
+    - `pr` is the open pull request the results come from (None once merged). `caveat` says why the results need
+      verification: a PR in review, or a merged result that is not the benchmark's main row. Either marks every value
+      of the benchmark with *.
+    - A column without a score is "null" when the model cannot run the benchmark (research/METHODOLOGY.md), and
+      "not run" when it was not run, by decision, for budget, or not yet. `not_run` names the columns of the second
+      kind, with a reason for when the result file has none; `null_reasons` gives the reason of a null whose file has
+      none. A result file's own `reason` or `score_null_reason` always wins.
+    - `se_field` is the result file's field shown as the standard error.
+    - `note` is what a reader needs to read the values right; it is shown next to them, without *."""
 
     id: str
     name: str
@@ -282,11 +289,17 @@ class ApiBenchmark:
     labels: Mapping[str, str]
     how: Mapping[str, str]
     card: float | None
-    pr: int | None
-    caveat: str
+    pr: int | None = None
+    caveat: str = ""
     files: Mapping[str, str] = field(default_factory=dict)
     null_reasons: Mapping[str, str] = field(default_factory=dict)
+    not_run: Mapping[str, str] = field(default_factory=dict)
+    se_field: str = "stderr"
     note: str = ""
+
+    @property
+    def starred(self) -> bool:
+        return self.pr is not None or bool(self.caveat)
 
     def path(self, column: str) -> str:
         label = self.labels[column]
@@ -294,9 +307,15 @@ class ApiBenchmark:
 
 
 NO_TOOL_CALLS: Final = "base model without a chat template or a tool-call format, so the agent cannot drive it"
+SLAYER_COST: Final = (
+    "a cost decision: Slayer 1B passed 0 of the 30 Python tasks of PAPER.md, H5.1, so the benchmark was judged not "
+    "worth its cost"
+)
 OWN_VLLM: Final = "own vLLM, chat template"
 API: Final = "Fabryka API, chat template"
+LM_EVAL: Final = "local lm-eval, CoT, greedy, 8192 tokens"
 SLAYER_RAW: Final = "raw prompt, no chat template"
+STEP_60K: Final = f"step 60 000, {SLAYER_RAW}"
 API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
     ApiBenchmark(
         "ifeval",
@@ -307,9 +326,11 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         {"slayer": "slayer1b-1.08", "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b-ifeval"},
         {"slayer": "1.08, local GPU, raw prompt, greedy", "bielik": API, "lfm3": "own vLLM, card settings"},
         96.66,
-        None,
-        "",
         files={"lfm3": "lfm3-1.7b"},
+        note="the values are prompt-level strict accuracy. The card does not name its metric and probably does not "
+        "report strict: LFM3 scores 94.64 strict and 96.49 prompt-level loose, against the card's 96.66 (README, "
+        "Deviations). Bielik's value is the API run; with its template defaults on our vLLM it scores 60.63, "
+        "5.36 ± 1.86 points higher",
     ),
     ApiBenchmark(
         "ifbench",
@@ -318,10 +339,8 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         "ifbench",
         "percent",
         {"slayer": "slayer1b-60000", "bielik": "bielik-11b-v3.1-vllm"},
-        {"slayer": f"step 60 000, {SLAYER_RAW}", "bielik": OWN_VLLM},
+        {"slayer": STEP_60K, "bielik": OWN_VLLM},
         73.03,
-        324,
-        DRAFT_CAVEAT.format(pr="#324"),
     ),
     ApiBenchmark(
         "ifstruct",
@@ -330,10 +349,8 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         "ifstruct",
         "percent",
         {"slayer": "slayer1b-60000", "bielik": "bielik-11b-v3.1-vllm"},
-        {"slayer": f"step 60 000, {SLAYER_RAW}", "bielik": OWN_VLLM},
+        {"slayer": STEP_60K, "bielik": OWN_VLLM},
         93.72,
-        325,
-        DRAFT_CAVEAT.format(pr="#325"),
     ),
     ApiBenchmark(
         "multi-if",
@@ -342,11 +359,11 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         "multi-if",
         "percent",
         {"slayer": "slayer1b-60000", "bielik": "bielik-11b-v3.1-vllm"},
-        {"slayer": f"step 60 000, {SLAYER_RAW}", "bielik": OWN_VLLM},
+        {"slayer": STEP_60K, "bielik": OWN_VLLM},
         89.10,
-        329,
-        DRAFT_CAVEAT.format(pr="#329"),
-        null_reasons={"slayer": "run stopped after 2 of 3 turns for compute budget"},
+        not_run={"slayer": "run stopped for compute budget"},
+        note="n counts turns: 13447 turns of 4501 conversations; the standard error is a cluster bootstrap over "
+        "conversations",
     ),
     ApiBenchmark(
         "gpqa-diamond",
@@ -355,20 +372,15 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         "gpqa-diamond",
         "percent",
         {"slayer": LATEST_SLAYER, "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
-        {
-            "slayer": "not run",
-            "bielik": "local lm-eval, CoT, greedy, 8192 tokens",
-            "lfm3": "local lm-eval, CoT, greedy, 8192 tokens",
-        },
+        {"slayer": "not run", "bielik": LM_EVAL, "lfm3": LM_EVAL},
         63.37,
-        None,
-        "",
-        null_reasons={"slayer": "not run yet, an open item of the README (no result file)"},
-        note="the pre-registered row caps answers at 8192 tokens, and 74 of LFM3's 198 answers are cut there "
-        "(a cut answer scores 0). With a larger cap LFM3 reaches 58.59 at 16384 and 62.63 to 64.65 at 32768 (two "
-        "compositions), within noise of the card's 63.37. The row with the card's settings (no cap, temperature "
-        "0.6) is not computed. Bielik is not limited by the cap (36.36 at 2048). Both models ran locally with "
-        "lm-eval, on different GPUs",
+        caveat="an exploratory local run, which the benchmark's README marks as a draft: its main row (Fabryka API, "
+        "the card's settings) is not computed, and these values do not close its issue (#302)",
+        not_run={"slayer": "not run yet, an open item of the README (no result file)"},
+        note="the exploratory run caps answers at 8192 tokens, and 74 of LFM3's 198 answers are cut there (13 of "
+        "them still score correct). With a larger cap LFM3 reaches 58.59 at 16384 and 62.63 to 64.65 at 32768 (two "
+        "compositions), within noise of the card's 63.37. Bielik is not limited by the cap (36.36 at 2048). Both "
+        "models ran locally with lm-eval, on different GPUs",
     ),
     ApiBenchmark(
         "aa-omniscience",
@@ -377,10 +389,11 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         "aa-omniscience",
         "index",
         {"slayer": "slayer1b-60000", "bielik": "bielik-11b-v3.1-vllm"},
-        {"slayer": f"step 60 000, {SLAYER_RAW}", "bielik": OWN_VLLM},
+        {"slayer": STEP_60K, "bielik": OWN_VLLM},
         0.50,
-        327,
-        DRAFT_CAVEAT.format(pr="#327"),
+        note="our grades come from a different judge (GPT-6.1 Sol) than the official grader (Gemini 2.5 Flash "
+        "Preview), so the values cannot be compared with the card's 0.50 or with Artificial Analysis' numbers "
+        "(README)",
     ),
     ApiBenchmark(
         "livecodebench-v6",
@@ -391,13 +404,9 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         {"slayer": LATEST_SLAYER, "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
         {"slayer": "not run", "bielik": f"{API}, no reasoning (API default)", "lfm3": "own vLLM, thinking"},
         73.46,
-        None,
-        "",
+        not_run={"slayer": f"{SLAYER_COST} (README, Deviations; no result file)"},
         note="Bielik without reasoning (the API default; reasoning cannot be switched on through the API). LFM3 "
-        "with the card's sampling: 73.08 ± 1.37. Slayer's null is a cost decision of the benchmark's authors",
-        null_reasons={
-            "slayer": "not run: about 27 h with the single-stream decoder (README, Deviations; no result file)"
-        },
+        "with the card's sampling: 73.08 ± 1.37",
     ),
     ApiBenchmark(
         "livecodebench-pro-25q2",
@@ -408,9 +417,8 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         {"slayer": "slayer1b-1.09-k70000", "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
         {"slayer": "not run", "bielik": API, "lfm3": "own vLLM, thinking"},
         31.74,
-        None,
-        "",
-        note="LFM3 without thinking: 28.74 ± 3.50. Slayer's null is a cost decision of the benchmark's authors",
+        not_run={"slayer": SLAYER_COST},
+        note="LFM3 without thinking: 28.74 ± 3.50",
     ),
     ApiBenchmark(
         "scicode",
@@ -421,11 +429,11 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         {"slayer": "slayer1b-1.09-k70000", "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
         {"slayer": "not run", "bielik": API, "lfm3": "own vLLM, thinking, with background"},
         28.47,
-        None,
-        "",
-        note="the control against the card passes both with and without background (22.92), so it cannot confirm "
-        "the card's setup. LFM3 without thinking: 24.65 ± 2.54. Slayer's null is a cost decision of the benchmark's "
-        "authors",
+        not_run={"slayer": SLAYER_COST},
+        se_field="stderr_clustered",
+        note="n counts the 288 steps; the standard error is clustered over the 65 problems, as in the README (over "
+        "steps it would be 2.76 for LFM3). The control against the card passes both with and without background "
+        "(22.92), so it cannot confirm the card's setup. LFM3 without thinking: 24.65",
     ),
     ApiBenchmark(
         "ruler-128k",
@@ -436,8 +444,6 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         {"slayer": "slayer1b-1.09-k70000", "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
         {"slayer": "4096-token context", "bielik": f"{API}, 32768-token context", "lfm3": "own vLLM, 262144 tokens"},
         65.56,
-        None,
-        "",
         note="RULER's substring scorer has no answer cap here, so 71.69 is not comparable to RULER numbers in the "
         "literature; capped to RULER's answer budget: 67.20 ± 1.00. The control against the card failed",
     ),
@@ -450,8 +456,6 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         {"slayer": LATEST_SLAYER, "bielik": "bielik-11b-v3.1"},
         {"slayer": "4096-token context", "bielik": f"{API}, 32768-token context"},
         52.83,
-        340,
-        "draft PR #340, not merged yet",
         null_reasons={
             "slayer": "the 4096-token window holds no AA-LCR prompt (shortest 85211 tokens)",
             "bielik": "the 32768-token window holds no AA-LCR prompt (shortest 100913 tokens)",
@@ -466,12 +470,10 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         {"slayer": "slayer1b-60000", "bielik": "bielik-11b-v3.1-vllm"},
         {"slayer": "step 60 000", "bielik": OWN_VLLM},
         71.39,
-        328,
-        DRAFT_CAVEAT.format(pr="#328"),
-        null_reasons={
-            "slayer": NO_TOOL_CALLS,
-            "bielik": "Overall needs the web_search category, which was not run; lower bound 28.41",
-        },
+        not_run={"bielik": "web_search categories not run"},
+        note="Bielik's Overall is not computed, because the web_search categories (20% of its weight) were not run. "
+        "The other categories bound it: at least 28.41, and at most 48.41 with web_search at 100, below the card's "
+        "71.39",
     ),
     ApiBenchmark(
         "terminal-bench-2-1",
@@ -495,9 +497,6 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         {"slayer": "slayer1b-60000", "bielik": "bielik-11b-v3.1-vllm"},
         {"slayer": "step 60 000", "bielik": OWN_VLLM},
         41.29,
-        326,
-        DRAFT_CAVEAT.format(pr="#326"),
-        null_reasons={"slayer": NO_TOOL_CALLS},
     ),
 )
 API_BY_ID: Final = {b.id: b for b in API_BENCHMARKS}
@@ -533,15 +532,15 @@ def api_results(repo: Path = REPO) -> list[Result]:
                     repo=None,
                     revision=None,
                     value=float(row["score"]),
-                    se=None if row["stderr"] is None else float(row["stderr"]),
+                    se=None if row[b.se_field] is None else float(row[b.se_field]),
                     n=int(row["n"]),
                     protocol="api-benchmarks",
                     variant=b.how[column],
                     harness=str(row["harness"]),
                     codesota_status=_status(b.id),
                     source=b.path(column),
-                    se_source=b.path(column),
-                    review_flag="in_review" if b.pr else "ok",
+                    se_source=b.path(column) if b.se_field == "stderr" else f"{b.path(column)} ({b.se_field})",
+                    review_flag="in_review" if b.pr else "exploratory" if b.caveat else "ok",
                     review_notes=(b.caveat,) if b.caveat else (),
                 )
             )
@@ -823,22 +822,31 @@ def values_table(
 
 @dataclass(frozen=True)
 class ApiCell:
-    """One cell of the generative table: a result, a null with its reason, or nothing run."""
+    """One cell of the generative table: a score, a null (the model cannot run the benchmark), or "not run" (not
+    run by decision, for budget, or not yet); the last two with their reason when one is known."""
 
     result: Result | None
-    null_reason: str | None
+    kind: str  # "score", "null" or "not run"
+    reason: str | None
     starred: bool
 
     def text(self) -> str:
+        """The cell in the image."""
         if self.result is not None:
             return value_text(self.result) + ("*" if self.starred else "")
-        return "null" if self.null_reason is not None else "not run"
+        return self.kind
+
+    def detail(self) -> str:
+        """The cell in the values table: the value with its SE, or the kind with its reason."""
+        if self.result is not None:
+            return shown(self.result) + ("*" if self.starred else "")
+        return f"{self.kind} <sub>{_esc(self.reason)}</sub>" if self.reason else self.kind
 
 
 API_SECTIONS: Final = tuple(dict.fromkeys(b.section for b in API_BENCHMARKS))
 API_LEGEND: Final = (
-    f"Score in % (AA-Omniscience: index from {MINUS}100 to 100) · * requires verification · "
-    "null: no score, reason under Values",
+    f"Score in % (AA-Omniscience: index from {MINUS}100 to 100) · * requires verification",
+    "null: the model cannot run it · not run: no score yet or by decision (reasons under Values)",
     "Best of the scored models highlighted, second underlined (rows with two or more scores) · LFM3 card: not ours",
 )
 
@@ -854,14 +862,18 @@ def api_cells(rows: Sequence[Result], repo: Path = REPO) -> list[tuple[str, list
             for column in API_COLUMNS:
                 label = b.labels.get(column)
                 result = by.get((b.id, label)) if label else None
-                reason = None
-                if result is None and label is not None:
-                    row = _api_file(repo, b, column)
-                    if row is not None:
-                        reason = str(row.get("reason") or b.null_reasons.get(column) or "see the benchmark's README")
-                    else:  # a null in the benchmark's README without a result file
-                        reason = b.null_reasons.get(column)
-                cells.append(ApiCell(result, reason, b.pr is not None))
+                if result is not None:
+                    cells.append(ApiCell(result, "score", None, b.starred))
+                    continue
+                row = _api_file(repo, b, column) if label is not None else None
+                own = (row.get("reason") or row.get("score_null_reason")) if row is not None else None
+                if column in b.not_run:
+                    cells.append(ApiCell(None, "not run", str(own or b.not_run[column]), b.starred))
+                elif row is not None or column in b.null_reasons:
+                    reason = own or b.null_reasons.get(column) or "see the benchmark's README"
+                    cells.append(ApiCell(None, "null", str(reason), b.starred))
+                else:
+                    cells.append(ApiCell(None, "not run", None, b.starred))
             lines.append((b, cells))
         out.append((section, lines))
     return out
@@ -922,7 +934,7 @@ def api_svg(rows: Sequence[Result], t: Theme, repo: Path = REPO, col: int = 110)
                     if c.result is None
                     else ""
                 )
-                size = ' font-size="12"' if c.result is None and c.null_reason is None else ""
+                size = ' font-size="12"' if c.kind == "not run" else ""
                 body.append(
                     f'<text x="{center(i)}" y="{base}" text-anchor="middle"{style}{size} data-benchmark="{b.id}" '
                     f'data-model="{b.labels.get(API_COLUMNS[i], "")}" data-rank="{k or 0}">{_esc(c.text())}</text>'
@@ -959,13 +971,7 @@ def api_values_table(rows: Sequence[Result], repo: Path = REPO) -> list[str]:
         for b, cells in lines:
             tds = ""
             for c in cells:
-                if c.result is not None:
-                    text = shown(c.result) + ("*" if c.starred else "")
-                elif c.null_reason is not None:
-                    text = f"null <sub>{_esc(c.null_reason)}</sub>"
-                else:
-                    text = "not run"
-                tds += f'<td align="right">{text}</td>'
+                tds += f'<td align="right">{c.detail()}</td>'
             tds += f'<td align="right">{"n/a" if b.card is None else f"{b.card:.2f}"}</td>'
             out.append(f"<tr><td>{b.name}</td>{tds}</tr>")
     out.append("</table>")
@@ -981,15 +987,16 @@ def api_benchmarks_page(rows: Sequence[Result], repo: Path = REPO) -> str:
         "",
         "Each benchmark has its own protocol, harness and settings, written down in its directory under "
         f"[`{API_DIR}/`](../../{API_DIR}/). Values are copied from its `results/<model>.json`, not recomputed. "
-        "Results marked * require verification: they come from a pull request that is still in review, for the "
-        "reason given below.",
+        "Results marked * require verification: they come from a pull request that is still in review, or they "
+        'are not the benchmark\'s main row, for the reason given below. "null": the model cannot run the benchmark; '
+        '"not run": no score, by decision, for budget, or not yet.',
         "",
     ]
     for section, benchmark_lines in api_cells(rows, repo):
         lines += [f"## {section}", ""]
         for b, cells in benchmark_lines:
             source = f"[`{API_DIR}/{b.directory}/`](../../{API_DIR}/{b.directory}/README.md)"
-            status = f"in review, PR #{b.pr}" if b.pr else "merged"
+            status = f"in review, PR #{b.pr}" if b.pr else "merged, exploratory" if b.caveat else "merged"
             lines += [f"### {b.name}", "", f"Source: {source} ({status}). LFM3-1.7B card: {b.card:.2f}.", ""]
             if b.caveat:
                 lines += [f"**Requires verification:** {b.caveat}.", ""]
@@ -1001,17 +1008,32 @@ def api_benchmarks_page(rows: Sequence[Result], repo: Path = REPO) -> str:
                 if label is None:
                     lines.append(f"| {API_HEADER[column][0]} | not run | | |")
                 elif c.result is not None:
-                    star = "*" if c.starred else ""
-                    lines.append(
-                        f"| {c.result.model_name} | {b.how[column]} | {shown(c.result)}{star} | {c.result.n} |"
-                    )
+                    lines.append(f"| {c.result.model_name} | {b.how[column]} | {c.detail()} | {c.result.n} |")
                 else:
-                    reason = c.null_reason or "no result file"
+                    value = f"{c.kind}: {c.reason}" if c.reason else c.kind
                     lines.append(
-                        f"| {MODELS[label].name if label in MODELS else label} | {b.how[column]} | null: {reason} | |"
+                        f"| {MODELS[label].name if label in MODELS else label} | {b.how[column]} | {value} | |"
                     )
             lines.append("")
     return "\n".join(lines)
+
+
+def bielik_setups() -> str:
+    """Which benchmarks ran Bielik through the Fabryka API, our own vLLM, or local lm-eval, from `how`."""
+    groups: dict[str, list[str]] = {"the Fabryka API": [], "our own vLLM": [], "local lm-eval, greedy": []}
+    for b in API_BENCHMARKS:
+        how = b.how.get("bielik")
+        if how is None:
+            continue
+        key = (
+            "the Fabryka API"
+            if how.startswith("Fabryka API")
+            else "our own vLLM"
+            if how.startswith("own vLLM")
+            else "local lm-eval, greedy"
+        )
+        groups[key].append(b.name)
+    return "; ".join(f"{k} ({', '.join(v)})" for k, v in groups.items() if v)
 
 
 K70_PROTOCOL: Final = f"../../{FULL_RUN}/slayer-1.09-k70000/PROTOKOL.md"
@@ -1048,20 +1070,23 @@ def readme(rows: Sequence[Result], chance: Mapping[str, float | None]) -> str:
         'the Generative values table below" width="100%">',
         "</picture>",
         "",
-        "**\\* requires verification:** the result comes from a pull request that is still in review, or the review "
-        "found an open problem; the reason for each benchmark is on [Generative and agentic benchmarks]"
-        f"(api-benchmarks.md). Merged and reviewed: {', '.join(b.name for b in API_BENCHMARKS if not b.pr)}.",
+        "**\\* requires verification:** the result comes from a pull request that is still in review, or it is not "
+        "the benchmark's main row; the reason for each benchmark is on [Generative and agentic benchmarks]"
+        f"(api-benchmarks.md). Merged and reviewed: {', '.join(b.name for b in API_BENCHMARKS if not b.starred)}.",
         "",
-        '- **Incomplete by design:** "null" is a result: the benchmark gave the model no score, for the reason in '
-        'the Generative values table (it cannot run, or its authors did not run it). "not run" means the benchmark '
-        "has no result for the model at all. Neither is a zero.",
+        '- **Incomplete by design:** "null" means the model cannot run the benchmark (for example, its context '
+        'window is too short, or it has no tool-call format; research/METHODOLOGY.md). "not run" means the '
+        "benchmark was not run for the model: by decision, for compute budget, or not yet. The Generative values "
+        "table gives the reason of each. Neither is a zero.",
         "- **Slayer 1B is a base model** without a chat template or a tool-call format: on the agentic benchmarks it "
         "cannot run, and where it is scored its output is mostly degenerate. Its column mixes versions: IFEval is "
         "1.08, the instruction-following, knowledge, tool and agent rows step 60 000 of 1.09, the others step "
         "70 000.",
-        "- **Bielik 11B v3.1** ran through the Fabryka API or our own vLLM depending on the benchmark; both with its "
-        "chat template. **LFM3-1.7B** is the instruction-tuned model, with reasoning on; **LFM3 card** is the value "
-        "Liquid AI reports for it, not measured by us.",
+        f"- **Bielik 11B v3.1 ran in three setups**, depending on the benchmark: {bielik_setups()}. The setups "
+        "are not interchangeable: on IFEval our vLLM with the template defaults scores 5.36 ± 1.86 points above the "
+        "API. Where a benchmark samples, Bielik uses the LFM3 card's settings (temperature 0.6, top_p 0.95). "
+        "**LFM3-1.7B** is the instruction-tuned model, with reasoning on; **LFM3 card** is the value Liquid AI "
+        "reports for it, not measured by us.",
         *(f"- **{b.name}:** {b.note}." for b in API_BENCHMARKS if b.note),
         "",
         "[Slayer versions](slayer-versions.md) · [All models](all-models.md) · "
