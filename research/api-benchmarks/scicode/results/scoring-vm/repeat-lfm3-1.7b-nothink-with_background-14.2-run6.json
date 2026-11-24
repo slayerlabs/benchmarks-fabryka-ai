@@ -1,0 +1,27 @@
+{
+ "model": "lfm3-1.7b-nothink",
+ "setting": "with_background",
+ "steps": 1,
+ "same": 0,
+ "differ": [
+  {
+   "step": "14.2",
+   "kept": "fail",
+   "rescored": "pass",
+   "same": false
+  }
+ ],
+ "rows": [
+  {
+   "step": "14.2",
+   "kept": "fail",
+   "rescored": "pass",
+   "same": false
+  }
+ ],
+ "scorer_seconds": 215.5,
+ "graded_sha256": "4104a2c818613bd4ec4cf605a11500ce5078c05fe3b9a65a8d7316d2346325a7",
+ "files_sha256": {
+  "14.2": "108a0cc245d7faeb0d65eb68edb30bc1cc39d3739acf172c1671d7af9a623448"
+ }
+}

@@ -1,0 +1,859 @@
+{
+ "dataset": {
+  "repo": "ArtificialAnalysis/AA-LCR",
+  "revision": "9a77ef56b717057ade24ceab4d273712a0b4f19e",
+  "sha256": {
+   "AA-LCR_Dataset.csv": "aea5198982436fa774f616964bbeb34716de9e94368a123275b9355765c9b73b",
+   "AA-LCR_extracted-text.zip": "5e839249826f6b9bd5324f0d139089c9dc481ccb3f212a6dfad00c51045d9d8a"
+  },
+  "n": 100
+ },
+ "tokenizers": {
+  "bielik": "speakleash/Bielik-11B-v3.1-Instruct @ d6e755d356ad418d0f0e30b8c428db267415ddb9 (chat template, defaults)",
+  "slayer": "SlayerLab/Slayer1B-1.08 @ 5f854a0cc7160594d54d1788d37a44e8ebabe16c tokenizer.json",
+  "cl100k": "tiktoken cl100k_base"
+ },
+ "cl100k_equals_published": 95,
+ "distribution": {
+  "published_input_tokens": {
+   "min": 71691,
+   "median": 95288.0,
+   "max": 114563,
+   "mean": 95248.3
+  },
+  "cl100k": {
+   "min": 71691,
+   "median": 95288.0,
+   "max": 114563,
+   "mean": 95248.1
+  },
+  "bielik_raw": {
+   "min": 99861,
+   "median": 121225.5,
+   "max": 140467,
+   "mean": 120349.8
+  },
+  "bielik_templated": {
+   "min": 100913,
+   "median": 122277.5,
+   "max": 141519,
+   "mean": 121401.8
+  },
+  "slayer_raw": {
+   "min": 85211,
+   "median": 115685.0,
+   "max": 135882,
+   "mean": 114110.7
+  }
+ },
+ "windows": {
+  "bielik-11b-v3.1 (Fabryka API)": 32768,
+  "slayer1b (block)": 4096
+ },
+ "prompts_that_fit": {
+  "bielik-11b-v3.1 (Fabryka API)": 0,
+  "slayer1b (block)": 0
+ },
+ "per_question": [
+  {
+   "question_id": 1,
+   "published_input_tokens": 94494,
+   "cl100k": 94494,
+   "bielik_raw": 117941,
+   "bielik_templated": 118993,
+   "slayer_raw": 110717
+  },
+  {
+   "question_id": 2,
+   "published_input_tokens": 94485,
+   "cl100k": 94485,
+   "bielik_raw": 117929,
+   "bielik_templated": 118981,
+   "slayer_raw": 110705
+  },
+  {
+   "question_id": 3,
+   "published_input_tokens": 94476,
+   "cl100k": 94476,
+   "bielik_raw": 117915,
+   "bielik_templated": 118967,
+   "slayer_raw": 110689
+  },
+  {
+   "question_id": 4,
+   "published_input_tokens": 113263,
+   "cl100k": 113263,
+   "bielik_raw": 137324,
+   "bielik_templated": 138376,
+   "slayer_raw": 133966
+  },
+  {
+   "question_id": 5,
+   "published_input_tokens": 113266,
+   "cl100k": 113264,
+   "bielik_raw": 137320,
+   "bielik_templated": 138372,
+   "slayer_raw": 133964
+  },
+  {
+   "question_id": 6,
+   "published_input_tokens": 71709,
+   "cl100k": 71709,
+   "bielik_raw": 99881,
+   "bielik_templated": 100933,
+   "slayer_raw": 85228
+  },
+  {
+   "question_id": 7,
+   "published_input_tokens": 71719,
+   "cl100k": 71719,
+   "bielik_raw": 99892,
+   "bielik_templated": 100944,
+   "slayer_raw": 85238
+  },
+  {
+   "question_id": 8,
+   "published_input_tokens": 71757,
+   "cl100k": 71757,
+   "bielik_raw": 99942,
+   "bielik_templated": 100994,
+   "slayer_raw": 85286
+  },
+  {
+   "question_id": 9,
+   "published_input_tokens": 71691,
+   "cl100k": 71691,
+   "bielik_raw": 99861,
+   "bielik_templated": 100913,
+   "slayer_raw": 85211
+  },
+  {
+   "question_id": 10,
+   "published_input_tokens": 73588,
+   "cl100k": 73588,
+   "bielik_raw": 102576,
+   "bielik_templated": 103628,
+   "slayer_raw": 87631
+  },
+  {
+   "question_id": 11,
+   "published_input_tokens": 73598,
+   "cl100k": 73598,
+   "bielik_raw": 102586,
+   "bielik_templated": 103638,
+   "slayer_raw": 87641
+  },
+  {
+   "question_id": 12,
+   "published_input_tokens": 73597,
+   "cl100k": 73597,
+   "bielik_raw": 102586,
+   "bielik_templated": 103638,
+   "slayer_raw": 87642
+  },
+  {
+   "question_id": 13,
+   "published_input_tokens": 73572,
+   "cl100k": 73572,
+   "bielik_raw": 102561,
+   "bielik_templated": 103613,
+   "slayer_raw": 87616
+  },
+  {
+   "question_id": 14,
+   "published_input_tokens": 74026,
+   "cl100k": 74026,
+   "bielik_raw": 103010,
+   "bielik_templated": 104062,
+   "slayer_raw": 88533
+  },
+  {
+   "question_id": 15,
+   "published_input_tokens": 78868,
+   "cl100k": 78868,
+   "bielik_raw": 107902,
+   "bielik_templated": 108954,
+   "slayer_raw": 92643
+  },
+  {
+   "question_id": 16,
+   "published_input_tokens": 78978,
+   "cl100k": 78978,
+   "bielik_raw": 108018,
+   "bielik_templated": 109070,
+   "slayer_raw": 92768
+  },
+  {
+   "question_id": 17,
+   "published_input_tokens": 78887,
+   "cl100k": 78887,
+   "bielik_raw": 107922,
+   "bielik_templated": 108974,
+   "slayer_raw": 92667
+  },
+  {
+   "question_id": 18,
+   "published_input_tokens": 75667,
+   "cl100k": 75667,
+   "bielik_raw": 103764,
+   "bielik_templated": 104816,
+   "slayer_raw": 88977
+  },
+  {
+   "question_id": 19,
+   "published_input_tokens": 96079,
+   "cl100k": 96079,
+   "bielik_raw": 132723,
+   "bielik_templated": 133775,
+   "slayer_raw": 116720
+  },
+  {
+   "question_id": 20,
+   "published_input_tokens": 96080,
+   "cl100k": 96080,
+   "bielik_raw": 132729,
+   "bielik_templated": 133781,
+   "slayer_raw": 116726
+  },
+  {
+   "question_id": 21,
+   "published_input_tokens": 96038,
+   "cl100k": 96035,
+   "bielik_raw": 132678,
+   "bielik_templated": 133730,
+   "slayer_raw": 116675
+  },
+  {
+   "question_id": 22,
+   "published_input_tokens": 95299,
+   "cl100k": 95299,
+   "bielik_raw": 134021,
+   "bielik_templated": 135073,
+   "slayer_raw": 115722
+  },
+  {
+   "question_id": 23,
+   "published_input_tokens": 95247,
+   "cl100k": 95247,
+   "bielik_raw": 133963,
+   "bielik_templated": 135015,
+   "slayer_raw": 115668
+  },
+  {
+   "question_id": 24,
+   "published_input_tokens": 95299,
+   "cl100k": 95299,
+   "bielik_raw": 134016,
+   "bielik_templated": 135068,
+   "slayer_raw": 115724
+  },
+  {
+   "question_id": 25,
+   "published_input_tokens": 95229,
+   "cl100k": 95229,
+   "bielik_raw": 133948,
+   "bielik_templated": 135000,
+   "slayer_raw": 115649
+  },
+  {
+   "question_id": 26,
+   "published_input_tokens": 95277,
+   "cl100k": 95277,
+   "bielik_raw": 134001,
+   "bielik_templated": 135053,
+   "slayer_raw": 115702
+  },
+  {
+   "question_id": 27,
+   "published_input_tokens": 93737,
+   "cl100k": 93737,
+   "bielik_raw": 128769,
+   "bielik_templated": 129821,
+   "slayer_raw": 112065
+  },
+  {
+   "question_id": 28,
+   "published_input_tokens": 93758,
+   "cl100k": 93758,
+   "bielik_raw": 128791,
+   "bielik_templated": 129843,
+   "slayer_raw": 112086
+  },
+  {
+   "question_id": 29,
+   "published_input_tokens": 93760,
+   "cl100k": 93760,
+   "bielik_raw": 128793,
+   "bielik_templated": 129845,
+   "slayer_raw": 112088
+  },
+  {
+   "question_id": 30,
+   "published_input_tokens": 93815,
+   "cl100k": 93815,
+   "bielik_raw": 128852,
+   "bielik_templated": 129904,
+   "slayer_raw": 112147
+  },
+  {
+   "question_id": 31,
+   "published_input_tokens": 74160,
+   "cl100k": 74160,
+   "bielik_raw": 101878,
+   "bielik_templated": 102930,
+   "slayer_raw": 87187
+  },
+  {
+   "question_id": 32,
+   "published_input_tokens": 74158,
+   "cl100k": 74158,
+   "bielik_raw": 101875,
+   "bielik_templated": 102927,
+   "slayer_raw": 87185
+  },
+  {
+   "question_id": 33,
+   "published_input_tokens": 97540,
+   "cl100k": 97540,
+   "bielik_raw": 137872,
+   "bielik_templated": 138924,
+   "slayer_raw": 120270
+  },
+  {
+   "question_id": 34,
+   "published_input_tokens": 97541,
+   "cl100k": 97541,
+   "bielik_raw": 137873,
+   "bielik_templated": 138925,
+   "slayer_raw": 120271
+  },
+  {
+   "question_id": 35,
+   "published_input_tokens": 97554,
+   "cl100k": 97554,
+   "bielik_raw": 137889,
+   "bielik_templated": 138941,
+   "slayer_raw": 120283
+  },
+  {
+   "question_id": 36,
+   "published_input_tokens": 80428,
+   "cl100k": 80428,
+   "bielik_raw": 102286,
+   "bielik_templated": 103338,
+   "slayer_raw": 96427
+  },
+  {
+   "question_id": 37,
+   "published_input_tokens": 80406,
+   "cl100k": 80406,
+   "bielik_raw": 102260,
+   "bielik_templated": 103312,
+   "slayer_raw": 96401
+  },
+  {
+   "question_id": 38,
+   "published_input_tokens": 80423,
+   "cl100k": 80423,
+   "bielik_raw": 102275,
+   "bielik_templated": 103327,
+   "slayer_raw": 96418
+  },
+  {
+   "question_id": 39,
+   "published_input_tokens": 80413,
+   "cl100k": 80413,
+   "bielik_raw": 102267,
+   "bielik_templated": 103319,
+   "slayer_raw": 96407
+  },
+  {
+   "question_id": 40,
+   "published_input_tokens": 80422,
+   "cl100k": 80422,
+   "bielik_raw": 102276,
+   "bielik_templated": 103328,
+   "slayer_raw": 96416
+  },
+  {
+   "question_id": 41,
+   "published_input_tokens": 93610,
+   "cl100k": 93610,
+   "bielik_raw": 126338,
+   "bielik_templated": 127390,
+   "slayer_raw": 112745
+  },
+  {
+   "question_id": 42,
+   "published_input_tokens": 93636,
+   "cl100k": 93636,
+   "bielik_raw": 126367,
+   "bielik_templated": 127419,
+   "slayer_raw": 112770
+  },
+  {
+   "question_id": 43,
+   "published_input_tokens": 84446,
+   "cl100k": 84446,
+   "bielik_raw": 101297,
+   "bielik_templated": 102349,
+   "slayer_raw": 105077
+  },
+  {
+   "question_id": 44,
+   "published_input_tokens": 84436,
+   "cl100k": 84436,
+   "bielik_raw": 101285,
+   "bielik_templated": 102337,
+   "slayer_raw": 105066
+  },
+  {
+   "question_id": 45,
+   "published_input_tokens": 84432,
+   "cl100k": 84432,
+   "bielik_raw": 101280,
+   "bielik_templated": 102332,
+   "slayer_raw": 105060
+  },
+  {
+   "question_id": 46,
+   "published_input_tokens": 84496,
+   "cl100k": 84496,
+   "bielik_raw": 101346,
+   "bielik_templated": 102398,
+   "slayer_raw": 105128
+  },
+  {
+   "question_id": 47,
+   "published_input_tokens": 84440,
+   "cl100k": 84440,
+   "bielik_raw": 101290,
+   "bielik_templated": 102342,
+   "slayer_raw": 105069
+  },
+  {
+   "question_id": 48,
+   "published_input_tokens": 84475,
+   "cl100k": 84475,
+   "bielik_raw": 101327,
+   "bielik_templated": 102379,
+   "slayer_raw": 105109
+  },
+  {
+   "question_id": 49,
+   "published_input_tokens": 84442,
+   "cl100k": 84442,
+   "bielik_raw": 101290,
+   "bielik_templated": 102342,
+   "slayer_raw": 105071
+  },
+  {
+   "question_id": 50,
+   "published_input_tokens": 84440,
+   "cl100k": 84440,
+   "bielik_raw": 101290,
+   "bielik_templated": 102342,
+   "slayer_raw": 105070
+  },
+  {
+   "question_id": 51,
+   "published_input_tokens": 84436,
+   "cl100k": 84436,
+   "bielik_raw": 101288,
+   "bielik_templated": 102340,
+   "slayer_raw": 105065
+  },
+  {
+   "question_id": 52,
+   "published_input_tokens": 84439,
+   "cl100k": 84439,
+   "bielik_raw": 101289,
+   "bielik_templated": 102341,
+   "slayer_raw": 105066
+  },
+  {
+   "question_id": 53,
+   "published_input_tokens": 84436,
+   "cl100k": 84436,
+   "bielik_raw": 101285,
+   "bielik_templated": 102337,
+   "slayer_raw": 105065
+  },
+  {
+   "question_id": 54,
+   "published_input_tokens": 84451,
+   "cl100k": 84451,
+   "bielik_raw": 101300,
+   "bielik_templated": 102352,
+   "slayer_raw": 105080
+  },
+  {
+   "question_id": 55,
+   "published_input_tokens": 103414,
+   "cl100k": 103414,
+   "bielik_raw": 121135,
+   "bielik_templated": 122187,
+   "slayer_raw": 123540
+  },
+  {
+   "question_id": 56,
+   "published_input_tokens": 103409,
+   "cl100k": 103409,
+   "bielik_raw": 121129,
+   "bielik_templated": 122181,
+   "slayer_raw": 123533
+  },
+  {
+   "question_id": 57,
+   "published_input_tokens": 103409,
+   "cl100k": 103409,
+   "bielik_raw": 121130,
+   "bielik_templated": 122182,
+   "slayer_raw": 123536
+  },
+  {
+   "question_id": 58,
+   "published_input_tokens": 103420,
+   "cl100k": 103420,
+   "bielik_raw": 121143,
+   "bielik_templated": 122195,
+   "slayer_raw": 123551
+  },
+  {
+   "question_id": 59,
+   "published_input_tokens": 103436,
+   "cl100k": 103436,
+   "bielik_raw": 121156,
+   "bielik_templated": 122208,
+   "slayer_raw": 123565
+  },
+  {
+   "question_id": 60,
+   "published_input_tokens": 107452,
+   "cl100k": 107452,
+   "bielik_raw": 135448,
+   "bielik_templated": 136500,
+   "slayer_raw": 133782
+  },
+  {
+   "question_id": 61,
+   "published_input_tokens": 107447,
+   "cl100k": 107447,
+   "bielik_raw": 135443,
+   "bielik_templated": 136495,
+   "slayer_raw": 133781
+  },
+  {
+   "question_id": 62,
+   "published_input_tokens": 107441,
+   "cl100k": 107438,
+   "bielik_raw": 135435,
+   "bielik_templated": 136487,
+   "slayer_raw": 133772
+  },
+  {
+   "question_id": 63,
+   "published_input_tokens": 103416,
+   "cl100k": 103416,
+   "bielik_raw": 121139,
+   "bielik_templated": 122191,
+   "slayer_raw": 123547
+  },
+  {
+   "question_id": 64,
+   "published_input_tokens": 103401,
+   "cl100k": 103401,
+   "bielik_raw": 121122,
+   "bielik_templated": 122174,
+   "slayer_raw": 123528
+  },
+  {
+   "question_id": 65,
+   "published_input_tokens": 89459,
+   "cl100k": 89456,
+   "bielik_raw": 109630,
+   "bielik_templated": 110682,
+   "slayer_raw": 104931
+  },
+  {
+   "question_id": 66,
+   "published_input_tokens": 89438,
+   "cl100k": 89438,
+   "bielik_raw": 109607,
+   "bielik_templated": 110659,
+   "slayer_raw": 104916
+  },
+  {
+   "question_id": 67,
+   "published_input_tokens": 89448,
+   "cl100k": 89448,
+   "bielik_raw": 109617,
+   "bielik_templated": 110669,
+   "slayer_raw": 104925
+  },
+  {
+   "question_id": 68,
+   "published_input_tokens": 89435,
+   "cl100k": 89435,
+   "bielik_raw": 109606,
+   "bielik_templated": 110658,
+   "slayer_raw": 104910
+  },
+  {
+   "question_id": 69,
+   "published_input_tokens": 114563,
+   "cl100k": 114563,
+   "bielik_raw": 136857,
+   "bielik_templated": 137909,
+   "slayer_raw": 135882
+  },
+  {
+   "question_id": 70,
+   "published_input_tokens": 114554,
+   "cl100k": 114554,
+   "bielik_raw": 136847,
+   "bielik_templated": 137899,
+   "slayer_raw": 135873
+  },
+  {
+   "question_id": 71,
+   "published_input_tokens": 114556,
+   "cl100k": 114556,
+   "bielik_raw": 136847,
+   "bielik_templated": 137899,
+   "slayer_raw": 135873
+  },
+  {
+   "question_id": 72,
+   "published_input_tokens": 114559,
+   "cl100k": 114559,
+   "bielik_raw": 136855,
+   "bielik_templated": 137907,
+   "slayer_raw": 135878
+  },
+  {
+   "question_id": 73,
+   "published_input_tokens": 100518,
+   "cl100k": 100518,
+   "bielik_raw": 119224,
+   "bielik_templated": 120276,
+   "slayer_raw": 120800
+  },
+  {
+   "question_id": 74,
+   "published_input_tokens": 100490,
+   "cl100k": 100490,
+   "bielik_raw": 119198,
+   "bielik_templated": 120250,
+   "slayer_raw": 120768
+  },
+  {
+   "question_id": 75,
+   "published_input_tokens": 112016,
+   "cl100k": 112016,
+   "bielik_raw": 136624,
+   "bielik_templated": 137676,
+   "slayer_raw": 135178
+  },
+  {
+   "question_id": 76,
+   "published_input_tokens": 111994,
+   "cl100k": 111994,
+   "bielik_raw": 136597,
+   "bielik_templated": 137649,
+   "slayer_raw": 135151
+  },
+  {
+   "question_id": 77,
+   "published_input_tokens": 112020,
+   "cl100k": 112020,
+   "bielik_raw": 136633,
+   "bielik_templated": 137685,
+   "slayer_raw": 135182
+  },
+  {
+   "question_id": 78,
+   "published_input_tokens": 112046,
+   "cl100k": 112046,
+   "bielik_raw": 136658,
+   "bielik_templated": 137710,
+   "slayer_raw": 135210
+  },
+  {
+   "question_id": 79,
+   "published_input_tokens": 112009,
+   "cl100k": 112009,
+   "bielik_raw": 136619,
+   "bielik_templated": 137671,
+   "slayer_raw": 135167
+  },
+  {
+   "question_id": 80,
+   "published_input_tokens": 109057,
+   "cl100k": 109057,
+   "bielik_raw": 129454,
+   "bielik_templated": 130506,
+   "slayer_raw": 123793
+  },
+  {
+   "question_id": 81,
+   "published_input_tokens": 109091,
+   "cl100k": 109086,
+   "bielik_raw": 129491,
+   "bielik_templated": 130543,
+   "slayer_raw": 123824
+  },
+  {
+   "question_id": 82,
+   "published_input_tokens": 106804,
+   "cl100k": 106804,
+   "bielik_raw": 126807,
+   "bielik_templated": 127859,
+   "slayer_raw": 124816
+  },
+  {
+   "question_id": 83,
+   "published_input_tokens": 106796,
+   "cl100k": 106796,
+   "bielik_raw": 126797,
+   "bielik_templated": 127849,
+   "slayer_raw": 124809
+  },
+  {
+   "question_id": 84,
+   "published_input_tokens": 106800,
+   "cl100k": 106800,
+   "bielik_raw": 126799,
+   "bielik_templated": 127851,
+   "slayer_raw": 124816
+  },
+  {
+   "question_id": 85,
+   "published_input_tokens": 106822,
+   "cl100k": 106822,
+   "bielik_raw": 126822,
+   "bielik_templated": 127874,
+   "slayer_raw": 124842
+  },
+  {
+   "question_id": 86,
+   "published_input_tokens": 106087,
+   "cl100k": 106087,
+   "bielik_raw": 126625,
+   "bielik_templated": 127677,
+   "slayer_raw": 123726
+  },
+  {
+   "question_id": 87,
+   "published_input_tokens": 106090,
+   "cl100k": 106090,
+   "bielik_raw": 126630,
+   "bielik_templated": 127682,
+   "slayer_raw": 123726
+  },
+  {
+   "question_id": 88,
+   "published_input_tokens": 106087,
+   "cl100k": 106087,
+   "bielik_raw": 126627,
+   "bielik_templated": 127679,
+   "slayer_raw": 123724
+  },
+  {
+   "question_id": 89,
+   "published_input_tokens": 106099,
+   "cl100k": 106099,
+   "bielik_raw": 126641,
+   "bielik_templated": 127693,
+   "slayer_raw": 123738
+  },
+  {
+   "question_id": 90,
+   "published_input_tokens": 88622,
+   "cl100k": 88622,
+   "bielik_raw": 110930,
+   "bielik_templated": 111982,
+   "slayer_raw": 102904
+  },
+  {
+   "question_id": 91,
+   "published_input_tokens": 110894,
+   "cl100k": 110894,
+   "bielik_raw": 131861,
+   "bielik_templated": 132913,
+   "slayer_raw": 130177
+  },
+  {
+   "question_id": 92,
+   "published_input_tokens": 110914,
+   "cl100k": 110914,
+   "bielik_raw": 131883,
+   "bielik_templated": 132935,
+   "slayer_raw": 130199
+  },
+  {
+   "question_id": 93,
+   "published_input_tokens": 96559,
+   "cl100k": 96559,
+   "bielik_raw": 121295,
+   "bielik_templated": 122347,
+   "slayer_raw": 114432
+  },
+  {
+   "question_id": 94,
+   "published_input_tokens": 110550,
+   "cl100k": 110550,
+   "bielik_raw": 140467,
+   "bielik_templated": 141519,
+   "slayer_raw": 133555
+  },
+  {
+   "question_id": 95,
+   "published_input_tokens": 110550,
+   "cl100k": 110550,
+   "bielik_raw": 140463,
+   "bielik_templated": 141515,
+   "slayer_raw": 133553
+  },
+  {
+   "question_id": 96,
+   "published_input_tokens": 110546,
+   "cl100k": 110546,
+   "bielik_raw": 140459,
+   "bielik_templated": 141511,
+   "slayer_raw": 133550
+  },
+  {
+   "question_id": 97,
+   "published_input_tokens": 110548,
+   "cl100k": 110548,
+   "bielik_raw": 140460,
+   "bielik_templated": 141512,
+   "slayer_raw": 133552
+  },
+  {
+   "question_id": 98,
+   "published_input_tokens": 113491,
+   "cl100k": 113491,
+   "bielik_raw": 138028,
+   "bielik_templated": 139080,
+   "slayer_raw": 135467
+  },
+  {
+   "question_id": 99,
+   "published_input_tokens": 113500,
+   "cl100k": 113500,
+   "bielik_raw": 138042,
+   "bielik_templated": 139094,
+   "slayer_raw": 135478
+  },
+  {
+   "question_id": 100,
+   "published_input_tokens": 94652,
+   "cl100k": 94652,
+   "bielik_raw": 117460,
+   "bielik_templated": 118512,
+   "slayer_raw": 111809
+  }
+ ]
+}

@@ -1,0 +1,37 @@
+{
+  "benchmark": "AA-Omniscience (public)",
+  "model": "slayer1b-60000",
+  "metric": "omniscience_index",
+  "score": -59.33,
+  "stderr": 2.14,
+  "n": 600,
+  "date": "2026-11-19",
+  "harness": "AA-Omniscience README prompts (answer and grader templates) with generate.py and judge.py",
+  "data": "https://huggingface.co/datasets/ArtificialAnalysis/AA-Omniscience-Public @ e4883edbb9f5ccf2b2a8fdc6fb65e01a58e99849",
+  "settings": {
+    "temperature": 0,
+    "max_tokens_per_turn": 1280,
+    "max_turns": 1,
+    "trials": 1,
+    "chat_template": false,
+    "judge": {
+      "model": "openai-codex/gpt-6.1-sol (GPT-6.1 Sol), thinking high",
+      "served_via": "OMP coding-agent CLI (omp -p --no-tools), subscription login, no API key",
+      "date": "2026-11-19",
+      "official_grader": "Gemini 2.5 Flash Preview (09-2025); scores not comparable with Artificial Analysis",
+      "raw_replies": "results/slayer1b-60000-judge.jsonl.gz"
+    }
+  },
+  "other_metrics": {
+    "accuracy": 1.67,
+    "accuracy_stderr": 0.52,
+    "hallucination_rate": 62.03,
+    "non_hallucination_rate": 37.97,
+    "correct": 10,
+    "incorrect": 366,
+    "partial": 1,
+    "not_attempted": 223,
+    "answers_cut_at_length": 598
+  },
+  "deviations": "see README.md, Deviations"
+}

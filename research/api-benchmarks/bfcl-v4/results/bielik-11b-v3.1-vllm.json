@@ -1,0 +1,167 @@
+{
+  "benchmark": "BFCL V4",
+  "model": "bielik-11b-v3.1-vllm",
+  "metric": "overall_acc",
+  "date": "2026-11-19",
+  "harness": "https://github.com/ShishirPatil/gorilla @ 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8 (berkeley-function-call-leaderboard)",
+  "data": "bundled with the harness: berkeley-function-call-leaderboard/bfcl_eval/data @ 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+  "score": null,
+  "stderr": null,
+  "n": 4906,
+  "settings": {
+    "mode": "FC (native function calling through the vLLM tool parser)",
+    "temperature": 0.001,
+    "effective_temperature": 0.01,
+    "max_tokens_per_turn": null,
+    "max_model_len": 32768,
+    "test_categories": [
+      "simple_python",
+      "simple_java",
+      "simple_javascript",
+      "multiple",
+      "parallel",
+      "parallel_multiple",
+      "irrelevance",
+      "live_simple",
+      "live_multiple",
+      "live_parallel",
+      "live_parallel_multiple",
+      "live_irrelevance",
+      "live_relevance",
+      "multi_turn_base",
+      "multi_turn_miss_func",
+      "multi_turn_miss_param",
+      "multi_turn_long_context",
+      "memory_kv",
+      "memory_vector",
+      "memory_rec_sum"
+    ],
+    "trials": 1
+  },
+  "score_null_reason": "Overall Acc needs the web_search categories (200 tasks, 40% x 1/2 of the weight), which were not run: they need a search API key. See other_metrics.",
+  "other_metrics": {
+    "non_live_acc": 85.5,
+    "live_acc": 72.91,
+    "irrelevance_acc": 75.68,
+    "relevance_acc": 93.75,
+    "multi_turn_acc": 5.62,
+    "memory_acc": 16.56,
+    "overall_acc_lower_bound": 28.41
+  },
+  "other_metrics_stderr": {
+    "non_live_acc": 1.18,
+    "live_acc": 1.21,
+    "irrelevance_acc": 1.57,
+    "relevance_acc": 6.05,
+    "multi_turn_acc": 0.81,
+    "memory_acc": 1.7,
+    "overall_acc_lower_bound": 0.48
+  },
+  "categories": {
+    "simple_python": {
+      "score": 94.5,
+      "passed": 378,
+      "n": 400
+    },
+    "simple_java": {
+      "score": 65.0,
+      "passed": 65,
+      "n": 100
+    },
+    "simple_javascript": {
+      "score": 64.0,
+      "passed": 32,
+      "n": 50
+    },
+    "multiple": {
+      "score": 92.5,
+      "passed": 185,
+      "n": 200
+    },
+    "parallel": {
+      "score": 90.0,
+      "passed": 180,
+      "n": 200
+    },
+    "parallel_multiple": {
+      "score": 85.0,
+      "passed": 170,
+      "n": 200
+    },
+    "irrelevance": {
+      "score": 75.0,
+      "passed": 180,
+      "n": 240
+    },
+    "live_simple": {
+      "score": 72.87,
+      "passed": 188,
+      "n": 258
+    },
+    "live_multiple": {
+      "score": 73.12,
+      "passed": 770,
+      "n": 1053
+    },
+    "live_parallel": {
+      "score": 56.25,
+      "passed": 9,
+      "n": 16
+    },
+    "live_parallel_multiple": {
+      "score": 75.0,
+      "passed": 18,
+      "n": 24
+    },
+    "live_irrelevance": {
+      "score": 76.36,
+      "passed": 675,
+      "n": 884
+    },
+    "live_relevance": {
+      "score": 93.75,
+      "passed": 15,
+      "n": 16
+    },
+    "multi_turn_base": {
+      "score": 10.5,
+      "passed": 21,
+      "n": 200
+    },
+    "multi_turn_miss_func": {
+      "score": 1.0,
+      "passed": 2,
+      "n": 200
+    },
+    "multi_turn_miss_param": {
+      "score": 5.5,
+      "passed": 11,
+      "n": 200
+    },
+    "multi_turn_long_context": {
+      "score": 5.5,
+      "passed": 11,
+      "n": 200
+    },
+    "memory_kv": {
+      "score": 7.74,
+      "passed": 12,
+      "n": 155
+    },
+    "memory_vector": {
+      "score": 21.29,
+      "passed": 33,
+      "n": 155
+    },
+    "memory_rec_sum": {
+      "score": 20.65,
+      "passed": 32,
+      "n": 155
+    }
+  },
+  "memory_prereq_generated_not_scored": 0,
+  "context_window_exceeded": {
+    "multi_turn_long_context": 17
+  },
+  "deviations": "see README.md, Deviations"
+}

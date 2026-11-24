@@ -1,0 +1,175 @@
+{
+  "exploratory": true,
+  "note": "added after the results were seen; descriptive, not part of PROTOCOL.md's verdicts",
+  "budgets": {
+    "tokens": [
+      4096,
+      8192,
+      16384,
+      32768
+    ],
+    "accepted": {
+      "lfm3-1.7b": {
+        "4096": 2,
+        "8192": 7,
+        "16384": 17,
+        "32768": 43
+      },
+      "lfm3-1.7b-nothink": {
+        "4096": 5,
+        "8192": 12,
+        "16384": 22,
+        "32768": 40
+      },
+      "bielik-11b-v3.1": {
+        "4096": 3,
+        "8192": 3,
+        "16384": 3,
+        "32768": 3
+      }
+    },
+    "n": {
+      "lfm3-1.7b": 167,
+      "lfm3-1.7b-nothink": 167,
+      "bielik-11b-v3.1": 167
+    }
+  },
+  "compile_errors": {
+    "lfm3-1.7b": {
+      "total": 11,
+      "by_cause": {
+        "compiler_says_missing_include": {
+          "count": 0,
+          "problems": []
+        },
+        "undeclared_std_name": {
+          "count": 0,
+          "problems": []
+        },
+        "other": {
+          "count": 11,
+          "problems": [
+            "2093C",
+            "2094G",
+            "2103E",
+            "2107C",
+            "2108E",
+            "2109D",
+            "2111B",
+            "2111F",
+            "2114F",
+            "2115B",
+            "2117F"
+          ]
+        }
+      }
+    },
+    "lfm3-1.7b-nothink": {
+      "total": 10,
+      "by_cause": {
+        "compiler_says_missing_include": {
+          "count": 0,
+          "problems": []
+        },
+        "undeclared_std_name": {
+          "count": 0,
+          "problems": []
+        },
+        "other": {
+          "count": 10,
+          "problems": [
+            "2084G1",
+            "2093C",
+            "2093G",
+            "2101B",
+            "2103B",
+            "2106G2",
+            "2110E",
+            "2111G",
+            "2113D",
+            "2121D"
+          ]
+        }
+      }
+    },
+    "bielik-11b-v3.1": {
+      "total": 59,
+      "by_cause": {
+        "compiler_says_missing_include": {
+          "count": 11,
+          "problems": [
+            "2084F",
+            "2104B",
+            "2106G2",
+            "2109F",
+            "2112D",
+            "2114D",
+            "2114F",
+            "2115A",
+            "2115D",
+            "2118D2",
+            "2120B"
+          ]
+        },
+        "undeclared_std_name": {
+          "count": 10,
+          "problems": [
+            "2084B",
+            "2086D",
+            "2094G",
+            "2096A",
+            "2097C",
+            "2107F1",
+            "2112C",
+            "2115F1",
+            "2117A",
+            "2121C"
+          ]
+        },
+        "other": {
+          "count": 38,
+          "problems": [
+            "2084E",
+            "2084G1",
+            "2094A",
+            "2096C",
+            "2096D",
+            "2096E",
+            "2096F",
+            "2096H",
+            "2097B",
+            "2097F",
+            "2101D",
+            "2101E",
+            "2102B",
+            "2103C",
+            "2103D",
+            "2103F",
+            "2104E",
+            "2104G",
+            "2106B",
+            "2106C",
+            "2106D",
+            "2107A",
+            "2107D",
+            "2110D",
+            "2111B",
+            "2111F",
+            "2112B",
+            "2113C",
+            "2113E",
+            "2114G",
+            "2115B",
+            "2115C",
+            "2115E",
+            "2117E",
+            "2117F",
+            "2118C",
+            "2118D1",
+            "2120F"
+          ]
+        }
+      }
+    }
+  }
+}
