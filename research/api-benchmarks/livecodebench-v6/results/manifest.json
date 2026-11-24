@@ -1,13 +1,13 @@
 {
   "files": {
     "ablation-a1.json": {
-      "at": "2026-11-22T17:48:19+00:00",
-      "sha256": "827b316bb7c2a39d6c5326e230463b58c40304e7c2d0cbf598700359b0f89865",
+      "at": "2026-11-24T14:19:21+00:00",
+      "sha256": "ce88fb6f5f37e16edf042ff8e771b10f908866fdb2578c7c22e75953606649b4",
       "written_by": "ablation.py"
     },
     "ablation-a1.md": {
-      "at": "2026-11-22T17:48:19+00:00",
-      "sha256": "aa24ded996f81a21c6aac29eff2046aebc984e600ec5597fbeb5f477739a805f",
+      "at": "2026-11-24T14:19:21+00:00",
+      "sha256": "c7621b495ffadf5553ebf610d0485a74f253a53589134d173dfceb03bd1748be",
       "written_by": "ablation.py"
     },
     "bielik-11b-v3.1.json": {
@@ -26,8 +26,8 @@
       "written_by": "extraction.py"
     },
     "hypotheses.json": {
-      "at": "2026-11-22T17:48:19+00:00",
-      "sha256": "f152d0888ecbf073110e3054606fed7ad62601ba8c344ca0b6169909b3fe090a",
+      "at": "2026-11-24T14:19:21+00:00",
+      "sha256": "a597bd822297b70eb0b25a942fe1c23040b92c68276afa9b7ee7d164da7324ba",
       "written_by": "compare.py"
     },
     "lfm3-1.7b-cardsampling.json": {

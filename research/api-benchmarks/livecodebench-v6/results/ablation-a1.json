@@ -16,29 +16,29 @@
     }
   },
   "score": {
-    "lfm3-1.7b": 72.23,
-    "lfm3-1.7b-cardsampling": 72.89
+    "lfm3-1.7b": 72.04,
+    "lfm3-1.7b-cardsampling": 73.08
   },
   "paired_pass_at_1": {
-    "lfm3-1.7b": 72.22748815165878,
-    "lfm3-1.7b-cardsampling": 72.8909952606635
+    "lfm3-1.7b": 72.03791469194313,
+    "lfm3-1.7b-cardsampling": 73.08056872037915
   },
   "difference": "original minus ablation, pp",
   "n": 1055,
-  "delta": -0.6635071090047393,
-  "se": 0.9337601435234708,
+  "delta": -1.042654028436019,
+  "se": 0.943016626997902,
   "ci90": [
-    -2.1994058677820467,
-    0.8723916497725683
+    -2.593778347629061,
+    0.5084702907570231
   ],
-  "p_lower": 0.07617182054497784,
-  "p_upper": 0.0021691600067514916,
-  "p_tost": 0.07617182054497784,
+  "p_lower": 0.15500638948502465,
+  "p_upper": 0.0006265458960167392,
+  "p_tost": 0.15500638948502465,
   "verdict": "not shown equivalent",
   "mcnemar": {
-    "only_original": 45,
-    "only_ablation": 52,
-    "p_exact": 0.5426101580458746,
+    "only_original": 44,
+    "only_ablation": 55,
+    "p_exact": 0.31487989103762243,
     "descriptive": true
   },
   "excluded": {
@@ -48,11 +48,11 @@
     "missing_ablation": 0,
     "total": 0
   },
-  "consequence": "A1 not shown equivalent: both numbers are reported (lfm3-1.7b 72.23, lfm3-1.7b-cardsampling 72.89); the card-sampling one is the headline for comparisons with the card's 73.46",
+  "consequence": "A1 not shown equivalent: both numbers are reported (lfm3-1.7b 72.04, lfm3-1.7b-cardsampling 73.08); the card-sampling one is the headline for comparisons with the card's 73.46",
   "inputs_sha256": {
-    "lfm3-1.7b-cardsampling.json": "4d0aba4808b85ecdbb17b234b025aa019d64e30fc3887577e193876dcb4416d9",
-    "lfm3-1.7b-cardsampling.jsonl.gz": "2dede261cb85a771ae9ba8fdfdfed88ab16e7b65cb032a0a261d207a4fe2f521",
-    "lfm3-1.7b.json": "746a9d4a1cbb9785da9a1ce072ab6f3875fe135eb401e44d0f60ce68cecb55f4",
-    "lfm3-1.7b.jsonl.gz": "c722dac8871897739124ab70446bc24e91783669226775007aaa0da6699ae24a"
+    "lfm3-1.7b-cardsampling.json": "2955b6354c1a2552afae7bfee39cb783b64b8ea155707922c80258a170eed4ef",
+    "lfm3-1.7b-cardsampling.jsonl.gz": "7088f47648ced581be4116d3e524b8b289dc0e4b428cd277942d9c2c32cd6ef2",
+    "lfm3-1.7b.json": "978b5c3c0c8c18c30f219d02aec58745bc856fa2eba15ec0cda0892f0f269578",
+    "lfm3-1.7b.jsonl.gz": "44434c8369103cf2695a5810346670f1b95848992b5868bb3a76b73dd7ae0ace"
   }
 }
