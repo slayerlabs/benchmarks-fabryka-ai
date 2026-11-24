@@ -604,7 +604,7 @@ def slayer_sampling(pretrained: str) -> dict[str, Any]:
     return {"request_sampling": {"temperature": 0, "top_p": 1, "greedy": True, "seed": None},
             "server_defaults": "none (local Slayer greedy generation)",
             "slayer_pretrained": pretrained, "slayer_loader": "research/common/slayer_lm.py (slayer_model.Slayer)",
-            "dtype": "bfloat16", "context": SLAYER_CONTEXT}
+            "dtype": "bfloat16", "context": SLAYER_CONTEXT, "thinking": False}
 
 
 def generate(args: argparse.Namespace) -> None:
@@ -625,10 +625,10 @@ def generate(args: argparse.Namespace) -> None:
         slayer = load_slayer(args.slayer_pretrained, device=args.slayer_device, dtype=args.slayer_dtype)
         args.concurrency = 1
         batch_size = max(1, int(getattr(args, "slayer_batch_size", 8)))
-        sampling = {**slayer_sampling(args.slayer_pretrained), "slayer_batch_size": batch_size}
+        run_sampling = {**slayer_sampling(args.slayer_pretrained), "slayer_batch_size": batch_size}
         update_run(out, "generation", {**provenance.step("lcbpro.py generate"), "model": args.model,
                                        "limit": args.limit, "harness": f"{HARNESS_REPO} @ {HARNESS_COMMIT}",
-                                       "data": f"{DATA_REPO} @ {DATA_REVISION}, {SPLIT}", "sampling": sampling})
+                                       "data": f"{DATA_REPO} @ {DATA_REVISION}, {SPLIT}", "sampling": run_sampling})
         todo = [(r["problem_id"], prompt(r["problem_statement"]))
                 for r in (rows[:args.limit] if args.limit else rows) if r["problem_id"] not in done]
         del rows
@@ -664,7 +664,7 @@ def generate(args: argparse.Namespace) -> None:
     update_run(out, "generation", {**provenance.step("lcbpro.py generate"), "model": args.model, "limit": args.limit,
                                    "harness": f"{HARNESS_REPO} @ {HARNESS_COMMIT}",
                                    "data": f"{DATA_REPO} @ {DATA_REVISION}, {SPLIT}",
-                                   "sampling": sampling(server),
+                                   "sampling": globals()["sampling"](server),
                                    **({"server": server_info(args.base_url)} if args.base_url else {})})
     todo = [(r["problem_id"], [{"role": "user", "content": prompt(r["problem_statement"])}])
             for r in (rows[:args.limit] if args.limit else rows) if r["problem_id"] not in done]

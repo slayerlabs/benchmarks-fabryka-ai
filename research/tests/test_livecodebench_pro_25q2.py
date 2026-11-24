@@ -598,7 +598,7 @@ def vllm_args(api, out, limit=None):
     return argparse.Namespace(out_dir=str(out), base_url=api.base, chat_url="", model="lfm3-1.7b",
                               model_repo="LiquidAI/LFM3-1.7B@x", limit=limit, chat_template_kwargs="",
                               api_key_env="", tokenizer="", context=262144, margin=0, retries=1, concurrency=2,
-                              request_timeout=10)
+                              request_timeout=10, slayer_pretrained="")
 
 
 def test_generate_resumes_and_retries_failed_requests_once():

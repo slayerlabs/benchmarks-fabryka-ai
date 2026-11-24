@@ -51,8 +51,13 @@
       "written_by": "rejudge.py"
     },
     "slayer1b-1.09-k70000.json": {
-      "at": "2026-11-22T16:32:08+00:00",
-      "sha256": "0a64b23c1551070fdf46795d5a8a0f7eaed5f54169c39b8d944dd5045204b668",
+      "at": "2026-11-24T23:12:30+00:00",
+      "sha256": "c123b1fcbe1ba63db0dd7ccbe4e35fac066e0ef2482722f79e67b26a563d29ac",
+      "written_by": "summarize.py"
+    },
+    "slayer1b-1.09-k70000.jsonl.gz": {
+      "at": "2026-11-24T23:12:30+00:00",
+      "sha256": "270889d0150439b926d360cc1a7949d489836d6faa153fd49b66670c15a831f0",
       "written_by": "summarize.py"
     }
   }
