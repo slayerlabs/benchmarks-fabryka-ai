@@ -255,7 +255,6 @@ def ifeval(repo: Path = REPO) -> list[Result]:
 # --- generative and agentic benchmarks (research/api-benchmarks/) ---
 
 API_DIR = "research/api-benchmarks"
-DASH: Final = "\u2013"  # en dash: a cell that cannot be scored
 MINUS: Final = "\u2212"
 # The three models of the generative table: the column key, its header, and its family.
 API_COLUMNS: Final = ("slayer", "bielik", "lfm3")
@@ -353,12 +352,17 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         "Knowledge",
         "gpqa-diamond",
         "percent",
-        {"bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
-        {"bielik": "local lm-eval, CoT, greedy, 8192 tokens", "lfm3": "local lm-eval, CoT, greedy, 8192 tokens"},
+        {"slayer": LATEST_SLAYER, "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
+        {
+            "slayer": "not run",
+            "bielik": "local lm-eval, CoT, greedy, 8192 tokens",
+            "lfm3": "local lm-eval, CoT, greedy, 8192 tokens",
+        },
         63.37,
         335,
         "PR #335 in review; exploratory: both models ran locally with lm-eval at an 8192-token budget on different "
         "GPUs and batch sizes, and the main row (API, the card's settings) is not computed",
+        null_reasons={"slayer": "not run yet, an open item of the README (no result file)"},
     ),
     ApiBenchmark(
         "aa-omniscience",
@@ -378,12 +382,15 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         "Coding",
         "livecodebench-v6",
         "percent",
-        {"bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
-        {"bielik": f"{API}, no reasoning (API default)", "lfm3": "own vLLM, thinking"},
+        {"slayer": LATEST_SLAYER, "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
+        {"slayer": "not run", "bielik": f"{API}, no reasoning (API default)", "lfm3": "own vLLM, thinking"},
         73.46,
         336,
         "PR #336 in review: Bielik's answers were scored on a different CPU than LFM3's; Bielik without reasoning "
         "(the API default). LFM3 with the card's sampling: 72.89 ± 1.37",
+        null_reasons={
+            "slayer": "not run: about 27 h with the single-stream decoder (README, Deviations; no result file)"
+        },
     ),
     ApiBenchmark(
         "livecodebench-pro-25q2",
@@ -800,12 +807,13 @@ class ApiCell:
     def text(self) -> str:
         if self.result is not None:
             return value_text(self.result) + ("*" if self.starred else "")
-        return DASH if self.null_reason is not None else "not run"
+        return "null" if self.null_reason is not None else "not run"
 
 
 API_SECTIONS: Final = tuple(dict.fromkeys(b.section for b in API_BENCHMARKS))
 API_LEGEND: Final = (
-    f"Score in % (AA-Omniscience: index from {MINUS}100 to 100) · * requires verification · {DASH} cannot be scored",
+    f"Score in % (AA-Omniscience: index from {MINUS}100 to 100) · * requires verification · "
+    "null: no score, reason under Values",
     "Best of the scored models highlighted, second underlined (rows with two or more scores) · LFM3 card: not ours",
 )
 
@@ -826,6 +834,8 @@ def api_cells(rows: Sequence[Result], repo: Path = REPO) -> list[tuple[str, list
                     row = _api_file(repo, b, column)
                     if row is not None:
                         reason = str(row.get("reason") or b.null_reasons.get(column) or "see the benchmark's README")
+                    else:  # a null in the benchmark's README without a result file
+                        reason = b.null_reasons.get(column)
                 cells.append(ApiCell(result, reason, b.pr is not None))
             lines.append((b, cells))
         out.append((section, lines))
@@ -927,7 +937,7 @@ def api_values_table(rows: Sequence[Result], repo: Path = REPO) -> list[str]:
                 if c.result is not None:
                     text = shown(c.result) + ("*" if c.starred else "")
                 elif c.null_reason is not None:
-                    text = f"{DASH} <sub>{_esc(c.null_reason)}</sub>"
+                    text = f"null <sub>{_esc(c.null_reason)}</sub>"
                 else:
                     text = "not run"
                 tds += f'<td align="right">{text}</td>'
@@ -1015,8 +1025,9 @@ def readme(rows: Sequence[Result], chance: Mapping[str, float | None]) -> str:
         "found an open problem; the reason for each benchmark is on [Generative and agentic benchmarks]"
         "(api-benchmarks.md). Only IFEval is merged and reviewed.",
         "",
-        '- **Incomplete by design:** a cell is empty where a model has not been run yet ("not run") or cannot be '
-        f'scored ("{DASH}", reason in the Generative values table). A missing value is never a zero.',
+        '- **Incomplete by design:** "null" is a result: the benchmark gave the model no score, for the reason in '
+        'the Generative values table (it cannot run, or its authors did not run it). "not run" means the benchmark '
+        "has no result for the model at all. Neither is a zero.",
         "- **Slayer 1B is a base model** without a chat template or a tool-call format: on the agentic benchmarks it "
         "cannot run, and where it is scored its output is mostly degenerate. Its column mixes versions: IFEval is "
         "1.08, the instruction-following, knowledge, tool and agent rows step 60 000 of 1.09, the others step "

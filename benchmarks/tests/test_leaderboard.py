@@ -223,10 +223,12 @@ def test_generative_values_table_shows_each_source_file() -> None:
         assert cells[-1] == f"{b.card:.2f}", b.id
         for column, cell in zip(leaderboard.API_COLUMNS, cells, strict=False):
             src = api_file(b, column) if column in b.labels else None
-            if src is None:
+            if src is None and column in b.null_reasons:
+                assert cell == f"null <sub>{b.null_reasons[column]}</sub>", (b.id, column)
+            elif src is None:
                 assert cell == "not run", (b.id, column)
             elif src["score"] is None:
-                assert cell.startswith(leaderboard.DASH + " <sub>") and len(cell) > 12, (b.id, column)
+                assert cell.startswith("null <sub>") and len(cell) > 12, (b.id, column)
             else:
                 star = "*" if b.pr else ""
                 assert cell == f"{src['score']:.1f} ± {src['stderr']:.1f}{star}", (b.id, column)
@@ -244,9 +246,10 @@ def test_generative_table_images_show_source_values_and_stars() -> None:
             column = next((c for c, label in b.labels.items() if label == model), None)
             src = api_file(b, column) if column else None
             if src is None:
-                assert text == "not run", (name, benchmark, model)
+                expected = "null" if column in b.null_reasons else "not run"
+                assert text == expected, (name, benchmark, model)
             elif src["score"] is None:
-                assert text == leaderboard.DASH, (name, benchmark, model)
+                assert text == "null", (name, benchmark, model)
             else:
                 assert text == f"{src['score']:.1f}" + ("*" if b.pr else ""), (name, benchmark, model)
         cards = dict(re.findall(r'data-card="(.*?)">(.*?)</text>', svg))

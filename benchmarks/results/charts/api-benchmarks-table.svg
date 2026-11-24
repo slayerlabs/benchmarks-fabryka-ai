@@ -37,14 +37,14 @@
 <text x="625.0" y="195" text-anchor="middle" fill="#59636e" data-card="ifstruct">93.7</text>
 <line x1="20" x2="680" y1="206" y2="206" stroke="#eef1f4"/>
 <text x="20" y="229">Multi-IF</text>
-<text x="295.0" y="229" text-anchor="middle" fill="#59636e" data-benchmark="multi-if" data-model="slayer1b-60000" data-rank="0">–</text>
+<text x="295.0" y="229" text-anchor="middle" fill="#59636e" data-benchmark="multi-if" data-model="slayer1b-60000" data-rank="0">null</text>
 <text x="405.0" y="229" text-anchor="middle" data-benchmark="multi-if" data-model="bielik-11b-v3.1-vllm" data-rank="0">48.7*</text>
 <text x="515.0" y="229" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="multi-if" data-model="" data-rank="0">not run</text>
 <text x="625.0" y="229" text-anchor="middle" fill="#59636e" data-card="multi-if">89.1</text>
 <text x="20" y="264" font-size="13" font-weight="600" fill="#59636e">Knowledge</text>
 <line x1="20" x2="680" y1="274" y2="274" stroke="#eef1f4"/>
 <text x="20" y="297">GPQA Diamond</text>
-<text x="295.0" y="297" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="gpqa-diamond" data-model="" data-rank="0">not run</text>
+<text x="295.0" y="297" text-anchor="middle" fill="#59636e" data-benchmark="gpqa-diamond" data-model="slayer1b-1.09-k70000" data-rank="0">null</text>
 <line x1="385.0" x2="425.0" y1="300" y2="300" stroke="#1f2328"/>
 <text x="405.0" y="297" text-anchor="middle" data-benchmark="gpqa-diamond" data-model="bielik-11b-v3.1" data-rank="2">37.9*</text>
 <rect x="477.0" y="281" width="76" height="22" rx="5" fill="#fbe3e4"/>
@@ -61,7 +61,7 @@
 <text x="20" y="366" font-size="13" font-weight="600" fill="#59636e">Coding</text>
 <line x1="20" x2="680" y1="376" y2="376" stroke="#eef1f4"/>
 <text x="20" y="399">LiveCodeBench v6</text>
-<text x="295.0" y="399" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="livecodebench-v6" data-model="" data-rank="0">not run</text>
+<text x="295.0" y="399" text-anchor="middle" fill="#59636e" data-benchmark="livecodebench-v6" data-model="slayer1b-1.09-k70000" data-rank="0">null</text>
 <line x1="385.0" x2="425.0" y1="402" y2="402" stroke="#1f2328"/>
 <text x="405.0" y="399" text-anchor="middle" data-benchmark="livecodebench-v6" data-model="bielik-11b-v3.1" data-rank="2">16.7*</text>
 <rect x="477.0" y="383" width="76" height="22" rx="5" fill="#fbe3e4"/>
@@ -69,7 +69,7 @@
 <text x="625.0" y="399" text-anchor="middle" fill="#59636e" data-card="livecodebench-v6">73.5</text>
 <line x1="20" x2="680" y1="410" y2="410" stroke="#eef1f4"/>
 <text x="20" y="433">LiveCodeBench Pro 25Q2</text>
-<text x="295.0" y="433" text-anchor="middle" fill="#59636e" data-benchmark="livecodebench-pro-25q2" data-model="slayer1b-1.09-k70000" data-rank="0">–</text>
+<text x="295.0" y="433" text-anchor="middle" fill="#59636e" data-benchmark="livecodebench-pro-25q2" data-model="slayer1b-1.09-k70000" data-rank="0">null</text>
 <line x1="385.0" x2="425.0" y1="436" y2="436" stroke="#1f2328"/>
 <text x="405.0" y="433" text-anchor="middle" data-benchmark="livecodebench-pro-25q2" data-model="bielik-11b-v3.1" data-rank="2">1.8*</text>
 <rect x="477.0" y="417" width="76" height="22" rx="5" fill="#fbe3e4"/>
@@ -77,7 +77,7 @@
 <text x="625.0" y="433" text-anchor="middle" fill="#59636e" data-card="livecodebench-pro-25q2">31.7</text>
 <line x1="20" x2="680" y1="444" y2="444" stroke="#eef1f4"/>
 <text x="20" y="467">SciCode</text>
-<text x="295.0" y="467" text-anchor="middle" fill="#59636e" data-benchmark="scicode" data-model="slayer1b-1.09-k70000" data-rank="0">–</text>
+<text x="295.0" y="467" text-anchor="middle" fill="#59636e" data-benchmark="scicode" data-model="slayer1b-1.09-k70000" data-rank="0">null</text>
 <line x1="385.0" x2="425.0" y1="470" y2="470" stroke="#1f2328"/>
 <text x="405.0" y="467" text-anchor="middle" data-benchmark="scicode" data-model="bielik-11b-v3.1" data-rank="2">2.4*</text>
 <rect x="477.0" y="451" width="76" height="22" rx="5" fill="#fbe3e4"/>
@@ -86,32 +86,32 @@
 <text x="20" y="502" font-size="13" font-weight="600" fill="#59636e">Long context</text>
 <line x1="20" x2="680" y1="512" y2="512" stroke="#eef1f4"/>
 <text x="20" y="535">RULER 128K</text>
-<text x="295.0" y="535" text-anchor="middle" fill="#59636e" data-benchmark="ruler-128k" data-model="slayer1b-1.09-k70000" data-rank="0">–</text>
-<text x="405.0" y="535" text-anchor="middle" fill="#59636e" data-benchmark="ruler-128k" data-model="bielik-11b-v3.1" data-rank="0">–</text>
+<text x="295.0" y="535" text-anchor="middle" fill="#59636e" data-benchmark="ruler-128k" data-model="slayer1b-1.09-k70000" data-rank="0">null</text>
+<text x="405.0" y="535" text-anchor="middle" fill="#59636e" data-benchmark="ruler-128k" data-model="bielik-11b-v3.1" data-rank="0">null</text>
 <text x="515.0" y="535" text-anchor="middle" data-benchmark="ruler-128k" data-model="lfm3-1.7b" data-rank="0">71.7*</text>
 <text x="625.0" y="535" text-anchor="middle" fill="#59636e" data-card="ruler-128k">65.6</text>
 <text x="20" y="570" font-size="13" font-weight="600" fill="#59636e">Tool use</text>
 <line x1="20" x2="680" y1="580" y2="580" stroke="#eef1f4"/>
 <text x="20" y="603">BFCL V4</text>
-<text x="295.0" y="603" text-anchor="middle" fill="#59636e" data-benchmark="bfcl-v4" data-model="slayer1b-60000" data-rank="0">–</text>
-<text x="405.0" y="603" text-anchor="middle" fill="#59636e" data-benchmark="bfcl-v4" data-model="bielik-11b-v3.1-vllm" data-rank="0">–</text>
+<text x="295.0" y="603" text-anchor="middle" fill="#59636e" data-benchmark="bfcl-v4" data-model="slayer1b-60000" data-rank="0">null</text>
+<text x="405.0" y="603" text-anchor="middle" fill="#59636e" data-benchmark="bfcl-v4" data-model="bielik-11b-v3.1-vllm" data-rank="0">null</text>
 <text x="515.0" y="603" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="bfcl-v4" data-model="" data-rank="0">not run</text>
 <text x="625.0" y="603" text-anchor="middle" fill="#59636e" data-card="bfcl-v4">71.4</text>
 <text x="20" y="638" font-size="13" font-weight="600" fill="#59636e">Agentic coding</text>
 <line x1="20" x2="680" y1="648" y2="648" stroke="#eef1f4"/>
 <text x="20" y="671">Terminal-Bench 2.1</text>
-<text x="295.0" y="671" text-anchor="middle" fill="#59636e" data-benchmark="terminal-bench-2-1" data-model="slayer1b-1.09-k70000" data-rank="0">–</text>
+<text x="295.0" y="671" text-anchor="middle" fill="#59636e" data-benchmark="terminal-bench-2-1" data-model="slayer1b-1.09-k70000" data-rank="0">null</text>
 <text x="405.0" y="671" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="terminal-bench-2-1" data-model="" data-rank="0">not run</text>
 <text x="515.0" y="671" text-anchor="middle" data-benchmark="terminal-bench-2-1" data-model="lfm3-1.7b" data-rank="0">10.6*</text>
 <text x="625.0" y="671" text-anchor="middle" fill="#59636e" data-card="terminal-bench-2-1">12.9</text>
 <text x="20" y="706" font-size="13" font-weight="600" fill="#59636e">Agents</text>
 <line x1="20" x2="680" y1="716" y2="716" stroke="#eef1f4"/>
 <text x="20" y="739">AutomationBench</text>
-<text x="295.0" y="739" text-anchor="middle" fill="#59636e" data-benchmark="automationbench" data-model="slayer1b-60000" data-rank="0">–</text>
+<text x="295.0" y="739" text-anchor="middle" fill="#59636e" data-benchmark="automationbench" data-model="slayer1b-60000" data-rank="0">null</text>
 <text x="405.0" y="739" text-anchor="middle" data-benchmark="automationbench" data-model="bielik-11b-v3.1-vllm" data-rank="0">0.0*</text>
 <text x="515.0" y="739" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="automationbench" data-model="" data-rank="0">not run</text>
 <text x="625.0" y="739" text-anchor="middle" fill="#59636e" data-card="automationbench">41.3</text>
 <line x1="20" x2="680" y1="758" y2="758" stroke="#d1d9e0"/>
-<text x="20" y="778" font-size="12" fill="#59636e">Score in % (AA-Omniscience: index from −100 to 100) · * requires verification · – cannot be scored</text>
+<text x="20" y="778" font-size="12" fill="#59636e">Score in % (AA-Omniscience: index from −100 to 100) · * requires verification · null: no score, reason under Values</text>
 <text x="20" y="798" font-size="12" fill="#59636e">Best of the scored models highlighted, second underlined (rows with two or more scores) · LFM3 card: not ours</text>
 </svg>

@@ -18,7 +18,7 @@ Slayer 1B next to its reference models. Two tables: the log-likelihood benchmark
 
 **\* requires verification:** the result comes from a pull request that is still in review, or the review found an open problem; the reason for each benchmark is on [Generative and agentic benchmarks](api-benchmarks.md). Only IFEval is merged and reviewed.
 
-- **Incomplete by design:** a cell is empty where a model has not been run yet ("not run") or cannot be scored ("–", reason in the Generative values table). A missing value is never a zero.
+- **Incomplete by design:** "null" is a result: the benchmark gave the model no score, for the reason in the Generative values table (it cannot run, or its authors did not run it). "not run" means the benchmark has no result for the model at all. Neither is a zero.
 - **Slayer 1B is a base model** without a chat template or a tool-call format: on the agentic benchmarks it cannot run, and where it is scored its output is mostly degenerate. Its column mixes versions: IFEval is 1.08, the instruction-following, knowledge, tool and agent rows step 60 000 of 1.09, the others step 70 000.
 - **Bielik 11B v3.1** ran through the Fabryka API or our own vLLM depending on the benchmark; both with its chat template. **LFM3-1.7B** is the instruction-tuned model, with reasoning on; **LFM3 card** is the value Liquid AI reports for it, not measured by us.
 
@@ -72,22 +72,22 @@ Value ± standard error, in % (AA-Omniscience: index). Each benchmark's standard
 <tr><td>IFEval</td><td align="right">18.1 ± 1.7</td><td align="right">55.3 ± 2.1</td><td align="right">94.6 ± 1.0</td><td align="right">96.66</td></tr>
 <tr><td>IFBench</td><td align="right">8.3 ± 1.6*</td><td align="right">18.3 ± 2.2*</td><td align="right">not run</td><td align="right">73.03</td></tr>
 <tr><td>IFStruct</td><td align="right">0.0 ± 0.0*</td><td align="right">30.9 ± 1.0*</td><td align="right">not run</td><td align="right">93.72</td></tr>
-<tr><td>Multi-IF</td><td align="right">– <sub>run stopped after 2 of 3 turns for compute budget</sub></td><td align="right">48.7 ± 0.4*</td><td align="right">not run</td><td align="right">89.10</td></tr>
+<tr><td>Multi-IF</td><td align="right">null <sub>run stopped after 2 of 3 turns for compute budget</sub></td><td align="right">48.7 ± 0.4*</td><td align="right">not run</td><td align="right">89.10</td></tr>
 <tr><td colspan="5"><b>Knowledge</b></td></tr>
-<tr><td>GPQA Diamond</td><td align="right">not run</td><td align="right">37.9 ± 3.5*</td><td align="right">53.5 ± 3.5*</td><td align="right">63.37</td></tr>
+<tr><td>GPQA Diamond</td><td align="right">null <sub>not run yet, an open item of the README (no result file)</sub></td><td align="right">37.9 ± 3.5*</td><td align="right">53.5 ± 3.5*</td><td align="right">63.37</td></tr>
 <tr><td>AA-Omniscience</td><td align="right">-59.3 ± 2.1*</td><td align="right">-77.3 ± 2.6*</td><td align="right">not run</td><td align="right">0.50</td></tr>
 <tr><td colspan="5"><b>Coding</b></td></tr>
-<tr><td>LiveCodeBench v6</td><td align="right">not run</td><td align="right">16.7 ± 1.1*</td><td align="right">72.2 ± 1.4*</td><td align="right">73.46</td></tr>
-<tr><td>LiveCodeBench Pro 25Q2</td><td align="right">– <sub>not run (PROTOCOL.md, Models): Slayer 1B is a base model with a 4096-token context that does not follow chat instructions; on 30 Python tasks in research/slayer-1b/rozmowy-1.08 it wrote no function that passed its tests, so olympiad problems in C++ are below its floor.</sub></td><td align="right">1.8 ± 1.0*</td><td align="right">32.3 ± 3.6*</td><td align="right">31.74</td></tr>
-<tr><td>SciCode</td><td align="right">– <sub>a base model with a 4096-token context that does not follow chat instructions; on 30 Python tasks in research/slayer-1b/rozmowy-1.08 it wrote no function that passed its tests (PROTOCOL.md, Models)</sub></td><td align="right">2.4 ± 0.9*</td><td align="right">32.6 ± 2.8*</td><td align="right">28.47</td></tr>
+<tr><td>LiveCodeBench v6</td><td align="right">null <sub>not run: about 27 h with the single-stream decoder (README, Deviations; no result file)</sub></td><td align="right">16.7 ± 1.1*</td><td align="right">72.2 ± 1.4*</td><td align="right">73.46</td></tr>
+<tr><td>LiveCodeBench Pro 25Q2</td><td align="right">null <sub>not run (PROTOCOL.md, Models): Slayer 1B is a base model with a 4096-token context that does not follow chat instructions; on 30 Python tasks in research/slayer-1b/rozmowy-1.08 it wrote no function that passed its tests, so olympiad problems in C++ are below its floor.</sub></td><td align="right">1.8 ± 1.0*</td><td align="right">32.3 ± 3.6*</td><td align="right">31.74</td></tr>
+<tr><td>SciCode</td><td align="right">null <sub>a base model with a 4096-token context that does not follow chat instructions; on 30 Python tasks in research/slayer-1b/rozmowy-1.08 it wrote no function that passed its tests (PROTOCOL.md, Models)</sub></td><td align="right">2.4 ± 0.9*</td><td align="right">32.6 ± 2.8*</td><td align="right">28.47</td></tr>
 <tr><td colspan="5"><b>Long context</b></td></tr>
-<tr><td>RULER 128K</td><td align="right">– <sub>the 4096-token context window does not hold a 131072-token RULER sample</sub></td><td align="right">– <sub>the 32768-token context window does not hold a 131072-token RULER sample</sub></td><td align="right">71.7 ± 0.9*</td><td align="right">65.56</td></tr>
+<tr><td>RULER 128K</td><td align="right">null <sub>the 4096-token context window does not hold a 131072-token RULER sample</sub></td><td align="right">null <sub>the 32768-token context window does not hold a 131072-token RULER sample</sub></td><td align="right">71.7 ± 0.9*</td><td align="right">65.56</td></tr>
 <tr><td colspan="5"><b>Tool use</b></td></tr>
-<tr><td>BFCL V4</td><td align="right">– <sub>base model without a chat template or a tool-call format, so the agent cannot drive it</sub></td><td align="right">– <sub>Overall needs the web_search category, which was not run; lower bound 28.41</sub></td><td align="right">not run</td><td align="right">71.39</td></tr>
+<tr><td>BFCL V4</td><td align="right">null <sub>base model without a chat template or a tool-call format, so the agent cannot drive it</sub></td><td align="right">null <sub>Overall needs the web_search category, which was not run; lower bound 28.41</sub></td><td align="right">not run</td><td align="right">71.39</td></tr>
 <tr><td colspan="5"><b>Agentic coding</b></td></tr>
-<tr><td>Terminal-Bench 2.1</td><td align="right">– <sub>base model without a chat template or a tool-call format, so the agent cannot drive it</sub></td><td align="right">not run</td><td align="right">10.6 ± 2.7*</td><td align="right">12.92</td></tr>
+<tr><td>Terminal-Bench 2.1</td><td align="right">null <sub>base model without a chat template or a tool-call format, so the agent cannot drive it</sub></td><td align="right">not run</td><td align="right">10.6 ± 2.7*</td><td align="right">12.92</td></tr>
 <tr><td colspan="5"><b>Agents</b></td></tr>
-<tr><td>AutomationBench</td><td align="right">– <sub>base model without a chat template or a tool-call format, so the agent cannot drive it</sub></td><td align="right">0.0 ± 0.0*</td><td align="right">not run</td><td align="right">41.29</td></tr>
+<tr><td>AutomationBench</td><td align="right">null <sub>base model without a chat template or a tool-call format, so the agent cannot drive it</sub></td><td align="right">0.0 ± 0.0*</td><td align="right">not run</td><td align="right">41.29</td></tr>
 </table>
 
 ## Sources

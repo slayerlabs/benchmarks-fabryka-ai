@@ -62,7 +62,7 @@ Source: [`research/api-benchmarks/gpqa-diamond/`](../../research/api-benchmarks/
 
 | model | how it ran | value | n |
 |---|---|---:|---:|
-| Slayer 1B | not run | | |
+| Slayer 1B 1.09 (step 70 000, training in progress) | not run | null: not run yet, an open item of the README (no result file) | |
 | Bielik 11B v3.1 Instruct | local lm-eval, CoT, greedy, 8192 tokens | 37.9 ± 3.5* | 198 |
 | LFM3-1.7B | local lm-eval, CoT, greedy, 8192 tokens | 53.5 ± 3.5* | 198 |
 
@@ -88,7 +88,7 @@ Source: [`research/api-benchmarks/livecodebench-v6/`](../../research/api-benchma
 
 | model | how it ran | value | n |
 |---|---|---:|---:|
-| Slayer 1B | not run | | |
+| Slayer 1B 1.09 (step 70 000, training in progress) | not run | null: not run: about 27 h with the single-stream decoder (README, Deviations; no result file) | |
 | Bielik 11B v3.1 Instruct | Fabryka API, chat template, no reasoning (API default) | 16.7 ± 1.1* | 1055 |
 | LFM3-1.7B | own vLLM, thinking | 72.2 ± 1.4* | 1055 |
 
