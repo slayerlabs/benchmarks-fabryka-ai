@@ -94,6 +94,9 @@ and loose verdicts per instruction, whether the turn was scored as failed becaus
   bitwise-identical weights (202/202 tensors) and identical logits (max |Δ| = 0.0 on 3 prompts) to the package
   used for these results. It ran on a rented NVIDIA GeForce RTX 4090 in fp32 (TF32 off) with a KV cache, 32
   requests per batch (`slayer_batch.py`).
+- **Slayer serving code** (`slayer_server.py`, `slayer_batch.py`, `slayer_kv_lm.py`, `slayer_package.py`) lives in
+  [`research/common/slayer_serving/`](../../common/slayer_serving/). The results were produced with byte-identical
+  copies kept in this directory before the move; the shared README lists their hashes.
 - **Requests are batched.** 32 conversations at a time (`--max_workers 32`), batched by the server.
 
 ## Reproduce
