@@ -31,6 +31,9 @@ from pathlib import Path
 import pytest
 
 BENCH = Path(__file__).resolve().parents[1] / "api-benchmarks" / "scicode"
+for name in ("hypotheses", "provenance", "raw_outputs", "readme", "reference_extraction", "scicode_runner", "summarize",
+             "window_rescore"):
+    sys.modules.pop(name, None)  # other benchmarks have modules with these names; CI runs them in one process
 sys.path.insert(0, str(BENCH))
 import hypotheses  # noqa: E402
 import provenance  # noqa: E402
@@ -39,6 +42,7 @@ import raw_outputs  # noqa: E402
 import reference_extraction  # noqa: E402
 import summarize  # noqa: E402
 import window_rescore  # noqa: E402
+import readme  # noqa: E402
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -930,7 +934,6 @@ def test_reference_extraction_rescores_only_changed_files(tmp_path):
 
 def test_readme_reference_lines_name_each_count():
     """readme.py's deviation line on a synthetic record where every count differs (the real one has equal pass counts)."""
-    import readme
     x = {"answers_with_think_end": 8, "answers_whose_code_differs": 6, "files_differing": 28, "passed_after_think": 7,
          "passed_whole_answer": 9, "verdicts_changed": 2, "verdicts_of_differing_files": ["fail -> fail", "fail -> pass"]}
     line = readme.reference_lines({"reference_extraction": {"m": {"with_background": x}}})[0]
