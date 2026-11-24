@@ -1,6 +1,6 @@
 # ToolSandbox: setup protocol
 
-Written and committed before any result. Refs #289. The first version of this protocol covered setup and a smoke test
+Written and committed before the full run (see "Post-result note" at the end for two corrections). Refs #289. The first version of this protocol covered setup and a smoke test
 only; the amendment at the end ("Amendment 2026-11-24: measurement") authorizes the measurement and was committed
 before the full run started.
 
@@ -35,7 +35,7 @@ backend, the subset, whether scenarios with `RAPID_API_KEY` tools were run. Our 
   that raises an exception as similarity 0, so a missing key silently lowers the score. Count and list such
   scenarios (`exception_type` in the result summary) before reading any score.
 - The Fabryka API adds a hidden provider system prompt (#277), and its context is 32 768 tokens.
-- Slayer 1B: `score: null` (base model, no tool-calling format, not served by the API); see `run.sh slayer1b`.
+- Slayer 1B: `score: null` (base model, no tool-calling format, not served by the API); see `run.sh slayer1b-1.09-k70000`.
 
 ## Deviations of the wrapper
 
@@ -116,3 +116,26 @@ templates (the harness builds variants by adding distraction tools or scrambling
 independent and the stderr is too small.
 
 **Slayer 1B:** `score: null` as in the setup (base model without a tool-calling format, not served by the API).
+
+## Post-result note (2026-11-25, after the result)
+
+Corrections to statements above; the original text is left as it was.
+
+1. **Timing.** "Written before any result" holds for the full run, not for every run: the one-scenario and 10-scenario
+   checks (run directories `test1` 12:58 and `test10` 13:02 on 2026-11-24, not committed) ran before the amendment was
+   committed (13:03:21), and the first full run started 15 seconds after it. The corrected 224-list was committed at
+   13:19:28 and the restarted full run began at 13:19:35. These are local author dates of commits that were not pushed
+   before the run; no external timestamp exists.
+2. **The discarded run.** The paragraph on the correction says the first full run was stopped after 76 scenarios; its
+   progress file (not committed) holds 83 records. The 76 was not re-derived. Those 83 scenarios had a mean similarity of
+   0.431; the 18 of them that are in the 224-list averaged 0.108. The list was changed after these scores were seen.
+3. **The minefield statement.** The amendment says the 10 `*_insufficient_information*` base scenarios keep a RapidAPI
+   tool in the allow-list "only as a minefield" and that "the minefield matches on the attempted call". That is true for 6
+   of them (48 scenarios: `search_lat_lon` or `search_weather_around_lat_lon` is the forbidden tool). For the other 4 (32
+   scenarios) the forbidden tool is `calculate_lat_lon_distance` or `unit_conversion` and the RapidAPI tool is allowed, so
+   the missing key can change what the agent does. `rapid_api_kept_bases.txt` lists the tool per base scenario; the
+   README gives the score without these 32 and without all 80.
+4. **The standard error.** The amendment's `stderr` (sample sd / sqrt(n)) treats the 808 scenarios as independent. The
+   result files give the SE clustered by base scenario as `stderr` and the amendment's as
+   `other_metrics.stderr_independent`.
+

@@ -1,0 +1,15 @@
+{
+  "benchmark": "ToolSandbox",
+  "model": "slayer1b-1.09-k70000",
+  "metric": "mean similarity x 100, SE clustered by base scenario",
+  "score": null,
+  "stderr": null,
+  "n": 0,
+  "date": "2026-11-24",
+  "harness": "https://github.com/apple/ToolSandbox @ c8571d7854316d2e1c5f288e59fe1e34e53f6dd1",
+  "data": "scenarios of the harness (code), default tool backend: 1032 in total, 224 needing RAPID_API_KEY excluded",
+  "settings": {"agent": "not run", "user_simulator": "not used", "temperature": 0, "max_tokens_per_turn": 1024,
+               "max_messages_per_scenario": 30, "trials": 1, "tool_backend": "DEFAULT"},
+  "score_null_reason": "The harness sends tool definitions through the OpenAI `tools` parameter and returns tool results as `tool` messages. Slayer 1B 1.09 is a base model without a chat template or tool-calling format: the Slayer server of this repository (common/slayer_serving/slayer_server.py) answers HTTP 400 to `tools`, `tool_choice` and the `tool` role, and the Fabryka AI API does not serve Slayer (its /v1/models lists no Slayer, and a request for it returned HTTP 400 'Input should be a published model ID', with or without tools; observed during setup 2026-11-23, no log committed). No tool call can be made, so the benchmark was not run.",
+  "deviations": "see README.md, Deviations"
+}

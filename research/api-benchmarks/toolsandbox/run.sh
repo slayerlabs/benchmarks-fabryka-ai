@@ -2,7 +2,7 @@
 # ToolSandbox for one model: bash run.sh <model-id> [--limit N]
 #   bielik-11b-v3.1   agent through the Fabryka AI API (needs TS_USER_BASE_URL, TS_USER_API_KEY_FILE, TS_USER_MODEL for
 #                     the simulator; see ts_run.py)
-#   slayer1b          cannot run the benchmark: writes results/slayer1b.json with score null
+#   slayer1b-1.09-k70000   cannot run the benchmark: writes results/slayer1b-1.09-k70000.json with score null
 # Runs the 808 scenarios that need no RAPID_API_KEY (--limit N: the first N by name; --only FILE: just those names). Score = mean `similarity` x 100 (the harness's metric).
 set -euo pipefail
 MODEL="${1:?usage: bash run.sh <model-id> [--limit N]}"; shift
@@ -12,15 +12,28 @@ LIMIT=""; ONLY=""
 source "$(dirname "$0")/common.sh"
 case "$MODEL" in
   bielik-11b-v3.1) ;;
-  slayer1b)
+  slayer1b-1.09-k70000)
+    # not run: written without calling any model. RESULT_DATE overrides today's date.
     mkdir -p "$HERE/results"
-    cat > "$HERE/results/slayer1b.json" <<J
-{"benchmark": "ToolSandbox", "model": "slayer1b", "metric": "mean_similarity", "score": null, "stderr": null, "n": 0,
- "date": "$(date +%F)", "harness": "apple/ToolSandbox @ $TS_COMMIT", "settings": {}, "deviations": "see README.md",
- "score_null_reason": "Slayer 1B is a base model without a chat template or tool-calling format, and it is not served by the Fabryka AI API (/v1/models lists no Slayer; a request returns HTTP 400 'Input should be a published model ID', with or without tools), so no tool call can be made."}
+    cat > "$HERE/results/$MODEL.json" <<J
+{
+  "benchmark": "ToolSandbox",
+  "model": "$MODEL",
+  "metric": "mean similarity x 100, SE clustered by base scenario",
+  "score": null,
+  "stderr": null,
+  "n": 0,
+  "date": "${RESULT_DATE:-$(date +%F)}",
+  "harness": "https://github.com/apple/ToolSandbox @ $TS_COMMIT",
+  "data": "scenarios of the harness (code), default tool backend: 1032 in total, 224 needing RAPID_API_KEY excluded",
+  "settings": {"agent": "not run", "user_simulator": "not used", "temperature": 0, "max_tokens_per_turn": 1024,
+               "max_messages_per_scenario": 30, "trials": 1, "tool_backend": "DEFAULT"},
+  "score_null_reason": "The harness sends tool definitions through the OpenAI \`tools\` parameter and returns tool results as \`tool\` messages. Slayer 1B 1.09 is a base model without a chat template or tool-calling format: the Slayer server of this repository (common/slayer_serving/slayer_server.py) answers HTTP 400 to \`tools\`, \`tool_choice\` and the \`tool\` role, and the Fabryka AI API does not serve Slayer (its /v1/models lists no Slayer, and a request for it returned HTTP 400 'Input should be a published model ID', with or without tools; observed during setup 2026-11-23, no log committed). No tool call can be made, so the benchmark was not run.",
+  "deviations": "see README.md, Deviations"
+}
 J
     exit 0 ;;
-  *) echo "unknown model-id: $MODEL (bielik-11b-v3.1 | slayer1b)" >&2; exit 2 ;;
+  *) echo "unknown model-id: $MODEL (bielik-11b-v3.1 | slayer1b-1.09-k70000)" >&2; exit 2 ;;
 esac
 : "${TS_USER_MODEL:?set TS_USER_MODEL (and TS_USER_BASE_URL, TS_USER_API_KEY_FILE) for the user simulator}"
 cd "$OUT"
