@@ -44,6 +44,7 @@ jobs:
           tests/test_ifeval.py
           tests/test_klej_ner.py
           tests/test_liczby_raportow.py
+          tests/test_livecodebench_v6.py
           tests/test_mmlu.py
           tests/test_nq_open.py
           tests/test_paws_en.py

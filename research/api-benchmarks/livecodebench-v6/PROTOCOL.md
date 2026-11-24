@@ -1,0 +1,186 @@
+# LiveCodeBench v6: measurement protocol
+
+Written and committed before the first model output. Nothing below changes after a result is seen; anything
+added later is marked as exploratory in the README.
+
+Refs #295.
+
+## Question
+
+The LFM3-1.7B card reports LiveCodeBench v6 73.46 for LFM3-1.7B against 61.99 / 69.86 for Qwen3.5-4B /
+Qwen3.5-9B: the one coding result on the card where the 1.7B model is ahead of a model five times its size. Is
+the lead larger than noise, on which problems does it come from, and does it survive at an equal cost per answer?
+Test-time compute lets a smaller model beat a larger one on easy and medium problems but not on the hardest
+([Snell et al. 2024](https://arxiv.org/abs/2408.03314)). <!-- ocena-bez-se: pre-registered question quoting the card's numbers, not a measured difference -->
+
+## Sources
+
+- Paper: Jain et al. 2024, LiveCodeBench: Holistic and Contamination Free Evaluation of Large Language Models for
+  Code, [arXiv 2403.07974](https://arxiv.org/abs/2403.07974).
+- Harness and scorer: [LiveCodeBench/LiveCodeBench](https://github.com/LiveCodeBench/LiveCodeBench) @
+  `28fef95ea8c9f7a547c8329f2cd3d32b92c1fa24`: its prompt builder for chat models and its code-generation evaluator
+  (hidden tests, its own timeouts).
+- Data: [livecodebench/code_generation_lite](https://huggingface.co/datasets/livecodebench/code_generation_lite)
+  @ `0fe84c3912ea0c4d4a78037083943e8f0c4dd505`, `release_v6`.
+- Reference: [LiquidAI/LFM3-1.7B](https://huggingface.co/LiquidAI/LFM3-1.7B) card, "Benchmarks" and "Evaluation
+  details".
+
+## Models
+
+| model id | weights @ revision | serving |
+|---|---|---|
+| `lfm3-1.7b` | `LiquidAI/LFM3-1.7B` @ `1da06bec6a819da10b54c67e5c90972b46d81871` | vLLM, bf16 |
+| `qwen3.5-4b` | `Qwen/Qwen3.5-4B` @ `851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a` | vLLM, bf16 |
+| `qwen3.5-9b` | `Qwen/Qwen3.5-9B` @ `c202236235762e1c871ad0ccb60c8ee5ba337b9a` | vLLM, bf16 |
+| `bielik-11b-v3.1-vllm` | `speakleash/Bielik-11B-v3.1-Instruct` @ `d6e755d356ad418d0f0e30b8c428db267415ddb9` | vLLM, bf16 |
+| `slayer1b-1.08` | `SlayerLab/Slayer1B-1.08` @ `ea0945b11153e67517b70d21192e6076d161f658` (as in the IFEval benchmark) | `research/common/slayer_lm.py` |
+
+Bielik runs on vLLM, not the Fabryka API: the API adds a hidden system prompt and cannot be configured (#277).
+
+## Settings
+
+- **Problem set (main):** all problems of `release_v6`. The card does not say which date window it used; the
+  window is fixed here, before any result. Secondary, reported next to it: only the problems added in v6 (the
+  `release_v6` problems not in `release_v5`).
+- Instruction-tuned models: LiveCodeBench's chat prompt, the model's chat template with its default system prompt
+  and reasoning setting, temperature 0.6, top_p 0.95 (card defaults), output limited only by the context window.
+  The text after the last `</think>` goes to LiveCodeBench's code extraction.
+- One sample per problem (pass@1), sampling seed 20261122 per request.
+- Slayer is a base model with a 4096-token context: the raw prompt, greedy, output up to 4096 minus the prompt.
+- A request that fails in our infrastructure is retried and, if it still fails, recorded as an error, not as a
+  wrong answer. A problem whose prompt does not fit the context is `null` for that model, with the reason.
+
+## Metrics
+
+- pass@1 over the problem set (percent), stderr `sqrt(p(1-p)/n)`.
+- Per difficulty (`easy`, `medium`, `hard`, from the dataset): pass@1 and n.
+- Output tokens per answer (model tokenizer), and whether the answer finished before the limit.
+- Cost per answer ≈ 2 × parameters × output tokens (prompt tokens are shared by all models and left out).
+- Budgets for L3 come from the same run: an answer counts at budget B only if it finished within B output tokens.
+  The models are not told their budget, so a hard limit at B would produce the same prefix; B = 4096, 16384 and no
+  limit.
+
+## Control (before any claim)
+
+Qwen3.5-9B must land within 2 SE of its card value (69.86). If it does not, the setup is the suspect: no hypothesis
+below is read until the gap is explained. <!-- ocena-bez-se: pre-registered control rule, not a result -->
+
+## Hypotheses
+
+Verdicts: |z| ≥ 3 clear, 2–3 likely, < 2 noise. Comparisons paired by problem. Holm correction over the three
+hypotheses.
+
+- **L1.** LFM3-1.7B's lead over Qwen3.5-9B is not larger than 3 SE of the paired difference. Refuted: LFM3-1.7B is
+  ahead with z ≥ 3. <!-- ocena-bez-se: pre-registered refutation rule (the z threshold is the evidence), not a result -->
+- **L2.** The difference LFM3-1.7B − Qwen3.5-9B is positive on `easy` and `medium` problems and negative on
+  `hard` ones. Refuted: the difference has the same sign on all three levels.
+- **L3.** At an equal cost per answer, LFM3-1.7B's lead over Qwen3.5-9B disappears. Measure: pass@1 against cost
+  per answer from the budgets above; the comparison is at the budget pair whose mean costs are closest. Refuted:
+  LFM3-1.7B is ahead with z ≥ 3 at equal cost. <!-- ocena-bez-se: pre-registered refutation rule (the z threshold is the evidence), not a result -->
+
+## Limits stated in advance
+
+LiveCodeBench stopped adding problems in 2025, so `release_v6` is older than the training data of LFM3-1.7B and
+Qwen3.5. Contamination cannot be ruled out by the release-date split this benchmark was designed for; the report
+says so and does not claim a contamination-free result.
+
+## Amendment 1 (2026-11-22, 04:25 UTC)
+
+Written before any Qwen3.5 or Bielik output. Seen so far: a smoke run of LFM3-1.7B on 5 problems (`--limit 5`),
+and the running full LFM3-1.7B generation, whose scores have not been computed or read.
+
+- **Scope.** The issue asks for Slayer 1B and Bielik 11B v3.1, with LFM3-1.7B as the reference. Qwen3.5-4B and
+  Qwen3.5-9B are dropped to keep the rented-GPU cost to what the issue needs. Models: `lfm3-1.7b`, `bielik-11b-v3.1`;
+  `slayer1b-1.08` stays `null` (README, Deviations).
+- **Bielik through the Fabryka API** (`bielik-11b-v3.1`), as the issue asks, replacing the vLLM row. The API adds a
+  hidden provider system prompt (#277); this is stated in the README next to the row. Context 32 768 tokens; the
+  output limit is 32 768 minus the prompt as counted with Bielik's tokenizer and template.
+- **Control** moves from Qwen3.5-9B to LFM3-1.7B: its pass@1 must land within 2 SE of its card value (73.46)
+  before any hypothesis is read.
+- **L1–L3** compare LFM3-1.7B with Bielik 11B v3.1 instead of Qwen3.5-9B, with the same measures and thresholds:
+  L1 refuted when LFM3-1.7B is ahead with z ≥ 3 (the original prediction, that a 1.7B model's lead over a larger
+  model is within noise, is kept as stated); L2 and L3 unchanged apart from the comparator.
+
+## Amendment 2 (2026-11-22, 04:40 UTC)
+
+- **Slayer checkpoint:** the latest published one, Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`,
+  `wagi_70000.pt` from `SlayerLab/Slayer1B-1.09-checkpoints` @ `adfaf3fd5402bc7f3adbfe077798f20262979433`),
+  replaces 1.08. Its row stays `null` for the reason in the README (decoding speed), now under this id.
+
+## Amendment 3 (2026-11-22, 05:35 UTC)
+
+Written after the LFM3-1.7B result existed (generated and scored). Nothing above is changed.
+
+- **Two sampling settings this protocol does not name were in effect for LFM3-1.7B.** "Settings" fixes
+  temperature 0.6 and top_p 0.95; the request sends those, the seed, and frequency and presence penalty 0. vLLM
+  0.34.0 (`generation_config="auto"`) fills the sampling parameters a request leaves unset from the model's
+  `generation_config.json` (`LiquidAI/LFM3-1.7B` @ `1da06bec6a819da10b54c67e5c90972b46d81871`). That gave
+  `repetition_penalty` 1.1 and `top_k` 50 on every LFM3-1.7B request, instead of vLLM's neutral 1.0 and no top-k
+  limit. The README named this as a deviation before the first request, but this protocol did not, and the result
+  file did not record it. The method verification of the result found the gap, after the result existed. <!-- ocena-bez-se: "gap" is the missing record of two settings, not a difference between scores -->
+- **Effect not estimated.** How much `repetition_penalty` 1.1 and `top_k` 50 move LFM3-1.7B's pass@1 is not
+  known. A rerun with them set to neutral values (an ablation) is a separate decision and is not part of this
+  amendment. This amendment does not rerun or change the LFM3-1.7B result; the two settings are named next to it.
+- **From now on** the result file records the sampling settings in effect: `settings.request_sampling` (what the
+  request sends) and `settings.server_defaults` (what the server fills in; on vLLM read from
+  `generation_config.json` at the pinned revision, on the Fabryka API `unknown`).
+
+## Amendment 4 (2026-11-22, 05:55 UTC)
+
+Written before any request of the run below is sent. Seen so far: the LFM3-1.7B result (pass@1 72.23) and its
+method verification (Amendment 3). Nothing above is changed.
+
+- **Question.** Do `repetition_penalty` 1.1 and `top_k` 50, which vLLM filled in from LFM3-1.7B's
+  `generation_config.json` (Amendment 3), change LFM3-1.7B's pass@1 compared with the card's own sampling
+  (temperature 0.6, top_p 0.95, `repetition_penalty` 1.0, no top-k limit)?
+- **Thesis A1 (equivalence).** |Δ pass@1| < 2 percentage points, with Δ = original run (`lfm3-1.7b`) minus the
+  ablation run (`lfm3-1.7b-cardsampling`), paired over the same 1055 problems. Per problem d = pass(original) −
+  pass(ablation) ∈ {−1, 0, 1}; Δ = mean(d); paired SE = sd(d) / sqrt(n) (sample sd, n − 1). Only problems answered
+  (`status: ok`) in both runs are paired; the rest are counted and reported. Equivalence holds when the 90% CI
+  Δ ± 1.645 × SE lies inside (−2, +2) pt (two one-sided tests, α = 0.05 each, normal approximation). Otherwise the
+  result is "not shown equivalent", reported with the CI. McNemar's exact two-sided test on the discordant
+  problems (passed in one run only) is reported next to it as a descriptive number, not a decision.
+- **Procedure.** Model id `lfm3-1.7b-cardsampling`: the same weights and revision (`LiquidAI/LFM3-1.7B` @
+  `1da06bec6a819da10b54c67e5c90972b46d81871`, vLLM 0.34.0, bf16), the same prompts, seed 20261122, temperature 0.6,
+  top_p 0.95, frequency and presence penalty 0, context 262144 with `max_tokens` = 262144 − prompt tokens (counted
+  by the server's `/tokenize`, as in the original run), the same code extraction and evaluator settings, scored on
+  the CPU of the GPU machine as the original. The only change: the request also sends `repetition_penalty: 1.0` and
+  `top_k: 0`. In vLLM 0.34.0 `SamplingParams`, `top_k` 0 disables the limit (−1 is accepted as well, 0 is the
+  preferred value); a value set in the request overrides the server default from `generation_config.json`.
+- **Known source of nondeterminism.** The ablation may run on a vLLM server shared with another job (RULER), so
+  requests are batched with other traffic and differently from the original run. A fixed seed does not make
+  batched GPU arithmetic identical across batch compositions, so some answers can differ for this reason alone,
+  and this is not separated from the effect of the two settings. The run records the server's vLLM version and
+  served model.
+- **Consequence, fixed before computing.** If A1 holds (equivalent), the original 72.23 stands and the gap named in
+  Amendment 3 is closed. If not, both numbers are reported, and the card-sampling one is the headline for
+  comparisons with the card's 73.46. <!-- ocena-bez-se: consequence fixed before computing, not a result -->
+
+## Amendment 5 (2026-11-24)
+
+Written after every result above was seen and after review of the PR. Nothing above is changed; no hypothesis,
+threshold or verdict rule moves.
+
+- **One scoring machine.** The answers were scored on the machines that generated them: LFM3-1.7B's on the CPU of
+  the GPU instances, Bielik's on an Apple M5 Pro. LiveCodeBench's 6 s per test depends on the CPU, so a program
+  near the limit can pass on one machine and time out on another. All three runs are now scored again from their
+  saved raw outputs (`lcb.py score`, unchanged code and evaluator settings) on one machine, the Apple M5 Pro
+  recorded in each result's `provenance.scoring`, and these grades are the official ones. The extracted code is
+  identical to the earlier scoring for every problem. Grades that changed: `bielik-11b-v3.1` none; `lfm3-1.7b` 10
+  (4 passed only now, 6 only before); `lfm3-1.7b-cardsampling` 8 (6 only now, 2 only before); each a time limit on
+  one of the two scorings, except 3 runtime errors. pass@1 moved from 72.23 to 72.04 (`lfm3-1.7b`) and from 72.89
+  to 73.08 (`lfm3-1.7b-cardsampling`). The machine was shared with other work while scoring, so these borderline
+  grades also depend on its load; the outcome of the control, L1, L2, L3 and A1 is the same as before.
+  A second scoring on the same machine and commit with 4 evaluator processes instead of 12 (a check, not reported)
+  gave other grades on 0 (`bielik-11b-v3.1`), 5 (`lfm3-1.7b`) and 2 (`lfm3-1.7b-cardsampling`) problems, all at the
+  time limit and all on answers longer than 4096 tokens, so L3 does not change and no verdict moves.
+- **The verdict run stays `lfm3-1.7b`.** Its generation provenance is reconstructed (code commit inferred,
+  hardware written by hand: README, Deviations), while `lfm3-1.7b-cardsampling` has full provenance. Making the
+  card-sampling run the verdict run now, after seeing that L3 has a different outcome on the two runs, would choose
+  the verdict by its result; Amendment 4 fixed before that run that it is the headline only for comparisons with
+  the card. The hypotheses table says that the verdict run's provenance is reconstructed.
+- **Slayer's `null` is a cost decision.** `slayer1b-1.09-k70000` is not run, a cost decision: on the 30 Python
+  tasks of `research/slayer-1b/rozmowy-1.08` (PAPER.md, H5.1) Slayer 1B wrote no function that passed its tests (0
+  of 30), so running the 1055 problems of LiveCodeBench v6 (about 27 h with `research/common/slayer_lm.py`) was
+  judged not worth its cost. `null` here records that decision; Slayer 1B can run the benchmark ("Settings" fixes
+  its prompt and greedy decoding, and the prompts fit its 4096-token context: README, Deviations).
