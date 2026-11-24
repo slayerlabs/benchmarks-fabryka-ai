@@ -1,0 +1,300 @@
+{
+  "exploratory": true,
+  "amendment": "PROTOCOL.md, Amendment 1",
+  "variants": {
+    "whole_answer": {
+      "lfm3-1.7b": {
+        "accepted_official": 54,
+        "accepted_variant": 54,
+        "changed_code": 2,
+        "lost": [],
+        "gained": [],
+        "results": {
+          "2106D": {
+            "official": "wrong_answer",
+            "variant": "wrong_answer"
+          },
+          "2111F": {
+            "official": "compile_error",
+            "variant": "compile_error"
+          }
+        }
+      },
+      "lfm3-1.7b-nothink": {
+        "accepted_official": 48,
+        "accepted_variant": 44,
+        "changed_code": 36,
+        "lost": [
+          "2086B",
+          "2086C",
+          "2094C",
+          "2112B"
+        ],
+        "gained": [],
+        "results": {
+          "2084C": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2084E": {
+            "official": "time_limit",
+            "variant": "compile_error"
+          },
+          "2084G1": {
+            "official": "compile_error",
+            "variant": "compile_error"
+          },
+          "2084G2": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2086B": {
+            "official": "accepted",
+            "variant": "compile_error"
+          },
+          "2086C": {
+            "official": "accepted",
+            "variant": "compile_error"
+          },
+          "2094C": {
+            "official": "accepted",
+            "variant": "compile_error"
+          },
+          "2097B": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2097E": {
+            "official": "time_limit",
+            "variant": "compile_error"
+          },
+          "2101D": {
+            "official": "time_limit",
+            "variant": "compile_error"
+          },
+          "2103C": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2104A": {
+            "official": "accepted",
+            "variant": "accepted"
+          },
+          "2104E": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2106E": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2106F": {
+            "official": "runtime_error",
+            "variant": "compile_error"
+          },
+          "2107D": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2107F2": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2108C": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2108D": {
+            "official": "wrong_answer",
+            "variant": "wrong_answer"
+          },
+          "2108E": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2109C1": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2109D": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2110F": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2111C": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2111G": {
+            "official": "compile_error",
+            "variant": "compile_error"
+          },
+          "2112B": {
+            "official": "accepted",
+            "variant": "compile_error"
+          },
+          "2112F": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2113F": {
+            "official": "wrong_answer",
+            "variant": "wrong_answer"
+          },
+          "2115B": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2115D": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2117E": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2117G": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2118C": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2118D2": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2118F": {
+            "official": "wrong_answer",
+            "variant": "compile_error"
+          },
+          "2121C": {
+            "official": "time_limit",
+            "variant": "compile_error"
+          }
+        }
+      },
+      "bielik-11b-v3.1": {
+        "accepted_official": 3,
+        "accepted_variant": 3,
+        "changed_code": 1,
+        "lost": [],
+        "gained": [],
+        "results": {
+          "2084E": {
+            "official": "compile_error",
+            "variant": "wrong_answer"
+          }
+        }
+      }
+    },
+    "bits_prefix": {
+      "bielik-11b-v3.1": {
+        "problems": 59,
+        "categories": {
+          "compile_error": 40,
+          "runtime_error": 5,
+          "wrong_answer": 14
+        },
+        "results": {
+          "2084B": "wrong_answer",
+          "2084E": "compile_error",
+          "2084F": "wrong_answer",
+          "2084G1": "compile_error",
+          "2086D": "wrong_answer",
+          "2094A": "compile_error",
+          "2094G": "wrong_answer",
+          "2096A": "wrong_answer",
+          "2096C": "compile_error",
+          "2096D": "compile_error",
+          "2096E": "compile_error",
+          "2096F": "compile_error",
+          "2096H": "compile_error",
+          "2097B": "compile_error",
+          "2097C": "wrong_answer",
+          "2097F": "compile_error",
+          "2101D": "compile_error",
+          "2101E": "compile_error",
+          "2102B": "compile_error",
+          "2103C": "compile_error",
+          "2103D": "compile_error",
+          "2103F": "wrong_answer",
+          "2104B": "wrong_answer",
+          "2104E": "compile_error",
+          "2104G": "compile_error",
+          "2106B": "compile_error",
+          "2106C": "compile_error",
+          "2106D": "compile_error",
+          "2106G2": "runtime_error",
+          "2107A": "compile_error",
+          "2107D": "compile_error",
+          "2107F1": "wrong_answer",
+          "2109F": "compile_error",
+          "2110D": "compile_error",
+          "2111B": "compile_error",
+          "2111F": "compile_error",
+          "2112B": "compile_error",
+          "2112C": "wrong_answer",
+          "2112D": "wrong_answer",
+          "2113C": "compile_error",
+          "2113E": "compile_error",
+          "2114D": "runtime_error",
+          "2114F": "runtime_error",
+          "2114G": "compile_error",
+          "2115A": "wrong_answer",
+          "2115B": "compile_error",
+          "2115C": "compile_error",
+          "2115D": "wrong_answer",
+          "2115E": "compile_error",
+          "2115F1": "runtime_error",
+          "2117A": "wrong_answer",
+          "2117E": "compile_error",
+          "2117F": "compile_error",
+          "2118C": "compile_error",
+          "2118D1": "compile_error",
+          "2118D2": "compile_error",
+          "2120B": "runtime_error",
+          "2120F": "compile_error",
+          "2121C": "compile_error"
+        }
+      }
+    }
+  },
+  "judge": {
+    "image": "lightcpverifier",
+    "image_id": "sha256:a04214fc3f8a0274d252c161a2b58cf59606aa6f37a019da19d7b94c2c9acad0",
+    "image_repo_digests": [],
+    "image_created": "2026-11-22T16:25:45.84428277Z",
+    "go_judge_version": "v1.9.6",
+    "workers": 4
+  },
+  "machine": {
+    "step": "rejudge.py",
+    "at": "2026-11-22T20:33:11+00:00",
+    "code_commit": "7d7494ff25d3d73881b980fa8eb85ee796b56d8d",
+    "dirty": true,
+    "runner_sha256": {
+      "run.sh": "d604ab7c96e136f174ae72c3907946c45b28bc7b3e06c45a76b50c39342d3b45",
+      "setup_scoring_vm.sh": "3f914bdfe739e69625105d16624eafc51af5ac4a9286b9bb8004138bd1958b3c",
+      "lcbpro.py": "7507a3889c82daee0f004d68539c7b2187bd09c91064caa4df2b9d697ca79834",
+      "summarize.py": "f0e695c39d1d285e34f994eaacd575a646183a881ed723de37fdde500985de89",
+      "compare.py": "a6fd900bb8fe3d0a3eec2d57c58abff19761951f266cd1f64e25316403e9d595",
+      "explore.py": "09ee26d724c9d8830c19d3004386fd9cea4c2d276e1a418b5819d4228c26a8f2",
+      "raw_outputs.py": "c87f0ca1b17b7c895eb516b44efef5d801543585fabf7d53ac2ae59835d897f4",
+      "readme.py": "0d1af2d1045f735eb20f540e55902116ede73cebacdac72f6c765a1d1151f453",
+      "rejudge.py": "cebcbb067b393d9334577014f3c7e5b484d6f8c9ee063a9ff35b1c938b5ef6e6",
+      "provenance.py": "bb0327b9f1e481f7203e06c9d227e9dd54d6fc5e443fd5e575ddcba2f7bfcfaa"
+    },
+    "gpu": "NVIDIA GeForce RTX 3070",
+    "platform": "Linux-5.15.0-1067-kvm-x86_64-with-glibc2.35",
+    "cpu": "AMD EPYC 7302P 16-Core Processor",
+    "cpu_count": 30,
+    "python": "3.12.16"
+  },
+  "seconds": 83.5,
+  "note": "judged with 4 workers while another job shared the machine; official verdicts used 8 workers on an otherwise idle machine, so a borderline time limit can differ"
+}

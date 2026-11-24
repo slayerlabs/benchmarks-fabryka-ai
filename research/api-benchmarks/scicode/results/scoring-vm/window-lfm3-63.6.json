@@ -1,0 +1,20 @@
+{
+ "model": "lfm3-1.7b",
+ "setting": "without_background",
+ "steps": 1,
+ "same": 1,
+ "differ": [],
+ "rows": [
+  {
+   "step": "63.6",
+   "kept": "time out",
+   "rescored": "time out",
+   "same": true
+  }
+ ],
+ "scorer_seconds": 1801.8,
+ "graded_sha256": "4bd253b82231d3cf49e9d61268b1e5b4f186c5f6c557cbb9cb43908153dd189c",
+ "files_sha256": {
+  "63.6": "bf0f2a7964997d7ac874af72add69edd9cfc573bf92cec795ac694786dab0321"
+ }
+}

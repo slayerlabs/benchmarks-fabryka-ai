@@ -1,0 +1,4 @@
+ckpt D:/GitPolMATH/TokenizerRL/Oris_Polish_Model_Family/SLAYER/_codesota-work/hf\hub\models--SlayerLab--Slayer1B-1.09-checkpoints\snapshots\adfaf3fd5402bc7f3adbfe077798f20262979433\wagi_70000.pt
+template D:/GitPolMATH/TokenizerRL/Oris_Polish_Model_Family/SLAYER/_codesota-work/hf\hub\models--SlayerLab--Slayer1B-1.08\snapshots\5f854a0cc7160594d54d1788d37a44e8ebabe16c
+{"step": 70000, "nadmiarowe_klucze": [], "sha256_safetensors": "b9e31fc953af44638fd64ca163dd8d5658cfe02928445fa9a412f11a618bb24e"}
+convert exit 0
