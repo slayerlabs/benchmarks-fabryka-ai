@@ -20,8 +20,15 @@
 
 - Official HLE judge: `o3-mini-2025-01-31`, `max_completion_tokens=4096`, 1 call/question. **Pending #bench-team access. No substitution.**
 
-## Slayer 1B (prepared, not run)
+## Slayer 1B (opisowy / descriptive, prepared, not run)
 
-- Local generation path prepared: `predict_slayer.py`, wired in `run.sh`, plain prompt (`SYSTEM_PROMPT + "\n\n" + question`), no chat template, greedy bf16, context 4096, loader `research/common/slayer_model.Slayer` (same as `slayer_lm.py` path).
-- Prompt tokens counted with Slayer v6 tokenizer on text-only subset (2,158): 9/2158 (0.42%) have `prompt_tokens > 3840` (leave <256 answer tokens); 7 > 4096; max 14098, min 62, mean 334.08. These overflow questions will be recorded as `slayer_unsupported` empty responses and counted in denominator (no cutting, rule 8).
-- Before first local Slayer run: stop and ask owner (heavy-process rule).
+- **Status:** Slayer 1B jest raportowany **opisowo** (descriptive), nie jako główny wynik porównywalny 1:1 z modelami instrukcyjnymi pod protokołem HLE. To model bazowy, bez dostrajania instrukcyjnego.
+- **Odstępstwa od protokołu HLE (zapisane przed generacją):**
+  - model bazowy, bez szablonu czatu (plain prompt: `SYSTEM_PROMPT + "\n\n" + question`, jak w `predict_slayer.py`);
+  - okno kontekstu 4096 tokenów;
+  - greedy decoding, `bf16`, batch, zamiast `temperature=0.6, top_p=0.95` — Slayer nie obsługuje losowania;
+  - jedna reguła BOS jak w IFEval/SlayerLM (dokładnie jeden wiodący BOS na żądanie; obsłużone w `research/common/slayer_batch.py`);
+  - tokenizer v6 (SHA `0640d3bd3674d7a6e59c540d945a2ad275a12e1bcaeb6007c37a90751f9815dd`).
+- **Ścieżka generacji:** lokalnie z wag przez `research/common/slayer_lm.py` / `research/common/slayer_batch.py` (te same co w SciCode, skopiowane z `research/scicode-slayer` @ `9c91a3a`), `predict_slayer.py`, `max_new_tokens = 4096 − prompt_tokens`.
+- **Przepełnienie kontekstu (bez cięcia, reguła 8):** prompt tokens policzone tokenizerem Slayer v6 na podzbiorze text-only (2,158 pytań, `cais/hle` test @ `5a81a4c7271a2a2a312b9a690f0c2fde837e4c29`): **9/2158 (0.42%)** ma `prompt_tokens > 3840` (zostawia < 256 tokenów na odpowiedź). Te 9 pytań otrzymuje pustą odpowiedź z `slayer_unsupported=true` i jest liczonych jako złe w mianowniku. Lista ID (9): `672cba8ce9bdca604f9e0c12`, `672ce1d6ce33946794b97a88`, `66edd857a0ffa4c025458242`, `6720241e20239af7af582ae1`, `66ea12d21684c1846037a28d`, `673f2753312f953d9f7fc051`, `6725a933e10373a976b7e2a2`, `6736ecc681dc32f504545aae`, `67228ecf93273f2ea4d39e3e`.
+- Przed pierwszym lokalnym uruchomieniem Slayera: stop i pytanie do właściciela (zasada ciężkich procesów na laptopie).

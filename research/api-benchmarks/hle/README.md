@@ -78,13 +78,22 @@ Settings follow the LFM3-1.7B card "Evaluation details" unless the official HLE 
 
 **Note:** Official `run_model_predictions.py` has `temperature` arg default 0.0 but the actual API call has the temperature line commented out; it also defaults `max_completion_tokens` to None. The LFM3 card states temperature 0.6/top_p 0.95 for evaluations unless listed otherwise. This is a protocol deviation risk; we record the actual values used and justify them against the reference model card.
 
-## Slayer 1B context / feasibility
+## Slayer 1B (opisowy / descriptive)
 
-- Slayer 1B served context is 4096 tokens (`research/common/slayer_model.Slayer` / `research/common/slayer_lm.py`, greedy, bf16). HLE prompts are plain text: official `SYSTEM_PROMPT` + `\n\n` + question, no chat template.
-- Rule 8: do not cut the benchmark down to fit. Prompt tokens counted with Slayer v6 tokenizer on the text-only subset (2,158 questions, `cais/hle` test @ `5a81a4c7271a2a2a312b9a690f0c2fde837e4c29`): **9/2158 (0.42%)** overflow when requiring at least 256 answer tokens (`prompt_tokens > 3840`); 7 prompts exceed 4096 total context; max 14098, min 62, mean 334.08 tokens. Overflow questions are recorded as unsupported empty responses with `slayer_unsupported=true` and counted in the benchmark denominator (no cutting).
-- Slayer is a base model, not instruction-tuned; it may not follow the Explanation/Answer/Confidence format. This is expected and will be reported, not hidden.
-- Local generation path: `predict_slayer.py` (same output JSON format as `predict_api.py`), wired in `run.sh` for `slayer*` model IDs. Uses `SLAYER_DIR/SLAYER_DEVICE/SLAYER_DTYPE` env vars.
-- **Before the first local Slayer run, stop and ask the owner** (AGENTS/laptop heavy-process rule; three agents share the machine).
+Slayer 1B jest raportowany **opisowo** (descriptive), nie jako główny wynik porównywalny 1:1 z modelami instrukcyjnymi pod protokołem HLE. To model bazowy, bez dostrajania instrukcyjnego.
+
+**Odstępstwa od protokołu HLE (zapisane przed generacją):**
+- model bazowy, bez szablonu czatu — plain prompt `SYSTEM_PROMPT + "\n\n" + question` (jak w `predict_slayer.py`);
+- okno kontekstu 4096 tokenów;
+- greedy decoding, `bf16`, batch, zamiast `temperature=0.6, top_p=0.95` — Slayer nie obsługuje losowania;
+- jedna reguła BOS jak w IFEval/SlayerLM (dokładnie jeden wiodący BOS na żądanie; `research/common/slayer_batch.py`);
+- tokenizer v6 (SHA `0640d3bd3674d7a6e59c540d945a2ad275a12e1bcaeb6007c37a90751f9815dd`).
+
+**Ścieżka generacji:** lokalnie z wag przez `research/common/slayer_lm.py` / `research/common/slayer_batch.py` (te same co w SciCode, `research/scicode-slayer` @ `9c91a3a`), `predict_slayer.py`, batch greedy bf16, `max_new_tokens = 4096 − prompt_tokens`.
+
+**Kontekst / przepełnienie (reguła 8, bez cięcia):** Prompt tokens policzone tokenizerem Slayer v6 na podzbiorze text-only (2,158 pytań, `cais/hle` test @ `5a81a4c7271a2a2a312b9a690f0c2fde837e4c29`): **9/2158 (0.42%)** ma `prompt_tokens > 3840` (zostawia < 256 tokenów na odpowiedź); 7 > 4096; max 14098, min 62, mean 334.08. Te 9 pytań otrzymuje pustą odpowiedź z `slayer_unsupported=true` i jest liczonych jako złe w mianowniku. Lista ID (9): `672cba8ce9bdca604f9e0c12`, `672ce1d6ce33946794b97a88`, `66edd857a0ffa4c025458242`, `6720241e20239af7af582ae1`, `66ea12d21684c1846037a28d`, `673f2753312f953d9f7fc051`, `6725a933e10373a976b7e2a2`, `6736ecc681dc32f504545aae`, `67228ecf93273f2ea4d39e3e`.
+
+Slayer jest modelem bazowym, nie instrukcyjnym; może nie trzymać formatu Explanation/Answer/Confidence. To oczekiwane i będzie raportowane, nie ukrywane. **Przed pierwszym lokalnym uruchomieniem Slayera: stop i pytanie do właściciela** (zasada ciężkich procesów na laptopie).
 
 ## Contamination / data handling
 

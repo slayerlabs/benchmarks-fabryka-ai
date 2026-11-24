@@ -1,8 +1,13 @@
 """Generate HLE predictions locally with Slayer (base model).
 
-Plain prompt (no chat template), greedy decoding via research/common/slayer_model.Slayer.
-Context overflow (prompt leaves < 256 tokens for answer in 4096 context) is recorded as
-an unsupported response and counted in the benchmark (no cutting, rule 8).
+Plain prompt (no chat template), greedy batched decoding via
+research/common/slayer_batch.py. BOS rule: one leading BOS per request as in
+IFEval/SlayerLM (handled inside generate_batch). Tokenizer v6
+(SHA 0640d3bd3674d7a6e59c540d945a2ad275a12e1bcaeb6007c37a90751f9815dd).
+
+Context overflow (prompt leaves < 256 tokens for answer in 4096 context) is
+recorded as an unsupported empty response and counted in the benchmark
+(no cutting, rule 8).
 """
 
 import argparse
@@ -45,28 +50,20 @@ def load_slayer(pretrained: str, device: str, dtype: str):
     return slayer_model.Slayer(pretrained, device=device, dtype=dt)
 
 
-def slayer_generate(model, prompt_ids, max_new_tokens):
-    import torch
-
-    cache = []
-    ids = torch.tensor([prompt_ids], dtype=torch.long, device=model.device)
-    logits = model.krok(ids, cache)[0]
-    out = []
-    for _ in range(max_new_tokens):
-        nxt = int(logits.argmax().item())
-        out.append(nxt)
-        if nxt == model.bos:
-            break
-        logits = model.krok(torch.tensor([[nxt]], dtype=torch.long, device=model.device), cache)[0]
-    return out
-
-
 def is_text_only(question):
     return not question.get("image")
 
 
 def build_prompt(question_text: str) -> str:
     return SYSTEM_PROMPT + "\n\n" + question_text
+
+
+def _save(path, predictions):
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(predictions, f, ensure_ascii=False, indent=2)
+    os.replace(tmp, path)
 
 
 def main():
@@ -76,6 +73,7 @@ def main():
     parser.add_argument("--slayer-pretrained", required=True)
     parser.add_argument("--slayer-device", default="cuda")
     parser.add_argument("--slayer-dtype", default="bfloat16")
+    parser.add_argument("--batch-size", type=int, default=8)
     parser.add_argument("--max_samples", type=int, default=None)
     parser.add_argument("--subset", type=str, default="text-only", choices=["text-only", "full"])
     parser.add_argument("--output", type=str, required=True)
@@ -87,7 +85,10 @@ def main():
     text_only_questions = [q for q in questions if is_text_only(q)]
     if args.subset == "text-only":
         questions = text_only_questions
-    print(f"subset={args.subset} selected={len(questions)} text_only={len(text_only_questions)} full={total_full}")
+    print(
+        f"subset={args.subset} selected={len(questions)} "
+        f"text_only={len(text_only_questions)} full={total_full}"
+    )
     if args.max_samples:
         questions = questions[: args.max_samples]
 
@@ -98,28 +99,48 @@ def main():
     questions = [q for q in questions if q["id"] not in predictions]
 
     model = load_slayer(args.slayer_pretrained, args.slayer_device, args.slayer_dtype)
+    from slayer_batch import generate_batch
+
     overflow = 0
-    for q in tqdm(questions):
+    overflow_ids = []
+    pending = []
+    for q in tqdm(questions, desc="prepare"):
         prompt = build_prompt(q["question"])
-        ids = model.encode(prompt)
-        prompt_tokens = len(ids)
+        prompt_ids = model.encode(prompt)
+        prompt_tokens = len(prompt_ids)
         max_new_tokens = SLAYER_CONTEXT - prompt_tokens
         if max_new_tokens < SLAYER_MIN_ANSWER_TOKENS:
             overflow += 1
+            overflow_ids.append(q["id"])
             predictions[q["id"]] = {
                 "model": args.model,
                 "response": "",
-                "usage": {"prompt_tokens": prompt_tokens, "completion_tokens": 0, "total_tokens": prompt_tokens},
+                "usage": {
+                    "prompt_tokens": prompt_tokens,
+                    "completion_tokens": 0,
+                    "total_tokens": prompt_tokens,
+                },
                 "slayer_unsupported": True,
-                "slayer_overflow_reason": f"prompt has {prompt_tokens} tokens, leaving {max_new_tokens} < {SLAYER_MIN_ANSWER_TOKENS} for answer in {SLAYER_CONTEXT}",
+                "slayer_overflow_reason": (
+                    f"prompt has {prompt_tokens} tokens, leaving {max_new_tokens} < "
+                    f"{SLAYER_MIN_ANSWER_TOKENS} for answer in {SLAYER_CONTEXT}"
+                ),
             }
+            _save(args.output, predictions)
         else:
-            out_ids = slayer_generate(model, ids, max_new_tokens)
+            pending.append((q, prompt_ids, prompt_tokens))
+
+    bs = max(1, args.batch_size)
+    for i in tqdm(range(0, len(pending), bs), desc="generate"):
+        batch = pending[i : i + bs]
+        prompt_ids_list = [p for _, p, _ in batch]
+        outs = generate_batch(model, prompt_ids_list, max_total=SLAYER_CONTEXT, stop_id=model.bos)
+        for (q, prompt_ids, prompt_tokens), out_ids in zip(batch, outs):
             finish_stop = bool(out_ids and out_ids[-1] == model.bos)
             decoded_ids = out_ids[:-1] if finish_stop else out_ids
             response = model.tok.decode(decoded_ids, skip_special_tokens=False)
             if response.startswith("<|endoftext|>"):
-                response = response[len("<|endoftext|>"):]
+                response = response[len("<|endoftext|>") :]
             predictions[q["id"]] = {
                 "model": args.model,
                 "response": response,
@@ -129,12 +150,12 @@ def main():
                     "total_tokens": prompt_tokens + len(out_ids),
                 },
             }
-        os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
-        with open(args.output, "w", encoding="utf-8") as f:
-            json.dump(predictions, f, ensure_ascii=False, indent=2)
+        _save(args.output, predictions)
 
+    total_overflow = sum(1 for v in predictions.values() if v.get("slayer_unsupported"))
     print(f"wrote {len(predictions)} predictions to {args.output}")
-    print(f"slayer_context_overflow={overflow} of {len(questions) + len([k for k in predictions if predictions[k].get('slayer_unsupported')]) - overflow} newly processed; total_overflow_in_file={sum(1 for v in predictions.values() if v.get('slayer_unsupported'))}")
+    print(f"slayer_context_overflow_new={overflow} overflow_ids={overflow_ids}")
+    print(f"slayer_context_overflow_total={total_overflow}")
 
 
 if __name__ == "__main__":
