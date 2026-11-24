@@ -70,15 +70,25 @@ directly comparable with the card's 80.36: the comparison in the README is indic
 maximum of 30 messages per scenario. Bielik gets the tools through the API's `tools` parameter (native function
 calling), as the harness's OpenAI agent does.
 
-**Excluded: scenarios that need `RAPID_API_KEY`.** We have no RapidAPI key and will not get one. 72 of the 1032
-scenarios have a milestone that calls a RapidAPI tool (`search_lat_lon`, `search_location_around_lat_lon`,
-`search_weather_around_lat_lon`, `search_stock`, `convert_currency`; found by inspecting each scenario's
-`evaluation.milestone_matcher`); without the key the tool raises `PermissionError`, so the milestone can never match
-and the scenario would score near 0 for every model. They are listed in `rapid_api_scenarios.txt` and **not run**:
-the evaluated set is **960** scenarios. The 48 "insufficient information" scenarios that only list a RapidAPI tool as a
-minefield (the agent must not call it) stay in the set. Consequence: the result is not the card's 1032-scenario
-number; the excluded 72 are the categories around address, current city, stock symbol and temperature lookups.
-Scenarios in which a model still calls such a tool by itself get the tool's error and are scored as the harness does.
+**Excluded: scenarios that need `RAPID_API_KEY`.** We have no RapidAPI key and will not get one. A scenario needs it
+when its tool allow-list (the "necessary tools" of the harness) contains one of the five RapidAPI tools
+(`search_lat_lon`, `search_location_around_lat_lon`, `search_weather_around_lat_lon`, `search_stock`,
+`convert_currency`); without the key the tool raises `PermissionError`, so the milestone that expects its result can
+never match and the scenario scores near 0 for every model. The harness builds 8 variants of each base scenario
+(no distraction tools, 3 and 10 distraction tools, all tools, 4 scrambled variants), and all variants of a base are
+excluded together. Result: **224 of the 1032 scenarios (28 base scenarios x 8), listed in `rapid_api_scenarios.txt`,
+are not run; the evaluated set is 808.** The 10 base scenarios x 8 variants (80 scenarios) named
+`*_insufficient_information*` keep a RapidAPI tool in the allow-list only as a minefield (the agent must not call it,
+they have no milestones) and stay in the set: calling the tool fails without the key, but the minefield matches on the
+attempted call, so the score does not depend on the key. Scenarios in which a model calls a RapidAPI tool by itself in
+a scored scenario get the tool's error, as the harness would without a key.
+
+*Correction made before any result was recorded.* The first version of this list had 72 scenarios, found by
+searching the milestones' text for the tool names; that missed 152 scenarios whose milestones do not name the tool.
+It was caught by comparing with the harness's "necessary tool name" table (160 scenarios with
+`search_location_around_lat_lon`, 72 with `search_weather_around_lat_lon`, 16 with `convert_currency`) in the log of a
+full run started with the 72-list. That run was stopped after 76 scenarios and discarded (its scores were not
+used); the full run was restarted with the 224-list.
 
 **Two wrapper fixes found by the 10-scenario check (without them most scenarios score 0 for reasons unrelated to the
 model):**

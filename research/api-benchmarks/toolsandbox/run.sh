@@ -3,7 +3,7 @@
 #   bielik-11b-v3.1   agent through the Fabryka AI API (needs TS_USER_BASE_URL, TS_USER_API_KEY_FILE, TS_USER_MODEL for
 #                     the simulator; see ts_run.py)
 #   slayer1b          cannot run the benchmark: writes results/slayer1b.json with score null
-# Runs the 960 scenarios that need no RAPID_API_KEY (--limit N: the first N by name; --only FILE: just those names). Score = mean `similarity` x 100 (the harness's metric).
+# Runs the 808 scenarios that need no RAPID_API_KEY (--limit N: the first N by name; --only FILE: just those names). Score = mean `similarity` x 100 (the harness's metric).
 set -euo pipefail
 MODEL="${1:?usage: bash run.sh <model-id> [--limit N]}"; shift
 LIMIT=""; ONLY=""
