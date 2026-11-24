@@ -1,0 +1,14 @@
+{
+  "benchmark": "BFCL V4",
+  "model": "slayer1b-60000",
+  "metric": "overall_acc",
+  "date": "2026-11-19",
+  "harness": "https://github.com/ShishirPatil/gorilla @ 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8 (berkeley-function-call-leaderboard)",
+  "data": "bundled with the harness: berkeley-function-call-leaderboard/bfcl_eval/data @ 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+  "score": null,
+  "stderr": null,
+  "n": 0,
+  "settings": {},
+  "score_null_reason": "Slayer 1B is a base model without a chat template or tool-calling format; the serving endpoint rejects requests with tools (HTTP 400), so no syntactically valid call is possible.",
+  "deviations": "see README.md, Deviations"
+}
