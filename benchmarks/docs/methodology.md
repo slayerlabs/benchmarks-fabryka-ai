@@ -36,18 +36,32 @@ and says so. The Space and the results page show what has been measured, not whi
 
 ## 2. Precision
 
-- **Native release precision.** Load the weights in the precision they were released in: `torch_dtype` in the
-  model's `config.json`. For almost every current model that is bfloat16. A model released with quantized layers is
-  run as released (gpt-oss-120b: MXFP4 MoE weights, bfloat16 elsewhere). This follows OLMES ("use the default model
-  precision") and the Open LLM Leaderboard, which runs in bfloat16.
-- **No quantization below the release precision** in a headline result. FP8 or INT4 is measured only as its own row,
+- **Default: 16-bit, bfloat16 or float16.** Every model, from 125M to 120B, is loaded in 16-bit precision, chosen
+  by `torch_dtype` in the model's `config.json` at the pinned revision:
+
+  | `torch_dtype` | load in |
+  |---|---|
+  | `bfloat16` (almost every current model) | bfloat16 |
+  | `float16` | float16 |
+  | `float32` (common for small and older releases) | bfloat16 **(our decision)** |
+  | not set | bfloat16 **(our decision)** |
+
+  This follows OLMES ("use the default model precision") and the Open LLM Leaderboard, which runs in bfloat16. A
+  model released with quantized layers is run as released (gpt-oss-120b: MXFP4 MoE weights, bfloat16 elsewhere).
+- **No float16 for a bfloat16 model without a check.** float16 has a much smaller range than bfloat16, and a model
+  trained in bfloat16 can overflow it (inf or NaN in activations). On a GPU without bfloat16 (before Ampere: V100,
+  T4), such a model runs in float16 only after a check on a few hundred items shows no inf, NaN or empty outputs, and
+  the result says so **(our decision)**.
+- **float32 is not a default.** It is used only for a control (see log-likelihood benchmarks below) or where a
+  benchmark's frozen protocol requires it, and the result records it.
+- **No quantization below 16 bits** in a headline result. FP8 or INT4 is measured only as its own row,
   labelled with its scheme. FP8 is close to lossless on Llama 3.1 (about 99.75% recovery in Red Hat's study), but it
   is still another configuration.
-- **A model that does not fit** the available hardware in its release precision is "not run" (section 8), or gets a
+- **A model that does not fit** the available hardware in 16 bits is "not run" (section 8), or gets a
   labelled quantized row. It is never quantized silently.
 - **Log-likelihood benchmarks.** The central lm-eval run of `research/benchmarks/` was measured in float32 (bfloat16
   for Bielik 11B and the controls named in METODOLOGIA.md). That run stays a closed configuration. Before new
-  log-likelihood results in release precision are put in the same table as float32 ones, one control measures 2 to 3
+  log-likelihood results in 16 bits are put in the same table as float32 ones, one control measures 2 to 3
   models in both precisions on the same benchmarks. If the differences are within the standard errors, the tables
   are merged with a `dtype` column; if not, they stay apart **(our decision)**. The control is
   [#349](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/349); it also measures the speed-up.
@@ -145,7 +159,8 @@ A value that cannot be established is written as unknown with the reason, never 
 
 | rule | source |
 |---|---|
-| native release precision | OLMES; Open LLM Leaderboard (bfloat16) |
+| 16-bit default: bfloat16, or float16 when released so | OLMES; Open LLM Leaderboard (bfloat16) |
+| float32 releases loaded in bfloat16; float16 for a bfloat16 model only after a check | our decision |
 | quantized only as its own row | Red Hat / Neural Magic quantization study |
 | lab recommendation first | Artificial Analysis; Qwen3, DeepSeek-R1, Nemotron cards |
 | greedy without reasoning | Artificial Analysis |
