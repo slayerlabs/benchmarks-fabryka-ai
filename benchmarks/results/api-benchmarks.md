@@ -94,31 +94,27 @@ Source: [`research/api-benchmarks/livecodebench-v6/`](../../research/api-benchma
 
 ### LiveCodeBench Pro 25Q2
 
-Source: [`research/api-benchmarks/livecodebench-pro-25q2/`](../../research/api-benchmarks/livecodebench-pro-25q2/README.md) (in review, PR #354). LFM3-1.7B card: 31.74.
-
-**Requires verification:** PR #354 in review: the Slayer run (the other values are merged).
+Source: [`research/api-benchmarks/livecodebench-pro-25q2/`](../../research/api-benchmarks/livecodebench-pro-25q2/README.md) (merged). LFM3-1.7B card: 31.74.
 
 **Note:** LFM3 without thinking: 28.74 ± 3.50.
 
 | model | how it ran | value | n |
 |---|---|---:|---:|
-| Slayer 1B 1.09 (step 70 000, training in progress) | step 70 000, raw prompt, no chat template, greedy, context 4096 | 0.0 ± 0.0* | 167 |
-| Bielik 11B v3.1 Instruct | Fabryka API, chat template | 1.8 ± 1.0* | 167 |
-| LFM3-1.7B | own vLLM, thinking | 32.3 ± 3.6* | 167 |
+| Slayer 1B 1.09 (step 70 000, training in progress) | step 70 000, raw prompt, no chat template, greedy, context 4096 | 0.0 ± 0.0 | 167 |
+| Bielik 11B v3.1 Instruct | Fabryka API, chat template | 1.8 ± 1.0 | 167 |
+| LFM3-1.7B | own vLLM, thinking | 32.3 ± 3.6 | 167 |
 
 ### SciCode
 
-Source: [`research/api-benchmarks/scicode/`](../../research/api-benchmarks/scicode/README.md) (in review, PR #355). LFM3-1.7B card: 28.47.
-
-**Requires verification:** PR #355 in review: the Slayer run (the other values are merged).
+Source: [`research/api-benchmarks/scicode/`](../../research/api-benchmarks/scicode/README.md) (merged). LFM3-1.7B card: 28.47.
 
 **Note:** n counts the 288 steps; the standard error is clustered over the 65 problems, as in the README (over steps it would be 2.76 for LFM3). The control against the card passes both with and without background (22.92), so it cannot confirm the card's setup. LFM3 without thinking: 24.65. Slayer without background: 0.00 (0/288).
 
 | model | how it ran | value | n |
 |---|---|---:|---:|
 | Slayer 1B 1.09 (step 70 000, training in progress) | step 70 000, raw prompt, no chat template, greedy, context 4096 | null: with_background: 216/288 subproblems (75.0%) had prompt_tokens > 4096 - SLAYER_MIN_ANSWER_TOKENS (256), so they were recorded as context_overflow/unsupported per PROTOCOL.md Amendment 3; headline score is null. Overflow is caused by inserting prior steps' long degenerate extracted outputs into subsequent with-background prompts. See other_metrics.with_background.unsupported and Amendment 3 'Result after the run'. | |
-| Bielik 11B v3.1 Instruct | Fabryka API, chat template | 2.4 ± 1.0* | 288 |
-| LFM3-1.7B | own vLLM, thinking, with background | 32.6 ± 3.6* | 288 |
+| Bielik 11B v3.1 Instruct | Fabryka API, chat template | 2.4 ± 1.0 | 288 |
+| LFM3-1.7B | own vLLM, thinking, with background | 32.6 ± 3.6 | 288 |
 
 ## Long context
 
