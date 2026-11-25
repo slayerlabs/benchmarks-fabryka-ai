@@ -261,8 +261,6 @@ Re-judged on AMD EPYC 7302P 16-Core Processor with 4 workers while another job s
   `d6e755d356ad418d0f0e30b8c428db267415ddb9` and 64 tokens are kept free for what the API's rendering adds, as in
   livecodebench-v6. The API's own prompt count equals ours in every answer (Results), so the margin was not needed;
   whether the API's system prompt carries a date is not visible from the counts.
-- **Slayer 1B is not run**: a base model with a 4096-token context that does not follow chat instructions; on 30
-  Python tasks (`research/slayer-1b/rozmowy-1.08`) it wrote no function that passed its tests, so olympiad problems
-  in C++ are below its floor (PROTOCOL.md, Models). Its result file is `score: null` with that reason.
+- **Slayer 1B 1.09 at update 70 000** was run under Amendment 3 as a descriptive row (outside K1–K3 and Holm). The maintainer originally recorded a cost-decision `null` (Amendment 2); this run confirms that decision. It measured 0.00 (0/167 accepted, 167/167 no_code, 167/167 length stops). See `results/slayer1b-1.09-k70000.json` and PROTOCOL.md Amendment 3.
 - **Contamination.** The 25Q2 problems and their editorials have been public since mid-2025, before LFM3-1.7B and
   Bielik v3.1 were trained; no contamination-free claim is made (PROTOCOL.md, Limits).
