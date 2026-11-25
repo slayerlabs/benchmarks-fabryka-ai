@@ -117,17 +117,17 @@ def results_block(results: Path) -> str:
     for m, r in files.items():
         o = r["other_metrics"]
         t, th = o["output_tokens"], o["think_in_output"]
-        rs = raw.get("runs", {}).get(m, {}).get("reasoning", {})
-        share = rs.get("median_share_before_last_think_end")
-        closing = rs.get("closing_think", "?")
-        answers_n = rs.get("answers", th.get("of", "?"))
-        accepted_closing = rs.get("accepted_closing_think", "?")
-        accepted_n = rs.get("accepted", o.get("accepted", "?"))
-        share_str = "" if share is None else f"{100 * share:.1f}%"
+        rs = raw["runs"].get(m, {}).get("reasoning")
+        if rs is None:  # Slayer: its raw outputs are not in raw-outputs.json, so the reasoning columns are not counted
+            closing, share_str, accepted_closing = "not counted (raw outputs not archived)", "", "not counted"
+        else:
+            share = rs["median_share_before_last_think_end"]
+            closing = f"{rs['closing_think']} of {rs['answers']}"
+            share_str = "" if share is None else f"{100 * share:.1f}%"
+            accepted_closing = f"{rs['accepted_closing_think']} of {rs['accepted']}"
         out.append(f"| {m} | {t['mean']:.1f} / {t['median']} / {t['max']} | {o['unfinished']} | {o['length_stops']} | "
-                   f"{th['answers']} of {th['of']} ({100 * th['share']:.1f}%) | {closing} of "
-                   f"{answers_n} | {share_str} | "
-                   f"{accepted_closing} of {accepted_n} |")
+                   f"{th['answers']} of {th['of']} ({100 * th['share']:.1f}%) | {closing} | {share_str} | "
+                   f"{accepted_closing} |")
     api = files["bielik-11b-v3.1"]["other_metrics"]["api_prompt_minus_local"]
     out += ["", f"Bielik's prompt: the API's `usage.prompt_tokens` minus our local count with Bielik's own template: "
                 f"min {api['min']}, max {api['max']} over its {files['bielik-11b-v3.1']['n']} answers."]

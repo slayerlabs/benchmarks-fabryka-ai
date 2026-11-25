@@ -8,6 +8,12 @@
   "stderr": 0.0,
   "n": 167,
   "date": "2026-11-24",
+  "previous_decision": {
+    "score": null,
+    "n": 0,
+    "date": null,
+    "reason": "not run, a cost decision (PROTOCOL.md, Models): on the 30 Python tasks of research/slayer-1b/rozmowy-1.08 (PAPER.md, H5.1) Slayer 1B wrote no function that passed its tests (0 of 30), so running 167 olympiad problems in C++ was judged not worth its cost. null here records that decision; Slayer 1B can run the benchmark (its 4096-token context holds these prompts)."
+  },
   "settings": {
     "prompt": "api_interface.LLMInterface().prompt + problem_statement, the only user message",
     "temperature": 0.6,

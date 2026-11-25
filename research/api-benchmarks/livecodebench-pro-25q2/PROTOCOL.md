@@ -164,7 +164,7 @@ this version updates it with the run outcome and keeps the pre-registered settin
   The headline score stays on the full benchmark (all 167 problems, same n as the other models). A second number
   "on items that fit" is reported only in an exploratory section. If more than 50% of items overflow in a setting,
   that setting is reported as `score: null` with the reason and the counts instead.
-- **Reading:** the Slayer row is **descriptive**, outside the K1?K3 hypothesis family and the Holm correction. It
+- **Reading:** the Slayer row is **descriptive**, outside the K1–K3 hypothesis family and the Holm correction. It
   must not change any existing K result. The measured 0.00 confirms the cost decision recorded in Amendment 2;
   the merge decision belongs to the maintainer.
 

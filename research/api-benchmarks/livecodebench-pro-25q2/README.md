@@ -64,10 +64,12 @@ thinking, not committed). Judging downloads the test zips (about 3 GB for 25Q2) 
 per problem, no thinking). Each step records our code commit, the runner checksums and the machine in `run.json`
 and the sha256 of what it wrote in `manifest.json`; the next step stops if its input no longer matches.
 
-`compare.py` writes `results/hypotheses.json` with K1, K2 and K3 as PROTOCOL.md defines them and a `group_tests`
-list (K2 and K3: z, one-sided `p_support` = Φ(z), `p_refute` = 1 − Φ(z), raw outcome) that the SciCode benchmark
-reads with its own `--group`; Holm runs with m = 4 over the two benchmarks' K2 and K3, separately for the two
-directions. Without `--group` the other benchmark's two tests count with p = 1.
+`compare.py` writes `results/hypotheses.json` with K1, K2 and K3 as PROTOCOL.md defines them, each test with its
+own verdict, and a `group_tests` list (K2 and K3: z, one-sided `p_support` = Φ(z), `p_refute` = 1 − Φ(z), raw
+outcome). It reads no other benchmark's file. PROTOCOL.md's Holm over the Coding group (m = 4: K2 and K3 here and in
+SciCode) is computed once, after both benchmarks are merged, from the two `hypotheses.json` files on main (for
+example in `research/api-benchmarks/coding-group/holm.json`; PROTOCOL.md, Amendment 2), so that no file depends on
+a branch.
 
 Tests: `uv run --no-project --python 3.12 --with pytest --with huggingface_hub==0.35.0 --with openai==1.108.1
 --with certifi python -m pytest research/tests/test_livecodebench_pro_25q2.py` (the prompt and extraction tests
@@ -109,7 +111,7 @@ Judge categories (problems):
 | lfm3-1.7b | 32880.6 / 31756 / 71802 | 0 | 0 | 0 of 167 (0.0%) | 167 of 167 | 93.5% | 54 of 54 |
 | lfm3-1.7b-nothink | 24544.8 / 21101 / 261165 | 0 | 1 | 63 of 167 (37.7%) | 153 of 167 | 93.1% | 46 of 48 |
 | bielik-11b-v3.1 | 1123.1 / 1046 / 2241 | 0 | 0 | 0 of 167 (0.0%) | 34 of 167 | 75.6% | 2 of 3 |
-| slayer1b-1.09-k70000 | 3130.0 / 3192 / 3774 | 0 | 167 | 0 of 167 (0.0%) | ? of 167 |  | ? of 0 |
+| slayer1b-1.09-k70000 | 3130.0 / 3192 / 3774 | 0 | 167 | 0 of 167 (0.0%) | not counted (raw outputs not archived) |  | not counted |
 
 Bielik's prompt: the API's `usage.prompt_tokens` minus our local count with Bielik's own template: min 0, max 0 over its 167 answers.
 
@@ -247,20 +249,33 @@ Re-judged on AMD EPYC 7302P 16-Core Processor with 4 workers while another job s
   - The secondary score leaves out `no_tests`, `judge_error`, `request_error` and `unsupported` (prompt over the
     context): all infrastructure outcomes, not the model's code.
   - K3 and its lead precondition use the headline 0/1 per problem over all 167 problems; the precondition reads
-    the raw paired z (it is not one of the four tested hypotheses). Holm is applied separately to the four
-    `p_support` (toward "supported") and the four `p_refute` (toward "refuted"); a test without a p (not run,
-    precondition not met, other benchmark absent) stays in m = 4 with p = 1. While K1 has not passed, K2 and K3 are
-    computed but marked `read: false`.
+    the raw paired z (it is not one of the four tested hypotheses). Holm, when it is computed over the group
+    (PROTOCOL.md, Amendment 2), is applied separately to the four `p_support` (toward "supported") and the four
+    `p_refute` (toward "refuted"); a test without a p (not run, precondition not met) stays in m = 4 with p = 1.
+    While K1 has not passed, K2 and K3 are computed but marked `read: false`.
   - Judge workers: 8, the harness's `benchmark.py` default (its README asks for at most the physical cores), on
     the scoring VM (AMD EPYC 7302P, 16 cores, 30 vCPUs given to the VM), so each test runs on an idle core.
 - **Bielik runs on the Fabryka AI API, with its hidden provider system prompt.** The API applies Bielik's chat
   template itself, with the system prompt of that template, and rejects `chat_template_kwargs`, so there is no
-  reasoning switch through the API; some answers still close a short `</think>` draft before answering again
+  reasoning switch through the API; some answers still close a `</think>` draft before answering again
   (how many, and the share of characters before it, in Results). Its prompt is counted locally with Bielik's
   tokenizer and chat template at
   `d6e755d356ad418d0f0e30b8c428db267415ddb9` and 64 tokens are kept free for what the API's rendering adds, as in
   livecodebench-v6. The API's own prompt count equals ours in every answer (Results), so the margin was not needed;
   whether the API's system prompt carries a date is not visible from the counts.
-- **Slayer 1B 1.09 at update 70 000** was run under Amendment 3 as a descriptive row (outside K1–K3 and Holm). The maintainer originally recorded a cost-decision `null` (Amendment 2); this run confirms that decision. It measured 0.00 (0/167 accepted, 167/167 no_code, 167/167 length stops). See `results/slayer1b-1.09-k70000.json` and PROTOCOL.md Amendment 3.
+- **Slayer 1B 1.09 at update 70 000** was run under Amendment 3 as a descriptive row (outside K1–K3 and Holm). The
+  maintainer originally recorded a cost-decision `null` (Amendment 2); this run confirms that decision. It measured
+  0.00 (0/167 accepted, 167/167 no_code, 167/167 length stops). See `results/slayer1b-1.09-k70000.json` and
+  PROTOCOL.md Amendment 3. Its deviations, from the result file's provenance:
+  - Greedy decoding (the only one `SlayerLM.generate` supports) instead of temperature 0.6 / top_p 0.95 of the other
+    runs.
+  - Batched generation, batch 8: on the 20-prompt equivalence check (`slayer_batch_drift_*` in provenance), 13 of 20
+    outputs (65%) were identical to batch 1. The 167 problems were not re-run at batch 1.
+  - torch 2.14.1+cu130 instead of 2.8.0 from `research/common/requirements.lock.txt`; a vast.ai machine with
+    4.8 vCPU / 25.7 GB RAM instead of the card's ≥ 8 vCPU / ≥ 32 GB (GPU-bound generation).
+  - Judged on another machine (AMD EPYC 7B13, 30 vCPUs) and another judge image
+    (`sha256:915d76e2…`) than the three main runs; with no code to judge this does not change the result.
+  - Its full generations are not archived (only `raw_outputs.sha256` in the result file), so the reasoning columns
+    of Results are not counted for it.
 - **Contamination.** The 25Q2 problems and their editorials have been public since mid-2025, before LFM3-1.7B and
   Bielik v3.1 were trained; no contamination-free claim is made (PROTOCOL.md, Limits).

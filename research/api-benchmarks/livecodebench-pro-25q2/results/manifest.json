@@ -16,7 +16,7 @@
       "written_by": "explore.py"
     },
     "hypotheses.json": {
-      "at": "2026-11-23T05:28:44+00:00",
+      "at": "2026-11-24T14:07:24+00:00",
       "sha256": "2c83a09cdb51c53d4cf793698d6e6fa2645b9fecd101019a6dfbc97b69c30d86",
       "written_by": "compare.py"
     },
@@ -52,7 +52,7 @@
     },
     "slayer1b-1.09-k70000.json": {
       "at": "2026-11-24T23:12:30+00:00",
-      "sha256": "c123b1fcbe1ba63db0dd7ccbe4e35fac066e0ef2482722f79e67b26a563d29ac",
+      "sha256": "b5556e74208bfb7d98becf2e0e59d9055270849d5e86c8ce3d1aae1e7a9fb7d5",
       "written_by": "summarize.py"
     },
     "slayer1b-1.09-k70000.jsonl.gz": {
