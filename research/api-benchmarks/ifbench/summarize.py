@@ -51,22 +51,31 @@ def main(data, eval_dir, prefix, target, settings):
         "harness": f"https://github.com/allenai/IFBench @ {IFBENCH_COMMIT} (generate_responses.py, run_eval)",
         "data": f"https://huggingface.co/datasets/allenai/IFBench_test @ {DATA_REVISION}",
         "settings": json.loads(settings),
-        "other_metrics": {"inst_level_strict_acc": rate(strict, True), "prompt_level_loose_acc": rate(loose),
-                          "inst_level_loose_acc": rate(loose, True)},
+        "other_metrics": {
+            "inst_level_strict_acc": rate(strict, True),
+            "prompt_level_loose_acc": rate(loose),
+            "inst_level_loose_acc": rate(loose, True),
+        },
         "deviations": "see README.md, Deviations",
     }
     Path(target).parent.mkdir(parents=True, exist_ok=True)
     Path(f"{target}.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8", newline="\n")
     with gzip.open(f"{target}.jsonl.gz", "wt", encoding="utf-8", newline="\n") as f:
         for d, s, lo in zip(docs, strict, loose):
-            f.write(json.dumps({
-                "task_id": str(d["key"]),
-                "score": int(bool(s["follow_all_instructions"])),
-                "instruction_id_list": s["instruction_id_list"],
-                "strict": s["follow_instruction_list"],
-                "loose": lo["follow_instruction_list"],
-                "output": s["response"],
-            }, ensure_ascii=False) + "\n")
+            f.write(
+                json.dumps(
+                    {
+                        "task_id": str(d["key"]),
+                        "score": int(bool(s["follow_all_instructions"])),
+                        "instruction_id_list": s["instruction_id_list"],
+                        "strict": s["follow_instruction_list"],
+                        "loose": lo["follow_instruction_list"],
+                        "output": s["response"],
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n"
+            )
     print(json.dumps(result, indent=2))
 
 

@@ -4,6 +4,7 @@ Usage (in the IFBench checkout): python convert_hf.py <parquet> <out jsonl>
 Parquet stores integer kwargs as floats (3.0); they are turned back into ints, as in the repo file. Prints how many
 prompts differ from the repo's bundled data/IFBench_test.jsonl (2 of 300 at the pinned revisions: keys 13 and 19).
 """
+
 import json
 import sys
 
