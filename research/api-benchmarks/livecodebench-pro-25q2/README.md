@@ -53,7 +53,7 @@ Generation and judging are separate steps on separate machines; both resume wher
 | prepare the judge, once | fresh Ubuntu 22.04 x86_64 VM with Docker, as root, with this repo cloned | `bash setup_scoring_vm.sh` |
 | judge one model | that VM, after all generation has finished, with `out/<model-id>/` copied from the generating machine and no other job on the VM (time limits are CPU-bound); the three models one after another | `bash run.sh <model-id> --score` |
 | exploratory re-judging (whole-answer extraction, Bielik with a header prefix) | that VM, after the three are judged | `HF_HOME=$PWD/.cache/hf HF_HUB_OFFLINE=1 .venv/bin/python rejudge.py out results` |
-| K1-K3 | anywhere | `python3 compare.py results --group ../scicode/results/hypotheses.json` |
+| K1-K3 | anywhere | `python3 compare.py results` |
 | raw-output check, exploratory tables, README blocks | the Mac with the raw outputs | `python3 raw_outputs.py <export.tgz> && python3 explore.py && python3 readme.py` |
 
 `--limit N` in any generating or judging command takes the first N problems; its result goes to
