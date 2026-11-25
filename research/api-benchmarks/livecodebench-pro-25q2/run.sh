@@ -13,7 +13,7 @@
 #   bielik-11b-v3.1        the Fabryka AI API (macOS or Linux, no GPU). Needs FABRYKA_API_KEY and a Hugging Face
 #                          login with access to speakleash/Bielik-11B-v3.1-Instruct (tokenizer and template count
 #                          the prompt).
-#   slayer1b-1.09-k70000   not run: writes results/slayer1b-1.09-k70000.json with score null and the reason.
+#   slayer1b-1.09-k70000   Slayer 1B 1.09 at update 70000, local GPU (CUDA, bf16, greedy), Amendment 3; measured 0.00.
 #
 # Generation needs a Hugging Face login that accepted the terms of the gated QAQAQAQAQ/LiveCodeBench-Pro; it writes
 # out/<model-id>/{generations.jsonl,problems.json,api-events.jsonl,run.json,manifest.json}. Copy that directory to
