@@ -110,8 +110,13 @@ def run_record(out_dir: Path) -> dict[str, Any]:
     return run
 
 
+NO_EVENT_LOG = "no api-events.jsonl: this run sent no requests (Slayer local generation) or was not run through the API"
+
+
 def api_events(out_dir: Path, model: str) -> dict[str, Any]:
     """Counts of the run's api-events.jsonl, checked against the manifest."""
+    if "api-events.jsonl" not in provenance.read_manifest(out_dir)["files"]:
+        return {"api_events": None, "api_events_reason": NO_EVENT_LOG}
     sha = provenance.verify(out_dir, ["api-events.jsonl"], "summarize.py")["api-events.jsonl"]
     lines = (out_dir / "api-events.jsonl").read_text(encoding="utf-8").splitlines()
     counts = event_counts([json.loads(line) for line in lines if line.strip()])

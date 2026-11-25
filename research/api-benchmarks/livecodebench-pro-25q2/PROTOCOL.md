@@ -37,11 +37,11 @@ LFM3-1.7B thinking and Bielik not); its numbers are not used for any verdict her
 | `lfm3-1.7b` | `LiquidAI/LFM3-1.7B` @ `1da06bec6a819da10b54c67e5c90972b46d81871`, thinking on (template default) | vLLM 0.34.0, bf16, context 262144 |
 | `lfm3-1.7b-nothink` | the same weights, `chat_template_kwargs: {"enable_thinking": false}` | the same server |
 | `bielik-11b-v3.1` | Bielik 11B v3.1 through the Fabryka AI API (`https://fabryka.ai/v1`), with the API's hidden provider system prompt and no reasoning switch | API, context 32768 |
-| `slayer1b-1.09-k70000` | not run: `null` | — |
+| `slayer1b-1.09-k70000` | `SlayerLab/Slayer1B-1.09-checkpoints` @ `adfaf3fd5402bc7f3adbfe077798f20262979433`, file `wagi_70000.pt`, 1.08 template `SlayerLab/Slayer1B-1.08` @ `5f854a0cc7160594d54d1788d37a44e8ebabe16c` | local, `research/common/slayer_lm.py`, bf16, greedy, context 4096 |
 
 Slayer 1B is a base model with a 4096-token context and does not follow chat instructions; on 30 Python tasks in
 `research/slayer-1b/rozmowy-1.08` it wrote no function that passed its tests. Olympiad problems in C++ are below
-its floor, so its row is `null` with that reason, not a run.
+its floor; it was run after the Amendment 2 cost decision, the measured result is 0.00 and confirms that decision (see Amendment 3).
 
 ## Settings
 
@@ -139,3 +139,32 @@ Written after review of the results; no hypothesis, metric, threshold or control
    their two `hypotheses.json` files on main (for example `research/api-benchmarks/coding-group/holm.json`), with
    the thresholds stated in "Hypotheses". Until then this benchmark reports each test's own z, one-sided p and
    verdict; Holm can only raise a p, so a verdict can weaken there but not strengthen.
+
+## Amendment 3 (2026-11-24): Slayer 1B run added
+
+Written after the review that added Amendment 2 (the cost decision recorded a `null` Slayer row). The run was carried
+out after that cost decision and confirms it: the measured result is 0.00. Nothing above changes: no hypothesis,
+metric, threshold, control, existing K result or Holm correction is altered. Original protocol text for this amendment
+was written in commit `721c3a2474a75b1872674d41149b83e47818046e` (2026-11-23T18:20:39+01:00), before any Slayer output;
+this version updates it with the run outcome and keeps the pre-registered settings.
+
+- **Model:** `slayer1b-1.09-k70000`, checkpoint `SlayerLab/Slayer1B-1.09-checkpoints` @
+  `adfaf3fd5402bc7f3adbfe077798f20262979433`, file `wagi_70000.pt` (same source as PR #334), converted with the
+  1.08 template `SlayerLab/Slayer1B-1.08` @ `5f854a0cc7160594d54d1788d37a44e8ebabe16c`. Loader:
+  `research/common/slayer_lm.py` (reuses `slayer_model.Slayer`), bf16, greedy (the only decoding
+  `SlayerLM.generate` supports), context 4096.
+- **Prompt:** the same official prompt text the harness builds for the other models (the same problem prompt and
+  language), passed as plain text without a chat template (base model, no chat template). No system message; the
+  only addition is raw plain-text prompting as in the IFEval Slayer run. Any other prompt addition is a deviation
+  recorded in README.
+- **BOS / token counting:** exactly one leading BOS per request, matching `research/api-benchmarks/ifeval/lm_eval_slayer.py` and `research/common/slayer_lm.py` (`SlayerLM.tok_batch_encode`). Prompt token counts and generation both include this BOS. Tokenizer: Slayer v6 (32768 vocab) from `SlayerLab/Slayer1B-1.08` @ `5f854a0cc7160594d54d1788d37a44e8ebabe16c`, `tokenizer.json` sha256 `0640d3bd3674d7a6e59c540d945a2ad275a12e1bcaeb6007c37a90751f9815dd`.
+- **Context / output length:** `max_new_tokens = 4096 - prompt_tokens` where `prompt_tokens` includes BOS. An item whose prompt
+  alone does not leave at least 256 tokens for the answer is not truncated: it gets an empty answer, which the
+  official scorer grades as a failure, and is counted in README as `context_overflow` (number and IDs per setting).
+  The headline score stays on the full benchmark (all 167 problems, same n as the other models). A second number
+  "on items that fit" is reported only in an exploratory section. If more than 50% of items overflow in a setting,
+  that setting is reported as `score: null` with the reason and the counts instead.
+- **Reading:** the Slayer row is **descriptive**, outside the K1–K3 hypothesis family and the Holm correction. It
+  must not change any existing K result. The measured 0.00 confirms the cost decision recorded in Amendment 2;
+  the merge decision belongs to the maintainer.
+
