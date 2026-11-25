@@ -83,16 +83,15 @@ Tablica zadań jest pod adresem https://github.com/orgs/slayerlabs/projects/10. 
 Status w tej kolejności:
 
 1. **Backlog**: zadanie czeka i jeszcze nie można go brać.
-2. **Ready**: zadanie można brać.
+2. **Up for grabs**: zadanie można brać.
 3. **In Progress**: ktoś je robi. Przestawiasz je tu sam, gdy się do niego przypiszesz.
-4. **Review**: pierwsze sprawdzenie.
-5. **Independent Check**: drugie, niezależne sprawdzenie.
-6. **Done**: zrobione.
+4. **Review**: ktoś sprawdza PR.
+5. **Done**: zrobione.
 
-Gdy przestawiasz zadanie z In Progress na Review albo Independent Check, automat
+Gdy przestawiasz zadanie z In Progress na Review, automat
 [`board-unassign.yml`](.github/workflows/board-unassign.yml) w ciągu kilkunastu minut zdejmuje przypisanie z issue.
-W Review i Independent Check zadanie można wziąć tylko jako recenzję, bo praca autora już leży w PR. Recenzent,
-który przypisze się sam już w Review, zostaje przypisany. Status Done zamyka issue.
+W Review zadanie można wziąć tylko jako recenzję, bo praca autora już leży w PR. Recenzent, który przypisze się sam
+już w Review, zostaje przypisany. Status Done zamyka issue.
 
 Pola zadania:
 
@@ -108,8 +107,8 @@ Pola zadania:
   podaje tę ścieżkę wprost i zmiana nie dotyka żadnej liczby. Przykład: poprawka linku albo literówki w dokumentacji.
 - **recenzja**: In Progress → Review → Done. Jedna osoba sprawdza. To domyślna ścieżka, także gdy zadanie jej nie
   podaje. Przykład: karta oryginału.
-- **recenzja i przeliczenie** (etykieta `needs-recheck`): In Progress → Review → Independent Check → Done. Druga osoba
-  liczy wynik od zera. Dla wyniku, który idzie do Space albo do decyzji o treningu.
+- **recenzja i przeliczenie** (etykieta `needs-recheck`): In Progress → Review → Done. W Review jedna osoba sprawdza
+  PR, a druga liczy wynik od zera. Dla wyniku, który idzie do Space albo do decyzji o treningu.
 
 ## How we write tasks
 

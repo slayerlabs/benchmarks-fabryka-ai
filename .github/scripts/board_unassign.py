@@ -1,9 +1,8 @@
-"""Remove assignees from issues moved to Review or Independent Check on the project board.
+"""Remove assignees from issues moved to Review on the project board.
 
 Board field changes do not trigger GitHub Actions, so the workflow runs this script on a schedule.
-For every issue whose Status is Review or Independent Check, an assignee is removed only when their
-latest assignment happened before the Status change. A reviewer who assigns themselves after the
-move stays assigned.
+For every issue whose Status is Review, an assignee is removed only when their latest assignment
+happened before the Status change. A reviewer who assigns themselves after the move stays assigned.
 
 Token: PROJECT_TOKEN (or GH_TOKEN locally) with project + repo scopes. Without a token the script
 prints a message and exits with 0.
@@ -22,7 +21,7 @@ import urllib.request
 from datetime import datetime
 
 API = "https://api.github.com"
-TARGET_STATUSES = frozenset({"Review", "Independent Check"})
+TARGET_STATUSES = frozenset({"Review"})
 
 QUERY = """
 query($org: String!, $number: Int!, $after: String) {

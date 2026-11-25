@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Unassign issues in Review / Independent Check
+      - name: Unassign issues in Review
         env:
           PROJECT_TOKEN: ${{ secrets.PROJECT_TOKEN }}
         run: python .github/scripts/board_unassign.py ${{ inputs.dry_run && '--dry-run' || '' }}

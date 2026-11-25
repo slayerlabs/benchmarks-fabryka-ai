@@ -34,8 +34,8 @@ oryginałem, i budujemy polskie benchmarki.
    <a href="https://discord.gg/HnTkVR4c5T"><img src="docs/img/discord.svg" alt="Discord" height="36"></a>
    <a href="CONTRIBUTING.md"><img src="docs/img/jak-dolaczyc.svg" alt="Jak dołączyć" height="36"></a>
 
-2. **Weź zadanie** z kolumny Ready na tablicy albo z etykietą `good first issue`. Przypisz się i przestaw je na In
-   Progress.
+2. **Weź zadanie** z kolumny Up for grabs na tablicy albo z etykietą `good first issue`. Przypisz się i przestaw je na
+   In Progress.
 
    <a href="https://github.com/orgs/slayerlabs/projects/10"><img src="docs/img/tablica.svg" alt="Tablica" height="36"></a>
    <a href="https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22"><img src="docs/img/zadania-na-start.svg" alt="Zadania na start" height="36"></a>
