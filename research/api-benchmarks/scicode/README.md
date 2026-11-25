@@ -375,6 +375,12 @@ FABRYKA_API_KEY=... bash run.sh bielik-11b-v3.1 --limit 2   # smoke test
 FABRYKA_API_KEY=... bash run.sh bielik-11b-v3.1
 ```
 
+Slayer 1B 1.09 at update 70 000 (Amendment 3, descriptive row), on a GPU machine with CUDA (local bf16, greedy):
+
+```bash
+bash run.sh slayer1b-1.09-k70000
+```
+
 Scoring, on a fresh Ubuntu 22.04 x86_64 VM with Docker, as root, in a checkout of this repo: once
 `bash setup_scoring_vm.sh` (clones SciCode, downloads and checks `test_data.h5`, builds the image, caches the
 pinned dataset), then copy each `out/<model-id>/` from the generating machine into this directory's `out/` and run
@@ -383,6 +389,7 @@ pinned dataset), then copy each `out/<model-id>/` from the generating machine in
 bash run.sh lfm3-1.7b --score
 bash run.sh lfm3-1.7b-nothink --score
 bash run.sh bielik-11b-v3.1 --score
+bash run.sh slayer1b-1.09-k70000 --score
 bash run.sh dev-ground-truth && bash run.sh dev-ground-truth --score   # setup check, no model
 python3 hypotheses.py results --group results/group-tests-livecodebench-pro-25q2.json
 ```

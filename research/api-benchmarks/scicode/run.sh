@@ -14,7 +14,7 @@
 #                        Face login with access to the gated speakleash/Bielik-11B-v3.1-Instruct (prompt counting).
 #   dev-ground-truth     not a model: the dev split's ground_truth_code fed through the same Gencode files and scorer
 #                        (`--split validation`), to show that passing is reachable. No network for the answers.
-#   slayer1b-1.09-k70000 not run: writes results/slayer1b-1.09-k70000.json with score null and the reason.
+#   slayer1b-1.09-k70000 Slayer 1B 1.09 at update 70000, local GPU (CUDA, bf16, greedy), Amendment 3; measured 0.00.
 #
 # --limit N takes the first N problems of the split in dataset order; its results go to out/<model-id>/, never to
 # results/. Generation writes out/<model-id>/ (generations.jsonl, generated_code/, prompts/, run.json,
