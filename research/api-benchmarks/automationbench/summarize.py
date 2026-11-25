@@ -40,7 +40,12 @@ def main(export, target, settings, limit):
         "date": datetime.date.today().isoformat(),
         "harness": f"https://github.com/zapier/AutomationBench @ {AB_COMMIT} (auto-bench {meta.get('benchmark_version')})",
         "data": f"bundled with the harness, public domains {', '.join(PUBLIC_DOMAINS)} @ {AB_COMMIT}",
-        "settings": {**json.loads(settings), "toolset": meta.get("toolset"), "max_steps": meta.get("max_steps"), "trials": 1},
+        "settings": {
+            **json.loads(settings),
+            "toolset": meta.get("toolset"),
+            "max_steps": meta.get("max_steps"),
+            "trials": 1,
+        },
         "other_metrics": {
             "partial_credit": round(100 * sum(float(t["score"]) for t in tasks) / n, 2),
             "assertions_passed": sum(1 for a in scored if a["passed"]),
@@ -54,17 +59,25 @@ def main(export, target, settings, limit):
     Path(f"{target}.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8", newline="\n")
     with gzip.open(f"{target}.jsonl.gz", "wt", encoding="utf-8", newline="\n") as f:
         for t in tasks:
-            f.write(json.dumps({
-                "task_id": str(t["id"]),
-                "name": t["name"],
-                "score": int(bool(t["passed"])),
-                "partial_credit": float(t["score"]),
-                "assertions": [{"type": a["type"], "passed": a["passed"], "excluded": a.get("excluded", False)}
-                               for a in t["assertion_results"]],
-                "steps": t["steps"],
-                "num_tool_calls": t["num_tool_calls"],
-                "output": [m for m in t["messages"] if m.get("role") != "system"],
-            }, ensure_ascii=False) + "\n")
+            f.write(
+                json.dumps(
+                    {
+                        "task_id": str(t["id"]),
+                        "name": t["name"],
+                        "score": int(bool(t["passed"])),
+                        "partial_credit": float(t["score"]),
+                        "assertions": [
+                            {"type": a["type"], "passed": a["passed"], "excluded": a.get("excluded", False)}
+                            for a in t["assertion_results"]
+                        ],
+                        "steps": t["steps"],
+                        "num_tool_calls": t["num_tool_calls"],
+                        "output": [m for m in t["messages"] if m.get("role") != "system"],
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n"
+            )
     print(json.dumps(result, indent=2))
 
 
