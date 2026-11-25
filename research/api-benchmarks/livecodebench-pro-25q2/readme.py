@@ -67,10 +67,17 @@ def cell(x: dict[str, Any]) -> str:
     return f"{x['score']:.2f} ± {x['stderr']:.2f} ({x['accepted']}/{x['n']})"
 
 
+SLAYER_RUN = ("Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`)", "no (base model)",
+               "local, research/common/slayer_lm.py, bf16, greedy")
+
+
 def results_block(results: Path) -> str:
     files = {m: read_json(results, f"{m}.json") for m in RUNS}
     raw = read_json(results, "raw-outputs.json")
     slayer = read_json(results, f"{NOT_RUN[1]}.json")
+    slayer_scored = slayer.get("score") is not None
+    if slayer_scored:
+        files[NOT_RUN[1]] = slayer
     out = ["| model | thinking | serving | output limit | accepted (%) | stderr | n | mean output tokens | date |",
            "|---|---|---|---|---|---|---|---|---|"]
     for m, (name, thinking, serving) in RUNS.items():
@@ -79,7 +86,16 @@ def results_block(results: Path) -> str:
         out.append(f"| {name} | {thinking.format(**raw['runs'][m]['reasoning'])} | {serving} | {limit} | "
                    f"{r['score']:.2f} | {r['stderr']:.2f} | {r['n']} | "
                    f"{r['other_metrics']['output_tokens']['mean']:.1f} | {r['date']} |")
-    out.append(f"| {NOT_RUN[0]} | | | | null ({slayer['reason']}) | | | | |")
+    if slayer_scored:
+        r = slayer
+        name, thinking, serving = SLAYER_RUN
+        serving = r.get("settings", {}).get("serving", serving)
+        limit = f"{r['settings']['max_tokens']} (context {r['settings']['context']})"
+        out.append(f"| {name} | {thinking} | {serving} | {limit} | "
+                   f"{r['score']:.2f} | {r['stderr']:.2f} | {r['n']} | "
+                   f"{r['other_metrics']['output_tokens']['mean']:.1f} | {r['date']} |")
+    else:
+        out.append(f"| {NOT_RUN[0]} | | | | null ({slayer['reason']}) | | | | |")
     out += ["", "Accepted (%) ± stderr (accepted/n): all problems (headline), without the problems whose test zip is "
             "missing or whose judging or request failed (secondary), and per difficulty; where none was accepted, "
             "the exact (Clopper-Pearson) 95% interval instead of the stderr, which is 0 there:", "",
@@ -100,17 +116,24 @@ def results_block(results: Path) -> str:
             "answer before its last `</think>` | accepted answers closing `</think>` |", "|---|---|---|---|---|---|---|---|"]
     for m, r in files.items():
         o = r["other_metrics"]
-        t, th, rs = o["output_tokens"], o["think_in_output"], raw["runs"][m]["reasoning"]
-        share = rs["median_share_before_last_think_end"]
+        t, th = o["output_tokens"], o["think_in_output"]
+        rs = raw["runs"].get(m, {}).get("reasoning")
+        if rs is None:  # Slayer: its raw outputs are not in raw-outputs.json, so the reasoning columns are not counted
+            closing, share_str, accepted_closing = "not counted (raw outputs not archived)", "", "not counted"
+        else:
+            share = rs["median_share_before_last_think_end"]
+            closing = f"{rs['closing_think']} of {rs['answers']}"
+            share_str = "" if share is None else f"{100 * share:.1f}%"
+            accepted_closing = f"{rs['accepted_closing_think']} of {rs['accepted']}"
         out.append(f"| {m} | {t['mean']:.1f} / {t['median']} / {t['max']} | {o['unfinished']} | {o['length_stops']} | "
-                   f"{th['answers']} of {th['of']} ({100 * th['share']:.1f}%) | {rs['closing_think']} of "
-                   f"{rs['answers']} | {'' if share is None else f'{100 * share:.1f}%'} | "
-                   f"{rs['accepted_closing_think']} of {rs['accepted']} |")
+                   f"{th['answers']} of {th['of']} ({100 * th['share']:.1f}%) | {closing} | {share_str} | "
+                   f"{accepted_closing} |")
     api = files["bielik-11b-v3.1"]["other_metrics"]["api_prompt_minus_local"]
     out += ["", f"Bielik's prompt: the API's `usage.prompt_tokens` minus our local count with Bielik's own template: "
                 f"min {api['min']}, max {api['max']} over its {files['bielik-11b-v3.1']['n']} answers."]
-    judges = {json.dumps(r["settings"]["judge"], sort_keys=True) for r in files.values()}
-    machines = {json.dumps(r["settings"]["judge_machine"], sort_keys=True) for r in files.values()}
+    main_runs = [m for m in RUNS if m in files]
+    judges = {json.dumps(files[m]["settings"]["judge"], sort_keys=True) for m in main_runs}
+    machines = {json.dumps(files[m]["settings"]["judge_machine"], sort_keys=True) for m in main_runs}
     if len(judges) != 1 or len(machines) != 1:
         sys.exit("readme.py: the runs were judged with different images or on different machines")
     j, mach = files["lfm3-1.7b"]["settings"]["judge"], files["lfm3-1.7b"]["settings"]["judge_machine"]
@@ -118,8 +141,13 @@ def results_block(results: Path) -> str:
             f"The LFM3-1.7B card reports {100 * compare.CARD_LFM3:.2f}; the control is in Hypotheses.",
             "", f"Judge: all three runs on one machine, one after another: {mach['cpu']}, {mach['cpu_count']} vCPUs, "
             f"{j['workers']} judge workers, image `{j['image_id']}`, go-judge {j['go_judge_version']}; "
-            f"test zips {tests_line(files)}.",
-            "", f"Raw outputs (with thinking, not committed): the LFM3-1.7B runs in `{raw['archive']['file']}`, "
+            f"test zips {tests_line(files)}."]
+    if slayer_scored and NOT_RUN[1] in files:
+        sj = files[NOT_RUN[1]]["settings"]
+        sm = sj.get("judge_machine", {})
+        out.append(f"Slayer was judged separately on {sm.get('cpu', '?')}, {sm.get('cpu_count', '?')} vCPUs; "
+                   "see Deviations.")
+    out += ["", f"Raw outputs (with thinking, not committed): the LFM3-1.7B runs in `{raw['archive']['file']}`, "
             f"sha256 `{raw['archive']['sha256']}`; Bielik's in `{raw['runs']['bielik-11b-v3.1']['file']}`. Each "
             "run's generations.jsonl sha256 equals its result file's `raw_outputs.sha256` (results/raw-outputs.json)."]
     for m in RUNS:
