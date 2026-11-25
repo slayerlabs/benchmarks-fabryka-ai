@@ -428,8 +428,11 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         "scicode",
         "percent",
         {"slayer": "slayer1b-1.09-k70000", "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
-        {"slayer": f"step 70 000, {SLAYER_RAW}, greedy, context 4096", "bielik": API,
-         "lfm3": "own vLLM, thinking, with background"},
+        {
+            "slayer": f"step 70 000, {SLAYER_RAW}, greedy, context 4096",
+            "bielik": API,
+            "lfm3": "own vLLM, thinking, with background",
+        },
         28.47,
         355,
         "PR #355 in review: the Slayer run (the other values are merged)",
