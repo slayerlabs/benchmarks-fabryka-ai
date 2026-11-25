@@ -20,7 +20,9 @@ CLASS = {"A": "correct", "B": "incorrect", "C": "partial", "D": "not_attempted"}
 
 
 def main(prep, grades_path, answers_path, target, settings, judge, limit=False):
-    questions = [json.loads(l) for l in Path(prep, "questions.jsonl").read_text(encoding="utf-8").split("\n") if l.strip()]
+    questions = [
+        json.loads(l) for l in Path(prep, "questions.jsonl").read_text(encoding="utf-8").split("\n") if l.strip()
+    ]
     grades = json.loads(Path(grades_path).read_text(encoding="utf-8"))["grades"]
     if limit:  # run.sh --limit N: only the questions that were asked
         questions = [q for q in questions if q["id"] in grades]
@@ -51,7 +53,10 @@ def main(prep, grades_path, answers_path, target, settings, judge, limit=False):
             "accuracy_stderr": round(100 * math.sqrt(acc * (1 - acc) / n), 2),
             "hallucination_rate": round(100 * i / (p + i + a), 2) if p + i + a else None,
             "non_hallucination_rate": round(100 * (1 - i / (p + i + a)), 2) if p + i + a else None,
-            "correct": c, "incorrect": i, "partial": p, "not_attempted": a,
+            "correct": c,
+            "incorrect": i,
+            "partial": p,
+            "not_attempted": a,
             "answers_cut_at_length": meta.get("cut_at_length"),
         },
         "deviations": "see README.md, Deviations",
@@ -60,8 +65,12 @@ def main(prep, grades_path, answers_path, target, settings, judge, limit=False):
     Path(f"{target}.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8", newline="\n")
     with gzip.open(f"{target}.jsonl.gz", "wt", encoding="utf-8", newline="\n") as f:
         for q, x in zip(questions, letters):
-            f.write(json.dumps({"task_id": q["id"], "domain": q["domain"], "grade": CLASS[x], "score": VALUE[x],
-                                "output": None}) + "\n")
+            f.write(
+                json.dumps(
+                    {"task_id": q["id"], "domain": q["domain"], "grade": CLASS[x], "score": VALUE[x], "output": None}
+                )
+                + "\n"
+            )
     print(json.dumps(result, indent=2))
 
 

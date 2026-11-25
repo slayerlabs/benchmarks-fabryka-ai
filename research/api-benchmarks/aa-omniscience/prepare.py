@@ -9,6 +9,7 @@ out of the README verbatim. Writes:
   key.jsonl        {idx, id, question, answer}                         -> judge.py only
   templates.json   {answer_prompt, grader_template}
 """
+
 import csv
 import hashlib
 import json
@@ -20,8 +21,10 @@ from huggingface_hub import hf_hub_download
 
 REPO = "ArtificialAnalysis/AA-Omniscience-Public"
 REVISION = "e4883edbb9f5ccf2b2a8fdc6fb65e01a58e99849"
-FILES = {"AA-Omniscience_dataset_public.csv": "1e04603dafa3bd0d16d8151f07a5eb74c43d90c3a85d2fca120da2359174d02f",
-         "README.md": "e75f912ebd1c5ea40b47692a98bc684e13da32af226694024f4a94eab7327481"}
+FILES = {
+    "AA-Omniscience_dataset_public.csv": "1e04603dafa3bd0d16d8151f07a5eb74c43d90c3a85d2fca120da2359174d02f",
+    "README.md": "e75f912ebd1c5ea40b47692a98bc684e13da32af226694024f4a94eab7327481",
+}
 
 
 def fetch(name):
@@ -53,15 +56,33 @@ def main(out):
     if len(rows) != 600 or len({w["question_id"] for w in rows}) != 600:
         sys.exit(f"prepare.py: {len(rows)} rows or duplicate question_id, expected 600 distinct")
     os.makedirs(out, exist_ok=True)
-    with open(os.path.join(out, "questions.jsonl"), "w", encoding="utf-8", newline="\n") as q, \
-            open(os.path.join(out, "key.jsonl"), "w", encoding="utf-8", newline="\n") as k:
+    with (
+        open(os.path.join(out, "questions.jsonl"), "w", encoding="utf-8", newline="\n") as q,
+        open(os.path.join(out, "key.jsonl"), "w", encoding="utf-8", newline="\n") as k,
+    ):
         for i, w in enumerate(rows):
-            q.write(json.dumps({"idx": i, "id": w["question_id"], "domain": w["domain"], "topic": w["topic"],
-                                "subtopic": w["subtopic"],
-                                "system": answer_prompt.format(domain=w["domain"], subtopic=w["subtopic"]),
-                                "user": w["question"]}, ensure_ascii=False) + "\n")
-            k.write(json.dumps({"idx": i, "id": w["question_id"], "question": w["question"], "answer": w["answer"]},
-                               ensure_ascii=False) + "\n")
+            q.write(
+                json.dumps(
+                    {
+                        "idx": i,
+                        "id": w["question_id"],
+                        "domain": w["domain"],
+                        "topic": w["topic"],
+                        "subtopic": w["subtopic"],
+                        "system": answer_prompt.format(domain=w["domain"], subtopic=w["subtopic"]),
+                        "user": w["question"],
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n"
+            )
+            k.write(
+                json.dumps(
+                    {"idx": i, "id": w["question_id"], "question": w["question"], "answer": w["answer"]},
+                    ensure_ascii=False,
+                )
+                + "\n"
+            )
     with open(os.path.join(out, "templates.json"), "w", encoding="utf-8", newline="\n") as f:
         json.dump({"answer_prompt": answer_prompt, "grader_template": grader}, f, ensure_ascii=False, indent=1)
     print(f"prepare.py: 600 questions in {out}")
