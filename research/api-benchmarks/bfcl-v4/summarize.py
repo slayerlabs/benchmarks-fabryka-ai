@@ -26,12 +26,26 @@ GORILLA_COMMIT = "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8"
 # Scored tasks per category at GORILLA_COMMIT (rows of bfcl_eval/data/BFCL_v4_*.json; memory: the same 155 questions
 # for each of the three backends). web_search (2 x 100) is not run, see README.
 EXPECTED_N = {
-    "simple_python": 400, "simple_java": 100, "simple_javascript": 50,
-    "multiple": 200, "parallel": 200, "parallel_multiple": 200, "irrelevance": 240,
-    "live_simple": 258, "live_multiple": 1053, "live_parallel": 16, "live_parallel_multiple": 24,
-    "live_irrelevance": 884, "live_relevance": 16,
-    "multi_turn_base": 200, "multi_turn_miss_func": 200, "multi_turn_miss_param": 200, "multi_turn_long_context": 200,
-    "memory_kv": 155, "memory_vector": 155, "memory_rec_sum": 155,
+    "simple_python": 400,
+    "simple_java": 100,
+    "simple_javascript": 50,
+    "multiple": 200,
+    "parallel": 200,
+    "parallel_multiple": 200,
+    "irrelevance": 240,
+    "live_simple": 258,
+    "live_multiple": 1053,
+    "live_parallel": 16,
+    "live_parallel_multiple": 24,
+    "live_irrelevance": 884,
+    "live_relevance": 16,
+    "multi_turn_base": 200,
+    "multi_turn_miss_func": 200,
+    "multi_turn_miss_param": 200,
+    "multi_turn_long_context": 200,
+    "memory_kv": 155,
+    "memory_vector": 155,
+    "memory_rec_sum": 155,
 }
 LIVE_AST = ["live_simple", "live_multiple", "live_parallel", "live_parallel_multiple"]
 
@@ -40,23 +54,42 @@ LIVE_AST = ["live_simple", "live_multiple", "live_parallel", "live_parallel_mult
 # four live AST categories by the number of scored tasks; main() fills those weights in, so that a --limit run is
 # weighted like the harness). Standard error: sqrt(sum w^2 p (1 - p) / n) over the categories.
 SUMMARIES = {
-    "non_live_acc": {"simple_python": 1 / 12, "simple_java": 1 / 12, "simple_javascript": 1 / 12,
-                     "multiple": 1 / 4, "parallel": 1 / 4, "parallel_multiple": 1 / 4},
+    "non_live_acc": {
+        "simple_python": 1 / 12,
+        "simple_java": 1 / 12,
+        "simple_javascript": 1 / 12,
+        "multiple": 1 / 4,
+        "parallel": 1 / 4,
+        "parallel_multiple": 1 / 4,
+    },
     "live_acc": None,
     "irrelevance_acc": {"irrelevance": 1 / 2, "live_irrelevance": 1 / 2},
     "relevance_acc": {"live_relevance": 1.0},
-    "multi_turn_acc": {c: 1 / 4 for c in ("multi_turn_base", "multi_turn_miss_func", "multi_turn_miss_param",
-                                         "multi_turn_long_context")},
+    "multi_turn_acc": {
+        c: 1 / 4
+        for c in ("multi_turn_base", "multi_turn_miss_func", "multi_turn_miss_param", "multi_turn_long_context")
+    },
     "memory_acc": {c: 1 / 3 for c in ("memory_kv", "memory_vector", "memory_rec_sum")},
 }
 # Overall Acc = 10% non-live + 10% live + 10% irrelevance + 30% multi-turn + 40% agentic, agentic = mean(web search,
 # memory); a missing category counts as 0. Without web search this is only a lower bound, never the score.
-LOWER_BOUND = {"non_live_acc": 0.10, "live_acc": 0.10, "irrelevance_acc": 0.10, "multi_turn_acc": 0.30,
-               "memory_acc": 0.20}
+LOWER_BOUND = {
+    "non_live_acc": 0.10,
+    "live_acc": 0.10,
+    "irrelevance_acc": 0.10,
+    "multi_turn_acc": 0.30,
+    "memory_acc": 0.20,
+}
 # Columns of score/data_overall.csv that the summaries must reproduce.
-CSV_CHECK = {"non_live_acc": "Non-Live AST Acc", "live_acc": "Live Acc", "irrelevance_acc": "Irrelevance Detection",
-             "relevance_acc": "Relevance Detection", "multi_turn_acc": "Multi Turn Acc", "memory_acc": "Memory Acc",
-             "overall_acc_lower_bound": "Overall Acc"}
+CSV_CHECK = {
+    "non_live_acc": "Non-Live AST Acc",
+    "live_acc": "Live Acc",
+    "irrelevance_acc": "Irrelevance Detection",
+    "relevance_acc": "Relevance Detection",
+    "multi_turn_acc": "Multi Turn Acc",
+    "memory_acc": "Memory Acc",
+    "overall_acc_lower_bound": "Overall Acc",
+}
 
 
 def jsonl(path):
@@ -103,8 +136,16 @@ def base_result(model):
 
 def cannot_run(reason, target):
     result = base_result(Path(target).name)
-    result.update({"score": None, "stderr": None, "n": 0, "settings": {}, "score_null_reason": reason,
-                   "deviations": "see README.md, Deviations"})
+    result.update(
+        {
+            "score": None,
+            "stderr": None,
+            "n": 0,
+            "settings": {},
+            "score_null_reason": reason,
+            "deviations": "see README.md, Deviations",
+        }
+    )
     write(target, result, None)
 
 
@@ -117,8 +158,9 @@ def main(root, target, bfcl_model, limit):
         results = [r for r in results if "prereq" not in r["id"]]
         score = jsonl(one_file(root / "score" / bfcl_model, f"BFCL_v4_{cat}_score.json"))
         head, failed = score[0], {e["id"]: e for e in score[1:]}
-        no_answer = [r for r in results
-                     if isinstance(r["result"], str) and r["result"].startswith("Error during inference")]
+        no_answer = [
+            r for r in results if isinstance(r["result"], str) and r["result"].startswith("Error during inference")
+        ]
         over = [r["id"] for r in no_answer if "maximum context length" in r["result"]]
         bad = [r["id"] for r in no_answer if "maximum context length" not in r["result"]]
         if bad:
@@ -129,24 +171,38 @@ def main(root, target, bfcl_model, limit):
         if head["total_count"] != n or (not limit and n != expected):
             sys.exit(f"summarize.py: {cat}: {n} results, score total {head['total_count']}, expected {expected}")
         passed = n - len(failed)
-        if (passed != head["correct_count"] or not set(failed) <= {r["id"] for r in results}
-                or not set(over) <= set(failed)):
+        if (
+            passed != head["correct_count"]
+            or not set(failed) <= {r["id"] for r in results}
+            or not set(over) <= set(failed)
+        ):
             sys.exit(f"summarize.py: {cat}: failed list does not match the score summary")
         cats[cat] = {"p": passed / n, "n": n, "passed": passed}
         for r in results:
             f = failed.get(r["id"])
-            rows.append({"task_id": r["id"], "category": cat, "score": 0 if f else 1,
-                         "error_type": f.get("error_type") if f else None, "output": r["result"]})
+            rows.append(
+                {
+                    "task_id": r["id"],
+                    "category": cat,
+                    "score": 0 if f else 1,
+                    "error_type": f.get("error_type") if f else None,
+                    "output": r["result"],
+                }
+            )
     if errors:
-        sys.exit("summarize.py: tasks without a model answer (Error during inference), rerun them first: "
-                 + json.dumps({c: len(v) for c, v in errors.items()}))
+        sys.exit(
+            "summarize.py: tasks without a model answer (Error during inference), rerun them first: "
+            + json.dumps({c: len(v) for c, v in errors.items()})
+        )
 
     live_n = sum(cats[c]["n"] for c in LIVE_AST)
     weights_of = {**SUMMARIES, "live_acc": {c: cats[c]["n"] / live_n for c in LIVE_AST}}
     raw = {name: combine(weights, cats) for name, weights in weights_of.items()}
     # the summaries share no category, so their errors add in quadrature
-    raw["overall_acc_lower_bound"] = (sum(w * raw[k][0] for k, w in LOWER_BOUND.items()),
-                                      math.sqrt(sum((w * raw[k][1]) ** 2 for k, w in LOWER_BOUND.items())))
+    raw["overall_acc_lower_bound"] = (
+        sum(w * raw[k][0] for k, w in LOWER_BOUND.items()),
+        math.sqrt(sum((w * raw[k][1]) ** 2 for k, w in LOWER_BOUND.items())),
+    )
     other = {k: pct(p) for k, (p, _) in raw.items()}
     other_se = {k: pct(se) for k, (_, se) in raw.items()}
 
@@ -162,28 +218,30 @@ def main(root, target, bfcl_model, limit):
                 sys.exit(f"summarize.py: {key} = {other[key]} but data_overall.csv {col} = {row[col]}")
 
     result = base_result(Path(target).name)
-    result.update({
-        "score": None,
-        "stderr": None,
-        "n": sum(c["n"] for c in cats.values()),
-        "settings": {
-            "mode": "FC (native function calling through the vLLM tool parser)",
-            "temperature": 0.001,
-            "effective_temperature": 0.01,  # vLLM raises temperatures below 0.01 to 0.01
-            "max_tokens_per_turn": None,
-            "max_model_len": 32768,
-            "test_categories": list(EXPECTED_N),
-            "trials": 1,
-        },
-        "score_null_reason": "Overall Acc needs the web_search categories (200 tasks, 40% x 1/2 of the weight), "
-                             "which were not run: they need a search API key. See other_metrics.",
-        "other_metrics": other,
-        "other_metrics_stderr": other_se,
-        "categories": {c: {"score": pct(v["p"]), "passed": v["passed"], "n": v["n"]} for c, v in cats.items()},
-        "memory_prereq_generated_not_scored": prereq,
-        "context_window_exceeded": window,
-        "deviations": "see README.md, Deviations",
-    })
+    result.update(
+        {
+            "score": None,
+            "stderr": None,
+            "n": sum(c["n"] for c in cats.values()),
+            "settings": {
+                "mode": "FC (native function calling through the vLLM tool parser)",
+                "temperature": 0.001,
+                "effective_temperature": 0.01,  # vLLM raises temperatures below 0.01 to 0.01
+                "max_tokens_per_turn": None,
+                "max_model_len": 32768,
+                "test_categories": list(EXPECTED_N),
+                "trials": 1,
+            },
+            "score_null_reason": "Overall Acc needs the web_search categories (200 tasks, 40% x 1/2 of the weight), "
+            "which were not run: they need a search API key. See other_metrics.",
+            "other_metrics": other,
+            "other_metrics_stderr": other_se,
+            "categories": {c: {"score": pct(v["p"]), "passed": v["passed"], "n": v["n"]} for c, v in cats.items()},
+            "memory_prereq_generated_not_scored": prereq,
+            "context_window_exceeded": window,
+            "deviations": "see README.md, Deviations",
+        }
+    )
     write(target, result, rows)
 
 

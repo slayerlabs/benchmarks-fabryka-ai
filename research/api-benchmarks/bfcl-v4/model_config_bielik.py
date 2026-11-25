@@ -1,5 +1,3 @@
-
-
 # Bielik 11B v3.1 Instruct served by vLLM (served-model-name "bielik"), appended by run.sh.
 MODEL_CONFIG_MAPPING["bielik-FC"] = ModelConfig(
     model_name="bielik",
