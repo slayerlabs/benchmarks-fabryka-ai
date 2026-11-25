@@ -22,9 +22,11 @@ EXPECTED_N = 2000
 def main(results_file, data, target, settings, limit):
     d = json.loads(Path(results_file).read_text(encoding="utf-8"))
     samples = {str(s["seed"]): s for s in d["samples"]}
-    seeds = [str(json.loads(line)["seed"]) for line in Path(data).read_text(encoding="utf-8").splitlines() if line.strip()]
+    seeds = [
+        str(json.loads(line)["seed"]) for line in Path(data).read_text(encoding="utf-8").splitlines() if line.strip()
+    ]
     if limit:
-        seeds = seeds[:len(samples)]
+        seeds = seeds[: len(samples)]
     n = len(seeds)
     if set(seeds) != set(samples) or (not limit and n != EXPECTED_N):
         sys.exit(f"summarize.py: {len(samples)} results for {n} input samples (expected {EXPECTED_N})")
@@ -58,9 +60,20 @@ def main(results_file, data, target, settings, limit):
     with gzip.open(f"{target}.jsonl.gz", "wt", encoding="utf-8", newline="\n") as f:
         for s in seeds:
             x = samples[s]
-            f.write(json.dumps({"task_id": s, "score": int(bool(x["passed"])), "output_format": x["output_format"],
-                                "entity_type": x["entity_type"], "errors": x["errors"],
-                                "output": x["response"]}, ensure_ascii=False) + "\n")
+            f.write(
+                json.dumps(
+                    {
+                        "task_id": s,
+                        "score": int(bool(x["passed"])),
+                        "output_format": x["output_format"],
+                        "entity_type": x["entity_type"],
+                        "errors": x["errors"],
+                        "output": x["response"],
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n"
+            )
     print(json.dumps(result, indent=2))
 
 
