@@ -41,7 +41,7 @@ subproblems, with numerical tests.
 | `slayer1b-1.09-k70000` | `SlayerLab/Slayer1B-1.09-checkpoints` @ `adfaf3fd5402bc7f3adbfe077798f20262979433`, file `wagi_70000.pt`, 1.08 template `SlayerLab/Slayer1B-1.08` @ `5f854a0cc7160594d54d1788d37a44e8ebabe16c` | local, `research/common/slayer_lm.py`, bf16, greedy, context 4096 |
 
 Slayer 1B is a base model with a 4096-token context and does not follow chat instructions; on 30 Python tasks in
-`research/slayer-1b/rozmowy-1.08` it wrote no function that passed its tests. It was run after the Amendment 2 cost decision; the measured result is 0.00 and confirms that decision (see Amendment 3).
+`research/slayer-1b/rozmowy-1.08` it wrote no function that passed its tests. It was run after the Amendment 2 cost decision; without background it measured 0.00, and with background the headline is `null` because 216/288 prompts overflowed the 4096-token context (>50%, Amendment 3). This confirms the cost decision (see Amendment 3).
 
 ## Settings
 
@@ -187,7 +187,7 @@ Added after review (2026-11-24), no verdict rule changed:
 ## Amendment 3 (2026-11-24): Slayer 1B run added
 
 Written after the review that added Amendment 2 points 8-9 (the cost decision recorded a `null` Slayer row). The run
-was carried out after that cost decision and confirms it: the measured result is 0.00. Nothing above changes: no
+was carried out after that cost decision and confirms it: the measured outcome is 0.00 on the without-background setting and `null` for the with-background headline under the >50% overflow rule below. Nothing above changes: no
 hypothesis, metric, threshold, control, existing K result or Holm correction is altered. Original protocol text for
 this amendment was written in commit `07ee0f2aad4dec937b91388d0a8ea29aa2ccdf21` (2026-11-23T18:02:59+01:00), before
 any Slayer output; this version updates it with the run outcome and keeps the pre-registered settings.
@@ -208,7 +208,8 @@ any Slayer output; this version updates it with the run outcome and keeps the pr
   The headline score stays on the full benchmark (all 288 subproblems, same n as the other models). A second
   number "on items that fit" is reported only in an exploratory section. If more than 50% of items overflow in a
   setting, that setting is reported as `score: null` with the reason and the counts instead.
-- **Reading:** the Slayer row is **descriptive**, outside the K1?K3 hypothesis family and the Holm correction. It
-  must not change any existing K result. The measured 0.00 confirms the cost decision recorded in Amendment 2 point 8;
+- **Result after the run:** with background: 216/288 subproblems (75.0%) were `context_overflow` (`prompt_tokens > 4096 - 256`), so the headline with-background score is reported as `null` with this reason and counts, per the rule above. Without background: 0/288 overflow, score 0.00 (0/288 correct, 0/65 main problems). The with-background overflow is caused by inserting prior steps' extracted outputs into subsequent prompts (`generate_response_with_steps`); Slayer's degenerate length-limit outputs (e.g. problem 77 with background: step 1 `prompt_tokens=593, output_tokens=3503, length`; step 2 `667, 3429, length`, extracted code empty; step 3 `4174, unsupported`; same problem without background steps 1–5 `565,605,649,782,846`, all ok) inflate later with-background prompts. The maintainer's earlier estimate with *empty* earlier-step code was 7/288 with-background and 0/288 without-background prompts over 4096 (`previous_decision` in the result file); the actual run's higher count is explained by this carry-over mechanism, not by a harness bug. On the 72 with-background steps that fit, 0/72 passed (exploratory only).
+- **Reading:** the Slayer row is **descriptive**, outside the K1–K3 hypothesis family and the Holm correction. It
+  must not change any existing K result. The measured outcome confirms the cost decision recorded in Amendment 2 point 8;
   the merge decision belongs to the maintainer.
 

@@ -2,16 +2,16 @@
   "benchmark": "SciCode",
   "model": "slayer1b-1.09-k70000",
   "metric": "subproblem pass rate, with background (correct steps / 288 x 100, test_generated_code.py)",
-  "score": 0.0,
-  "stderr": 0.0,
-  "stderr_clustered": 0.0,
+  "score": null,
+  "stderr": null,
+  "stderr_clustered": null,
   "n": 288,
   "date": "2026-11-24",
   "previous_decision": {
     "score": null,
     "n": 0,
     "date": null,
-    "reason": "not run, a cost decision (PROTOCOL.md, Models): on the 30 Python tasks of research/slayer-1b/rozmowy-1.08 (PAPER.md, H5.1) Slayer 1B wrote no function that passed its tests (0 of 30), so running 288 \u00d7 2 SciCode steps was judged not worth its cost. null here records that decision; Slayer 1B can run the steps that fit its 4096-token context (counted with its tokenizer and empty earlier-step code, 7 of the 288 prompts with background and 0 of the 288 without exceed it)"
+    "reason": "not run, a cost decision (PROTOCOL.md, Models): on the 30 Python tasks of research/slayer-1b/rozmowy-1.08 (PAPER.md, H5.1) Slayer 1B wrote no function that passed its tests (0 of 30), so running 288 × 2 SciCode steps was judged not worth its cost. null here records that decision; Slayer 1B can run the steps that fit its 4096-token context (counted with its tokenizer and empty earlier-step code, 7 of the 288 prompts with background and 0 of the 288 without exceed it)"
   },
   "harness": "https://github.com/scicode-bench/SciCode @ e3158ea011d4235245a547460d3688d7ccbf9900",
   "data": "https://huggingface.co/datasets/SciCode1/SciCode @ 4510f6a6aa27c43fad7b43da2c59602a86e88480, test; test_data.h5 sha256 48b0272a88b17dbd29777c217e1b4fb2b019b92e11cc2add847409db9541b890",
@@ -69,7 +69,10 @@
         "count": 0,
         "of": 72,
         "share": 0.0
-      }
+      },
+      "score": null,
+      "stderr": null,
+      "reason": "with_background: 216/288 subproblems (75.0%) had prompt_tokens > 4096 - SLAYER_MIN_ANSWER_TOKENS (256), so they were recorded as context_overflow/unsupported per PROTOCOL.md Amendment 3; headline score is null. Overflow is caused by inserting prior steps' long degenerate extracted outputs into subsequent with-background prompts. See other_metrics.with_background.unsupported and Amendment 3 'Result after the run'."
     },
     "without_background": {
       "score": 0.0,
@@ -104,9 +107,9 @@
     "extraction_e1": {
       "note": "PROTOCOL.md Amendment 1, secondary: the same answers with extraction E1, scored by the same scorer; never the headline",
       "with_background": {
-        "score": 0.0,
-        "stderr": 0.0,
-        "stderr_clustered": 0.0,
+        "score": null,
+        "stderr": null,
+        "stderr_clustered": null,
         "n": 288,
         "correct": 0,
         "clusters": 65,
@@ -119,7 +122,8 @@
           "fail": 288
         },
         "reused_identical": 288,
-        "scored": 0
+        "scored": 0,
+        "reason": "same as with_background: 216/288 context_overflow (>50%), headline null per Amendment 3"
       },
       "without_background": {
         "score": 0.0,
@@ -2682,5 +2686,6 @@
     "file": "out/slayer1b-1.09-k70000/generations.jsonl (with thinking; not committed)",
     "sha256": "08be59223213badcc4fcb6eed6c6b762ad0407c0ce3db0f22deee4ec4d308835",
     "jsonl_gz_output": "the code extract_python_script took from the text after the last </think>"
-  }
+  },
+  "reason": "with_background: 216/288 subproblems (75.0%) had prompt_tokens > 4096 - SLAYER_MIN_ANSWER_TOKENS (256), so they were recorded as context_overflow/unsupported per PROTOCOL.md Amendment 3; headline score is null. Overflow is caused by inserting prior steps' long degenerate extracted outputs into subsequent with-background prompts. See other_metrics.with_background.unsupported and Amendment 3 'Result after the run'."
 }

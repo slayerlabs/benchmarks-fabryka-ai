@@ -66,6 +66,15 @@ def share(k: int, n: int, se: float | None = None, se_cl: float | None = None) -
     return f"{100 * k / n:.2f} ± {se:.2f} ({k}/{n}{clustered})"
 
 
+
+def share_or_null(x: dict[str, Any]) -> str:
+    """Like share(), but returns a null note when the setting is not reported as a score."""
+    if x.get("score") is None:
+        reason = x.get("reason") or "null"
+        return f"null ({reason})"
+    se, se_cl = x.get("stderr"), x.get("stderr_clustered")
+    return share(x["correct"], x["n"], se, se_cl)
+
 def problems_cell(mp: dict[str, Any]) -> str:
     if mp["solved"] == 0:
         return f"0/{mp['of']} (exact 95% CI 0 to {zero_upper(mp['of']):.2f}%)"
@@ -91,7 +100,8 @@ def results_block(results: Path) -> str:
     files = {m: read_json(results, f"{m}.json") for m in RUNS}
     slayer = read_json(results, f"{NOT_RUN[1]}.json")
     slayer_scored = slayer.get("score") is not None
-    if slayer_scored:
+    slayer_has_data = slayer.get("date") is not None or slayer_scored
+    if slayer_has_data:
         files[NOT_RUN[1]] = slayer
     out = ["Headline: correct subproblems with background, out of 288 (test_generated_code.py). Verdicts read the "
            "SE clustered by problem (65 clusters).", "",
@@ -103,14 +113,19 @@ def results_block(results: Path) -> str:
         out.append(f"| {name} | {thinking} | {serving} | {limit_cell(r)} | {r['score']:.2f} | {r['stderr']:.2f} | "
                    f"{r['stderr_clustered']:.2f} | {r['n']} | {problems_cell(wb['main_problems'])} | "
                    f"{wb['output_tokens']['mean']:.1f} | {r['date']} |")
-    if slayer_scored:
+    if slayer_has_data:
         r = slayer
         wb = setting_metrics(r, "with_background")
         name, thinking, serving = SLAYER_RUN
         serving = r.get("settings", {}).get("serving", serving)
-        out.append(f"| {name} | {thinking} | {serving} | {limit_cell(r)} | {r['score']:.2f} | {r['stderr']:.2f} | "
-                   f"{r['stderr_clustered']:.2f} | {r['n']} | {problems_cell(wb['main_problems'])} | "
-                   f"{wb['output_tokens']['mean']:.1f} | {r['date']} |")
+        if r.get("score") is None:
+            reason = r.get("reason", "null")
+            out.append(f"| {name} | {thinking} | {serving} | {limit_cell(r)} | null ({reason}) | | | {r['n']} | "
+                       f"{problems_cell(wb['main_problems'])} | {wb['output_tokens']['mean']:.1f} | {r['date']} |")
+        else:
+            out.append(f"| {name} | {thinking} | {serving} | {limit_cell(r)} | {r['score']:.2f} | {r['stderr']:.2f} | "
+                       f"{r['stderr_clustered']:.2f} | {r['n']} | {problems_cell(wb['main_problems'])} | "
+                       f"{wb['output_tokens']['mean']:.1f} | {r['date']} |")
     else:
         out.append(f"| {NOT_RUN[0]} | | | | null ({slayer['reason']}) | | | | | | |")
     out += ["", "Both prompt settings: correct (%) ± stderr (correct/288; clustered SE), main problems solved (all "
@@ -120,7 +135,8 @@ def results_block(results: Path) -> str:
         for s in SETTINGS:
             x = setting_metrics(r, s)
             v = x["verdicts"]
-            out.append(f"| {m} | {SETTING_LABEL[s]} | {share(x['correct'], x['n'], x['stderr'], x['stderr_clustered'])}"
+            correct_cell = share_or_null(x)
+            out.append(f"| {m} | {SETTING_LABEL[s]} | {correct_cell}"
                        f" | {problems_cell(x['main_problems'])} | {v.get('pass', 0)} | {v.get('fail', 0)} | "
                        f"{v.get('time out', 0)} |")
     out += ["", "| run | setting | output tokens mean / median / max | unfinished (thinking on) | stopped by the length "
@@ -140,8 +156,9 @@ def results_block(results: Path) -> str:
     for m, r in files.items():
         for s in SETTINGS:
             x, e = setting_metrics(r, s), r["other_metrics"]["extraction_e1"][s]
-            out.append(f"| {m} | {SETTING_LABEL[s]} | {x['correct']}/{x['n']} | "
-                       f"{share(e['correct'], e['n'], e['stderr'], e['stderr_clustered'])} | "
+            official_cell = f"{x['correct']}/{x['n']}" if x.get('score') is not None else f"null ({x.get('reason','null')})"
+            out.append(f"| {m} | {SETTING_LABEL[s]} | {official_cell} | "
+                       f"{share_or_null(e)} | "
                        f"{problems_cell(e['main_problems'])} | {e['reused_identical']} | {e['scored']} |")
     api = files["bielik-11b-v3.1"]["other_metrics"]["with_background"]["api_prompt_minus_local"]
     ev = files["bielik-11b-v3.1"]["provenance"]["api_events"]
