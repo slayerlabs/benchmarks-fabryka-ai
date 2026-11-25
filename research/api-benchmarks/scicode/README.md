@@ -304,12 +304,25 @@ How the measurement ran (facts from results/scoring-events.json and the result f
   `p_support = Φ(z)` and `p_refute = 1 − Φ(z)`; Holm with m = 4 runs separately over the four `p_support` and the
   four `p_refute`; a test with no p (K3 "precondition not met", or the other benchmark's file not given) enters as
   p = 1. `hypotheses.json` lists our two tests under `group_tests` (`benchmark`, `id`, `z`, `p_support`,
-  `p_refute`, `outcome_raw`), and `--group <other>/hypotheses.json` reads the other benchmark's.
+  `p_refute`, `outcome_raw`), and `--group <other>/hypotheses.json` reads the other benchmark's. The committed
+  `results/hypotheses.json` is computed without `--group`: no copy of the other benchmark's file is kept here, and
+  the group Holm over both benchmarks is computed once, from both merged `hypotheses.json` files on main.
 - **`--limit N`** takes the first N problems of the split in dataset order (all their steps, both settings).
 - **The `output` of a `.jsonl.gz` line is the extracted code of that step**, not the whole model output (which
   with thinking would exceed the repo's 10 MB limit); the raw outputs stay in `out/<model-id>/generations.jsonl`
   and their sha256 is in the result file.
-- **Slayer 1B 1.09 at update 70 000** was run under Amendment 3 as a descriptive row (outside K1–K3 and Holm). The maintainer originally recorded a cost-decision `null` (Amendment 2, point 8); this run confirms that decision. With background, 216/288 prompts overflowed the 4096-token context, so the headline with-background score is `null` per Amendment 3; without background scored 0.00 (0/288). See `results/slayer1b-1.09-k70000.json` and PROTOCOL.md Amendment 3.
+- **Slayer 1B 1.09 at update 70 000** was run under Amendment 3 as a descriptive row (outside K1–K3 and Holm). The
+  maintainer originally recorded a cost-decision `null` (Amendment 2, point 8); this run confirms that decision.
+  With background, 216/288 prompts overflowed the 4096-token context, so the headline with-background score is
+  `null` per Amendment 3; without background scored 0.00 (0/288). See `results/slayer1b-1.09-k70000.json` and
+  PROTOCOL.md Amendment 3. Its deviations, from the result file's provenance:
+  - Greedy decoding (the only one `SlayerLM.generate` supports) instead of temperature 0.6 / top_p 0.95 of the other
+    runs.
+  - Batched generation, batch 8: on the 20-prompt equivalence check (`slayer_batch_drift_*` in provenance), 13 of 20
+    outputs (65%) were identical to batch 1. The steps were not re-run at batch 1.
+  - torch 2.14.1+cu130 instead of 2.8.0 from `research/common/requirements.lock.txt`; a vast.ai machine with
+    4.8 vCPU / 25.7 GB RAM instead of the card's ≥ 8 vCPU / ≥ 32 GB (GPU-bound generation).
+  - Its full generations are not archived (only `raw_outputs.sha256` in the result file).
 - **Contamination cannot be ruled out** (PROTOCOL.md, Limits); SciCode-Verified's defects are not corrected.
 
 ## Hand check
@@ -391,7 +404,7 @@ bash run.sh lfm3-1.7b-nothink --score
 bash run.sh bielik-11b-v3.1 --score
 bash run.sh slayer1b-1.09-k70000 --score
 bash run.sh dev-ground-truth && bash run.sh dev-ground-truth --score   # setup check, no model
-python3 hypotheses.py results --group results/group-tests-livecodebench-pro-25q2.json
+python3 hypotheses.py results
 ```
 
 `--score` writes `results/<model-id>.json` and `.jsonl.gz` (with `--limit N`: `out/<model-id>/<model-id>-limitN.*`).
@@ -415,7 +428,7 @@ kernel's OOM lines, the journal's disk-full lines, `window-*.json` (window_resco
 ```bash
 python3 raw_outputs.py ~/Documents/GitHub/labaj-agency/out/coding-group/box/export.tgz   # results/raw-outputs.json
 python3 scoring_events.py   # results/scoring-events.json, from results/scoring-vm/
-python3 hypotheses.py results --group results/group-tests-livecodebench-pro-25q2.json   # results/hypotheses.json
+python3 hypotheses.py results   # results/hypotheses.json
 python3 explore.py          # results/exploratory.json
 python3 readme.py           # the generated blocks of this README; --check compares byte for byte
 ```
