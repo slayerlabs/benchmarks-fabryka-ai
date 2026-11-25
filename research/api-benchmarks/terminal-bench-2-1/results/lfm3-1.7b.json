@@ -1,0 +1,185 @@
+{
+  "benchmark": "Terminal-Bench 2.1",
+  "model": "lfm3-1.7b",
+  "metric": "pass rate (task tests pass, reward 1), mean over tasks and trials",
+  "score": 10.56,
+  "stderr": 2.69,
+  "n": 89,
+  "date": "2026-11-23",
+  "harness": "https://github.com/harbor-framework/harbor v0.27.0, agent opencode (opencode-ai 1.19.6)",
+  "data": "https://github.com/harbor-framework/terminal-bench-2-1 @ 12b7565679ce5006230b820666353673a133db93, 89 tasks",
+  "settings": {
+    "trials_per_task": 5,
+    "serving": {
+      "server": "vllm 0.34.0, bf16",
+      "weights": "LiquidAI/LFM3-1.7B @ 1da06bec6a819da10b54c67e5c90972b46d81871"
+    },
+    "jobs": [
+      {
+        "job": "lfm3-1.7b",
+        "n_concurrent_trials": 8,
+        "n_attempts": 5,
+        "agent_import_path": null
+      },
+      {
+        "job": "lfm3-1.7b-rerun-a",
+        "n_concurrent_trials": 4,
+        "n_attempts": null,
+        "agent_import_path": "opencode_agent:OpenCodeAptFallback"
+      },
+      {
+        "job": "lfm3-1.7b-rerun-b",
+        "n_concurrent_trials": 4,
+        "n_attempts": null,
+        "agent_import_path": "opencode_agent:OpenCodeAptFallback"
+      },
+      {
+        "job": "lfm3-1.7b-rerun-c",
+        "n_concurrent_trials": 4,
+        "n_attempts": null,
+        "agent_import_path": "opencode_agent:OpenCodeAptFallback"
+      }
+    ],
+    "jobs_note": "serving and jobs were added from the run log after the run; n_attempts of the re-run jobs differs per job (see README, Reproduce)",
+    "trial_config_example": {
+      "schema_version": 1,
+      "task": {
+        "path": "/root/tb/terminal-bench-2-1/out/terminal-bench-2-1/tasks/password-recovery",
+        "git_url": null,
+        "git_commit_id": null,
+        "name": null,
+        "ref": null,
+        "overwrite": false,
+        "download_dir": null,
+        "source": "tasks"
+      },
+      "trial_name": "password-recovery__9DLfoGe",
+      "trials_dir": "/root/tb/terminal-bench-2-1/out/jobs/lfm3-1.7b",
+      "install_only": false,
+      "timeout_multiplier": 1.0,
+      "agent_timeout_multiplier": null,
+      "verifier_timeout_multiplier": null,
+      "agent_setup_timeout_multiplier": null,
+      "environment_build_timeout_multiplier": null,
+      "agent": {
+        "name": "opencode",
+        "import_path": null,
+        "model_name": "local/lfm3",
+        "base_url": null,
+        "model_api_key_name": null,
+        "model_api_format": null,
+        "skip_model_parsing": false,
+        "n_concurrent": null,
+        "concurrency_group": null,
+        "skills": [],
+        "override_timeout_sec": null,
+        "override_setup_timeout_sec": null,
+        "max_timeout_sec": null,
+        "resume_trajectory": false,
+        "load_trajectory": null,
+        "extra_allowed_hosts": [],
+        "kwargs": {
+          "version": "1.19.6",
+          "opencode_config": {
+            "provider": {
+              "local": {
+                "npm": "@ai-sdk/openai-compatible",
+                "options": {
+                  "baseURL": "http://10.0.2.15:8000/v1",
+                  "apiKey": "EMPTY"
+                },
+                "models": {
+                  "lfm3": {
+                    "limit": {
+                      "context": 262144,
+                      "output": 262144
+                    }
+                  }
+                }
+              }
+            },
+            "agent": {
+              "build": {
+                "temperature": 0.6,
+                "top_p": 0.95,
+                "steps": 100
+              }
+            }
+          }
+        },
+        "mcp_servers": []
+      },
+      "user_agent": null,
+      "environment": {
+        "type": "docker",
+        "import_path": null,
+        "force_build": false,
+        "delete": true,
+        "stream": false,
+        "cpu_enforcement_policy": "auto",
+        "memory_enforcement_policy": "auto",
+        "override_cpus": null,
+        "override_memory_mb": null,
+        "override_storage_mb": null,
+        "override_gpus": null,
+        "override_tpu": null,
+        "mounts": null,
+        "extra_docker_compose": [],
+        "kwargs": {},
+        "extra_allowed_hosts": []
+      },
+      "verifier": {
+        "override_timeout_sec": null,
+        "max_timeout_sec": null,
+        "disable": false
+      },
+      "override_error_policy": {},
+      "artifacts": [],
+      "extra_instruction_paths": [],
+      "extra_instructions": [],
+      "job_id": "72c9ed51-fb6c-477d-a48e-edddf7b928b1",
+      "source_trial": null
+    },
+    "rerun_jobs": [
+      "lfm3-1.7b-rerun-a",
+      "lfm3-1.7b-rerun-b",
+      "lfm3-1.7b-rerun-c"
+    ]
+  },
+  "deviations": "see README.md, Deviations",
+  "output_field": "Harbor trajectory; tool outputs over 2000 and reasoning over 3000 characters keep their start and end; timestamps and per-step metrics dropped",
+  "other_metrics": {
+    "trials": 445,
+    "trials_passed": 47,
+    "stderr_per_trial": 1.46,
+    "trials_rerun": 15,
+    "rerun_counted_as_failure": 2,
+    "agent_end": {
+      "reasoning": 15,
+      "step_finish/length": 2,
+      "step_finish/stop": 418,
+      "step_start": 5,
+      "tool_use": 5
+    },
+    "agent_exit_code": {
+      "1": 309,
+      "137": 11,
+      "143": 3,
+      "None": 122
+    },
+    "harbor_exception_label": {
+      "AgentAuthenticationError": 1,
+      "AgentTimeoutError": 12,
+      "ApiRateLimitError": 8,
+      "NetworkConnectionError": 18,
+      "NonZeroAgentExitCodeError": 295,
+      "None": 110,
+      "UnknownApiError": 1
+    },
+    "replaced_trial_status": {
+      "agent_not_started": 10,
+      "no_test_result": 2,
+      "verifier_timeout": 3
+    }
+  }
+}
