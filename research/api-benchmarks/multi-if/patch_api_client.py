@@ -9,21 +9,34 @@
 Every edit must match its pattern exactly once, or the script stops. Running it twice changes nothing.
 Usage: python patch_api_client.py <path to api_client.py>
 """
+
 import sys
 
 path = sys.argv[1]
 s = open(path, encoding="utf-8").read()
 EDITS = [
-    ("import anthropic\nimport google.generativeai as genai\nfrom google.generativeai.types import HarmCategory, HarmBlockThreshold\n"
-     "from mistralai import Mistral\n", ""),
-    ("        self.client = anthropic.Anthropic()\n", "        import anthropic\n        self.client = anthropic.Anthropic()\n"),
-    ("        genai.configure(api_key=os.environ['GEMINI_API_KEY'])\n",
-     "        import google.generativeai as genai\n        genai.configure(api_key=os.environ['GEMINI_API_KEY'])\n"),
-    ("        chat =  self.model.start_chat(history=history)\n",
-     "        from google.generativeai.types import HarmCategory, HarmBlockThreshold\n"
-     "        chat =  self.model.start_chat(history=history)\n"),
-    ("        self.client = Mistral(api_key=api_key)\n",
-     "        from mistralai import Mistral\n        self.client = Mistral(api_key=api_key)\n"),
+    (
+        "import anthropic\nimport google.generativeai as genai\nfrom google.generativeai.types import HarmCategory, HarmBlockThreshold\n"
+        "from mistralai import Mistral\n",
+        "",
+    ),
+    (
+        "        self.client = anthropic.Anthropic()\n",
+        "        import anthropic\n        self.client = anthropic.Anthropic()\n",
+    ),
+    (
+        "        genai.configure(api_key=os.environ['GEMINI_API_KEY'])\n",
+        "        import google.generativeai as genai\n        genai.configure(api_key=os.environ['GEMINI_API_KEY'])\n",
+    ),
+    (
+        "        chat =  self.model.start_chat(history=history)\n",
+        "        from google.generativeai.types import HarmCategory, HarmBlockThreshold\n"
+        "        chat =  self.model.start_chat(history=history)\n",
+    ),
+    (
+        "        self.client = Mistral(api_key=api_key)\n",
+        "        from mistralai import Mistral\n        self.client = Mistral(api_key=api_key)\n",
+    ),
     ("'gpt-4o-2024-08-06'\n", "'gpt-4o-2024-08-06', 'bielik', 'slayer'\n"),
 ]
 if "'bielik', 'slayer'" not in s:
