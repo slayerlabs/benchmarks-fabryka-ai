@@ -173,8 +173,10 @@ def test_the_latest_slayer_is_step_70000_and_every_slayer_version_is_on_its_page
 
 
 def test_the_headline_has_no_flagged_result() -> None:
-    # README.md says so in its notes; this keeps the sentence true.
-    flagged = [r for r in leaderboard.collect() if r.model in leaderboard.HEADLINE and r.review_flag != "ok"]
+    # README.md says so in its notes (the † of the research review); this keeps the sentence true. The generative
+    # table marks its own in-review values with * instead.
+    flagged = [r for r in leaderboard.collect() if r.model in leaderboard.HEADLINE and r.review_flag != "ok"
+               and r.protocol == "full-run-2026-11"]
     assert flagged == []
 
 

@@ -415,9 +415,10 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         "livecodebench-pro-25q2",
         "percent",
         {"slayer": "slayer1b-1.09-k70000", "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
-        {"slayer": "not run", "bielik": API, "lfm3": "own vLLM, thinking"},
+        {"slayer": f"step 70 000, {SLAYER_RAW}, greedy, context 4096", "bielik": API, "lfm3": "own vLLM, thinking"},
         31.74,
-        not_run={"slayer": SLAYER_COST},
+        354,
+        "PR #354 in review: the Slayer run (the other values are merged)",
         note="LFM3 without thinking: 28.74 ± 3.50",
     ),
     ApiBenchmark(
@@ -427,13 +428,16 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         "scicode",
         "percent",
         {"slayer": "slayer1b-1.09-k70000", "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
-        {"slayer": "not run", "bielik": API, "lfm3": "own vLLM, thinking, with background"},
+        {"slayer": f"step 70 000, {SLAYER_RAW}, greedy, context 4096", "bielik": API,
+         "lfm3": "own vLLM, thinking, with background"},
         28.47,
-        not_run={"slayer": SLAYER_COST},
+        355,
+        "PR #355 in review: the Slayer run (the other values are merged)",
         se_field="stderr_clustered",
         note="n counts the 288 steps; the standard error is clustered over the 65 problems, as in the README (over "
         "steps it would be 2.76 for LFM3). The control against the card passes both with and without background "
-        "(22.92), so it cannot confirm the card's setup. LFM3 without thinking: 24.65",
+        "(22.92), so it cannot confirm the card's setup. LFM3 without thinking: 24.65. Slayer without background: "
+        "0.00 (0/288)",
     ),
     ApiBenchmark(
         "ruler-128k",
