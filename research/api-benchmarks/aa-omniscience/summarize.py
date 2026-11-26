@@ -1,4 +1,5 @@
-"""AA-Omniscience grades -> results/<model-id>.json and results/<model-id>.jsonl.gz (format from research/METHODOLOGY.md).
+"""AA-Omniscience grades -> results/<model-id>.json and results/<model-id>.jsonl.gz
+(format from research/api-benchmarks/README.md).
 
 Usage: python summarize.py <prepare dir> <grades.json> <answers.json> <results/model-id> <settings json> <judge label>
 

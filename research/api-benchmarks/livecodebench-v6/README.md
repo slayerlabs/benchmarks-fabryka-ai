@@ -118,10 +118,10 @@ Amendment 4: A1 not shown equivalent: both numbers are reported (lfm3-1.7b 72.04
   `out/lfm3-1.7b/generations.jsonl` says it was recorded after the fact. Scoring and summary of this run were
   recorded by lcb.py and summarize.py at the re-scoring (Amendment 5). The verdict run stays `lfm3-1.7b`; the
   amendment says why.
-- **The `output` of a `.jsonl.gz` line is the extracted code, not the whole model output.** METHODOLOGY.md asks
-  for the model output per task; the raw output with its thinking is about 16 MB for LFM3-1.7B, over the repo's
-  10 MB limit, so it stays in `out/<model-id>/` (not committed). Its sha256 is in the result file
-  (`raw_outputs.sha256`), so a copy kept elsewhere can be matched to the result.
+- **The `output` of a `.jsonl.gz` line is the extracted code, not the whole model output.**
+  research/api-benchmarks/README.md asks for the model output per task; the raw output with its thinking is about
+  16 MB for LFM3-1.7B, over the repo's 10 MB limit, so it stays in `out/<model-id>/` (not committed). Its sha256 is
+  in the result file (`raw_outputs.sha256`), so a copy kept elsewhere can be matched to the result.
 - **An answer without `</think>` is scored whole.** An answer cut at the context limit inside its thinking has no
   `</think>`, so the last code block of the thinking is extracted. Such answers have `finished: false`, so they never
   count at a budget, and their number is `unfinished` in the result file.
@@ -147,8 +147,8 @@ Amendment 4: A1 not shown equivalent: both numbers are reported (lfm3-1.7b 72.04
   max 2709), which leaves 2.87M output tokens for the 1055 problems (not recounted with the 1.09 checkpoint).
   `research/common/slayer_lm.py` decodes about 29 tokens per second whatever the batch (IFEval README,
   "Deviations": 1280 tokens in about 45 s), so the set takes about 27 h if the outputs run to the limit, as Slayer's
-  IFEval outputs mostly do. METHODOLOGY.md reserves `score: null` for a model that cannot run the benchmark; this
-  row uses it for a decision not to run.
+  IFEval outputs mostly do. research/api-benchmarks/README.md reserves `score: null` for a model that cannot run the
+  benchmark; this row uses it for a decision not to run.
 - **Contamination cannot be ruled out.** LiveCodeBench stopped adding problems in 2025, so `release_v6` is older
   than the training data of LFM3-1.7B and Bielik 11B v3.1 (whose template states a knowledge cutoff of 2026-03)
   (PROTOCOL.md, "Limits stated in advance"). The results are not contamination-free.

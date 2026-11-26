@@ -49,8 +49,10 @@ complete: a directory without weight files, or a sharded checkpoint missing a fi
 its token from the `HF_TOKEN` environment variable; the token is never recorded. The model is loaded with lm-eval's
 `HFLM`. Code shipped with a model runs only with `--trust-remote-code`, and the run records it.
 
-**Settings**: `--dtype` (default `float32`), `--device` (default `cuda`), `--batch-size` (default 1), and
-`--max-length` (default: from the model's configuration) are those of the research central run unless changed, and
+**Settings**: `--dtype` defaults to `bfloat16` (the 16-bit rule of [methodology.md](methodology.md), section 2); a
+model released in float16 needs `--dtype float16`, and reproducing the full run of November 2026 needs
+`--dtype float32`. `--device` (default `cuda`), `--batch-size` (default 1), and `--max-length` (default: from the
+model's configuration) are those of the research central run unless changed, and
 every one is recorded. `--bos one` (default) puts exactly one leading BOS token of the model's tokenizer before every
 request with a context, the rule of the research methodology (`research/METODOLOGIA.md`, section on the model input); `--bos none`
 keeps lm-eval 0.4.9.1's default, which adds none, as the published Pythia v0 references were computed. The BOS policy
@@ -133,9 +135,9 @@ Commands (from a clean checkout at the commit of the runs, CUDA build of torch 2
 
 ```bash
 python -m codesota.runner --benchmarks @implemented --model EleutherAI/pythia-1b-v0 \
-  --revision f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0 --bos none --out runs/pythia-none
+  --revision f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0 --bos none --dtype float32 --out runs/pythia-none
 python -m codesota.runner --benchmarks @implemented --model EleutherAI/pythia-1b-v0 \
-  --revision f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0 --bos one --out runs/pythia-one
+  --revision f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0 --bos one --dtype float32 --out runs/pythia-one
 ```
 
 Decision metric of each benchmark. "Same selection" compares `source_id_digest` (for HellaSwag, the research-style

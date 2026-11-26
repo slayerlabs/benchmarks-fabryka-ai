@@ -1,4 +1,5 @@
-"""Multi-IF step CSVs -> results/<model-id>.json and results/<model-id>.jsonl.gz (format from research/METHODOLOGY.md).
+"""Multi-IF step CSVs -> results/<model-id>.json and results/<model-id>.jsonl.gz
+(format from research/api-benchmarks/README.md).
 
 Usage (with the Multi-IF checkout on PYTHONPATH, so that its metrics.py is importable):
   PYTHONPATH=<Multi-IF checkout> python summarize.py <results/<model> dir of the harness> <results/model-id> \
@@ -126,7 +127,7 @@ def stopped(results_dir, target, settings, reason):
     with the harness's metrics.py. In such a run (Slayer) a request fails only when slayer_server.py rejects it because
     the turn's input plus the output limit does not fit in the model's window (HTTP 400; the harness marks the row
     `failed` after its retries). A model whose window is too short cannot run that turn, which is not a wrong answer
-    (research/METHODOLOGY.md): that turn and the later turns of the same conversation are counted as
+    (research/api-benchmarks/README.md): that turn and the later turns of the same conversation are counted as
     turn_<t>_context_exceeded and left out of the turn's N and accuracy."""
     exceeded, other = set(), {}
     for t in (1, 2, 3):

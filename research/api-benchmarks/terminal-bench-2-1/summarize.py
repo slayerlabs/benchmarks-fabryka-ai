@@ -4,8 +4,8 @@ or the null result of a model that cannot run the benchmark: python3 summarize.p
 Score: the pass rate over all counted trials (a trial passes when the task's tests give reward 1). Every task has the
 same number of counted trials, so this is also the mean of the per-task pass rates. stderr: the standard error of
 that mean over tasks (sd of the per-task pass rates / sqrt(number of tasks)), because trials of one task are not
-independent. The per-trial formula of research/METHODOLOGY.md (sqrt(p(1-p)/n) over all trials) is written as
-other_metrics.stderr_per_trial, for comparison.
+independent. The per-trial formula of research/api-benchmarks/README.md (sqrt(p(1-p)/n) over all trials) is
+written as other_metrics.stderr_per_trial, for comparison.
 
 Harbor's exception label is not used to decide anything: it is a pattern match over the agent's output, and here it
 mostly labels OpenCode's exit code 1 after a finished run (EPIPE on stdout, see README) as "rate limit" or

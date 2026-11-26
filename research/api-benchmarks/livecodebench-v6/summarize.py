@@ -1,4 +1,5 @@
-"""graded.jsonl (lcb.py score) -> results/<model-id>.json and results/<model-id>.jsonl.gz (research/METHODOLOGY.md).
+"""graded.jsonl (lcb.py score) -> results/<model-id>.json and results/<model-id>.jsonl.gz
+(research/api-benchmarks/README.md).
 
 Usage: python summarize.py <out-dir> <results/model-id> [--limit N]
 A run with --limit is written to <out-dir>/<model-id>-limit<N>.* instead, so a smoke test never replaces a

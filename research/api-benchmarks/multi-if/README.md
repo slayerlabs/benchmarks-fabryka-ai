@@ -90,7 +90,7 @@ and loose verdicts per instruction, whether the turn was scored as failed becaus
 - **Slayer is a base model** without a chat template and a 4096-token window: `slayer_server.py` joins the
   conversation as "User: ... Assistant: ..." text and decodes greedily up to 1280 tokens per turn. A turn whose
   input plus 1280 tokens does not fit in 4096 is rejected (HTTP 400). A context limit is not a wrong answer
-  (research/METHODOLOGY.md): `summarize.py --stopped` counts such a turn, with the later turns of the same
+  (research/api-benchmarks/README.md): `summarize.py --stopped` counts such a turn, with the later turns of the same
   conversation, as `turn_<t>_context_exceeded` and leaves it out of the turn's N (`turn_<t>_prompts_number`) and
   accuracy, instead of scoring it as failed. In the Slayer run the only failed request (turn 2) was this rejection
   (input 2875 + 1280 > 4096 tokens in the harness log). Weights: [SlayerLab/Slayer1B-1.09-checkpoints](https://huggingface.co/SlayerLab/Slayer1B-1.09-checkpoints)

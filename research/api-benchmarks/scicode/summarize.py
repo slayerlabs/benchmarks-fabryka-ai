@@ -1,5 +1,5 @@
 """graded.jsonl (scicode_runner.py score) -> results/<model-id>.json and results/<model-id>.jsonl.gz
-(research/METHODOLOGY.md).
+(research/api-benchmarks/README.md).
 
 Usage: python3 summarize.py <out-dir> <results/model-id> [--limit N]
        python3 summarize.py --null <results/model-id> <reason>     (a model that is not run: score null)

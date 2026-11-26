@@ -1,4 +1,5 @@
-"""BFCL output -> results/<model-id>.json and results/<model-id>.jsonl.gz (format from research/METHODOLOGY.md).
+"""BFCL output -> results/<model-id>.json and results/<model-id>.jsonl.gz
+(format from research/api-benchmarks/README.md).
 
 Usage:
   python summarize.py <bfcl root> <results/model-id> [--bfcl-model bielik-FC] [--limit]

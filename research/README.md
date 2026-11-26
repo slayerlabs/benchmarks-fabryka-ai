@@ -1,41 +1,41 @@
-> **Frozen.** Setup, layout and tools of the November 2026 lm-eval full run, in Polish. Start from the
-> [root README](../README.md); API benchmarks follow [METHODOLOGY.md](METHODOLOGY.md), model configuration
-> [`benchmarks/docs/methodology.md`](../benchmarks/docs/methodology.md).
+# Research workspace
 
-# Research: benchmarki modeli
+The Benchmark Team's working directory: new benchmarks, analyses, and work on Slayer 1B. Published results for
+readers outside the team are on the [results page](../benchmarks/results/README.md).
 
-Tu mierzymy modele i budujemy polskie benchmarki. Dziś mierzymy Slayera 1B. Obok niego przebieg centralny liczy
-cztery modele odniesienia (Qwen3.5-0.8B, LFM2.5-1.2B, LFM3-1.7B, EuroLLM-1.7B); piąty, Bielik-1.5B-v3, dochodzi, gdy
-konto uruchamiające przebieg ma zaakceptowaną zgodę na HF. Później
-dojdzie każdy następny model z Hugging Face. Rewizje i role modeli opisuje
-[`METODOLOGIA.md`](METODOLOGIA.md#modele-kontrolny-i-odniesienia).
+## Where things go
 
-Każdy benchmark ma jeden katalog w `benchmarks/`. Kod wspólny dla wielu benchmarków leży w `common/`. Jak powstaje
-benchmark (karta oryginału, odtworzenie, kod, wersja polska), opisuje [`METODOLOGIA.md`](METODOLOGIA.md). Kiedy
-benchmark jest skończony, mówi sekcja [„Definicja „zrobione””](METODOLOGIA.md#definicja-zrobione) w METODOLOGII.
-Wszystkie komendy niżej uruchamiasz w katalogu `research/`.
-
-## Układ
-
-| katalog albo plik | co tam jest |
+| you are | put it in |
 |---|---|
-| `METHODOLOGY.md` | how to run a benchmark through the Fabryka AI API, which files to add and in what format |
-| `api-benchmarks/<name>/` | one benchmark run through the API: `README.md`, `run.sh`, `results/<model-id>.json` and `.jsonl.gz` |
-| `METODOLOGIA.md` | wspólny rdzeń reguł, tabela typów testów, etapy A–D, modele, przepis, następna wersja Slayera |
-| `archive/` | dokumenty wycofane z użycia (meta-ocena i ranking, podział benchmarków na polskie); [`archive/README.md`](archive/README.md) |
-| `benchmarks/<name>/` | kod, dokumentacja i wyniki jednego benchmarku: `README.md`, `ORIGINAL.md`, `REPRODUCTION.md`, `RECIPE.md`; wyniki per model w `results/<model>/` (surowe `.jsonl` lokalnie, `.jsonl.gz` do ~10 MB w repo), raporty zbiorcze w `results/*.json` i `*.md`; wersja polska w osobnym `benchmarks/<name>-pl/` z `POLISH.md` |
-| `benchmarks/_template/` | od czego zacząć nowy benchmark |
-| `analyses/<name>/` | analiza na wielu testach naraz, te same pliki co benchmark (dziś `answer-format/`: litery A/B/C/D a losowość) |
-| `common/` | ładowanie modeli, wspólny format odpowiedzi, lista zadań (`zadania.py`), dane do testów (`tests/data/`), ewaluacja przez lm-eval |
-| `tools/` | bramka liczb (`liczby.py`, `sprawdz_raporty.py`), przebieg centralny (`przebieg_centralny.sh`, `kontrola_sensu.py`, `bezpiecznik.py`, `konwertuj.py`) |
-| `results/` | `LICZBY.json` i `LICZBY.md`: wszystkie liczby raportów, wygenerowane przez bramkę liczb; `central-run/`: wyniki przebiegu centralnego |
-| `tests/` | testy kodu, bez sieci i bez wag |
-| `slayer-1b/` | praca nad samym Slayerem 1B poza benchmarkami: `dane/` (spis zbiorów: [`REJESTR_DATASETOW.md`](slayer-1b/dane/REJESTR_DATASETOW.md)), `testy_danych_slayer/`, `wygaszanie/`, `tokenizer/`, `rozmowy-1.08/` (komendy w ich README uruchamiasz w `research/slayer-1b/`) |
+| adding or running a benchmark that generates answers, whatever way the models run (API, our vLLM, a GPU) | `api-benchmarks/<name>/`, step by step in [`api-benchmarks/README.md`](api-benchmarks/README.md) |
+| adding a log-likelihood benchmark (answers scored by probability) | the CodeSOTA runner's catalog in the top-level [`benchmarks/`](../benchmarks/README.md), by [its guide](../benchmarks/docs/contributing.md#5-writing-an-integration), not here |
+| analysing results of several benchmarks together | `analyses/<name>/` |
+| working on Slayer 1B itself (data, training, tokenizer) | `slayer-1b/` |
+| writing code that more than one benchmark uses | `common/`, with its test in `tests/test_<name>.py` |
+| retiring a document | `archive/`, with a line in [`archive/README.md`](archive/README.md) |
 
-Jest też jedna analiza: [`analyses/answer-format/`](analyses/answer-format/README.md). Testy T01–T52 liczy kod
-w `common/`, opisany w [`common/README.md`](common/README.md).
+How every model is configured (precision, decoding, repeats, output limit, standard errors) is in the
+[evaluation methodology](../benchmarks/docs/methodology.md), the one methodology for new work. How the team works
+(tasks, board, PR, review, checks before a PR) is in [`CONTRIBUTING.md`](../CONTRIBUTING.md). A new top-level
+directory in `research/` needs a decision in #bench-team first.
 
-## Benchmarki i typy
+**Frozen:** `research/benchmarks/`, `results/central-run/`, `results/full-run-2026-11/`, the central-run scripts in
+`tools/`, [`METODOLOGIA.md`](METODOLOGIA.md), [`STATUS.md`](STATUS.md) and the rest of this file below. They are the
+lm-eval full run of November 2026, in Polish, kept because the results page and the CodeSOTA runner's catalog are
+built from them. Change them only to fix an error; new benchmarks do not go into `research/benchmarks/`. The number
+gate in `tools/` (`liczby.py`, `sprawdz_raporty.py`) stays in use by every PR and regenerates `results/LICZBY.json`
+and `results/LICZBY.md`.
+
+## Frozen: the lm-eval full run of November 2026
+
+Tu mierzyliśmy modele przebiegiem centralnym lm-eval: Slayera 1B i cztery modele odniesienia (Qwen3.5-0.8B,
+LFM2.5-1.2B, LFM3-1.7B, EuroLLM-1.7B). Rewizje i role modeli opisuje
+[`METODOLOGIA.md`](METODOLOGIA.md#modele-kontrolny-i-odniesienia). Każdy benchmark tego przebiegu ma jeden katalog
+w `benchmarks/`; jak powstawał (karta oryginału, odtworzenie, kod, wersja polska), opisuje
+[`METODOLOGIA.md`](METODOLOGIA.md). Testy T01–T52 liczy kod w `common/`, opisany w
+[`common/README.md`](common/README.md). Wszystkie komendy niżej uruchamiasz w katalogu `research/`.
+
+### Benchmarki i typy
 
 Typ to wiersz tabeli typów z [METODOLOGII](METODOLOGIA.md#typy-testów); określa skalę, bazy, SE, wiążący werdykt,
 kontrolę i test zgodności. Kolumna „przebieg” mówi, czy benchmark liczy przebieg centralny
@@ -122,7 +122,7 @@ Testy T01–T50 według typu:
 | `masa` | T35 TruthfulQA MC2 |
 | `mcc` | T49 CoLA |
 
-## Przygotowanie (raz)
+### Przygotowanie (raz)
 
 Do samej karty oryginału (etap A) wystarczą `git clone` i `python3`, bo bramka liczb używa tylko biblioteki
 standardowej. Resztę przygotowania robisz od etapu B.
@@ -170,7 +170,7 @@ Rejestruje model `slayer` tylko pod komendą `lm_eval`, nie pod `python -m lm_ev
 wyniku dla Twojego benchmarku, bierzesz następny model z listy (sekcja „Model kontrolny etapu B”). Wagi zostają w
 `models/`, poza gitem (`.gitignore`).
 
-## Uruchomienie
+### Uruchomienie
 
 Benchmark z własnym katalogiem ma komendy w swoim `RECIPE.md`. Testy z wyborem odpowiedzi, które przeszły test
 zgodności z oryginałem, liczy wspólny skrypt `common/hipoteza_formatu.py`. Ten sam kod liczy każdy model:
@@ -195,7 +195,7 @@ python analyses/answer-format/analiza_formatu.py --wyniki <dir>
 Na czym opiera się poprawność nakładki i czym różni się od Space: [`common/RECIPE.md`](common/RECIPE.md). Na Windows komendy są w
 `.venv-eval/Scripts/` zamiast `.venv-eval/bin/`.
 
-## Przebieg centralny na GPU
+### Przebieg centralny na GPU
 
 Na instancji vast.ai (obraz PyTorch, katalog `/workspace`). Te komendy, inaczej niż reszta README, startują
 poza `research/`:
@@ -218,7 +218,7 @@ bash research/tools/start.sh slayer1b-1.07
 
 Szczegóły (dysk, dostęp HF, wznowienie, kopiowanie wyników): [METODOLOGIA, „Następna wersja Slayera”](METODOLOGIA.md#następna-wersja-slayera).
 
-## Testy kodu
+### Testy kodu
 
 Testy działają bez sieci i bez wag. Każdy kończy się kodem 0:
 
@@ -279,7 +279,7 @@ dalej czyta).
 Przed PR nie uruchamiasz wszystkich testów. Listę komend ma CONTRIBUTING, sekcja [„Przed PR”](../CONTRIBUTING.md#przed-pr).
 To testy zmienionego benchmarku, `tests/test_liczby_raportow.py` i bramka liczb.
 
-## Bramka liczb
+### Bramka liczb
 
 Uruchom ją przed każdą zmianą raportu (README, `benchmarks/`, `analyses/`, `slayer-1b/wygaszanie/`,
 `slayer-1b/testy_danych_slayer/`, strona HTML):
@@ -292,14 +292,14 @@ Kod różny od 0 znaczy, że raport ma liczbę spoza `results/LICZBY.json` albo 
 benchmarku bramka bierze z `benchmarks/<name>/results/*.json` i sprawdza je w plikach tego benchmarku. Bramka liczb
 to co innego niż warunek odtworzenia z etapu B metodologii.
 
-## SE i werdykt
+### SE i werdykt
 
 Werdykt (progi |z| w `tools/liczby.py`), Holm i MDE opisuje
 [METODOLOGIA, „Wspólny rdzeń”](METODOLOGIA.md#wspólny-rdzeń), a metodę SE każdego typu testu (analityczne, bootstrap,
 warstwowe, po klastrach) kolumna „SE” w [„Typach testów”](METODOLOGIA.md#typy-testów). Space liczy CI95 bootstrapem
 (10 000 powtórzeń, seed 20261028).
 
-## Bazy: losowa i większościowa
+### Bazy: losowa i większościowa
 
 Bazę losową, stałą odpowiedź (bazę większościową albo jej zamiennik), b i udział najczęstszej predykcji dla każdego
 typu testu definiuje [METODOLOGIA, „Typy testów”](METODOLOGIA.md#typy-testów).

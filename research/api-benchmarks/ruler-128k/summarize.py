@@ -6,11 +6,11 @@
   python summarize.py results <out>/<model-id> <results/model-id> --ruler-dir DIR
       checks the sha256 of every input against <out>/<model-id>/inputs.sha256.json (run.sh writes it after scoring),
       scores every sample with RULER's own postprocess and metric (ruler.scorer), checks that the per-task means
-      equal RULER's summary.csv, and writes the result files (format: research/METHODOLOGY.md) with the effective
-      sampling in `settings.sampling` and the code commit, runner sha256 and hardware of generation (generation.jsonl)
-      and of this summary in `provenance`; their sha256 go to results.sha256.json next to them, which compare.py checks.
-      PROTOCOL.md, Amendments 4-5: every score also strict (an output without `</think>` scores 0) in `strict` and
-      `other_metrics.strict` where the generation prompt opens a reasoning block; each .jsonl.gz row has
+      equal RULER's summary.csv, and writes the result files (format: research/api-benchmarks/README.md) with the
+      effective sampling in `settings.sampling` and the code commit, runner sha256 and hardware of generation
+      (generation.jsonl) and of this summary in `provenance`; their sha256 go to results.sha256.json next to them, which
+      compare.py checks. PROTOCOL.md, Amendments 4-5: every score also strict (an output without `</think>` scores 0) in
+      `strict` and `other_metrics.strict` where the generation prompt opens a reasoning block; each .jsonl.gz row has
       `closed_think`. API failures: counts of <length>/api-events.jsonl in `provenance.api_events`, or null with the
       reason (--no-event-log-reason for a run whose failures are known only from elsewhere).
 

@@ -31,7 +31,7 @@ class ModelSpec:
     repo: str | None
     revision: str | None
     path: Path | None
-    dtype: str = "float32"
+    dtype: str = "bfloat16"
     device: str = "cuda"
     batch_size: int = 1
     max_length: int | None = None
@@ -43,7 +43,7 @@ class ModelSpec:
         model: str,
         revision: str | None,
         *,
-        dtype: str = "float32",
+        dtype: str = "bfloat16",
         device: str = "cuda",
         batch_size: int = 1,
         max_length: int | None = None,

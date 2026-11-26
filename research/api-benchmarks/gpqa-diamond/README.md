@@ -161,7 +161,7 @@ still reach the cap.
   (`results/lfm3-1.7b-16k.jsonl.gz`) additionally carries a `truncated_16384` flag (the tokenizer pass was run on
   the pod); the 8192 and 2048 files do not, so a `truncated_8192` flag is not present. The 32768 files carry a
   `truncated_32768` flag the same way (threshold: generated tokens >= budget - 8, see `scripts/truncation_flags.py`).
-  This deviation from METHODOLOGY.md needs agreement in #bench-team.
+  This deviation from research/api-benchmarks/README.md needs agreement in #bench-team.
 - **The published runs did not pin the dataset revision in lm-eval.** The stock task has no `revision`, and each
   run's `results.json` records `dataset_kwargs: null`. Per the run brief the dataset was pre-downloaded at
   `83022cef...` and loaded offline on the pod; that is not recorded by lm-eval itself. `run.sh` now pins the revision

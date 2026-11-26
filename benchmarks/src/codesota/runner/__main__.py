@@ -31,7 +31,7 @@ def parser() -> argparse.ArgumentParser:
         "local/<directory>@<digest of its weights>)",
     )
     p.add_argument("--out", type=Path, help="directory under which each run directory is created")
-    p.add_argument("--dtype", default="float32", help="default: float32, as the research central run")
+    p.add_argument("--dtype", default="bfloat16", help="default: bfloat16; the November 2026 full run used float32")
     p.add_argument("--device", default="cuda")
     p.add_argument("--batch-size", type=int, default=1, help="default: 1, as the research central run")
     p.add_argument("--max-length", type=int, help="the model's context window (default: from its configuration)")

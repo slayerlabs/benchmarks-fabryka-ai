@@ -1,4 +1,5 @@
-"""IFStruct results file -> results/<model-id>.json and results/<model-id>.jsonl.gz (format from research/METHODOLOGY.md).
+"""IFStruct results file -> results/<model-id>.json and results/<model-id>.jsonl.gz
+(format from research/api-benchmarks/README.md).
 
 Usage: python summarize.py <ifstruct-eval --results-file> <input data jsonl> <results/model-id> <settings json> [--limit]
 

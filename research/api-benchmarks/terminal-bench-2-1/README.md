@@ -75,7 +75,7 @@ the evidence instead:
 
   The task containers run on the same VM, and the agent reaches the server on the VM's own address.
 - **Number of trials.** The card does not say how many trials it averages. This run uses 5 per task.
-- **Standard error clustered by task.** [`research/METHODOLOGY.md`](../../METHODOLOGY.md) gives
+- **Standard error clustered by task.** [`research/api-benchmarks/README.md`](../README.md) gives
   `sqrt(p(1-p)/n)` for pass/fail tasks, here 1.46 over the 445 trials (`other_metrics.stderr_per_trial`). With 5
   trials of each task the trials are not independent, so `stderr` is the standard error of the mean of the 89
   per-task pass rates, 2.69. With the per-trial SE of 1.46 the difference from the card, −2.36, gives

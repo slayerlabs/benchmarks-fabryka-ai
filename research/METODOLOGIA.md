@@ -1,9 +1,10 @@
 > **Frozen.** The protocol of the November 2026 lm-eval full run and the benchmark cards in `benchmarks/`, kept as the
 > evidence for those results. It is not the current methodology: model configuration follows
-> [`benchmarks/docs/methodology.md`](../benchmarks/docs/methodology.md), API benchmarks
-> [METHODOLOGY.md](METHODOLOGY.md), log-likelihood benchmarks the CodeSOTA runner
+> [`benchmarks/docs/methodology.md`](../benchmarks/docs/methodology.md), new benchmarks
+> [`api-benchmarks/README.md`](api-benchmarks/README.md), log-likelihood benchmarks the CodeSOTA runner
 > ([`benchmarks/docs/running.md`](../benchmarks/docs/running.md)). The section on the next Slayer version
-> describes the 1.07 run; the current checkpoint is named in the [root README](../README.md#which-slayer-to-measure).
+> describes the 1.07 run; which checkpoint to measure now is in the
+> [evaluation methodology, section 1](../benchmarks/docs/methodology.md#1-one-configuration-per-model).
 
 # Metodologia: wspólny rdzeń i typy testów
 
@@ -416,8 +417,9 @@ kontrolny etapu B”. Każdy liczy tylko swoje testy (`TESTY_MODELU` w `tools/pr
 wpisu zadania, i nie wchodzi ani do porównania z modelami odniesienia, ani do panelu SNR, ani do raportu przebiegu.
 Precyzja to float32, a bfloat16 tylko wtedy, gdy źródło wyniku liczyło w bf16 model od 6 mld parametrów.
 Te reguły precyzji dotyczą przebiegu centralnego, który jest zamkniętą konfiguracją. Nowe pomiary liczą model w
-precyzji jego wydania według [metodologii ewaluacji CodeSOTA](../benchmarks/docs/methodology.md), sekcja 2; wyniki
-float32 i bfloat16 stają w jednej tabeli dopiero po kontroli opisanej tam.
+16 bitach (bfloat16, a model wydany w float16 w float16), a wiersz dołączany do cudzej tabeli w precyzji tej tabeli,
+według [metodologii ewaluacji CodeSOTA](../benchmarks/docs/methodology.md), sekcja 2; wyniki float32 i bfloat16
+stają w jednej tabeli dopiero po kontroli opisanej tam.
 
 | model | rewizja | testy | uwagi |
 |---|---|---|---|

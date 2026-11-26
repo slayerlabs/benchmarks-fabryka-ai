@@ -1,4 +1,5 @@
-"""IFBench output -> results/<model-id>.json and results/<model-id>.jsonl.gz (format from research/METHODOLOGY.md).
+"""IFBench output -> results/<model-id>.json and results/<model-id>.jsonl.gz
+(format from research/api-benchmarks/README.md).
 
 Usage: python summarize.py <input data jsonl> <eval dir> <eval prefix> <results/model-id> <settings json>
 

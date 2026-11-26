@@ -1,4 +1,5 @@
-"""graded.jsonl (lcbpro.py score) -> results/<model-id>.json and results/<model-id>.jsonl.gz (research/METHODOLOGY.md).
+"""graded.jsonl (lcbpro.py score) -> results/<model-id>.json and results/<model-id>.jsonl.gz
+(research/api-benchmarks/README.md).
 
 Usage: python summarize.py <out-dir> <results/model-id> [--limit N]
        python summarize.py --not-run <results/model-id> <reason>

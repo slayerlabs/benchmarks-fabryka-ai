@@ -86,10 +86,11 @@ necessarily a completed, reproducible integration: the status of each log-likeli
 | Science and long context | GPQA Diamond, SciCode, AA-Omniscience, AA-LCR, RULER 128K |
 | Coding, tool use, and agentic tasks | LiveCodeBench v6, LiveCodeBench Pro 25Q2, BFCL V4, AutomationBench |
 
-Log-likelihood benchmarks live in [`research/benchmarks/<name>/`](../research/benchmarks/) with their card, recipe,
-any benchmark-specific code, and, where done, a reproduction report. Benchmarks run through a model API or our own
-serving live in [`research/api-benchmarks/<name>/`](../research/api-benchmarks/), as
-[`research/METHODOLOGY.md`](../research/METHODOLOGY.md) describes.
+Log-likelihood benchmarks of the November 2026 full run live in [`research/benchmarks/<name>/`](../research/benchmarks/)
+with their card, recipe, any benchmark-specific code, and, where done, a reproduction report. A new log-likelihood
+benchmark goes into the runner's catalog ([`docs/contributing.md`](docs/contributing.md#5-writing-an-integration),
+section 5); every other new benchmark lives in [`research/api-benchmarks/<name>/`](../research/api-benchmarks/), as
+its [guide](../research/api-benchmarks/README.md) describes.
 
 ## Methodology and reproducibility
 
@@ -97,8 +98,8 @@ serving live in [`research/api-benchmarks/<name>/`](../research/api-benchmarks/)
 - [`research/METODOLOGIA.md`](../research/METODOLOGIA.md): the frozen protocol of the November 2026 lm-eval full
   run behind `research/benchmarks/`: reproduction against references, test types, baselines, standard errors and
   verdicts. Written in Polish; the runner ports it ([`docs/running.md`](docs/running.md)).
-- [`research/METHODOLOGY.md`](../research/METHODOLOGY.md): how a benchmark run through a model API is documented:
-  sources, settings, machine-readable results, per-question outputs, deviations, and when it counts as done.
+- [`research/api-benchmarks/README.md`](../research/api-benchmarks/README.md): how a new benchmark is added and
+  documented: steps, sources, settings, machine-readable results, per-question outputs, deviations, and when it is done.
 - [`research/common/README.md`](../research/common/README.md): the machine-readable results format, with schema
   version, protocol and run identifiers, per-observation states for non-success outcomes, confidence intervals, and
   artifact hashes. Written in Polish.
@@ -193,7 +194,7 @@ benchmarks/
 
 Contributions from researchers and developers are welcome. Work on the `codesota` package needs no access to
 private infrastructure; running full evaluations on rented machines or the project's model API is coordinated with
-the maintainers ([`research/METHODOLOGY.md`](../research/METHODOLOGY.md)).
+the maintainers ([`CONTRIBUTING.md`](../CONTRIBUTING.md#contact)).
 
 - [`docs/methodology.md`](docs/methodology.md): how every model is configured for a run: precision, decoding,
   repeats, output limit, standard errors, and what `null` and "not run" mean.

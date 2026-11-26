@@ -1,4 +1,5 @@
-"""lm-eval output -> results/<model-id>.json and results/<model-id>.jsonl.gz (format from research/METHODOLOGY.md).
+"""lm-eval output -> results/<model-id>.json and results/<model-id>.jsonl.gz
+(format from research/api-benchmarks/README.md).
 
 Usage: python summarize.py <lm-eval output dir> <results/model-id>
 A run with --limit is written to <lm-eval output dir>/<model-id>-limit<N>.* instead, so a smoke test never

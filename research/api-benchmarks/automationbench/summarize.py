@@ -1,4 +1,5 @@
-"""AutomationBench export -> results/<model-id>.json and results/<model-id>.jsonl.gz (format from research/METHODOLOGY.md).
+"""AutomationBench export -> results/<model-id>.json and results/<model-id>.jsonl.gz
+(format from research/api-benchmarks/README.md).
 
 Usage: python summarize.py <export json> <results/model-id> <settings json> [--limit]
 
