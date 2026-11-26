@@ -1,7 +1,8 @@
 # Benchmarks
 
-Every benchmark with a directory in `research/benchmarks/`, and its status in CodeSOTA. Generated from
-[`src/codesota/catalog.py`](src/codesota/catalog.py); how to run them: [`docs/running.md`](docs/running.md).
+Every benchmark with a directory in `research/studies/2026-10-lm-eval-benchmarks/benchmarks/`, and its status
+in CodeSOTA. Generated from [`src/codesota/catalog.py`](src/codesota/catalog.py); how to run them:
+[`docs/running.md`](docs/running.md).
 
 - `verified` (4): a published reference result was reproduced with this protocol.
 - `needs-reference-check` (9): runs and matches the research pipeline, but no reference result is reproduced yet.

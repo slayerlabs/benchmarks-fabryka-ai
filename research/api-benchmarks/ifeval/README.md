@@ -28,7 +28,7 @@ The main row for Bielik is the API run. The two vLLM rows test the hidden prompt
 our setup against the LFM3-1.7B card (see Deviations, "Main metric"). Rows with a different setup are not
 interchangeable: compare Bielik with Bielik only through the paired differences below.
 
-IFEval also has a central-run task, [T36 (`research/benchmarks/ifeval/`)](../../benchmarks/ifeval/README.md), on
+IFEval also has a central-run task, [T36 (`research/studies/2026-10-lm-eval-benchmarks/benchmarks/ifeval/`)](../../studies/2026-10-lm-eval-benchmarks/benchmarks/ifeval/README.md), on
 the same dataset revision. T36 runs Slayer in float32 with batch 1 through `common/ewaluuj.py`; this directory
 runs it in bf16 with a batched forward. Do not treat a Slayer number from here and one from T36 as the same
 measurement. T36 has no results yet.

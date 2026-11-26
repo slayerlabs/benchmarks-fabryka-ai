@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 KORZEN = Path(__file__).resolve().parent.parent
-KOD = KORZEN / "results" / "full-run-2026-11" / "slayer-1.09-k40000" / "code"
+KOD = KORZEN / "studies" / "2026-10-lm-eval-benchmarks" / "results" / "full-run-2026-11" / "slayer-1.09-k40000" / "code"
 sys.path[:0] = [str(KOD), str(KORZEN / "tools" / "ewaluacja"), str(KORZEN / "tools"), str(KORZEN / "common")]
 import liczby_109 as L  # noqa: E402
 import raport as R  # noqa: E402

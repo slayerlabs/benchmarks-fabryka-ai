@@ -5,7 +5,7 @@ and rewrites only what it computes from the samples: `dodatkowe.space` metrics a
 ci95 and reference, and `references_sha256`. Value, n, sample digests and run provenance stay; results_rozszerzone.json
 gets `podsumowanie_ponowne`. Used when the statistics change after a run (SE K of `+klastry`, the constant-answer
 baseline of `mc`); a changed value means the samples or the scoring differ and stops the tool.
-  python tools/podsumuj_ponownie.py DIR...   (DIR = results/central-run/<benchmark>/<model>)
+  python tools/podsumuj_ponownie.py DIR...   (DIR = studies/2026-10-lm-eval-benchmarks/results/central-run/<benchmark>/<model>)
 """
 import gzip
 import json

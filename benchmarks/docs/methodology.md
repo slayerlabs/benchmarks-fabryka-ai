@@ -17,7 +17,7 @@ disagree or say nothing, the rule is our own decision and is marked **(our decis
 - Benchmark-specific protocols (prompt format, few-shot examples, scorer, subsets) stay in the benchmark's directory
   and, for `research/api-benchmarks/`, in [how to add a benchmark](../../research/api-benchmarks/README.md). The lm-eval
   benchmarks of the November 2026 full run keep their frozen protocol,
-  [`research/METODOLOGIA.md`](../../research/METODOLOGIA.md). This document sets the model side, which is the same
+  [`METODOLOGIA.md`](../../research/studies/2026-10-lm-eval-benchmarks/METODOLOGIA.md). This document sets the model side, which is the same
   across benchmarks.
 
 ## 1. One configuration per model
@@ -66,7 +66,7 @@ and says so. The Space and the results page show what has been measured, not whi
   configuration.
 - **A model that does not fit** the available hardware in 16 bits is "not run" (section 8), or gets a
   labelled quantized row. It is never quantized silently.
-- **Log-likelihood benchmarks.** The central lm-eval run of `research/benchmarks/` was measured in float32 (bfloat16
+- **Log-likelihood benchmarks.** The central lm-eval run of `research/studies/2026-10-lm-eval-benchmarks/benchmarks/` was measured in float32 (bfloat16
   for Bielik 11B and the controls named in METODOLOGIA.md). That run stays a closed configuration. Before new
   log-likelihood results in 16 bits are put in the same table as float32 ones, one control measures 2 to 3
   models in both precisions on the same benchmarks. If the differences are within the standard errors, the tables

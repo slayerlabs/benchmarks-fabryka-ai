@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 KORZEN = Path(__file__).resolve().parent.parent
-KAT = KORZEN / "benchmarks" / "blimp"
+KAT = KORZEN / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks" / "blimp"
 sys.path.insert(0, str(KAT))
 import blimp as B  # noqa: E402
 import checkpoints as K  # noqa: E402
@@ -310,7 +310,8 @@ def test_liczby_porownania_krzywej_klastr_i_luka():
     assert k["werdykt"] == "prawdopodobne" and k["df"] == 66  # verdict from the t p-value, not from |t| = 2.5
     assert por["krzywa/blimp_krzywa_nachylenie_klastr_binding/acc"]["werdykt"] == "nierozstrzygalne"
     meta = Lz.raporty_krzywej(kr)[0]
-    assert meta["grupy"][0]["werdykt"] == "nierozstrzygalne" and meta["generator"]["wejscie"] == "benchmarks/blimp/results/checkpoints.json"
+    assert meta["grupy"][0]["werdykt"] == "nierozstrzygalne"
+    assert meta["generator"]["wejscie"] == "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/checkpoints.json"
 
 
 def test_average_weights_odrzuca_zle_wejscie():

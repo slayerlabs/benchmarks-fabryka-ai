@@ -12,7 +12,8 @@ sys.path.insert(0, str(ROOT / "tools"))
 import count_params  # noqa: E402
 import raport  # noqa: E402
 
-RUN = ROOT / "results" / "full-run-2026-11"
+STUDY = ROOT / "studies" / "2026-10-lm-eval-benchmarks"
+RUN = STUDY / "results" / "full-run-2026-11"
 NO_CONTROL = {"arc-challenge", "medmcqa", "mathqa", "multiblimp-pl", "pubmedqa", "social-iqa", "wikitext-2", "wsc273"}
 FLAGGED = {"lfm2.5-1.2b-base", "lfm3-1.7b"}
 
@@ -96,7 +97,7 @@ def test_tensor_count_counts_shared_bytes_once():
 
 
 def test_every_test_has_a_final_stage_b_verdict():
-    cards = raport.read_cards(ROOT / "benchmarks", raport.BENCHMARKI)
+    cards = raport.read_cards(STUDY / "benchmarks", raport.BENCHMARKI)
     assert len(cards) == 15
     assert {b for b, c in cards.items() if c["state"] == "no_control"} == NO_CONTROL
 
@@ -165,7 +166,7 @@ def test_first_to_front_is_a_plain_difference(higher, first, front, expected):
 
 
 def test_hellaswag_note_reads_values_from_the_card():
-    text = raport.read_cards(ROOT / "benchmarks", ["hellaswag"])["hellaswag"]["text"]
+    text = raport.read_cards(STUDY / "benchmarks", ["hellaswag"])["hellaswag"]["text"]
     note = raport.hellaswag_control_note(text)
     assert "0,6074 wobec 0,6057" in note and "10-shot" in note and "0-shot" in note
 

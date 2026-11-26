@@ -54,7 +54,7 @@ model released in float16 needs `--dtype float16`, and reproducing the full run 
 `--dtype float32`. `--device` (default `cuda`), `--batch-size` (default 1), and `--max-length` (default: from the
 model's configuration) are those of the research central run unless changed, and
 every one is recorded. `--bos one` (default) puts exactly one leading BOS token of the model's tokenizer before every
-request with a context, the rule of the research methodology (`research/METODOLOGIA.md`, section on the model input); `--bos none`
+request with a context, the rule of the research methodology (`research/studies/2026-10-lm-eval-benchmarks/METODOLOGIA.md`, section on the model input); `--bos none`
 keeps lm-eval 0.4.9.1's default, which adds none, as the published Pythia v0 references were computed. The BOS policy
 is part of the protocol ID (`codesota.<benchmark>.0shot.<bos>-bos.v1`), so the two are never mixed in one protocol.
 
@@ -119,15 +119,15 @@ None of these changes a reported score; each is checked by `tests/test_runner.py
   WSC273), where the research results label it `paired_bootstrap`. The numbers are the same.
 - Verdicts are named in English: `strong` (pewne), `probable` (prawdopodobne), `noise` (szum), and `inconclusive`
   (nierozstrzygalne), with the same thresholds.
-- Benchmark IDs are the directory names in `research/benchmarks/`; the research task IDs (`T01`-`T53`) are kept as
+- Benchmark IDs are the directory names in `research/studies/2026-10-lm-eval-benchmarks/benchmarks/`; the research task IDs (`T01`-`T53`) are kept as
   `legacy_id` and accepted as aliases.
 
 ## Verification
 
 The runner's results were compared with the research pipeline's on the same model, revision, and settings
 (float32, batch 1): EleutherAI/pythia-1b-v0 at `f3f1b6d5`, without BOS against the full run of November 2026
-(`research/results/full-run-2026-11/`), and with one BOS against the BOS check of the same run
-(`research/results/full-run-2026-11/bos-window-check/`). The research runs used an RTX 5090; the runner's ran on an
+(`research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/`), and with one BOS against the BOS check of the same run
+(`research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/bos-window-check/`). The research runs used an RTX 5090; the runner's ran on an
 RTX 5060 Ti. Identical results on different hardware are not guaranteed in general; the tolerance, fixed before the
 runs, was one question.
 

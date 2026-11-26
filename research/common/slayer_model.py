@@ -11,7 +11,7 @@ forward zgodny z referencją - RMSNorm x*rsqrt(mean(x^2)+eps)*w, qk_norm przed R
 „interleaved" na pełnym wymiarze głowy, v = v + vr_lambda*v0 (v0 = surowe V bloku 0), domyślna
 skala SDPA, head = tok (tied), bez skalowania embeddingu. Jedyna różnica: referencja liczy kąty
 RoPE w float32, my w float64 (różnica kąta < 1e-3 rad przy pozycji 4096). WikiText-2 byte_ppl
-1,846284 wobec 1,846284 w Space przy mianowniku jak w lm-eval (benchmarks/wikitext-2/README.md).
+1,846284 wobec 1,846284 w Space przy mianowniku jak w lm-eval (studies/2026-10-lm-eval-benchmarks/benchmarks/wikitext-2/README.md).
 """
 
 import json

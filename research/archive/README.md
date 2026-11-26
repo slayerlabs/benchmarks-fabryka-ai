@@ -11,6 +11,7 @@ methodology, contribution rules and results. They are kept to go back to; nothin
 The repository as it was before this cleanup, with every link working, including the Polish README, CONTRIBUTING and
 AGENTS: [`f26d01a6`](https://github.com/slayerlabs/benchmarks-fabryka-ai/tree/f26d01a61dacee6af5f332e5d026ed313a4b9b55).
 
-Frozen in place, because code, tests and benchmark cards read or link them: [`research/METODOLOGIA.md`](../METODOLOGIA.md),
-[`research/README.md`](../README.md) and [`research/STATUS.md`](../STATUS.md), the protocol, setup and status of the
-November 2026 lm-eval full run.
+The protocol, setup and status of the November 2026 lm-eval full run are not archived: they are frozen with that run in
+[`research/studies/2026-10-lm-eval-benchmarks/`](../studies/2026-10-lm-eval-benchmarks/README.md)
+([`METODOLOGIA.md`](../studies/2026-10-lm-eval-benchmarks/METODOLOGIA.md),
+[`README.md`](../studies/2026-10-lm-eval-benchmarks/README.md), [`STATUS.md`](../studies/2026-10-lm-eval-benchmarks/STATUS.md)).

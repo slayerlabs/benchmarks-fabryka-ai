@@ -18,7 +18,7 @@ import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
-DIR = ROOT / "benchmarks" / "piqa"
+DIR = ROOT / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks" / "piqa"
 RAW = DIR / "results" / "raw"
 REPORT = DIR / "results" / "PIQA.md"
 

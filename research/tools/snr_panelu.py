@@ -1,13 +1,13 @@
 """SNR of one test on the central-run panel (METODOLOGIA, "Panel SNR").
 
 Panel: models of MODELE in tools/przebieg_centralny.sh except the SlayerLab row, that have per-question samples of the
-test in results/central-run/<benchmark>/<model>/probki/. Spread = standard deviation (n - 1) of the panel scores,
+test in studies/2026-10-lm-eval-benchmarks/results/central-run/<benchmark>/<model>/probki/. Spread = standard deviation (n - 1) of the panel scores,
 SE = mean over the panel of the SE of one score from the per-question values (clustered with --klaster),
 SNR = spread / SE. Uncertainty: 95% basic interval from a paired bootstrap over questions (or clusters), the same
 draws for every model, and SNR without each single panel model (the smallest of them decides with the interval).
 Fewer than 4 panel models: SNR "nieustalony".
 
-Run: python tools/snr_panelu.py results/central-run/arc-challenge --probki T02_space --metryka acc_norm
+Run: python tools/snr_panelu.py studies/2026-10-lm-eval-benchmarks/results/central-run/arc-challenge --probki T02_space --metryka acc_norm
 """
 import argparse
 import gzip
@@ -114,7 +114,7 @@ def policz(dane, powtorzenia=POWTORZENIA, ziarno=ZIARNO):
 
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    p.add_argument("katalog", help="results/central-run/<benchmark>")
+    p.add_argument("katalog", help="studies/2026-10-lm-eval-benchmarks/results/central-run/<benchmark>")
     p.add_argument("--probki", required=True, help="samples file without .jsonl.gz, e.g. T02_space")
     p.add_argument("--metryka", required=True, help="per-question field of the decision metric, e.g. acc_norm")
     p.add_argument("--klaster", help="doc field of the cluster when the test type has a clustered SE, e.g. UID")

@@ -29,7 +29,7 @@ def gotowe_statusu(tekst):
 
 
 def test_gotowe_equals_the_gotowe_section_of_status():
-    ids, liczba = gotowe_statusu((KORZEN / "STATUS.md").read_text(encoding="utf-8"))
+    ids, liczba = gotowe_statusu((KORZEN / "studies" / "2026-10-lm-eval-benchmarks" / "STATUS.md").read_text(encoding="utf-8"))
     assert len(ids) == liczba
     assert gotowe_skryptu() == ids
 

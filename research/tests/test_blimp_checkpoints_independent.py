@@ -19,8 +19,8 @@ import numpy as np
 import pytest
 
 KORZEN = Path(__file__).resolve().parent.parent
-RAW = KORZEN / "benchmarks/blimp/results/checkpoints"
-KRZYWA = KORZEN / "benchmarks/blimp/results/checkpoints.json"
+RAW = KORZEN / "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/checkpoints"
+KRZYWA = KORZEN / "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/checkpoints.json"
 WYG = KORZEN / "slayer-1b/wygaszanie/wyniki"
 # written here again on purpose (not imported): CHECKPOINTS_THRESHOLDS.md and amendment 1
 GLOWNE = [7150, 8600, 10010, 13848]
@@ -32,7 +32,7 @@ IDENTYCZNE = {"blimp_passive_1/324", "blimp_passive_1/810", "blimp_principle_A_c
               "blimp_principle_A_case_2/287", "blimp_principle_A_case_2/372", "blimp_principle_A_case_2/816",
               "blimp_principle_A_case_2/967"}
 
-pytestmark = pytest.mark.skipif(not KRZYWA.exists(), reason="no benchmarks/blimp/results/checkpoints.json")
+pytestmark = pytest.mark.skipif(not KRZYWA.exists(), reason=f"no {KRZYWA.relative_to(KORZEN)}")
 
 
 def wczytaj(p):
@@ -51,7 +51,7 @@ _cache = {}
 
 def model(e):
     if e not in _cache:
-        p = KORZEN / "benchmarks/blimp/results/pythia-1b/blimp.jsonl.gz" if e == "pythia" else RAW / f"{e}.jsonl.gz"
+        p = KRZYWA.parent / "pythia-1b/blimp.jsonl.gz" if e == "pythia" else RAW / f"{e}.jsonl.gz"
         _cache[e] = wczytaj(p)
     return _cache[e]
 

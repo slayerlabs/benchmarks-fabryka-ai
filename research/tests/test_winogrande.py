@@ -5,7 +5,8 @@ Run: python tests/test_winogrande.py
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "benchmarks" / "winogrande"))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks"
+                       / "winogrande"))
 import score
 
 DOC = {

@@ -6,8 +6,9 @@ Space). Two things are checked, read-only:
 
 - The observation vocabulary in `codesota.results.schema` equals the one research/common/metryki.py checks
   (`WYMAGANE_OBS`, `STANY`), read from its source without importing it.
-- Every `results.json` written by the research pipeline under research/results/central-run/ passes
-  `observation_issues`, and its bytes are unchanged afterwards.
+- Every `results.json` written by the research pipeline under
+  research/studies/2026-10-lm-eval-benchmarks/results/central-run/ passes `observation_issues`, and its bytes are
+  unchanged afterwards.
 """
 
 import ast
@@ -20,7 +21,7 @@ from codesota.results import observation_issues, schema
 
 REPO = Path(__file__).resolve().parents[2]
 METRYKI = REPO / "research" / "common" / "metryki.py"
-CENTRAL_RUN = REPO / "research" / "results" / "central-run"
+CENTRAL_RUN = REPO / "research" / "studies" / "2026-10-lm-eval-benchmarks" / "results" / "central-run"
 RESULTS = sorted(CENTRAL_RUN.glob("*/*/results.json"))
 
 

@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "benchmarks" / "hellaswag"))
+sys.path.insert(0, str(ROOT / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks" / "hellaswag"))
 import hellaswag
 
 SAMPLE = ROOT / "common" / "tests" / "data" / "hellaswag.jsonl"

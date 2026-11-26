@@ -173,7 +173,7 @@ def test_resummary_keeps_old_numbers_that_differ_only_by_rounding():
 
 
 def test_committed_central_run_blimp_se_is_se_k_of_its_samples():
-    katalog = KORZEN / "results/central-run/blimp/slayer1b-1.06"
+    katalog = KORZEN / "studies/2026-10-lm-eval-benchmarks/results/central-run/blimp/slayer1b-1.06"
     with gzip.open(katalog / "probki/T01_space.jsonl.gz", "rt") as f:
         probki = [json.loads(w) for w in f]
     r = se_k([float(p["acc"]) for p in probki], [p["doc"]["UID"] for p in probki])

@@ -19,7 +19,7 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 import statystyka as T  # noqa: E402
-BENCHMARK = ROOT / "benchmarks" / "wsc273"
+BENCHMARK = ROOT / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks" / "wsc273"
 SCRIPT = BENCHMARK / "wsc273.py"
 RESULT = BENCHMARK / "results" / "wsc273.json"
 PANEL = BENCHMARK / "panel200.json"

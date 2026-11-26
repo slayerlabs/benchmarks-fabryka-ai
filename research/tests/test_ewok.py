@@ -11,7 +11,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "benchmarks" / "ewok"))
+sys.path.insert(0, str(ROOT / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks" / "ewok"))
 import ewok as E  # noqa: E402
 
 SAMPLE = [json.loads(line) for line in (ROOT / "common" / "tests" / "data" / "ewok.jsonl").read_text(encoding="utf-8").splitlines()]
@@ -266,8 +266,9 @@ def test_wpis_przebiegu_zgodny_z_karta():
     sys.path.insert(0, str(ROOT / "common"))
     import zadania as Z
     meta = Z.ZADANIA["T53"]
-    karta = (ROOT / "benchmarks" / "ewok" / "ORIGINAL.md").read_text(encoding="utf-8")
-    assert meta["kod"] == "benchmarks/ewok/ewok.py" and meta["metric"] == E.METRICS[0] == "ewok"
+    karta = (ROOT / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks" / "ewok" / "ORIGINAL.md").read_text(encoding="utf-8")
+    assert meta["kod"] == "studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/ewok.py"
+    assert meta["metric"] == E.METRICS[0] == "ewok"
     assert (meta["repo"], meta["rewizja"]) == (E.DATASET_REPO, E.DATASET_REV)
     assert f"`{E.DATASET_REPO}`" in karta and E.DATASET_REV in karta and "split: `test`" in karta
     assert "| Metryka decyzyjna | trafność LOGPROBS" in karta and "0-shot" in karta

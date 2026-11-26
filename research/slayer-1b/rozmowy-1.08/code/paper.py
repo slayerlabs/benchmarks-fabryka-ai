@@ -277,7 +277,7 @@ def tresc(L):
       f"{f(a2['rozumowanie']['snr_poprawnosc']['snr'], 1)}, czyli różnice modeli ledwo wychodzą ponad zmienność seedów.")
     o("")
     o("**A3. Trafność zewnętrzna** (opisowa, 3 modele). Ranking naszej metryki wobec testów przebiegu centralnego "
-      "`results/full-run-2026-11/` (tau Kendalla przy 3 modelach przyjmuje tylko 4 wartości):")
+      "`studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/` (tau Kendalla przy 3 modelach przyjmuje tylko 4 wartości):")
     o("")
     a3 = L["jakosc"]["a3"]
     rows = []

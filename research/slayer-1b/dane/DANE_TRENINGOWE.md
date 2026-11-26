@@ -109,7 +109,7 @@ tokenizer dzieli angielski na więcej kawałków.
 
 - **Granice pack-05, pack-06 i pack-07 w krokach 8991–13848 oraz to, czy pack-07 wszedł w całości.** Sprawdzono karty
   modeli i checkpointów 1.04–1.06, notatkę `public_note` i `config` przebiegu [`f056bb5c`][track] (API trackera) oraz
-  [`CHECKPOINTS.md`](../../benchmarks/blimp/results/CHECKPOINTS.md) BLiMP. Repozytoria checkpointów 1.03–1.06 nie
+  [`CHECKPOINTS.md`](../../studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/CHECKPOINTS.md) BLiMP. Repozytoria checkpointów 1.03–1.06 nie
   mają katalogu `run/` z manifestami strumieni, a 1.01 i 1.02 go mają.
 - **Proporcje komponentów w pack-04 … pack-07.** Szukano w tych samych miejscach.
 - **Podział rdzenia na `core` i `core_sa` w treningu.** Manifest strumienia łączy oba pliki w jedną pulę: 8 579 260
@@ -130,7 +130,7 @@ wersja widziała które z nich.
 |---|---|---|
 | PolQA (T30) | `polqa` leży w `core_sa`. Trafienie ma 193 z 200 pytań, w polach z odpowiedzią tylko 1 (trafienia głównie w pasażach z Wikipedii) | [`results.json`][space-results]; [REJESTR, sekcja 1](REJESTR_DATASETOW.md#1-slayer-1b--slayerlabslayer-pl-8x3b) |
 | PoQuAD (T31) | `poquad` leży w `core`. Trafienie ma 200 z 200 pytań, w polach z odpowiedzią 42 | [`results.json`][space-results]; REJESTR, 1.2 |
-| MultiBLiMP PL (T04) | Trafienie ma 16 z 200 zdań. W 1.01 10 z 3272 zdań miało co najmniej połowę 13-gramów w pack-01. Zdania krótsze niż 13 słów nie dają 13-gramów. Podejrzenie: zdania z publicznych drzew UD są w danych | [karta 1.01][m101]; [`results.json`][space-results]; [#36][i36]; [README](../../benchmarks/multiblimp-pl/README.md) |
+| MultiBLiMP PL (T04) | Trafienie ma 16 z 200 zdań. W 1.01 10 z 3272 zdań miało co najmniej połowę 13-gramów w pack-01. Zdania krótsze niż 13 słów nie dają 13-gramów. Podejrzenie: zdania z publicznych drzew UD są w danych | [karta 1.01][m101]; [`results.json`][space-results]; [#36][i36]; [README](../../studies/2026-10-lm-eval-benchmarks/benchmarks/multiblimp-pl/README.md) |
 | BoolQ, MMLU, ARC | Skan przecieków znalazł w `shared/en` 1428, 1429 i 1345 dokumentów. Od kroku 7193 wyłączono 5133 dokumenty, więc 1.00–1.03 i kroki do 7192 trenowano bez tego filtra. Na panelu Space trafienie ma BoolQ 37 z 200 (w polach z odpowiedzią 0), MMLU 6 z 200, ARC-Challenge 4 z 200 | [karta 1.03][m103]; [`results.json`][space-results]; pełne splity liczy [#36][i36] |
 | WikiText-2 (T03) | Trafienie ma 21 z 62 dokumentów. W 1.01 26 z 62 dokumentów miało co najmniej jeden wspólny 13-gram z pack-01 | [karta 1.01][m101]; [`results.json`][space-results] |
 | DYK (T25), WiC (T13), PPC (T26) | Trafienie ma 160, 75 i 56 z 200 pytań | [`results.json`][space-results] |

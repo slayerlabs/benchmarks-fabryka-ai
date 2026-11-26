@@ -109,7 +109,7 @@ Kod jest najsłabiej zbudowaną kategorią: 20 z 30 poleceń żaden model nie ro
 
 W wiedzy ogólnej SNR BPB wynosi 0,3: zmiana szablonu przesuwa średnie BPB bardziej, niż różnią się modele, więc różnice BPB w tej kategorii zależą od szablonu (werdykty niżej podaję razem ze znakiem w szablonie B). W rozumowaniu SNR poprawności wynosi 1,5, czyli różnice modeli ledwo wychodzą ponad zmienność seedów.
 
-**A3. Trafność zewnętrzna** (opisowa, 3 modele). Ranking naszej metryki wobec testów przebiegu centralnego `results/full-run-2026-11/` (tau Kendalla przy 3 modelach przyjmuje tylko 4 wartości):
+**A3. Trafność zewnętrzna** (opisowa, 3 modele). Ranking naszej metryki wobec testów przebiegu centralnego `studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/` (tau Kendalla przy 3 modelach przyjmuje tylko 4 wartości):
 
 | kategoria | test centralny | S | B | L | tau Kendalla | zgodne znaki par (z 3) |
 |---|---|---|---|---|---|---|

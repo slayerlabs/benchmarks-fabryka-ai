@@ -6,10 +6,10 @@ Slayer: zawsze jeden BOS <|endoftext|>, jak w METHOD.md Space). Ten sam scorer p
 test 0 (Pythia/Qwen vs opublikowane liczby), zanim mierzymy nim Slayera.
 
   python common/hipoteza_formatu.py licz --model <katalog> --etykieta 1.06 \
-      --zadania arc_c_cloze,arc_c_mc --wyjscie analyses/answer-format/results/1.06 [--device mps] [--limit N]
-  python common/hipoteza_formatu.py wikitext --model <katalog_slayera> --wyjscie analyses/answer-format/results/1.06
+      --zadania arc_c_cloze,arc_c_mc --wyjscie studies/2026-10-answer-format/results/1.06 [--device mps] [--limit N]
+  python common/hipoteza_formatu.py wikitext --model <katalog_slayera> --wyjscie studies/2026-10-answer-format/results/1.06
   python common/hipoteza_formatu.py zgodnosc --model <katalog> --n 20   # MPS vs CPU
-  python analyses/answer-format/analiza_formatu.py --wyniki analyses/answer-format/results
+  python studies/2026-10-answer-format/analiza_formatu.py --wyniki studies/2026-10-answer-format/results
 
 Wyjście `licz`: <wyjscie>/<zadanie>.jsonl, wiersz na pytanie (logliki opcji, bezwarunkowe,
 bajty/znaki/tokeny), dopisywane przyrostowo (wznowienie pomija gotowe id), oraz
@@ -501,7 +501,7 @@ def cmd_wikitext(a):
         pary = [(list(c), list(t)) for c, t in okna]
         nll -= sum(v for v, _ in licz_logliki(model, pary, 1))
         # Mianownik z ORYGINAŁU, jak lm-eval wikitext process_results: tekst po detokenizacji jest o 4% krótszy
-        # w bajtach i dawał byte_ppl 1,8925 zamiast 1,8463 (benchmarks/wikitext-2/README.md).
+        # w bajtach i dawał byte_ppl 1,8925 zamiast 1,8463 (studies/2026-10-lm-eval-benchmarks/benchmarks/wikitext-2/README.md).
         bajty += len(d["page"].encode("utf-8")); slowa += len(re.split(r"\s+", d["page"]))
     out = {"n_docs": len(docs), "byte_perplexity": math.exp(nll / bajty), "bits_per_byte": nll / bajty / LN2,
            "word_perplexity": math.exp(nll / slowa), "nll_suma": nll, "bajty": bajty, "slowa": slowa,

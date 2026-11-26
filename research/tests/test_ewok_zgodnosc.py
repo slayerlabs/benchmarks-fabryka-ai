@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "benchmarks" / "ewok"))
+sys.path.insert(0, str(ROOT / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks" / "ewok"))
 import ewok as E  # noqa: E402
 
 SAMPLE = json.loads((ROOT / "common" / "tests" / "data" / "ewok_zgodnosc.json").read_text(encoding="utf-8"))

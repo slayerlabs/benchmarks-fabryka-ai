@@ -17,7 +17,7 @@ import wpis_benchmarku as W  # noqa: E402
 
 Z = W.Z
 U =W.modul_forka("polqa/lm_eval_tasks/polish_polqa/utils.py")
-YAML = W.KORZEN / "benchmarks" / "polqa" / "lm_eval_tasks" / "polish_polqa" / "polqa_open_book.yaml"
+YAML = W.ZK.STUDIUM / "benchmarks" / "polqa" / "lm_eval_tasks" / "polish_polqa" / "polqa_open_book.yaml"
 PROMPT = "Kontekst: {{passage_text}} \\n Pytanie: {{question}} \\n Prawidłowa odpowiedź:"  # as written in YAML/card
 
 

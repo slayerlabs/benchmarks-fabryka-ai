@@ -329,10 +329,11 @@ def test_cluster_rules_match_research() -> None:
         spec.loader.exec_module(module)
         return module
 
-    winogrande = load(RESEARCH / "benchmarks" / "winogrande" / "przelicz.py", "research_winogrande")
+    study = RESEARCH / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks"
+    winogrande = load(study / "winogrande" / "przelicz.py", "research_winogrande")
     docs = DOCS["winogrande"] * 3
     assert scoring.winogrande_pairs(docs) == winogrande.klastry_z_opcji([(d["option1"], d["option2"]) for d in docs])
-    wsc = load(RESEARCH / "benchmarks" / "wsc273" / "wsc273.py", "research_wsc273")
+    wsc = load(study / "wsc273" / "wsc273.py", "research_wsc273")
     docs = [*DOCS["wsc273"], {"text": "A completely different sentence about the sea."}]
     assert scoring.wsc273_schemas(docs) == wsc.schematy(docs) == [0, 0, 1]
 

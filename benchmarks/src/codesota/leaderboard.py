@@ -27,7 +27,7 @@ PACKAGE = Path(__file__).resolve().parent
 BENCHMARKS = PACKAGE.parent.parent
 REPO = BENCHMARKS.parent
 OUT = BENCHMARKS / "results"
-FULL_RUN = "research/results/full-run-2026-11"
+FULL_RUN = "research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11"
 IFEVAL_API = "research/api-benchmarks/ifeval/results"
 
 # Benchmark categories, in display order, as in the README's "Evaluation domains".
@@ -121,7 +121,8 @@ class Result:
 
 
 # Benchmarks whose requests have no context to put a BOS token before (empty context, rolling windows), and the one
-# whose own code applies the card's rule instead of the run's (research/results/full-run-2026-11/README.md).
+# whose own code applies the card's rule instead of the run's
+# (research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/README.md).
 NO_BOS: Final = frozenset({"blimp", "wikitext-2"})
 CARD_BOS: Final = frozenset({"ewok"})
 

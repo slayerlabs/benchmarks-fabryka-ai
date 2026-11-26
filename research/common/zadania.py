@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import metryki as M  # noqa: E402
 
 KATALOG = Path(__file__).resolve().parent
-BENCHMARKI = KATALOG.parent / "benchmarks"
+BENCHMARKI = KATALOG.parent / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks"
 DANE_TESTOWE = KATALOG / "tests" / "data"
 ZADANIA_LM_EVAL = Path(lm_eval.__file__).resolve().parent / "tasks"
 
@@ -194,7 +194,7 @@ ZADANIA = {
                 split="test", rodzaj="mc", klasy_stale=True, shoty=5,
                 yaml="8tags/lm_eval_tasks/polish_8tags/8tags_mc.yaml"),
     # Belebele has only a test split: the bank comes from it and its 5 documents are never scored (METODOLOGIA "Przykłady few-shot",
-    # benchmarks/belebele-pl/README.md), instead of the fork's first 5 test documents.
+    # studies/2026-10-lm-eval-benchmarks/benchmarks/belebele-pl/README.md), instead of the fork's first 5 test documents.
     "T24": dict(benchmark_id="belebele", task="polish_belebele_mc", family="belebele", language="PL",
                 metric="acc,none", unit="score", higher_is_better=True,
                 repo="facebook/belebele", rewizja="7899cdfa4e1e0d733fd77c848e2c273cb1d32be2",
@@ -360,11 +360,12 @@ ZADANIA = {
                     "subject_aux_inversion": ("wzft7", "2a246a1ac90dd79d68e4c10e3f5ba81fd4a8563e385193a60c658c671aabb865"),
                     "turn_taking": ("2g6jp", "a350fdbd8669e9f84e2608503ed94af1cfe5bf29ceda9a3e0a2c3efc9665c9db")},
                 split="train", rodzaj="mc", klasy_stale=False, wagi="rowne"),
-    # EWoK: own code (`kod`), not lm-eval; the run calls `benchmarks/ewok/ewok.py przebieg` (rule `authors`).
+    # EWoK: own code (`kod`), not lm-eval; the run calls `studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/ewok.py przebieg`
+    # (rule `authors`).
     "T53": dict(benchmark_id="ewok", task="ewok", family="ewok", language="EN",
                 metric="ewok", unit="score", higher_is_better=True,
                 repo="ewok-core/ewok-core-1.0", rewizja="34d912a608066c92e2990a0328ffc3bd9a716042",
-                split="test", rodzaj="kod", kod="benchmarks/ewok/ewok.py"),
+                split="test", rodzaj="kod", kod="studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/ewok.py"),
 }
 
 # Tasks the run evaluates through common/ewaluuj.py (lm-eval); the rest run their own `kod` command.

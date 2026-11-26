@@ -23,12 +23,12 @@ class Decision(unittest.TestCase):
 
     def test_research_code_the_runner_compares_with_runs_tests(self) -> None:
         self.assertTrue(C.needs_tests(listing("research/common/metryki.py"), 1))
-        self.assertTrue(C.needs_tests(listing("research/benchmarks/new-benchmark/README.md"), 1))
+        self.assertTrue(C.needs_tests(listing("research/studies/2026-10-lm-eval-benchmarks/benchmarks/new-benchmark/README.md"), 1))
         self.assertTrue(C.needs_tests(listing("research/tools/statystyka.py"), 1))
         self.assertFalse(C.needs_tests(listing("research/tools/liczby.py", "research/results/x.json"), 2))
 
     def test_result_files_of_the_results_page_run_tests(self) -> None:
-        self.assertTrue(C.needs_tests(listing("research/results/full-run-2026-11/manifest.jsonl"), 1))
+        self.assertTrue(C.needs_tests(listing("research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/manifest.jsonl"), 1))
         self.assertTrue(C.needs_tests(listing("research/api-benchmarks/ifeval/results/new-model.json"), 1))
 
     def test_benchmarks_change_runs_tests(self) -> None:

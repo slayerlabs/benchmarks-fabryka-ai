@@ -1,8 +1,8 @@
 """Raport pełnego przebiegu z paczki `ewaluacja.py eksport`: katalog results/<przebieg>/ z wynikami (bez próbek),
 porównaniami parowanymi kolejnych wersji Slayera, wykresami SVG i README.md.
 
-    python tools/ewaluacja/raport.py <paczka_albo_katalog_przebiegu> results/<przebieg> \
-        [--odniesienie results/central-run] [--bez-porownan]
+    python tools/ewaluacja/raport.py <paczka_albo_katalog_przebiegu> studies/2026-10-lm-eval-benchmarks/results/<przebieg> \
+        [--odniesienie studies/2026-10-lm-eval-benchmarks/results/central-run] [--bez-porownan]
 
 Bez próbek per pytanie (`--bez-porownan`) raport bierze porównania wersji z istniejącego progresja.json. README.md,
 wykresy, `se` w manifest.jsonl oraz flagi i pola CodeSOTA w przeglad.jsonl są generowane w całości z plików wyników,
@@ -20,6 +20,7 @@ from pathlib import Path
 
 TU = Path(__file__).resolve().parent
 RESEARCH = TU.parents[1]
+STUDIUM = RESEARCH / "studies" / "2026-10-lm-eval-benchmarks"
 sys.path[:0] = [str(RESEARCH / "common"), str(RESEARCH / "tools")]
 import statystyka as S  # noqa: E402
 
@@ -166,7 +167,7 @@ class Oceny:
 
     def szablony(self):
         if self._szablony is None:
-            sys.path.insert(0, str(RESEARCH / "benchmarks" / "ewok"))
+            sys.path.insert(0, str(STUDIUM / "benchmarks" / "ewok"))
             import ewok
             try:
                 rek = ewok.load_records()
@@ -179,7 +180,7 @@ class Oceny:
     def wektor(self, bench, task, met, probki):
         klucze = sorted(probki)
         if bench == "ewok":
-            sys.path.insert(0, str(RESEARCH / "benchmarks" / "ewok"))
+            sys.path.insert(0, str(STUDIUM / "benchmarks" / "ewok"))
             import ewok
             x = [ewok.evaluate(probki[k])["ewok"] for k in klucze]
             sz = self.szablony()
@@ -397,7 +398,7 @@ def first_to_front(t: dict, first: dict, front: dict) -> str:
 
 
 def read_test_types(readme_text: str) -> dict:
-    """{directory: type} from the table in research/README.md."""
+    """{directory: type} from the table in research/studies/2026-10-lm-eval-benchmarks/README.md."""
     return {m.group(1): m.group(2) for m in re.finditer(r"^\| \[`([\w.-]+)`\]\([^)]*\) \| [^|]* \| `([^`]+)`", readme_text, re.M)}
 
 
@@ -1112,9 +1113,9 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     a("")
     a(f"{len(run.M)} modeli, {len(run.T)} testów, pełne zbiory. Karta {gpu}, float32, batch 1. Wyjątek: Bielik-11B w bfloat16, bez EWoK.")
     a("")
-    a('<a href="../../STATUS.md"><img src="../../../docs/img/stan-benchmarkow.svg" alt="Stan benchmarków" height="36"></a> '
-      '<a href="../../METODOLOGIA.md"><img src="../../../docs/img/metodologia.svg" alt="Metodologia" height="36"></a> '
-      '<a href="https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks"><img src="../../../docs/img/wyniki-na-hf.svg" alt="Wyniki na HF" height="36"></a>')
+    a('<a href="../../STATUS.md"><img src="../../../../../docs/img/stan-benchmarkow.svg" alt="Stan benchmarków" height="36"></a> '
+      '<a href="../../METODOLOGIA.md"><img src="../../../../../docs/img/metodologia.svg" alt="Metodologia" height="36"></a> '
+      '<a href="https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks"><img src="../../../../../docs/img/wyniki-na-hf.svg" alt="Wyniki na HF" height="36"></a>')
     a("")
     jednakowy = bos_jednakowy(run.results)
     if not jednakowy:
@@ -1135,7 +1136,7 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
         if m in TOKENY:
             a(f"Tokeny treningu: 1.08 skończyło trening na {mld(TOKENY['slayer1b-1.08'])} mld tokenów, a {nazwa(m)} ma "
               f"{mld(TOKENY[m])} mld, czyli o {mld(TOKENY[m] - TOKENY['slayer1b-1.08'])} mld więcej "
-              "([dane treningowe](../../slayer-1b/dane/DANE_TRENINGOWE.md#tokeny-wersji)). "
+              "([dane treningowe](../../../../slayer-1b/dane/DANE_TRENINGOWE.md#tokeny-wersji)). "
               "<!-- liczba-spoza-wynikow: tokeny z DANE_TRENINGOWE.md, tabela „Tokeny wersji”, krok 40 000 = 1.08 + 40 000 × 2^20 -->")
         a("")
     toku_summary(run, a)
@@ -1341,7 +1342,7 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     a("```")
     a("")
     a("Cały przebieg: te same kolejki co tutaj, jedna na kartę (`CUDA_VISIBLE_DEVICES`), `--zadania gotowe --pobierz --usun-wagi`, potem `ewaluacja.py eksport`. "
-      "Ten plik i wykresy: `python tools/ewaluacja/raport.py results/full-run-2026-11 results/full-run-2026-11 --bez-porownan --odniesienie results/central-run`.")
+      "Ten plik i wykresy: `python tools/ewaluacja/raport.py studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11 studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11 --bez-porownan --odniesienie studies/2026-10-lm-eval-benchmarks/results/central-run`.")
     a("\n</details>\n")
     (run.cel / "README.md").write_text("\n".join(L), encoding="utf-8")
 
@@ -1349,9 +1350,9 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("paczka", help="katalog z manifest.jsonl: rozpakowany eksport albo sam katalog przebiegu")
-    ap.add_argument("cel", help="katalog raportu, np. results/full-run-2026-11")
+    ap.add_argument("cel", help="katalog raportu, np. studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11")
     ap.add_argument("--przeglad", help="przeglad.jsonl z flagami wyników (domyślnie z katalogu raportu)")
-    ap.add_argument("--odniesienie", help="katalog innego przebiegu do porównania, np. results/central-run")
+    ap.add_argument("--odniesienie", help="katalog innego przebiegu do porównania, np. studies/2026-10-lm-eval-benchmarks/results/central-run")
     ap.add_argument("--nazwa", default="2026-11-09")
     ap.add_argument("--bez-porownan", dest="bez_porownan", action="store_true",
                     help="bez przeliczania porównań parowanych (progresja.json z katalogu raportu)")
@@ -1374,8 +1375,8 @@ def main():
     bos_path = cel / BOS_DIR / "LICZBY.json"  # pomiar wpływu BOS, gdy przebieg nie ma jednakowego BOS
     bos = json.loads(bos_path.read_text(encoding="utf-8")) if bos_path.exists() else None
     sizes = json.loads((cel / "sizes.json").read_text(encoding="utf-8"))
-    cards = read_cards(RESEARCH / "benchmarks", BENCHMARKI)
-    test_types = read_test_types((RESEARCH / "README.md").read_text(encoding="utf-8"))
+    cards = read_cards(STUDIUM / "benchmarks", BENCHMARKI)
+    test_types = read_test_types((STUDIUM / "README.md").read_text(encoding="utf-8"))
     central = zgodnosc_z_odniesieniem(results, Path(a.odniesienie) if a.odniesienie else None)
     rows = refresh_files(cel, results, old_rows, flag_rules(results, central), cards, test_types)
     toku_path = cel / KATALOG_TOKU / "LICZBY.json"

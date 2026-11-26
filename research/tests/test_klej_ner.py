@@ -20,7 +20,7 @@ import wpis_benchmarku as W  # noqa: E402
 import metryki as M  # noqa: E402  (common/ is on sys.path after wpis_benchmarku)
 
 Z = W.Z
-YAML = W.KORZEN / "benchmarks" / "klej-ner" / "lm_eval_tasks" / "polish_klej_ner" / "klej_ner_mc.yaml"
+YAML = W.ZK.STUDIUM / "benchmarks" / "klej-ner" / "lm_eval_tasks" / "polish_klej_ner" / "klej_ner_mc.yaml"
 TEKST_YAML = YAML.read_text(encoding="utf-8")
 
 

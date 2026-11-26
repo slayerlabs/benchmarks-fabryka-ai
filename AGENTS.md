@@ -10,9 +10,10 @@ Rules for coding agents and the people who supervise them. Work in `benchmarks/`
   [`research/api-benchmarks/README.md`](research/api-benchmarks/README.md); a log-likelihood benchmark goes into the
   CodeSOTA runner's catalog
   ([`benchmarks/docs/contributing.md`, "Writing an integration"](benchmarks/docs/contributing.md#5-writing-an-integration)).
-- `research/benchmarks/`, `research/results/central-run/`, `research/results/full-run-2026-11/`, the central-run
-  scripts in `research/tools/` and [`research/METODOLOGIA.md`](research/METODOLOGIA.md) are the frozen lm-eval run of
-  November 2026: change them only to fix an error in that run. The number gate regenerates `research/results/LICZBY.*`.
+- [`research/studies/2026-10-lm-eval-benchmarks/`](research/studies/2026-10-lm-eval-benchmarks/README.md) and the
+  central-run scripts in `research/tools/` are the frozen lm-eval run of November 2026: change them only to fix an
+  error in that run. Studies, finished or in progress, live in `research/studies/`. The number gate regenerates
+  `research/results/LICZBY.*`.
 - Test sample data goes in `research/common/tests/data/`.
 - `research/slayer-1b/` and `frontend-beta/` are not touched in benchmark work.
 

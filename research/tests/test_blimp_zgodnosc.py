@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 KORZEN = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(KORZEN / "benchmarks" / "blimp"))
+sys.path.insert(0, str(KORZEN / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks" / "blimp"))
 sys.path.insert(0, str(KORZEN / "common"))
 import blimp as B  # noqa: E402
 
@@ -210,7 +210,7 @@ def test_lm_eval_compare_konczy_sie_na_podmienionym_wejsciu(tmp_path):
     copied, the lm-eval file of Pythia v0 replaced by the Slayer one; the comparison would otherwise run."""
     import shutil
     import lm_eval_compare as C
-    R = KORZEN / "benchmarks" / "blimp" / "results"
+    R = KORZEN / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks" / "blimp" / "results"
     for n in (*C.INPUTS, *C.OPTIONAL_INPUTS, C.MANIFEST):
         (tmp_path / n).parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(R / n, tmp_path / n)
@@ -224,14 +224,15 @@ def test_lm_eval_compare_manifest_w_repo_pasuje_do_plikow():
     """The committed inputs of results/lm_eval_agreement.json match results/lm-eval/SHA256SUMS and the pinned
     sha256 of the Slayer 1.06 repo file."""
     import lm_eval_compare as C
-    R = KORZEN / "benchmarks" / "blimp" / "results"
-    assert set(C.check_inputs(R, R / C.MANIFEST)) == {*C.INPUTS, *C.OPTIONAL_INPUTS,
-                                                       "benchmarks/blimp/results/1.06/blimp.jsonl.gz"}
+    R = KORZEN / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks" / "blimp" / "results"
+    assert set(C.check_inputs(R, R / C.MANIFEST)) == {
+        *C.INPUTS, *C.OPTIONAL_INPUTS, "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/1.06/blimp.jsonl.gz"}
 
 
 def test_lm_eval_agreement_bez_sciezek_bezwzglednych():
     """The committed lm_eval_agreement.json names its inputs by paths relative to the repo, not to a checkout."""
-    zapis = json.loads((KORZEN / "benchmarks" / "blimp" / "results" / "lm_eval_agreement.json").read_text())
+    zapis = json.loads((KORZEN / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks" / "blimp" / "results"
+                        / "lm_eval_agreement.json").read_text())
     klucze = list(zapis["inputs_sha256"])
     assert len(klucze) == 5 and not [k for k in klucze if Path(k).is_absolute() or ".." in Path(k).parts], klucze
 

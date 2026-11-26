@@ -18,7 +18,7 @@ import wpis_benchmarku as W  # noqa: E402
 import metryki as M  # noqa: E402  (common/ is on sys.path after wpis_benchmarku)
 
 Z = W.Z
-KOPIA = W.KORZEN / "benchmarks" / "race" / "lm_eval_tasks" / "preprocess_race.py"
+KOPIA = W.ZK.STUDIUM / "benchmarks" / "race" / "lm_eval_tasks" / "preprocess_race.py"
 P = W.modul_forka("race/lm_eval_tasks/preprocess_race.py")
 DOC = {"article": "Tom has a dog called Rex.", "problems": repr([
     {"question": "Tom has a  _  .", "options": ["cat", "dog", "fish", "bird"], "answer": "B"},

@@ -13,7 +13,7 @@ Slayer 1B next to its reference models, on the same benchmarks with the same set
 
 ## Notes
 
-- **Slayer 1B 1.09 is a training checkpoint** (step 70 000), not a release. Step 70 000 was measured in its own run, on 8 x RTX 4090 with the same code and settings ([protocol](../../research/results/full-run-2026-11/slayer-1.09-k70000/PROTOKOL.md)); every other result of the full run on an RTX 5090. Earlier versions and step 40 000: [Slayer versions](slayer-versions.md).
+- **Slayer 1B 1.09 is a training checkpoint** (step 70 000), not a release. Step 70 000 was measured in its own run, on 8 x RTX 4090 with the same code and settings ([protocol](../../research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/slayer-1.09-k70000/PROTOKOL.md)); every other result of the full run on an RTX 5090. Earlier versions and step 40 000: [Slayer versions](slayer-versions.md).
 - **Random** is the chance level: the score of picking an answer at random (the mean of 1 / number of options). On PubMedQA, always giving its most common answer scores 55.2.
 - **Bielik 11B is about ten times larger** than the others and instruction-tuned; it is the closest Polish reference. LFM3-1.7B (in the full tables) is instruction-tuned too. All are scored on raw text.
 - **How it was measured:** the full test set of each benchmark, 0-shot, each answer scored by the model's probability of it (lm-eval; BLiMP and EWoK: their own code), float32 (Bielik 11B: bfloat16), no chat template. Slayer's inputs start with one BOS token, the other models' with none.
@@ -51,6 +51,6 @@ Value ± standard error, accuracy in %. Standard errors are over questions, exce
 
 ## Sources
 
-- Log-likelihood benchmarks: [`research/results/full-run-2026-11/`](../../research/results/full-run-2026-11/README.md), manifest [`manifest.jsonl`](../../research/results/full-run-2026-11/manifest.jsonl) (commands, revisions, weight checksums).
+- Log-likelihood benchmarks: [`research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/`](../../research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/README.md), manifest [`manifest.jsonl`](../../research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/manifest.jsonl) (commands, revisions, weight checksums).
 - IFEval: [`research/api-benchmarks/ifeval/results/`](../../research/api-benchmarks/ifeval/results/), per-prompt outputs in `*.jsonl.gz`.
 - Every row of [`results.jsonl`](results.jsonl) names its source file.

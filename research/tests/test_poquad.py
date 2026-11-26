@@ -20,7 +20,7 @@ import metryki as M  # noqa: E402
 
 Z = W.Z
 U =W.modul_forka("poquad/lm_eval_tasks/polish_poquad/utils.py")
-YAML = W.KORZEN / "benchmarks" / "poquad" / "lm_eval_tasks" / "polish_poquad" / "poquad_open_book.yaml"
+YAML = W.ZK.STUDIUM / "benchmarks" / "poquad" / "lm_eval_tasks" / "polish_poquad" / "poquad_open_book.yaml"
 PROMPT = ("Tytuł: {{title}} \\n Kontekst: {{context}} \\n Pytanie: {{question}} \\n "
           "Prawidłowa odpowiedź (krótki cytat z Kontekstu):")  # as written in YAML/card
 
