@@ -1,3 +1,6 @@
+> **Frozen** on 16.11.2026: the state of the lm-eval central run, still read by `tools/start.sh`. The current status
+> of every benchmark in CodeSOTA is [`benchmarks/BENCHMARKS.md`](../benchmarks/BENCHMARKS.md).
+
 # Stan benchmarków
 
 Stan na **16.11.2026**. Benchmark jest zrobiony, gdy jest **opisany, przygotowany i podpięty do przebiegu
