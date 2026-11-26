@@ -4,7 +4,7 @@
 
 17 modeli, 15 testów, pełne zbiory. Karta NVIDIA GeForce RTX 5090, float32, batch 1. Wyjątek: Bielik-11B w bfloat16, bez EWoK.
 
-<a href="../../STATUS.md"><img src="../../../../../docs/img/stan-benchmarkow.svg" alt="Stan benchmarków" height="36"></a> <a href="../../METODOLOGIA.md"><img src="../../../../../docs/img/metodologia.svg" alt="Metodologia" height="36"></a> <a href="https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks"><img src="../../../../../docs/img/wyniki-na-hf.svg" alt="Wyniki na HF" height="36"></a>
+<a href="../../STATUS.md"><img src="../../img/stan-benchmarkow.svg" alt="Stan benchmarków" height="36"></a> <a href="../../METODOLOGIA.md"><img src="../../img/metodologia.svg" alt="Metodologia" height="36"></a> <a href="https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks"><img src="../../img/wyniki-na-hf.svg" alt="Wyniki na HF" height="36"></a>
 
 > [!WARNING]
 > **BOS nie jest liczony jednakowo.** Testy z niepustym kontekstem: Slayer ma jeden wiodący BOS, modele odniesienia były liczone bez BOS; wpływ zmierzono wyłącznie na Pythii-1B v0. Nie dotyczy BLiMP i WikiText-2 (pusty kontekst). EWoK: reguła z karty, BOS jest wtedy, gdy dokleja go tokenizer modelu. Zmiana u Pythii: [najwyżej 0,0105 na testach z pomiaru BOS](#bos-okno-wikitext-i-kontrola-arc-challenge). Pozostałe zastrzeżenia: [Zastrzeżenia](#zastrzeżenia).

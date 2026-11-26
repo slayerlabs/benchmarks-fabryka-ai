@@ -1,8 +1,8 @@
 # Metodologia: zbiór danych do treningu Slayera 1B
 
-<a href="DANE_TRENINGOWE.md"><img src="../../../docs/img/dane-treningowe.svg" alt="Dane treningowe" height="36"></a>
-<a href="REJESTR_DATASETOW.md"><img src="../../../docs/img/dane/rejestr.svg" alt="Rejestr zbiorów" height="36"></a>
-<a href="https://github.com/LoIlita/slayer-lab/tree/dane/dclm-en/dane/dclm-en"><img src="../../../docs/img/dane/przyklad-dclm.svg" alt="Przykład: DCLM-EN" height="36"></a>
+<a href="DANE_TRENINGOWE.md"><img src="img/dane-treningowe.svg" alt="Dane treningowe" height="36"></a>
+<a href="REJESTR_DATASETOW.md"><img src="img/rejestr.svg" alt="Rejestr zbiorów" height="36"></a>
+<a href="https://github.com/LoIlita/slayer-lab/tree/dane/dclm-en/dane/dclm-en"><img src="img/przyklad-dclm.svg" alt="Przykład: DCLM-EN" height="36"></a>
 
 Jeden przepis dla każdego zbioru, od rezerwacji do wiersza w [`DANE_TRENINGOWE.md`](DANE_TRENINGOWE.md). Format eksportu i docelowa wysyłka: [`SlayerLab/dataset-team-submissions`](https://huggingface.co/datasets/SlayerLab/dataset-team-submissions) (`README.md`, `AGENTS.md`, `LESSONS.md`, skill `source-rights-review`).
 

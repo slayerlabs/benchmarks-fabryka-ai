@@ -1113,9 +1113,9 @@ def write_readme(run: Run, charts: Charts, prog, rows, central, env, run_name, b
     a("")
     a(f"{len(run.M)} modeli, {len(run.T)} testów, pełne zbiory. Karta {gpu}, float32, batch 1. Wyjątek: Bielik-11B w bfloat16, bez EWoK.")
     a("")
-    a('<a href="../../STATUS.md"><img src="../../../../../docs/img/stan-benchmarkow.svg" alt="Stan benchmarków" height="36"></a> '
-      '<a href="../../METODOLOGIA.md"><img src="../../../../../docs/img/metodologia.svg" alt="Metodologia" height="36"></a> '
-      '<a href="https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks"><img src="../../../../../docs/img/wyniki-na-hf.svg" alt="Wyniki na HF" height="36"></a>')
+    a('<a href="../../STATUS.md"><img src="../../img/stan-benchmarkow.svg" alt="Stan benchmarków" height="36"></a> '
+      '<a href="../../METODOLOGIA.md"><img src="../../img/metodologia.svg" alt="Metodologia" height="36"></a> '
+      '<a href="https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks"><img src="../../img/wyniki-na-hf.svg" alt="Wyniki na HF" height="36"></a>')
     a("")
     jednakowy = bos_jednakowy(run.results)
     if not jednakowy:

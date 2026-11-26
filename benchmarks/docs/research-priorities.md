@@ -46,5 +46,7 @@ The following priorities were communicated by **Kacper Wikieł** to the Benchmar
 - New CodeSOTA components should support these research priorities where technically appropriate.
 
 The list records the team's stated priorities. It does not mean every benchmark is implemented, assigned, funded, or ready to run.
+The state of each benchmark (planned, in review, done) is kept in the study that works through this list,
+[`research/studies/2026-11-small-vs-large`](../../research/studies/2026-11-small-vs-large/README.md).
 
 **Source:** Kacper Wikieł's instructions to the Benchmark Team, recorded in the repository README before this documentation update.

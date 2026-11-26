@@ -8,11 +8,11 @@ centralnego** ([METODOLOGIA, „Definicja „zrobione””](METODOLOGIA.md#defi
 `tools/przebieg_centralny.sh` na wynajętej karcie liczy wszystkie naraz. Zmieniasz stan benchmarku? Przestaw jego
 wiersz w tym samym PR.
 
-<a href="#gotowe"><img src="../../../docs/img/stan/gotowe.svg" alt="Gotowe" height="36"></a>
-<a href="#brak-opisu"><img src="../../../docs/img/stan/brak-opisu.svg" alt="Brak opisu" height="36"></a>
-<a href="#poza-przebiegiem"><img src="../../../docs/img/stan/poza-przebiegiem.svg" alt="Poza przebiegiem" height="36"></a>
-<a href="#niezaczete"><img src="../../../docs/img/stan/niezaczete.svg" alt="Niezaczęte" height="36"></a>
-<a href="#do-sprawdzenia"><img src="../../../docs/img/stan/do-sprawdzenia.svg" alt="Do sprawdzenia" height="36"></a>
+<a href="#gotowe"><img src="img/stan/gotowe.svg" alt="Gotowe" height="36"></a>
+<a href="#brak-opisu"><img src="img/stan/brak-opisu.svg" alt="Brak opisu" height="36"></a>
+<a href="#poza-przebiegiem"><img src="img/stan/poza-przebiegiem.svg" alt="Poza przebiegiem" height="36"></a>
+<a href="#niezaczete"><img src="img/stan/niezaczete.svg" alt="Niezaczęte" height="36"></a>
+<a href="#do-sprawdzenia"><img src="img/stan/do-sprawdzenia.svg" alt="Do sprawdzenia" height="36"></a>
 
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {'pie1': '#1a7f37', 'pie2': '#9a6700', 'pie3': '#bc4c00', 'pie4': '#6e7781', 'pieStrokeColor': '#ffffff', 'pieOuterStrokeWidth': '0px'}}}%%
@@ -26,8 +26,8 @@ pie showData
 **A** karta `ORIGINAL.md` · **B** `REPRODUCTION.md` (kontrola albo „bez kontroli”) · **przebieg** wpis w `ZADANIA`
 i `KATALOGI` · ✓ jest · ✗ brak
 
-<a href="METODOLOGIA.md#definicja-zrobione"><img src="../../../docs/img/metodologia.svg" alt="Metodologia" height="36"></a>
-<a href="https://github.com/orgs/slayerlabs/projects/10"><img src="../../../docs/img/tablica.svg" alt="Tablica" height="36"></a>
+<a href="METODOLOGIA.md#definicja-zrobione"><img src="img/metodologia.svg" alt="Metodologia" height="36"></a>
+<a href="https://github.com/orgs/slayerlabs/projects/10"><img src="img/tablica.svg" alt="Tablica" height="36"></a>
 
 <a name="gotowe"></a>
 
@@ -91,7 +91,7 @@ Każdy z tych katalogów ma `README.md` i `RECIPE.md` ze zbiorem, rewizją, spli
 
 ## ⬜ Niezaczęte · 29
 
-<a href="https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22"><img src="../../../docs/img/zadania-na-start.svg" alt="Zadania na start" height="36"></a>
+<a href="https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22"><img src="img/zadania-na-start.svg" alt="Zadania na start" height="36"></a>
 
 | co | benchmarki |
 |---|---|
