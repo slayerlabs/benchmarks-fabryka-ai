@@ -1,5 +1,7 @@
 """Generate HLE predictions locally with Slayer (base model).
 
+Status: prepared, not run (maintainer decision 2026-11-25: cost vs expected ~0 score).
+
 Plain prompt (no chat template), greedy batched decoding via
 research/common/slayer_batch.py. BOS rule: one leading BOS per request as in
 IFEval/SlayerLM (handled inside generate_batch). Tokenizer v6
