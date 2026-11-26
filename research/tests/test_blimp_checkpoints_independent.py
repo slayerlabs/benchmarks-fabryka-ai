@@ -1,9 +1,9 @@
-"""Independent recomputation of the key numbers of benchmarks/blimp/results/checkpoints.json and LICZBY.json
+"""Independent recomputation of the key numbers of studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/checkpoints.json and LICZBY.json
 from the raw files.
 
 Gate (g) of sprawdz_raporty.py regenerates the report with the same generator, so it cannot catch an error in
-benchmarks/blimp/checkpoints.py itself. This file does NOT import checkpoints or blimp: it re-reads the per-pair
-files (benchmarks/blimp/results/checkpoints, benchmarks/blimp/results/<model>), the held-out windows and the
+studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/checkpoints.py itself. This file does NOT import checkpoints or blimp: it re-reads the per-pair
+files (studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/checkpoints, .../blimp/results/<model>), the held-out windows and the
 annealing references, recomputes with numpy and its own constants, and compares with tolerance 1e-9
 (z and t: 1e-6 relative).
 Run: python tests/test_blimp_checkpoints_independent.py (or pytest).

@@ -1,4 +1,4 @@
-"""RACE (high) T40 (common/zadania.py, benchmarks/race/ORIGINAL.md), no network and no weights.
+"""RACE (high) T40 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/race/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, RECIPE.md and the README type row; `doc_to_text`, `doc_to_choice` and
 `doc_to_target` of the copied `preprocess_race.py` (lm-eval 6d2abda4 = 0.4.9.1) on an invented article: earlier

@@ -1,4 +1,4 @@
-"""DYK T25 (common/zadania.py, benchmarks/dyk/ORIGINAL.md), no network and no weights.
+"""DYK T25 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/dyk/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the 5-shot prompt of the copied OpenPL YAML `dyk_mc.yaml` (5 bank
 demonstrations, then the question; continuations ` Nie`, ` Tak`, gold = `target|int`, 1 = Tak), and the decision

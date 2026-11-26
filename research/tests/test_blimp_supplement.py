@@ -1,4 +1,4 @@
-"""BLiMP Supplement T52 (common/zadania.py, benchmarks/blimp-supplement/ORIGINAL.md), no network and no weights.
+"""BLiMP Supplement T52 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/blimp-supplement/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card (5 OSF files pinned by SHA-256), the requests of the authors' `_template_yaml`
 (empty context, " " + sentence, gold = good sentence), the unweighted mean of the 5 subtasks on a stand-in model, and

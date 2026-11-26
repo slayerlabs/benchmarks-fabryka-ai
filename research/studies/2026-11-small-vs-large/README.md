@@ -31,34 +31,34 @@ every benchmark has all three models, and each benchmark's README lists which ra
 | 3 | BrowseComp-Plus (OpenClaw subset) | — | #284 | planned |
 | 4 | WebArena-Verified | — | #285 | planned |
 | 5 | EnterpriseOps-Gym | — | #286 | planned |
-| 6 | AutomationBench | [`automationbench`](../../api-benchmarks/automationbench/README.md) | #287 | done |
-| 7 | BFCL V4 | [`bfcl-v4`](../../api-benchmarks/bfcl-v4/README.md) | #288 | done |
+| 6 | AutomationBench | [`automationbench`](../../benchmarks/automationbench/README.md) | #287 | done |
+| 7 | BFCL V4 | [`bfcl-v4`](../../benchmarks/bfcl-v4/README.md) | #288 | done |
 | 8 | ToolSandbox | — | #289 | in review (PR #351) |
 | 9 | MCP-Atlas | — | #290 | planned |
 | 10 | τ³-bench | — | #291 | in review (PR #352) |
 | 11 | SWE-bench Verified | — | #292 | planned |
 | 12 | SWE-bench Multilingual | — | #293 | planned |
-| 13 | Terminal-Bench 2.1 | [`terminal-bench-2-1`](../../api-benchmarks/terminal-bench-2-1/README.md) | #294 | results merged (LFM3-1.7B) |
-| 14 | LiveCodeBench v6 | [`livecodebench-v6`](../../api-benchmarks/livecodebench-v6/README.md) | #295 | done |
-| 15 | LiveCodeBench Pro 25Q2 | [`livecodebench-pro-25q2`](../../api-benchmarks/livecodebench-pro-25q2/README.md) | #296 | done |
-| 16 | SciCode | [`scicode`](../../api-benchmarks/scicode/README.md) | #297 | done |
-| 17 | IFEval | [`ifeval`](../../api-benchmarks/ifeval/README.md) | #298 | done |
-| 18 | IFBench | [`ifbench`](../../api-benchmarks/ifbench/README.md) | #299 | done |
-| 19 | IFStruct | [`ifstruct`](../../api-benchmarks/ifstruct/README.md) | #300 | done |
-| 20 | Multi-IF | [`multi-if`](../../api-benchmarks/multi-if/README.md) | #301 | done |
-| 21 | GPQA Diamond | [`gpqa-diamond`](../../api-benchmarks/gpqa-diamond/README.md) | #302 | done |
+| 13 | Terminal-Bench 2.1 | [`terminal-bench-2-1`](../../benchmarks/terminal-bench-2-1/README.md) | #294 | results merged (LFM3-1.7B) |
+| 14 | LiveCodeBench v6 | [`livecodebench-v6`](../../benchmarks/livecodebench-v6/README.md) | #295 | done |
+| 15 | LiveCodeBench Pro 25Q2 | [`livecodebench-pro-25q2`](../../benchmarks/livecodebench-pro-25q2/README.md) | #296 | done |
+| 16 | SciCode | [`scicode`](../../benchmarks/scicode/README.md) | #297 | done |
+| 17 | IFEval | [`ifeval`](../../benchmarks/ifeval/README.md) | #298 | done |
+| 18 | IFBench | [`ifbench`](../../benchmarks/ifbench/README.md) | #299 | done |
+| 19 | IFStruct | [`ifstruct`](../../benchmarks/ifstruct/README.md) | #300 | done |
+| 20 | Multi-IF | [`multi-if`](../../benchmarks/multi-if/README.md) | #301 | done |
+| 21 | GPQA Diamond | [`gpqa-diamond`](../../benchmarks/gpqa-diamond/README.md) | #302 | done |
 | 22 | Humanity's Last Exam | — | #303 | in review (PR #358) |
-| 23 | AA-Omniscience | [`aa-omniscience`](../../api-benchmarks/aa-omniscience/README.md) | #304 | done |
-| 24 | AA-LCR | [`aa-lcr`](../../api-benchmarks/aa-lcr/README.md) | #305 | done |
-| 25 | RULER 128K | [`ruler-128k`](../../api-benchmarks/ruler-128k/README.md) | #306 | done |
+| 23 | AA-Omniscience | [`aa-omniscience`](../../benchmarks/aa-omniscience/README.md) | #304 | done |
+| 24 | AA-LCR | [`aa-lcr`](../../benchmarks/aa-lcr/README.md) | #305 | done |
+| 25 | RULER 128K | [`ruler-128k`](../../benchmarks/ruler-128k/README.md) | #306 | done |
 
 ## Hypotheses and thresholds
 
 No study-level hypothesis was written before the first results. Five benchmarks wrote their own before measuring, in
-their `PROTOCOL.md`: [AA-LCR](../../api-benchmarks/aa-lcr/PROTOCOL.md),
-[LiveCodeBench v6](../../api-benchmarks/livecodebench-v6/PROTOCOL.md),
-[LiveCodeBench Pro 25Q2](../../api-benchmarks/livecodebench-pro-25q2/PROTOCOL.md),
-[SciCode](../../api-benchmarks/scicode/PROTOCOL.md) and [RULER 128K](../../api-benchmarks/ruler-128k/PROTOCOL.md).
+their `PROTOCOL.md`: [AA-LCR](../../benchmarks/aa-lcr/PROTOCOL.md),
+[LiveCodeBench v6](../../benchmarks/livecodebench-v6/PROTOCOL.md),
+[LiveCodeBench Pro 25Q2](../../benchmarks/livecodebench-pro-25q2/PROTOCOL.md),
+[SciCode](../../benchmarks/scicode/PROTOCOL.md) and [RULER 128K](../../benchmarks/ruler-128k/PROTOCOL.md).
 Any comparison across the whole study added now is exploratory and says so.
 
 ## Board

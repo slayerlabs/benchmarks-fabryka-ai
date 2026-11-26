@@ -89,8 +89,8 @@ necessarily a completed, reproducible integration: the status of each log-likeli
 Log-likelihood benchmarks of the November 2026 full run live in [`research/studies/2026-10-lm-eval-benchmarks/benchmarks/<name>/`](../research/studies/2026-10-lm-eval-benchmarks/benchmarks/)
 with their card, recipe, any benchmark-specific code, and, where done, a reproduction report. A new log-likelihood
 benchmark goes into the runner's catalog ([`docs/contributing.md`](docs/contributing.md#5-writing-an-integration),
-section 5); every other new benchmark lives in [`research/api-benchmarks/<name>/`](../research/api-benchmarks/), as
-its [guide](../research/api-benchmarks/README.md) describes.
+section 5); every other new benchmark lives in [`research/benchmarks/<name>/`](../research/benchmarks/), as
+its [guide](../research/benchmarks/README.md) describes.
 
 ## Methodology and reproducibility
 
@@ -98,7 +98,7 @@ its [guide](../research/api-benchmarks/README.md) describes.
 - [`METODOLOGIA.md`](../research/studies/2026-10-lm-eval-benchmarks/METODOLOGIA.md): the frozen protocol of the November 2026 lm-eval full
   run behind `research/studies/2026-10-lm-eval-benchmarks/`: reproduction against references, test types, baselines, standard errors and
   verdicts. Written in Polish; the runner ports it ([`docs/running.md`](docs/running.md)).
-- [`research/api-benchmarks/README.md`](../research/api-benchmarks/README.md): how a new benchmark is added and
+- [`research/benchmarks/README.md`](../research/benchmarks/README.md): how a new benchmark is added and
   documented: steps, sources, settings, machine-readable results, per-question outputs, deviations, and when it is done.
 - [`research/common/README.md`](../research/common/README.md): the machine-readable results format, with schema
   version, protocol and run identifiers, per-observation states for non-success outcomes, confidence intervals, and

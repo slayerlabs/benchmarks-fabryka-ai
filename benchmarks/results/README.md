@@ -52,5 +52,5 @@ Value ± standard error, accuracy in %. Standard errors are over questions, exce
 ## Sources
 
 - Log-likelihood benchmarks: [`research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/`](../../research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/README.md), manifest [`manifest.jsonl`](../../research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/manifest.jsonl) (commands, revisions, weight checksums).
-- IFEval: [`research/api-benchmarks/ifeval/results/`](../../research/api-benchmarks/ifeval/results/), per-prompt outputs in `*.jsonl.gz`.
+- IFEval: [`research/benchmarks/ifeval/results/`](../../research/benchmarks/ifeval/results/), per-prompt outputs in `*.jsonl.gz`.
 - Every row of [`results.jsonl`](results.jsonl) names its source file.

@@ -16,4 +16,4 @@ Rows with different setups are not interchangeable measurements.
 | Bielik 11B v3.1 Instruct | own vLLM, no provider system prompt | 57.3 ± 2.1 | 541 |
 | LFM3-1.7B | own vLLM, card settings, reasoning on | 94.6 ± 1.0 | 541 |
 
-Source: [`research/api-benchmarks/ifeval/results/`](../../research/api-benchmarks/ifeval/results/) and its README (deviations, the LFM3 card comparison).
+Source: [`research/benchmarks/ifeval/results/`](../../research/benchmarks/ifeval/results/) and its README (deviations, the LFM3 card comparison).

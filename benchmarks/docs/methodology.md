@@ -15,7 +15,7 @@ disagree or say nothing, the rule is our own decision and is marked **(our decis
   the result is labelled as a different configuration, not as an error. Example: the Bielik 11B v3.1 rows that use
   the LFM3-1.7B card's sampling.
 - Benchmark-specific protocols (prompt format, few-shot examples, scorer, subsets) stay in the benchmark's directory
-  and, for `research/api-benchmarks/`, in [how to add a benchmark](../../research/api-benchmarks/README.md). The lm-eval
+  and, for `research/benchmarks/`, in [how to add a benchmark](../../research/benchmarks/README.md). The lm-eval
   benchmarks of the November 2026 full run keep their frozen protocol,
   [`METODOLOGIA.md`](../../research/studies/2026-10-lm-eval-benchmarks/METODOLOGIA.md). This document sets the model side, which is the same
   across benchmarks.

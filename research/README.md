@@ -5,7 +5,7 @@ The Benchmark Team's working directory. Published results for readers outside th
 
 ## Two ideas: benchmarks and studies
 
-- A **benchmark** is one test (IFEval, SciCode, ARC-Easy). It gets **one directory, for good**: how to run it, its
+- A **benchmark** is one test (IFEval, SciCode, ARC-Easy). It gets **one directory under `benchmarks/`, for good**: how to run it, its
   code, and the results of every model ever measured on it. It does not move when priorities change.
 - A **study** is one wave of work with one question, usually a set of tasks from the board, for example "can a
   small model match a large one on these 25 benchmarks?". It gets one directory under `studies/` with a README: the
@@ -21,7 +21,7 @@ were built for. One of them measured again gets a new home outside that study.
 
 | you are | put it in |
 |---|---|
-| adding or running a benchmark that generates answers, whatever way the models run (API, our vLLM, a GPU) | `api-benchmarks/<name>/`, step by step in [`api-benchmarks/README.md`](api-benchmarks/README.md) |
+| adding or running a benchmark that generates answers, whatever way the models run (API, our vLLM, a GPU) | `benchmarks/<name>/`, step by step in [`benchmarks/README.md`](benchmarks/README.md) |
 | adding a log-likelihood benchmark (answers scored by probability) | the CodeSOTA runner's catalog in the top-level [`benchmarks/`](../benchmarks/README.md), by [its guide](../benchmarks/docs/contributing.md#5-writing-an-integration) |
 | starting a new wave of tasks with its own question | `studies/<YYYY-MM>-<short-name>/README.md`, as [`studies/README.md`](studies/README.md) says |
 | analysing results of several benchmarks together | the study the analysis belongs to |
@@ -38,7 +38,7 @@ directory in `research/` needs a decision in #bench-team first.
 
 | directory | holds |
 |---|---|
-| [`api-benchmarks/`](api-benchmarks/README.md) | every benchmark we run now, one directory each |
+| [`benchmarks/`](benchmarks/README.md) | every benchmark we run now, one directory each |
 | [`studies/`](studies/README.md) | one directory per wave of work, newest last; finished studies are frozen |
 | `common/` | code shared by benchmarks, including the Slayer loader and serving code |
 | `tools/` | the number gate (`liczby.py`, `sprawdz_raporty.py`, used by every PR) and the scripts of the 2026-10 lm-eval study |

@@ -1,4 +1,4 @@
-"""ARC-Easy T51 (common/zadania.py, benchmarks/arc-easy/ORIGINAL.md), no network and no weights.
+"""ARC-Easy T51 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/arc-easy/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the cloze prompt and continuations of lm-eval `arc_easy`, and the decision metric
 `acc` (not `acc_norm` as in ARC-Challenge) on a stand-in model with fixed log-likelihoods. Data: two invented questions,

@@ -1,4 +1,4 @@
-"""ARC-Challenge T02 (common/zadania.py, benchmarks/arc-challenge/ORIGINAL.md), no network and no weights.
+"""ARC-Challenge T02 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/arc-challenge/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the prompt and continuations lm-eval builds from it, the pick of acc and acc_norm
 and the decision metric on a stand-in model (`AtrapaLM`, log-likelihoods fixed here). Data: the first rows of

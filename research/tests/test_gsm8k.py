@@ -1,4 +1,4 @@
-"""GSM8K T33 (common/zadania.py, benchmarks/gsm8k/ORIGINAL.md), no network and no weights.
+"""GSM8K T33 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/gsm8k/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, RECIPE.md and the README type row; the decision filter `strict-match` (number
 right after the first `#### `) and the `exact_match` normalisation as the card writes them, applied to invented

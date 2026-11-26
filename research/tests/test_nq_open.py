@@ -1,4 +1,4 @@
-"""NQ-Open T42 (common/zadania.py, benchmarks/nq-open/ORIGINAL.md), no network and no weights.
+"""NQ-Open T42 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/nq-open/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, RECIPE.md and the README type row; the prompt and the decision scoring as the
 card writes them: filter `remove_whitespace` (only `lstrip()`, then take_first), then `exact_match` with the article

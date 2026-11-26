@@ -1,8 +1,8 @@
-"""Etap C (METODOLOGIA.md): nasz kod EWoK (benchmarks/ewok/ewok.py) a kod autorów EWoK, gpt2-xl, 16 rekordów.
+"""Etap C (METODOLOGIA.md): nasz kod EWoK (studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/ewok.py) a kod autorów EWoK, gpt2-xl, 16 rekordów.
 
 Plik `common/tests/data/ewok_zgodnosc.json` trzyma tylko numery wierszy `ewok-core-1.0` i log P per (kontekst,
 zdanie) z kodu autorów (fp32) i z naszego kodu (reguła `authors`). Tekstu rekordów nie ma (TERMS_OF_USE EWoK). Wylosowane seedem
-20261103 przez `benchmarks/ewok/reference/compare.py`.
+20261103 przez `studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/reference/compare.py`.
 
 - test_decyzje_z_pliku: bez sieci i bez wag, sprawdza zgodność decyzji i ocen zapisanych liczb (≥ 99%).
 - test_przeliczenie_naszym_kodem: liczy nasze log P od nowa, gdy wagi gpt2-xl i zbiór są w lokalnym cache HF.

@@ -1,4 +1,4 @@
-"""KLEJ NKJP-NER T29 (common/zadania.py, benchmarks/klej-ner/ORIGINAL.md), no network and no weights.
+"""KLEJ NKJP-NER T29 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/klej-ner/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, RECIPE.md and the README type row; the prompt, the six choices and the
 label -> index map of the copied fork YAML (`klej_ner_mc.yaml`, read as text: no pyyaml in CI light) as the card

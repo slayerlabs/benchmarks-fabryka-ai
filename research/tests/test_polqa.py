@@ -1,4 +1,4 @@
-"""PolQA open book T30 (common/zadania.py, benchmarks/polqa/ORIGINAL.md), no network and no weights.
+"""PolQA open book T30 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/polqa/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, RECIPE.md and the README type row; the prompt of the copied fork YAML
 (`polqa_open_book.yaml`) as the card writes it; the decision metric `utils.levenshtein` of the copied fork `utils.py`

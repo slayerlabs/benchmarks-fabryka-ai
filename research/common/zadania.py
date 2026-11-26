@@ -62,7 +62,7 @@ def funkcja_z_pliku(katalog, odwolanie):
 
 
 def wczytaj_yaml(sciezka):
-    """Task YAML from benchmarks/*/lm_eval_tasks/ as a dict, `!function` resolved against the YAML's directory."""
+    """Task YAML from studies/2026-10-lm-eval-benchmarks/benchmarks/*/lm_eval_tasks/ as a dict, `!function` resolved against the YAML's directory."""
     import yaml
 
     class Ladowacz(yaml.SafeLoader):
@@ -180,7 +180,7 @@ ZADANIA = {
                 repo="nyu-mll/glue", rewizja="bcdcba79d07bc864c1c254ccfcedcce55bcc9a8c",
                 nazwa_hf="sst2", split="validation", rodzaj="mc", klasy_stale=True, pole_id="idx"),
     # Polish tasks (OpenPL fork @ 21d0ea9c, 5-shot). The task YAML is a copy of the fork's file under
-    # benchmarks/<dir>/lm_eval_tasks/ (`yaml`, relative to benchmarks/); zadania.py pins the dataset revision.
+    # studies/2026-10-lm-eval-benchmarks/benchmarks/<dir>/lm_eval_tasks/ (`yaml`, relative to that benchmarks/); zadania.py pins the dataset revision.
     # The 5 demonstrations come from the demonstration bank (METODOLOGIA "Przykłady few-shot", ewaluuj.ustaw_bank),
     # not from the YAML's sampler.
     "T22": dict(benchmark_id="polemo2", task="polemo2_in_multiple_choice", family="polemo2", language="PL",

@@ -23,7 +23,7 @@ on:
       - "research/studies/2026-10-lm-eval-benchmarks/benchmarks/**"
       - "research/tools/statystyka.py"
       - "research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/**"
-      - "research/api-benchmarks/ifeval/results/**"
+      - "research/benchmarks/ifeval/results/**"
       - ".github/workflows/codesota.yml"
       - ".github/scripts/codesota_changes.py"
 

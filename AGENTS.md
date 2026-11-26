@@ -7,7 +7,7 @@ Rules for coding agents and the people who supervise them. Work in `benchmarks/`
 
 - Before creating a file or directory in `research/`, read where it goes:
   [`research/README.md`, "Where things go"](research/README.md#where-things-go). A new benchmark follows
-  [`research/api-benchmarks/README.md`](research/api-benchmarks/README.md); a log-likelihood benchmark goes into the
+  [`research/benchmarks/README.md`](research/benchmarks/README.md); a log-likelihood benchmark goes into the
   CodeSOTA runner's catalog
   ([`benchmarks/docs/contributing.md`, "Writing an integration"](benchmarks/docs/contributing.md#5-writing-an-integration)).
 - [`research/studies/2026-10-lm-eval-benchmarks/`](research/studies/2026-10-lm-eval-benchmarks/README.md) and the

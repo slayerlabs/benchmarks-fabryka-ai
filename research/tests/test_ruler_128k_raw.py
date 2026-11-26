@@ -1,6 +1,6 @@
 """RULER 128K: the README's key numbers recomputed from the per-sample result files, without the benchmark's code.
 
-Imports nothing from api-benchmarks/ruler-128k (no summarize.py, compare.py, report.py, statystyka.py): it reads
+Imports nothing from benchmarks/ruler-128k (no summarize.py, compare.py, report.py, statystyka.py): it reads
 results/<model-id>.jsonl.gz (one row per sample: task, length, score, closed_think) with gzip and json, recomputes
 the means, the strict means, R1's clustered t, sign count and the mean without the 2 lowest tasks, R3's category
 drops and clustered t, the descriptive R2 table, and the request counts, and compares them with the numbers it
@@ -16,7 +16,7 @@ import re
 import statistics
 from pathlib import Path
 
-BENCH = Path(__file__).resolve().parents[1] / "api-benchmarks" / "ruler-128k"
+BENCH = Path(__file__).resolve().parents[1] / "benchmarks" / "ruler-128k"
 LFM3, BIELIK, SLAYER = "lfm3-1.7b", "bielik-11b-v3.1", "slayer1b-1.09-k70000"
 RETRIEVAL = ["niah_single_1", "niah_single_2", "niah_single_3", "niah_multikey_1", "niah_multikey_2", "niah_multikey_3",
              "niah_multivalue", "niah_multiquery"]

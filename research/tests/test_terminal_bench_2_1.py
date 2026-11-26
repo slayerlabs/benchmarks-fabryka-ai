@@ -1,4 +1,4 @@
-"""Terminal-Bench 2.1 (research/api-benchmarks/terminal-bench-2-1), no network, Docker or model.
+"""Terminal-Bench 2.1 (research/benchmarks/terminal-bench-2-1), no network, Docker or model.
 
 - summarize.py on small synthetic Harbor jobs: a trial with a test result counts whatever Harbor's label says, a
   trial without one needs a re-run, the re-run is counted in its place (as a failure when it has no result again),
@@ -19,7 +19,7 @@ import tempfile
 from collections import defaultdict
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parents[1] / "api-benchmarks" / "terminal-bench-2-1"
+HERE = Path(__file__).resolve().parents[1] / "benchmarks" / "terminal-bench-2-1"
 spec = importlib.util.spec_from_file_location("tb21_summarize", HERE / "summarize.py")
 summarize = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(summarize)

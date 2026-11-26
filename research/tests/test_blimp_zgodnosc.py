@@ -1,6 +1,6 @@
-"""BLiMP: our scorer (common/hipoteza_formatu.py + benchmarks/blimp/blimp.py) against lm-eval 0.4.9.1, etap C.
+"""BLiMP: our scorer (common/hipoteza_formatu.py + studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/blimp.py) against lm-eval 0.4.9.1, etap C.
 
-Sample common/tests/data/blimp_zgodnosc.json (benchmarks/blimp/lm_eval_compare.py sample): pairs 0 and 500 of every
+Sample common/tests/data/blimp_zgodnosc.json (studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/lm_eval_compare.py sample): pairs 0 and 500 of every
 paradigm plus the 7 pairs with identical sentences, for Pythia-1B v0 @ step143000 and Slayer 1.06, with the
 log-likelihoods and decisions of lm-eval (`--log_samples`, LM_EVAL_PROTOCOL.md P2, P3), ours (P1 and the repo
 file of Slayer 1.06), and the token ids lm-eval feeds the model. No network, no weights.

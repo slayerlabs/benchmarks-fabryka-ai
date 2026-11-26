@@ -1,4 +1,4 @@
-"""BoolQ T10 (common/zadania.py, benchmarks/boolq/ORIGINAL.md), no network and no weights.
+"""BoolQ T10 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/boolq/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the prompt `{passage}\nQuestion: {question}?\nAnswer:` with continuations ` no`
 and ` yes` (index 0 = no = label False), and the decision metric `acc` (not `acc_norm`) on a stand-in model with

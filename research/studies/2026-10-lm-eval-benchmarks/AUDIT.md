@@ -24,7 +24,7 @@ The criteria and the decision rule were written before any number was computed:
 |---|---|
 | core | no serious K1 problem, K2 met, not redundant: port to the runner and measure on every model |
 | informative | Polish or the only test of a skill, weaker or unknown signal: measured, outside averages and rankings |
-| generative | needs generation; belongs to `research/api-benchmarks/`, not the log-likelihood runner |
+| generative | needs generation; belongs to `research/benchmarks/`, not the log-likelihood runner |
 | archive | serious K1 problem, no signal for any model class we measure, or redundant with a core test |
 | undecided | the evidence does not decide; the decisive check is named |
 
@@ -57,7 +57,7 @@ The criteria and the decision rule were written before any number was computed:
 | anli-r3 | archive | at chance for every model up to 20B |
 | squad2 | archive | a third of items wrong or mislabeled in the platinum audit ([arXiv 2502.03461](https://arxiv.org/abs/2502.03461)) |
 | drop | archive | many wrong items and a scoring bug that removed it from the Open LLM Leaderboard |
-| ifeval | archive this copy | the live, generative IFEval is [`api-benchmarks/ifeval`](../../api-benchmarks/ifeval/README.md) |
+| ifeval | archive this copy | the live, generative IFEval is [`research/benchmarks/ifeval`](../../benchmarks/ifeval/README.md) |
 | piqa | undecided | K2 fails without one model; rerun on a wider panel |
 | social-iqa, pubmedqa | undecided | K2 fails on panel `M`; rerun on a wider panel, add BPB |
 | boolq | undecided | below the "always yes" baseline at small scale; BPB on the panel decides |

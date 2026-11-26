@@ -1,4 +1,4 @@
-"""IFEval T36 (common/zadania.py, benchmarks/ifeval/ORIGINAL.md), no network and no weights.
+"""IFEval T36 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/ifeval/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, RECIPE.md and the README type row (`ifeval`); the card's own counts (541
 prompts, 834 instructions by prompt and by group); the type `ifeval` baseline b (`ewaluuj.bazy_proby` with

@@ -1,4 +1,4 @@
-"""BLiMP (benchmarks/blimp/blimp.py + the `blimp` task of hipoteza_formatu.py), no network, no weights.
+"""BLiMP (studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/blimp.py + the `blimp` task of hipoteza_formatu.py), no network, no weights.
 Run: python tests/test_blimp.py (or pytest)."""
 import importlib.util
 import math

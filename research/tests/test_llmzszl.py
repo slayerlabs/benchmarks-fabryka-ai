@@ -1,4 +1,4 @@
-"""LLMzSzŁ T37 (common/zadania.py, benchmarks/llmzszl/ORIGINAL.md), no network and no weights.
+"""LLMzSzŁ T37 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/llmzszl/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the copied Space definition `llmzszl.yaml` (bytes below the header = Probierz blob
 142edb86), the 0-shot prompt of the paper (section 3.2; continuations = space + letter ` A`..` D`, gold =

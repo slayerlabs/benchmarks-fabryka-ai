@@ -1,4 +1,4 @@
-"""LiveCodeBench v6 (api-benchmarks/livecodebench-v6): golden checks of the summary and of the scored text.
+"""LiveCodeBench v6 (benchmarks/livecodebench-v6): golden checks of the summary and of the scored text.
 
 No network, no weights, no torch or lm-eval. Fixed fake graded records pin pass@1 and its stderr, pass@1 per
 difficulty and on the v6-only problems, the budget rule (an answer counts at budget B only if it passed, finished
@@ -31,7 +31,7 @@ from pathlib import Path
 
 import pytest
 
-BENCH = Path(__file__).resolve().parents[1] / "api-benchmarks" / "livecodebench-v6"
+BENCH = Path(__file__).resolve().parents[1] / "benchmarks" / "livecodebench-v6"
 # Other benchmarks have modules of the same names (summarize, provenance, ...); in one pytest run the one imported
 # first would be reused here, so drop them from the module cache before importing this benchmark's.
 for _module in BENCH.glob("*.py"):

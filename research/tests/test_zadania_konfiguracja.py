@@ -98,7 +98,7 @@ def test_zadania_entry_matches_the_benchmark_card():
             continue
         assert f"`{meta['repo']}` @ `{meta['rewizja']}`" in tekst and f"split `{meta['split']}`" in tekst, t
         sprawdzone += 1
-    assert sprawdzone >= 25  # T05-T31, T40, T48 except T06 (benchmarks/piqa/README.md is the card of its own pipeline)
+    assert sprawdzone >= 25  # T05-T31, T40, T48 except T06 (studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/README.md is the card of its own pipeline)
 
 
 def typy_z_readme():

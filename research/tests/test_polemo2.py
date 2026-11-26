@@ -1,4 +1,4 @@
-"""PolEmo 2.0-IN T22 (common/zadania.py, benchmarks/polemo2/ORIGINAL.md), no network and no weights.
+"""PolEmo 2.0-IN T22 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/polemo2/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the 5-shot prompt of the copied OpenPL YAML `polemo2_in_mc.yaml` (5 demonstrations
 from the bank, METODOLOGIA "Przykłady few-shot", then the question; continuations = space + sentiment name, gold =

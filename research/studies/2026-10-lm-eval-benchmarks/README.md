@@ -22,7 +22,7 @@ runner ([`benchmarks/BENCHMARKS.md`](../../../benchmarks/BENCHMARKS.md)) under t
 bfloat16-against-float32 control ([#349](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/349)).
 
 **Frozen** means: change files here only to fix an error in this study. A benchmark from this study that is measured
-again gets a runner entry (log-likelihood) or a directory in `research/api-benchmarks/` (generation), not edits here.
+again gets a runner entry (log-likelihood) or a directory in `research/benchmarks/` (generation), not edits here.
 Which ones are worth it, and in what form, is in [`AUDIT.md`](AUDIT.md).
 
 ## Opis przebiegu (po polsku, stan zamrożony)

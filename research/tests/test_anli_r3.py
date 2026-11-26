@@ -1,4 +1,4 @@
-"""ANLI round 3 T16 (common/zadania.py, benchmarks/anli-r3/ORIGINAL.md), no network and no weights.
+"""ANLI round 3 T16 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/anli-r3/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the prompt `{premise}\nQuestion: {hypothesis} True, False, or Neither?\nAnswer:`
 with continuations in the order ` True`, ` Neither`, ` False` (not the order of the prompt; gold = `label`, 0 =

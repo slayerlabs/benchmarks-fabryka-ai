@@ -1,6 +1,6 @@
 """Batched greedy generation for Slayer 1B.
 
-Reuses the batched forward from research/api-benchmarks/ifeval/lm_eval_slayer.py:
+Reuses the batched forward from research/benchmarks/ifeval/lm_eval_slayer.py:
 left padding, per-row RoPE positions, preallocated KV cache, per-row stop at EOS
 or at max_total tokens. Greedy only, default Slayer variant (gptj RoPE, vr add).
 """
@@ -67,7 +67,7 @@ def generate_batch(model, prompt_ids_list: list[list[int]], max_total: int = 409
                    stop_id: int | None = None) -> list[list[int]]:
     """Greedy batched generation. Returns generated token ids per row.
 
-    BOS rule (matches research/api-benchmarks/ifeval/lm_eval_slayer.py and
+    BOS rule (matches research/benchmarks/ifeval/lm_eval_slayer.py and
     research/common/slayer_lm.py): every request starts with exactly one leading
     BOS token. Each row stops at `stop_id` (included, default model.bos) or when
     total real tokens (BOS + prompt + generated) reach `max_total`.

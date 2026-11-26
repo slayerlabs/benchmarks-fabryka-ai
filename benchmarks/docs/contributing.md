@@ -6,7 +6,7 @@ Which guide applies depends on where your change goes:
 |---|---|
 | `benchmarks/`: the `codesota` package, its tests and docs | this guide and [`../AGENTS.md`](../AGENTS.md) |
 | a new log-likelihood benchmark | this guide, [section 5](#5-writing-an-integration): an entry in the runner's catalog |
-| a new benchmark of any other kind, in `research/api-benchmarks/<name>/` | [`research/api-benchmarks/README.md`](../../research/api-benchmarks/README.md) |
+| a new benchmark of any other kind, in `research/benchmarks/<name>/` | [`research/benchmarks/README.md`](../../research/benchmarks/README.md) |
 | `research/studies/2026-10-lm-eval-benchmarks/`: cards and results of the frozen November 2026 lm-eval full run | only fixes of errors in that run, by [`METODOLOGIA.md`](../../research/studies/2026-10-lm-eval-benchmarks/METODOLOGIA.md) (Polish) |
 | team process: contact, board, review paths | the root [`CONTRIBUTING.md`](../../CONTRIBUTING.md) |
 | how a model is configured for any run (precision, decoding, repeats, output limit, standard errors) | [`methodology.md`](methodology.md) |
@@ -65,8 +65,8 @@ Prefer primary sources. If a source is inaccessible, say so; do not reconstruct 
 Benchmarks scored from log-likelihoods through lm-eval are added to the runner: an entry in
 `src/codesota/catalog.py` (pinned data, scoring, status with its evidence), its lm-eval configuration in
 `src/codesota/runner/tasks.py`, and its documents and expected requests in `tests/test_runner.py`. A benchmark of
-another kind (generation, an external scorer) goes to `research/api-benchmarks/<name>/` by
-[its guide](../../research/api-benchmarks/README.md); extending the runner to such benchmarks is proposed in an issue
+another kind (generation, an external scorer) goes to `research/benchmarks/<name>/` by
+[its guide](../../research/benchmarks/README.md); extending the runner to such benchmarks is proposed in an issue
 first. Either way, an integration is
 expected to:
 

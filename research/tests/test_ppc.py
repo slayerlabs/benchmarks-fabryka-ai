@@ -1,4 +1,4 @@
-"""PPC T26 (common/zadania.py, benchmarks/ppc/ORIGINAL.md), no network and no weights.
+"""PPC T26 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/ppc/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the 5-shot prompt of the copied OpenPL YAML `ppc_mc.yaml` (5 bank
 demonstrations, then the sentence pair; continuations ` A`, ` B`, ` C`, gold = `label|int - 1`, so 1 -> A, 3 -> C),

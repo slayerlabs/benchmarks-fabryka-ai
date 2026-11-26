@@ -1,6 +1,6 @@
 """SciCode: the committed results recounted without the benchmark's code.
 
-No module of api-benchmarks/scicode is imported here. From results/<model-id>.jsonl.gz alone this recounts, per run
+No module of benchmarks/scicode is imported here. From results/<model-id>.jsonl.gz alone this recounts, per run
 and prompt setting, the correct steps, the binomial and the problem-clustered (CR1) SE, main problems solved, the
 scorer's verdict counts and the E1 numbers with the steps that took the official verdict; K1, K2 (with its SE floor,
 and under E1), K3 (paired, with its lead precondition) and Holm over the Coding group with LiveCodeBench Pro's two
@@ -25,7 +25,7 @@ from pathlib import Path
 
 import pytest
 
-BENCH = Path(os.environ.get("SCICODE_BENCH", Path(__file__).resolve().parents[1] / "api-benchmarks" / "scicode"))
+BENCH = Path(os.environ.get("SCICODE_BENCH", Path(__file__).resolve().parents[1] / "benchmarks" / "scicode"))
 RESULTS = BENCH / "results"
 RUNS = ("lfm3-1.7b", "lfm3-1.7b-nothink", "bielik-11b-v3.1")
 SETTINGS = ("with_background", "without_background")

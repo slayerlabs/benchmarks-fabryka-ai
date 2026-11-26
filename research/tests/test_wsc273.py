@@ -1,4 +1,4 @@
-"""WSC273 (benchmarks/wsc273/wsc273.py).
+"""WSC273 (studies/2026-10-lm-eval-benchmarks/benchmarks/wsc273/wsc273.py).
 
 Three layers:
 - logic on dummies, no network (each test names the mutation it must catch);

@@ -40,8 +40,8 @@ The following priorities were communicated by **Kacper Wikieł** to the Benchmar
 ## How these priorities relate to CodeSOTA
 
 - New benchmarks follow the CodeSOTA [evaluation methodology](methodology.md): log-likelihood benchmarks go into the
-  runner's catalog, every other benchmark into `research/api-benchmarks/`
-  ([guide](../../research/api-benchmarks/README.md)).
+  runner's catalog, every other benchmark into `research/benchmarks/`
+  ([guide](../../research/benchmarks/README.md)).
 - Results are published on the [results page](../results/README.md).
 - New CodeSOTA components should support these research priorities where technically appropriate.
 

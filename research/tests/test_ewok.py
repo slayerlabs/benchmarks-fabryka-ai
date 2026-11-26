@@ -1,4 +1,4 @@
-"""Czyste funkcje EWoK (benchmarks/ewok/ewok.py), bez sieci i bez wag.
+"""Czyste funkcje EWoK (studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/ewok.py), bez sieci i bez wag.
 
 Próbka `common/tests/data/ewok.jsonl` to 10 rekordów w formacie ewok-core-1.0 z wymyślonymi zdaniami (nie z EWoK,
 TERMS_OF_USE) i log P jednego modelu. Uruchom: python tests/test_ewok.py (albo pytest).
@@ -262,7 +262,7 @@ def test_przebieg_dtype_goes_to_the_model_and_into_the_result():
 
 
 def test_wpis_przebiegu_zgodny_z_karta():
-    """ZADANIA T53 against benchmarks/ewok/ORIGINAL.md and this code (own code: the run calls ewok.py przebieg)."""
+    """ZADANIA T53 against studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/ORIGINAL.md and this code (own code: the run calls ewok.py przebieg)."""
     sys.path.insert(0, str(ROOT / "common"))
     import zadania as Z
     meta = Z.ZADANIA["T53"]

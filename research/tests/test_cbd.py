@@ -1,4 +1,4 @@
-"""CBD T28 (common/zadania.py, benchmarks/cbd/ORIGINAL.md), no network and no weights.
+"""CBD T28 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/cbd/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the 5-shot prompt of the copied OpenPL YAML `cbd_mc.yaml` (5 bank demonstrations,
 then the question; 6 continuations = space + category, gold = the YAML's map of `CATEGORIES`, an empty or unknown

@@ -1,4 +1,4 @@
-"""ARC-Easy SNR and baselines (benchmarks/arc-easy/snr_and_baselines.py).
+"""ARC-Easy SNR and baselines (studies/2026-10-lm-eval-benchmarks/benchmarks/arc-easy/snr_and_baselines.py).
 
 Three layers:
 - logic on dummies, no network (each test names the mutation it must catch);

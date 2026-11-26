@@ -1,4 +1,4 @@
-"""8TAGS T23 (common/zadania.py, benchmarks/8tags/ORIGINAL.md), no network and no weights.
+"""8TAGS T23 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/8tags/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the 5-shot prompt of the copied OpenPL YAML `8tags_mc.yaml` (5 bank
 demonstrations, then the title; continuations = space + category name, gold = `label|int`), and the decision metric

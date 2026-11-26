@@ -23,7 +23,7 @@ with the month it starts. Its `README.md` has these sections, written before the
 2. **Models**: each with its configuration from the [evaluation methodology](../../benchmarks/docs/methodology.md).
 3. **Benchmarks**: one row each, with a link to its directory and its state (planned, running, done, dropped with the
    reason and date). A benchmark that does not exist yet gets its directory as
-   [`api-benchmarks/README.md`](../api-benchmarks/README.md) says.
+   [`research/benchmarks/README.md`](../benchmarks/README.md) says.
 4. **Hypotheses and thresholds**: what result confirms or refutes the answer, written before the results, as the
    commit history shows. A hypothesis added after a result is marked exploratory.
 5. **Board**: the label of the study's tasks, `study:<short-name>`.

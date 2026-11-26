@@ -1,4 +1,4 @@
-"""Social IQa T46 (benchmarks/social-iqa/zbierz_wyniki.py) i liczby w results/social_iqa.json.
+"""Social IQa T46 (studies/2026-10-lm-eval-benchmarks/benchmarks/social-iqa/zbierz_wyniki.py) i liczby w results/social_iqa.json.
 
 Bez sieci i bez wag: pierwsza warstwa sprawdza składanie pliku liczb na atrapie wyjścia `common/ewaluuj.py`
 (każdy test nazywa mutację, którą łapie), druga przelicza liczby z opublikowanego pliku wyników niezależnie

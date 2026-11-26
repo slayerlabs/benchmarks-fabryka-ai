@@ -5,7 +5,7 @@ directory with a manifest, the per-sample records, and the aggregated results. I
 models, call APIs, or rescore outputs.
 
 This is developer tooling in the `codesota` package. It does not change how work in `research/` is submitted:
-benchmarks there keep following [`research/api-benchmarks/README.md`](../../research/api-benchmarks/README.md) and
+benchmarks there keep following [`research/benchmarks/README.md`](../../research/benchmarks/README.md) and
 the [evaluation methodology](methodology.md); the frozen central run keeps
 [`METODOLOGIA.md`](../../research/studies/2026-10-lm-eval-benchmarks/METODOLOGIA.md) (in Polish).
 

@@ -1,4 +1,4 @@
-"""SciQ T09 (common/zadania.py, benchmarks/sciq/ORIGINAL.md), no network and no weights.
+"""SciQ T09 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/sciq/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the lm-eval `sciq` prompt `{{support.lstrip()}}\nQuestion: {{question}}\nAnswer:`
 (the support paragraph comes first; an empty support leaves the context starting with "\n"), and the decision metric
@@ -6,7 +6,7 @@ The ZADANIA entry against the card, the lm-eval `sciq` prompt `{{support.lstrip(
 
 Option order: the code sends `[distractor1, distractor2, distractor3, correct_answer]` with `doc_to_target: 3`, so
 the correct option is always last, as the card says; a tie (correct answer equal to a distractor, 2 test questions per
-the card) is lost to the earlier distractor. benchmarks/sciq/README.md files T09 under type `poz` ("needs a second
+the card) is lost to the earlier distractor. studies/2026-10-lm-eval-benchmarks/benchmarks/sciq/README.md files T09 under type `poz` ("needs a second
 run with shuffled options"); no shuffled-option variant exists in common/ (one variant, `space`), so only the dataset
 order is scored, as the README states. Data: three invented questions. Run: python tests/test_sciq.py (or pytest).
 """

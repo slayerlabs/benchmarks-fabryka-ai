@@ -1,7 +1,7 @@
 > **Frozen.** The protocol of the November 2026 lm-eval full run and the benchmark cards in `benchmarks/`, kept as the
 > evidence for those results. It is not the current methodology: model configuration follows
 > [`benchmarks/docs/methodology.md`](../../../benchmarks/docs/methodology.md), new benchmarks
-> [`api-benchmarks/README.md`](../../api-benchmarks/README.md), log-likelihood benchmarks the CodeSOTA runner
+> [`research/benchmarks/README.md`](../../benchmarks/README.md), log-likelihood benchmarks the CodeSOTA runner
 > ([`benchmarks/docs/running.md`](../../../benchmarks/docs/running.md)). The section on the next Slayer version
 > describes the 1.07 run; which checkpoint to measure now is in the
 > [evaluation methodology, section 1](../../../benchmarks/docs/methodology.md#1-one-configuration-per-model).
@@ -33,13 +33,13 @@ zamiast etapów A i B ma kartę zbioru. Każdy etap może iść osobnym PR. Kied
 benchmarki naraz, na Slayerze i modelach odniesienia. Autor PR niczego nie liczy na GPU. Stan każdego benchmarku:
 [`STATUS.md`](STATUS.md).
 
-PR do `main` (jeden albo kilka, po jednym na etap) zawiera katalog `research/benchmarks/<name>/` założony z
-[`research/benchmarks/_template/`](benchmarks/_template/README.md), a w nim:
+PR do `main` (jeden albo kilka, po jednym na etap) zawiera katalog `research/studies/2026-10-lm-eval-benchmarks/benchmarks/<name>/`
+(do 26.11.2026 `research/benchmarks/<name>/`) założony z [`benchmarks/_template/`](benchmarks/_template/README.md), a w nim:
 
 1. `ORIGINAL.md` (etap A) i `REPRODUCTION.md` (etap B) z wartością referencyjną, modelem kontrolnym i warunkiem
    odtworzenia ustalonymi przed liczeniem. Gdy żaden model nie ma opublikowanego wyniku: „bez kontroli” z listą
    przeszukanych miejsc ([„Bez kontroli”](#bez-kontroli)). Werdykt wpisujesz po przebiegu centralnym. Benchmark bez
-   oryginału ma zamiast nich `DATASET.md`. Wersja polska leży w `research/benchmarks/<name>-pl/` i ma `POLISH.md`
+   oryginału ma zamiast nich `DATASET.md`. Wersja polska leży w `benchmarks/<name>-pl/` tego studium i ma `POLISH.md`
    (etap D).
 2. **Podpięcie do przebiegu** (etap C): wpis w `ZADANIA` (`research/common/zadania.py`) i w `KATALOGI`
    (`research/tools/przebieg_centralny.sh`). Benchmark z własnym kodem: przebieg woła jego komendę, a własna

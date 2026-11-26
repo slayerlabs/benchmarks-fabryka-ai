@@ -1,4 +1,4 @@
-"""PubMedQA T44 (common/zadania.py, benchmarks/pubmedqa/ORIGINAL.md), no network and no weights.
+"""PubMedQA T44 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/pubmedqa/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the prompt of lm-eval `preprocess_pubmedqa.py` and the three continuations, the
 gold given as text (`final_decision`) and acc with the baselines on a stand-in model. Data: the first rows of

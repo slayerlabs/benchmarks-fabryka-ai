@@ -1,4 +1,4 @@
-"""LiveCodeBench Pro 25Q2 (api-benchmarks/livecodebench-pro-25q2): prompt, extraction, requests, judging, summary
+"""LiveCodeBench Pro 25Q2 (benchmarks/livecodebench-pro-25q2): prompt, extraction, requests, judging, summary
 and the K1-K3 analysis, without GPU, Docker, network or the gated data.
 
 - Prompt and extraction run the pinned harness clone in the benchmark's `.cache/` (run.sh makes it; skipped
@@ -37,9 +37,9 @@ from pathlib import Path
 
 import pytest
 
-BENCH = Path(os.environ.get("LCBPRO_BENCH", Path(__file__).resolve().parents[1] / "api-benchmarks" /
+BENCH = Path(os.environ.get("LCBPRO_BENCH", Path(__file__).resolve().parents[1] / "benchmarks" /
                             "livecodebench-pro-25q2"))
-HARNESS = Path(__file__).resolve().parents[1] / "api-benchmarks" / "livecodebench-pro-25q2" / ".cache" / \
+HARNESS = Path(__file__).resolve().parents[1] / "benchmarks" / "livecodebench-pro-25q2" / ".cache" / \
     "LiveCodeBench-Pro"
 os.environ.setdefault("LCBPRO_DIR", str(HARNESS))
 for name in ("compare", "explore", "lcbpro", "provenance", "raw_outputs", "readme", "rejudge", "summarize"):

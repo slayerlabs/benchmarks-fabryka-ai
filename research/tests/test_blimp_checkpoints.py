@@ -1,4 +1,4 @@
-"""BLiMP over checkpoints and weight averaging (benchmarks/blimp/checkpoints.py, average_weights.py), dummy data only.
+"""BLiMP over checkpoints and weight averaging (studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/checkpoints.py, average_weights.py), dummy data only.
 Run: python tests/test_blimp_checkpoints.py (or pytest)."""
 import math
 import sys

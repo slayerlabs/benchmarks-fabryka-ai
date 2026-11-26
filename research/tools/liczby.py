@@ -252,7 +252,7 @@ BADANIA = {"rozmowy-1.08": "slayer-1b/rozmowy-1.08"}
 
 def porownania_blimp(bl):
     """BLiMP full set, Slayer 1.06 vs Pythia-1B on the same 67 000 pairs: overall, 12 phenomena,
-    67 paradigms; SE paired by pair (benchmarks/blimp/blimp.py porownanie_parowane)."""
+    67 paradigms; SE paired by pair (studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/blimp.py porownanie_parowane)."""
     por, mod = bl["porownanie"], bl["modele"]
     a, b = por["a"], por["b"]
     zrodlo = "paired by minimal pair (benchmarks/blimp/blimp.py)"
@@ -341,7 +341,7 @@ def porownania_blimp(bl):
 
 
 def porownania_krzywej(kr):
-    """BLiMP over checkpoints and weight averages (benchmarks/blimp/checkpoints.py, CHECKPOINTS_THRESHOLDS.md):
+    """BLiMP over checkpoints and weight averages (studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/checkpoints.py, CHECKPOINTS_THRESHOLDS.md):
     gap of every checkpoint to Pythia-1B, slopes, step changes, averages vs 1.06; pair SE and clustered t."""
     out = []
     par = "paired by minimal pair, stratified by paradigm"
@@ -468,7 +468,7 @@ def raporty_blimp(bl):
 
 
 def raporty_piqa(korzen):
-    """PIQA.md for gate (g): the report must equal what benchmarks/piqa/piqa.py renders from piqa.json."""
+    """PIQA.md for gate (g): the report must equal what studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/piqa.py renders from piqa.json."""
     if not (korzen / PIQA).exists():
         return []
     return [{"plik": f"{BENCHMARKI}/piqa/results/PIQA.md", "test": "piqa", "wieloparadygmatowy": False, "grupy": [],

@@ -21,7 +21,7 @@ Wspólne dla wszystkich wpisów:
 - Porównanie GPU: zapisane jest tylko `seconds_score`; cena za godzinę, czasy przygotowania i pobierania obiecane w
   PROTOCOL.md nie zostały zapisane.
 - Przygotowanie na instancji (w `/workspace`, repo sklonowane do `/workspace/repo`):
-  `bash repo/research/benchmarks/piqa/instance.sh setup 5400` (lockfile, dane, wagi; niszczy instancję po
+  `bash repo/research/studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/instance.sh setup 5400` (lockfile, dane, wagi; niszczy instancję po
   5400 s).
 - Raport (w `research/`): `python studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/piqa.py report`, potem `python tools/liczby.py`.
 
@@ -29,7 +29,7 @@ Wspólne dla wszystkich wpisów:
 
 - Model: `SlayerLab/Slayer1B-1.06` @ `ef81be58742544ad32e1afab38db011fec209609`, wrapper `slayer` (`common/slayer_lm.py`,
   jeden BOS na żądanie).
-- Komenda: `bash repo/research/benchmarks/piqa/instance.sh slayer`, czyli
+- Komenda: `bash repo/research/studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/instance.sh slayer`, czyli
   `python studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/piqa.py score --model slayer --pretrained /workspace/slayer-1.06 --repo SlayerLab/Slayer1B-1.06 --revision ef81be58742544ad32e1afab38db011fec209609 --data /workspace/data --out /workspace/out/slayer-1.06.jsonl.gz --device cuda --batch 1`
 - Sprzęt: NVIDIA GeForce RTX 4090 (vast.ai, Wirginia, USA).
 - Wynik: `results/raw/slayer-1.06.jsonl.gz` (sha256 w `results/raw/SHA256SUMS`); wartości w `results/piqa.json`,
@@ -38,7 +38,7 @@ Wspólne dla wszystkich wpisów:
 ## EleutherAI/pythia-1b-v0 (kontrola)
 
 - Model: `EleutherAI/pythia-1b-v0` @ `step143000`, `HFLM` (BOS nie jest dodawany, domyślne ustawienia tokenizera).
-- Komenda: `bash repo/research/benchmarks/piqa/instance.sh pythia pythia-1b-v0`, czyli
+- Komenda: `bash repo/research/studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/instance.sh pythia pythia-1b-v0`, czyli
   `python studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/piqa.py score --model hf --pretrained EleutherAI/pythia-1b-v0 --repo EleutherAI/pythia-1b-v0 --revision step143000 --data /workspace/data --out /workspace/out/pythia-1b-v0.jsonl.gz --device cuda --batch 1`
 - Sprzęt: NVIDIA GeForce RTX 4090 (vast.ai, Wirginia, USA).
 - Wynik: `results/raw/pythia-1b-v0.jsonl.gz`; wartości w `results/piqa.json`, klucze `models.pythia-1b-v0.*` i

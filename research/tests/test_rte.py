@@ -1,4 +1,4 @@
-"""RTE (SuperGLUE) T15 (common/zadania.py, benchmarks/rte/ORIGINAL.md), no network and no weights.
+"""RTE (SuperGLUE) T15 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/rte/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card (lm-eval task `sglue_rte`, not the GLUE `rte`), the prompt
 `{premise}\nQuestion: {hypothesis} True or False?\nAnswer:` (no full stop added after the hypothesis) with continuations

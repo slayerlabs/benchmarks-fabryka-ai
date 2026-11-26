@@ -1,4 +1,4 @@
-"""PoQuAD open book T31 (common/zadania.py, benchmarks/poquad/ORIGINAL.md), no network and no weights.
+"""PoQuAD open book T31 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/poquad/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, RECIPE.md and the README type row (`gen +klastry +pl`, clusters `context`); the
 prompt of the copied fork YAML (`poquad_open_book.yaml`) as the card writes it; `utils.doc_to_target` (first gold

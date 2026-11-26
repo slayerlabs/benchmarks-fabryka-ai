@@ -8,8 +8,8 @@ How the Benchmark Team works: contact, tasks, the board, and review.
 2. **Take a task** from the board ([Taking a task](#taking-a-task)).
 3. **Read the [evaluation methodology](benchmarks/docs/methodology.md)**: how every model is configured for a run.
    It is the one methodology for new work.
-4. **Do the work where it belongs**: a new benchmark goes to `research/api-benchmarks/<name>/`, step by step in
-   [its guide](research/api-benchmarks/README.md); a log-likelihood benchmark goes into the CodeSOTA runner's
+4. **Do the work where it belongs**: a new benchmark goes to `research/benchmarks/<name>/`, step by step in
+   [its guide](research/benchmarks/README.md); a log-likelihood benchmark goes into the CodeSOTA runner's
    catalog ([`benchmarks/docs/contributing.md`](benchmarks/docs/contributing.md#5-writing-an-integration)); anything
    else in `research/` goes where [the workspace map](research/README.md#where-things-go) says; each wave of work
    (a study, finished or in progress) has its README in `research/studies/`.
@@ -117,7 +117,7 @@ result:
 
 A benchmark task is short. Title: the benchmark name. Body: which models to run, a link to the reference with
 published scores and settings when there is one, links to the [Fabryka AI API](https://fabryka.ai/platform),
-[`research/api-benchmarks/README.md`](research/api-benchmarks/README.md) and the
+[`research/benchmarks/README.md`](research/benchmarks/README.md) and the
 [evaluation methodology](benchmarks/docs/methodology.md),
 a note that a machine is available on request, an empty result table with one row per model, and the review path.
 How to run the benchmark and what to deliver belongs to the methodology, not the task.

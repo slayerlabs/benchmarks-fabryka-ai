@@ -1,4 +1,4 @@
-"""PIQA T06 (benchmarks/piqa/piqa.py).
+"""PIQA T06 (studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/piqa.py).
 
 Two layers:
 - logic on dummies, no network (each test names the mutation it must catch);
