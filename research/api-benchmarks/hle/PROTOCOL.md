@@ -10,11 +10,12 @@
 ## Max output tokens
 
 - **Decision:** `max_completion_tokens=8192` for all models.
-- **Reason:** Official HLE README recommends not setting below 8192 for reasoning models and uses 8192 in examples. LFM3 card states "no output limit other than context length" generally; we record 8192 as an explicit, uniform deviation.
+- **Reason:** Official HLE README recommends not setting below 8192 for reasoning models and uses 8192 in examples. LFM3 card states "no output limit other than context length" generally; we record 8192 as an explicit, uniform deviation. It is also below the 16384 that `benchmarks/docs/methodology.md` (section 5, written after this run) sets for models without reasoning.
+- **Truncation:** answers that hit 8192 tokens count as the judge scores them, and their number is recorded in the result (`truncated`); above 5% the result requires verification (methodology section 5).
 
 ## Sampling
 
-- `temperature=0.6`, `top_p=0.95`, single trial - from LFM3-1.7B card "Evaluation details" general default (HLE not listed as exception).
+- `temperature=0.6`, `top_p=0.95`, one sample per question - from LFM3-1.7B card "Evaluation details" general default (HLE not listed as exception). For Bielik 11B v3.1 this is the LFM3-1.7B card's configuration, not Bielik's own (methodology section 1, written after this run); one sample instead of the methodology's 5 per item (section 4) is a cost deviation. Both are named in `README.md`, Deviations.
 
 ## Judge
 

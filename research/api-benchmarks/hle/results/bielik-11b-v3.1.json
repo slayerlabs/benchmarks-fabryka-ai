@@ -31,9 +31,14 @@
   "date": "2026-11-23",
   "harness": "centerforaisafety/hle @ 22ed3074b1e7b134bcbc09028d0ba320839b0655 (adapted: predict_api.py/judge_batches.py, Anthropic Message Batches)",
   "data": "cais/hle test @ 5a81a4c7271a2a2a312b9a690f0c2fde837e4c29, text-only subset (2158/2500)",
+  "configuration": "LFM3-1.7B card's sampling, not Bielik's own (run 2026-11-23, before benchmarks/docs/methodology.md)",
+  "truncated": {
+    "unknown": "the count of answers at max_completion_tokens needs the per-question usage in the off-git per-question file; not recorded yet, the result requires verification until it is"
+  },
   "settings": {
     "temperature": 0.6,
     "top_p": 0.95,
+    "decoding_source": "LFM3-1.7B model card, Evaluation details",
     "max_completion_tokens": 8192,
     "max_turns": 1,
     "trials": 1,
