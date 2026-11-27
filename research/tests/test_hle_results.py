@@ -6,9 +6,13 @@ score and stderr from the stored counts (both denominators), the unjudged IDs, t
 and Cohen's kappa from each confusion table) and the cost total, and checks the numbers printed in README.md. Where
 the per-question file is on this machine (HLE_PER_QUESTION, or results/bielik-11b-v3.1.jsonl.gz), its SHA-256 is
 checked against README.md and the correct count and the truncation count are recounted from it (skipped otherwise).
+The committed results/bielik-11b-v3.1.verdicts.csv (id, verdict, truncated: no question content) is always used to
+recompute the score, n, the unjudged IDs and the truncation count. The methodology fields (samples per item, the
+section 10 inference record with a reason for every unknown) are checked too.
 Needs only pytest and the standard library.
 Run: python3 -m pytest research/tests/test_hle_results.py
 """
+import csv
 import gzip
 import hashlib
 import json
@@ -127,3 +131,47 @@ def test_per_question_file():
     t = result()["truncated"]
     if isinstance(t, int):
         assert t == truncated
+
+
+def verdicts():
+    with (RESULTS / f"{RUN}.verdicts.csv").open(encoding="utf-8", newline="") as f:
+        return list(csv.reader(f))
+
+
+def test_verdicts_file_holds_no_content():
+    rows = verdicts()
+    assert rows[0] == ["id", "verdict", "truncated"]
+    body = rows[1:]
+    assert len(body) == N and len({r[0] for r in body}) == N
+    for r in body:
+        assert len(r) == 3 and re.fullmatch(r"[0-9a-f]{24}", r[0])
+        assert r[1] in ("yes", "no", "none") and r[2] in ("0", "1")
+
+
+def test_score_recomputed_from_verdicts():
+    res = result()
+    body = verdicts()[1:]
+    correct = sum(r[1] == "yes" for r in body)
+    unjudged = sorted(r[0] for r in body if r[1] == "none")
+    assert (correct, len(body)) == (CORRECT, N)
+    assert unjudged == sorted(res["unresolved_ids"])
+    s, se = score(correct, len(body))
+    assert (res["score"], res["stderr"]) == (round(s, 4), round(se, 4))
+    sj, sej = score(correct, len(body) - len(unjudged))
+    assert (res["score_judged_subset_only"]["accuracy"], res["score_judged_subset_only"]["stderr"]) == (round(sj, 4), round(sej, 4))
+    truncated = sum(r[2] == "1" for r in body)
+    assert truncated == res["truncated"]
+    detail = res["truncated_detail"]
+    assert detail["pct"] == round(100 * truncated / N, 2) and detail["limit"] == res["settings"]["max_completion_tokens"]
+    assert detail["requires_verification"] == (truncated / N > 0.05)
+
+
+def test_methodology_record():
+    res = result()
+    assert res["samples_per_item"] == res["settings"]["trials"] == 1
+    assert res["stderr_method"]
+    inf = res["inference"]
+    for key in ("weights", "dtype", "quantization", "serving_stack", "hardware", "concurrency", "chat_template",
+                "system_prompt", "reasoning_mode", "decoding"):
+        v = inf[key]
+        assert (set(v) == {"unknown"} and v["unknown"].strip()) if isinstance(v, dict) else v.strip(), key
