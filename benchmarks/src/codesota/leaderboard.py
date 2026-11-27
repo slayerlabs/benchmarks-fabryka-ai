@@ -277,9 +277,12 @@ class ApiBenchmark:
     - A column without a score is "null" when the model cannot run the benchmark (research/METHODOLOGY.md), and
       "not run" when it was not run, by decision, for budget, or not yet. `not_run` names the columns of the second
       kind, with a reason for when the result file has none; `null_reasons` gives the reason of a null whose file has
-      none. A result file's own `reason` or `score_null_reason` always wins.
+      none. A result file's own `reason` or `score_null_reason` wins over both; `reason_text` replaces it with a
+      shorter wording of the same reason when the file's text is written for the benchmark's maintainers.
     - `se_field` is the result file's field shown as the standard error.
-    - `note` is what a reader needs to read the values right; it is shown next to them, without *."""
+    - `note` is what a reader needs to read the values right; it is shown next to them, without *.
+    - `ranked` is False when the order of the scores would mislead (the best value is not the better model); the row
+      is then shown without the best and second marks."""
 
     id: str
     name: str
@@ -294,8 +297,10 @@ class ApiBenchmark:
     files: Mapping[str, str] = field(default_factory=dict)
     null_reasons: Mapping[str, str] = field(default_factory=dict)
     not_run: Mapping[str, str] = field(default_factory=dict)
+    reason_text: Mapping[str, str] = field(default_factory=dict)
     se_field: str = "stderr"
     note: str = ""
+    ranked: bool = True
 
     @property
     def starred(self) -> bool:
@@ -391,9 +396,12 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         {"slayer": "slayer1b-60000", "bielik": "bielik-11b-v3.1-vllm"},
         {"slayer": STEP_60K, "bielik": OWN_VLLM},
         0.50,
-        note="our grades come from a different judge (GPT-6.1 Sol) than the official grader (Gemini 2.5 Flash "
-        "Preview), so the values cannot be compared with the card's 0.50 or with Artificial Analysis' numbers "
-        "(README)",
+        note="Slayer's higher index is not more knowledge: it answers 10 of 600 correctly (accuracy 1.67, Bielik "
+        "11.17), and its index is higher only because 223 of its answers, cut at the 1280-token limit, are graded "
+        "not attempted, which the index does not subtract. The row is therefore not ranked. Our grades come from a "
+        "different judge (GPT-6.1 Sol) than the official grader (Gemini 2.5 Flash Preview), so the values cannot be "
+        "compared with the card's 0.50 or with Artificial Analysis' numbers (README)",
+        ranked=False,
     ),
     ApiBenchmark(
         "livecodebench-v6",
@@ -433,6 +441,10 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         },
         28.47,
         se_field="stderr_clustered",
+        reason_text={
+            "slayer": "with background, 216 of 288 prompts leave fewer than 256 of its 4096 context tokens for the "
+            "answer, so the score is null (README, PROTOCOL.md Amendment 3)",
+        },
         note="n counts the 288 steps; the standard error is clustered over the 65 problems, as in the README (over "
         "steps it would be 2.76 for LFM3). The control against the card passes both with and without background "
         "(22.92), so it cannot confirm the card's setup. LFM3 without thinking: 24.65. Slayer without background: "
@@ -870,6 +882,7 @@ def api_cells(rows: Sequence[Result], repo: Path = REPO) -> list[tuple[str, list
                     continue
                 row = _api_file(repo, b, column) if label is not None else None
                 own = (row.get("reason") or row.get("score_null_reason")) if row is not None else None
+                own = b.reason_text.get(column, own)
                 if column in b.not_run:
                     cells.append(ApiCell(None, "not run", str(own or b.not_run[column]), b.starred))
                 elif row is not None or column in b.null_reasons:
@@ -882,10 +895,11 @@ def api_cells(rows: Sequence[Result], repo: Path = REPO) -> list[tuple[str, list
     return out
 
 
-def api_ranks(cells: Sequence[ApiCell]) -> list[int | None]:
-    """Rank of each scored cell, as in the headline table; no ranks in a row with fewer than two scores."""
+def api_ranks(cells: Sequence[ApiCell], ranked: bool = True) -> list[int | None]:
+    """Rank of each scored cell, as in the headline table; no ranks in a row with fewer than two scores or in a row
+    that is not ranked."""
     scored = [c.result for c in cells if c.result is not None]
-    if len(scored) < 2:
+    if not ranked or len(scored) < 2:
         return [None] * len(cells)
     values = sorted({float(value_text(r)) for r in scored}, reverse=True)
     return [None if c.result is None else values.index(float(value_text(c.result))) + 1 for c in cells]
@@ -919,7 +933,7 @@ def api_svg(rows: Sequence[Result], t: Theme, repo: Path = REPO, col: int = 110)
             y += row_h
             base = y - 11
             body.append(f'<text x="{pad}" y="{base}">{_esc(b.name)}</text>')
-            for i, (c, k) in enumerate(zip(cells, api_ranks(cells), strict=True)):
+            for i, (c, k) in enumerate(zip(cells, api_ranks(cells, b.ranked), strict=True)):
                 if k == 1:
                     body.append(
                         f'<rect x="{center(i) - 38}" y="{base - 16}" width="76" height="22" rx="5" '

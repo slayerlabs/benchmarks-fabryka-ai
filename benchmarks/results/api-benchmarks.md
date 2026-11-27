@@ -70,7 +70,7 @@ Source: [`research/api-benchmarks/gpqa-diamond/`](../../research/api-benchmarks/
 
 Source: [`research/api-benchmarks/aa-omniscience/`](../../research/api-benchmarks/aa-omniscience/README.md) (merged). LFM3-1.7B card: 0.50.
 
-**Note:** our grades come from a different judge (GPT-6.1 Sol) than the official grader (Gemini 2.5 Flash Preview), so the values cannot be compared with the card's 0.50 or with Artificial Analysis' numbers (README).
+**Note:** Slayer's higher index is not more knowledge: it answers 10 of 600 correctly (accuracy 1.67, Bielik 11.17), and its index is higher only because 223 of its answers, cut at the 1280-token limit, are graded not attempted, which the index does not subtract. The row is therefore not ranked. Our grades come from a different judge (GPT-6.1 Sol) than the official grader (Gemini 2.5 Flash Preview), so the values cannot be compared with the card's 0.50 or with Artificial Analysis' numbers (README).
 
 | model | how it ran | value | n |
 |---|---|---:|---:|
@@ -112,7 +112,7 @@ Source: [`research/api-benchmarks/scicode/`](../../research/api-benchmarks/scico
 
 | model | how it ran | value | n |
 |---|---|---:|---:|
-| Slayer 1B 1.09 (step 70 000, training in progress) | step 70 000, raw prompt, no chat template, greedy, context 4096 | null: with_background: 216/288 subproblems (75.0%) had prompt_tokens > 4096 - SLAYER_MIN_ANSWER_TOKENS (256), so they were recorded as context_overflow/unsupported per PROTOCOL.md Amendment 3; headline score is null. Overflow is caused by inserting prior steps' long degenerate extracted outputs into subsequent with-background prompts. See other_metrics.with_background.unsupported and Amendment 3 'Result after the run'. | |
+| Slayer 1B 1.09 (step 70 000, training in progress) | step 70 000, raw prompt, no chat template, greedy, context 4096 | null: with background, 216 of 288 prompts leave fewer than 256 of its 4096 context tokens for the answer, so the score is null (README, PROTOCOL.md Amendment 3) | |
 | Bielik 11B v3.1 Instruct | Fabryka API, chat template | 2.4 ± 1.0 | 288 |
 | LFM3-1.7B | own vLLM, thinking, with background | 32.6 ± 3.6 | 288 |
 

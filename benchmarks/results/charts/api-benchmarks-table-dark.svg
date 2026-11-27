@@ -52,10 +52,8 @@
 <text x="625.0" y="297" text-anchor="middle" fill="#9198a1" data-card="gpqa-diamond">63.4</text>
 <line x1="20" x2="680" y1="308" y2="308" stroke="#21262d"/>
 <text x="20" y="331">AA-Omniscience</text>
-<rect x="257.0" y="315" width="76" height="22" rx="5" fill="#4a1d22"/>
-<text x="295.0" y="331" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="aa-omniscience" data-model="slayer1b-60000" data-rank="1">-59.3</text>
-<line x1="385.0" x2="425.0" y1="334" y2="334" stroke="#e6edf3"/>
-<text x="405.0" y="331" text-anchor="middle" data-benchmark="aa-omniscience" data-model="bielik-11b-v3.1-vllm" data-rank="2">-77.3</text>
+<text x="295.0" y="331" text-anchor="middle" data-benchmark="aa-omniscience" data-model="slayer1b-60000" data-rank="0">-59.3</text>
+<text x="405.0" y="331" text-anchor="middle" data-benchmark="aa-omniscience" data-model="bielik-11b-v3.1-vllm" data-rank="0">-77.3</text>
 <text x="515.0" y="331" text-anchor="middle" fill="#9198a1" font-size="12" data-benchmark="aa-omniscience" data-model="" data-rank="0">not run</text>
 <text x="625.0" y="331" text-anchor="middle" fill="#9198a1" data-card="aa-omniscience">0.5</text>
 <text x="20" y="366" font-size="13" font-weight="600" fill="#9198a1">Coding</text>

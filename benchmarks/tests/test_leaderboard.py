@@ -226,6 +226,7 @@ def expected_cell(b: leaderboard.ApiBenchmark, column: str) -> tuple[str, str | 
     if src is not None and src["score"] is not None:
         return "score", None, src
     own = (src.get("reason") or src.get("score_null_reason")) if src is not None else None
+    own = b.reason_text.get(column, own)
     if column in b.not_run:
         return "not run", own or b.not_run[column], src
     if src is not None or column in b.null_reasons:
@@ -276,6 +277,31 @@ def test_generative_table_images_show_source_values_and_stars() -> None:
                 assert text == kind, (name, benchmark, model)
         cards = dict(re.findall(r'data-card="(.*?)">(.*?)</text>', svg))
         assert cards == {b.id: f"{b.card:.1f}" for b in leaderboard.API_BENCHMARKS}
+
+
+def test_a_clustered_standard_error_is_the_one_shown() -> None:
+    """methodology.md, section 7: grouped items get a clustered SE. A benchmark whose result files carry
+    `stderr_clustered` shows it, and SciCode's LFM3 cell is pinned to the SE its README reports (3.63), so a
+    generator that shows the unclustered field fails here and not only in the README."""
+    for b in leaderboard.API_BENCHMARKS:
+        files = [api_file(b, column) for column in b.labels]
+        if any(src is not None and "stderr_clustered" in src for src in files):
+            assert b.se_field == "stderr_clustered", b.id
+    readme = (REPO / leaderboard.API_DIR / "scicode" / "README.md").read_text(encoding="utf-8")
+    assert "32.64 ± 2.76 (94/288; clustered 3.63)" in readme
+    text = (leaderboard.OUT / "README.md").read_text(encoding="utf-8").split("## Generative values")[1]
+    row = dict(re.findall(r"<tr><td>(.*?)</td>(.*?)</tr>", text))["SciCode"]
+    cells = re.findall(r'<td align="right">(.*?)</td>', row)
+    assert cells[leaderboard.API_COLUMNS.index("lfm3")] == "32.6 ± 3.6"
+
+
+def test_an_unranked_row_has_no_best_or_second_mark() -> None:
+    """AA-Omniscience's higher index for Slayer comes from answers graded not attempted, not from knowledge."""
+    assert not leaderboard.API_BY_ID["aa-omniscience"].ranked
+    for name in ("api-benchmarks-table.svg", "api-benchmarks-table-dark.svg"):
+        svg = (leaderboard.OUT / "charts" / name).read_text(encoding="utf-8")
+        ranks = re.findall(r'data-benchmark="aa-omniscience" data-model=".*?" data-rank="(\d+)"', svg)
+        assert ranks and set(ranks) == {"0"}, name
 
 
 def test_each_result_file_belongs_to_its_column() -> None:
