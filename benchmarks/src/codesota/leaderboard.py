@@ -499,9 +499,8 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         {"slayer": LATEST_SLAYER, "lfm3": "lfm3-1.7b"},
         {"slayer": "step 70 000", "lfm3": "own vLLM, OpenCode, 5 trials per task"},
         12.92,
-        341,
-        "PR #341 in review; Bielik not run yet",
         null_reasons={"slayer": NO_TOOL_CALLS},
+        not_run={"bielik": "not run yet; it needs a 48 GB GPU (README)"},
     ),
     ApiBenchmark(
         "automationbench",

@@ -16,7 +16,7 @@ Slayer 1B next to its reference models. Two tables: the log-likelihood benchmark
   <img src="charts/api-benchmarks-table.svg" alt="Results table: Slayer 1B, Bielik 11B v3.1 and LFM3-1.7B on 14 generative and agentic benchmarks, with the values of the LFM3-1.7B card; the same values are in the Generative values table below" width="100%">
 </picture>
 
-**\* requires verification:** the result comes from a pull request that is still in review, or it is not the benchmark's main row; the reason for each benchmark is on [Generative and agentic benchmarks](api-benchmarks.md). Merged and reviewed: IFEval, IFBench, IFStruct, Multi-IF, AA-Omniscience, LiveCodeBench v6, LiveCodeBench Pro 25Q2, SciCode, RULER 128K, AA-LCR, BFCL V4, AutomationBench.
+**\* requires verification:** the result comes from a pull request that is still in review, or it is not the benchmark's main row; the reason for each benchmark is on [Generative and agentic benchmarks](api-benchmarks.md). Merged and reviewed: IFEval, IFBench, IFStruct, Multi-IF, AA-Omniscience, LiveCodeBench v6, LiveCodeBench Pro 25Q2, SciCode, RULER 128K, AA-LCR, BFCL V4, Terminal-Bench 2.1, AutomationBench.
 
 - **Incomplete by design:** "null" means the model cannot run the benchmark (for example, its context window is too short, or it has no tool-call format; research/METHODOLOGY.md). "not run" means the benchmark was not run for the model: by decision, for compute budget, or not yet. The Generative values table gives the reason of each. Neither is a zero.
 - **Slayer 1B is a base model** without a chat template or a tool-call format: on the agentic benchmarks it cannot run, and where it is scored its output is mostly degenerate. Its column mixes versions: IFEval is 1.08, the instruction-following, knowledge, tool and agent rows step 60 000 of 1.09, the others step 70 000.
@@ -95,7 +95,7 @@ Value ± standard error, in % (AA-Omniscience: index). Each benchmark's standard
 <tr><td colspan="5"><b>Tool use</b></td></tr>
 <tr><td>BFCL V4</td><td align="right">null <sub>Slayer 1B is a base model without a chat template or tool-calling format; the serving endpoint rejects requests with tools (HTTP 400), so no syntactically valid call is possible.</sub></td><td align="right">not run <sub>Overall Acc needs the web_search categories (200 tasks, 40% x 1/2 of the weight), which were not run: they need a search API key. See other_metrics.</sub></td><td align="right">not run</td><td align="right">71.39</td></tr>
 <tr><td colspan="5"><b>Agentic coding</b></td></tr>
-<tr><td>Terminal-Bench 2.1</td><td align="right">null <sub>base model without a chat template or a tool-call format, so the agent cannot drive it</sub></td><td align="right">not run</td><td align="right">10.6 ± 2.7*</td><td align="right">12.92</td></tr>
+<tr><td>Terminal-Bench 2.1</td><td align="right">null <sub>base model without a chat template or a tool-call format, so the agent cannot drive it</sub></td><td align="right">not run <sub>not run yet; it needs a 48 GB GPU (README)</sub></td><td align="right">10.6 ± 2.7</td><td align="right">12.92</td></tr>
 <tr><td colspan="5"><b>Agents</b></td></tr>
 <tr><td>AutomationBench</td><td align="right">null <sub>Slayer 1B is a base model without a chat template or tool-calling format; the serving endpoint rejects requests with tools (HTTP 400), so no syntactically valid call is possible.</sub></td><td align="right">0.0 ± 0.0</td><td align="right">not run</td><td align="right">41.29</td></tr>
 </table>

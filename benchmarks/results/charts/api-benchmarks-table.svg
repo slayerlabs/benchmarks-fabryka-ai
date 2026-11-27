@@ -106,7 +106,7 @@
 <text x="20" y="705">Terminal-Bench 2.1</text>
 <text x="295.0" y="705" text-anchor="middle" fill="#59636e" data-benchmark="terminal-bench-2-1" data-model="slayer1b-1.09-k70000" data-rank="0">null</text>
 <text x="405.0" y="705" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="terminal-bench-2-1" data-model="" data-rank="0">not run</text>
-<text x="515.0" y="705" text-anchor="middle" data-benchmark="terminal-bench-2-1" data-model="lfm3-1.7b" data-rank="0">10.6*</text>
+<text x="515.0" y="705" text-anchor="middle" data-benchmark="terminal-bench-2-1" data-model="lfm3-1.7b" data-rank="0">10.6</text>
 <text x="625.0" y="705" text-anchor="middle" fill="#59636e" data-card="terminal-bench-2-1">12.9</text>
 <text x="20" y="740" font-size="13" font-weight="600" fill="#59636e">Agents</text>
 <line x1="20" x2="680" y1="750" y2="750" stroke="#eef1f4"/>

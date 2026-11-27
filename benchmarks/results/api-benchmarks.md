@@ -158,15 +158,13 @@ Source: [`research/api-benchmarks/bfcl-v4/`](../../research/api-benchmarks/bfcl-
 
 ### Terminal-Bench 2.1
 
-Source: [`research/api-benchmarks/terminal-bench-2-1/`](../../research/api-benchmarks/terminal-bench-2-1/README.md) (in review, PR #341). LFM3-1.7B card: 12.92.
-
-**Requires verification:** PR #341 in review; Bielik not run yet.
+Source: [`research/api-benchmarks/terminal-bench-2-1/`](../../research/api-benchmarks/terminal-bench-2-1/README.md) (merged). LFM3-1.7B card: 12.92.
 
 | model | how it ran | value | n |
 |---|---|---:|---:|
 | Slayer 1B 1.09 (step 70 000, training in progress) | step 70 000 | null: base model without a chat template or a tool-call format, so the agent cannot drive it | |
 | Bielik 11B | not run | | |
-| LFM3-1.7B | own vLLM, OpenCode, 5 trials per task | 10.6 ± 2.7* | 89 |
+| LFM3-1.7B | own vLLM, OpenCode, 5 trials per task | 10.6 ± 2.7 | 89 |
 
 ## Agents
 
