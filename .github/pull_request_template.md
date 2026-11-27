@@ -48,5 +48,5 @@ model, number of passes); findings fixed or dismissed, with a one-line reason ea
 - [ ] No credentials, model weights, gated datasets, or files over 10 MB are committed.
 - [ ] Evaluation changes: official sources pinned, failures not scored as zeros, deviations named, same protocol for
       every model.
-- [ ] `research/` benchmark PRs: the steps in `research/METHODOLOGY.md` (or `research/METODOLOGIA.md` for
-      `research/benchmarks/`) are met, and the number gate and tests from CONTRIBUTING.md "Przed PR" pass.
+- [ ] `research/` benchmark PRs: the steps in `research/METHODOLOGY.md` and `benchmarks/docs/methodology.md` are met,
+      and the checks from CONTRIBUTING.md "Checks before a PR in `research/`" pass.
