@@ -167,7 +167,8 @@ def official(h, out, problem, setting):
 
 
 def files(root):
-    return {str(p.relative_to(root)): p.read_bytes() for p in sorted(root.rglob("*")) if p.is_file()}
+    # as_posix: the assertions below write the expected keys with "/", whatever the platform separators are
+    return {p.relative_to(root).as_posix(): p.read_bytes() for p in sorted(root.rglob("*")) if p.is_file()}
 
 
 def ours(h, out, problems, fail_at=None):

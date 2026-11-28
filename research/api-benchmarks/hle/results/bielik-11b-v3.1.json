@@ -1,0 +1,248 @@
+{
+  "benchmark": "Humanity's Last Exam (no tools)",
+  "model": "bielik-11b-v3.1",
+  "metric": "accuracy",
+  "score": 5.4217,
+  "stderr": 0.4875,
+  "stderr_formula": "sqrt(p*(1-p)/n)*100, percent scale",
+  "stderr_method": "per-item pass/fail over the 2158 items, sqrt(p*(1-p)/n), not clustered (one sample per independent question; methodology section 7)",
+  "n": 2158,
+  "n_judged": 2153,
+  "n_unresolved_counted_incorrect": 5,
+  "unresolved_ids": [
+    "66b91693d86bff9a12fc1f99",
+    "671bc0c855449c636f4bbd36",
+    "66fc2df0b72463921f6c40f2",
+    "6726941826b7fc6a39fbe581",
+    "67202822dbc5086c0bdd4e1c"
+  ],
+  "score_with_unresolved_as_incorrect": {
+    "accuracy": 5.4217,
+    "stderr": 0.4875,
+    "n": 2158,
+    "correct": 117
+  },
+  "score_judged_subset_only": {
+    "accuracy": 5.4343,
+    "stderr": 0.4886,
+    "n": 2153,
+    "correct": 117
+  },
+  "calibration_error": 85.2942,
+  "date": "2026-11-23",
+  "harness": "centerforaisafety/hle @ 22ed3074b1e7b134bcbc09028d0ba320839b0655 (adapted: predict_api.py/judge_batches.py, Anthropic Message Batches)",
+  "data": "cais/hle test @ 5a81a4c7271a2a2a312b9a690f0c2fde837e4c29, text-only subset (2158/2500)",
+  "configuration": "LFM3-1.7B card's sampling, not Bielik's own (run 2026-11-23, before benchmarks/docs/methodology.md)",
+  "samples_per_item": 1,
+  "inference": {
+    "weights": {
+      "unknown": "served through the Fabryka API (OpenAI-compatible endpoint); the provider does not expose the weights repository or revision"
+    },
+    "dtype": {
+      "unknown": "the provider does not expose the serving precision"
+    },
+    "quantization": {
+      "unknown": "the provider does not expose quantization"
+    },
+    "serving_stack": {
+      "unknown": "Fabryka API; the provider does not expose the serving stack or its version"
+    },
+    "hardware": {
+      "unknown": "provider side, not exposed"
+    },
+    "concurrency": "client side NUM_WORKERS=2 (predict_api.py); provider-side batching unknown",
+    "chat_template": {
+      "unknown": "applied by the provider to the chat messages; template and revision not exposed"
+    },
+    "system_prompt": "official HLE SYSTEM_PROMPT from run_model_predictions.py, sent as a system message",
+    "reasoning_mode": {
+      "unknown": "no reasoning parameter was sent; the provider does not document a reasoning switch for this model"
+    },
+    "decoding": "temperature 0.6, top_p 0.95, top_k not set, no other parameter; source: LFM3-1.7B model card, Evaluation details"
+  },
+  "truncated": 0,
+  "truncated_detail": {
+    "pct": 0.0,
+    "limit": 8192,
+    "rule": "usage.completion_tokens >= 8192; predict_api.py did not store finish_reason in this run, so the token count is the only signal",
+    "max_completion_tokens_observed": 2283,
+    "script": "count_truncated.py",
+    "requires_verification": false
+  },
+  "settings": {
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "decoding_source": "LFM3-1.7B model card, Evaluation details",
+    "max_completion_tokens": 8192,
+    "max_turns": 1,
+    "trials": 1,
+    "subset": "text-only",
+    "judge_main": "claude-opus-4-6",
+    "judge_agreement": [
+      "claude-opus-5-5",
+      "claude-sonnet-5-5"
+    ],
+    "judge_stability": "claude-opus-4-6"
+  },
+  "deviations": "see README.md Deviations",
+  "tokens_total": {
+    "input": 5080974,
+    "output": 610137
+  },
+  "usd_total": 18.5586,
+  "usd_breakdown": {
+    "main_opus4_all": {
+      "batch_id": "msgbatch_01KtkCV9yGZ75YuPHPrPH47G",
+      "model": "claude-opus-4-6",
+      "input_tokens": 3754880,
+      "output_tokens": 461320,
+      "usd": 15.1537,
+      "n_succeeded": 2158,
+      "note": "main judge, completed before cancel took effect"
+    },
+    "pilot5_opus5": {
+      "batch_id": "msgbatch_01VixYrY1ndq3BPiupCvxAY5",
+      "model": "claude-opus-5-5",
+      "input_tokens": 8124,
+      "output_tokens": 992,
+      "usd": 0.026168,
+      "n_succeeded": 5
+    },
+    "recovery_retries_estimate": {
+      "note": "small recovery/retry calls (batch+normal) for 6 no-tool items; includes normal API retries",
+      "input_tokens": 35400,
+      "output_tokens": 1100,
+      "usd_est": 0.1,
+      "approximate": true
+    },
+    "agreement_stability": {
+      "input_tokens": 1282570,
+      "output_tokens": 146725,
+      "usd": 3.27873
+    }
+  },
+  "agreement": {
+    "three_way": [
+      {
+        "pair": "opus4.6 vs opus5.5",
+        "n": 300,
+        "agreement_pct": 100.0,
+        "cohens_kappa": 1.0,
+        "confusion": {
+          "tn_no_no": 284,
+          "fp_no_yes": 0,
+          "fn_yes_no": 0,
+          "tp_yes_yes": 16
+        },
+        "disagreement_ids_first_10": []
+      },
+      {
+        "pair": "opus4.6 vs sonnet5.5",
+        "n": 298,
+        "agreement_pct": 100.0,
+        "cohens_kappa": 1.0,
+        "confusion": {
+          "tn_no_no": 282,
+          "fp_no_yes": 0,
+          "fn_yes_no": 0,
+          "tp_yes_yes": 16
+        },
+        "disagreement_ids_first_10": []
+      },
+      {
+        "pair": "opus5.5 vs sonnet5.5",
+        "n": 298,
+        "agreement_pct": 100.0,
+        "cohens_kappa": 1.0,
+        "confusion": {
+          "tn_no_no": 282,
+          "fp_no_yes": 0,
+          "fn_yes_no": 0,
+          "tp_yes_yes": 16
+        },
+        "disagreement_ids_first_10": []
+      }
+    ],
+    "self_agreement_opus4_repeat_100": {
+      "n": 99,
+      "self_agreement_pct": 100.0,
+      "cohens_kappa": 1.0,
+      "confusion": {
+        "tn_no_no": 92,
+        "fp_no_yes": 0,
+        "fn_yes_no": 0,
+        "tp_yes_yes": 7
+      }
+    },
+    "runs": [
+      {
+        "name": "opus5_300",
+        "model": "claude-opus-5-5",
+        "configured_model": "claude-opus-5-5",
+        "batch_id": "msgbatch_01MLLD5TPgVjks1fDRNmrHMM",
+        "n_requested": 300,
+        "n_judged": 300,
+        "n_total_file": 300,
+        "failed": 0,
+        "no_tool": 0,
+        "input_tokens": 558931,
+        "output_tokens": 62342,
+        "usd": 1.741282,
+        "failed_ids": [],
+        "returned_models": [
+          "claude-opus-5-5"
+        ]
+      },
+      {
+        "name": "sonnet5_300",
+        "model": "claude-sonnet-5-5",
+        "configured_model": "claude-sonnet-5-5",
+        "batch_id": "msgbatch_01HeS2t8Uk21DJttDsweEaFP",
+        "n_requested": 300,
+        "n_judged": 298,
+        "n_total_file": 298,
+        "failed": 2,
+        "no_tool": 2,
+        "input_tokens": 558931,
+        "output_tokens": 65072,
+        "usd": 0.884291,
+        "failed_ids": [
+          "66ed3e7cd841eb51a985ca7f",
+          "66f454d18ab578bcbb18387c"
+        ],
+        "returned_models": [
+          "claude-sonnet-5-5"
+        ]
+      },
+      {
+        "name": "opus4_repeat_100",
+        "model": "claude-opus-4-6",
+        "configured_model": "claude-opus-4-6",
+        "batch_id": "msgbatch_011rQt9Lj7zByaUVKq7BenQM",
+        "n_requested": 100,
+        "n_judged": 99,
+        "n_total_file": 99,
+        "failed": 1,
+        "no_tool": 1,
+        "input_tokens": 164708,
+        "output_tokens": 19311,
+        "usd": 0.653158,
+        "failed_ids": [
+          "66b91693d86bff9a12fc1f99"
+        ],
+        "returned_models": [
+          "claude-opus-4-6"
+        ]
+      }
+    ]
+  },
+  "verdicts_file": {
+    "path": "results/bielik-11b-v3.1.verdicts.csv",
+    "columns": [
+      "id",
+      "verdict",
+      "truncated"
+    ],
+    "note": "public question IDs, judge verdict (yes/no/none) and truncation flag only; no question text, answers, model responses or judge reasoning"
+  }
+}

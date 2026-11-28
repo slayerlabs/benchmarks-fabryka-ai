@@ -61,6 +61,9 @@ required even when tests, CI, and independent AI reviews pass. In it, the agent:
 
 ## When developing evaluations
 
+- **Configure the model by [`docs/methodology.md`](docs/methodology.md).** Precision, decoding, repeats, output
+  limit, standard errors and the meaning of `null` and "not run" come from there, for every model and benchmark. A
+  deviation is named with its reason.
 - **Prefer official implementations and scorers.** Reimplement only when the official one cannot be used, and say why.
 - **Pin everything that can change a number:** harness commit, dataset revision, model revision, prompt template,
   generation settings, and scorer version.
