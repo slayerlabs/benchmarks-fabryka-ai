@@ -28,6 +28,10 @@ hypotheses are in [PROTOCOL.md](PROTOCOL.md); this file says how the run is done
   sequential, BLAS threads 1, in the container of `Dockerfile.scoring` (python 3.11.9, packages from
   `requirements-scoring.lock`)
 - Extra services: the Fabryka AI API for Bielik; one GPU for LFM3-1.7B; a Linux VM with Docker for scoring
+- Fabryka AI API, listed at `https://fabryka.ai/v1/models` on 2026-11-23: two models, `bielik-11b-v3.1`
+  (`context_length` 32768) and `basal-2.0-max` (`context_length` 32768). The exact id sent for this benchmark is
+  `bielik-11b-v3.1` and the maximum context as served is 32768 tokens, which is the context the requests are
+  budgeted against (Settings). Slayer 1B is not on that Fabryka AI API list; it was run locally under Amendment 3 as a descriptive row. Its with-background headline is `null` because 216/288 prompts overflowed the 4096-token context (>50%, per Amendment 3), while without background it measured 0.00. The maintainer originally recorded a cost-decision `null` (Amendment 2, point 8).
 
 ## Results
 
@@ -40,7 +44,7 @@ Headline: correct subproblems with background, out of 288 (test_generated_code.p
 | LFM3-1.7B (`lfm3-1.7b`) | on (template default) | vLLM 0.34.0, bf16, one H100 | context minus prompt tokens (context 262144) | 32.64 | 2.76 | 3.63 | 288 | 5/65 (7.69%) | 7708.5 | 2026-11-22 |
 | LFM3-1.7B (`lfm3-1.7b-nothink`) | off requested (`enable_thinking: false`) | the same vLLM server | context minus prompt tokens (context 262144) | 24.65 | 2.54 | 3.04 | 288 | 4/65 (6.15%) | 5203.3 | 2026-11-22 |
 | Bielik 11B v3.1 (`bielik-11b-v3.1`) | no reasoning switch through the API | Fabryka AI API, with the API's provider system prompt | context minus prompt tokens minus a margin of 64 (context 32768) | 2.43 | 0.91 | 1.01 | 288 | 0/65 (exact 95% CI 0 to 5.52%) | 655.2 | 2026-11-22 |
-| Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`) | | | | null (not run, a cost decision (PROTOCOL.md, Models): on the 30 Python tasks of research/slayer-1b/rozmowy-1.08 (PAPER.md, H5.1) Slayer 1B wrote no function that passed its tests (0 of 30), so running 288 × 2 SciCode steps was judged not worth its cost. null here records that decision; Slayer 1B can run the steps that fit its 4096-token context (counted with its tokenizer and empty earlier-step code, 7 of the 288 prompts with background and 0 of the 288 without exceed it)) | | | | | | |
+| Slayer 1B 1.09 at update 70 000 (`slayer1b-1.09-k70000`) | no (base model) | local, research/common/slayer_lm.py, bf16, greedy | context minus prompt tokens (context 4096) | null (with_background: 216/288 subproblems (75.0%) had prompt_tokens > 4096 - SLAYER_MIN_ANSWER_TOKENS (256), so they were recorded as context_overflow/unsupported per PROTOCOL.md Amendment 3; headline score is null. Overflow is caused by inserting prior steps' long degenerate extracted outputs into subsequent with-background prompts. See other_metrics.with_background.unsupported and Amendment 3 'Result after the run'.) | | | 288 | 0/65 (exact 95% CI 0 to 5.52%) | 3185.4 | 2026-11-24 |
 
 Both prompt settings: correct (%) ± stderr (correct/288; clustered SE), main problems solved (all scored steps pass) out of 65, and the scorer's verdicts per step:
 
@@ -52,6 +56,8 @@ Both prompt settings: correct (%) ± stderr (correct/288; clustered SE), main pr
 | lfm3-1.7b-nothink | without background | 17.36 ± 2.23 (50/288; clustered 2.75) | 0/65 (exact 95% CI 0 to 5.52%) | 50 | 236 | 2 |
 | bielik-11b-v3.1 | with background | 2.43 ± 0.91 (7/288; clustered 1.01) | 0/65 (exact 95% CI 0 to 5.52%) | 7 | 281 | 0 |
 | bielik-11b-v3.1 | without background | 1.74 ± 0.77 (5/288; clustered 0.75) | 0/65 (exact 95% CI 0 to 5.52%) | 5 | 281 | 2 |
+| slayer1b-1.09-k70000 | with background | null (with_background: 216/288 subproblems (75.0%) had prompt_tokens > 4096 - SLAYER_MIN_ANSWER_TOKENS (256), so they were recorded as context_overflow/unsupported per PROTOCOL.md Amendment 3; headline score is null. Overflow is caused by inserting prior steps' long degenerate extracted outputs into subsequent with-background prompts. See other_metrics.with_background.unsupported and Amendment 3 'Result after the run'.) | 0/65 (exact 95% CI 0 to 5.52%) | 0 | 288 | 0 |
+| slayer1b-1.09-k70000 | without background | 0.00 (0/288; exact 95% CI 0 to 1.27) | 0/65 (exact 95% CI 0 to 5.52%) | 0 | 288 | 0 |
 
 | run | setting | output tokens mean / median / max | unfinished (thinking on) | stopped by the length limit | prompts over the context | answers containing `<think>` |
 |---|---|---|---|---|---|---|
@@ -61,6 +67,8 @@ Both prompt settings: correct (%) ± stderr (correct/288; clustered SE), main pr
 | lfm3-1.7b-nothink | without background | 5324.0 / 3896.5 / 27465 | 0 | 0 | 0 | 0 of 288 |
 | bielik-11b-v3.1 | with background | 655.2 / 562.0 / 2716 | 0 | 0 | 0 | 0 of 288 |
 | bielik-11b-v3.1 | without background | 697.2 / 626.5 / 1918 | 0 | 0 | 0 | 0 of 288 |
+| slayer1b-1.09-k70000 | with background | 3185.4 / 3257.0 / 3624 | 72 | 72 | 216 | 0 of 72 |
+| slayer1b-1.09-k70000 | without background | 3082.7 / 3215.0 / 3611 | 288 | 288 | 0 | 0 of 288 |
 
 Secondary extraction E1 (PROTOCOL.md Amendment 1), the same answers: a step whose E1 file is byte-identical to its official file took the official verdict, the others were scored by the same scorer:
 
@@ -72,6 +80,8 @@ Secondary extraction E1 (PROTOCOL.md Amendment 1), the same answers: a step whos
 | lfm3-1.7b-nothink | without background | 50/288 | 17.36 ± 2.23 (50/288; clustered 2.75) | 0/65 (exact 95% CI 0 to 5.52%) | 288 | 0 |
 | bielik-11b-v3.1 | with background | 7/288 | 3.12 ± 1.03 (9/288; clustered 1.20) | 0/65 (exact 95% CI 0 to 5.52%) | 84 | 204 |
 | bielik-11b-v3.1 | without background | 5/288 | 1.74 ± 0.77 (5/288; clustered 0.75) | 0/65 (exact 95% CI 0 to 5.52%) | 157 | 131 |
+| slayer1b-1.09-k70000 | with background | null (with_background: 216/288 subproblems (75.0%) had prompt_tokens > 4096 - SLAYER_MIN_ANSWER_TOKENS (256), so they were recorded as context_overflow/unsupported per PROTOCOL.md Amendment 3; headline score is null. Overflow is caused by inserting prior steps' long degenerate extracted outputs into subsequent with-background prompts. See other_metrics.with_background.unsupported and Amendment 3 'Result after the run'.) | null (same as with_background: 216/288 context_overflow (>50%), headline null per Amendment 3) | 0/65 (exact 95% CI 0 to 5.52%) | 288 | 0 |
+| slayer1b-1.09-k70000 | without background | 0/288 | 0.00 (0/288; exact 95% CI 0 to 1.27) | 0/65 (exact 95% CI 0 to 5.52%) | 288 | 0 |
 
 Bielik's prompt: the API's `usage.prompt_tokens` minus our local count with Bielik's own template, with background: min 0, max 0. Its request log holds 2 events (recovered 1, retry 1; HTTP 503 1, none 1).
 
@@ -84,6 +94,31 @@ Raw outputs (with thinking, not committed): the LFM3-1.7B runs in `labaj-agency/
 Setup check (not a model): the dev split's `ground_truth_code`, fed through the same Gencode files and scorer, passes 48 of 50 steps and 13 of 15 problems (results/checks/dev-ground-truth.json); the 2 failing steps fail with the authors' own code (SciCode issue #43).
 
 <!-- readme.py: end results -->
+
+## Reference results
+
+The cited table's SciCode row, each model's own reported value (LFM3-1.7B card, "Benchmarks", read on
+2026-11-23). **28.47 is this benchmark's headline metric: correct subproblems / 288 x 100 (82/288).** The card
+does not say whether the background was given (PROTOCOL.md, "Sources" and "Limits"); five of the six values are
+k/288 and Qwen3.5-4B's 23.02 is not (66/288 = 22.92, 67/288 = 23.26). All six are downloadable on Hugging Face:
+`LiquidAI/LFM3-1.7B`, `LiquidAI/LFM2.5-2.6B`, `openbmb/MiniCPM5-2B`, `google/gemma-4-e4b`,
+`Qwen/Qwen3.5-4B`, `Qwen/Qwen3.5-9B` (the card names no repository; these are the repositories of its names,
+checked on 2026-11-23).
+
+| model | SciCode on the card | k/288 |
+|---|---|---|
+| LFM3-1.7B, the reference here | **28.47** | 82 |
+| LFM2.5-2.6B | 16.32 | 47 |
+| MiniCPM5-2B | 27.78 | 80 |
+| Gemma 4 E4B | 25.00 | 72 |
+| Qwen3.5-4B | 23.02 | not k/288 |
+| Qwen3.5-9B | 31.60 | 91 |
+
+The card's "Evaluation details" for that table: every model on vLLM in BF16 at its full context (262144 tokens
+for LFM3-1.7B, Qwen3.5-4B and Qwen3.5-9B; 131072 for LFM2.5-2.6B, MiniCPM5-2B and Gemma 4 E4B), temperature
+0.6 and top_p 0.95 for every evaluation it does not list, and no output limit other than the context. SciCode is
+not listed among the exceptions, so those are its settings; this run sends the same temperature, top_p and seed
+to every model and takes the output limit from the context (Settings above).
 
 ## Hypotheses
 
@@ -276,9 +311,62 @@ How the measurement ran (facts from results/scoring-events.json and the result f
 - **The `output` of a `.jsonl.gz` line is the extracted code of that step**, not the whole model output (which
   with thinking would exceed the repo's 10 MB limit); the raw outputs stay in `out/<model-id>/generations.jsonl`
   and their sha256 is in the result file.
-- **Slayer 1B 1.09 at update 70 000 is not run** (PROTOCOL.md, Models); `bash run.sh slayer1b-1.09-k70000`
-  writes its `score: null` file with the reason.
+- **Slayer 1B 1.09 at update 70 000** was run under Amendment 3 as a descriptive row (outside K1–K3 and Holm). The
+  maintainer originally recorded a cost-decision `null` (Amendment 2, point 8); this run confirms that decision.
+  With background, 216/288 prompts overflowed the 4096-token context, so the headline with-background score is
+  `null` per Amendment 3; without background scored 0.00 (0/288). See `results/slayer1b-1.09-k70000.json` and
+  PROTOCOL.md Amendment 3. Its deviations, from the result file's provenance:
+  - Greedy decoding (the only one `SlayerLM.generate` supports) instead of temperature 0.6 / top_p 0.95 of the other
+    runs.
+  - Batched generation, batch 8: on the 20-prompt equivalence check (`slayer_batch_drift_*` in provenance), 13 of 20
+    outputs (65%) were identical to batch 1. The steps were not re-run at batch 1.
+  - torch 2.14.1+cu130 instead of 2.8.0 from `research/common/requirements.lock.txt`; a vast.ai machine with
+    4.8 vCPU / 25.7 GB RAM instead of the card's ≥ 8 vCPU / ≥ 32 GB (GPU-bound generation).
+  - Its full generations are not archived (only `raw_outputs.sha256` in the result file).
 - **Contamination cannot be ruled out** (PROTOCOL.md, Limits); SciCode-Verified's defects are not corrected.
+
+## Hand check
+
+Read by hand before trusting the run, five subproblems per model: prompt, committed output of the step and its
+verdict, on the primary setting (with background), subproblems **77.1, 13.1, 42.3, 65.4, 11.3** (2026-11-23).
+The prompts are not in the repo: `prompt_replay.py` rebuilds them with the pinned harness from the committed
+code of the earlier steps, the path a resumed run uses
+(`.venv-gen/bin/python prompt_replay.py --hand 77.1 13.1 42.3 65.4 11.3`).
+
+- **Prompts**: the same text in the three runs for the first step of a problem (77.1 is 2536 characters
+  everywhere, 13.1 is 2800), the multistep template with background — PROBLEM DESCRIPTION, PROBLEM STEPS AND
+  FUNCTION CODE, NEXT STEP, DEPENDENCIES, RESPONSE GUIDELINES — 2536 to 8547 characters over these five; later
+  steps differ only through the code carried over.
+- **lfm3-1.7b**: 77.1, 13.1 and 11.3 pass, 42.3 and 65.4 fail; five distinct functions with docstrings
+  (`wrap`, `partial_derivs_vec`, `threshold_current`, `ghz_protocol`, `tensor`), 1211 to 24280 output tokens.
+  94/288 pass in this setting.
+- **lfm3-1.7b-nothink**: the same five prompts, different answers: 42.3 and 65.4 pass here, 11.3 fails.
+  71/288 pass.
+- **bielik-11b-v3.1**: all five fail. 77.1 and 11.3 answer in prose the official extraction keeps no code from,
+  13.1, 42.3 and 65.4 write code that fails the tests; its 7 passes with background sit on other subproblems
+  (32.1, 39.1, 58.1, 64.1, 64.3, 66.5, 80.1).
+
+Neither all zeros nor identical between models or between the two LFM3 runs, so Bielik's low score is the model
+and the extraction of Amendment 1, not a setup bug; the same pipeline passes 48 of 50 dev steps with the
+authors' own code (Results). What is read here is the committed output of each step, which is what the scorer
+tests; the full answers are not in the repo (their sha256 is in `results/raw-outputs.json`).
+
+## Slayer 1B's context
+
+Slayer 1B was run under Amendment 3 as a descriptive row. The maintainer originally recorded a cost-decision `null` (Amendment 2, point 8); the run confirms that decision. Headline with background is `null` because 216/288 subproblems (75.0%) exceeded the 4096-token context once prior steps' degenerate extracted outputs were inserted into the prompt (Amendment 3 rule: >50% overflow => `score: null`). Without background, 0/288 overflowed and the measured score is 0.00 (0/288).
+
+Counted with Slayer's own tokenizer (`research/slayer-1b/tokenizer/tokenizer.json`, 32768 vocab v6) over the prompts the pinned harness builds with *other models'* earlier code (`prompt_replay.py` prints this table), many prompts are already over 4096:
+
+| run the prompt carries the code of | with background | without background | median, with bg | max, with bg |
+|---|---|---|---|---|
+| lfm3-1.7b | 88/288 steps, 29/65 problems | 73/288 steps, 20/65 problems | 2702 | 14518 |
+| lfm3-1.7b-nothink | 134/288 steps, 41/65 problems | 113/288 steps, 36/65 problems | 3610 | 30159 |
+| bielik-11b-v3.1 | 49/288 steps, 13/65 problems | 46/288 steps, 12/65 problems | 2166 | 10167 |
+
+A prompt over the context is not sent and counts as failed (PROTOCOL.md, "Settings"); the benchmark is not cut
+down to fit it, and a prompt that does fit still has to leave room for the answer.
+
+**Actual Slayer run (Amendment 3).** The maintainer's earlier count with *empty* earlier-step code was 7/288 prompts over 4096 with background and 0/288 without (`previous_decision` in the result file). In the actual run, prompts carry the model's own extracted earlier-step code (`generate_response_with_steps`); because Slayer outputs degenerated to the length limit, some extracted prior-step outputs were large and inflated subsequent with-background prompts. Result: with background 216/288 `context_overflow` (75.0%, headline `null` per Amendment 3), without background 0/288 overflow (measured 0.00). Examples (Slayer v6 tokenizer, BOS included): problem 77 with background step 1 `prompt_tokens=593, output_tokens=3503, finish_reason=length`, step 2 `prompt_tokens=667, output_tokens=3429, length` (step 1 extracted code empty), step 3 `prompt_tokens=4174, unsupported` (step 2 extracted degenerate output inflated the prompt); the same problem 77 without background steps 1–5 had `prompt_tokens=565,605,649,782,846`, all ok (0 overflow) because the no-background prompt base is smaller.
 
 ## Reproduce
 
@@ -300,6 +388,12 @@ FABRYKA_API_KEY=... bash run.sh bielik-11b-v3.1 --limit 2   # smoke test
 FABRYKA_API_KEY=... bash run.sh bielik-11b-v3.1
 ```
 
+Slayer 1B 1.09 at update 70 000 (Amendment 3, descriptive row), on a GPU machine with CUDA (local bf16, greedy):
+
+```bash
+bash run.sh slayer1b-1.09-k70000
+```
+
 Scoring, on a fresh Ubuntu 22.04 x86_64 VM with Docker, as root, in a checkout of this repo: once
 `bash setup_scoring_vm.sh` (clones SciCode, downloads and checks `test_data.h5`, builds the image, caches the
 pinned dataset), then copy each `out/<model-id>/` from the generating machine into this directory's `out/` and run
@@ -308,6 +402,7 @@ pinned dataset), then copy each `out/<model-id>/` from the generating machine in
 bash run.sh lfm3-1.7b --score
 bash run.sh lfm3-1.7b-nothink --score
 bash run.sh bielik-11b-v3.1 --score
+bash run.sh slayer1b-1.09-k70000 --score
 bash run.sh dev-ground-truth && bash run.sh dev-ground-truth --score   # setup check, no model
 python3 hypotheses.py results
 ```
@@ -338,5 +433,15 @@ python3 explore.py          # results/exploratory.json
 python3 readme.py           # the generated blocks of this README; --check compares byte for byte
 ```
 
+Prompts of the committed runs, rebuilt with the pinned harness for the hand check and for the Slayer-context
+table (needs the SciCode clone and the pinned dataset, both made by `run.sh`, and `.venv-gen`):
+
+```bash
+.venv-gen/bin/python prompt_replay.py --hand 77.1 13.1 42.3 65.4 11.3   # replay, then those five subproblems
+.venv-gen/bin/python prompt_replay.py --reuse                            # the counts of "Slayer 1B's context"
+```
+
 Tests: `.venv-gen/bin/python -m pytest ../../tests/test_scicode.py ../../tests/test_scicode_results.py -q` (no GPU,
 network or `test_data.h5`; the raw-output recount runs where the archive and `out/bielik-11b-v3.1/` are).
+`uv pip sync` in run.sh makes `.venv-gen` match the lock exactly, so it removes what the lock does not hold:
+install pytest there once with `uv pip install --python .venv-gen/bin/python pytest`.

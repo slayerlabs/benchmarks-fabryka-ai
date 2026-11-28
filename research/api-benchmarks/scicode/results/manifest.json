@@ -16,7 +16,7 @@
       "written_by": "explore.py"
     },
     "hypotheses.json": {
-      "at": "2026-11-24T14:10:57+00:00",
+      "at": "2026-11-23T07:30:57+00:00",
       "sha256": "10bd82cf8db272fe13d3a9dd3b022e76ad88b2ce351adbed28e2e1066acc7768",
       "written_by": "hypotheses.py"
     },
@@ -51,8 +51,13 @@
       "written_by": "scoring_events.py"
     },
     "slayer1b-1.09-k70000.json": {
-      "at": "2026-11-24T14:09:36+00:00",
-      "sha256": "9e49516c05a2bdeab0dd6e3cb7cc3537a481a6d1648b6dd3ae5aad3090adc0fa",
+      "at": "2026-11-24T23:12:28+00:00",
+      "sha256": "9e7a7a2ce9f4723e1e037074b9dac11ca4512e9d7a7df73eec5a759435f068f8",
+      "written_by": "summarize.py"
+    },
+    "slayer1b-1.09-k70000.jsonl.gz": {
+      "at": "2026-11-24T23:12:28+00:00",
+      "sha256": "c12ee1f77183bf11e86b02e96b212b781ea95078c89b972cb62f8cfd16ef529b",
       "written_by": "summarize.py"
     }
   }
