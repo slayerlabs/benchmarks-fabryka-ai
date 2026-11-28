@@ -4,10 +4,13 @@
 # Any other machine (vast.ai, RunPod), from a copy of this directory: HF_TOKEN=... bash vllm.sh [--limit N]
 # `bash vllm.sh --setup-only` only installs the two venvs (Modal does this when it builds the image).
 #
-# Two runs against one server, same settings as the Fabryka run (run.sh):
-#   bielik-11b-v3.1-vllm             template defaults: the provider system prompt is on, as on the Fabryka API.
-#                                    A check that this setup reproduces the API score.
-#   bielik-11b-v3.1-vllm-no-provider provider_system_prompt=false: no system prompt at all.
+# Runs against one server (RUNS="id ..." picks some; default all three):
+#   bielik-11b-v3.1-vllm             settings of the Fabryka run (run.sh, LFM3-1.7B card sampling), template defaults:
+#                                    the provider system prompt is on, as on the Fabryka API. A check that this setup
+#                                    reproduces the API score.
+#   bielik-11b-v3.1-vllm-no-provider the same with provider_system_prompt=false: no system prompt at all.
+#   bielik-11b-v3.1-vllm-t0.3        template defaults, Bielik's own sampling: its generation_config.json sets only
+#                                    temperature 0.3, so top_p stays at 1.0.
 # The template puts the date into the provider prompt; it is pinned to the day of the Fabryka run.
 #
 # Needs: an NVIDIA GPU with >= 40 GB (bf16 weights are 22 GB, plus KV cache for 32k context), CUDA drivers,
@@ -62,18 +65,26 @@ for _ in $(seq 1 180); do
 done
 curl -sf "http://localhost:$PORT/health" >/dev/null || { echo "vLLM did not start in 30 min" >&2; exit 1; }
 
-run() {  # run <model-id> <chat_template_kwargs JSON>
+run() {  # run <model-id> <chat_template_kwargs JSON> <gen_kwargs>
   local id="$1" out="$OUT_DIR/$1"
   EXTRA_BODY="{\"chat_template_kwargs\": $2}" OPENAI_API_KEY=none \
   "$VENV/bin/python" "$HERE/lm_eval_fabryka.py" \
     --model local-chat-completions \
     --model_args "model=$SERVED_NAME,base_url=http://localhost:$PORT/v1/chat/completions,num_concurrent=${CONCURRENCY:-32},tokenized_requests=False" \
     --apply_chat_template \
-    --gen_kwargs "do_sample=true,temperature=0.6,top_p=0.95,max_gen_toks=30720" \
+    --gen_kwargs "$3" \
     --include_path "$HERE/task" --tasks ifeval_pinned \
     --log_samples --output_path "$out" --seed 1234 "${LIMIT[@]}"
   "$VENV/bin/python" "$HERE/summarize.py" "$out" "${RESULTS_DIR:-$HERE/results}/$id"
 }
 
-run bielik-11b-v3.1-vllm "{$DATE_KWARGS}"
-run bielik-11b-v3.1-vllm-no-provider "{$DATE_KWARGS, \"provider_system_prompt\": false}"
+CARD="do_sample=true,temperature=0.6,top_p=0.95,max_gen_toks=30720"
+OWN="do_sample=true,temperature=0.3,top_p=1.0,max_gen_toks=30720"
+for id in ${RUNS:-bielik-11b-v3.1-vllm bielik-11b-v3.1-vllm-no-provider bielik-11b-v3.1-vllm-t0.3}; do
+  case "$id" in
+    bielik-11b-v3.1-vllm) run "$id" "{$DATE_KWARGS}" "$CARD" ;;
+    bielik-11b-v3.1-vllm-no-provider) run "$id" "{$DATE_KWARGS, \"provider_system_prompt\": false}" "$CARD" ;;
+    bielik-11b-v3.1-vllm-t0.3) run "$id" "{$DATE_KWARGS}" "$OWN" ;;
+    *) echo "unknown run: $id" >&2; exit 2 ;;
+  esac
+done

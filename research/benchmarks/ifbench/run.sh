@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 # IFBench for one model: bash run.sh <model-id> [--limit N]
-#   bielik-11b-v3.1-vllm  Bielik 11B v3.1 Instruct served by vLLM (start it with vllm.sh) at BASE_URL
-#                         (default http://127.0.0.1:8000/v1, served model name "bielik")
-#   slayer1b-60000        Slayer 1B, training step 60000, on a local CUDA GPU (slayer_package.py + slayer_kv_lm.py
-#                         from research/common/slayer_serving)
+#   bielik-11b-v3.1-vllm       Bielik 11B v3.1 Instruct served by vLLM at BASE_URL (default http://127.0.0.1:8000/v1):
+#                              LFM3-1.7B card sampling, start it with `bash vllm.sh` (served model name "bielik")
+#   bielik-11b-v3.1-vllm-t0.3  the same, Bielik's own sampling: `bash vllm.sh bielik-11b-v3.1-vllm-t0.3`
+#   lfm3-1.7b                  LFM3-1.7B served by vLLM at BASE_URL: `bash ../../common/vllm_lfm3.sh`
+#   slayer1b-60000             Slayer 1B, training step 60000, on a local CUDA GPU (slayer_package.py + slayer_kv_lm.py
+#                              from research/common/slayer_serving)
 # Installs IFBench at the pinned commit (uv sync --frozen), takes the test set from Hugging Face at the pinned
-# revision, generates (Bielik: IFBench's generate_responses.py; Slayer: slayer_kv_lm.py, raw prompt, greedy), scores
+# revision, generates (vLLM models: IFBench's generate_responses.py; Slayer: slayer_kv_lm.py, raw prompt, greedy), scores
 # with IFBench's run_eval and writes results/<model-id>.json and results/<model-id>.jsonl.gz.
 # --limit N scores only the first N prompts, in out/.
 set -euo pipefail
@@ -32,10 +34,21 @@ case "$MODEL" in
     GEN=(--model bielik --temperature 0.6 --max-tokens 31238 --seed 20261119 --workers "${WORKERS:-32}")
     SETTINGS='{"temperature": 0.6, "top_p": 0.95, "seed": 20261119, "max_tokens_per_turn": 31238, "max_turns": 1, "trials": 1}'
     curl -sf "$BASE_URL/models" | grep -q '"bielik"' || { echo "no model \"bielik\" at $BASE_URL (start vllm.sh first)" >&2; exit 1; } ;;
+  bielik-11b-v3.1-vllm-t0.3)
+    # Bielik's own generation_config.json sets only temperature 0.3; top_p stays at 1.0 (vllm.sh). Output limit as above.
+    GEN=(--model bielik-t0.3 --temperature 0.3 --max-tokens 31238 --seed 20261119 --workers "${WORKERS:-32}")
+    SETTINGS='{"temperature": 0.3, "top_p": 1.0, "seed": 20261119, "max_tokens_per_turn": 31238, "max_turns": 1, "trials": 1}'
+    curl -sf "$BASE_URL/models" | grep -q '"bielik-t0.3"' || { echo "no model \"bielik-t0.3\" at $BASE_URL (start vllm.sh bielik-11b-v3.1-vllm-t0.3 first)" >&2; exit 1; } ;;
+  lfm3-1.7b)
+    # LFM3-1.7B card: temperature 0.6, top_p 0.95 (set on the server), reasoning on; up to 32,768 output tokens, as in
+    # the IFEval benchmark. The server's reasoning parser keeps the thinking out of the scored answer.
+    GEN=(--model lfm3 --temperature 0.6 --max-tokens 32768 --seed 20261119 --workers "${WORKERS:-32}")
+    SETTINGS='{"temperature": 0.6, "top_p": 0.95, "seed": 20261119, "max_tokens_per_turn": 32768, "max_turns": 1, "trials": 1, "reasoning": true}'
+    curl -sf "$BASE_URL/models" | grep -q '"lfm3"' || { echo "no model \"lfm3\" at $BASE_URL (start vllm_lfm3.sh first)" >&2; exit 1; } ;;
   slayer1b-60000)
     # Base model, no chat template: the raw prompt, greedy decoding up to 1280 tokens (as in the IFEval benchmark).
     SETTINGS='{"temperature": 0, "max_tokens_per_turn": 1280, "max_turns": 1, "trials": 1, "chat_template": false}' ;;
-  *) echo "unknown model-id: $MODEL (bielik-11b-v3.1-vllm | slayer1b-60000)" >&2; exit 2 ;;
+  *) echo "unknown model-id: $MODEL (bielik-11b-v3.1-vllm | bielik-11b-v3.1-vllm-t0.3 | lfm3-1.7b | slayer1b-60000)" >&2; exit 2 ;;
 esac
 
 mkdir -p "$OUT"
@@ -71,8 +84,11 @@ if [[ "$MODEL" == slayer1b-60000 ]]; then
   "$VENV/bin/python" "$COMMON/slayer_kv_lm.py" --pkg "$PKG" --prompts "$INPUT" --responses "data/$MODEL-responses.jsonl" \
     --max-gen-toks 1280 --out "$OUT/$MODEL-generation.json"
 else
+  # generate_responses.py turns a failed request (e.g. its 300 s timeout) into an empty answer and only prints
+  # "Errors: N"; stop instead of scoring those as failures.
   uv run -q python generate_responses.py --api-base "$BASE_URL" --input-file "$INPUT" \
-    --output-file "data/$MODEL-responses.jsonl" "${GEN[@]}"
+    --output-file "data/$MODEL-responses.jsonl" "${GEN[@]}" | tee "$OUT/$MODEL-generate.log"
+  if grep -q '^Errors:' "$OUT/$MODEL-generate.log"; then echo "failed requests, see $OUT/$MODEL-generate.log" >&2; exit 1; fi
 fi
 # run_eval names its output after the responses file: eval/<model-id>-eval_results_{strict,loose}.jsonl.
 # The repo also ships sample files eval/eval_results_*.jsonl; summarize.py reads only the prefixed ones.

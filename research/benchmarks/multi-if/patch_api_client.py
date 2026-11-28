@@ -3,8 +3,9 @@
 1. The Anthropic, Gemini and Mistral client libraries are imported inside their own backends instead of at module
    top. Our models use only the OpenAI-compatible backend, and the Gemini and Mistral packages conflict with the
    vLLM environment; no backend's behaviour changes.
-2. "bielik" and "slayer" are added to the list of model names served by the OpenAI-compatible backend (OpenAIBot), next
-   to 'gpt-4o-2024-08-06'; without this the harness stops with "The model ... is not supported yet".
+2. Our served model names ("bielik", "bielik-t0.3", "lfm3", "slayer") are added to the list of model names served by
+   the OpenAI-compatible backend (OpenAIBot), next to 'gpt-4o-2024-08-06'; without this the harness stops with
+   "The model ... is not supported yet".
 
 Every edit must match its pattern exactly once, or the script stops. Running it twice changes nothing.
 Usage: python patch_api_client.py <path to api_client.py>
@@ -24,9 +25,9 @@ EDITS = [
      "        chat =  self.model.start_chat(history=history)\n"),
     ("        self.client = Mistral(api_key=api_key)\n",
      "        from mistralai import Mistral\n        self.client = Mistral(api_key=api_key)\n"),
-    ("'gpt-4o-2024-08-06'\n", "'gpt-4o-2024-08-06', 'bielik', 'slayer'\n"),
+    ("'gpt-4o-2024-08-06'\n", "'gpt-4o-2024-08-06', 'bielik', 'bielik-t0.3', 'lfm3', 'slayer'\n"),
 ]
-if "'bielik', 'slayer'" not in s:
+if "'bielik', 'bielik-t0.3', 'lfm3', 'slayer'" not in s:
     for old, new in EDITS:
         if s.count(old) != 1:
             sys.exit(f"patch_api_client.py: pattern found {s.count(old)} times: {old[:40]!r}")
