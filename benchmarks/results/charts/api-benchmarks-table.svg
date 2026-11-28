@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="700" height="868" viewBox="0 0 700 868" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" fill="#1f2328">
-<rect width="700" height="868" rx="8" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="902" viewBox="0 0 700 902" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" fill="#1f2328">
+<rect width="700" height="902" rx="8" fill="#ffffff"/>
 <text x="295.0" y="38" text-anchor="middle" font-weight="600">Slayer 1B</text>
 <text x="295.0" y="56" text-anchor="middle" font-size="12" fill="#59636e">1.09 / 1.08</text>
 <text x="405.0" y="38" text-anchor="middle" font-weight="600">Bielik 11B</text>
@@ -56,67 +56,73 @@
 <text x="405.0" y="331" text-anchor="middle" data-benchmark="aa-omniscience" data-model="bielik-11b-v3.1-vllm" data-rank="0">-77.3</text>
 <text x="515.0" y="331" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="aa-omniscience" data-model="" data-rank="0">not run</text>
 <text x="625.0" y="331" text-anchor="middle" fill="#59636e" data-card="aa-omniscience">0.5</text>
-<text x="20" y="366" font-size="13" font-weight="600" fill="#59636e">Coding</text>
-<line x1="20" x2="680" y1="376" y2="376" stroke="#eef1f4"/>
-<text x="20" y="399">LiveCodeBench v6</text>
-<text x="295.0" y="399" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="livecodebench-v6" data-model="slayer1b-1.09-k70000" data-rank="0">not run</text>
-<line x1="385.0" x2="425.0" y1="402" y2="402" stroke="#1f2328"/>
-<text x="405.0" y="399" text-anchor="middle" data-benchmark="livecodebench-v6" data-model="bielik-11b-v3.1" data-rank="2">16.7</text>
-<rect x="477.0" y="383" width="76" height="22" rx="5" fill="#fbe3e4"/>
-<text x="515.0" y="399" text-anchor="middle" font-weight="700" fill="#b3202e" data-benchmark="livecodebench-v6" data-model="lfm3-1.7b" data-rank="1">72.0</text>
-<text x="625.0" y="399" text-anchor="middle" fill="#59636e" data-card="livecodebench-v6">73.5</text>
+<line x1="20" x2="680" y1="342" y2="342" stroke="#eef1f4"/>
+<text x="20" y="365">Humanity's Last Exam</text>
+<text x="295.0" y="365" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="hle" data-model="slayer1b-1.09-k70000" data-rank="0">not run</text>
+<text x="405.0" y="365" text-anchor="middle" data-benchmark="hle" data-model="bielik-11b-v3.1" data-rank="0">5.4</text>
+<text x="515.0" y="365" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="hle" data-model="lfm3-1.7b" data-rank="0">not run</text>
+<text x="625.0" y="365" text-anchor="middle" fill="#59636e" data-card="hle">7.2</text>
+<text x="20" y="400" font-size="13" font-weight="600" fill="#59636e">Coding</text>
 <line x1="20" x2="680" y1="410" y2="410" stroke="#eef1f4"/>
-<text x="20" y="433">LiveCodeBench Pro 25Q2</text>
-<text x="295.0" y="433" text-anchor="middle" data-benchmark="livecodebench-pro-25q2" data-model="slayer1b-1.09-k70000" data-rank="3">0.0</text>
+<text x="20" y="433">LiveCodeBench v6</text>
+<text x="295.0" y="433" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="livecodebench-v6" data-model="slayer1b-1.09-k70000" data-rank="0">not run</text>
 <line x1="385.0" x2="425.0" y1="436" y2="436" stroke="#1f2328"/>
-<text x="405.0" y="433" text-anchor="middle" data-benchmark="livecodebench-pro-25q2" data-model="bielik-11b-v3.1" data-rank="2">1.8</text>
+<text x="405.0" y="433" text-anchor="middle" data-benchmark="livecodebench-v6" data-model="bielik-11b-v3.1" data-rank="2">16.7</text>
 <rect x="477.0" y="417" width="76" height="22" rx="5" fill="#fbe3e4"/>
-<text x="515.0" y="433" text-anchor="middle" font-weight="700" fill="#b3202e" data-benchmark="livecodebench-pro-25q2" data-model="lfm3-1.7b" data-rank="1">32.3</text>
-<text x="625.0" y="433" text-anchor="middle" fill="#59636e" data-card="livecodebench-pro-25q2">31.7</text>
+<text x="515.0" y="433" text-anchor="middle" font-weight="700" fill="#b3202e" data-benchmark="livecodebench-v6" data-model="lfm3-1.7b" data-rank="1">72.0</text>
+<text x="625.0" y="433" text-anchor="middle" fill="#59636e" data-card="livecodebench-v6">73.5</text>
 <line x1="20" x2="680" y1="444" y2="444" stroke="#eef1f4"/>
-<text x="20" y="467">SciCode</text>
-<text x="295.0" y="467" text-anchor="middle" fill="#59636e" data-benchmark="scicode" data-model="slayer1b-1.09-k70000" data-rank="0">null</text>
+<text x="20" y="467">LiveCodeBench Pro 25Q2</text>
+<text x="295.0" y="467" text-anchor="middle" data-benchmark="livecodebench-pro-25q2" data-model="slayer1b-1.09-k70000" data-rank="3">0.0</text>
 <line x1="385.0" x2="425.0" y1="470" y2="470" stroke="#1f2328"/>
-<text x="405.0" y="467" text-anchor="middle" data-benchmark="scicode" data-model="bielik-11b-v3.1" data-rank="2">2.4</text>
+<text x="405.0" y="467" text-anchor="middle" data-benchmark="livecodebench-pro-25q2" data-model="bielik-11b-v3.1" data-rank="2">1.8</text>
 <rect x="477.0" y="451" width="76" height="22" rx="5" fill="#fbe3e4"/>
-<text x="515.0" y="467" text-anchor="middle" font-weight="700" fill="#b3202e" data-benchmark="scicode" data-model="lfm3-1.7b" data-rank="1">32.6</text>
-<text x="625.0" y="467" text-anchor="middle" fill="#59636e" data-card="scicode">28.5</text>
-<text x="20" y="502" font-size="13" font-weight="600" fill="#59636e">Long context</text>
-<line x1="20" x2="680" y1="512" y2="512" stroke="#eef1f4"/>
-<text x="20" y="535">RULER 128K</text>
-<text x="295.0" y="535" text-anchor="middle" fill="#59636e" data-benchmark="ruler-128k" data-model="slayer1b-1.09-k70000" data-rank="0">null</text>
-<text x="405.0" y="535" text-anchor="middle" fill="#59636e" data-benchmark="ruler-128k" data-model="bielik-11b-v3.1" data-rank="0">null</text>
-<text x="515.0" y="535" text-anchor="middle" data-benchmark="ruler-128k" data-model="lfm3-1.7b" data-rank="0">71.7</text>
-<text x="625.0" y="535" text-anchor="middle" fill="#59636e" data-card="ruler-128k">65.6</text>
+<text x="515.0" y="467" text-anchor="middle" font-weight="700" fill="#b3202e" data-benchmark="livecodebench-pro-25q2" data-model="lfm3-1.7b" data-rank="1">32.3</text>
+<text x="625.0" y="467" text-anchor="middle" fill="#59636e" data-card="livecodebench-pro-25q2">31.7</text>
+<line x1="20" x2="680" y1="478" y2="478" stroke="#eef1f4"/>
+<text x="20" y="501">SciCode</text>
+<text x="295.0" y="501" text-anchor="middle" fill="#59636e" data-benchmark="scicode" data-model="slayer1b-1.09-k70000" data-rank="0">null</text>
+<line x1="385.0" x2="425.0" y1="504" y2="504" stroke="#1f2328"/>
+<text x="405.0" y="501" text-anchor="middle" data-benchmark="scicode" data-model="bielik-11b-v3.1" data-rank="2">2.4</text>
+<rect x="477.0" y="485" width="76" height="22" rx="5" fill="#fbe3e4"/>
+<text x="515.0" y="501" text-anchor="middle" font-weight="700" fill="#b3202e" data-benchmark="scicode" data-model="lfm3-1.7b" data-rank="1">32.6</text>
+<text x="625.0" y="501" text-anchor="middle" fill="#59636e" data-card="scicode">28.5</text>
+<text x="20" y="536" font-size="13" font-weight="600" fill="#59636e">Long context</text>
 <line x1="20" x2="680" y1="546" y2="546" stroke="#eef1f4"/>
-<text x="20" y="569">AA-LCR</text>
-<text x="295.0" y="569" text-anchor="middle" fill="#59636e" data-benchmark="aa-lcr" data-model="slayer1b-1.09-k70000" data-rank="0">null</text>
-<text x="405.0" y="569" text-anchor="middle" fill="#59636e" data-benchmark="aa-lcr" data-model="bielik-11b-v3.1" data-rank="0">null</text>
-<text x="515.0" y="569" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="aa-lcr" data-model="" data-rank="0">not run</text>
-<text x="625.0" y="569" text-anchor="middle" fill="#59636e" data-card="aa-lcr">52.8</text>
-<text x="20" y="604" font-size="13" font-weight="600" fill="#59636e">Tool use</text>
-<line x1="20" x2="680" y1="614" y2="614" stroke="#eef1f4"/>
-<text x="20" y="637">BFCL V4</text>
-<text x="295.0" y="637" text-anchor="middle" fill="#59636e" data-benchmark="bfcl-v4" data-model="slayer1b-60000" data-rank="0">null</text>
-<text x="405.0" y="637" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="bfcl-v4" data-model="bielik-11b-v3.1-vllm" data-rank="0">not run</text>
-<text x="515.0" y="637" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="bfcl-v4" data-model="" data-rank="0">not run</text>
-<text x="625.0" y="637" text-anchor="middle" fill="#59636e" data-card="bfcl-v4">71.4</text>
-<text x="20" y="672" font-size="13" font-weight="600" fill="#59636e">Agentic coding</text>
-<line x1="20" x2="680" y1="682" y2="682" stroke="#eef1f4"/>
-<text x="20" y="705">Terminal-Bench 2.1</text>
-<text x="295.0" y="705" text-anchor="middle" fill="#59636e" data-benchmark="terminal-bench-2-1" data-model="slayer1b-1.09-k70000" data-rank="0">null</text>
-<text x="405.0" y="705" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="terminal-bench-2-1" data-model="" data-rank="0">not run</text>
-<text x="515.0" y="705" text-anchor="middle" data-benchmark="terminal-bench-2-1" data-model="lfm3-1.7b" data-rank="0">10.6</text>
-<text x="625.0" y="705" text-anchor="middle" fill="#59636e" data-card="terminal-bench-2-1">12.9</text>
-<text x="20" y="740" font-size="13" font-weight="600" fill="#59636e">Agents</text>
-<line x1="20" x2="680" y1="750" y2="750" stroke="#eef1f4"/>
-<text x="20" y="773">AutomationBench</text>
-<text x="295.0" y="773" text-anchor="middle" fill="#59636e" data-benchmark="automationbench" data-model="slayer1b-60000" data-rank="0">null</text>
-<text x="405.0" y="773" text-anchor="middle" data-benchmark="automationbench" data-model="bielik-11b-v3.1-vllm" data-rank="0">0.0</text>
-<text x="515.0" y="773" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="automationbench" data-model="" data-rank="0">not run</text>
-<text x="625.0" y="773" text-anchor="middle" fill="#59636e" data-card="automationbench">41.3</text>
-<line x1="20" x2="680" y1="792" y2="792" stroke="#d1d9e0"/>
-<text x="20" y="812" font-size="12" fill="#59636e">Score in % (AA-Omniscience: index from −100 to 100) · * requires verification</text>
-<text x="20" y="832" font-size="12" fill="#59636e">null: the model cannot run it · not run: no score yet or by decision (reasons under Values)</text>
-<text x="20" y="852" font-size="12" fill="#59636e">Best of the scored models highlighted, second underlined (rows with two or more scores) · LFM3 card: not ours</text>
+<text x="20" y="569">RULER 128K</text>
+<text x="295.0" y="569" text-anchor="middle" fill="#59636e" data-benchmark="ruler-128k" data-model="slayer1b-1.09-k70000" data-rank="0">null</text>
+<text x="405.0" y="569" text-anchor="middle" fill="#59636e" data-benchmark="ruler-128k" data-model="bielik-11b-v3.1" data-rank="0">null</text>
+<text x="515.0" y="569" text-anchor="middle" data-benchmark="ruler-128k" data-model="lfm3-1.7b" data-rank="0">71.7</text>
+<text x="625.0" y="569" text-anchor="middle" fill="#59636e" data-card="ruler-128k">65.6</text>
+<line x1="20" x2="680" y1="580" y2="580" stroke="#eef1f4"/>
+<text x="20" y="603">AA-LCR</text>
+<text x="295.0" y="603" text-anchor="middle" fill="#59636e" data-benchmark="aa-lcr" data-model="slayer1b-1.09-k70000" data-rank="0">null</text>
+<text x="405.0" y="603" text-anchor="middle" fill="#59636e" data-benchmark="aa-lcr" data-model="bielik-11b-v3.1" data-rank="0">null</text>
+<text x="515.0" y="603" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="aa-lcr" data-model="" data-rank="0">not run</text>
+<text x="625.0" y="603" text-anchor="middle" fill="#59636e" data-card="aa-lcr">52.8</text>
+<text x="20" y="638" font-size="13" font-weight="600" fill="#59636e">Tool use</text>
+<line x1="20" x2="680" y1="648" y2="648" stroke="#eef1f4"/>
+<text x="20" y="671">BFCL V4</text>
+<text x="295.0" y="671" text-anchor="middle" fill="#59636e" data-benchmark="bfcl-v4" data-model="slayer1b-60000" data-rank="0">null</text>
+<text x="405.0" y="671" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="bfcl-v4" data-model="bielik-11b-v3.1-vllm" data-rank="0">not run</text>
+<text x="515.0" y="671" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="bfcl-v4" data-model="" data-rank="0">not run</text>
+<text x="625.0" y="671" text-anchor="middle" fill="#59636e" data-card="bfcl-v4">71.4</text>
+<text x="20" y="706" font-size="13" font-weight="600" fill="#59636e">Agentic coding</text>
+<line x1="20" x2="680" y1="716" y2="716" stroke="#eef1f4"/>
+<text x="20" y="739">Terminal-Bench 2.1</text>
+<text x="295.0" y="739" text-anchor="middle" fill="#59636e" data-benchmark="terminal-bench-2-1" data-model="slayer1b-1.09-k70000" data-rank="0">null</text>
+<text x="405.0" y="739" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="terminal-bench-2-1" data-model="" data-rank="0">not run</text>
+<text x="515.0" y="739" text-anchor="middle" data-benchmark="terminal-bench-2-1" data-model="lfm3-1.7b" data-rank="0">10.6</text>
+<text x="625.0" y="739" text-anchor="middle" fill="#59636e" data-card="terminal-bench-2-1">12.9</text>
+<text x="20" y="774" font-size="13" font-weight="600" fill="#59636e">Agents</text>
+<line x1="20" x2="680" y1="784" y2="784" stroke="#eef1f4"/>
+<text x="20" y="807">AutomationBench</text>
+<text x="295.0" y="807" text-anchor="middle" fill="#59636e" data-benchmark="automationbench" data-model="slayer1b-60000" data-rank="0">null</text>
+<text x="405.0" y="807" text-anchor="middle" data-benchmark="automationbench" data-model="bielik-11b-v3.1-vllm" data-rank="0">0.0</text>
+<text x="515.0" y="807" text-anchor="middle" fill="#59636e" font-size="12" data-benchmark="automationbench" data-model="" data-rank="0">not run</text>
+<text x="625.0" y="807" text-anchor="middle" fill="#59636e" data-card="automationbench">41.3</text>
+<line x1="20" x2="680" y1="826" y2="826" stroke="#d1d9e0"/>
+<text x="20" y="846" font-size="12" fill="#59636e">Score in % (AA-Omniscience: index from −100 to 100) · * requires verification</text>
+<text x="20" y="866" font-size="12" fill="#59636e">null: the model cannot run it · not run: no score yet or by decision (reasons under Values)</text>
+<text x="20" y="886" font-size="12" fill="#59636e">Best of the scored models highlighted, second underlined (rows with two or more scores) · LFM3 card: not ours</text>
 </svg>

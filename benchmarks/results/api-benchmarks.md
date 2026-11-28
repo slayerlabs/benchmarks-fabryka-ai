@@ -78,6 +78,18 @@ Source: [`research/api-benchmarks/aa-omniscience/`](../../research/api-benchmark
 | Bielik 11B v3.1 Instruct | own vLLM, chat template | -77.3 ± 2.6 | 600 |
 | LFM3 | not run | | |
 
+### Humanity's Last Exam
+
+Source: [`research/api-benchmarks/hle/`](../../research/api-benchmarks/hle/README.md) (merged). LFM3-1.7B card: 7.17.
+
+**Note:** no tools, the 2158 text-only questions of 2500 (the 342 image questions are excluded, not scored as wrong). Graded by Claude (claude-opus-4-6) instead of the official o3-mini, so the values are not directly comparable with o3-mini-graded numbers such as the card's 7.17 (README, Deviations).
+
+| model | how it ran | value | n |
+|---|---|---:|---:|
+| Slayer 1B 1.09 (step 70 000, training in progress) | not run | not run: a cost decision of 2026-11-25: several GPU hours for an expected score close to zero (README) | |
+| Bielik 11B v3.1 Instruct | Fabryka API, chat template, LFM3 card's sampling, 8192 tokens | 5.4 ± 0.5 | 2158 |
+| LFM3-1.7B | not run | not run: not run yet | |
+
 ## Coding
 
 ### LiveCodeBench v6

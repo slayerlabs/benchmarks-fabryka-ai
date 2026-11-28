@@ -19,6 +19,11 @@ def published() -> list[dict[str, Any]]:
     return [r for r in map(json.loads, (FULL_RUN / "manifest.jsonl").read_text(encoding="utf-8").splitlines())]
 
 
+def section(text: str, heading: str) -> str:
+    """The text of one `## ` section of a page, up to the next `## ` heading."""
+    return text.split(f"\n{heading}\n", 1)[1].split("\n## ", 1)[0]
+
+
 def written() -> list[dict[str, Any]]:
     return [json.loads(line) for line in (leaderboard.OUT / "results.jsonl").read_text(encoding="utf-8").splitlines()]
 
@@ -120,7 +125,8 @@ def test_values_tables_show_each_model_s_own_source_value_and_the_chance_level()
     src = {(r["benchmark"], r["model"]): r for r in published()}
     names = {leaderboard.benchmark_name(b): b for b in leaderboard.CATEGORY_OF}
     for page, _, models in TABLES:
-        text = (leaderboard.OUT / page).read_text(encoding="utf-8").split("## Generative values")[0]
+        text = (leaderboard.OUT / page).read_text(encoding="utf-8")
+        text = section(text, "## Values") if "## Values" in text else text
         checked = 0
         for name, html in re.findall(r"<tr><td>(.*?)</td>(.*?)</tr>", text):
             benchmark = names[name.removesuffix(" ↓")]
@@ -237,7 +243,7 @@ def expected_cell(b: leaderboard.ApiBenchmark, column: str) -> tuple[str, str | 
 def test_generative_values_table_shows_each_source_file() -> None:
     """Every cell of the Generative values table, from its result file: value ± SE (the benchmark's SE field) with *
     when the benchmark requires verification, or null / not run with the file's reason; last, the card's value."""
-    text = (leaderboard.OUT / "README.md").read_text(encoding="utf-8").split("## Generative values")[1]
+    text = section((leaderboard.OUT / "README.md").read_text(encoding="utf-8"), "## Generative values")
     rows = dict(re.findall(r"<tr><td>(.*?)</td>(.*?)</tr>", text))
     assert set(rows) == {b.name for b in leaderboard.API_BENCHMARKS}
     scored = 0
@@ -289,7 +295,7 @@ def test_a_clustered_standard_error_is_the_one_shown() -> None:
             assert b.se_field == "stderr_clustered", b.id
     readme = (REPO / leaderboard.API_DIR / "scicode" / "README.md").read_text(encoding="utf-8")
     assert "32.64 ± 2.76 (94/288; clustered 3.63)" in readme
-    text = (leaderboard.OUT / "README.md").read_text(encoding="utf-8").split("## Generative values")[1]
+    text = section((leaderboard.OUT / "README.md").read_text(encoding="utf-8"), "## Generative values")
     row = dict(re.findall(r"<tr><td>(.*?)</td>(.*?)</tr>", text))["SciCode"]
     cells = re.findall(r'<td align="right">(.*?)</td>', row)
     assert cells[leaderboard.API_COLUMNS.index("lfm3")] == "32.6 ± 3.6"
