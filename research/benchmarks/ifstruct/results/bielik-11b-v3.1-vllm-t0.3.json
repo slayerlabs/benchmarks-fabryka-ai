@@ -1,0 +1,23 @@
+{
+  "benchmark": "IFStruct",
+  "model": "bielik-11b-v3.1-vllm-t0.3",
+  "metric": "pass_rate",
+  "score": 32.1,
+  "stderr": 1.04,
+  "n": 2000,
+  "date": "2026-11-28",
+  "harness": "https://github.com/Liquid4All/ifstruct @ 73e03a6d3a8508357ba430675a106d4887abedf3 (ifstruct-eval)",
+  "data": "https://huggingface.co/datasets/LiquidAI/ifstruct-v1.0 @ 2e342ca5f2673fb1287411fdbadcdfde82b35682",
+  "settings": {
+    "temperature": 0.3,
+    "top_p": 1.0,
+    "max_tokens_per_turn": 29603,
+    "max_turns": 1,
+    "trials": 1
+  },
+  "other_metrics": {
+    "pass_rate_json": 34.4,
+    "pass_rate_yaml": 29.8
+  },
+  "deviations": "see README.md, Deviations"
+}

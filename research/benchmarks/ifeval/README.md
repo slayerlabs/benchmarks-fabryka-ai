@@ -10,7 +10,8 @@ answer in JSON"), checked by rules, without a judge model.
   541 prompts (full set)
 - Metric: `prompt_level_strict_acc` (see Deviations)
 - Settings: single turn, 1 trial. Bielik: temperature 0.6, top_p 0.95, up to 30720 output tokens (LFM3-1.7B card
-  defaults). Slayer: greedy, up to 1280 output tokens (see Deviations)
+  defaults); the `-t0.3` row uses Bielik's own sampling (temperature 0.3, top_p 1.0). Slayer: greedy, up to 1280
+  output tokens (see Deviations)
 - Extra services: none
 
 ## Results
@@ -22,11 +23,12 @@ answer in JSON"), checked by rules, without a judge model.
 | Bielik 11B v3.1 (`bielik-11b-v3.1`) | Fabryka API, temperature 0.6, top_p 0.95 | 55.27 | 2.14 | 541 | 2026-11-18 |
 | Bielik 11B v3.1 (`bielik-11b-v3.1-vllm`) | vLLM 0.11.0 on A100, template defaults, same sampling | 60.63 | 2.10 | 541 | 2026-11-19 |
 | Bielik 11B v3.1 (`bielik-11b-v3.1-vllm-no-provider`) | as above, no provider system prompt | 57.30 | 2.13 | 541 | 2026-11-19 |
+| Bielik 11B v3.1 (`bielik-11b-v3.1-vllm-t0.3`) | vLLM 0.11.0 on RTX PRO 5000, template defaults, temperature 0.3, top_p 1.0 | 60.26 | 2.10 | 541 | 2026-11-28 |
 | LFM3-1.7B (`lfm3-1.7b`) | vLLM 0.34.0, bf16, card settings, reasoning on | 94.64 | 0.97 | 541 | 2026-11-19 |
 
-The main row for Bielik is the API run. The two vLLM rows test the hidden prompt, and the LFM3-1.7B row checks
-our setup against the LFM3-1.7B card (see Deviations, "Main metric"). Rows with a different setup are not
-interchangeable: compare Bielik with Bielik only through the paired differences below.
+The main row for Bielik is the API run. The vLLM rows test the hidden prompt and Bielik's own sampling, and the
+LFM3-1.7B row checks our setup against the LFM3-1.7B card (see Deviations, "Main metric"). Rows with a different
+setup are not interchangeable: compare Bielik with Bielik only through the paired differences below.
 
 IFEval also has a central-run task, [T36 (`research/studies/2026-10-lm-eval-benchmarks/benchmarks/ifeval/`)](../../studies/2026-10-lm-eval-benchmarks/benchmarks/ifeval/README.md), on
 the same dataset revision. T36 runs Slayer in float32 with batch 1 through `common/ewaluuj.py`; this directory
@@ -108,6 +110,13 @@ measurement. T36 has no results yet.
   55.7 and the rest 63.2 (-7.5 ± 4.5, z = -1.7, not significant; the two groups are different prompts, so this
   is not a clean effect of the language).
   `python compare.py bielik-11b-v3.1-vllm bielik-11b-v3.1 bielik-11b-v3.1-vllm-no-provider` prints these numbers.
+- **Bielik's own sampling.** [`benchmarks/docs/methodology.md`](../../../benchmarks/docs/methodology.md), section 3,
+  takes a model's own recommendation first. The Bielik card gives no evaluation settings, and its
+  `generation_config.json` at the pinned revision sets only temperature 0.3, so top_p is 1.0. The API row above ran
+  before that rule, with the LFM3-1.7B card's sampling. `bielik-11b-v3.1-vllm-t0.3` repeats the template-defaults
+  vLLM run with Bielik's own sampling, on a rented RTX PRO 5000 instead of the A100: 60.26, −0.37 ± 1.33 points
+  against `bielik-11b-v3.1-vllm` (paired SE; 25 prompts pass only at 0.3, 27 only at 0.6). Temperature 0.3 against
+  0.6 does not move Bielik's IFEval score, as on IFBench, IFStruct and Multi-IF.
 - **Main metric.** The LFM3-1.7B card does not say which IFEval metric it reports. We report
   `prompt_level_strict_acc` and give the other three (`inst_level_strict_acc`, `prompt_level_loose_acc`,
   `inst_level_loose_acc`) in `other_metrics` of each result file.
@@ -141,8 +150,8 @@ bash run.sh slayer1b-1.08      # local CUDA GPU
 so a smoke test does not replace a published result. The lm-eval output goes to `out/` (not committed). The
 `date` in a result file is the day the run started (local time of the machine that ran `summarize.py`).
 
-The two vLLM runs need a GPU with at least 40 GB and a Hugging Face token with access to the gated
-`speakleash/Bielik-11B-v3.1-Instruct`. On [Modal](https://modal.com) (about 10 minutes on an A100-80GB with the weights cached):
+The three vLLM runs need a GPU with at least 40 GB and a Hugging Face token with access to the gated
+`speakleash/Bielik-11B-v3.1-Instruct`; `RUNS="<model-id> ..."` picks some of them. On [Modal](https://modal.com) (about 10 minutes per run on an A100-80GB with the weights cached):
 
 ```bash
 uv tool install modal && modal setup

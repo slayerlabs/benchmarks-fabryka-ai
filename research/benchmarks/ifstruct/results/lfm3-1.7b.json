@@ -1,0 +1,24 @@
+{
+  "benchmark": "IFStruct",
+  "model": "lfm3-1.7b",
+  "metric": "pass_rate",
+  "score": 93.75,
+  "stderr": 0.54,
+  "n": 2000,
+  "date": "2026-11-28",
+  "harness": "https://github.com/Liquid4All/ifstruct @ 73e03a6d3a8508357ba430675a106d4887abedf3 (ifstruct-eval)",
+  "data": "https://huggingface.co/datasets/LiquidAI/ifstruct-v1.0 @ 2e342ca5f2673fb1287411fdbadcdfde82b35682",
+  "settings": {
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "max_tokens_per_turn": 32768,
+    "max_turns": 1,
+    "trials": 1,
+    "reasoning": true
+  },
+  "other_metrics": {
+    "pass_rate_json": 96.3,
+    "pass_rate_yaml": 91.2
+  },
+  "deviations": "see README.md, Deviations"
+}

@@ -14,6 +14,7 @@ Rows with different setups are not interchangeable measurements.
 | Bielik 11B v3.1 Instruct | Fabryka API, chat template, sampled | 55.3 ± 2.1 | 541 |
 | Bielik 11B v3.1 Instruct | own vLLM, chat template, sampled | 60.6 ± 2.1 | 541 |
 | Bielik 11B v3.1 Instruct | own vLLM, no provider system prompt | 57.3 ± 2.1 | 541 |
+| Bielik 11B v3.1 Instruct | own vLLM, chat template, own sampling (temperature 0.3) | 60.3 ± 2.1 | 541 |
 | LFM3-1.7B | own vLLM, card settings, reasoning on | 94.6 ± 1.0 | 541 |
 
 Source: [`research/benchmarks/ifeval/results/`](../../research/benchmarks/ifeval/results/) and its README (deviations, the LFM3 card comparison).

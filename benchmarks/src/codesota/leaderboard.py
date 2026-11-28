@@ -74,6 +74,7 @@ MODELS: Final[dict[str, Model]] = {
         Model("bielik-11b-v3.1", "Bielik 11B v3.1 Instruct", "instruct", "Bielik"),
         Model("bielik-11b-v3.1-vllm", "Bielik 11B v3.1 Instruct", "instruct", "Bielik"),
         Model("bielik-11b-v3.1-vllm-no-provider", "Bielik 11B v3.1 Instruct", "instruct", "Bielik"),
+        Model("bielik-11b-v3.1-vllm-t0.3", "Bielik 11B v3.1 Instruct", "instruct", "Bielik"),
         Model("lfm3-1.7b-ifeval", "LFM3-1.7B", "instruct", "Liquid"),
         Model("slayer1b-1.08-modal", "Slayer 1B 1.08", "base", "Slayer"),
     )
@@ -208,6 +209,11 @@ IFEVAL_ROWS: Final = (
     ("bielik-11b-v3.1", "bielik-11b-v3.1", "Fabryka API, chat template, sampled"),
     ("bielik-11b-v3.1-vllm", "bielik-11b-v3.1-vllm", "own vLLM, chat template, sampled"),
     ("bielik-11b-v3.1-vllm-no-provider", "bielik-11b-v3.1-vllm-no-provider", "own vLLM, no provider system prompt"),
+    (
+        "bielik-11b-v3.1-vllm-t0.3",
+        "bielik-11b-v3.1-vllm-t0.3",
+        "own vLLM, chat template, own sampling (temperature 0.3)",
+    ),
     ("lfm3-1.7b", "lfm3-1.7b-ifeval", "own vLLM, card settings, reasoning on"),
 )
 # The source README's reading of Slayer's score (research/benchmarks/ifeval/README.md, Deviations).
@@ -318,6 +324,12 @@ SLAYER_COST: Final = (
     "worth its cost"
 )
 OWN_VLLM: Final = "own vLLM, chat template"
+OWN_SAMPLING: Final = f"{OWN_VLLM}, own sampling (temperature 0.3)"
+LFM3_CARD: Final = "own vLLM, card settings"
+CARD_SAMPLING_NOTE: Final = (
+    "Bielik's value uses its own sampling (temperature 0.3, generation_config.json); with the LFM3-1.7B card's "
+    "sampling (temperature 0.6) it scores {value}, within noise (README)"
+)
 API: Final = "Fabryka API, chat template"
 LM_EVAL: Final = "local lm-eval, CoT, greedy, 8192 tokens"
 SLAYER_RAW: Final = "raw prompt, no chat template"
@@ -330,13 +342,13 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         "ifeval",
         "percent",
         {"slayer": "slayer1b-1.08", "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b-ifeval"},
-        {"slayer": "1.08, local GPU, raw prompt, greedy", "bielik": API, "lfm3": "own vLLM, card settings"},
+        {"slayer": "1.08, local GPU, raw prompt, greedy", "bielik": API, "lfm3": LFM3_CARD},
         96.66,
         files={"lfm3": "lfm3-1.7b"},
         note="the values are prompt-level strict accuracy. The card does not name its metric and probably does not "
         "report strict: LFM3 scores 94.64 strict and 96.49 prompt-level loose, against the card's 96.66 (README, "
         "Deviations). Bielik's value is the API run; with its template defaults on our vLLM it scores 60.63, "
-        "5.36 ± 1.86 points higher",
+        "5.36 ± 1.86 points higher, and 60.26 with its own sampling (temperature 0.3)",
     ),
     ApiBenchmark(
         "ifbench",
@@ -344,9 +356,11 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         "Instruction following",
         "ifbench",
         "percent",
-        {"slayer": "slayer1b-60000", "bielik": "bielik-11b-v3.1-vllm"},
-        {"slayer": STEP_60K, "bielik": OWN_VLLM},
+        {"slayer": "slayer1b-60000", "bielik": "bielik-11b-v3.1-vllm-t0.3", "lfm3": "lfm3-1.7b"},
+        {"slayer": STEP_60K, "bielik": OWN_SAMPLING, "lfm3": LFM3_CARD},
         73.03,
+        note="the values are prompt-level strict accuracy; the card reports prompt-level loose, on which LFM3 "
+        "scores 76.00. " + CARD_SAMPLING_NOTE.format(value="18.33"),
     ),
     ApiBenchmark(
         "ifstruct",
@@ -354,9 +368,10 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         "Instruction following",
         "ifstruct",
         "percent",
-        {"slayer": "slayer1b-60000", "bielik": "bielik-11b-v3.1-vllm"},
-        {"slayer": STEP_60K, "bielik": OWN_VLLM},
+        {"slayer": "slayer1b-60000", "bielik": "bielik-11b-v3.1-vllm-t0.3", "lfm3": "lfm3-1.7b"},
+        {"slayer": STEP_60K, "bielik": OWN_SAMPLING, "lfm3": LFM3_CARD},
         93.72,
+        note=CARD_SAMPLING_NOTE.format(value="30.95"),
     ),
     ApiBenchmark(
         "multi-if",
@@ -364,12 +379,12 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         "Instruction following",
         "multi-if",
         "percent",
-        {"slayer": "slayer1b-60000", "bielik": "bielik-11b-v3.1-vllm"},
-        {"slayer": STEP_60K, "bielik": OWN_VLLM},
+        {"slayer": "slayer1b-60000", "bielik": "bielik-11b-v3.1-vllm-t0.3", "lfm3": "lfm3-1.7b"},
+        {"slayer": STEP_60K, "bielik": OWN_SAMPLING, "lfm3": LFM3_CARD},
         89.10,
         not_run={"slayer": "run stopped for compute budget"},
         note="n counts turns: 13447 turns of 4501 conversations; the standard error is a cluster bootstrap over "
-        "conversations",
+        "conversations. " + CARD_SAMPLING_NOTE.format(value="48.66"),
     ),
     ApiBenchmark(
         "gpqa-diamond",
@@ -1124,7 +1139,8 @@ def readme(rows: Sequence[Result], chance: Mapping[str, float | None]) -> str:
         "70 000.",
         f"- **Bielik 11B v3.1 ran in three setups**, depending on the benchmark: {bielik_setups()}. The setups "
         "are not interchangeable: on IFEval our vLLM with the template defaults scores 5.36 ± 1.86 points above the "
-        "API. Where a benchmark samples, Bielik uses the LFM3 card's settings (temperature 0.6, top_p 0.95). "
+        "API. Where a benchmark samples, Bielik uses the LFM3 card's settings (temperature 0.6, top_p 0.95), except "
+        "IFBench, IFStruct and Multi-IF, where it uses its own (temperature 0.3, generation_config.json). "
         "**LFM3-1.7B** is the instruction-tuned model, with reasoning on; **LFM3 card** is the value Liquid AI "
         "reports for it, not measured by us.",
         *(f"- **{b.name}:** {b.note}." for b in API_BENCHMARKS if b.note),
