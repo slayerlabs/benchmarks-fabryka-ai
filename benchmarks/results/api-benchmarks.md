@@ -10,7 +10,7 @@ Each benchmark has its own protocol, harness and settings, written down in its d
 
 Source: [`research/benchmarks/ifeval/`](../../research/benchmarks/ifeval/README.md) (merged). LFM3-1.7B card: 96.66.
 
-**Note:** the values are prompt-level strict accuracy. The card does not name its metric and probably does not report strict: LFM3 scores 94.64 strict and 96.49 prompt-level loose, against the card's 96.66 (README, Deviations). Bielik's value is the API run; with its template defaults on our vLLM it scores 60.63, 5.36 ± 1.86 points higher.
+**Note:** the values are prompt-level strict accuracy. The card does not name its metric and probably does not report strict: LFM3 scores 94.64 strict and 96.49 prompt-level loose, against the card's 96.66 (README, Deviations). Bielik's value is the API run; with its template defaults on our vLLM it scores 60.63, 5.36 ± 1.86 points higher, and 60.26 with its own sampling (temperature 0.3).
 
 | model | how it ran | value | n |
 |---|---|---:|---:|
@@ -22,33 +22,37 @@ Source: [`research/benchmarks/ifeval/`](../../research/benchmarks/ifeval/README.
 
 Source: [`research/benchmarks/ifbench/`](../../research/benchmarks/ifbench/README.md) (merged). LFM3-1.7B card: 73.03.
 
+**Note:** the values are prompt-level strict accuracy; the card reports prompt-level loose, on which LFM3 scores 76.00. Bielik's value uses its own sampling (temperature 0.3, generation_config.json); with the LFM3-1.7B card's sampling (temperature 0.6) it scores 18.33, within noise (README).
+
 | model | how it ran | value | n |
 |---|---|---:|---:|
 | Slayer 1B 1.09 (step 60 000) | step 60 000, raw prompt, no chat template | 8.3 ± 1.6 | 300 |
-| Bielik 11B v3.1 Instruct | own vLLM, chat template | 18.3 ± 2.2 | 300 |
-| LFM3 | not run | | |
+| Bielik 11B v3.1 Instruct | own vLLM, chat template, own sampling (temperature 0.3) | 18.0 ± 2.2 | 300 |
+| LFM3-1.7B | own vLLM, card settings | 72.3 ± 2.6 | 300 |
 
 ### IFStruct
 
 Source: [`research/benchmarks/ifstruct/`](../../research/benchmarks/ifstruct/README.md) (merged). LFM3-1.7B card: 93.72.
 
+**Note:** Bielik's value uses its own sampling (temperature 0.3, generation_config.json); with the LFM3-1.7B card's sampling (temperature 0.6) it scores 30.95, within noise (README).
+
 | model | how it ran | value | n |
 |---|---|---:|---:|
 | Slayer 1B 1.09 (step 60 000) | step 60 000, raw prompt, no chat template | 0.0 ± 0.0 | 2000 |
-| Bielik 11B v3.1 Instruct | own vLLM, chat template | 30.9 ± 1.0 | 2000 |
-| LFM3 | not run | | |
+| Bielik 11B v3.1 Instruct | own vLLM, chat template, own sampling (temperature 0.3) | 32.1 ± 1.0 | 2000 |
+| LFM3-1.7B | own vLLM, card settings | 93.8 ± 0.5 | 2000 |
 
 ### Multi-IF
 
 Source: [`research/benchmarks/multi-if/`](../../research/benchmarks/multi-if/README.md) (merged). LFM3-1.7B card: 89.10.
 
-**Note:** n counts turns: 13447 turns of 4501 conversations; the standard error is a cluster bootstrap over conversations.
+**Note:** n counts turns: 13447 turns of 4501 conversations; the standard error is a cluster bootstrap over conversations. Bielik's value uses its own sampling (temperature 0.3, generation_config.json); with the LFM3-1.7B card's sampling (temperature 0.6) it scores 48.66, within noise (README).
 
 | model | how it ran | value | n |
 |---|---|---:|---:|
 | Slayer 1B 1.09 (step 60 000) | step 60 000, raw prompt, no chat template | not run: run stopped after 2 of 3 turns (compute budget); turn 3 ran at about 10 conversations per minute | |
-| Bielik 11B v3.1 Instruct | own vLLM, chat template | 48.7 ± 0.4 | 13447 |
-| LFM3 | not run | | |
+| Bielik 11B v3.1 Instruct | own vLLM, chat template, own sampling (temperature 0.3) | 48.6 ± 0.4 | 13447 |
+| LFM3-1.7B | own vLLM, card settings | 89.1 ± 0.3 | 13447 |
 
 ## Knowledge
 

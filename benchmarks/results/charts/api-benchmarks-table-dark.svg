@@ -21,25 +21,27 @@
 <text x="625.0" y="127" text-anchor="middle" fill="#9198a1" data-card="ifeval">96.7</text>
 <line x1="20" x2="680" y1="138" y2="138" stroke="#21262d"/>
 <text x="20" y="161">IFBench</text>
-<line x1="275.0" x2="315.0" y1="164" y2="164" stroke="#e6edf3"/>
-<text x="295.0" y="161" text-anchor="middle" data-benchmark="ifbench" data-model="slayer1b-60000" data-rank="2">8.3</text>
-<rect x="367.0" y="145" width="76" height="22" rx="5" fill="#4a1d22"/>
-<text x="405.0" y="161" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="ifbench" data-model="bielik-11b-v3.1-vllm" data-rank="1">18.3</text>
-<text x="515.0" y="161" text-anchor="middle" fill="#9198a1" font-size="12" data-benchmark="ifbench" data-model="" data-rank="0">not run</text>
+<text x="295.0" y="161" text-anchor="middle" data-benchmark="ifbench" data-model="slayer1b-60000" data-rank="3">8.3</text>
+<line x1="385.0" x2="425.0" y1="164" y2="164" stroke="#e6edf3"/>
+<text x="405.0" y="161" text-anchor="middle" data-benchmark="ifbench" data-model="bielik-11b-v3.1-vllm-t0.3" data-rank="2">18.0</text>
+<rect x="477.0" y="145" width="76" height="22" rx="5" fill="#4a1d22"/>
+<text x="515.0" y="161" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="ifbench" data-model="lfm3-1.7b" data-rank="1">72.3</text>
 <text x="625.0" y="161" text-anchor="middle" fill="#9198a1" data-card="ifbench">73.0</text>
 <line x1="20" x2="680" y1="172" y2="172" stroke="#21262d"/>
 <text x="20" y="195">IFStruct</text>
-<line x1="275.0" x2="315.0" y1="198" y2="198" stroke="#e6edf3"/>
-<text x="295.0" y="195" text-anchor="middle" data-benchmark="ifstruct" data-model="slayer1b-60000" data-rank="2">0.0</text>
-<rect x="367.0" y="179" width="76" height="22" rx="5" fill="#4a1d22"/>
-<text x="405.0" y="195" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="ifstruct" data-model="bielik-11b-v3.1-vllm" data-rank="1">30.9</text>
-<text x="515.0" y="195" text-anchor="middle" fill="#9198a1" font-size="12" data-benchmark="ifstruct" data-model="" data-rank="0">not run</text>
+<text x="295.0" y="195" text-anchor="middle" data-benchmark="ifstruct" data-model="slayer1b-60000" data-rank="3">0.0</text>
+<line x1="385.0" x2="425.0" y1="198" y2="198" stroke="#e6edf3"/>
+<text x="405.0" y="195" text-anchor="middle" data-benchmark="ifstruct" data-model="bielik-11b-v3.1-vllm-t0.3" data-rank="2">32.1</text>
+<rect x="477.0" y="179" width="76" height="22" rx="5" fill="#4a1d22"/>
+<text x="515.0" y="195" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="ifstruct" data-model="lfm3-1.7b" data-rank="1">93.8</text>
 <text x="625.0" y="195" text-anchor="middle" fill="#9198a1" data-card="ifstruct">93.7</text>
 <line x1="20" x2="680" y1="206" y2="206" stroke="#21262d"/>
 <text x="20" y="229">Multi-IF</text>
 <text x="295.0" y="229" text-anchor="middle" fill="#9198a1" font-size="12" data-benchmark="multi-if" data-model="slayer1b-60000" data-rank="0">not run</text>
-<text x="405.0" y="229" text-anchor="middle" data-benchmark="multi-if" data-model="bielik-11b-v3.1-vllm" data-rank="0">48.7</text>
-<text x="515.0" y="229" text-anchor="middle" fill="#9198a1" font-size="12" data-benchmark="multi-if" data-model="" data-rank="0">not run</text>
+<line x1="385.0" x2="425.0" y1="232" y2="232" stroke="#e6edf3"/>
+<text x="405.0" y="229" text-anchor="middle" data-benchmark="multi-if" data-model="bielik-11b-v3.1-vllm-t0.3" data-rank="2">48.6</text>
+<rect x="477.0" y="213" width="76" height="22" rx="5" fill="#4a1d22"/>
+<text x="515.0" y="229" text-anchor="middle" font-weight="700" fill="#ff8a80" data-benchmark="multi-if" data-model="lfm3-1.7b" data-rank="1">89.1</text>
 <text x="625.0" y="229" text-anchor="middle" fill="#9198a1" data-card="multi-if">89.1</text>
 <text x="20" y="264" font-size="13" font-weight="600" fill="#9198a1">Knowledge</text>
 <line x1="20" x2="680" y1="274" y2="274" stroke="#21262d"/>

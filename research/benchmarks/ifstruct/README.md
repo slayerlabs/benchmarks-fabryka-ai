@@ -10,22 +10,34 @@ harness's validator, without a judge model.
   `2e342ca5f2673fb1287411fdbadcdfde82b35682`, 2000 samples (full set: 1000 JSON, 1000 YAML)
 - Metric: pass rate (a sample passes only if the validator reports no error); pass rates by format in
   `other_metrics`
-- Settings: single turn, 1 trial. Bielik: temperature 0.6, top_p 0.95, up to 29603 output tokens (LFM3-1.7B card
-  defaults, see Deviations). Slayer: greedy, up to 1280 output tokens, raw text
+- Settings: single turn, 1 trial. Bielik: its own sampling (temperature 0.3, top_p 1.0) in the main row, the LFM3-1.7B
+  card's (temperature 0.6, top_p 0.95) in the second; up to 29603 output tokens (see Deviations). LFM3-1.7B: the
+  card's settings, reasoning on, up to 32768 output tokens. Slayer: greedy, up to 1280 output tokens, raw text
 - Extra services: none
 
 ## Results
 
 | model | score | stderr | n | date |
 |---|---|---|---|---|
-| Bielik 11B v3.1, own vLLM (`bielik-11b-v3.1-vllm`) | 30.95 | 1.03 | 2000 | 2026-11-19 |
+| Bielik 11B v3.1, own vLLM, own sampling (`bielik-11b-v3.1-vllm-t0.3`) | 32.10 | 1.04 | 2000 | 2026-11-28 |
+| Bielik 11B v3.1, own vLLM, LFM3-1.7B card sampling (`bielik-11b-v3.1-vllm`) | 30.95 | 1.03 | 2000 | 2026-11-19 |
+| LFM3-1.7B, own vLLM, card settings (`lfm3-1.7b`) | 93.75 | 0.54 | 2000 | 2026-11-28 |
 | Slayer 1B, step 60000 (`slayer1b-60000`) | 0.00 | 0.00 | 2000 | 2026-11-19 |
 | LFM3-1.7B, model card | 93.72 | | | |
 
-Against an empty answer (which never passes the validator, so its score is 0), Bielik is 30.95 ± 1.03 points
-higher (paired, z = 29.9). All 1381 failures are validation errors of the output, none are request errors; the most
-common is a missing code block where the prompt asks for one (651). Each line of `results/<model-id>.jsonl.gz` holds
-the sample seed, the 0/1 score, format, entity type, the validator's errors and the raw `output`; the prompt is not stored (look it up in the dataset by seed).
+The two Bielik rows differ only in sampling. Temperature 0.3 against 0.6 changes the score by +1.15 ± 0.84 points
+(paired over the 2000 samples: 153 pass only at 0.3, 130 only at 0.6), within noise.
+
+Our LFM3-1.7B run reproduces the card: 93.75 against 93.72 (JSON 96.30, YAML 91.20). 8 of its 2000 requests first
+came back without an answer, because the reasoning did not reach `</think>` within 32768 tokens; the harness retries
+a request without an answer, and each of the 8 was answered on its single retry, a new sample. Scoring those 8 as
+failed instead would lower the score by at most 0.40 points.
+
+Against an empty answer (which never passes the validator, so its score is 0), Bielik with the card's sampling is
+30.95 ± 1.03 points higher (paired, z = 29.9). All 1381 failures are validation errors of the output, none are
+request errors; the most common is a missing code block where the prompt asks for one (651). Each line of
+`results/<model-id>.jsonl.gz` holds the sample seed, the 0/1 score, format, entity type, the validator's errors and
+the raw `output`; the prompt is not stored (look it up in the dataset by seed).
 
 Slayer passes none of the 2000 samples (JSON 0/1000, YAML 0/1000), the same as an empty answer, so it cannot be
 told apart from a trivial answer here. The base model under raw prompting runs to the 1280-token limit (2203 of
@@ -40,21 +52,33 @@ error after retries, none outside the model's 4096-token window: the longest pro
   `d6e755d356ad418d0f0e30b8c428db267415ddb9`, bfloat16) is served by vLLM 0.34.0 on a rented NVIDIA RTX PRO 5000
   Blackwell (`vllm.sh`), with the chat template's defaults, including the provider system prompt, and the date pinned to
   2026-11-18. This is the setup of the `-vllm` rows of the IFEval benchmark (#313), not the API row: on
-  IFEval the two differed by about 5 points.
-- **The LFM3-1.7B card's sampling, not Bielik's own.** Bielik runs with the sampling the LFM3-1.7B card uses for
-  its evaluations unless it lists an exception (temperature 0.6, top_p 0.95), because the protocol, fixed before the
-  runs, compares every model with the card's table under the card's settings. The Bielik model card gives no
-  evaluation settings; it sets only temperature 0.3 for its hosted inference widget. A run with Bielik's own settings
-  would be a separate row with its own label.
-- **top_p is set on the server.** `ifstruct-eval` sends only temperature and max_tokens, so the card's top_p 0.95
-  is a server default (`--override-generation-config`), visible in vLLM's startup log. The harness has no seed
-  option, so requests are not seeded.
+  IFEval the two differed by about 5 points. The own-sampling row ran on two such GPUs, one vLLM copy on each
+  (`DATA_PARALLEL=2`), with the same weights, template and vLLM version.
+- **Two sampling settings for Bielik.** The main row uses Bielik's own recommendation, as
+  [`benchmarks/docs/methodology.md`](../../../benchmarks/docs/methodology.md), section 3, asks: the Bielik card gives
+  no evaluation settings, and its `generation_config.json` at the pinned revision sets only temperature 0.3, so
+  top_p stays at 1.0 (`vllm.sh bielik-11b-v3.1-vllm-t0.3`, served as `bielik-t0.3`). The second row is the earlier
+  run with the LFM3-1.7B card's sampling (temperature 0.6, top_p 0.95), kept as a different configuration.
+- **top_p is set on the server.** `ifstruct-eval` sends only temperature and max_tokens, so top_p is the server
+  default: 0.95 through `--override-generation-config` for the card's sampling, vLLM's 1.0 for Bielik's own. Both
+  are visible in vLLM's startup log. The harness has no seed option, so requests are not seeded.
+- **LFM3-1.7B on our vLLM.** [LiquidAI/LFM3-1.7B](https://huggingface.co/LiquidAI/LFM3-1.7B) @
+  `1da06bec6a819da10b54c67e5c90972b46d81871`, bfloat16, vLLM 0.34.0
+  ([`research/common/vllm_lfm3.sh`](../../common/vllm_lfm3.sh)) on four rented NVIDIA GeForce RTX 5090, one copy per
+  GPU. The card's settings: temperature 0.6, top_p 0.95, reasoning on (the template's default), everything else at
+  vLLM's neutral values. vLLM's `deepseek_r1` reasoning parser moves the thinking, up to `</think>`, out of the
+  answer, so the validator sees only the answer. The card gives no output limit other than the model's full
+  context; here 32768 output tokens, as in the IFEval benchmark.
+- **Request timeout 3600 s for LFM3-1.7B.** The harness waits 120 s per request and has no option for it; a long
+  reasoning answer takes longer, and a timed-out request would be retried as a new sample. `eval_timeout.py` runs
+  `ifstruct-eval` with the timeout raised for LFM3-1.7B only; the other models keep the harness's 120 s.
 - **Output limit 29603 instead of "no limit".** The card gives no output limit; the served context is 32768
   tokens, and the longest prompt of the set with the chat template is 3165 tokens. No prompt was cut.
 - **Data from Hugging Face.** The pinned revision is identical to the repo's bundled `data/test.jsonl` (0 of 2000
   samples differ); `convert_hf.py` turns the parquet's JSON-string columns back into objects.
-- **Requests are batched.** Bielik: 32 requests at a time, batched by vLLM; the harness retries a failed request
-  twice. No request failed.
+- **Requests are batched.** 32 requests at a time for the card-sampling row; 64 for the own-sampling row and 128 for
+  LFM3-1.7B (32 per GPU), batched by vLLM. The harness retries a failed request twice. No Bielik request failed; for
+  LFM3-1.7B see Results.
 - **Slayer is a base model** without a chat template: `slayer_server.py` passes the prompt as raw text and
   decodes greedily up to 1280 tokens whatever `max_tokens` asks (the harness sends 4096), as in the IFEval
   benchmark (#313). Weights: [SlayerLab/Slayer1B-1.09-checkpoints](https://huggingface.co/SlayerLab/Slayer1B-1.09-checkpoints)
@@ -76,8 +100,13 @@ error after retries, none outside the model's 4096-token window: the longest pro
 ```bash
 HF_TOKEN=hf_... bash vllm.sh                # one GPU with at least 48 GB; serves on 127.0.0.1:8000
 bash run.sh bielik-11b-v3.1-vllm            # in another shell
+HF_TOKEN=hf_... bash vllm.sh bielik-11b-v3.1-vllm-t0.3   # Bielik's own sampling, served as bielik-t0.3
+bash run.sh bielik-11b-v3.1-vllm-t0.3
+bash ../../common/vllm_lfm3.sh              # LFM3-1.7B, no token; DATA_PARALLEL=N for N GPUs
+bash run.sh lfm3-1.7b
 bash run.sh slayer1b-60000                  # one CUDA GPU with at least 24 GB; starts slayer_server.py itself
 ```
 
 `--limit 5` runs only the first 5 samples and writes to `out/limit/`. `BASE_URL` points `run.sh` at another
-endpoint that serves the model as `bielik`.
+endpoint that serves the model under the name `run.sh` checks (`bielik`, `bielik-t0.3`, `lfm3`). `THREADS` sets the
+number of parallel requests (default 32).

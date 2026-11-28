@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Multi-IF for one model: bash run.sh <model-id> [--limit N]
-#   bielik-11b-v3.1-vllm  Bielik 11B v3.1 Instruct served by vLLM (start it with vllm.sh) at BASE_URL
-#                         (default http://127.0.0.1:8000/v1, served model name "bielik")
-#   slayer1b-60000        Slayer 1B, training step 60000, served locally by slayer_server.py
-#                         (research/common/slayer_serving) on a CUDA GPU
+#   bielik-11b-v3.1-vllm       Bielik 11B v3.1 Instruct served by vLLM at BASE_URL (default http://127.0.0.1:8000/v1):
+#                              LFM3-1.7B card sampling, start it with `bash vllm.sh` (served model name "bielik")
+#   bielik-11b-v3.1-vllm-t0.3  the same, Bielik's own sampling: `bash vllm.sh bielik-11b-v3.1-vllm-t0.3`
+#   lfm3-1.7b                  LFM3-1.7B served by vLLM at BASE_URL: `bash ../../common/vllm_lfm3.sh`
+#   slayer1b-60000             Slayer 1B, training step 60000, served locally by slayer_server.py
+#                              (research/common/slayer_serving) on a CUDA GPU
 # Installs Multi-IF at the pinned commit, applies patch_api_client.py, takes the data from Hugging Face at the pinned
 # revision, runs the harness's three turns and writes results/<model-id>.json and results/<model-id>.jsonl.gz.
 # --limit N keeps only the first N conversations (all their turns) and writes to out/limit/.
@@ -55,6 +57,19 @@ case "$MODEL" in
     # LFM3-1.7B card: temperature 0.6, top_p 0.95; up to 8192 new tokens per turn (see README, Deviations).
     GEN=(--max_new_tokens 8192 --temperature 0.6 --top_p 0.95 --seed 20261119)
     SETTINGS='{"temperature": 0.6, "top_p": 0.95, "seed": 20261119, "max_tokens_per_turn": 8192, "max_turns": 3, "trials": 1}' ;;
+  bielik-11b-v3.1-vllm-t0.3)
+    BASE_URL="${BASE_URL:-http://127.0.0.1:8000/v1}"; SERVED=bielik-t0.3
+    curl -sf "$BASE_URL/models" | grep -q '"bielik-t0.3"' || { echo "no model \"bielik-t0.3\" at $BASE_URL (start vllm.sh bielik-11b-v3.1-vllm-t0.3 first)" >&2; exit 1; }
+    # Bielik's own generation_config.json sets only temperature 0.3, so top_p is 1.0; tokens per turn as above.
+    GEN=(--max_new_tokens 8192 --temperature 0.3 --top_p 1.0 --seed 20261119)
+    SETTINGS='{"temperature": 0.3, "top_p": 1.0, "seed": 20261119, "max_tokens_per_turn": 8192, "max_turns": 3, "trials": 1}' ;;
+  lfm3-1.7b)
+    BASE_URL="${BASE_URL:-http://127.0.0.1:8000/v1}"; SERVED=lfm3
+    curl -sf "$BASE_URL/models" | grep -q '"lfm3"' || { echo "no model \"lfm3\" at $BASE_URL (start vllm_lfm3.sh first)" >&2; exit 1; }
+    # LFM3-1.7B card: temperature 0.6, top_p 0.95, reasoning on; up to 32,768 new tokens per turn, as in the IFEval
+    # benchmark. The server's reasoning parser keeps the thinking out of the scored answer and of the next turn.
+    GEN=(--max_new_tokens 32768 --temperature 0.6 --top_p 0.95 --seed 20261119)
+    SETTINGS='{"temperature": 0.6, "top_p": 0.95, "seed": 20261119, "max_tokens_per_turn": 32768, "max_turns": 3, "trials": 1, "reasoning": true}' ;;
   slayer1b-60000)
     BASE_URL="http://127.0.0.1:8001/v1"; SERVED=slayer
     SVENV="${SLAYER_VENV:-$HERE/.venv-slayer}"
@@ -75,7 +90,7 @@ case "$MODEL" in
     curl -sf "$BASE_URL/models" | grep -q '"slayer"' || { echo "slayer_server.py did not start (out/server.log)" >&2; exit 1; }
     GEN=(--max_new_tokens 1280 --temperature 0 --top_p 1.0 --seed 20261119)
     SETTINGS='{"temperature": 0, "max_tokens_per_turn": 1280, "max_turns": 3, "trials": 1, "chat_template": false}' ;;
-  *) echo "unknown model-id: $MODEL (bielik-11b-v3.1-vllm | slayer1b-60000)" >&2; exit 2 ;;
+  *) echo "unknown model-id: $MODEL (bielik-11b-v3.1-vllm | bielik-11b-v3.1-vllm-t0.3 | lfm3-1.7b | slayer1b-60000)" >&2; exit 2 ;;
 esac
 
 # The harness's OpenAI-compatible backend reads its endpoint and key from the environment: point both at the local

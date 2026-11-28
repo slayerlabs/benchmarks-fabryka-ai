@@ -1,0 +1,25 @@
+{
+  "benchmark": "IFBench",
+  "model": "bielik-11b-v3.1-vllm-t0.3",
+  "metric": "prompt_level_strict_acc",
+  "score": 18.0,
+  "stderr": 2.22,
+  "n": 300,
+  "date": "2026-11-28",
+  "harness": "https://github.com/allenai/IFBench @ 488918665d53f867fa908a293769ec6e71e74aec (generate_responses.py, run_eval)",
+  "data": "https://huggingface.co/datasets/allenai/IFBench_test @ ed7c12452594b7028b15807b86d3938150b663ae",
+  "settings": {
+    "temperature": 0.3,
+    "top_p": 1.0,
+    "seed": 20261119,
+    "max_tokens_per_turn": 31238,
+    "max_turns": 1,
+    "trials": 1
+  },
+  "other_metrics": {
+    "inst_level_strict_acc": 19.48,
+    "prompt_level_loose_acc": 23.0,
+    "inst_level_loose_acc": 25.29
+  },
+  "deviations": "see README.md, Deviations"
+}

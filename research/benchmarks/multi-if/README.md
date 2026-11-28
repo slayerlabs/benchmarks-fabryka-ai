@@ -16,23 +16,36 @@ answer is checked by the harness's rule-based verifiers, without a judge model.
   prompt-level loose and instruction-level loose over all languages); the score is the mean over the three turns,
   as in the paper's Fig. 1 ("average ... across all languages and across all turns"). Per-turn values, the four
   components and per-language results are in `other_metrics`
-- Settings: three turns, 1 trial. Bielik: temperature 0.6, top_p 0.95, seed 20261119, up to 8192 new tokens per
-  turn. Slayer: greedy, up to 1280 new tokens per turn, raw text
+- Settings: three turns, 1 trial, seed 20261119. Bielik: its own sampling (temperature 0.3, top_p 1.0) in the main
+  row, the LFM3-1.7B card's (temperature 0.6, top_p 0.95) in the second; up to 8192 new tokens per turn. LFM3-1.7B:
+  the card's settings, reasoning on, up to 32768 new tokens per turn. Slayer: greedy, up to 1280 new tokens per
+  turn, raw text
 - Extra services: none
 
 ## Results
 
 | model | score | stderr | n | date |
 |---|---|---|---|---|
-| Bielik 11B v3.1, own vLLM (`bielik-11b-v3.1-vllm`) | 48.66 | 0.44 | 13447 | 2026-11-19 |
+| Bielik 11B v3.1, own vLLM, own sampling (`bielik-11b-v3.1-vllm-t0.3`) | 48.58 | 0.43 | 13447 | 2026-11-28 |
+| Bielik 11B v3.1, own vLLM, LFM3-1.7B card sampling (`bielik-11b-v3.1-vllm`) | 48.66 | 0.44 | 13447 | 2026-11-19 |
+| LFM3-1.7B, own vLLM, card settings (`lfm3-1.7b`) | 89.10 | 0.31 | 13447 | 2026-11-28 |
 | Slayer 1B, step 60000 (`slayer1b-60000`) | null | null | 0 | 2026-11-19 |
 | LFM3-1.7B, model card | 89.10 | | | |
 
 `n` counts scored turns; `n_conversations` in the results files is 4501.
 
-Bielik's overall falls with each turn: 62.21, 46.32 and 37.44 for turns 1 to 3; prompt-level strict falls from
-56.39 to 29.95 and 15.28, while instruction-level strict stays between 64.33 and 56.54. All 13447 requests got an
-answer (no turn scored as failed).
+The two Bielik rows differ only in sampling. Temperature 0.3 against 0.6 changes the score by −0.08 points (turns 1
+to 3: 62.32, 45.95, 37.48); paired over the 13447 scored turns the difference is −0.05 ± 0.37 (cluster bootstrap
+over conversations), within noise.
+
+Our LFM3-1.7B run matches the card's 89.10 with the turn aggregation below (turns 1 to 3: 94.51, 88.85, 83.93).
+22 of its 13447 turns are scored as failed (2, 6 and 14 in turns 1 to 3): in each, the reasoning did not reach
+`</think>` within 32768 tokens, the server returned no answer, and the harness marked the turn `exception`; the
+later turns of those conversations count as failed too (Deviations, "Failed requests are scored as failed").
+
+Bielik's overall with the card's sampling falls with each turn: 62.21, 46.32 and 37.44 for turns 1 to 3;
+prompt-level strict falls from 56.39 to 29.95 and 15.28, while instruction-level strict stays between 64.33 and
+56.54. All 13447 requests of both Bielik runs got an answer (no turn scored as failed).
 By language, turn 1 ranges from 68.78 (English) to 54.03 (Russian).
 
 Trivial answers do not score 0 here: repeating the turn's instruction scores 28.73 prompt-level strict in turn 1,
@@ -73,18 +86,28 @@ and loose verdicts per instruction, whether the turn was scored as failed becaus
   ([speakleash/Bielik-11B-v3.1-Instruct](https://huggingface.co/speakleash/Bielik-11B-v3.1-Instruct) @
   `d6e755d356ad418d0f0e30b8c428db267415ddb9`, bfloat16) is served by vLLM 0.34.0 on a rented NVIDIA RTX PRO 5000
   Blackwell (`vllm.sh`), with the chat template's defaults, including the provider system prompt, and the date pinned to
-  2026-11-18. This is the setup of the `-vllm` rows of the IFEval benchmark (#313), not the API row.
-- **The LFM3-1.7B card's sampling, not Bielik's own.** Bielik runs with the sampling the LFM3-1.7B card uses for
-  its evaluations unless it lists an exception (temperature 0.6, top_p 0.95), because the protocol, fixed before the
-  runs, compares every model with the card's table under the card's settings. The Bielik model card gives no
-  evaluation settings; it sets only temperature 0.3 for its hosted inference widget. A run with Bielik's own settings
-  would be a separate row with its own label.
-- **Output limit 8192 per turn instead of "no limit".** The harness sends one fixed `max_new_tokens` for every
-  turn; the card gives no limit. With 8192, three answers take at most 24576 of the 32768-token context.
+  2026-11-18. This is the setup of the `-vllm` rows of the IFEval benchmark (#313), not the API row. The
+  own-sampling row ran on two such GPUs, one vLLM copy on each (`DATA_PARALLEL=2`), with the same weights, template
+  and vLLM version.
+- **Two sampling settings for Bielik.** The main row uses Bielik's own recommendation, as
+  [`benchmarks/docs/methodology.md`](../../../benchmarks/docs/methodology.md), section 3, asks: the Bielik card gives
+  no evaluation settings, and its `generation_config.json` at the pinned revision sets only temperature 0.3, so
+  top_p is 1.0 (the harness sends both). The second row is the earlier run with the LFM3-1.7B card's sampling
+  (temperature 0.6, top_p 0.95), kept as a different configuration.
+- **LFM3-1.7B on our vLLM.** [LiquidAI/LFM3-1.7B](https://huggingface.co/LiquidAI/LFM3-1.7B) @
+  `1da06bec6a819da10b54c67e5c90972b46d81871`, bfloat16, vLLM 0.34.0
+  ([`research/common/vllm_lfm3.sh`](../../common/vllm_lfm3.sh)) on four rented NVIDIA GeForce RTX 5090, one copy per
+  GPU, with a 65536-token context. The card's settings: temperature 0.6, top_p 0.95, reasoning on (the template's
+  default), everything else at vLLM's neutral values. vLLM's `deepseek_r1` reasoning parser moves the thinking, up
+  to `</think>`, out of the answer, so the harness scores and carries into the next turn only the answer.
+- **Output limit per turn instead of "no limit".** The harness sends one fixed `max_new_tokens` for every turn; the
+  card gives no limit. Bielik: 8192, so three answers take at most 24576 of the 32768-token context. LFM3-1.7B:
+  32768, as in the IFEval benchmark, because its reasoning comes before the answer.
 - **Patched API client.** `patch_api_client.py` makes two edits to the harness's `api_client.py`: the Anthropic,
   Gemini and Mistral libraries are imported inside their own backends (the Gemini and Mistral packages conflict with
-  the vLLM environment), and `bielik` and `slayer` are added to the model names of the OpenAI-compatible backend.
-  No backend's behaviour changes. `run.sh` points that backend at the local server (`OPENAI_BASE_URL`,
+  the vLLM environment), and our served model names (`bielik`, `bielik-t0.3`, `lfm3`, `slayer`) are added to the
+  model names of the OpenAI-compatible backend. No backend's behaviour changes. `run.sh` points that backend at the
+  local server (`OPENAI_BASE_URL`,
   `OPENAI_API_KEY=EMPTY`). The `harness` field of the results files names the patched upstream file
   (`api_client.py` @ `1cdb53ed18499ad729e0766e5d3099dd5344406f`).
 - **Slayer is a base model** without a chat template and a 4096-token window: `slayer_server.py` joins the
@@ -102,15 +125,21 @@ and loose verdicts per instruction, whether the turn was scored as failed becaus
 - **Slayer serving code** (`slayer_server.py`, `slayer_batch.py`, `slayer_kv_lm.py`, `slayer_package.py`) lives in
   [`research/common/slayer_serving/`](../../common/slayer_serving/). The results were produced with byte-identical
   copies kept in this directory before the move; the shared README lists their hashes.
-- **Requests are batched.** 32 conversations at a time (`--max_workers 32`), batched by the server.
+- **Requests are batched.** 32 conversations at a time (`--max_workers 32`) for the card-sampling row; 64 for the
+  own-sampling row and 128 for LFM3-1.7B (32 per GPU), batched by the server.
 
 ## Reproduce
 
 ```bash
 HF_TOKEN=hf_... bash vllm.sh                # one GPU with at least 48 GB; serves on 127.0.0.1:8000
 bash run.sh bielik-11b-v3.1-vllm            # in another shell
+HF_TOKEN=hf_... bash vllm.sh bielik-11b-v3.1-vllm-t0.3   # Bielik's own sampling, served as bielik-t0.3
+bash run.sh bielik-11b-v3.1-vllm-t0.3
+bash ../../common/vllm_lfm3.sh              # LFM3-1.7B, no token; DATA_PARALLEL=N for N GPUs
+bash run.sh lfm3-1.7b
 bash run.sh slayer1b-60000                  # one CUDA GPU with at least 24 GB; starts slayer_server.py itself
 ```
 
 `--limit 5` keeps only the first 5 conversations (all their turns) and writes to `out/limit/`. `BASE_URL` points
-`run.sh` at another endpoint that serves the model as `bielik`. `requirements.txt` pins the harness environment.
+`run.sh` at another endpoint that serves the model under the name `run.sh` checks (`bielik`, `bielik-t0.3`, `lfm3`).
+`WORKERS` sets the number of parallel conversations (default 32). `requirements.txt` pins the harness environment.

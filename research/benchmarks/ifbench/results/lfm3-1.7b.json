@@ -1,0 +1,26 @@
+{
+  "benchmark": "IFBench",
+  "model": "lfm3-1.7b",
+  "metric": "prompt_level_strict_acc",
+  "score": 72.33,
+  "stderr": 2.58,
+  "n": 300,
+  "date": "2026-11-28",
+  "harness": "https://github.com/allenai/IFBench @ 488918665d53f867fa908a293769ec6e71e74aec (generate_responses.py, run_eval)",
+  "data": "https://huggingface.co/datasets/allenai/IFBench_test @ ed7c12452594b7028b15807b86d3938150b663ae",
+  "settings": {
+    "temperature": 0.6,
+    "top_p": 0.95,
+    "seed": 20261119,
+    "max_tokens_per_turn": 32768,
+    "max_turns": 1,
+    "trials": 1,
+    "reasoning": true
+  },
+  "other_metrics": {
+    "inst_level_strict_acc": 74.71,
+    "prompt_level_loose_acc": 76.0,
+    "inst_level_loose_acc": 77.91
+  },
+  "deviations": "see README.md, Deviations"
+}
