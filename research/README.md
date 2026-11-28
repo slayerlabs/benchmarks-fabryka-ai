@@ -1,3 +1,7 @@
+> **Frozen.** Setup, layout and tools of the November 2026 lm-eval full run, in Polish. Start from the
+> [root README](../README.md); API benchmarks follow [METHODOLOGY.md](METHODOLOGY.md), model configuration
+> [`benchmarks/docs/methodology.md`](../benchmarks/docs/methodology.md).
+
 # Research: benchmarki modeli
 
 Tu mierzymy modele i budujemy polskie benchmarki. Dziś mierzymy Slayera 1B. Obok niego przebieg centralny liczy
@@ -18,8 +22,7 @@ Wszystkie komendy niżej uruchamiasz w katalogu `research/`.
 | `METHODOLOGY.md` | how to run a benchmark through the Fabryka AI API, which files to add and in what format |
 | `api-benchmarks/<name>/` | one benchmark run through the API: `README.md`, `run.sh`, `results/<model-id>.json` and `.jsonl.gz` |
 | `METODOLOGIA.md` | wspólny rdzeń reguł, tabela typów testów, etapy A–D, modele, przepis, następna wersja Slayera |
-| `LEADERBOARD.md` | zasady meta-oceny i rankingu modeli |
-| `BENCHMARKI_PL.md` | które benchmarki przetłumaczyć, a które napisać od zera po polsku |
+| `archive/` | dokumenty wycofane z użycia (meta-ocena i ranking, podział benchmarków na polskie); [`archive/README.md`](archive/README.md) |
 | `benchmarks/<name>/` | kod, dokumentacja i wyniki jednego benchmarku: `README.md`, `ORIGINAL.md`, `REPRODUCTION.md`, `RECIPE.md`; wyniki per model w `results/<model>/` (surowe `.jsonl` lokalnie, `.jsonl.gz` do ~10 MB w repo), raporty zbiorcze w `results/*.json` i `*.md`; wersja polska w osobnym `benchmarks/<name>-pl/` z `POLISH.md` |
 | `benchmarks/_template/` | od czego zacząć nowy benchmark |
 | `analyses/<name>/` | analiza na wielu testach naraz, te same pliki co benchmark (dziś `answer-format/`: litery A/B/C/D a losowość) |

@@ -4,7 +4,7 @@ Każdy benchmark powstał w jakimś kraju i niesie jego kontekst. Bywa to ameryk
 Google z USA albo angielska gramatyka. Model dla Polski ma znać polski teren. Część testów da się więc przenieść
 tłumaczeniem, a część trzeba napisać od zera. Test kulturowy albo językowy pisze od zera osoba z Polski. Nie tłumaczy
 i nie parafrazuje oryginalnych pytań. Przejmuje tylko metodę, czyli format, metrykę i agregację. Zasadę i procedurę
-opisuje [METODOLOGIA.md](METODOLOGIA.md), sekcja „D1. Przetłumaczyć czy napisać od zera?”.
+opisuje [METODOLOGIA.md](../METODOLOGIA.md), sekcja „D1. Przetłumaczyć czy napisać od zera?”.
 
 Tabele niżej to **wstępny podział 38 angielskich testów ze Space** (T01–T50, `tasks_50.json` w Space
 [SlayerLab/Slayer1B-Benchmarks](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks)). Podział oparto na
@@ -78,7 +78,7 @@ Polski test nie naśladuje amerykańskiego tematu. Pisząc od zera, możemy zrob
   UncheatableEval, https://huggingface.co/spaces/Jellyfish042/UncheatableEval);
 - **zjawiska polszczyzny:** przypadki, aspekt, rodzaj, szyk swobodny, frazeologia.
 
-Każdy taki zbiór ma kartę zbioru `DATASET.md` zamiast etapów A i B ([METODOLOGIA.md](METODOLOGIA.md), sekcja
+Każdy taki zbiór ma kartę zbioru `DATASET.md` zamiast etapów A i B ([METODOLOGIA.md](../METODOLOGIA.md), sekcja
 „Benchmark bez oryginału: karta zbioru (DATASET.md)”). Prace nad takimi zbiorami śledzi kamień
 [„Polskie benchmarki od zera”](https://github.com/slayerlabs/benchmarks-fabryka-ai/milestone/10).
 
