@@ -33,7 +33,7 @@ every benchmark has all three models, and each benchmark's README lists which ra
 | 5 | EnterpriseOps-Gym | — | #286 | planned |
 | 6 | AutomationBench | [`automationbench`](../../benchmarks/automationbench/README.md) | #287 | done |
 | 7 | BFCL V4 | [`bfcl-v4`](../../benchmarks/bfcl-v4/README.md) | #288 | done |
-| 8 | ToolSandbox | — | #289 | in review (PR #351) |
+| 8 | ToolSandbox | [`toolsandbox`](../../benchmarks/toolsandbox/README.md) | #289 | results merged (Bielik 11B v3.1) |
 | 9 | MCP-Atlas | — | #290 | planned |
 | 10 | τ³-bench | — | #291 | in review (PR #352) |
 | 11 | SWE-bench Verified | — | #292 | planned |
@@ -47,7 +47,7 @@ every benchmark has all three models, and each benchmark's README lists which ra
 | 19 | IFStruct | [`ifstruct`](../../benchmarks/ifstruct/README.md) | #300 | done |
 | 20 | Multi-IF | [`multi-if`](../../benchmarks/multi-if/README.md) | #301 | done |
 | 21 | GPQA Diamond | [`gpqa-diamond`](../../benchmarks/gpqa-diamond/README.md) | #302 | done |
-| 22 | Humanity's Last Exam | — | #303 | in review (PR #358) |
+| 22 | Humanity's Last Exam | [`hle`](../../benchmarks/hle/README.md) | #303 | results merged (Bielik 11B v3.1) |
 | 23 | AA-Omniscience | [`aa-omniscience`](../../benchmarks/aa-omniscience/README.md) | #304 | done |
 | 24 | AA-LCR | [`aa-lcr`](../../benchmarks/aa-lcr/README.md) | #305 | done |
 | 25 | RULER 128K | [`ruler-128k`](../../benchmarks/ruler-128k/README.md) | #306 | done |

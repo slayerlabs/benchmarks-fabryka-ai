@@ -42,6 +42,7 @@ jobs:
           tests/test_full_run_report.py
           tests/test_gsm8k.py
           tests/test_hellaswag.py
+          tests/test_hle_results.py
           tests/test_ifeval.py
           tests/test_klej_ner.py
           tests/test_liczby_raportow.py
@@ -72,6 +73,7 @@ jobs:
           tests/test_statystyka.py
           tests/test_straznik_i_kontrola.py
           tests/test_terminal_bench_2_1.py
+          tests/test_toolsandbox_results.py
           tests/test_triviaqa.py
           tests/test_truthfulqa.py
           tests/test_wic.py

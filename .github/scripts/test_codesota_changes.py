@@ -30,6 +30,7 @@ class Decision(unittest.TestCase):
     def test_result_files_of_the_results_page_run_tests(self) -> None:
         self.assertTrue(C.needs_tests(listing("research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/manifest.jsonl"), 1))
         self.assertTrue(C.needs_tests(listing("research/benchmarks/ifeval/results/new-model.json"), 1))
+        self.assertTrue(C.needs_tests(listing("research/benchmarks/scicode/results/lfm3-1.7b.json"), 1))
 
     def test_benchmarks_change_runs_tests(self) -> None:
         self.assertTrue(C.needs_tests(listing("README.md", "benchmarks/README.md"), 2))

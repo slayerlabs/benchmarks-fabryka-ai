@@ -54,9 +54,9 @@ Status: `w budowie` (rezerwacja na [tablicy Dataset team](https://github.com/org
 
 | data | zbiór | kto | rezerwacja | status |
 |---|---|---|---|---|
-| 2026-11-24 | [FineMath-4+][finemath] | LoIlita | [#346](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/346) | w budowie |
-| 2026-11-24 | [CraneMath (Dolma 3 Dolmino)][cranemath] | LoIlita | [#346](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/346) | w budowie |
-| 2026-11-24 | [Stack-Edu Python (Common Pile)][stackedu] | LoIlita | [#346](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/346) | w budowie |
+| 2026-11-24 | [FineMath-4+][finemath] | LoIlita | [#346](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/346) | u Arka do wglądu: [`Lolita67/finemath_4plus_en-robocze`](https://huggingface.co/datasets/Lolita67/finemath_4plus_en-robocze) |
+| 2026-11-24 | [CraneMath (Dolma 3 Dolmino)][cranemath] | LoIlita | [#346](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/346) | u Arka do wglądu: [`Lolita67/cranemath_en-robocze`](https://huggingface.co/datasets/Lolita67/cranemath_en-robocze) |
+| 2026-11-24 | [Stack-Edu Python (Common Pile)][stackedu] | LoIlita | [#346](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/346) | u Arka do wglądu: [`Lolita67/stack_edu_python-robocze`](https://huggingface.co/datasets/Lolita67/stack_edu_python-robocze) |
 | 2026-11-14 | [DCLM-baseline 1.0 EN][dclm] | LoIlita | [#197](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues/197) | w budowie |
 | 2026-11-14 | [`SlayerLab/hutnictwo-gornictwo-spawalnictwo-preview`][hgs] | SlayerLab | bez rezerwacji | opublikowany |
 | 2026-11-09 | [`SlayerLab/polish-dynaword-pretraining-mix`][pdpm] | SlayerLab | bez rezerwacji | opublikowany |
