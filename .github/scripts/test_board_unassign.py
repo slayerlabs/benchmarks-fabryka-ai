@@ -18,7 +18,7 @@ class AssigneesToRemove(unittest.TestCase):
 
     def test_assigned_after_change_stays(self):
         events = [("ala", "2026-10-30T09:00:00Z"), ("rev", "2026-11-01T12:05:00Z")]
-        self.assertEqual(assignees_to_remove("Independent Check", CHANGED, ["ala", "rev"], events), ["ala"])
+        self.assertEqual(assignees_to_remove("Review", CHANGED, ["ala", "rev"], events), ["ala"])
 
     def test_reassigned_after_change_stays(self):
         events = [("ala", "2026-10-30T09:00:00Z"), ("ala", "2026-11-01T13:00:00Z")]
@@ -26,7 +26,7 @@ class AssigneesToRemove(unittest.TestCase):
 
     def test_other_status_changes_nothing(self):
         events = [("ala", "2026-10-30T09:00:00Z")]
-        for status in ("Backlog", "Ready", "In Progress", "Done", None):
+        for status in ("Backlog", "Up for grabs", "In Progress", "Done", None):
             self.assertEqual(assignees_to_remove(status, CHANGED, ["ala"], events), [])
 
     def test_reversed_event_order_gives_same_result(self):
