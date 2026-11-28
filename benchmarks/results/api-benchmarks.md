@@ -166,6 +166,18 @@ Source: [`research/api-benchmarks/bfcl-v4/`](../../research/api-benchmarks/bfcl-
 | Bielik 11B v3.1 Instruct | own vLLM, chat template | not run: Overall Acc needs the web_search categories (200 tasks, 40% x 1/2 of the weight), which were not run: they need a search API key. See other_metrics. | |
 | LFM3 | not run | | |
 
+### ToolSandbox
+
+Source: [`research/api-benchmarks/toolsandbox/`](../../research/api-benchmarks/toolsandbox/README.md) (merged). LFM3-1.7B card: 80.36.
+
+**Note:** the score is the mean similarity to the scenario's milestones, x 100, over the 808 scenarios that do not need a RapidAPI key (224 of 1032 excluded); the standard error is clustered by base scenario. The card names neither its user simulator nor its scenarios, so its 80.36 is not like-for-like (README).
+
+| model | how it ran | value | n |
+|---|---|---:|---:|
+| Slayer 1B 1.09 (step 70 000, training in progress) | not run | null: base model without a chat template or a tool-call format, so the agent cannot drive it | |
+| Bielik 11B v3.1 Instruct | Fabryka API, chat template, temperature 0, Claude Haiku 5.5 user simulator | 45.2 ± 3.7 | 808 |
+| LFM3-1.7B | not run | not run: not run yet | |
+
 ## Agentic coding
 
 ### Terminal-Bench 2.1

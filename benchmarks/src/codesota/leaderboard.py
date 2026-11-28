@@ -508,6 +508,21 @@ API_BENCHMARKS: Final[tuple[ApiBenchmark, ...]] = (
         "71.39",
     ),
     ApiBenchmark(
+        "toolsandbox",
+        "ToolSandbox",
+        "Tool use",
+        "toolsandbox",
+        "percent",
+        {"slayer": LATEST_SLAYER, "bielik": "bielik-11b-v3.1", "lfm3": "lfm3-1.7b"},
+        {"slayer": "not run", "bielik": f"{API}, temperature 0, Claude Haiku 5.5 user simulator", "lfm3": "not run"},
+        80.36,
+        reason_text={"slayer": NO_TOOL_CALLS},
+        not_run={"lfm3": "not run yet"},
+        note="the score is the mean similarity to the scenario's milestones, x 100, over the 808 scenarios that do "
+        "not need a RapidAPI key (224 of 1032 excluded); the standard error is clustered by base scenario. The card "
+        "names neither its user simulator nor its scenarios, so its 80.36 is not like-for-like (README)",
+    ),
+    ApiBenchmark(
         "terminal-bench-2-1",
         "Terminal-Bench 2.1",
         "Agentic coding",

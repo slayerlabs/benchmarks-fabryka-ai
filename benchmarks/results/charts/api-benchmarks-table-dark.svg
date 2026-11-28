@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="700" height="902" viewBox="0 0 700 902" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" fill="#e6edf3">
-<rect width="700" height="902" rx="8" fill="#0d1117"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="936" viewBox="0 0 700 936" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="14" fill="#e6edf3">
+<rect width="700" height="936" rx="8" fill="#0d1117"/>
 <text x="295.0" y="38" text-anchor="middle" font-weight="600">Slayer 1B</text>
 <text x="295.0" y="56" text-anchor="middle" font-size="12" fill="#9198a1">1.09 / 1.08</text>
 <text x="405.0" y="38" text-anchor="middle" font-weight="600">Bielik 11B</text>
@@ -107,22 +107,28 @@
 <text x="405.0" y="671" text-anchor="middle" fill="#9198a1" font-size="12" data-benchmark="bfcl-v4" data-model="bielik-11b-v3.1-vllm" data-rank="0">not run</text>
 <text x="515.0" y="671" text-anchor="middle" fill="#9198a1" font-size="12" data-benchmark="bfcl-v4" data-model="" data-rank="0">not run</text>
 <text x="625.0" y="671" text-anchor="middle" fill="#9198a1" data-card="bfcl-v4">71.4</text>
-<text x="20" y="706" font-size="13" font-weight="600" fill="#9198a1">Agentic coding</text>
-<line x1="20" x2="680" y1="716" y2="716" stroke="#21262d"/>
-<text x="20" y="739">Terminal-Bench 2.1</text>
-<text x="295.0" y="739" text-anchor="middle" fill="#9198a1" data-benchmark="terminal-bench-2-1" data-model="slayer1b-1.09-k70000" data-rank="0">null</text>
-<text x="405.0" y="739" text-anchor="middle" fill="#9198a1" font-size="12" data-benchmark="terminal-bench-2-1" data-model="" data-rank="0">not run</text>
-<text x="515.0" y="739" text-anchor="middle" data-benchmark="terminal-bench-2-1" data-model="lfm3-1.7b" data-rank="0">10.6</text>
-<text x="625.0" y="739" text-anchor="middle" fill="#9198a1" data-card="terminal-bench-2-1">12.9</text>
-<text x="20" y="774" font-size="13" font-weight="600" fill="#9198a1">Agents</text>
-<line x1="20" x2="680" y1="784" y2="784" stroke="#21262d"/>
-<text x="20" y="807">AutomationBench</text>
-<text x="295.0" y="807" text-anchor="middle" fill="#9198a1" data-benchmark="automationbench" data-model="slayer1b-60000" data-rank="0">null</text>
-<text x="405.0" y="807" text-anchor="middle" data-benchmark="automationbench" data-model="bielik-11b-v3.1-vllm" data-rank="0">0.0</text>
-<text x="515.0" y="807" text-anchor="middle" fill="#9198a1" font-size="12" data-benchmark="automationbench" data-model="" data-rank="0">not run</text>
-<text x="625.0" y="807" text-anchor="middle" fill="#9198a1" data-card="automationbench">41.3</text>
-<line x1="20" x2="680" y1="826" y2="826" stroke="#3d444d"/>
-<text x="20" y="846" font-size="12" fill="#9198a1">Score in % (AA-Omniscience: index from −100 to 100) · * requires verification</text>
-<text x="20" y="866" font-size="12" fill="#9198a1">null: the model cannot run it · not run: no score yet or by decision (reasons under Values)</text>
-<text x="20" y="886" font-size="12" fill="#9198a1">Best of the scored models highlighted, second underlined (rows with two or more scores) · LFM3 card: not ours</text>
+<line x1="20" x2="680" y1="682" y2="682" stroke="#21262d"/>
+<text x="20" y="705">ToolSandbox</text>
+<text x="295.0" y="705" text-anchor="middle" fill="#9198a1" data-benchmark="toolsandbox" data-model="slayer1b-1.09-k70000" data-rank="0">null</text>
+<text x="405.0" y="705" text-anchor="middle" data-benchmark="toolsandbox" data-model="bielik-11b-v3.1" data-rank="0">45.2</text>
+<text x="515.0" y="705" text-anchor="middle" fill="#9198a1" font-size="12" data-benchmark="toolsandbox" data-model="lfm3-1.7b" data-rank="0">not run</text>
+<text x="625.0" y="705" text-anchor="middle" fill="#9198a1" data-card="toolsandbox">80.4</text>
+<text x="20" y="740" font-size="13" font-weight="600" fill="#9198a1">Agentic coding</text>
+<line x1="20" x2="680" y1="750" y2="750" stroke="#21262d"/>
+<text x="20" y="773">Terminal-Bench 2.1</text>
+<text x="295.0" y="773" text-anchor="middle" fill="#9198a1" data-benchmark="terminal-bench-2-1" data-model="slayer1b-1.09-k70000" data-rank="0">null</text>
+<text x="405.0" y="773" text-anchor="middle" fill="#9198a1" font-size="12" data-benchmark="terminal-bench-2-1" data-model="" data-rank="0">not run</text>
+<text x="515.0" y="773" text-anchor="middle" data-benchmark="terminal-bench-2-1" data-model="lfm3-1.7b" data-rank="0">10.6</text>
+<text x="625.0" y="773" text-anchor="middle" fill="#9198a1" data-card="terminal-bench-2-1">12.9</text>
+<text x="20" y="808" font-size="13" font-weight="600" fill="#9198a1">Agents</text>
+<line x1="20" x2="680" y1="818" y2="818" stroke="#21262d"/>
+<text x="20" y="841">AutomationBench</text>
+<text x="295.0" y="841" text-anchor="middle" fill="#9198a1" data-benchmark="automationbench" data-model="slayer1b-60000" data-rank="0">null</text>
+<text x="405.0" y="841" text-anchor="middle" data-benchmark="automationbench" data-model="bielik-11b-v3.1-vllm" data-rank="0">0.0</text>
+<text x="515.0" y="841" text-anchor="middle" fill="#9198a1" font-size="12" data-benchmark="automationbench" data-model="" data-rank="0">not run</text>
+<text x="625.0" y="841" text-anchor="middle" fill="#9198a1" data-card="automationbench">41.3</text>
+<line x1="20" x2="680" y1="860" y2="860" stroke="#3d444d"/>
+<text x="20" y="880" font-size="12" fill="#9198a1">Score in % (AA-Omniscience: index from −100 to 100) · * requires verification</text>
+<text x="20" y="900" font-size="12" fill="#9198a1">null: the model cannot run it · not run: no score yet or by decision (reasons under Values)</text>
+<text x="20" y="920" font-size="12" fill="#9198a1">Best of the scored models highlighted, second underlined (rows with two or more scores) · LFM3 card: not ours</text>
 </svg>
