@@ -78,6 +78,18 @@ Source: [`research/api-benchmarks/aa-omniscience/`](../../research/api-benchmark
 | Bielik 11B v3.1 Instruct | own vLLM, chat template | -77.3 ± 2.6 | 600 |
 | LFM3 | not run | | |
 
+### Humanity's Last Exam
+
+Source: [`research/api-benchmarks/hle/`](../../research/api-benchmarks/hle/README.md) (merged). LFM3-1.7B card: 7.17.
+
+**Note:** no tools, the 2158 text-only questions of 2500 (the 342 image questions are excluded, not scored as wrong). Graded by Claude (claude-opus-4-6) instead of the official o3-mini, so the values are not directly comparable with o3-mini-graded numbers such as the card's 7.17 (README, Deviations).
+
+| model | how it ran | value | n |
+|---|---|---:|---:|
+| Slayer 1B 1.09 (step 70 000, training in progress) | not run | not run: a cost decision of 2026-11-25: several GPU hours for an expected score close to zero (README) | |
+| Bielik 11B v3.1 Instruct | Fabryka API, chat template, LFM3 card's sampling, 8192 tokens | 5.4 ± 0.5 | 2158 |
+| LFM3-1.7B | not run | not run: not run yet | |
+
 ## Coding
 
 ### LiveCodeBench v6
@@ -153,6 +165,18 @@ Source: [`research/api-benchmarks/bfcl-v4/`](../../research/api-benchmarks/bfcl-
 | Slayer 1B 1.09 (step 60 000) | step 60 000 | null: Slayer 1B is a base model without a chat template or tool-calling format; the serving endpoint rejects requests with tools (HTTP 400), so no syntactically valid call is possible. | |
 | Bielik 11B v3.1 Instruct | own vLLM, chat template | not run: Overall Acc needs the web_search categories (200 tasks, 40% x 1/2 of the weight), which were not run: they need a search API key. See other_metrics. | |
 | LFM3 | not run | | |
+
+### ToolSandbox
+
+Source: [`research/api-benchmarks/toolsandbox/`](../../research/api-benchmarks/toolsandbox/README.md) (merged). LFM3-1.7B card: 80.36.
+
+**Note:** the score is the mean similarity to the scenario's milestones, x 100, over the 808 scenarios that do not need a RapidAPI key (224 of 1032 excluded); the standard error is clustered by base scenario. The card names neither its user simulator nor its scenarios, so its 80.36 is not like-for-like (README).
+
+| model | how it ran | value | n |
+|---|---|---:|---:|
+| Slayer 1B 1.09 (step 70 000, training in progress) | not run | null: base model without a chat template or a tool-call format, so the agent cannot drive it | |
+| Bielik 11B v3.1 Instruct | Fabryka API, chat template, temperature 0, Claude Haiku 5.5 user simulator | 45.2 ± 3.7 | 808 |
+| LFM3-1.7B | not run | not run: not run yet | |
 
 ## Agentic coding
 
