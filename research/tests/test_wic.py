@@ -1,4 +1,4 @@
-"""WiC T13 (common/zadania.py, benchmarks/wic/ORIGINAL.md), no network and no weights.
+"""WiC T13 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/wic/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the prompt `Sentence 1: ...\nSentence 2: ...\nQuestion: Is the word '{word}' used
 in the same way in the two sentences above?\nAnswer:` where the word is the slice `sentence1[start1:end1]` (not the

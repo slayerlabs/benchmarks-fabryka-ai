@@ -1,4 +1,4 @@
-"""TruthfulQA MC2 T35 (common/zadania.py, benchmarks/truthfulqa/ORIGINAL.md), no network and no weights.
+"""TruthfulQA MC2 T35 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/truthfulqa/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, RECIPE.md and the README type row (`masa`); the decision metric as the card
 writes it (`zadania.mc2_wyniki` -> `metryki.mc2`: probability mass of the options before the first 0 in `labels`,

@@ -23,8 +23,8 @@
 #                          of its plan has a result (kompletnosc); licz runs it at its end
 #   pakuj                  wyniki.tgz to copy back
 #   stan                   state files, last log lines, GPU
-# Instance files map to the repo as: wyniki/<benchmark>/<label>/ -> results/central-run/<benchmark>/<label>/,
-# czasy.jsonl -> results/central-run/times_<gpu>.jsonl. A run never writes under benchmarks/.
+# Instance files map to the repo as: wyniki/<benchmark>/<label>/ -> studies/2026-10-lm-eval-benchmarks/results/central-run/<benchmark>/<label>/,
+# czasy.jsonl -> studies/2026-10-lm-eval-benchmarks/results/central-run/times_<gpu>.jsonl. A run never writes under benchmarks/.
 set -euo pipefail
 K=${K:-$(CDPATH= cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}  # CDPATH: cd would also print the path into K
 WS=${WS:-/workspace}
@@ -108,7 +108,7 @@ KATALOGI+=" T51:arc-easy T52:blimp-supplement T53:ewok"
 # this line against STATUS.md: a row moved there without changing GOTOWE (or the reverse) fails the test.
 GOTOWE="T01 T02 T03 T04 T05 T06 T07 T14 T17 T19 T22 T23 T24 T25 T26 T27 T28 T29 T44 T45 T46 T51 T53"
 # Tasks with their own code (`kod` in ZADANIA): `polecenie` runs this script with the ewaluuj.py flags instead
-KOD="T53:benchmarks/ewok/ewok.py"
+KOD="T53:studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/ewok.py"
 ZADANIA_ID=${ZADANIA_ID:-$(for p in $KATALOGI; do printf '%s ' "${p%%:*}"; done)}
 zadania_modelu() {  # zadania_modelu LABEL: $ZADANIA_ID, for a TESTY_MODELU label only its own tests among them
   local p t z wynik=""

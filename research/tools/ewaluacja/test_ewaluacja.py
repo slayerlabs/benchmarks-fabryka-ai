@@ -24,7 +24,7 @@ def test_config_is_read_from_the_central_run_script():
     kat = E.katalogi()
     assert kat["T01"] == "blimp" and kat["T53"] == "ewok" and list(kat) == klucze_zadan()
     assert set(E.gotowe()) <= set(kat) and len(E.gotowe()) == 15
-    assert E.kod_zadan() == {"T53": "benchmarks/ewok/ewok.py"}
+    assert E.kod_zadan() == {"T53": "studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/ewok.py"}
 
 
 def test_central_tasks_are_the_recorded_directories():
@@ -430,7 +430,7 @@ def test_report_from_the_full_run(tmp_path):
     którego raport nie ma sekcji 1.09, #259) test kopiuje z results/full-run-2026-11."""
     import subprocess
     import sys
-    przebieg = E.FABRYKA / "results" / "full-run-2026-11"
+    przebieg = E.ODNIESIENIE.parent / "full-run-2026-11"
     cel = tmp_path / "raport"
     (cel / "bos-window-check").mkdir(parents=True)
     (cel / "slayer-1.09-k40000").mkdir()  # raport.KATALOG_TOKU
@@ -438,7 +438,7 @@ def test_report_from_the_full_run(tmp_path):
               "slayer-1.09-k40000/LICZBY.json"):
         shutil.copy(przebieg / f, cel / f)
     r = subprocess.run([sys.executable, str(Path(E.__file__).with_name("raport.py")), str(przebieg), str(cel),
-                        "--bez-porownan", "--odniesienie", str(E.FABRYKA / "results" / "central-run")],
+                        "--bez-porownan", "--odniesienie", str(E.ODNIESIENIE)],
                        capture_output=True, text=True, env={**__import__("os").environ, "PYTHONUTF8": "1"})
     assert r.returncode == 0, r.stderr
     assert (cel / "piqa" / "slayer1b-1.07-hf" / "results_rozszerzone.json").exists()

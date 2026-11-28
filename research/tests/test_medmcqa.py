@@ -1,4 +1,4 @@
-"""MedMCQA T45 (common/zadania.py, benchmarks/medmcqa/ORIGINAL.md), no network and no weights.
+"""MedMCQA T45 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/medmcqa/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the letter prompt of lm-eval `utils_medmcqa.py` (decision variant) and the cloze
 variant next to it, the pick and acc on a stand-in model. Data: the first rows of common/tests/data/medmcqa.jsonl.

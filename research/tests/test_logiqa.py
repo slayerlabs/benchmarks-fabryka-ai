@@ -1,4 +1,4 @@
-"""LogiQA T18 (common/zadania.py, benchmarks/logiqa/ORIGINAL.md), no network and no weights.
+"""LogiQA T18 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/logiqa/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the prompt of lm-eval `utils_logiqa.doc_to_text` with the option TEXT (not the
 letter) as continuation, the target from the lower-case `label` letter (parquet format), and the decision metric

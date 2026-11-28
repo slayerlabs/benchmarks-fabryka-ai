@@ -21,10 +21,10 @@ MAX_LISTED = 3000
 TRIGGER_PREFIXES = (
     "benchmarks/",
     "research/common/",
-    "research/benchmarks/",
+    "research/studies/2026-10-lm-eval-benchmarks/benchmarks/",
     "research/tools/statystyka.py",
-    "research/results/full-run-2026-11/",
-    "research/api-benchmarks/",
+    "research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/",
+    "research/benchmarks/",
 )
 TRIGGER_FILES = frozenset({".github/workflows/codesota.yml", ".github/scripts/codesota_changes.py"})
 

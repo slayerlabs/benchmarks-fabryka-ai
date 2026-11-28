@@ -12,6 +12,7 @@ import pytest
 
 KORZEN = Path(__file__).resolve().parent.parent
 SKRYPT = KORZEN / "tools" / "przebieg_centralny.sh"
+METODOLOGIA = KORZEN / "studies" / "2026-10-lm-eval-benchmarks" / "METODOLOGIA.md"
 BIELIK = "speakleash/Bielik-1.5B-v3"  # gated repo: counted with access, skipped without (licz_model, dostep_hf)
 KONTROLNY = "EleutherAI/pythia-1b-v0"
 PYTHIA_STEP143000 = "f3f1b6d5a78e32208be0866398d0b2d32c0e1ce0"  # commit of HF branch step143000
@@ -34,7 +35,7 @@ def ckpt_wiersza(m):
 
 
 def tabela_metodologii(naglowek="### Pięć modeli odniesienia"):
-    tekst = (KORZEN / "METODOLOGIA.md").read_text(encoding="utf-8")
+    tekst = METODOLOGIA.read_text(encoding="utf-8")
     sekcja = tekst.split(naglowek, 1)[1].split("\n### ", 1)[0]
     return dict(re.findall(r"^\| `([^`]+)` \| `([0-9a-f]{40})` \|", sekcja, re.MULTILINE))
 
@@ -45,7 +46,7 @@ def porownawcze_metodologii():
 
 def kontrolne_metodologii():
     """{repo: (revision, [tests])} of "Modele kontrolne etapu B w przebiegu"."""
-    tekst = (KORZEN / "METODOLOGIA.md").read_text(encoding="utf-8")
+    tekst = METODOLOGIA.read_text(encoding="utf-8")
     sekcja = tekst.split("### Modele kontrolne etapu B w przebiegu", 1)[1].split("\n### ", 1)[0]
     return {r: (rev, re.findall(r"T\d\d", t)) for r, rev, t in
             re.findall(r"^\| `([^`]+)` \| `([0-9a-f]{40})` \| ([^|]+) \|", sekcja, re.MULTILINE)}
@@ -64,7 +65,7 @@ def zadania_planu(etykieta):
 
 def slayer_metodologii():
     """(repo, revision, checkpoint file or None) from the "Mierzony dziś model" line."""
-    tekst = (KORZEN / "METODOLOGIA.md").read_text(encoding="utf-8")
+    tekst = METODOLOGIA.read_text(encoding="utf-8")
     return re.search(r"\*\*Mierzony dziś model:\*\* `(SlayerLab/Slayer1B-[0-9.]+(?:-checkpoints)?)` @ `([0-9a-f]{40})`"
                      r"(?:, plik\s+`(ckpt_\d+\.pt)`)?", tekst).groups()
 
@@ -105,7 +106,7 @@ def test_comparison_models_match_methodology_and_come_after_the_measured_list():
     assert {"speakleash/Bielik-11B-v3.1-Instruct", "LiquidAI/LFM3-1.7B",
             "SlayerLab/Slayer1B-1.09-checkpoints"} <= set(porownawcze)
     assert modele[-len(kontrolne) - len(reszta):] == reszta + kontrolne
-    assert "### Modele porównawcze z #190" in (KORZEN / "METODOLOGIA.md").read_text(encoding="utf-8")
+    assert "### Modele porównawcze z #190" in METODOLOGIA.read_text(encoding="utf-8")
 
 
 def test_bielik_11b_runs_in_bfloat16_everywhere_and_float32_rows_keep_their_command():
@@ -176,7 +177,7 @@ def test_report_leaves_out_the_stage_b_control_models():
 
 
 def test_control_model_is_first_on_methodology_list():
-    tekst = (KORZEN / "METODOLOGIA.md").read_text(encoding="utf-8")
+    tekst = METODOLOGIA.read_text(encoding="utf-8")
     sekcja = tekst.split("### Model kontrolny etapu B", 1)[1].split("\n### ", 1)[0]
     assert re.search(r"^1\. \*\*`([^`]+)` @ `step143000`\*\*", sekcja, re.MULTILINE).group(1) == KONTROLNY
     wiersze = [m for m in modele_skryptu() if m[1] == KONTROLNY]
@@ -362,7 +363,8 @@ def test_plan_runs_full_set_for_every_model_and_task():
     # own-code tasks (EWoK T53) run their script with the ewaluuj.py flags; ewok.py picks the Slayer loader from
     # config.json and always passes trust_remote_code, so it takes neither --model nor --trust_remote_code
     ewok = [l for l in linie if "--zadania T53 " in l]
-    assert len(ewok) == sum("T53" in zadania_planu(m[0]) for m in modele) and all(f"{KORZEN}/benchmarks/ewok/ewok.py przebieg " in l
+    assert len(ewok) == sum("T53" in zadania_planu(m[0]) for m in modele) and all(
+        f"{KORZEN}/studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/ewok.py przebieg " in l
                                             and f"--model_path {ws}/modele/" in l for l in ewok)
     linie = [l for l in linie if l not in ewok]
     assert all(f"{KORZEN}/common/ewaluuj.py " in l for l in linie)
@@ -385,7 +387,7 @@ def test_own_code_list_of_the_script_matches_zadania():
     wpisy = next(w.value for w in drzewo.body
                  if isinstance(w, ast.Assign) and any(getattr(t, "id", None) == "ZADANIA" for t in w.targets))
     kod = {k.value: kw.value.value for k, v in zip(wpisy.keys, wpisy.values) for kw in v.keywords if kw.arg == "kod"}
-    assert skrypt == kod == {"T53": "benchmarks/ewok/ewok.py"}
+    assert skrypt == kod == {"T53": "studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/ewok.py"}
 
 
 def plan_na_gpu(liczba):

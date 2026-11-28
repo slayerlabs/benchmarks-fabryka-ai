@@ -1,4 +1,4 @@
-"""AA-LCR (api-benchmarks/aa-lcr): checks without network, tokenizers or API key.
+"""AA-LCR (benchmarks/aa-lcr): checks without network, tokenizers or API key.
 
 Checked: the prompt template is the dataset card's (documents in the order of `data_source_filenames`, blank lines
 around the question), the zip file names are decoded as UTF-8 (the archive stores them without the UTF-8 flag), the
@@ -12,7 +12,7 @@ import zipfile
 from pathlib import Path
 from unittest import mock
 
-BENCH = Path(__file__).resolve().parents[1] / "api-benchmarks" / "aa-lcr"
+BENCH = Path(__file__).resolve().parents[1] / "benchmarks" / "aa-lcr"
 sys.path.insert(0, str(BENCH))
 import common  # noqa: E402
 import fit_check  # noqa: E402

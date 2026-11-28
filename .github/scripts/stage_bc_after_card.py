@@ -29,7 +29,10 @@ READY_OPTION_ID = "703eb7e4"
 LABELS = ["research"]
 
 BLOB = "https://github.com/{repo}/blob/main/"
-CATALOG_RE = re.compile(r"research/benchmarks/([A-Za-z0-9][A-Za-z0-9._-]*)/ORIGINAL\.md")
+# Cards written before the study moved (26.11.2026) name research/benchmarks/<dir>/; both forms are accepted.
+CATALOG_RE = re.compile(
+    r"research/(?:studies/2026-10-lm-eval-benchmarks/)?benchmarks/([A-Za-z0-9][A-Za-z0-9._-]*)/ORIGINAL\.md"
+)
 
 
 def benchmark_name(card_title):
@@ -60,7 +63,7 @@ def read_central_run_catalogs(path="research/tools/przebieg_centralny.sh"):
 
 
 def card_catalog(card_body):
-    """The single benchmark directory named in the card as research/benchmarks/<dir>/ORIGINAL.md.
+    """The single benchmark directory named in the card as research/studies/2026-10-lm-eval-benchmarks/benchmarks/<dir>/ORIGINAL.md.
 
     Returns None when there is no such path or when the card names more than one directory.
     """
@@ -124,15 +127,18 @@ def decide(event, existing_issues):
 def stage_bc_body(repo, name, card_number, catalog):
     """Fixed body: links to METODOLOGIA stages B and C, the card and, when known, its ORIGINAL.md."""
     blob = BLOB.format(repo=repo)
-    met = blob + "research/METODOLOGIA.md"
+    met = blob + "research/studies/2026-10-lm-eval-benchmarks/METODOLOGIA.md"
     where = (
-        f"w katalogu `research/benchmarks/{catalog}/`"
+        f"w katalogu `research/studies/2026-10-lm-eval-benchmarks/benchmarks/{catalog}/`"
         if catalog
         else "w katalogu benchmarku z karty oryginału"
     )
     card_line = f"- Karta oryginału: #{card_number}"
     if catalog:
-        card_line += f", plik [`research/benchmarks/{catalog}/ORIGINAL.md`]({blob}research/benchmarks/{catalog}/ORIGINAL.md)"
+        card_line += (
+            f", plik [`research/studies/2026-10-lm-eval-benchmarks/benchmarks/{catalog}/ORIGINAL.md`]"
+            f"({blob}research/studies/2026-10-lm-eval-benchmarks/benchmarks/{catalog}/ORIGINAL.md)"
+        )
     card_line += ". Zbiór, wersję zadania, metrykę i wyniki referencyjne bierzesz z karty."
     return "\n".join([
         "## Cel",
@@ -145,7 +151,7 @@ def stage_bc_body(repo, name, card_number, catalog):
         f"Etap B i C benchmarku według [„B. Odtworzenie wyniku oryginalnym kodem (REPRODUCTION.md)”]"
         f"({met}#b-odtworzenie-wyniku-oryginalnym-kodem-reproductionmd) z modelem z "
         f"[„Model kontrolny etapu B”]({met}#model-kontrolny-etapu-b) i [„C. Kod w repo”]({met}#c-kod-w-repo), "
-        f"{where} ze [wzoru]({blob}research/benchmarks/_template/README.md). Wpis w `ZADANIA` "
+        f"{where} ze [wzoru]({blob}research/studies/2026-10-lm-eval-benchmarks/benchmarks/_template/README.md). Wpis w `ZADANIA` "
         "(`research/common/zadania.py`) i w `KATALOGI` (`research/tools/przebieg_centralny.sh`).",
         "",
         "## Dane wejściowe",
@@ -160,7 +166,7 @@ def stage_bc_body(repo, name, card_number, catalog):
         "z listą przeszukanych miejsc; werdykt wpisuje się po przebiegu centralnym.",
         "- [ ] Benchmark ma wpis w `ZADANIA` i `KATALOGI`, a test bez sieci i bez wag sprawdza ten wpis.",
         f"- [ ] Spełnia [„Definicja „zrobione””]({met}#definicja-zrobione); "
-        f"[bramka liczb i testy]({blob}research/README.md#bramka-liczb) kończą się kodem 0.",
+        f"[bramka liczb i testy]({blob}research/studies/2026-10-lm-eval-benchmarks/README.md#bramka-liczb) kończą się kodem 0.",
         f"- [ ] PR do `main` ma `Refs #N` z numerem tego zadania "
         f"([CONTRIBUTING, „PR”]({blob}CONTRIBUTING.md#pr)).",
         "",
@@ -245,10 +251,10 @@ def main(argv=None):
     has = {}
     if catalog:
         for fname in ("REPRODUCTION.md", "ORIGINAL.md"):
-            has[fname] = file_exists(token, repo, f"research/benchmarks/{catalog}/{fname}")
+            has[fname] = file_exists(token, repo, f"research/studies/2026-10-lm-eval-benchmarks/benchmarks/{catalog}/{fname}")
     create, catalog = files_decision(catalog, has.get("ORIGINAL.md", False), has.get("REPRODUCTION.md", False))
     if not create:
-        print(f"nothing to do: research/benchmarks/{card_catalog(card.get('body'))}/REPRODUCTION.md is on main")
+        print(f"nothing to do: research/studies/2026-10-lm-eval-benchmarks/benchmarks/{card_catalog(card.get('body'))}/REPRODUCTION.md is on main")
         return 0
     body = stage_bc_body(repo, name, card["number"], catalog)
     result = stage_bc_title(name, bool(catalog) and catalog in read_central_run_catalogs())

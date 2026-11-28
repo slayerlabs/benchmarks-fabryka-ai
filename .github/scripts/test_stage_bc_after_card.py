@@ -83,12 +83,14 @@ class FilesDecision(unittest.TestCase):
 
 class Catalog(unittest.TestCase):
     def test_single_catalog(self):
-        body = "Karta `research/benchmarks/arc-easy/ORIGINAL.md` według wzoru " \
-               "[`research/benchmarks/_template/ORIGINAL.md`](x). Potem research/benchmarks/arc-easy/ORIGINAL.md."
+        body = "Karta `research/studies/2026-10-lm-eval-benchmarks/benchmarks/arc-easy/ORIGINAL.md` według wzoru " \
+               "[`research/studies/2026-10-lm-eval-benchmarks/benchmarks/_template/ORIGINAL.md`](x). " \
+               "Potem research/studies/2026-10-lm-eval-benchmarks/benchmarks/arc-easy/ORIGINAL.md."
         self.assertEqual(card_catalog(body), "arc-easy")
 
     def test_two_catalogs_or_none_is_unknown(self):
-        self.assertIsNone(card_catalog("research/benchmarks/a/ORIGINAL.md i research/benchmarks/b/ORIGINAL.md"))
+        self.assertIsNone(card_catalog("research/studies/2026-10-lm-eval-benchmarks/benchmarks/a/ORIGINAL.md i "
+                                       "research/studies/2026-10-lm-eval-benchmarks/benchmarks/b/ORIGINAL.md"))
         self.assertIsNone(card_catalog(None))
 
     def test_body_without_catalog_links_only_the_card(self):
@@ -99,7 +101,7 @@ class Catalog(unittest.TestCase):
 
     def test_body_with_catalog_links_original(self):
         body = stage_bc_body(REPO, "ARC-Easy", 45, "arc-easy")
-        self.assertIn(f"https://github.com/{REPO}/blob/main/research/benchmarks/arc-easy/ORIGINAL.md", body)
+        self.assertIn(f"https://github.com/{REPO}/blob/main/research/studies/2026-10-lm-eval-benchmarks/benchmarks/arc-easy/ORIGINAL.md", body)
         self.assertNotRegex(body.lower(), r"\bnasz|u nas")
 
 

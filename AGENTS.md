@@ -5,17 +5,16 @@ Rules for coding agents and the people who supervise them. Work in `benchmarks/`
 
 ## Where things go
 
-- Layout: [`README.md`, "Where things are"](README.md#where-things-are).
-- A benchmark run through a model API or our own serving: `research/api-benchmarks/<name>/`, with the files and
-  formats of [`research/METHODOLOGY.md`](research/METHODOLOGY.md).
-- A log-likelihood benchmark: the CodeSOTA runner's catalog
+- Before creating a file or directory in `research/`, read where it goes:
+  [`research/README.md`, "Where things go"](research/README.md#where-things-go). A new benchmark follows
+  [`research/benchmarks/README.md`](research/benchmarks/README.md); a log-likelihood benchmark goes into the
+  CodeSOTA runner's catalog
   ([`benchmarks/docs/contributing.md`, "Writing an integration"](benchmarks/docs/contributing.md#5-writing-an-integration)).
-- `research/benchmarks/`, `research/results/` and `research/tools/` are the lm-eval pipeline of the November 2026 full
-  run. Its protocol, [`research/METODOLOGIA.md`](research/METODOLOGIA.md), is frozen: change that pipeline only to
-  fix an error in it.
-- An analysis across several benchmarks: `research/analyses/<name>/`.
-- Code goes to `research/common/` only when more than one benchmark uses it; otherwise it stays in the benchmark's
-  directory. Tests: `research/tests/test_<name>.py`, sample data in `research/common/tests/data/`.
+- [`research/studies/2026-10-lm-eval-benchmarks/`](research/studies/2026-10-lm-eval-benchmarks/README.md) and the
+  central-run scripts in `research/tools/` are the frozen lm-eval run of November 2026: change them only to fix an
+  error in that run. Studies, finished or in progress, live in `research/studies/`. The number gate regenerates
+  `research/results/LICZBY.*`.
+- Test sample data goes in `research/common/tests/data/`.
 - `research/slayer-1b/` and `frontend-beta/` are not touched in benchmark work.
 
 ## Rules

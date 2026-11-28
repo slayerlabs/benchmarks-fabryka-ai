@@ -1,4 +1,4 @@
-"""MathQA T19 (common/zadania.py, benchmarks/mathqa/ORIGINAL.md), no network and no weights.
+"""MathQA T19 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/mathqa/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the prompt `Question: {{Problem}}\\nAnswer:` with five continuations cut out of the
 one-string `options` field by lm-eval `mathqa/utils.doc_to_choice` (also the list-shaped field, whose options keep a

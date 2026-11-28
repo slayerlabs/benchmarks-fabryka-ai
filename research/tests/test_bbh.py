@@ -1,4 +1,4 @@
-"""BIG-Bench Hard T47 (common/zadania.py, benchmarks/bbh/ORIGINAL.md), no network and no weights.
+"""BIG-Bench Hard T47 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/bbh/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card (group `bbh_fewshot`, 27 subtasks, 3 fixed source demonstrations, not the bank),
 the prompt of one subtask (description, 3 source demonstrations `Q: ...\nA: <target>`, then `Q: {input}\nA:`), and

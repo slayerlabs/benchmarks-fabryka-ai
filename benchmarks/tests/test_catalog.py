@@ -7,7 +7,7 @@ import pytest
 from codesota import catalog
 
 ROOT = Path(__file__).resolve().parents[1]
-RESEARCH = ROOT.parent / "research" / "benchmarks"
+RESEARCH = ROOT.parent / "research" / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks"
 
 
 def test_every_research_benchmark_directory_is_in_the_catalog_and_nothing_else() -> None:

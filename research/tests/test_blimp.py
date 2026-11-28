@@ -1,4 +1,4 @@
-"""BLiMP (benchmarks/blimp/blimp.py + the `blimp` task of hipoteza_formatu.py), no network, no weights.
+"""BLiMP (studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/blimp.py + the `blimp` task of hipoteza_formatu.py), no network, no weights.
 Run: python tests/test_blimp.py (or pytest)."""
 import importlib.util
 import math
@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 KORZEN = Path(__file__).resolve().parent.parent
-KAT = KORZEN / "benchmarks" / "blimp"
+KAT = KORZEN / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks" / "blimp"
 sys.path.insert(0, str(KAT))
 sys.path.insert(0, str(KORZEN / "common"))
 import blimp as B  # noqa: E402

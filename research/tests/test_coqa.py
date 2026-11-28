@@ -1,4 +1,4 @@
-"""CoQA T41 (common/zadania.py, benchmarks/coqa/ORIGINAL.md), no network and no weights.
+"""CoQA T41 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/coqa/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, RECIPE.md and the README type row; the lm-eval `coqa` helpers as the card writes
 them, re-implemented here on invented conversations: the prompt (story, answered turns as history, the last question

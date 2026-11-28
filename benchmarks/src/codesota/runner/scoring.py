@@ -156,7 +156,8 @@ def perplexity(
 
 def winogrande_pairs(docs: Sequence[dict[str, Any]]) -> list[int]:
     """Adjacent WinoGrande rows with the same option set are twin sentences and share a cluster
-    (research/benchmarks/winogrande/przelicz.py `klastry_z_opcji`). Documents in split order."""
+    (research/studies/2026-10-lm-eval-benchmarks/benchmarks/winogrande/przelicz.py `klastry_z_opcji`). Documents
+    in split order."""
     options = [(d["option1"], d["option2"]) for d in docs]
     ids: list[int] = []
     i = c = 0
@@ -176,7 +177,8 @@ WSC273_SCHEMA_THRESHOLD = 0.6
 
 def wsc273_schemas(docs: Sequence[dict[str, Any]], threshold: float = WSC273_SCHEMA_THRESHOLD) -> list[int]:
     """WSC273 has no schema ID: a document belongs to the previous one's schema when the Jaccard similarity of
-    their words is at least `threshold` (research/benchmarks/wsc273/wsc273.py `schematy`). Documents in split order."""
+    their words is at least `threshold`
+    (research/studies/2026-10-lm-eval-benchmarks/benchmarks/wsc273/wsc273.py `schematy`). Documents in split order."""
 
     def words(text: str) -> set[str]:
         return set(text.lower().replace(".", " ").replace(",", " ").split())

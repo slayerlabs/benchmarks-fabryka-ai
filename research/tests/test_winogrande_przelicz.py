@@ -15,7 +15,7 @@ from pathlib import Path
 
 from scipy import stats
 
-WG = Path(__file__).resolve().parent.parent / "benchmarks" / "winogrande"
+WG = Path(__file__).resolve().parent.parent / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks" / "winogrande"
 JSON = json.loads((WG / "results" / "winogrande.json").read_text())
 KL = json.loads((WG / "klastry.json").read_text())
 KATALOGI = {"pythia": "pythia-1b-v0", "pythia_bos": "pythia-1b-v0-bos", "slayer": "slayer-1.06"}

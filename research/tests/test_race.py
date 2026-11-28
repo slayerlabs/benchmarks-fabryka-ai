@@ -1,4 +1,4 @@
-"""RACE (high) T40 (common/zadania.py, benchmarks/race/ORIGINAL.md), no network and no weights.
+"""RACE (high) T40 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/race/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, RECIPE.md and the README type row; `doc_to_text`, `doc_to_choice` and
 `doc_to_target` of the copied `preprocess_race.py` (lm-eval 6d2abda4 = 0.4.9.1) on an invented article: earlier
@@ -18,7 +18,7 @@ import wpis_benchmarku as W  # noqa: E402
 import metryki as M  # noqa: E402  (common/ is on sys.path after wpis_benchmarku)
 
 Z = W.Z
-KOPIA = W.KORZEN / "benchmarks" / "race" / "lm_eval_tasks" / "preprocess_race.py"
+KOPIA = W.ZK.STUDIUM / "benchmarks" / "race" / "lm_eval_tasks" / "preprocess_race.py"
 P = W.modul_forka("race/lm_eval_tasks/preprocess_race.py")
 DOC = {"article": "Tom has a dog called Rex.", "problems": repr([
     {"question": "Tom has a  _  .", "options": ["cat", "dog", "fish", "bird"], "answer": "B"},

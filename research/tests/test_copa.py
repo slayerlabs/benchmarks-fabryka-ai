@@ -1,4 +1,4 @@
-"""COPA T11 (common/zadania.py, benchmarks/copa/ORIGINAL.md), no network and no weights.
+"""COPA T11 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/copa/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the lm-eval `copa` prompt (premise without its final full stop + " because" or
 " therefore") with continuations of two spaces + the option with a lower-case first letter, and the decision metric

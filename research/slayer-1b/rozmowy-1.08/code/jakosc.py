@@ -1,6 +1,6 @@
 """Analizy A1-A3 z PROTOKOL_ANEKS.md: jakość pozycji, rzetelność (seedy, szablony, SNR), trafność zewnętrzna.
 
-python -I code/jakosc.py  -> wyniki/jakosc.json   (wejście: wyniki/oceny_pozycji.jsonl, results/full-run-2026-11)
+python -I code/jakosc.py  -> wyniki/jakosc.json   (wejście: wyniki/oceny_pozycji.jsonl, studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11)
 Czyste funkcje (testy w test_rozmowy.py) + odczyt plików. Bez werdyktów porównań modeli (to osobny skrypt).
 """
 import hashlib
@@ -162,7 +162,7 @@ def main():
         wiersz["snr_bpb_wzgledem_szablonu"] = dict(sygnal=wariancja(srb), szum=srednia(szb), snr=snr(srb, szb), srednie_modeli=srb)
         out["a2"][k] = wiersz
     # A3
-    fr = RESEARCH / "results/full-run-2026-11"
+    fr = RESEARCH / "studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11"
     for k in KATEGORIE:
         ki = [i for i in ids if kat_id[i] == k]
         kw = [i for i in ki if typ_id[i] != "otwarte"]

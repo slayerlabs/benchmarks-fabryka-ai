@@ -1,4 +1,4 @@
-"""OpenBookQA T08 (common/zadania.py, benchmarks/openbookqa/ORIGINAL.md), no network and no weights.
+"""OpenBookQA T08 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/openbookqa/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the lm-eval `openbookqa` prompt (context = the bare `question_stem`, no
 "Question:"/"Answer:", continuation = space + option text, gold = index of `answerKey.lstrip()` in `choices.label`),

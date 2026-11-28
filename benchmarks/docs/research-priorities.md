@@ -40,11 +40,13 @@ The following priorities were communicated by **Kacper Wikieł** to the Benchmar
 ## How these priorities relate to CodeSOTA
 
 - New benchmarks follow the CodeSOTA [evaluation methodology](methodology.md): log-likelihood benchmarks go into the
-  runner's catalog, benchmarks through a model API into `research/api-benchmarks/`
-  ([`research/METHODOLOGY.md`](../../research/METHODOLOGY.md)).
+  runner's catalog, every other benchmark into `research/benchmarks/`
+  ([guide](../../research/benchmarks/README.md)).
 - Results are published on the [results page](../results/README.md).
 - New CodeSOTA components should support these research priorities where technically appropriate.
 
 The list records the team's stated priorities. It does not mean every benchmark is implemented, assigned, funded, or ready to run.
+The state of each benchmark (planned, in review, done) is kept in the study that works through this list,
+[`research/studies/2026-11-small-vs-large`](../../research/studies/2026-11-small-vs-large/README.md).
 
 **Source:** Kacper Wikieł's instructions to the Benchmark Team, recorded in the repository README before this documentation update.

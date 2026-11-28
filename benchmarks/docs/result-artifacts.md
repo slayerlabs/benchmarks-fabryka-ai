@@ -5,8 +5,9 @@ directory with a manifest, the per-sample records, and the aggregated results. I
 models, call APIs, or rescore outputs.
 
 This is developer tooling in the `codesota` package. It does not change how work in `research/` is submitted:
-benchmarks there keep following [`research/METHODOLOGY.md`](../../research/METHODOLOGY.md) (API benchmarks) and
-[`research/METODOLOGIA.md`](../../research/METODOLOGIA.md) (the central run, in Polish).
+benchmarks there keep following [`research/benchmarks/README.md`](../../research/benchmarks/README.md) and
+the [evaluation methodology](methodology.md); the frozen central run keeps
+[`METODOLOGIA.md`](../../research/studies/2026-10-lm-eval-benchmarks/METODOLOGIA.md) (in Polish).
 
 ## What a valid run means
 
@@ -81,7 +82,7 @@ written. Constraints of that schema the validator does not check include the `co
   checks (`WYMAGANE_OBS`, `STANY`, `bledy_schematu`). A test compares these constants with that file's source.
 - A field outside what `metryki.py` writes is reported as a warning (`observation.extra`), not rejected, because the
   full schema may allow it.
-- A read-only test checks that every existing `results.json` under `research/results/central-run/` passes the
+- A read-only test checks that every existing `results.json` under `research/studies/2026-10-lm-eval-benchmarks/results/central-run/` passes the
   observation checks, and that the files are unchanged afterwards.
 
 One observation per metric, so strict and loose accuracy stay separate results. `source_id_digest` is computed as
@@ -94,7 +95,7 @@ in `research/common/ewaluuj.py`: the SHA-256 of the selected sample IDs in recor
 |---|---|
 | top level | `format` (`urn:codesota:run-manifest:1`), `run_id` (unique per run), `provenance_claim` (`complete` or `partial`) |
 | `analysis` | `kind`: `primary`, or `exploratory` with `derived_from` (another run ID) and `description` |
-| `benchmark` | `id`, `definition` (where the benchmark is defined, for example its directory in `research/benchmarks/`) |
+| `benchmark` | `id`, `definition` (where the benchmark is defined, for example its directory in `research/studies/2026-10-lm-eval-benchmarks/benchmarks/`) |
 | `protocol` | `id`; `dataset` (`repo`, `revision`, `split`, `n_population`); `scorer` (`name`, `version`, `randomness` with `controlled`, `policy`, `limitations`); `output_preprocessing` |
 | `model` | `id`, `repo`, `revision`, `weights_sha256` |
 | `inference` | `backend` (`name`, `version`), `dtype`, `quantization`, `temperature`, `top_p`, `max_output_tokens`, `context_length`, `chat_template`, `system_prompt`, `thinking`, `batch_size`, `concurrency`, `seed` |

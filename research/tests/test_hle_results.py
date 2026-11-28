@@ -1,6 +1,6 @@
 """Humanity's Last Exam (no tools): the committed result checked against its stored counts and README.md.
 
-No module of api-benchmarks/hle is imported here. The per-question file (results/bielik-11b-v3.1.jsonl.gz) is
+No module of benchmarks/hle is imported here. The per-question file (results/bielik-11b-v3.1.jsonl.gz) is
 git-ignored: correct answers would reveal HLE answers. So from results/bielik-11b-v3.1.json alone this recounts the
 score and stderr from the stored counts (both denominators), the unjudged IDs, the judge agreement tables (agreement
 and Cohen's kappa from each confusion table) and the cost total, and checks the numbers printed in README.md. Where
@@ -23,7 +23,7 @@ from pathlib import Path
 
 import pytest
 
-BENCH = Path(os.environ.get("HLE_BENCH", Path(__file__).resolve().parents[1] / "api-benchmarks" / "hle"))
+BENCH = Path(os.environ.get("HLE_BENCH", Path(__file__).resolve().parents[1] / "benchmarks" / "hle"))
 RESULTS = BENCH / "results"
 RUN = "bielik-11b-v3.1"
 PER_QUESTION = Path(os.environ.get("HLE_PER_QUESTION", RESULTS / f"{RUN}.jsonl.gz"))

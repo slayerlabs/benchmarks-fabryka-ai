@@ -92,19 +92,19 @@ def test_zadania_entry_matches_the_benchmark_card():
             assert "rewizja" not in meta and all(re.fullmatch(r"[0-9a-f]{64}", s) for _, s in meta["pliki_osf"].values())
             continue
         assert re.fullmatch(r"[0-9a-f]{40}", meta["rewizja"]), t
-        karta = KORZEN / "benchmarks" / mapa[t] / "README.md"
+        karta = Z.BENCHMARKI / mapa[t] / "README.md"
         tekst = karta.read_text(encoding="utf-8") if karta.exists() else ""
         if f"`{meta['repo']}` @ `" not in tekst:
             continue
         assert f"`{meta['repo']}` @ `{meta['rewizja']}`" in tekst and f"split `{meta['split']}`" in tekst, t
         sprawdzone += 1
-    assert sprawdzone >= 25  # T05-T31, T40, T48 except T06 (benchmarks/piqa/README.md is the card of its own pipeline)
+    assert sprawdzone >= 25  # T05-T31, T40, T48 except T06 (studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/README.md is the card of its own pipeline)
 
 
 def typy_z_readme():
     """{task id: type} from the README table "Benchmarki i typy", the one place a test's type is written."""
     wiersz = re.compile(r"^\| \[`[^`]+`\]\([^)]+\) \| (T\d+) \| `([^`]+)` \|", re.M)
-    return dict(wiersz.findall((KORZEN / "README.md").read_text(encoding="utf-8")))
+    return dict(wiersz.findall((Z.BENCHMARKI.parent / "README.md").read_text(encoding="utf-8")))
 
 
 def test_constant_answer_baseline_follows_the_test_type():
@@ -137,7 +137,7 @@ def test_every_task_has_its_benchmark_directory():
     mapa = katalogi()
     assert list(mapa) == list(Z.ZADANIA)
     for t, k in mapa.items():
-        assert (KORZEN / "benchmarks" / k).is_dir(), (t, k)
+        assert (Z.BENCHMARKI / k).is_dir(), (t, k)
 
 
 def test_polish_tasks_use_the_copied_openpl_yaml():

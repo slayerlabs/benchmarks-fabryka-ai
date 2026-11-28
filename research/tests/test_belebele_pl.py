@@ -1,4 +1,4 @@
-"""Belebele (pol_Latn) T24 (common/zadania.py, benchmarks/belebele-pl/ORIGINAL.md), no network and no weights.
+"""Belebele (pol_Latn) T24 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/belebele-pl/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the 5-shot prompt of the copied OpenPL YAML `belebele_mc.yaml` (5 demonstrations
 from the bank drawn from the test split itself, then the question; continuations = space + letter ` A`..` D`, gold =

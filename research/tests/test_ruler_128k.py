@@ -1,4 +1,4 @@
-"""RULER 128K (api-benchmarks/ruler-128k): golden checks of summarize.py and compare.py on fixed fake data.
+"""RULER 128K (benchmarks/ruler-128k): golden checks of summarize.py and compare.py on fixed fake data.
 
 No network, RULER checkout, torch or lm-eval: the RULER metric is replaced by a stand-in with the same call shape
 (`metric([pred], [refs])` -> percent), so these tests pin the aggregation, not RULER's scorer. Checked: the text
@@ -27,7 +27,7 @@ from pathlib import Path
 
 import pytest
 
-BENCH_DIR = Path(__file__).resolve().parents[1] / "api-benchmarks" / "ruler-128k"
+BENCH_DIR = Path(__file__).resolve().parents[1] / "benchmarks" / "ruler-128k"
 # Other benchmarks have modules of the same names (summarize, provenance, ...); in one pytest run the one imported
 # first would be reused here, so drop them from the module cache before importing this benchmark's.
 for _module in BENCH_DIR.glob("*.py"):
@@ -58,7 +58,7 @@ def _this_benchmarks_modules(monkeypatch: pytest.MonkeyPatch) -> None:
         else:
             monkeypatch.delitem(sys.modules, p.stem, raising=False)
 
-BENCH = Path(__file__).resolve().parents[1] / "api-benchmarks" / "ruler-128k"
+BENCH = Path(__file__).resolve().parents[1] / "benchmarks" / "ruler-128k"
 
 
 def diagnostics_out_dir(root):
@@ -756,7 +756,7 @@ def test_published_results_need_committed_runner_files():
     import shutil
     import subprocess
     with tempfile.TemporaryDirectory() as d:
-        root = Path(d) / "research" / "api-benchmarks" / "ruler-128k"
+        root = Path(d) / "research" / "benchmarks" / "ruler-128k"
         root.mkdir(parents=True)
         for name in ("run.sh", "summarize.py"):
             shutil.copy(BENCH / name, root / name)

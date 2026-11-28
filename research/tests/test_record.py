@@ -1,4 +1,4 @@
-"""ReCoRD T50 (common/zadania.py, benchmarks/record/ORIGINAL.md), no network and no weights.
+"""ReCoRD T50 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/record/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the prompt of lm-eval `record` `util.py` (first `passage` fragment + `\n\n`, then
 every highlight as `  - {highlight}.\n`; options `  - {query}` with `@placeholder` replaced by each entity of the

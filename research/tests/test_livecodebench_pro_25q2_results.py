@@ -1,6 +1,6 @@
 """LiveCodeBench Pro 25Q2: the committed results recounted without the benchmark's code.
 
-No module of api-benchmarks/livecodebench-pro-25q2 is imported here. From results/<model-id>.jsonl.gz alone this
+No module of benchmarks/livecodebench-pro-25q2 is imported here. From results/<model-id>.jsonl.gz alone this
 recounts the headline score and its stderr, accepted/n per difficulty, the judge categories, K1, K2 (with the SE
 floor), K3 (paired, with its lead precondition), the exploratory budget table and compile-error totals, and checks
 them against results/<model-id>.json, results/hypotheses.json, results/exploratory.json and the numbers printed in
@@ -17,7 +17,7 @@ import os
 import re
 from pathlib import Path
 
-BENCH = Path(os.environ.get("LCBPRO_BENCH", Path(__file__).resolve().parents[1] / "api-benchmarks" /
+BENCH = Path(os.environ.get("LCBPRO_BENCH", Path(__file__).resolve().parents[1] / "benchmarks" /
                             "livecodebench-pro-25q2"))
 RESULTS = BENCH / "results"
 RUNS = ("lfm3-1.7b", "lfm3-1.7b-nothink", "bielik-11b-v3.1")

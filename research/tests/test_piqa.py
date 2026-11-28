@@ -1,4 +1,4 @@
-"""PIQA T06 (benchmarks/piqa/piqa.py).
+"""PIQA T06 (studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/piqa.py).
 
 Two layers:
 - logic on dummies, no network (each test names the mutation it must catch);
@@ -18,7 +18,7 @@ import numpy as np
 import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
-DIR = ROOT / "benchmarks" / "piqa"
+DIR = ROOT / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks" / "piqa"
 RAW = DIR / "results" / "raw"
 REPORT = DIR / "results" / "PIQA.md"
 

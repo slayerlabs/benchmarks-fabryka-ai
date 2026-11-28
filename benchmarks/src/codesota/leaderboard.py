@@ -27,8 +27,8 @@ PACKAGE = Path(__file__).resolve().parent
 BENCHMARKS = PACKAGE.parent.parent
 REPO = BENCHMARKS.parent
 OUT = BENCHMARKS / "results"
-FULL_RUN = "research/results/full-run-2026-11"
-IFEVAL_API = "research/api-benchmarks/ifeval/results"
+FULL_RUN = "research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11"
+IFEVAL_API = "research/benchmarks/ifeval/results"
 
 # Benchmark categories, in display order, as in the README's "Evaluation domains".
 CATEGORIES: Final[dict[str, tuple[str, ...]]] = {
@@ -122,7 +122,8 @@ class Result:
 
 
 # Benchmarks whose requests have no context to put a BOS token before (empty context, rolling windows), and the one
-# whose own code applies the card's rule instead of the run's (research/results/full-run-2026-11/README.md).
+# whose own code applies the card's rule instead of the run's
+# (research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/README.md).
 NO_BOS: Final = frozenset({"blimp", "wikitext-2"})
 CARD_BOS: Final = frozenset({"ewok"})
 
@@ -209,7 +210,7 @@ IFEVAL_ROWS: Final = (
     ("bielik-11b-v3.1-vllm-no-provider", "bielik-11b-v3.1-vllm-no-provider", "own vLLM, no provider system prompt"),
     ("lfm3-1.7b", "lfm3-1.7b-ifeval", "own vLLM, card settings, reasoning on"),
 )
-# The source README's reading of Slayer's score (research/api-benchmarks/ifeval/README.md, Deviations).
+# The source README's reading of Slayer's score (research/benchmarks/ifeval/README.md, Deviations).
 SLAYER_IFEVAL_NOTE: Final = (
     "Slayer 1B is a base model without a chat template; its source reads 18.11 as the score of mostly degenerate "
     "output, not as instruction following."
@@ -252,9 +253,9 @@ def ifeval(repo: Path = REPO) -> list[Result]:
     return out
 
 
-# --- generative and agentic benchmarks (research/api-benchmarks/) ---
+# --- generative and agentic benchmarks (research/benchmarks/) ---
 
-API_DIR = "research/api-benchmarks"
+API_DIR = "research/benchmarks"
 MINUS: Final = "\u2212"
 # The three models of the generative table: the column key, its header, and its family.
 API_COLUMNS: Final = ("slayer", "bielik", "lfm3")
@@ -267,7 +268,7 @@ API_HEADER: Final[dict[str, tuple[str, str]]] = {
 
 @dataclass(frozen=True)
 class ApiBenchmark:
-    """One generative or agentic benchmark of `research/api-benchmarks/<directory>/`, with the result file of each
+    """One generative or agentic benchmark of `research/benchmarks/<directory>/`, with the result file of each
     column (its model label; the file is `results/<label>.json` unless `files` names another stem) and the value the
     LFM3-1.7B card reports.
 

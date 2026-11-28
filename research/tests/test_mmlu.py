@@ -1,4 +1,4 @@
-"""MMLU T32 (common/zadania.py, benchmarks/mmlu/ORIGINAL.md), no network and no weights.
+"""MMLU T32 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/mmlu/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, RECIPE.md and the README type row (`mc +warstwy`: 57 subjects, population
 weights); the `+warstwy` functions on the card's numbers: the 57 test populations N_i of `hails/mmlu_no_train`

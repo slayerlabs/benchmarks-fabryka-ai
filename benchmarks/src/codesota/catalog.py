@@ -7,7 +7,8 @@ A benchmark is in one of three states:
 - `needs-reference-check`: the runner implements it and reproduces the research pipeline, but no published reference
   result has been reproduced for this protocol yet. Its scores are measurements, not yet validated against a
   reference.
-- `not-implemented`: the benchmark has a directory in `research/benchmarks/`, but the runner cannot run it yet.
+- `not-implemented`: the benchmark has a directory in `research/studies/2026-10-lm-eval-benchmarks/benchmarks/`, but
+  the runner cannot run it yet.
 
 A status is a claim about the integration under its protocol (0-shot log-likelihood scoring through lm-eval HFLM, as
 in the research central run), established by review of that evidence. It does not say the benchmark is valid for
@@ -15,8 +16,9 @@ every model or inference setup: a chat model, an API backend, or a custom archit
 also separate from what `codesota.results` checks for each run (structure and provenance completeness).
 
 The state of each implemented benchmark is justified in its `evidence`, with the report it rests on. The IDs are the
-benchmark directory names in `research/benchmarks/`; the research pipeline's task IDs (`T01`-`T53`) are kept as
-`legacy_id` and accepted as aliases. Which benchmarks a run selects is resolved by `select`.
+benchmark directory names in `research/studies/2026-10-lm-eval-benchmarks/benchmarks/`; the research pipeline's task
+IDs (`T01`-`T53`) are kept as `legacy_id` and accepted as aliases. Which benchmarks a run selects is resolved by
+`select`.
 """
 
 from collections.abc import Iterable
@@ -86,7 +88,7 @@ class Benchmark:
 
     @property
     def definition(self) -> str:
-        return f"research/benchmarks/{self.id}/"
+        return f"research/studies/2026-10-lm-eval-benchmarks/benchmarks/{self.id}/"
 
     @property
     def cost(self) -> "Cost | None":
@@ -182,8 +184,9 @@ IMPLEMENTED: Final[tuple[Benchmark, ...]] = (
         scoring=Scoring(kind="multiple_choice", decision_metric="acc"),
         evidence=(
             "Pythia-1B v0 reproduces its published acc 0.5585 (window 0.5381-0.5789) without BOS "
-            "(research/benchmarks/arc-easy/REPRODUCTION.md); with one BOS it scores 0.5690, inside the same window "
-            "(research/results/full-run-2026-11/bos-window-check/RAPORT.md)."
+            "(research/studies/2026-10-lm-eval-benchmarks/benchmarks/arc-easy/REPRODUCTION.md); "
+            "with one BOS it scores 0.5690, inside the same window "
+            "(research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/bos-window-check/RAPORT.md)."
         ),
     ),
     Benchmark(
@@ -205,7 +208,8 @@ IMPLEMENTED: Final[tuple[Benchmark, ...]] = (
         scoring=Scoring(kind="multiple_choice", decision_metric="acc_norm"),
         evidence=(
             "Pythia-1B v0 reproduces its published acc_norm (window 0.6838-0.7264) without BOS "
-            "(research/benchmarks/piqa/REPRODUCTION.md); with one BOS it scores 0.7095, inside the same window "
+            "(research/studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/REPRODUCTION.md); "
+            "with one BOS it scores 0.7095, inside the same window "
             "(bos-window-check)."
         ),
     ),
@@ -227,7 +231,8 @@ IMPLEMENTED: Final[tuple[Benchmark, ...]] = (
         scoring=Scoring(kind="multiple_choice", decision_metric="acc", clusters="winogrande-pairs"),
         evidence=(
             "Pythia-1B v0 reproduces its published acc 0.5375 (window 0.5095-0.5655) without BOS "
-            "(research/benchmarks/winogrande/REPRODUCTION.md); with one BOS it scores 0.5438, inside the same window "
+            "(research/studies/2026-10-lm-eval-benchmarks/benchmarks/winogrande/REPRODUCTION.md); "
+            "with one BOS it scores 0.5438, inside the same window "
             "(bos-window-check)."
         ),
     ),
@@ -249,7 +254,8 @@ IMPLEMENTED: Final[tuple[Benchmark, ...]] = (
         scoring=Scoring(kind="loglikelihood", decision_metric="acc", fixed_classes=False, baseline="cloze"),
         evidence=(
             "Pythia-1B v0 reproduces its published acc 0.5622 (window 0.5422-0.5822) without BOS "
-            "(research/benchmarks/lambada/REPRODUCTION.md); with one BOS it scores 0.5605, inside the same window "
+            "(research/studies/2026-10-lm-eval-benchmarks/benchmarks/lambada/REPRODUCTION.md); "
+            "with one BOS it scores 0.5605, inside the same window "
             "(bos-window-check)."
         ),
     ),
@@ -271,7 +277,8 @@ IMPLEMENTED: Final[tuple[Benchmark, ...]] = (
         scoring=Scoring(kind="multiple_choice", decision_metric="acc_norm"),
         evidence=(
             "The reference check (EuroLLM-1.7B, met) was computed 10-shot with separate code; this protocol is "
-            "0-shot, so no reference result has been reproduced for it (research/STATUS.md)."
+            "0-shot, so no reference result has been reproduced for it "
+            "(research/studies/2026-10-lm-eval-benchmarks/STATUS.md)."
         ),
         limitations=(
             "Sample IDs are positions in the split: the dataset's `ind` field, which the research pipeline used, is "
@@ -295,7 +302,9 @@ IMPLEMENTED: Final[tuple[Benchmark, ...]] = (
             id_field="id",
         ),
         scoring=Scoring(kind="multiple_choice", decision_metric="acc_norm"),
-        evidence="Stage B has no reference check (research/STATUS.md, 'bez kontroli').",
+        evidence=(
+            "Stage B has no reference check (research/studies/2026-10-lm-eval-benchmarks/STATUS.md, 'bez kontroli')."
+        ),
     ),
     Benchmark(
         id="wsc273",
@@ -317,7 +326,7 @@ IMPLEMENTED: Final[tuple[Benchmark, ...]] = (
         scoring=Scoring(kind="multiple_choice", decision_metric="acc", clusters="wsc273-schemas"),
         evidence=(
             "Stage B has no reference check, and its control model is outside the methodology's list "
-            "(research/STATUS.md, marked for review)."
+            "(research/studies/2026-10-lm-eval-benchmarks/STATUS.md, marked for review)."
         ),
     ),
     Benchmark(
@@ -337,7 +346,9 @@ IMPLEMENTED: Final[tuple[Benchmark, ...]] = (
             parquet_revision="fafb9f7ee5b9ec4da9499f9c4177a4c91389f2d6",
         ),
         scoring=Scoring(kind="multiple_choice", decision_metric="acc_norm"),
-        evidence="Stage B has no reference check (research/STATUS.md, 'bez kontroli').",
+        evidence=(
+            "Stage B has no reference check (research/studies/2026-10-lm-eval-benchmarks/STATUS.md, 'bez kontroli')."
+        ),
     ),
     Benchmark(
         id="pubmedqa",
@@ -356,7 +367,9 @@ IMPLEMENTED: Final[tuple[Benchmark, ...]] = (
             parquet_revision="13a7d15476092370cbabb6475390e7e69b74d2f2",
         ),
         scoring=Scoring(kind="multiple_choice", decision_metric="acc"),
-        evidence="Stage B has no reference check (research/STATUS.md, 'bez kontroli').",
+        evidence=(
+            "Stage B has no reference check (research/studies/2026-10-lm-eval-benchmarks/STATUS.md, 'bez kontroli')."
+        ),
     ),
     Benchmark(
         id="medmcqa",
@@ -373,7 +386,10 @@ IMPLEMENTED: Final[tuple[Benchmark, ...]] = (
             id_field="id",
         ),
         scoring=Scoring(kind="multiple_choice", decision_metric="acc"),
-        evidence="Stage B has no reference check, and the benchmark is marked for review (research/STATUS.md).",
+        evidence=(
+            "Stage B has no reference check, and the benchmark is marked for review "
+            "(research/studies/2026-10-lm-eval-benchmarks/STATUS.md)."
+        ),
     ),
     Benchmark(
         id="social-iqa",
@@ -391,7 +407,9 @@ IMPLEMENTED: Final[tuple[Benchmark, ...]] = (
             source="unpinned-parquet",
         ),
         scoring=Scoring(kind="multiple_choice", decision_metric="acc"),
-        evidence="Stage B has no reference check (research/STATUS.md, 'bez kontroli').",
+        evidence=(
+            "Stage B has no reference check (research/studies/2026-10-lm-eval-benchmarks/STATUS.md, 'bez kontroli')."
+        ),
         limitations=(
             "The data are read from the repository's refs/convert/parquet branch, which has no pinned commit; the "
             "recorded revision is that of the main branch, so a later conversion could change the documents.",
@@ -420,7 +438,9 @@ IMPLEMENTED: Final[tuple[Benchmark, ...]] = (
             fixed_classes=False,
             baseline="none",
         ),
-        evidence="Stage B has no reference check (research/STATUS.md, 'bez kontroli').",
+        evidence=(
+            "Stage B has no reference check (research/studies/2026-10-lm-eval-benchmarks/STATUS.md, 'bez kontroli')."
+        ),
     ),
     Benchmark(
         id="multiblimp-pl",
@@ -441,12 +461,13 @@ IMPLEMENTED: Final[tuple[Benchmark, ...]] = (
         scoring=Scoring(kind="multiple_choice", decision_metric="acc", unit="percent", fixed_classes=False),
         evidence=(
             "Stage B has no reference check, and a possible leak of the test set into training data is open "
-            "(research/STATUS.md, #36)."
+            "(research/studies/2026-10-lm-eval-benchmarks/STATUS.md, #36)."
         ),
     ),
 )
 
-# Benchmarks with a directory in research/benchmarks/ that the runner does not run yet: (id, name, language, legacy).
+# Benchmarks with a directory in research/studies/2026-10-lm-eval-benchmarks/benchmarks/ that the runner does not run
+# yet: (id, name, language, legacy).
 _NOT_IMPLEMENTED: Final[tuple[tuple[str, str, Literal["EN", "PL"], str | None, tuple[str, ...]], ...]] = (
     ("8tags", "8TAGS", "PL", "T23", ()),
     ("anli-r3", "ANLI (round 3)", "EN", "T16", ()),
@@ -581,8 +602,9 @@ def markdown() -> str:
     lines = [
         "# Benchmarks",
         "",
-        "Every benchmark with a directory in `research/benchmarks/`, and its status in CodeSOTA. Generated from",
-        "[`src/codesota/catalog.py`](src/codesota/catalog.py); how to run them: [`docs/running.md`](docs/running.md).",
+        "Every benchmark with a directory in `research/studies/2026-10-lm-eval-benchmarks/benchmarks/`, and its status",
+        "in CodeSOTA. Generated from [`src/codesota/catalog.py`](src/codesota/catalog.py); how to run them:",
+        "[`docs/running.md`](docs/running.md).",
         "",
         f"- `verified` ({counts['verified']}): a published reference result was reproduced with this protocol.",
         f"- `needs-reference-check` ({counts['needs-reference-check']}): runs and matches the research pipeline, "

@@ -1,9 +1,9 @@
-"""Independent recomputation of the key numbers of benchmarks/blimp/results/checkpoints.json and LICZBY.json
+"""Independent recomputation of the key numbers of studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/checkpoints.json and LICZBY.json
 from the raw files.
 
 Gate (g) of sprawdz_raporty.py regenerates the report with the same generator, so it cannot catch an error in
-benchmarks/blimp/checkpoints.py itself. This file does NOT import checkpoints or blimp: it re-reads the per-pair
-files (benchmarks/blimp/results/checkpoints, benchmarks/blimp/results/<model>), the held-out windows and the
+studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/checkpoints.py itself. This file does NOT import checkpoints or blimp: it re-reads the per-pair
+files (studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/checkpoints, .../blimp/results/<model>), the held-out windows and the
 annealing references, recomputes with numpy and its own constants, and compares with tolerance 1e-9
 (z and t: 1e-6 relative).
 Run: python tests/test_blimp_checkpoints_independent.py (or pytest).
@@ -19,8 +19,8 @@ import numpy as np
 import pytest
 
 KORZEN = Path(__file__).resolve().parent.parent
-RAW = KORZEN / "benchmarks/blimp/results/checkpoints"
-KRZYWA = KORZEN / "benchmarks/blimp/results/checkpoints.json"
+RAW = KORZEN / "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/checkpoints"
+KRZYWA = KORZEN / "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/checkpoints.json"
 WYG = KORZEN / "slayer-1b/wygaszanie/wyniki"
 # written here again on purpose (not imported): CHECKPOINTS_THRESHOLDS.md and amendment 1
 GLOWNE = [7150, 8600, 10010, 13848]
@@ -32,7 +32,7 @@ IDENTYCZNE = {"blimp_passive_1/324", "blimp_passive_1/810", "blimp_principle_A_c
               "blimp_principle_A_case_2/287", "blimp_principle_A_case_2/372", "blimp_principle_A_case_2/816",
               "blimp_principle_A_case_2/967"}
 
-pytestmark = pytest.mark.skipif(not KRZYWA.exists(), reason="no benchmarks/blimp/results/checkpoints.json")
+pytestmark = pytest.mark.skipif(not KRZYWA.exists(), reason=f"no {KRZYWA.relative_to(KORZEN)}")
 
 
 def wczytaj(p):
@@ -51,7 +51,7 @@ _cache = {}
 
 def model(e):
     if e not in _cache:
-        p = KORZEN / "benchmarks/blimp/results/pythia-1b/blimp.jsonl.gz" if e == "pythia" else RAW / f"{e}.jsonl.gz"
+        p = KRZYWA.parent / "pythia-1b/blimp.jsonl.gz" if e == "pythia" else RAW / f"{e}.jsonl.gz"
         _cache[e] = wczytaj(p)
     return _cache[e]
 

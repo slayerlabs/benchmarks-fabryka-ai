@@ -1,4 +1,4 @@
-"""SST-2 T21 (common/zadania.py, benchmarks/sst2/ORIGINAL.md), no network and no weights.
+"""SST-2 T21 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/sst2/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card (GLUE `sst2`, split `validation`: the `test` labels are -1), the prompt
 `{sentence}\nQuestion: Is this sentence positive or negative?\nAnswer:` with continuations ` negative`, ` positive`

@@ -1,4 +1,4 @@
-"""SciCode (api-benchmarks/scicode): checks of the generation path, the request layer, the summary and the
+"""SciCode (benchmarks/scicode): checks of the generation path, the request layer, the summary and the
 hypotheses, without a model, GPU, test_data.h5 or outside network.
 
 - Prompts and code files: scicode_runner's Generator (Gencode with only the model call replaced) is run on real test
@@ -30,7 +30,7 @@ from pathlib import Path
 
 import pytest
 
-BENCH = Path(__file__).resolve().parents[1] / "api-benchmarks" / "scicode"
+BENCH = Path(__file__).resolve().parents[1] / "benchmarks" / "scicode"
 for name in ("hypotheses", "provenance", "raw_outputs", "readme", "reference_extraction", "scicode_runner", "summarize",
              "window_rescore"):
     sys.modules.pop(name, None)  # other benchmarks have modules with these names; CI runs them in one process

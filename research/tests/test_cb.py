@@ -1,4 +1,4 @@
-"""CommitmentBank T12 (common/zadania.py, benchmarks/cb/ORIGINAL.md), no network and no weights.
+"""CommitmentBank T12 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/cb/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the prompt `{premise}\nQuestion: {hypothesis}. True, False, or Neither?\nAnswer:`
 with continuations ` True`, ` False`, ` Neither` (gold = `label`, 0 = True, 1 = False, 2 = Neither), and the decision

@@ -1,7 +1,7 @@
 """Jedno źródło liczb dla raportów: results/LICZBY.json + results/LICZBY.md z surowych wyników.
 
-Czyta analyses/answer-format/results/raport_formatu.json, slayer-1b/wygaszanie/wyniki/{porownanie,heldout_*}.json
-i benchmarks/*/results/*.json (osobna pula wartości per benchmark, bez porównań).
+Czyta studies/2026-10-answer-format/results/raport_formatu.json, slayer-1b/wygaszanie/wyniki/{porownanie,heldout_*}.json
+i studies/2026-10-lm-eval-benchmarks/benchmarks/*/results/*.json (osobna pula wartości per benchmark, bez porównań).
 Każde porównanie dostaje różnicę, SE różnicy, z = różnica / SE i werdykt (|z| >= 3 „pewne”,
 2-3 „prawdopodobne”, < 2 „szum”). SE parowane (to samo pytanie / to samo okno, dwa modele) jest
 tylko tam, gdzie surowe wyniki per pytanie istnieją: wygaszanie (bootstrap z porownaj.py na plikach
@@ -37,8 +37,8 @@ METRYKI = ("acc", "acc_norm", "bpb", "pmi")
 # tests whose numbers count only in a line that names the test (sprawdz_raporty.zbiory)
 TYLKO_Z_NAZWA = ["blimp"]
 
-# Każdy benchmarks/<nazwa>/results/*.json (bez podkatalogów per model) to osobna pula wartości,
-# sprawdzana tylko w plikach benchmarks/<nazwa>/ i w liniach, które nazywają benchmark (aliasy).
+# Każdy BENCHMARKI/<nazwa>/results/*.json (bez podkatalogów per model) to osobna pula wartości,
+# sprawdzana tylko w plikach BENCHMARKI/<nazwa>/ i w liniach, które nazywają benchmark (aliasy).
 # USTAWIENIA nadpisują domyślne: aliasy [nazwa], skala 1, pomin (). `skala` 100 = raporty piszą w %.
 # GOTCHA: grupy (wg_*) i metryki poboczne EWoK pominięte: z nimi 90% liczb 40,0-80,0 pasowało do
 # czegoś i bramka nie łapała pomyłek; raporty cytują je tylko jako liczby całkowite (strażnik ich nie czyta).
@@ -67,10 +67,11 @@ USTAWIENIA_BENCHMARKOW = {
     "hellaswag": {"aliasy": ["HellaSwag", "hellaswag"], "skala": 1, "with_global": True, "pomin": []},
 }
 WYGASZANIE = "slayer-1b/wygaszanie/wyniki"
-BLIMP = "benchmarks/blimp/results/blimp.json"
-KRZYWA = "benchmarks/blimp/results/checkpoints.json"  # BLiMP over checkpoints and weight averaging
-FORMAT = "analyses/answer-format/results/raport_formatu.json"
-PIQA = "benchmarks/piqa/results/piqa.json"
+BENCHMARKI = "studies/2026-10-lm-eval-benchmarks/benchmarks"
+BLIMP = f"{BENCHMARKI}/blimp/results/blimp.json"
+KRZYWA = f"{BENCHMARKI}/blimp/results/checkpoints.json"  # BLiMP over checkpoints and weight averaging
+FORMAT = "studies/2026-10-answer-format/results/raport_formatu.json"
+PIQA = f"{BENCHMARKI}/piqa/results/piqa.json"
 
 
 def se_niezalezne(se_a, se_b):
@@ -219,9 +220,9 @@ def porownania_wygaszania(por):
 
 
 def benchmarki(korzen=KORZEN):
-    """{nazwa: {zrodla, aliasy, pliki, skala, wartosci}} z benchmarks/<nazwa>/results/*.json."""
+    """{nazwa: {zrodla, aliasy, pliki, skala, wartosci}} z BENCHMARKI/<nazwa>/results/*.json."""
     out = {}
-    for katalog in sorted((korzen / "benchmarks").iterdir()):
+    for katalog in sorted((korzen / BENCHMARKI).iterdir()):
         raporty = sorted((katalog / "results").glob("*.json")) if katalog.is_dir() else []
         if not raporty:
             continue
@@ -231,7 +232,7 @@ def benchmarki(korzen=KORZEN):
         for p in raporty:
             splaszcz(json.loads(p.read_text()), f"{nazwa}/{p.stem}", wartosci, tuple(u.get("pomin", ())))
         out[nazwa] = {"zrodla": [p.relative_to(korzen).as_posix() for p in raporty], "aliasy": u.get("aliasy", [nazwa]),
-                      "pliki": [f"benchmarks/{nazwa}/"], "skala": u.get("skala", 1),
+                      "pliki": [f"{BENCHMARKI}/{nazwa}/"], "skala": u.get("skala", 1),
                       "with_global": u.get("with_global", False), "wartosci": wartosci}
     # Badania poza benchmarks/ z własnym wyniki/LICZBY.json: ta sama zasada puli (liczby tylko w plikach katalogu).
     for nazwa, katalog in BADANIA.items():
@@ -251,7 +252,7 @@ BADANIA = {"rozmowy-1.08": "slayer-1b/rozmowy-1.08"}
 
 def porownania_blimp(bl):
     """BLiMP full set, Slayer 1.06 vs Pythia-1B on the same 67 000 pairs: overall, 12 phenomena,
-    67 paradigms; SE paired by pair (benchmarks/blimp/blimp.py porownanie_parowane)."""
+    67 paradigms; SE paired by pair (studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/blimp.py porownanie_parowane)."""
     por, mod = bl["porownanie"], bl["modele"]
     a, b = por["a"], por["b"]
     zrodlo = "paired by minimal pair (benchmarks/blimp/blimp.py)"
@@ -340,7 +341,7 @@ def porownania_blimp(bl):
 
 
 def porownania_krzywej(kr):
-    """BLiMP over checkpoints and weight averages (benchmarks/blimp/checkpoints.py, CHECKPOINTS_THRESHOLDS.md):
+    """BLiMP over checkpoints and weight averages (studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/checkpoints.py, CHECKPOINTS_THRESHOLDS.md):
     gap of every checkpoint to Pythia-1B, slopes, step changes, averages vs 1.06; pair SE and clustered t."""
     out = []
     par = "paired by minimal pair, stratified by paradigm"
@@ -435,14 +436,14 @@ def raporty_krzywej(kr):
     phenomena with < 3 paradigms undetermined in the clustered column (e)."""
     if "nachylenie" not in kr:
         return []
-    return [{"plik": "benchmarks/blimp/results/CHECKPOINTS.md", "test": "blimp", "wieloparadygmatowy": True,
+    return [{"plik": f"{BENCHMARKI}/blimp/results/CHECKPOINTS.md", "test": "blimp", "wieloparadygmatowy": True,
              "k_paradygmatow": 0, "porownanie_klastrowe": "krzywa/blimp_krzywa_nachylenie_klastr/acc", "holm": {},
              "grupy": [{"nazwa": z, "etykieta": z.replace("_", " "), "k": r["k"],
                         "werdykt": r["werdykt_klastr"] if r["k"] >= 3 else "nierozstrzygalne"}
                        for z, r in kr["nachylenie_zjawiska"].items()],
              "kolumna_werdyktu_klastrowego": "verdict paradigms",
-             "generator": {"modul": "benchmarks/blimp/checkpoints_report.py", "funkcja": "pliki",
-                           "wejscie": KRZYWA, "komenda": "python benchmarks/blimp/checkpoints.py raport"}}]
+             "generator": {"modul": f"{BENCHMARKI}/blimp/checkpoints_report.py", "funkcja": "pliki",
+                           "wejscie": KRZYWA, "komenda": f"python {BENCHMARKI}/blimp/checkpoints.py raport"}}]
 
 
 def raporty_blimp(bl):
@@ -450,7 +451,7 @@ def raporty_blimp(bl):
     an = bl.get("analiza")
     if not an:
         return []
-    return [{"plik": "benchmarks/blimp/results/BLIMP.md", "test": "blimp", "wieloparadygmatowy": True,
+    return [{"plik": f"{BENCHMARKI}/blimp/results/BLIMP.md", "test": "blimp", "wieloparadygmatowy": True,
              "k_paradygmatow": an["generalizacja"]["k"],
              "porownanie_klastrowe": "slayer_vs_pythia/blimp_klastrowane/acc",
              "holm": {g: r["holm"] for g, r in an["paradygmaty_dodatkowe"].items()},
@@ -460,19 +461,19 @@ def raporty_blimp(bl):
              # verdict next to it is a claim about the pairs, valid at any k
              "kolumna_werdyktu_klastrowego": "verdict paradigms",
              # the report must equal, byte for byte, what this generator writes from LICZBY.json + blimp.json
-             "generator": {"modul": "benchmarks/blimp/blimp_raport.py", "funkcja": "pliki",
-                           "wejscie": BLIMP, "komenda": "python benchmarks/blimp/blimp.py raport"},
+             "generator": {"modul": f"{BENCHMARKI}/blimp/blimp_raport.py", "funkcja": "pliki",
+                           "wejscie": BLIMP, "komenda": f"python {BENCHMARKI}/blimp/blimp.py raport"},
              "tokenizery": bl.get("tokenizery_sha256", {}),
              "porownanie_na_token": "slayer_vs_pythia/blimp_na_token/acc"}]
 
 
 def raporty_piqa(korzen):
-    """PIQA.md for gate (g): the report must equal what benchmarks/piqa/piqa.py renders from piqa.json."""
+    """PIQA.md for gate (g): the report must equal what studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/piqa.py renders from piqa.json."""
     if not (korzen / PIQA).exists():
         return []
-    return [{"plik": "benchmarks/piqa/results/PIQA.md", "test": "piqa", "wieloparadygmatowy": False, "grupy": [],
-             "generator": {"modul": "benchmarks/piqa/piqa.py", "funkcja": "pliki", "wejscie": PIQA,
-                           "komenda": "python benchmarks/piqa/piqa.py report"}}]
+    return [{"plik": f"{BENCHMARKI}/piqa/results/PIQA.md", "test": "piqa", "wieloparadygmatowy": False, "grupy": [],
+             "generator": {"modul": f"{BENCHMARKI}/piqa/piqa.py", "funkcja": "pliki", "wejscie": PIQA,
+                           "komenda": f"python {BENCHMARKI}/piqa/piqa.py report"}}]
 
 
 def raporty_badan(korzen):

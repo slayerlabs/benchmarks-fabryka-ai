@@ -1,4 +1,4 @@
-"""PAWS-X (en) T48 (common/zadania.py, benchmarks/paws-en/ORIGINAL.md), no network and no weights.
+"""PAWS-X (en) T48 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/paws-en/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the prompt of lm-eval `paws_en` @ 6d2abda4: empty context and two whole-sentence
 continuations ` {sentence1}, right? No, {sentence2}` and ` {sentence1}, right? Yes, {sentence2}` (gold = `label`,

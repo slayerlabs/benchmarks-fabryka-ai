@@ -1,4 +1,4 @@
-"""KLEJ NKJP-NER T29 (common/zadania.py, benchmarks/klej-ner/ORIGINAL.md), no network and no weights.
+"""KLEJ NKJP-NER T29 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/klej-ner/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, RECIPE.md and the README type row; the prompt, the six choices and the
 label -> index map of the copied fork YAML (`klej_ner_mc.yaml`, read as text: no pyyaml in CI light) as the card
@@ -20,7 +20,7 @@ import wpis_benchmarku as W  # noqa: E402
 import metryki as M  # noqa: E402  (common/ is on sys.path after wpis_benchmarku)
 
 Z = W.Z
-YAML = W.KORZEN / "benchmarks" / "klej-ner" / "lm_eval_tasks" / "polish_klej_ner" / "klej_ner_mc.yaml"
+YAML = W.ZK.STUDIUM / "benchmarks" / "klej-ner" / "lm_eval_tasks" / "polish_klej_ner" / "klej_ner_mc.yaml"
 TEKST_YAML = YAML.read_text(encoding="utf-8")
 
 

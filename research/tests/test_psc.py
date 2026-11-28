@@ -1,4 +1,4 @@
-"""PSC T27 (common/zadania.py, benchmarks/psc/ORIGINAL.md), no network and no weights.
+"""PSC T27 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/psc/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the 5-shot prompt of the copied OpenPL YAML `psc_mc.yaml` (5 bank demonstrations,
 then the question; continuations ` Nie`, ` Tak`, gold = `label|int`, 1 = Tak), the decision metric: corpus binary F1

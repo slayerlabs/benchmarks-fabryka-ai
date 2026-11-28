@@ -116,12 +116,14 @@ def plan(models, n, cost):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--gpus", type=int, required=True)
-    ap.add_argument("--repo", required=True, help="research/ directory: timing files are results/**/czasy.jsonl and "
-                                                  "results/central-run/times_*.jsonl")
+    ap.add_argument("--repo", required=True, help="research/ directory: timing files are "
+                                                  "studies/2026-10-lm-eval-benchmarks/results/**/czasy.jsonl and "
+                                                  "studies/2026-10-lm-eval-benchmarks/results/central-run/times_*.jsonl")
     ap.add_argument("--czasy", default="", help="czasy.jsonl of this instance (finished pairs of this run)")
     a = ap.parse_args()
-    paths = sorted(glob.glob(os.path.join(a.repo, "results", "**", "czasy.jsonl"), recursive=True))
-    paths += sorted(glob.glob(os.path.join(a.repo, "results", "central-run", "times_*.jsonl")))
+    wyniki = os.path.join(a.repo, "studies", "2026-10-lm-eval-benchmarks", "results")
+    paths = sorted(glob.glob(os.path.join(wyniki, "**", "czasy.jsonl"), recursive=True))
+    paths += sorted(glob.glob(os.path.join(wyniki, "central-run", "times_*.jsonl")))
     if a.czasy:
         paths.append(a.czasy)
     cost, unknown = estimator(read_times(paths))

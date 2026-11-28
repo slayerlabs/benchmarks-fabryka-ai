@@ -86,19 +86,20 @@ necessarily a completed, reproducible integration: the status of each log-likeli
 | Science and long context | GPQA Diamond, SciCode, AA-Omniscience, AA-LCR, RULER 128K |
 | Coding, tool use, and agentic tasks | LiveCodeBench v6, LiveCodeBench Pro 25Q2, BFCL V4, AutomationBench |
 
-Log-likelihood benchmarks live in [`research/benchmarks/<name>/`](../research/benchmarks/) with their card, recipe,
-any benchmark-specific code, and, where done, a reproduction report. Benchmarks run through a model API or our own
-serving live in [`research/api-benchmarks/<name>/`](../research/api-benchmarks/), as
-[`research/METHODOLOGY.md`](../research/METHODOLOGY.md) describes.
+Log-likelihood benchmarks of the November 2026 full run live in [`research/studies/2026-10-lm-eval-benchmarks/benchmarks/<name>/`](../research/studies/2026-10-lm-eval-benchmarks/benchmarks/)
+with their card, recipe, any benchmark-specific code, and, where done, a reproduction report. A new log-likelihood
+benchmark goes into the runner's catalog ([`docs/contributing.md`](docs/contributing.md#5-writing-an-integration),
+section 5); every other new benchmark lives in [`research/benchmarks/<name>/`](../research/benchmarks/), as
+its [guide](../research/benchmarks/README.md) describes.
 
 ## Methodology and reproducibility
 
 - [`docs/methodology.md`](docs/methodology.md): how every model is configured for a run, for every benchmark.
-- [`research/METODOLOGIA.md`](../research/METODOLOGIA.md): the frozen protocol of the November 2026 lm-eval full
-  run behind `research/benchmarks/`: reproduction against references, test types, baselines, standard errors and
+- [`METODOLOGIA.md`](../research/studies/2026-10-lm-eval-benchmarks/METODOLOGIA.md): the frozen protocol of the November 2026 lm-eval full
+  run behind `research/studies/2026-10-lm-eval-benchmarks/`: reproduction against references, test types, baselines, standard errors and
   verdicts. Written in Polish; the runner ports it ([`docs/running.md`](docs/running.md)).
-- [`research/METHODOLOGY.md`](../research/METHODOLOGY.md): how a benchmark run through a model API is documented:
-  sources, settings, machine-readable results, per-question outputs, deviations, and when it counts as done.
+- [`research/benchmarks/README.md`](../research/benchmarks/README.md): how a new benchmark is added and
+  documented: steps, sources, settings, machine-readable results, per-question outputs, deviations, and when it is done.
 - [`research/common/README.md`](../research/common/README.md): the machine-readable results format, with schema
   version, protocol and run identifiers, per-observation states for non-success outcomes, confidence intervals, and
   artifact hashes. Written in Polish.
@@ -132,7 +133,7 @@ IFEval rows use different setups, and Slayer's IFEval score is mostly degenerate
 
 Sources:
 
-- [Full run, November 2026](../research/results/full-run-2026-11/README.md): 15 benchmarks on full test sets for
+- [Full run, November 2026](../research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/README.md): 15 benchmarks on full test sets for
   8 open reference models and 9 development checkpoints of one 1B model under development, with standard errors,
   statistical verdicts, and the settings of every run. Report written in Polish; an interactive view of the same
   results is on [Hugging Face](https://huggingface.co/spaces/SlayerLab/Slayer1B-Benchmarks).
@@ -160,8 +161,8 @@ python -m pip install pytest numpy==2.0.2 scipy==1.13.1
 python -m pytest -q tests/test_statystyka.py
 ```
 
-Running full evaluations needs model weights and the pinned environment described in
-[`research/README.md`](../research/README.md) (written in Polish).
+Running full evaluations of the frozen study needs model weights and the pinned environment described in
+[its README](../research/studies/2026-10-lm-eval-benchmarks/README.md#przygotowanie-raz) (written in Polish).
 
 **Develop the `codesota` Python package** in `benchmarks/`. It is the home of new shared tooling. Today it
 runs the benchmarks of its catalog on a model (`python -m codesota.runner`, see [`docs/running.md`](docs/running.md)
@@ -193,7 +194,7 @@ benchmarks/
 
 Contributions from researchers and developers are welcome. Work on the `codesota` package needs no access to
 private infrastructure; running full evaluations on rented machines or the project's model API is coordinated with
-the maintainers ([`research/METHODOLOGY.md`](../research/METHODOLOGY.md)).
+the maintainers ([`CONTRIBUTING.md`](../CONTRIBUTING.md#contact)).
 
 - [`docs/methodology.md`](docs/methodology.md): how every model is configured for a run: precision, decoding,
   repeats, output limit, standard errors, and what `null` and "not run" mean.

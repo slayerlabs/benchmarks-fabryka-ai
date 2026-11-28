@@ -1,11 +1,12 @@
-"""Czyste funkcje EWoK-PL (benchmarks/ewok-pl/ewok.py), bez wag i bez danych. Uruchom: python tests/test_ewok_pl.py (albo pytest)."""
+"""Czyste funkcje EWoK-PL (studies/2026-10-lm-eval-benchmarks/benchmarks/ewok-pl/ewok.py), bez wag i bez danych. Uruchom: python tests/test_ewok_pl.py (albo pytest)."""
 import importlib.util
 import sys
 from pathlib import Path
 
-# own module name: tests/test_ewok.py imports benchmarks/ewok/ewok.py as `ewok`, and a pytest run keeps one `ewok`
+# own module name: tests/test_ewok.py imports studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/ewok.py as `ewok`, and a pytest run keeps one `ewok`
 _SPEC = importlib.util.spec_from_file_location(
-    "ewok_pl", Path(__file__).resolve().parent.parent / "benchmarks" / "ewok-pl" / "ewok.py")
+    "ewok_pl", Path(__file__).resolve().parent.parent / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks" / "ewok-pl"
+    / "ewok.py")
 E = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(E)
 

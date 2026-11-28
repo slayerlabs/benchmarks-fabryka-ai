@@ -1,4 +1,4 @@
-"""SQuAD 2.0 T38 (common/zadania.py, benchmarks/squad2/ORIGINAL.md), no network and no weights.
+"""SQuAD 2.0 T38 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/squad2/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, RECIPE.md and the README type row (`ciagla +proc`, percent, b and control on the
 HasAns subset); the prompt of the legacy class as the card writes it; the official normalisation and token F1 of

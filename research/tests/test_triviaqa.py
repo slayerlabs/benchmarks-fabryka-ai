@@ -1,4 +1,4 @@
-"""TriviaQA T43 (common/zadania.py, benchmarks/triviaqa/ORIGINAL.md), no network and no weights.
+"""TriviaQA T43 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/triviaqa/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, RECIPE.md and the README type row (`gen +klastry`, clusters `question_id`);
 the prompt (the template adds `?`, so a question ending in `?` gets `??`) and the decision scoring as the card writes

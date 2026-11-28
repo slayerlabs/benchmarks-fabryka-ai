@@ -12,7 +12,7 @@ import math
 import re
 from pathlib import Path
 
-BENCH = Path(__file__).resolve().parents[1] / "api-benchmarks" / "toolsandbox"
+BENCH = Path(__file__).resolve().parents[1] / "benchmarks" / "toolsandbox"
 RES = BENCH / "results"
 MODEL = "bielik-11b-v3.1"
 SUFFIXES = ["_3_distraction_tools_arg_description_scrambled", "_3_distraction_tools_arg_type_scrambled",

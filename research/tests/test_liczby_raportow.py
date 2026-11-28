@@ -113,7 +113,7 @@ def test_multiblimp_nie_jest_blimp():
 
 def test_blimp_md_liczby_sprawdzane():
     liczby, zb = dane()
-    plik = "benchmarks/blimp/results/BLIMP.md"
+    plik = "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/BLIMP.md"
     linie = (KORZEN / plik).read_text(encoding="utf-8").splitlines()
     assert S.sprawdz_tekst(plik, linie, liczby, zb) == []
     i = next(i for i, l in enumerate(linie) if l.startswith("**Slayer 1.06:"))
@@ -126,7 +126,8 @@ def test_blimp_md_liczby_sprawdzane():
 def _meta_blimp():
     import copy
     liczby, _ = dane()
-    (meta,) = [m for m in liczby["raporty"] if m["plik"] == "benchmarks/blimp/results/BLIMP.md"]
+    (meta,) = [m for m in liczby["raporty"]
+               if m["plik"] == "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/BLIMP.md"]
     linie = (KORZEN / meta["plik"]).read_text(encoding="utf-8").splitlines()
     return liczby, copy.deepcopy(meta), linie
 
@@ -135,10 +136,10 @@ def test_bramki_przechodza_na_raporcie_blimp():
     liczby, meta, linie = _meta_blimp()
     assert S.bramki_raportu(meta, linie, liczby) == []
     # older reports have no metadata; CHECKPOINTS.md (BLiMP over checkpoints) has, when checkpoints.json exists
-    assert [m["plik"] for m in liczby["raporty"]][0] == "benchmarks/blimp/results/BLIMP.md"
-    assert set(m["plik"] for m in liczby["raporty"]) <= {"benchmarks/blimp/results/BLIMP.md",
-                                                         "benchmarks/blimp/results/CHECKPOINTS.md",
-                                                         "benchmarks/piqa/results/PIQA.md",
+    assert [m["plik"] for m in liczby["raporty"]][0] == "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/BLIMP.md"
+    assert set(m["plik"] for m in liczby["raporty"]) <= {"studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/BLIMP.md",
+                                                         "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/CHECKPOINTS.md",
+                                                         "studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/results/PIQA.md",
                                                          "slayer-1b/rozmowy-1.08/PAPER.md"}
 
 
@@ -213,8 +214,9 @@ def test_bramka_e_tylko_kolumna_klastrowa():
 
 def _kopia_do_generatora(tmp_path):
     import shutil
-    for rel in ("benchmarks/blimp/blimp_raport.py", "benchmarks/blimp/results/blimp.json", "benchmarks/blimp/results/BLIMP.md",
-                "benchmarks/blimp/results/blimp_phenomena.svg", "benchmarks/blimp/results/blimp_paradigms.svg"):
+    b = "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/"
+    for rel in (b + "blimp_raport.py", b + "results/blimp.json", b + "results/BLIMP.md",
+                b + "results/blimp_phenomena.svg", b + "results/blimp_paradigms.svg"):
         (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(KORZEN / rel, tmp_path / rel)
     return tmp_path
@@ -225,7 +227,7 @@ def test_bramka_g_raport_bajt_w_bajt_z_generatora(tmp_path):
     assert S.bramka_generatora(meta, liczby) == []  # the committed report is the generator output
     k = _kopia_do_generatora(tmp_path)
     assert S.bramka_generatora(meta, liczby, k) == []
-    md = k / "benchmarks/blimp/results/BLIMP.md"
+    md = k / "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/BLIMP.md"
     tekst = md.read_text(encoding="utf-8")
     # a verdict word, a number nobody else checks, a removed sentence, one trailing space
     for stare, nowe in (("t = -3.30, df = 66", "t = -3.30, df = 65"), (": certain;", ": probable;"),
@@ -234,11 +236,13 @@ def test_bramka_g_raport_bajt_w_bajt_z_generatora(tmp_path):
         assert stare in tekst, stare
         md.write_text(tekst.replace(stare, nowe, 1), encoding="utf-8")
         b = S.bramka_generatora(meta, liczby, k)
-        assert len(b) == 1 and "(g)" in b[0][2] and b[0][0] == "benchmarks/blimp/results/BLIMP.md" and b[0][1] > 0, (stare, b)
+        assert len(b) == 1 and "(g)" in b[0][2] and b[0][1] > 0, (stare, b)
+        assert b[0][0] == "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/BLIMP.md", (stare, b)
     md.write_text(tekst, encoding="utf-8")
-    svg = k / "benchmarks/blimp/results/blimp_paradigms.svg"
+    svg = k / "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/blimp_paradigms.svg"
     svg.write_text(svg.read_text(encoding="utf-8").replace("#2a78d6", "#2a78d7", 1), encoding="utf-8")
-    assert [b[0] for b in S.bramka_generatora(meta, liczby, k)] == ["benchmarks/blimp/results/blimp_paradigms.svg"]
+    assert [b[0] for b in S.bramka_generatora(meta, liczby, k)] == [
+        "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/blimp_paradigms.svg"]
     svg.unlink()
     assert any("brak pliku" in b[2] for b in S.bramka_generatora(meta, liczby, k))
 
@@ -266,7 +270,7 @@ def test_dokumenty_repo_zgodne_z_liczbami():
 
 def test_zepsuta_liczba_w_kopii_dokumentu_zlapana():
     # zdanie z usuniętego slayer-1b/lab/DLA_ARKA_I_CHETNYCH.md (3efaa82): Belebele, Slayer 1.06 wobec Pythii, po treści
-    plik = "analyses/answer-format/x.md"
+    plik = "studies/2026-10-answer-format/x.md"
     tekst = "| 7 | Polski vs Pythia-1B | Belebele po treści 0,330 vs 0,297 | 1,5 SE | w granicach szumu |"
     assert not [p for _, _, p in bledy(tekst, plik) if "0,330" in p]
     zepsuty = tekst.replace("Belebele po treści 0,330 vs 0,297", "Belebele po treści 0,345 vs 0,297")
@@ -276,23 +280,26 @@ def test_zepsuta_liczba_w_kopii_dokumentu_zlapana():
 
 def test_liczby_benchmarku_sprawdzane_w_jego_plikach_i_nie_wyciekaja():
     # Bielik PL EWoK = 66,0%; tabela EWoK pisze wartości w % bez znaku „%”
-    assert not bledy("| Bielik-1.5B-v3 | 66,0 [63,4; 68,5] |", "benchmarks/ewok-pl/WYNIKI.md")
-    assert [p for _, _, p in bledy("| Bielik-1.5B-v3 | 66,3 [63,4; 68,5] |", "benchmarks/ewok-pl/WYNIKI.md") if "66,3" in p]
+    assert not bledy("| Bielik-1.5B-v3 | 66,0 [63,4; 68,5] |", "studies/2026-10-lm-eval-benchmarks/benchmarks/ewok-pl/WYNIKI.md")
+    assert [p for _, _, p in bledy("| Bielik-1.5B-v3 | 66,3 [63,4; 68,5] |",
+                                   "studies/2026-10-lm-eval-benchmarks/benchmarks/ewok-pl/WYNIKI.md") if "66,3" in p]
     assert not bledy("Bielik ma na EWoK 66,0%.")
     assert [p for _, _, p in bledy("Bielik ma 63,4%.") if "63,4" in p]
 
 
 def test_wlasne_z_benchmarku_sprawdzane_w_jego_plikach():
     # results/wsc273.json: Slayer 1.06 na panelu 200 wobec bazy losowej, z = 3,03
-    assert not bledy("| panel 200 | losowa | z = 3,03 | pewne |", "benchmarks/wsc273/README.md")
-    assert [p for _, _, p in bledy("| panel 200 | losowa | z = 3,77 | pewne |", "benchmarks/wsc273/README.md") if "3,77" in p]
+    assert not bledy("| panel 200 | losowa | z = 3,03 | pewne |", "studies/2026-10-lm-eval-benchmarks/benchmarks/wsc273/README.md")
+    assert [p for _, _, p in bledy("| panel 200 | losowa | z = 3,77 | pewne |",
+                                   "studies/2026-10-lm-eval-benchmarks/benchmarks/wsc273/README.md") if "3,77" in p]
 
 
 def test_number_format_by_path_prefix():
-    assert S.file_number_format("benchmarks/blimp/results/BLIMP.md") == (True, "blimp")  # generated English report
-    assert S.file_number_format("benchmarks/blimp/README.md") == (False, "blimp")       # Polish docs, BLiMP numbers
-    assert S.file_number_format("benchmarks/wikitext-2/RECIPE.md") == (False, None)
-    assert S.file_number_format("benchmarks/ewok-pl/README.md") == (False, None)
+    b = "studies/2026-10-lm-eval-benchmarks/benchmarks/"
+    assert S.file_number_format(b + "blimp/results/BLIMP.md") == (True, "blimp")  # generated English report
+    assert S.file_number_format(b + "blimp/README.md") == (False, "blimp")       # Polish docs, BLiMP numbers
+    assert S.file_number_format(b + "wikitext-2/RECIPE.md") == (False, None)
+    assert S.file_number_format(b + "ewok-pl/README.md") == (False, None)
 
 
 def test_english_assessment_needs_se_or_verdict():
@@ -317,7 +324,7 @@ def test_within_paradigms_gives_exit_code_1(tmp_path):
 
 
 def test_wikitext_files_use_pool_and_global_values():
-    plik = "benchmarks/wikitext-2/README.md"
+    plik = "studies/2026-10-lm-eval-benchmarks/benchmarks/wikitext-2/README.md"
     assert not bledy("Byte perplexity Slayera 1.06: 1,846284.", plik)        # global (porownanie/wikitext)
     assert not bledy("Bajty oryginału: 1290527 (stosunek 1,0404).", plik)    # pool (mianownik.json)
     assert [p for _, _, p in bledy("Byte perplexity Slayera 1.06: 1,846290.", plik) if "1,846290" in p]
@@ -456,9 +463,9 @@ def test_z_bez_rownania_jak_w_piqa():
 def test_generator_gate_reports_forward_slashes_when_str_gives_backslashes(tmp_path):
     liczby, meta, _ = _meta_blimp()
     k = _kopia_do_generatora(tmp_path)
-    (k / "benchmarks/blimp/results/blimp_paradigms.svg").unlink()
+    (k / "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/blimp_paradigms.svg").unlink()
     b = S.bramka_generatora(meta, liczby, _WindowsLikeRoot(k))
-    assert [x[0] for x in b] == ["benchmarks/blimp/results/blimp_paradigms.svg"], b
+    assert [x[0] for x in b] == ["studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/blimp_paradigms.svg"], b
 
 
 # ---- (i)-(k): werdykt przy t (p z rozkładu t przy df), dwa poziomy z jednym werdyktem, liczba Holma ----
@@ -576,7 +583,8 @@ def test_doklejka_p_i_rozklad_t():
 def test_podmiany_w_plikach_repo_zlapane():
     # dwie podmiany, które w pierwszej wersji reguły przechodziły (druga weryfikacja PR)
     liczby, zb = dane()
-    for plik, stare, nowe in (("benchmarks/blimp/results/BLIMP.md", "distribution: certain", "distribution: probable"),
+    for plik, stare, nowe in (("studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/BLIMP.md",
+                               "distribution: certain", "distribution: probable"),
                               ("slayer-1b/wygaszanie/README.md", "(df = 13, szum), więc", "(df = 13, pewne), więc")):
         linie = (KORZEN / plik).read_text(encoding="utf-8").splitlines()
         assert any(stare in l for l in linie), (plik, stare)
@@ -647,7 +655,7 @@ def test_rozroznialny_bez_probek_jest_ostrozny(tmp_path):
     stare_m = Wp.M
     Wp.M = [("slayer1b-1.06", "Slayer 1B")] + stare_m[1:]
     try:
-        centralny = KORZEN / "results/central-run"
+        centralny = KORZEN / "studies/2026-10-lm-eval-benchmarks/results/central-run"
         assert Wp.klastry_blimp(centralny, "blimp", "slayer1b-1.06")  # liczy na próbkach, nie na ich braku
         assert [Wp.rozroznialny(centralny, "blimp", i) for i in range(1, len(Wp.M))] == [False] * 4  # szum po paradygmatach
     finally:
@@ -727,17 +735,18 @@ def _podmiana_w_raporcie(sciezka, stare, nowe):
     return przed, po
 
 
+_B = "studies/2026-10-lm-eval-benchmarks/benchmarks/"
 _PODMIANY_L = [
     # kolumna „test” zamiast z/t (WSC273), flaga po Holmie w rodzinie sześciu wierszy z z i t
-    ("benchmarks/wsc273/README.md", "| z = 3,03 | pewne | tak (prawdopodobne) |", "| z = 3,03 | pewne | tak (pewne) |"),
+    (_B + "wsc273/README.md", "| z = 3,03 | pewne | tak (prawdopodobne) |", "| z = 3,03 | pewne | tak (pewne) |"),
     # „werdykt po Holmie” obok kolumny „p Holma”
-    ("benchmarks/blimp/README.md", "| 0,0475 | szum |", "| 0,0475 | prawdopodobne |"),
+    (_B + "blimp/README.md", "| 0,0475 | szum |", "| 0,0475 | prawdopodobne |"),
     # df = 66 dwa akapity nad tabelą (nad nią stoi „Conclusion for the table”)
-    ("benchmarks/blimp/results/CHECKPOINTS.md", "| t = -3.30 | 0.0016 | certain |", "| t = -3.30 | 0.0016 | probable |"),
-    ("benchmarks/blimp/results/CHECKPOINTS.md", "| t = 3.07 | 0.0031 | probable |", "| t = 3.07 | 0.0031 | certain |"),
+    (_B + "blimp/results/CHECKPOINTS.md", "| t = -3.30 | 0.0016 | certain |", "| t = -3.30 | 0.0016 | probable |"),
+    (_B + "blimp/results/CHECKPOINTS.md", "| t = 3.07 | 0.0031 | probable |", "| t = 3.07 | 0.0031 | certain |"),
     # kolumny „Holm vs v0” i „Holm”: „yes”, którego nie daje nawet Holm na wierszach tabeli
-    ("benchmarks/blimp/results/BLIMP.md", "| -0.5 pts | z = -0.42 | noise | no | no |", "| -0.5 pts | z = -0.42 | noise | yes | no |"),
-    ("benchmarks/blimp/results/CHECKPOINTS.md", "| z = -1.39 | noise | no | t = -5.00 |", "| z = -1.39 | noise | yes | t = -5.00 |"),
+    (_B + "blimp/results/BLIMP.md", "| -0.5 pts | z = -0.42 | noise | no | no |", "| -0.5 pts | z = -0.42 | noise | yes | no |"),
+    (_B + "blimp/results/CHECKPOINTS.md", "| z = -1.39 | noise | no | t = -5.00 |", "| z = -1.39 | noise | yes | t = -5.00 |"),
 ]
 
 

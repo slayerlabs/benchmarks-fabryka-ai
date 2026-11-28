@@ -3,7 +3,8 @@ name: CodeSOTA CI
 #
 # It runs on every PR GitHub runs workflows for, so that the final `CodeSOTA CI` job reports and can later be required
 # without leaving unrelated PRs pending. The test jobs run only when the PR touches benchmarks/, the research code the
-# runner is compared with (research/common/, research/benchmarks/, research/tools/statystyka.py), this file, or the
+# runner is compared with (research/common/, research/studies/2026-10-lm-eval-benchmarks/benchmarks/,
+# research/tools/statystyka.py), this file, or the
 # change detector (.github/scripts/codesota_changes.py, which fails closed); otherwise they are skipped and
 # `CodeSOTA CI` reports success.
 #
@@ -19,10 +20,10 @@ on:
     paths:
       - "benchmarks/**"
       - "research/common/**"
-      - "research/benchmarks/**"
+      - "research/studies/2026-10-lm-eval-benchmarks/benchmarks/**"
       - "research/tools/statystyka.py"
-      - "research/results/full-run-2026-11/**"
-      - "research/api-benchmarks/**"
+      - "research/studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/**"
+      - "research/benchmarks/**"
       - ".github/workflows/codesota.yml"
       - ".github/scripts/codesota_changes.py"
 
@@ -116,7 +117,8 @@ jobs:
       # 3.12 only; the runner's default Python can be newer. 3.12 is the Python of the verification runs.
       UV_PYTHON: "3.12"
     steps:
-      # Full checkout: the tests compare the runner with research/common/ and research/benchmarks/.
+      # Full checkout: the tests compare the runner with research/common/ and
+      # research/studies/2026-10-lm-eval-benchmarks/benchmarks/.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false

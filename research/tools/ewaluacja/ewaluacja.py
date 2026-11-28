@@ -38,7 +38,7 @@ TU = Path(__file__).resolve().parent
 # W repo: research/tools/ewaluacja/ -> research/. Poza repo: klon w ./fabryka/.
 FABRYKA = TU.parents[1] if (TU.parents[1] / "tools" / "przebieg_centralny.sh").exists() else TU / "fabryka" / "research"
 SKRYPT_PRZEBIEGU = FABRYKA / "tools" / "przebieg_centralny.sh"
-ODNIESIENIE = FABRYKA / "results" / "central-run"
+ODNIESIENIE = FABRYKA / "studies" / "2026-10-lm-eval-benchmarks" / "results" / "central-run"
 OKNO_ROLLING = 4096
 
 # Modele spoza MODELE skryptu, z zapisanymi wynikami w results/central-run (1.06 zastąpiono tam przez 1.07).

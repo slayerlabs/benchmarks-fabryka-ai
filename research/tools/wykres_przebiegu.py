@@ -1,6 +1,6 @@
 """Central-run chart: one panel per benchmark, Slayer highlighted, best model per benchmark marked.
 
-Run: python tools/wykres_przebiegu.py results/central-run results/central-run/scores.png
+Run: python tools/wykres_przebiegu.py studies/2026-10-lm-eval-benchmarks/results/central-run studies/2026-10-lm-eval-benchmarks/results/central-run/scores.png
 """
 import gzip
 import json

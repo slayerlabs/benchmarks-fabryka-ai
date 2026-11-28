@@ -1,4 +1,4 @@
-"""PoQuAD open book T31 (common/zadania.py, benchmarks/poquad/ORIGINAL.md), no network and no weights.
+"""PoQuAD open book T31 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/poquad/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, RECIPE.md and the README type row (`gen +klastry +pl`, clusters `context`); the
 prompt of the copied fork YAML (`poquad_open_book.yaml`) as the card writes it; `utils.doc_to_target` (first gold
@@ -20,7 +20,7 @@ import metryki as M  # noqa: E402
 
 Z = W.Z
 U =W.modul_forka("poquad/lm_eval_tasks/polish_poquad/utils.py")
-YAML = W.KORZEN / "benchmarks" / "poquad" / "lm_eval_tasks" / "polish_poquad" / "poquad_open_book.yaml"
+YAML = W.ZK.STUDIUM / "benchmarks" / "poquad" / "lm_eval_tasks" / "polish_poquad" / "poquad_open_book.yaml"
 PROMPT = ("Tytuł: {{title}} \\n Kontekst: {{context}} \\n Pytanie: {{question}} \\n "
           "Prawidłowa odpowiedź (krótki cytat z Kontekstu):")  # as written in YAML/card
 

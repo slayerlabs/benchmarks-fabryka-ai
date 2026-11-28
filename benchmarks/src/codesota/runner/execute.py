@@ -22,7 +22,8 @@ from codesota.results import schema, source_id_digest
 from codesota.results.validate import get, known
 from codesota.runner import artifact, models, scoring, tasks
 
-CONTEXT_LIMIT = 4096  # research/METODOLOGIA.md: longer inputs are rejected, never truncated
+# research/studies/2026-10-lm-eval-benchmarks/METODOLOGIA.md: longer inputs are rejected, never truncated
+CONTEXT_LIMIT = 4096
 LM_EVAL_SEEDS = {"random_seed": 0, "numpy_random_seed": 1234, "torch_random_seed": 1234, "fewshot_random_seed": 1234}
 STATE_OF = {
     "ContextTooLong": "unsupported",

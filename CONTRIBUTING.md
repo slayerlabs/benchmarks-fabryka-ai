@@ -1,8 +1,19 @@
 # Contributing
 
-How the Benchmark Team works: contact, tasks, the board, and review. How to write and open a pull request is in
-[`benchmarks/docs/contributing.md`](benchmarks/docs/contributing.md); how to configure a model for a run is in
-[`benchmarks/docs/methodology.md`](benchmarks/docs/methodology.md).
+How the Benchmark Team works: contact, tasks, the board, and review.
+
+## First steps
+
+1. **Join**: write in #bench-team ([Contact](#contact) below).
+2. **Take a task** from the board ([Taking a task](#taking-a-task)).
+3. **Read the [evaluation methodology](benchmarks/docs/methodology.md)**: how every model is configured for a run.
+   It is the one methodology for new work.
+4. **Do the work where it belongs**: a new benchmark goes to `research/benchmarks/<name>/`, step by step in
+   [its guide](research/benchmarks/README.md); a log-likelihood benchmark goes into the CodeSOTA runner's
+   catalog ([`benchmarks/docs/contributing.md`](benchmarks/docs/contributing.md#5-writing-an-integration)); anything
+   else in `research/` goes where [the workspace map](research/README.md#where-things-go) says; each wave of work
+   (a study, finished or in progress) has its README in `research/studies/`.
+5. **Open a PR** ([Pull requests](#pull-requests)).
 
 <a name="kontakt"></a>
 
@@ -53,8 +64,11 @@ and lm-eval, so run these yourself in `research/`. Each must exit 0:
 ```
 
 The first line is the number gate: every number in a report must match the generated `results/LICZBY.json`. The
-environment is set up as in [`research/README.md`](research/README.md#przygotowanie-raz). Checks for `benchmarks/`
-are in [`benchmarks/docs/contributing.md`](benchmarks/docs/contributing.md#2-run-the-checks).
+number gate and `tests/test_liczby_raportow.py` use only Python's standard library: without the full environment, run
+them with `python3` instead of `.venv-eval/bin/python`. A benchmark's own test may need its own environment, named in its
+README. The full lm-eval environment of the frozen November 2026 study is set up as in
+[its README](research/studies/2026-10-lm-eval-benchmarks/README.md#przygotowanie-raz) (Polish). Checks for `benchmarks/` are in
+[`benchmarks/docs/contributing.md`](benchmarks/docs/contributing.md#2-run-the-checks).
 
 <a name="tablica"></a>
 
@@ -102,7 +116,8 @@ result:
 
 A benchmark task is short. Title: the benchmark name. Body: which models to run, a link to the reference with
 published scores and settings when there is one, links to the [Fabryka AI API](https://fabryka.ai/platform),
-[`research/METHODOLOGY.md`](research/METHODOLOGY.md) and the [evaluation methodology](benchmarks/docs/methodology.md),
+[`research/benchmarks/README.md`](research/benchmarks/README.md) and the
+[evaluation methodology](benchmarks/docs/methodology.md),
 a note that a machine is available on request, an empty result table with one row per model, and the review path.
 How to run the benchmark and what to deliver belongs to the methodology, not the task.
 

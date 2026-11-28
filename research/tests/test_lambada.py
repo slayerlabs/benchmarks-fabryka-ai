@@ -1,4 +1,4 @@
-"""LAMBADA T17 (common/zadania.py, benchmarks/lambada/ORIGINAL.md), no network and no weights.
+"""LAMBADA T17 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/lambada/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the requests of lm-eval `lambada_openai` (context = text up to the last space,
 target = one space + the last piece after it, also when that piece carries a quote or a line break, card "Znane

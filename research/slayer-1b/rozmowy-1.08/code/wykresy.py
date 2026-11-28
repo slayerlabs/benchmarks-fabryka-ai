@@ -2,7 +2,7 @@
 
 python -I code/wykresy.py  -> charts/*.svg
 
-Styl jak główne wykresy zespołu (tools/ewaluacja/raport.py, results/full-run-2026-11/charts/): paleta GitHuba
+Styl jak główne wykresy zespołu (tools/ewaluacja/raport.py, studies/2026-10-lm-eval-benchmarks/results/full-run-2026-11/charts/): paleta GitHuba
 w zmiennych CSS z trybem ciemnym, Slayer wyróżniony kolorem --sl i grubszą kreską, modele odniesienia w --ref.
 Bielik i LFM mają ten sam kolor, więc różnią się kształtem i wypełnieniem znacznika (kwadrat pełny, romb pusty).
 Każdy znacznik ma <title> z wartością, każdy wykres legendę z nazwą modelu. Przedziały: średnia ± 1,96 SE.

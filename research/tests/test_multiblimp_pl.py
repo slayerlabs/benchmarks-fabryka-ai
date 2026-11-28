@@ -1,4 +1,4 @@
-"""MultiBLiMP PL T04 (common/zadania.py, benchmarks/multiblimp-pl/ORIGINAL.md), no network and no weights.
+"""MultiBLiMP PL T04 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/multiblimp-pl/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the requests (empty context, space + whole sentence), the pick on a tie and the
 metric in percent on a stand-in model. Data: the first rows of common/tests/data/multiblimp_pl.jsonl.

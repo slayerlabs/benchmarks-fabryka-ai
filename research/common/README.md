@@ -73,9 +73,9 @@ najczęstszej predykcji.
 
 | T | zadanie | warianty | uwagi |
 |---|---|---|---|
-| T01 | BLiMP (EN) | `space` (para minimalna, pusty kontekst, `" " + zdanie`, suma logprob); pełny zbiór 67 000 par przez `hipoteza_formatu.py licz --zadania blimp`, statystyki i panel Space w `blimp.py`, porównanie z oficjalnym forwardem w `kontrola_forward.py` (komendy: `results/BLIMP.md`, sekcja „How to reproduce”) | `benchmarks/blimp/` (README, karta, przepis; pełny raport `results/BLIMP.md`) |
+| T01 | BLiMP (EN) | `space` (para minimalna, pusty kontekst, `" " + zdanie`, suma logprob); pełny zbiór 67 000 par przez `hipoteza_formatu.py licz --zadania blimp`, statystyki i panel Space w `blimp.py`, porównanie z oficjalnym forwardem w `kontrola_forward.py` (komendy: `results/BLIMP.md`, sekcja „How to reproduce”) | `studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/` (README, karta, przepis; pełny raport `results/BLIMP.md`) |
 | **T02** | **ARC-Challenge** | `space` (cloze, główna acc_norm) + `mc` (litery A–D) | **trace per pytanie** + tryb po checkpointach |
-| T03 | WikiText-2 | `space` (rolling) | word/byte/token perplexity + bits per byte, pełny strumień; mianownik z oryginału jak w lm-eval: `benchmarks/wikitext-2/` |
+| T03 | WikiText-2 | `space` (rolling) | word/byte/token perplexity + bits per byte, pełny strumień; mianownik z oryginału jak w lm-eval: `studies/2026-10-lm-eval-benchmarks/benchmarks/wikitext-2/` |
 | T04 | MultiBLiMP-PL | `space` (para minimalna, spacja przed zdaniem, suma logprob) | PMI pominięte (pusty kontekst) |
 | T44 | PubMedQA | `space` (yes/no/maybe) | zbiór przez konwersję parquet |
 | T45 | MedMCQA | `space` (litery) + `cloze` (treść odpowiedzi) | |
@@ -105,18 +105,18 @@ i liczbę wiodących BOS w próbnej parze loglik, w prompcie generacji i przy pu
 `AutoConfig.from_pretrained` kończy się `ValueError: Unrecognized model`, sprawdzone na 1.06 z
 transformers 4.57.6). Nakładka `SlayerLM` (`--model slayer`) ładuje go przez `slayer_model.py` i liczy
 `loglikelihood`, `loglikelihood_rolling` oraz `generate_until` tym samym kodem co `hf`, z jednym BOS przed każdym
-zapytaniem jak w Space. Komenda: [`../README.md`](../README.md#uruchomienie), przepis: [`RECIPE.md`](RECIPE.md). Po `slayer_lm.py --install`
+zapytaniem jak w Space. Komenda: [`../studies/2026-10-lm-eval-benchmarks/README.md`](../studies/2026-10-lm-eval-benchmarks/README.md#uruchomienie), przepis: [`RECIPE.md`](RECIPE.md). Po `slayer_lm.py --install`
 model `slayer` rejestruje się tylko pod komendą `lm_eval`, nie pod `python -m lm_eval`. `ewaluuj.py --model slayer
---model_path <katalog wag>` używa tej samej nakładki. Wyniki w `analyses/answer-format/results/raport_formatu.json` dalej liczy
+--model_path <katalog wag>` używa tej samej nakładki. Wyniki w `studies/2026-10-answer-format/results/raport_formatu.json` dalej liczy
 `hipoteza_formatu.py` (ten sam forward):
 
 ```bash
 huggingface-cli download SlayerLab/Slayer1B-1.06 --revision ef81be58742544ad32e1afab38db011fec209609 \
   --local-dir models/slayer-1.06
 .venv-eval/bin/python common/hipoteza_formatu.py licz --model models/slayer-1.06 \
-  --zadania arc_c_cloze,arc_c_mc --wyjscie analyses/answer-format/results/1.06 --device cpu
-.venv-eval/bin/python common/hipoteza_formatu.py wikitext --model models/slayer-1.06 --wyjscie analyses/answer-format/results/1.06
-.venv-eval/bin/python analyses/answer-format/analiza_formatu.py --wyniki analyses/answer-format/results
+  --zadania arc_c_cloze,arc_c_mc --wyjscie studies/2026-10-answer-format/results/1.06 --device cpu
+.venv-eval/bin/python common/hipoteza_formatu.py wikitext --model models/slayer-1.06 --wyjscie studies/2026-10-answer-format/results/1.06
+.venv-eval/bin/python studies/2026-10-answer-format/analiza_formatu.py --wyniki studies/2026-10-answer-format/results
 ```
 
 Pełna lista zadań i komenda dla Pythii: [`slayer-1b/paczka_testerzy/INSTRUKCJA.md`](https://github.com/slayerlabs/benchmarks-fabryka-ai/blob/3efaa822eabaf4c13cd193c2ccf6f779e3c98e07/research/slayer-1b/paczka_testerzy/INSTRUKCJA.md) (wersja z `3efaa82`, przed usunięciem paczki 1.06), sekcja „Jak wygenerować
@@ -142,7 +142,7 @@ Wyjście: `results.json` (schemat Space, tylko pola schematu, kontaminacja `unsc
 ## Różnice wobec Space i rzeczy niezweryfikowane
 
 - lm-eval **0.4.9.1 z PyPI**, nie commit `6d2abda4`; która wersja obowiązuje i co porównać:
-  [`../METODOLOGIA.md`](../METODOLOGIA.md), sekcja „Wersja lm-eval”. Prompty
+  [`../studies/2026-10-lm-eval-benchmarks/METODOLOGIA.md`](../studies/2026-10-lm-eval-benchmarks/METODOLOGIA.md), sekcja „Wersja lm-eval”. Prompty
   zadań są przepisane 1:1 z definicji lm-eval, ale zgodności logitów z runnerem Space nie sprawdziliśmy.
 - `source_id` w haszu próbki: używamy pola `id` zbioru (ARC, MedMCQA), a gdzie go brak, indeksu wiersza.
   Definicji z Space nie znamy, więc panel200 może nie być identyczny z panelem Space; porównania

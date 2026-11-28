@@ -2,7 +2,7 @@
 
 Leaderboard pokazuje wiele modeli na wielu testach i jedną ocenę na model w każdym języku (meta-ocenę). Pliku zestawu
 i kodu rankingu jeszcze nie ma; ten dokument mówi, co muszą spełniać, zanim powstanie pierwszy ranking. Typ testu, b,
-SE i werdykt definiuje [METODOLOGIA.md](../METODOLOGIA.md) (rdzeń i tabela typów).
+SE i werdykt definiuje [METODOLOGIA.md](../studies/2026-10-lm-eval-benchmarks/METODOLOGIA.md) (rdzeń i tabela typów).
 
 ## Co wchodzi
 

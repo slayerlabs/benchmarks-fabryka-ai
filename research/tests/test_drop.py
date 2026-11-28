@@ -1,4 +1,4 @@
-"""DROP T39 (common/zadania.py, benchmarks/drop/ORIGINAL.md), no network and no weights.
+"""DROP T39 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/drop/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, the 0-shot prompt of lm-eval `drop` (`{passage} {question}`, nothing else), the
 gold answers built by `utils.process_docs` (number, else spans, else date), the decision metric `f1` (DROP bag F1 after

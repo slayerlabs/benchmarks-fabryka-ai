@@ -1,4 +1,4 @@
-"""Czyste funkcje EWoK (benchmarks/ewok/ewok.py), bez sieci i bez wag.
+"""Czyste funkcje EWoK (studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/ewok.py), bez sieci i bez wag.
 
 Próbka `common/tests/data/ewok.jsonl` to 10 rekordów w formacie ewok-core-1.0 z wymyślonymi zdaniami (nie z EWoK,
 TERMS_OF_USE) i log P jednego modelu. Uruchom: python tests/test_ewok.py (albo pytest).
@@ -11,7 +11,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "benchmarks" / "ewok"))
+sys.path.insert(0, str(ROOT / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks" / "ewok"))
 import ewok as E  # noqa: E402
 
 SAMPLE = [json.loads(line) for line in (ROOT / "common" / "tests" / "data" / "ewok.jsonl").read_text(encoding="utf-8").splitlines()]
@@ -262,12 +262,13 @@ def test_przebieg_dtype_goes_to_the_model_and_into_the_result():
 
 
 def test_wpis_przebiegu_zgodny_z_karta():
-    """ZADANIA T53 against benchmarks/ewok/ORIGINAL.md and this code (own code: the run calls ewok.py przebieg)."""
+    """ZADANIA T53 against studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/ORIGINAL.md and this code (own code: the run calls ewok.py przebieg)."""
     sys.path.insert(0, str(ROOT / "common"))
     import zadania as Z
     meta = Z.ZADANIA["T53"]
-    karta = (ROOT / "benchmarks" / "ewok" / "ORIGINAL.md").read_text(encoding="utf-8")
-    assert meta["kod"] == "benchmarks/ewok/ewok.py" and meta["metric"] == E.METRICS[0] == "ewok"
+    karta = (ROOT / "studies" / "2026-10-lm-eval-benchmarks" / "benchmarks" / "ewok" / "ORIGINAL.md").read_text(encoding="utf-8")
+    assert meta["kod"] == "studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/ewok.py"
+    assert meta["metric"] == E.METRICS[0] == "ewok"
     assert (meta["repo"], meta["rewizja"]) == (E.DATASET_REPO, E.DATASET_REV)
     assert f"`{E.DATASET_REPO}`" in karta and E.DATASET_REV in karta and "split: `test`" in karta
     assert "| Metryka decyzyjna | trafność LOGPROBS" in karta and "0-shot" in karta

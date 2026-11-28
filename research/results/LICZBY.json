@@ -1,46 +1,46 @@
 {
  "zrodla": [
-  "analyses/answer-format/results/raport_formatu.json",
+  "studies/2026-10-answer-format/results/raport_formatu.json",
   "slayer-1b/wygaszanie/wyniki/porownanie.json",
   "slayer-1b/wygaszanie/wyniki/heldout_1.03.json",
   "slayer-1b/wygaszanie/wyniki/heldout_1.06.json",
   "slayer-1b/wygaszanie/wyniki/heldout_13800.json",
   "slayer-1b/wygaszanie/wyniki/heldout_A.json",
   "slayer-1b/wygaszanie/wyniki/heldout_B.json",
-  "benchmarks/arc-easy/results/snr_baselines.json",
-  "benchmarks/blimp/results/blimp.json",
-  "benchmarks/blimp/results/checkpoints.json",
-  "benchmarks/blimp/results/kontrola_forward.json",
-  "benchmarks/blimp/results/lm_eval_agreement.json",
-  "benchmarks/ewok/results/ewok.json",
-  "benchmarks/ewok/results/ewok_plain.json",
-  "benchmarks/ewok/results/gpt2xl_comparison.json",
-  "benchmarks/ewok-pl/results/raport_ewok.json",
-  "benchmarks/ewok-pl/results/raport_ewok_bos.json",
-  "benchmarks/hellaswag/results/hellaswag.json",
-  "benchmarks/ifeval/results/ifeval.json",
-  "benchmarks/logiqa/results/logiqa.json",
-  "benchmarks/math/results/baselines_snr.json",
-  "benchmarks/mathqa/results/mathqa.json",
-  "benchmarks/piqa/results/piqa.json",
-  "benchmarks/pubmedqa/results/pubmedqa.json",
-  "benchmarks/social-iqa/results/social_iqa.json",
-  "benchmarks/wikitext-2/results/bajty.json",
-  "benchmarks/wikitext-2/results/mianownik.json",
-  "benchmarks/winogrande/results/winogrande.json",
-  "benchmarks/wsc273/results/wsc273.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/arc-easy/results/snr_baselines.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/blimp.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/checkpoints.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/kontrola_forward.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/lm_eval_agreement.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/results/ewok.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/results/ewok_plain.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/results/gpt2xl_comparison.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/ewok-pl/results/raport_ewok.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/ewok-pl/results/raport_ewok_bos.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/hellaswag/results/hellaswag.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/ifeval/results/ifeval.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/logiqa/results/logiqa.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/math/results/baselines_snr.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/mathqa/results/mathqa.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/results/piqa.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/pubmedqa/results/pubmedqa.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/social-iqa/results/social_iqa.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/wikitext-2/results/bajty.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/wikitext-2/results/mianownik.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/winogrande/results/winogrande.json",
+  "studies/2026-10-lm-eval-benchmarks/benchmarks/wsc273/results/wsc273.json",
   "slayer-1b/rozmowy-1.08/wyniki/LICZBY.json"
  ],
  "benchmarki": {
   "arc-easy": {
    "zrodla": [
-    "benchmarks/arc-easy/results/snr_baselines.json"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/arc-easy/results/snr_baselines.json"
    ],
    "aliasy": [
     "arc-easy"
    ],
    "pliki": [
-    "benchmarks/arc-easy/"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/arc-easy/"
    ],
    "skala": 1,
    "with_global": false,
@@ -322,16 +322,16 @@
   },
   "blimp": {
    "zrodla": [
-    "benchmarks/blimp/results/blimp.json",
-    "benchmarks/blimp/results/checkpoints.json",
-    "benchmarks/blimp/results/kontrola_forward.json",
-    "benchmarks/blimp/results/lm_eval_agreement.json"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/blimp.json",
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/checkpoints.json",
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/kontrola_forward.json",
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/lm_eval_agreement.json"
    ],
    "aliasy": [
     "BLiMP"
    ],
    "pliki": [
-    "benchmarks/blimp/"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/"
    ],
    "skala": 1,
    "with_global": false,
@@ -3167,15 +3167,15 @@
   },
   "ewok": {
    "zrodla": [
-    "benchmarks/ewok/results/ewok.json",
-    "benchmarks/ewok/results/ewok_plain.json",
-    "benchmarks/ewok/results/gpt2xl_comparison.json"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/results/ewok.json",
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/results/ewok_plain.json",
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/results/gpt2xl_comparison.json"
    ],
    "aliasy": [
     "EWoK EN"
    ],
    "pliki": [
-    "benchmarks/ewok/"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/ewok/"
    ],
    "skala": 100,
    "with_global": false,
@@ -4371,14 +4371,14 @@
   },
   "ewok-pl": {
    "zrodla": [
-    "benchmarks/ewok-pl/results/raport_ewok.json",
-    "benchmarks/ewok-pl/results/raport_ewok_bos.json"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/ewok-pl/results/raport_ewok.json",
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/ewok-pl/results/raport_ewok_bos.json"
    ],
    "aliasy": [
     "EWoK"
    ],
    "pliki": [
-    "benchmarks/ewok-pl/"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/ewok-pl/"
    ],
    "skala": 100,
    "with_global": false,
@@ -6191,14 +6191,14 @@
   },
   "hellaswag": {
    "zrodla": [
-    "benchmarks/hellaswag/results/hellaswag.json"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/hellaswag/results/hellaswag.json"
    ],
    "aliasy": [
     "HellaSwag",
     "hellaswag"
    ],
    "pliki": [
-    "benchmarks/hellaswag/"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/hellaswag/"
    ],
    "skala": 1,
    "with_global": true,
@@ -6265,13 +6265,13 @@
   },
   "ifeval": {
    "zrodla": [
-    "benchmarks/ifeval/results/ifeval.json"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/ifeval/results/ifeval.json"
    ],
    "aliasy": [
     "ifeval"
    ],
    "pliki": [
-    "benchmarks/ifeval/"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/ifeval/"
    ],
    "skala": 1,
    "with_global": false,
@@ -6335,13 +6335,13 @@
   },
   "logiqa": {
    "zrodla": [
-    "benchmarks/logiqa/results/logiqa.json"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/logiqa/results/logiqa.json"
    ],
    "aliasy": [
     "logiqa"
    ],
    "pliki": [
-    "benchmarks/logiqa/"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/logiqa/"
    ],
    "skala": 1,
    "with_global": false,
@@ -6382,13 +6382,13 @@
   },
   "math": {
    "zrodla": [
-    "benchmarks/math/results/baselines_snr.json"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/math/results/baselines_snr.json"
    ],
    "aliasy": [
     "hendrycks_math"
    ],
    "pliki": [
-    "benchmarks/math/"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/math/"
    ],
    "skala": 1,
    "with_global": false,
@@ -6520,13 +6520,13 @@
   },
   "mathqa": {
    "zrodla": [
-    "benchmarks/mathqa/results/mathqa.json"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/mathqa/results/mathqa.json"
    ],
    "aliasy": [
     "mathqa"
    ],
    "pliki": [
-    "benchmarks/mathqa/"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/mathqa/"
    ],
    "skala": 1,
    "with_global": false,
@@ -6628,13 +6628,13 @@
   },
   "piqa": {
    "zrodla": [
-    "benchmarks/piqa/results/piqa.json"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/results/piqa.json"
    ],
    "aliasy": [
     "piqa"
    ],
    "pliki": [
-    "benchmarks/piqa/"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/"
    ],
    "skala": 1,
    "with_global": false,
@@ -6812,13 +6812,13 @@
   },
   "pubmedqa": {
    "zrodla": [
-    "benchmarks/pubmedqa/results/pubmedqa.json"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/pubmedqa/results/pubmedqa.json"
    ],
    "aliasy": [
     "pubmedqa"
    ],
    "pliki": [
-    "benchmarks/pubmedqa/"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/pubmedqa/"
    ],
    "skala": 1,
    "with_global": false,
@@ -7008,13 +7008,13 @@
   },
   "social-iqa": {
    "zrodla": [
-    "benchmarks/social-iqa/results/social_iqa.json"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/social-iqa/results/social_iqa.json"
    ],
    "aliasy": [
     "social-iqa"
    ],
    "pliki": [
-    "benchmarks/social-iqa/"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/social-iqa/"
    ],
    "skala": 1,
    "with_global": false,
@@ -7072,14 +7072,14 @@
   },
   "wikitext-2": {
    "zrodla": [
-    "benchmarks/wikitext-2/results/bajty.json",
-    "benchmarks/wikitext-2/results/mianownik.json"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/wikitext-2/results/bajty.json",
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/wikitext-2/results/mianownik.json"
    ],
    "aliasy": [
     "WikiText"
    ],
    "pliki": [
-    "benchmarks/wikitext-2/"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/wikitext-2/"
    ],
    "skala": 100,
    "with_global": true,
@@ -7126,13 +7126,13 @@
   },
   "winogrande": {
    "zrodla": [
-    "benchmarks/winogrande/results/winogrande.json"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/winogrande/results/winogrande.json"
    ],
    "aliasy": [
     "winogrande"
    ],
    "pliki": [
-    "benchmarks/winogrande/"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/winogrande/"
    ],
    "skala": 1,
    "with_global": false,
@@ -7247,13 +7247,13 @@
   },
   "wsc273": {
    "zrodla": [
-    "benchmarks/wsc273/results/wsc273.json"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/wsc273/results/wsc273.json"
    ],
    "aliasy": [
     "WSC273"
    ],
    "pliki": [
-    "benchmarks/wsc273/"
+    "studies/2026-10-lm-eval-benchmarks/benchmarks/wsc273/"
    ],
    "skala": 1,
    "with_global": false,
@@ -15035,7 +15035,7 @@
  },
  "raporty": [
   {
-   "plik": "benchmarks/blimp/results/BLIMP.md",
+   "plik": "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/BLIMP.md",
    "test": "blimp",
    "wieloparadygmatowy": true,
    "k_paradygmatow": 67,
@@ -15185,10 +15185,10 @@
    ],
    "kolumna_werdyktu_klastrowego": "verdict paradigms",
    "generator": {
-    "modul": "benchmarks/blimp/blimp_raport.py",
+    "modul": "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/blimp_raport.py",
     "funkcja": "pliki",
-    "wejscie": "benchmarks/blimp/results/blimp.json",
-    "komenda": "python benchmarks/blimp/blimp.py raport"
+    "wejscie": "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/blimp.json",
+    "komenda": "python studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/blimp.py raport"
    },
    "tokenizery": {
     "1.06": "0640d3bd3674d7a6e59c540d945a2ad275a12e1bcaeb6007c37a90751f9815dd",
@@ -15198,7 +15198,7 @@
    "porownanie_na_token": "slayer_vs_pythia/blimp_na_token/acc"
   },
   {
-   "plik": "benchmarks/blimp/results/CHECKPOINTS.md",
+   "plik": "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/CHECKPOINTS.md",
    "test": "blimp",
    "wieloparadygmatowy": true,
    "k_paradygmatow": 0,
@@ -15280,22 +15280,22 @@
    ],
    "kolumna_werdyktu_klastrowego": "verdict paradigms",
    "generator": {
-    "modul": "benchmarks/blimp/checkpoints_report.py",
+    "modul": "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/checkpoints_report.py",
     "funkcja": "pliki",
-    "wejscie": "benchmarks/blimp/results/checkpoints.json",
-    "komenda": "python benchmarks/blimp/checkpoints.py raport"
+    "wejscie": "studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/results/checkpoints.json",
+    "komenda": "python studies/2026-10-lm-eval-benchmarks/benchmarks/blimp/checkpoints.py raport"
    }
   },
   {
-   "plik": "benchmarks/piqa/results/PIQA.md",
+   "plik": "studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/results/PIQA.md",
    "test": "piqa",
    "wieloparadygmatowy": false,
    "grupy": [],
    "generator": {
-    "modul": "benchmarks/piqa/piqa.py",
+    "modul": "studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/piqa.py",
     "funkcja": "pliki",
-    "wejscie": "benchmarks/piqa/results/piqa.json",
-    "komenda": "python benchmarks/piqa/piqa.py report"
+    "wejscie": "studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/results/piqa.json",
+    "komenda": "python studies/2026-10-lm-eval-benchmarks/benchmarks/piqa/piqa.py report"
    }
   },
   {

@@ -1,4 +1,4 @@
-"""WikiText-2 T03 (common/zadania.py, benchmarks/wikitext-2/ORIGINAL.md), no network and no weights.
+"""WikiText-2 T03 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/wikitext-2/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card, and the central-run path (`common/ewaluuj.ocen_zadanie`) on a stand-in model:
 the rolling request is the detokenized page, the denominators come from the ORIGINAL page (card "Ocena"), and

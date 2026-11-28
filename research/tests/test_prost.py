@@ -1,4 +1,4 @@
-"""PROST T20 (common/zadania.py, benchmarks/prost/ORIGINAL.md), no network and no weights.
+"""PROST T20 (common/zadania.py, studies/2026-10-lm-eval-benchmarks/benchmarks/prost/ORIGINAL.md), no network and no weights.
 
 The ZADANIA entry against the card (dataset revision and the parquet revision), the lm-eval `prost` prompt
 `{context}\nQuestion: {ex_question}\nAnswer:` with continuations = space + the text of fields A, B, C, D (gold =

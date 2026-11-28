@@ -40,7 +40,7 @@ def wiersz_readme(katalog):
     """(task id, type, groups) of the README table "Benchmarki i typy" row of `benchmarks/<katalog>`."""
     wzor = re.compile(rf"^\| \[`{re.escape(katalog)}`\]\(benchmarks/{re.escape(katalog)}/README\.md\) \| (T\d\d) \| "
                       r"`([^`]+)` \|([^|]*)\|", re.M)
-    trafienia = wzor.findall((KORZEN / "README.md").read_text(encoding="utf-8"))
+    trafienia = wzor.findall((ZK.STUDIUM / "README.md").read_text(encoding="utf-8"))
     assert len(trafienia) == 1, f"README: {len(trafienia)} rows for {katalog}"
     return trafienia[0][0], trafienia[0][1], trafienia[0][2].strip()
 
@@ -55,7 +55,7 @@ def sprawdz_wpis(task_id, oczekiwane, shoty, typ):
     assert {k: meta.get(k) for k in oczekiwane} == oczekiwane
     assert ZK.shoty(meta) == shoty
     assert ZK.rozbieznosci(meta, karta) == {}
-    recipe = (KORZEN / "benchmarks" / katalog / "RECIPE.md").read_text(encoding="utf-8")
+    recipe = (ZK.STUDIUM / "benchmarks" / katalog / "RECIPE.md").read_text(encoding="utf-8")
     assert f"`{meta['repo']}@{meta['rewizja']}" in recipe and f"--zadania {task_id} " in recipe
     tid, typ_readme, _ = wiersz_readme(katalog)
     assert (tid, typ_readme) == (task_id, typ)
@@ -83,7 +83,7 @@ def modul_forka(sciezka_wzgledna):
             sys.modules[nazwa] = modul
             if nazwa == "sklearn":  # `import sklearn.metrics` needs the submodule too
                 modul.metrics = sys.modules["sklearn.metrics"] = types.ModuleType("sklearn.metrics")
-    plik = KORZEN / "benchmarks" / sciezka_wzgledna
+    plik = ZK.STUDIUM / "benchmarks" / sciezka_wzgledna
     spec = importlib.util.spec_from_file_location(f"forka_{plik.parent.name}_{plik.stem}", plik)
     modul = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(modul)

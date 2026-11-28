@@ -1,6 +1,6 @@
 """common/zadania.py ZADANIA against the benchmark card, for every task the central run counts.
 
-The card (`benchmarks/<dir>/ORIGINAL.md`, `DATASET.md` or `POLISH.md`, dir from KATALOGI in
+The card (`studies/2026-10-lm-eval-benchmarks/benchmarks/<dir>/ORIGINAL.md`, `DATASET.md` or `POLISH.md`, dir from KATALOGI in
 tools/przebieg_centralny.sh) is the source of the test's settings; the ZADANIA entry must name the same dataset repo,
 full revision, split, decision metric, shot count and lm-eval task or YAML. An entry without a card is skipped
 ("brak karty"), never passed. Run: python tests/test_zgodnosc_karty.py (or pytest -rs).
@@ -12,6 +12,7 @@ from pathlib import Path
 import pytest
 
 KORZEN = Path(__file__).resolve().parent.parent
+STUDIUM = KORZEN / "studies" / "2026-10-lm-eval-benchmarks"
 sys.path.insert(0, str(KORZEN / "common"))
 import zadania as Z  # noqa: E402
 
@@ -34,7 +35,7 @@ KATALOGI = katalogi()
 
 def karta(task_id):
     for nazwa in KARTY:
-        p = KORZEN / "benchmarks" / KATALOGI[task_id] / nazwa
+        p = STUDIUM / "benchmarks" / KATALOGI[task_id] / nazwa
         if p.exists():
             return p
     return None
