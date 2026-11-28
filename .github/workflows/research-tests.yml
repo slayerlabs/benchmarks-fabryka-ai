@@ -73,6 +73,7 @@ jobs:
           tests/test_statystyka.py
           tests/test_straznik_i_kontrola.py
           tests/test_terminal_bench_2_1.py
+          tests/test_toolsandbox_results.py
           tests/test_triviaqa.py
           tests/test_truthfulqa.py
           tests/test_wic.py
