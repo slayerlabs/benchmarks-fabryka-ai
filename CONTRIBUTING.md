@@ -23,7 +23,7 @@ are stuck.
 
 ## Taking a task
 
-Pick a task from the Ready column of the [board](https://github.com/orgs/slayerlabs/projects/10) or one labelled
+Pick a task from the Up for grabs column of the [board](https://github.com/orgs/slayerlabs/projects/10) or one labelled
 [`good first issue`](https://github.com/slayerlabs/benchmarks-fabryka-ai/issues?q=is%3Aopen+label%3A%22good+first+issue%22),
 assign yourself (Assignees → Assign yourself) and move it to In Progress. One task at a time. Which benchmarks come
 first: [research priorities](benchmarks/docs/research-priorities.md).
@@ -63,15 +63,14 @@ are in [`benchmarks/docs/contributing.md`](benchmarks/docs/contributing.md#2-run
 The board is at https://github.com/orgs/slayerlabs/projects/10. A task moves through these Status columns:
 
 1. **Backlog**: waiting, not to be taken yet.
-2. **Ready**: can be taken.
+2. **Up for grabs**: can be taken.
 3. **In Progress**: someone is doing it. You move it here yourself when you assign yourself.
-4. **Review**: first check.
-5. **Independent Check**: second, independent check.
-6. **Done**: finished. Done closes the issue.
+4. **Review**: someone checks the PR.
+5. **Done**: finished. Done closes the issue.
 
-When a task moves from In Progress to Review or Independent Check,
-[`board-unassign.yml`](.github/workflows/board-unassign.yml) removes its assignees within a few minutes. In Review
-and Independent Check a task can be taken only as a review; a reviewer who assigns themselves stays assigned.
+When a task moves from In Progress to Review, [`board-unassign.yml`](.github/workflows/board-unassign.yml) removes
+its assignees within a few minutes. In Review a task can be taken only as a review; a reviewer who assigns themselves
+stays assigned.
 
 Task fields:
 
@@ -88,16 +87,16 @@ result:
   and the change touches no number, for example a link or typo fix.
 - **review** (default): In Progress → Review → Done. One person checks the PR and reruns at least one result from
   its recipe or `run.sh --limit 5`.
-- **review and recheck** (label `needs-recheck`): In Progress → Review → Independent Check → Done. A second person
-  computes the result from scratch, on other hardware. For a result that goes to the results page or into a
-  training decision.
+- **review and recheck** (label `needs-recheck`): In Progress → Review → Done. While the task is in Review, one person
+  checks the PR and a second person computes the result from scratch, on other hardware. For a result that goes to the
+  results page or into a training decision.
 
 ## Labels
 
 - `good first issue`: a task for a first contribution.
 - `research`: a benchmark, measurement or analysis.
 - `dev`: shared code, tools or CI.
-- `needs-recheck`: the result needs the independent check above.
+- `needs-recheck`: the result needs the recheck above.
 
 ## How we write tasks
 

@@ -11,7 +11,7 @@ reference models with the same protocol, and publish every score with its standa
 
 1. **Join.** Write in **#bench-team** on [Discord](https://discord.gg/HnTkVR4c5T) with your GitHub login
    ([`CONTRIBUTING.md`](CONTRIBUTING.md)).
-2. **Pick a task** from the Ready column of the [board](https://github.com/orgs/slayerlabs/projects/10). The
+2. **Pick a task** from the Up for grabs column of the [board](https://github.com/orgs/slayerlabs/projects/10). The
    benchmarks to work on first are in [research priorities](benchmarks/docs/research-priorities.md).
 3. **Read the methodology** before you run anything: [`benchmarks/docs/methodology.md`](benchmarks/docs/methodology.md)
    says how a model is configured (precision, decoding, repeats, output limit, standard errors, `null` and "not run").
