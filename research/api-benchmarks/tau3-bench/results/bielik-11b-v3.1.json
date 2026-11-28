@@ -1,0 +1,124 @@
+{
+  "benchmark": "tau3-bench",
+  "model": "bielik-11b-v3.1",
+  "metric": "mean of the 4 domain pass rates (airline, retail, telecom, banking_knowledge), 1 trial, percent",
+  "score": 20.81,
+  "stderr": 2.22,
+  "n": 370,
+  "date": "2026-11-24",
+  "harness": "https://github.com/sierra-research/tau2-bench @ fc0055dc4e0a316c3f83133267fbd6faaa770992 (tag v1.0.1, the tau3-bench release line)",
+  "data": "bundled with the harness at the same commit: airline 50, retail 114, telecom 114 (split base), banking_knowledge 97",
+  "settings": {
+    "agent": "openai/bielik-11b-v3.1 through the Fabryka AI API, temperature 0.6, top_p 0.95, 2 requests at a time",
+    "user_simulator": "anthropic/claude-haiku-5-5, litellm, LLM args {} (Claude 5.5 rejects temperature)",
+    "nl_judge": "openai/bielik-11b-v3.1, temperature 0.0 (harness default: gpt-4.1-2025-04-14)",
+    "retrieval_banking_knowledge": "bm25",
+    "max_steps": 200,
+    "max_errors": 10,
+    "seed": 300,
+    "stderr_method": "sqrt(sum of the 4 domain SE^2) / 4, domain SE = sqrt(p (1 - p) / n)"
+  },
+  "other_metrics": {
+    "per_domain": {
+      "airline": {
+        "score": 40.0,
+        "stderr": 6.93,
+        "n": 50,
+        "passed": 20,
+        "tasks": 50,
+        "unassessed": 0
+      },
+      "retail": {
+        "score": 22.73,
+        "stderr": 4.0,
+        "n": 110,
+        "passed": 25,
+        "tasks": 114,
+        "unassessed": 4
+      },
+      "telecom": {
+        "score": 19.47,
+        "stderr": 3.72,
+        "n": 113,
+        "passed": 22,
+        "tasks": 114,
+        "unassessed": 1
+      },
+      "banking_knowledge": {
+        "score": 1.03,
+        "stderr": 1.03,
+        "n": 97,
+        "passed": 1,
+        "tasks": 97,
+        "unassessed": 0
+      }
+    },
+    "tasks": 375,
+    "unassessed": 5,
+    "unassessed_by_error": {
+      "judge_json": 4,
+      "empty_message": 1
+    },
+    "unassessed_as_0": 20.56,
+    "unassessed_as_1": 21.66,
+    "retried_tasks": 74,
+    "retried_by_first_attempt_error": {
+      "judge_json": 12,
+      "503": 62
+    },
+    "retried_with_reward": 69,
+    "agent_language": {
+      "simulations": 375,
+      "with_polish_agent_message": 52,
+      "agent_messages": 4973,
+      "agent_messages_polish": 701,
+      "n_polish_assessed": 52,
+      "pass_rate_polish": 0.15384615384615385,
+      "n_other_assessed": 318,
+      "pass_rate_other": 0.18867924528301888
+    },
+    "cost_usd": {
+      "haiku_simulator_full_run": {
+        "calls": 6757,
+        "prompt_tokens": 34166644,
+        "completion_tokens": 1251091,
+        "cost_usd": 4.04
+      },
+      "haiku_simulator_retry": {
+        "calls": 3014,
+        "prompt_tokens": 23671264,
+        "completion_tokens": 520694,
+        "cost_usd": 2.63
+      },
+      "sonnet_simulator_3_domains_and_aborted_banking_start": {
+        "calls": 5345,
+        "prompt_tokens": 31505041,
+        "completion_tokens": 631686,
+        "cost_usd": 69.33
+      },
+      "prices_usd_per_mtok_in_out": {
+        "claude-haiku-5-5": [
+          0.1,
+          0.5
+        ],
+        "claude-sonnet-5-5": [
+          2.0,
+          10.0
+        ]
+      }
+    },
+    "empty_completions_all_runs_in_out": {
+      "repeated_empty_completions": {
+        "bielik-11b-v3.1": 432,
+        "claude-haiku-5-5": 2,
+        "claude-sonnet-5-5": 5
+      },
+      "episodes": {
+        "bielik-11b-v3.1": 88,
+        "claude-haiku-5-5": 2,
+        "claude-sonnet-5-5": 1
+      }
+    }
+  },
+  "deviations": "simulator Claude Haiku 5.5 instead of gpt-4.1-2025-04-14; NL-assertion judge Bielik 11B v3.1 instead of gpt-4.1-2025-04-14; hidden Polish provider system prompt of the Fabryka API (#277); tasks that ended without a reward were run once more (74 tasks); see README.md"
+}

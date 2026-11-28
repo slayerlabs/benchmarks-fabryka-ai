@@ -1,0 +1,14 @@
+{
+  "benchmark": "tau3-bench",
+  "model": "slayer1b-1.09-k70000",
+  "metric": "mean of the 4 domain pass rates (airline, retail, telecom, banking_knowledge), 1 trial, percent",
+  "score": null,
+  "stderr": null,
+  "n": null,
+  "date": "2026-11-23",
+  "harness": "sierra-research/tau2-bench @ fc0055dc4e0a316c3f83133267fbd6faaa770992 (tag v1.0.1, the tau3-bench release line)",
+  "data": "bundled with the harness at the same commit",
+  "settings": {"agent": "none: no request could be sent"},
+  "other_metrics": {"reason": "Slayer 1B is a base model without a chat template or a tool-calling format, and it is not served by the Fabryka AI API: /v1/models lists no Slayer and a request for slayer1b returns HTTP 400 'Input should be a published model ID', with and without tools (checked 2026-11-23), so no tool call can be made. The benchmark is not cut down to fit."},
+  "deviations": "none (not run: no agent can be served, see other_metrics.reason)"
+}
